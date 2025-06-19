@@ -1,0 +1,206 @@
+from django.db import models
+from django.utils import timezone
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.utils.translation import gettext_lazy as _
+from django.core.validators import MinLengthValidator
+from django.utils import timezone
+
+
+class UsuarioManager(BaseUserManager):
+    def create_user(self, email, nome, password=None, **extra_fields):
+        if not email:
+            raise ValueError('O email é obrigatório')
+        email = self.normalize_email(email)
+        user = self.model(email=email, nome=nome, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, nome, password=None, **extra_fields):
+        if not password:
+            raise ValueError("Superuser deve ter uma senha definida.")
+
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+
+        return self.create_user(email, nome, password, **extra_fields)
+
+class Usuario(AbstractBaseUser, PermissionsMixin):
+    nome = models.CharField(_('Nome Completo'), max_length=100)
+    email = models.EmailField(_('E-mail'), unique=True)
+    senha = models.CharField(_('Senha'), max_length=100)
+    is_active = models.BooleanField(_('Ativo'), default=True)
+    is_staff = models.BooleanField(_('Equipe'), default=False)
+    data_criacao = models.DateTimeField(_('Data de Criação'), auto_now_add=True)
+    data_atualizacao = models.DateTimeField(_('Data de Atualização'), auto_now=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['nome']
+
+    objects = UsuarioManager()
+
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        verbose_name = 'Usuário'
+        verbose_name_plural = 'Usuários'
+        db_table = 'usuarios'
+
+class CentroDeFormacao(models.Model):
+    nome = models.CharField(_('Nome do Centro'), max_length=100)
+    nif = models.CharField(_('CNPJ'), max_length=18, unique=True)
+    endereco = models.CharField(_('Endereço'), max_length=255)
+    telefone = models.CharField(_('Telefone'), max_length=20)
+    email = models.EmailField(_('E-mail'), unique=True)
+    site = models.URLField(_('Site'), blank=True, null=True)
+    data_criacao = models.DateTimeField(_('Data de Criação'), auto_now_add=True)
+    ativo = models.BooleanField(_('Ativo'), default=True)
+
+    def __str__(self):
+        return self.nome
+    
+class PerfilCentroDeFormacao(models.Model):
+    centro = models.OneToOneField(CentroDeFormacao, on_delete=models.CASCADE, related_name='perfil')
+    dono = models.CharField(max_length=100, null=True, blank=True, verbose_name='Dono do Centro')
+    imagem = models.ImageField(_('Imagem ou Logo'), upload_to='centros/', null=True, blank=True)
+    banner = models.ImageField(_('Imagem de Capa'), upload_to='centros/banners/', null=True, blank=True)
+    video_apresentacao = models.FileField(_('Vídeo de Apresentação'), upload_to='centros videos/', null=True, blank=True)
+    descricao = models.TextField(_('Descrição'), null=True, blank=True)
+    tipo = models.CharField(_('Tipo de Centro'), max_length=50, null=True, blank=True)
+    modalidade = models.CharField(_('Modalidade'), max_length=20, choices=[('Presencial', 'Presencial'), ('Online', 'Online'), ('Híbrido', 'Híbrido')], default='Presencial')
+    facebook = models.URLField(_('Facebook'), blank=True, null=True)
+    instagram = models.URLField(_('Instagram'), blank=True, null=True)
+    whatsapp = models.CharField(_('WhatsApp'), max_length=20, blank=True, null=True)
+    destaque = models.BooleanField(_('Centro em Destaque'), default=False)
+    slug = models.SlugField(unique=True, null=True, blank=True)
+
+    def __str__(self):
+        return f"Perfil de {self.centro.nome}"
+
+
+class Escola(models.Model):
+    TIPO_ESCOLA_CHOICES = [
+        ('PUBLICA', 'Pública'),
+        ('PARTICULAR', 'Particular'),
+        ('COMUNITARIA', 'Comunitária'),
+    ]
+    
+    nome = models.CharField(_('Nome da Escola'), max_length=100)
+    codigo_escola = models.CharField(_('Código INEP'), max_length=8, unique=True, blank=True, null=True)
+    tipo = models.CharField(_('Tipo de Escola'), max_length=20, choices=TIPO_ESCOLA_CHOICES)
+    endereco = models.CharField(_('Endereço'), max_length=255)
+    telefone = models.CharField(_('Telefone'), max_length=20)
+    email = models.EmailField(_('E-mail'), unique=True)
+    site = models.URLField(_('Site'), blank=True, null=True)
+    data_criacao = models.DateTimeField(_('Data de Criação'), auto_now_add=True)
+    ativo = models.BooleanField(_('Ativo'), default=True)
+
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        verbose_name = 'Escola'
+        verbose_name_plural = 'Escolas'
+        db_table = 'escolas'
+        ordering = ['nome']
+
+
+class Aluno(models.Model):
+    nome = models.CharField(_('Nome Completo'), max_length=100)
+    email = models.EmailField(_('E-mail'), unique=True)
+    senha = models.CharField(_('Senha'), max_length=128)
+    data_cadastro = models.DateTimeField(_('Data de Cadastro'), default=timezone.now)
+    ativo = models.BooleanField(_('Ativo'), default=True)
+    
+    def __str__(self):
+        return f"Aluno: {self.nome}"
+
+    class Meta:
+        verbose_name = 'Aluno'
+        verbose_name_plural = 'Alunos'
+        
+
+class PerfilAluno(models.Model):
+    aluno = models.OneToOneField('Aluno', on_delete=models.CASCADE, related_name='perfil')
+    imagem = models.ImageField(_('Imagem de Perfil'), upload_to='perfil_alunos/', null=True, blank=True)
+    biografia = models.TextField(_('Biografia'), blank=True)
+    telefone = models.CharField(_('Telefone'), max_length=20, blank=True, null=True)
+    linkedin = models.URLField(_('LinkedIn'), blank=True, null=True)
+    github = models.URLField(_('GitHub'), blank=True, null=True)
+    criado_em = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"Perfil de {self.aluno.nome}"
+
+    class Meta:
+        verbose_name = 'Perfil do Aluno'
+        verbose_name_plural = 'Perfis dos Alunos'
+        
+        
+class Comentario(models.Model):
+    aluno = models.ForeignKey('Aluno', on_delete=models.CASCADE, related_name='comentarios')
+    curso = models.ForeignKey('cursos_app.Curso', on_delete=models.CASCADE, related_name='comentarios')
+
+    comentario = models.TextField(_('Comentário'))
+    data_comentario = models.DateTimeField(_('Data de Comentário'), default=timezone.now)
+    avaliacao = models.IntegerField(_('Avaliação'), choices=[(i, i) for i in range(1, 6)], default=5)
+
+    def __str__(self):
+        return f"Comentário de {self.aluno.nome} no curso {self.curso.titulo}"
+
+    class Meta:
+        verbose_name = 'Comentário'
+        verbose_name_plural = 'Comentários'
+        ordering = ['-data_comentario']
+
+class Biblioteca(models.Model):
+    TIPO_BIBLIOTECA_CHOICES = [
+        ('PUBLICA', 'Pública'),
+        ('ESCOLAR', 'escolar'),
+        ('UNVERSITARIA', 'universitaria'),
+        ('ESPECIALIZADA', 'especializada'),
+        ('COMUNITARIA', 'comunitaria'),
+    ]
+    nome = models.CharField(_('Nome Completo'), max_length=100)
+    email = models.EmailField(_('E-mail'), unique=True)
+    senha = models.CharField(_('Senha'), max_length=100)
+    telefone = models.CharField(_('Telefone'), max_length=20, blank=True, null=True)
+    codigo_registro = models.CharField(_('Codigo de registro'), max_length=100, blank=True, null=True)
+    ativo = models.BooleanField(default=True)
+    tipo = models.CharField(_('Tipo de Biblioteca'), max_length=50, choices=TIPO_BIBLIOTECA_CHOICES)
+    
+    def __str__(self):
+        return f"Bibliotecário: {self.nome}"
+
+class Empresa(models.Model):
+    TIPO_RAMO_ATUACAO = [
+        ('TECNOLOGIA_INFORMACAO', 'tecnologia de informacao'),
+        ('NEGOCIO', 'negocio'),
+        ('LINGUAS', 'linguas'),
+        ('ESPECIALIZADA', 'especializada'),
+        ('CIENCIAS', 'ciencias'),
+        ('ARTES', 'artes'),
+        ('ENGENHARIA', 'engenharia'),
+        ('SAUDE', 'saude'),
+        ('OUTRO', 'outro'),
+    ]
+    nome = models.CharField(_('Nome Completo'), max_length=100)
+    email = models.EmailField(_('E-mail'), unique=True)
+    senha = models.CharField(_('Senha'), max_length=100)
+    telefone = models.CharField(_('Telefone'), max_length=20, blank=True, null=True)
+    experiencia_anos = models.IntegerField(_('Anos de Experiência'), default=0)
+    nif = models.CharField(_('NIF'), max_length=18, unique=True)
+    ramo_atuacao = models.CharField(_('Ramo de Atuação'), max_length=100, choices=TIPO_RAMO_ATUACAO)    
+    numero_funcionarios = models.IntegerField(_('Número de Funcionários'))
+    
+    def __str__(self):
+        return f"Empresa: {self.nome}"
+
+    class Meta:
+        verbose_name = 'Empresa'
+        verbose_name_plural = 'Empresas'
+        db_table = 'empresas'
+        
+        

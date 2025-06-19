@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #ffffff;
+            background-color: #333333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #000000;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #444;
+        }
+        .header h1 {
+            color: #ffffff;
+        }
+        .content {
+            padding: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #444;
+            font-size: 12px;
+            color: #aaaaaa;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #333333;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .highlight {
+            background-color: #444444;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Bem-vindo à {{ plataforma }}, {{ nome }}!</h1>
+            <p>Sua empresa de {{ ramo }} agora faz parte da nossa rede</p>
+        </div>
+        
+        <div class="content">
+            <p>Estamos honrados por sua empresa ter escolhido a EducAngola como parceira 
+            na formação de talentos e no desenvolvimento profissional em Angola.</p>
+            
+            <div class="highlight">
+                <h3>Vantagens para sua empresa:</h3>
+                <ul>
+                    <li>Acesso a talentos qualificados e pré-selecionados</li>
+                    <li>Divulgação de vagas para nossa comunidade de alunos</li>
+                    <li>Estatísticas e relatórios de candidatos</li>
+                    <li>Participação em feiras de emprego exclusivas</li>
+                    <li>Descontos em programas de formação corporativa</li>
+                </ul>
+            </div>
+            
+            <p>Como próximo passo, sugerimos:</p>
+            <ol>
+                <li>Completar o perfil da sua empresa em nossa plataforma</li>
+                <li>Explorar nosso banco de talentos</li>
+                <li>Publicar suas primeiras oportunidades</li>
+            </ol>
+            
+            <center>
+                <a href="https://www.educangola.com/empresas" class="btn">Acessar a plataforma</a>
+            </center>
+            
+            <p>Nossa equipe de parcerias empresariais está à disposição para ajudar:</p>
+            <p style="text-align: center;">
+                <strong>Email:</strong> geraleducangola<br>
+                <strong>Telefone:</strong> +244 923908353
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>© {% now "Y" %} Educangola. Todos os direitos reservados.</p>
+            <p>Juntos construímos o futuro profissional de Angola.</p>
+        </div>
+    </div>
+</body>
+</html>

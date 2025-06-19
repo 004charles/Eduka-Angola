@@ -1,0 +1,852 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EducAngola | Portal Escolar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-lighter: #93c5fd;
+            --white: #ffffff;
+            --light-gray: #f8fafc;
+            --gray: #e2e8f0;
+            --dark-gray: #94a3b8;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: var(--light-gray);
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* Efeitos de fundo circular */
+        .bg-circles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(37, 99, 235, 0.05);
+            pointer-events: none;
+        }
+
+        .circle-1 {
+            width: 600px;
+            height: 600px;
+            top: -200px;
+            left: -200px;
+        }
+
+        .circle-2 {
+            width: 400px;
+            height: 400px;
+            bottom: -100px;
+            right: -100px;
+        }
+
+        /* Painel de informações */
+        .info-panel {
+            flex: 1;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+            overflow-y: auto;
+        }
+
+        .info-content {
+            position: relative;
+            z-index: 2;
+            max-width: 550px;
+        }
+
+        .welcome-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            line-height: 1.2;
+            color: var(--primary);
+        }
+
+        .welcome-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 40px;
+            line-height: 1.7;
+        }
+
+        .features-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: var(--white);
+            padding: 24px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(37, 99, 235, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            color: var(--primary);
+            font-size: 20px;
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+
+        .feature-item:hover .feature-icon {
+            background: var(--primary);
+            color: var(--white);
+            transform: rotate(15deg) scale(1.1);
+        }
+
+        .feature-text h3 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .feature-text p {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .education-icons {
+            position: absolute;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .icon-book {
+            top: 15%;
+            right: 15%;
+            font-size: 100px;
+            color: var(--primary);
+        }
+
+        .icon-graduation {
+            bottom: 20%;
+            left: 10%;
+            font-size: 80px;
+            color: var(--primary);
+        }
+
+        /* Painel de acesso */
+        .access-panel {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+            position: relative;
+            overflow-y: auto;
+            z-index: 1;
+        }
+
+        .access-container {
+            max-width: 500px;
+            width: 100%;
+            background: var(--white);
+            padding: 50px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .access-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.05) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo img {
+            height: 60px;
+        }
+
+        .access-title {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .access-subtitle {
+            color: var(--text-light);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+
+        /* Abas */
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--gray);
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            cursor: pointer;
+            color: var(--text-light);
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .tab.active {
+            color: var(--primary);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Formulários */
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .input-field {
+            position: relative;
+        }
+
+        .input-field i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--dark-gray);
+            font-size: 18px;
+            transition: var(--transition);
+        }
+
+        .input-field input,
+        .input-field select {
+            width: 100%;
+            padding: 14px 16px 14px 46px;
+            border: 1px solid var(--gray);
+            border-radius: var(--radius-full);
+            font-size: 0.95rem;
+            background: var(--white);
+            transition: var(--transition);
+            color: var(--text-dark);
+        }
+
+        .input-field input:focus,
+        .input-field select:focus {
+            border-color: var(--primary-light);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .input-field input:focus + i,
+        .input-field select:focus + i {
+            color: var(--primary);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* Documentos escolares */
+        .school-docs {
+            margin: 25px 0;
+            padding: 20px;
+            background: rgba(37, 99, 235, 0.05);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--primary);
+        }
+
+        .docs-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .doc-requirement {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .doc-requirement i {
+            margin-right: 10px;
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        /* Termos */
+        .terms {
+            display: flex;
+            align-items: flex-start;
+            margin: 25px 0;
+            font-size: 0.85rem;
+        }
+
+        .terms input {
+            width: 18px;
+            height: 18px;
+            border: 1px solid var(--gray);
+            border-radius: var(--radius-sm);
+            margin-right: 10px;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-top: 3px;
+            appearance: none;
+            transition: var(--transition);
+        }
+
+        .terms input:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'%3E%3Cpath fill-rule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clip-rule='evenodd' /%3E%3C/svg%3E");
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .terms label {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .terms a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .terms a:hover {
+            text-decoration: underline;
+        }
+
+        /* Botões */
+        .access-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-full);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+        }
+
+        .access-btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px rgba(37, 99, 235, 0.2);
+        }
+
+        .access-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Links */
+        .switch-access {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+
+        .switch-access a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .switch-access a:hover {
+            text-decoration: underline;
+        }
+
+        /* Opções */
+        .options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .remember-me label {
+            color: var(--text-light);
+        }
+
+        .forgot-password a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        /* Decoração circular */
+        .circle-decoration {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(37, 99, 235, 0.05);
+            z-index: -1;
+        }
+
+        .circle-decoration-1 {
+            top: -50px;
+            right: -50px;
+            width: 300px;
+            height: 300px;
+        }
+
+        .circle-decoration-2 {
+            bottom: -30px;
+            left: -30px;
+            width: 150px;
+            height: 150px;
+        }
+
+        /* Responsividade */
+        @media (max-width: 1200px) {
+            .info-panel {
+                padding: 40px;
+            }
+            
+            .access-panel {
+                padding: 40px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .welcome-title {
+                font-size: 2rem;
+            }
+            
+            .access-title {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .info-panel {
+                padding: 40px 30px;
+                text-align: center;
+            }
+
+            .feature-item {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .feature-icon {
+                margin: 0 auto 15px;
+            }
+
+            .access-panel {
+                padding: 40px 30px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .info-panel {
+                padding: 30px 20px;
+            }
+            
+            .welcome-title {
+                font-size: 1.8rem;
+            }
+            
+            .access-title {
+                font-size: 1.5rem;
+            }
+            
+            .access-container {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Efeitos de fundo circular -->
+    <div class="bg-circles">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+    </div>
+    
+    <!-- Painel de informações -->
+    <div class="info-panel">
+        <div class="info-content">
+            <h1 class="welcome-title">PARCEIRO EDUCANGOLA</h1>
+            <p class="welcome-subtitle">Integre sua instituição de ensino à plataforma educacional mais inovadora de Angola.</p>
+            
+            <div class="features-list">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-school"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>GESTÃO ESCOLAR</h3>
+                        <p>Sistema completo para administrar alunos, turmas, calendários e recursos didáticos.</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>ACOMPANHAMENTO</h3>
+                        <p>Relatórios detalhados do desempenho dos estudantes e corpo docente.</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>CREDENCIAMENTO</h3>
+                        <p>Certificação digital para sua instituição com tecnologia blockchain.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Ícones de educação no fundo -->
+            <i class="fas fa-book-open education-icons icon-book"></i>
+            <i class="fas fa-graduation-cap education-icons icon-graduation"></i>
+        </div>
+    </div>
+
+    <!-- Painel de acesso -->
+    <div class="access-panel">
+        <div class="access-container">
+            <!-- Decoração circular -->
+            <div class="circle-decoration circle-decoration-1"></div>
+            <div class="circle-decoration circle-decoration-2"></div>
+            
+            <div class="logo">
+                <img src="{% static 'assets/images/logo/logo.png' %}" alt="EducAngola Logo">
+            </div>
+            
+            <h1 class="access-title">Portal Escolar</h1>
+            <p class="access-subtitle">Gerencie sua instituição na nossa plataforma</p>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="login">Login</div>
+                <div class="tab" data-tab="register">Cadastro</div>
+            </div>
+            
+            <!-- Conteúdo de Login -->
+            <div class="tab-content active" id="login-content">
+                <form method="POST" action="#">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="login-email">Email Institucional</label>
+                        <div class="input-field">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="login-email" name="email" placeholder="escola@dominio.edu.ao" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="login-password">Senha</label>
+                        <div class="input-field">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="login-password" name="password" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    
+                    <div class="options">
+                        <div class="remember-me">
+                            <input type="checkbox" id="remember" name="remember">
+                            <label for="remember">Manter sessão</label>
+                        </div>
+                        <div class="forgot-password">
+                            <a href="#">Esqueceu a senha?</a>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="access-btn">Acessar Plataforma</button>
+                </form>
+            </div>
+            
+            <!-- Conteúdo de Cadastro -->
+            <div class="tab-content" id="register-content">
+                <form method="POST" action="#">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="school-name">Nome da Instituição*</label>
+                        <div class="input-field">
+                            <i class="fas fa-school"></i>
+                            <input type="text" id="school-name" name="school_name" placeholder="Nome oficial da escola" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="school-code">Código da Escola*</label>
+                            <div class="input-field">
+                                <i class="fas fa-hashtag"></i>
+                                <input type="text" id="school-code" name="school_code" placeholder="Código MINE" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="school-type">Tipo de Instituição*</label>
+                            <div class="input-field">
+                                <i class="fas fa-layer-group"></i>
+                                <select id="school-type" name="school_type" required>
+                                    <option value="" disabled selected>Selecione</option>
+                                    <option value="public">Pública</option>
+                                    <option value="private">Privada</option>
+                                    <option value="community">Comunitária</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="school-email">Email Institucional*</label>
+                        <div class="input-field">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="school-email" name="email" placeholder="contato@escola.edu.ao" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="school-phone">Telefone*</label>
+                        <div class="input-field">
+                            <i class="fas fa-phone"></i>
+                            <input type="tel" id="school-phone" name="phone" placeholder="(+244) 000 000 000" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Senha*</label>
+                        <div class="input-field">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" name="password" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm-password">Confirmar Senha*</label>
+                        <div class="input-field">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="confirm-password" name="confirm_password" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    
+                    <div class="school-docs">
+                        <div class="docs-title">Documentos necessários para cadastro:</div>
+                        <div class="doc-requirement">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Alvará de funcionamento (cópia digitalizada)</span>
+                        </div>
+                        <div class="doc-requirement">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Documento do representante legal (BI ou Passaporte)</span>
+                        </div>
+                        <div class="doc-requirement">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Comprovativo de registo no MINE</span>
+                        </div>
+                    </div>
+                    
+                    <div class="terms">
+                        <input type="checkbox" id="terms" name="terms" required>
+                        <label for="terms">Declaro que as informações são verídicas e aceito os <a href="#">Termos de Parceria</a> e <a href="#">Política de Privacidade</a>.</label>
+                    </div>
+                    
+                    <button type="submit" class="access-btn">Solicitar Cadastro</button>
+                </form>
+            </div>
+            
+            <div class="switch-access">
+                É um aluno ou professor? <a href="#">Acesse aqui</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Controle das abas
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove classe active de todas as abas e conteúdos
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Adiciona classe active à aba clicada
+                    tab.classList.add('active');
+                    
+                    // Mostra o conteúdo correspondente
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-content`).classList.add('active');
+                });
+            });
+            
+            // Máscara para telefone
+            const phoneField = document.getElementById('school-phone');
+            if (phoneField) {
+                phoneField.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length > 0) {
+                        value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{3})/, '($1) $2 $3 $4');
+                    }
+                    e.target.value = value;
+                });
+            }
+            
+            // Validação de confirmação de senha
+            const passwordField = document.getElementById('password');
+            const confirmPasswordField = document.getElementById('confirm-password');
+            
+            if (passwordField && confirmPasswordField) {
+                confirmPasswordField.addEventListener('input', function() {
+                    if (this.value !== passwordField.value) {
+                        this.setCustomValidity('As senhas não coincidem');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                });
+            }
+            
+            // Efeito de clique nos botões
+            const accessBtns = document.querySelectorAll('.access-btn');
+            accessBtns.forEach(btn => {
+                btn.addEventListener('mousedown', () => {
+                    btn.style.transform = 'translateY(1px)';
+                });
+                
+                btn.addEventListener('mouseup', () => {
+                    btn.style.transform = 'translateY(-3px)';
+                });
+            });
+            
+            // Foco automático no primeiro campo
+            const activeTab = document.querySelector('.tab.active');
+            if (activeTab) {
+                const tabId = activeTab.getAttribute('data-tab');
+                const firstInput = document.getElementById(`${tabId}-content`).querySelector('input');
+                if (firstInput) {
+                    firstInput.focus();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

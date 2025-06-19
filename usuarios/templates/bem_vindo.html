@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #ffffff;
+            background-color: #333333; /* Fundo cinza */
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #000000; /* Fundo preto */
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #444;
+        }
+        .header h1 {
+            color: #ffffff;
+        }
+        .content {
+            padding: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #444;
+            font-size: 12px;
+            color: #aaaaaa;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #333333;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Bem-vindo à {{ plataforma }}, {{ nome }}!</h1>
+        </div>
+        
+        <div class="content">
+            <p>Estamos muito felizes por você ter se juntado à nossa plataforma de educação.</p>
+            
+            <p>A EducAngola está comprometida em fornecer os melhores recursos educacionais 
+            para ajudar você a alcançar seus objetivos de aprendizagem.</p>
+            
+            <p>Aqui você encontrará:</p>
+            <ul>
+                <li>Cursos de alta qualidade</li>
+                <li>Materiais didáticos atualizados</li>
+                <li>Suporte de instrutores especializados</li>
+                <li>Comunidade de alunos engajados</li>
+                <li>Instituicoes de ensino</li>
+            </ul>
+            
+            <p>Estamos aqui para apoiar sua jornada educacional. Não hesite em explorar 
+            todos os recursos que disponibilizamos para você.</p>
+            
+            <center>
+                <a href="{% url 'index' %}" class="btn">Acessar Plataforma</a>
+            </center>
+        </div>
+        
+        <div class="footer">
+            <p>© {% now "Y" %} EducAngola. Todos os direitos reservados.</p>
+            <p>Se você não se cadastrou em nossa plataforma, por favor ignore este e-mail.</p>
+        </div>
+    </div>
+</body>
+</html>

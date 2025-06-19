@@ -1,0 +1,1095 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EducAngola | Portal de Bibliotecas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-lighter: #93c5fd;
+            --white: #ffffff;
+            --light-gray: #f8fafc;
+            --gray: #e2e8f0;
+            --dark-gray: #94a3b8;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: var(--light-gray);
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* Efeitos de fundo circular */
+        .bg-circles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(37, 99, 235, 0.05);
+            pointer-events: none;
+        }
+
+        .circle-1 {
+            width: 600px;
+            height: 600px;
+            top: -200px;
+            left: -200px;
+        }
+
+        .circle-2 {
+            width: 400px;
+            height: 400px;
+            bottom: -100px;
+            right: -100px;
+        }
+
+        /* Painel de informações */
+        .info-panel {
+            flex: 1;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+            overflow-y: auto;
+        }
+
+        .info-content {
+            position: relative;
+            z-index: 2;
+            max-width: 550px;
+        }
+
+        .welcome-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            line-height: 1.2;
+            color: var(--primary);
+        }
+
+        .welcome-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 40px;
+            line-height: 1.7;
+        }
+
+        .features-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: var(--white);
+            padding: 24px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(37, 99, 235, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            color: var(--primary);
+            font-size: 20px;
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+
+        .feature-item:hover .feature-icon {
+            background: var(--primary);
+            color: var(--white);
+            transform: rotate(15deg) scale(1.1);
+        }
+
+        .feature-text h3 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .feature-text p {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .library-icons {
+            position: absolute;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .icon-books {
+            top: 15%;
+            right: 15%;
+            font-size: 100px;
+            color: var(--primary);
+        }
+
+        .icon-library {
+            bottom: 20%;
+            left: 10%;
+            font-size: 80px;
+            color: var(--primary);
+        }
+
+        /* Painel de acesso */
+        .access-panel {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+            position: relative;
+            overflow-y: auto;
+            z-index: 1;
+        }
+
+        .access-container {
+            max-width: 500px;
+            width: 100%;
+            background: var(--white);
+            padding: 50px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .access-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.05) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo img {
+            height: 60px;
+        }
+
+        .access-title {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .access-subtitle {
+            color: var(--text-light);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+
+        /* Abas */
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--gray);
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            cursor: pointer;
+            color: var(--text-light);
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .tab.active {
+            color: var(--primary);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Formulários */
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .input-field {
+            position: relative;
+        }
+
+        .input-field i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--dark-gray);
+            font-size: 18px;
+            transition: var(--transition);
+        }
+
+        .input-field input,
+        .input-field select {
+            width: 100%;
+            padding: 14px 16px 14px 46px;
+            border: 1px solid var(--gray);
+            border-radius: var(--radius-full);
+            font-size: 0.95rem;
+            background: var(--white);
+            transition: var(--transition);
+            color: var(--text-dark);
+        }
+
+        .input-field input:focus,
+        .input-field select:focus {
+            border-color: var(--primary-light);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .input-field input:focus + i,
+        .input-field select:focus + i {
+            color: var(--primary);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* Documentos */
+        .library-docs {
+            margin: 25px 0;
+            padding: 20px;
+            background: rgba(37, 99, 235, 0.05);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--primary);
+        }
+
+        .docs-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .doc-requirement {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .doc-requirement i {
+            margin-right: 10px;
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        /* Termos */
+        .terms {
+            display: flex;
+            align-items: flex-start;
+            margin: 25px 0;
+            font-size: 0.85rem;
+        }
+
+        .terms input {
+            width: 18px;
+            height: 18px;
+            border: 1px solid var(--gray);
+            border-radius: var(--radius-sm);
+            margin-right: 10px;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-top: 3px;
+            appearance: none;
+            transition: var(--transition);
+        }
+
+        .terms input:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'%3E%3Cpath fill-rule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clip-rule='evenodd' /%3E%3C/svg%3E");
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .terms label {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .terms a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .terms a:hover {
+            text-decoration: underline;
+        }
+
+        /* Botões */
+        .access-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-full);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+        }
+
+        .access-btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px rgba(37, 99, 235, 0.2);
+        }
+
+        .access-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Links */
+        .switch-access {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+
+        .switch-access a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .switch-access a:hover {
+            text-decoration: underline;
+        }
+
+        /* Opções */
+        .options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .remember-me label {
+            color: var(--text-light);
+        }
+
+        .forgot-password a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        /* Decoração circular */
+        .circle-decoration {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(37, 99, 235, 0.05);
+            z-index: -1;
+        }
+
+        .circle-decoration-1 {
+            top: -50px;
+            right: -50px;
+            width: 300px;
+            height: 300px;
+        }
+
+        .circle-decoration-2 {
+            bottom: -30px;
+            left: -30px;
+            width: 150px;
+            height: 150px;
+        }
+
+        /* Responsividade */
+        @media (max-width: 1200px) {
+            .info-panel {
+                padding: 40px;
+            }
+            
+            .access-panel {
+                padding: 40px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .welcome-title {
+                font-size: 2rem;
+            }
+            
+            .access-title {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .info-panel {
+                padding: 40px 30px;
+                text-align: center;
+            }
+
+            .feature-item {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .feature-icon {
+                margin: 0 auto 15px;
+            }
+
+            .access-panel {
+                padding: 40px 30px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .info-panel {
+                padding: 30px 20px;
+            }
+            
+            .welcome-title {
+                font-size: 1.8rem;
+            }
+            
+            .access-title {
+                font-size: 1.5rem;
+            }
+            
+            .access-container {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Efeitos de fundo circular -->
+    <div class="bg-circles">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+    </div>
+    
+    <!-- Painel de informações -->
+    <div class="info-panel">
+        <div class="info-content">
+            <h1 class="welcome-title">REDE DE BIBLIOTECAS</h1>
+            <p class="welcome-subtitle">Integre sua biblioteca à maior rede de conhecimento digital de Angola e amplie seu alcance.</p>
+            
+            <div class="features-list">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>CATÁLOGO DIGITAL</h3>
+                        <p>Sistema completo para catalogação, classificação e gestão de acervos físicos e digitais.</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>EMPRÉSTIMO INTEGRADO</h3>
+                        <p>Controle de empréstimos, reservas e renovação online para seus usuários.</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>REDE COLABORATIVA</h3>
+                        <p>Compartilhamento de recursos entre bibliotecas e acesso a acervos digitais parceiros.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Ícones de biblioteca no fundo -->
+            <i class="fas fa-books library-icons icon-books"></i>
+            <i class="fas fa-library library-icons icon-library"></i>
+        </div>
+    </div>
+
+    <!-- Painel de acesso -->
+    <div class="access-panel">
+        <div class="access-container">
+            <!-- Decoração circular -->
+            <div class="circle-decoration circle-decoration-1"></div>
+            <div class="circle-decoration circle-decoration-2"></div>
+            
+            <div class="logo">
+                <img src="{% static 'assets/images/logo/logo.png' %}" alt="EducAngola Logo">
+            </div>
+            
+            <h1 class="access-title">Acesso Bibliotecário</h1>
+            <p class="access-subtitle">Cadastre-se e gerencie sua biblioteca na nossa plataforma</p>
+            
+            
+            <!-- Conteúdo de Login -->
+            <div class="tab-content active" id="register-content">
+
+                <form method="POST" action="{% url 'valida_cadastro_biblioteca' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="library-name">Nome da Biblioteca*</label>
+                        <div class="input-field">
+                            <i class="fas fa-library"></i>
+                            <input type="text" id="library-name" name="nome" placeholder="Nome oficial da biblioteca" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="library-type">Tipo de Biblioteca*</label>
+                            <div class="input-field">
+                                <i class="fas fa-tag"></i>
+                                <select id="library-type" name="tipo" required>
+                                    <option value="" disabled selected>Selecione</option>
+                                    <option value="PUBLICA">Pública</option>
+                                    <option value="ESCOLAR">Escolar</option>
+                                    <option value="UNVERSITARIA">Universitária</option>
+                                    <option value="ESPECIALIZADA">Especializada</option>
+                                    <option value="COMUNITARIA">Comunitária</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="library-code">Código (opcional)</label>
+                            <div class="input-field">
+                                <i class="fas fa-hashtag"></i>
+                                <input type="text" id="library-code" name="codigo_registro" placeholder="Código de registro">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="library-email">Email Institucional*</label>
+                        <div class="input-field">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="library-email" name="email" placeholder="contato@biblioteca.edu.ao" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="library-phone">Telefone*</label>
+                        <div class="input-field">
+                            <i class="fas fa-phone"></i>
+                            <input type="tel" id="library-phone" name="telefone" placeholder="(+244) 000 000 000" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Senha*</label>
+                        <div class="input-field">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" name="senha" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm-password">Confirmar Senha*</label>
+                        <div class="input-field">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="confirm-password" name="confirmar_senha" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    
+                    <div class="library-docs">
+                        <div class="docs-title">Documentação necessária:</div>
+                        <div class="doc-requirement">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Documento de criação/funcionamento da biblioteca</span>
+                        </div>
+                        <div class="doc-requirement">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Documento do responsável legal (BI ou Passaporte)</span>
+                        </div>
+                        <div class="doc-requirement">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Registo institucional (se aplicável)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="terms">
+                        <input type="checkbox" id="terms" name="terms" required>
+                        <label for="terms">Declaro que sou responsável por esta biblioteca e aceito os <a href="#">Termos de Adesão</a> à Rede EducAngola.</label>
+                    </div>
+                    
+                    <button type="submit" class="access-btn">Solicitar Integração</button>
+                </form>
+            </div>
+            
+            <div class="switch-access">
+                ja tem uma conta? <a href="#">Login</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="future-modal" class="future-modal">
+        <div class="future-modal-content">
+            <div class="holographic-effect"></div>
+            <div class="future-modal-body">
+                <div id="future-modal-icon"></div>
+                <h3 id="future-modal-title"></h3>
+                <p id="future-modal-message"></p>
+            </div>
+            <button class="future-modal-close" onclick="closeFutureModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+    
+    <style>
+        /* Estilos do Modal Futurístico */
+        .future-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.5s ease-out;
+        }
+    
+        .future-modal-content {
+            position: relative;
+            width: 400px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3),
+                        0 0 60px rgba(0, 150, 255, 0.2);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            overflow: hidden;
+        }
+    
+        .holographic-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                rgba(0, 255, 255, 0) 0%, 
+                rgba(0, 255, 255, 0.8) 50%, 
+                rgba(0, 255, 255, 0) 100%);
+            animation: scanline 3s linear infinite;
+        }
+    
+        .future-modal-body {
+            text-align: center;
+            color: #e6f7ff;
+            padding: 20px 0;
+        }
+    
+        #future-modal-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px currentColor;
+        }
+    
+        #future-modal-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+    
+        #future-modal-message {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+    
+        .future-modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+    
+        .future-modal-close:hover {
+            color: #00ffff;
+            transform: rotate(90deg);
+        }
+    
+        /* Animações */
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(400px); }
+        }
+    
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    
+        /* Efeitos para diferentes tipos de mensagem */
+        .success-icon {
+            color: #00ffaa;
+        }
+    
+        .warning-icon {
+            color: #ffcc00;
+        }
+    
+        .error-icon {
+            color: #ff3366;
+        }
+    </style>
+    
+    <script>
+        // Mapeamento de status para mensagens (adaptado para o login)
+        const statusMessages = {
+    // Status de sucesso
+        "0": { 
+            title: "Cadastro Realizado com Sucesso!", 
+            message: "Sua biblioteca foi cadastrada com sucesso. Verifique seu e-mail para as instruções de acesso.", 
+            icon: "✅", 
+            type: "success" 
+        },
+        
+        // Status de validação
+        "1": { 
+            title: "Campos Obrigatórios", 
+            message: "Por favor, preencha todos os campos obrigatórios.", 
+            icon: "⚠️", 
+            type: "warning" 
+        },
+        "2": { 
+            title: "Senha Fraca", 
+            message: "A senha deve ter no mínimo 8 caracteres.", 
+            icon: "🔐", 
+            type: "warning" 
+        },
+        "5": { 
+            title: "Senhas Não Conferem", 
+            message: "As senhas digitadas não são iguais. Por favor, verifique.", 
+            icon: "🔁", 
+            type: "warning" 
+        },
+        
+        // Status de conflito
+        "3": { 
+            title: "E-mail Já Cadastrado", 
+            message: "Este e-mail já está em uso. Tente recuperar sua senha se já possuir cadastro.", 
+            icon: "✉️", 
+            type: "error" 
+        },
+        "7": { 
+            title: "Código Já Registrado", 
+            message: "Este código de registro já está em uso por outra biblioteca.", 
+            icon: "📚", 
+            type: "error" 
+        },
+        
+        // Status de erro
+        "4": { 
+            title: "Erro no Cadastro", 
+            message: "Ocorreu um erro ao processar seu cadastro. Por favor, tente novamente.", 
+            icon: "❌", 
+            type: "error" 
+        },
+        "6": { 
+            title: "Método Inválido", 
+            message: "A requisição deve ser feita através do formulário de cadastro.", 
+            icon: "🚫", 
+            type: "error" 
+        },
+        
+        // Status de login (se aplicável)
+        "10": { 
+            title: "Login Bem-sucedido!", 
+            message: "Você foi autenticado com sucesso! Redirecionando para o painel da biblioteca...", 
+            icon: "🔑", 
+            type: "success" 
+        },
+        "11": { 
+            title: "Acesso Restrito", 
+            message: "Esta área é exclusiva para bibliotecas cadastradas.", 
+            icon: "⛔", 
+            type: "error" 
+        }
+    };
+    
+        // Função para mostrar o modal
+        function showFutureModal(status) {
+            const modal = document.getElementById('future-modal');
+            const modalData = statusMessages[status];
+            
+            if (modalData) {
+                document.getElementById('future-modal-icon').innerHTML = modalData.icon;
+                document.getElementById('future-modal-title').textContent = modalData.title;
+                document.getElementById('future-modal-message').textContent = modalData.message;
+                
+                // Adiciona classe baseada no tipo
+                const iconElement = document.getElementById('future-modal-icon');
+                iconElement.className = '';
+                iconElement.classList.add(`${modalData.type}-icon`);
+                
+                modal.style.display = 'flex';
+                
+                // Fecha automaticamente após 5 segundos (exceto para sucesso)
+                if (status === "0" || status === "10") {
+                    // Redireciona após 2 segundos para login bem-sucedido
+                    setTimeout(() => {
+                        window.location.href = '/auth/conta_aluno';
+                    }, 2000);
+                } else {
+                    setTimeout(closeFutureModal, 5000);
+                }
+            }
+        }
+    
+        // Função para fechar o modal
+        function closeFutureModal() {
+            document.getElementById('future-modal').style.display = 'none';
+        }
+    
+        // Verifica o status na carga da página
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status');
+            
+            if (status) {
+                showFutureModal(status);
+            }
+        });
+    </script>
+    
+    <style>
+        /* Estilos para mensagens */
+        .alert-message {
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .alert-success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+        
+        .alert-error {
+            background-color: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+        
+        .alert-content {
+            margin-left: 10px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Mantenha os outros estilos existentes */
+    </style>
+
+    <script>
+        // Controle das abas
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove classe active de todas as abas e conteúdos
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Adiciona classe active à aba clicada
+                    tab.classList.add('active');
+                    
+                    // Mostra o conteúdo correspondente
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-content`).classList.add('active');
+                });
+            });
+            
+            // Máscara para telefone
+            const phoneField = document.getElementById('library-phone');
+            if (phoneField) {
+                phoneField.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length > 0) {
+                        value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{3})/, '($1) $2 $3 $4');
+                    }
+                    e.target.value = value;
+                });
+            }
+            
+            // Validação de confirmação de senha
+            const passwordField = document.getElementById('password');
+            const confirmPasswordField = document.getElementById('confirm-password');
+            
+            if (passwordField && confirmPasswordField) {
+                confirmPasswordField.addEventListener('input', function() {
+                    if (this.value !== passwordField.value) {
+                        this.setCustomValidity('As senhas não coincidem');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                });
+            }
+            
+            // Efeito de clique nos botões
+            const accessBtns = document.querySelectorAll('.access-btn');
+            accessBtns.forEach(btn => {
+                btn.addEventListener('mousedown', () => {
+                    btn.style.transform = 'translateY(1px)';
+                });
+                
+                btn.addEventListener('mouseup', () => {
+                    btn.style.transform = 'translateY(-3px)';
+                });
+            });
+            
+            // Foco automático no primeiro campo
+            const activeTab = document.querySelector('.tab.active');
+            if (activeTab) {
+                const tabId = activeTab.getAttribute('data-tab');
+                const firstInput = document.getElementById(`${tabId}-content`).querySelector('input');
+                if (firstInput) {
+                    firstInput.focus();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,734 @@
+{% load static %}
+<header class="rbt-header rbt-header-10">
+    <div class="rbt-sticky-placeholder"></div>
+
+    <!-- Top Bar -->
+    <div class="rbt-header-top rbt-header-top-1 header-space-betwween bg-not-transparent bg-color-darker top-expended-activation">
+        <div class="container-fluid">
+            <div class="top-expended-wrapper">
+                <div class="top-expended-inner rbt-header-sec align-items-center">
+                    <div class="rbt-header-sec-col rbt-header-left d-none d-xl-block">
+                        <div class="rbt-header-content">
+                            <div class="header-info">
+                                <ul class="rbt-information-list">
+                                    <li>
+                                        <a href="#"><i class="fab fa-instagram"></i>EdukAngola</a>
+                                    </li>
+                                    <li>
+                                        <a href="#"><i class="fab fa-facebook-square"></i>EdukAngola</a>
+                                    </li>
+                                    <li>
+                                        <a href="#"><i class="feather-phone"></i>+244 923 456 789</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="rbt-header-sec-col rbt-header-right mt_md--10 mt_sm--10">
+                        <div class="rbt-header-content justify-content-start justify-content-lg-end">
+                            <div class="header-info d-none d-xl-block">
+                                <ul class="social-share-transparent">
+                                    <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+                                    <li><a href="#"><i class="fab fa-twitter"></i></a></li>
+                                    <li><a href="#"><i class="fab fa-linkedin-in"></i></a></li>
+                                    <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                                </ul>
+                            </div>
+                    
+                            <div class="rbt-separator d-none d-xl-block"></div>
+                    
+                            <div class="header-info">
+                                <ul class="rbt-dropdown-menu switcher-language">
+                                    <li class="has-child-menu">
+                                        <a href="#">
+                                            <img class="left-image" src="{% static 'assets/images/icons/pt-pt.png' %}" alt="Português">
+                                            <span class="menu-item">Português</span>
+                                            <i class="right-icon feather-chevron-down"></i>
+                                        </a>
+                                        <ul class="sub-menu">
+                                            <li>
+                                                <a href="#">
+                                                    <img class="left-image" src="{% static 'assets/images/icons/en-us.png' %}" alt="Inglês">
+                                                    <span class="menu-item">Inglês</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Top Bar -->
+
+    <!-- Main Header -->
+    <div class="rbt-header-wrapper header-space-betwween header-sticky">
+        <div class="container-fluid">
+            <div class="mainbar-row rbt-navigation-center align-items-center">
+                <!-- Logo -->
+                <div class="header-left rbt-header-content">
+                    <div class="header-info">
+                        <div class="logo logo-dark">
+                            <a href="#">
+                                <img src="{% static 'assets/images/logo/edukangola-logo.png' %}" alt="EdukAngola Logo">
+                            </a>
+                        </div>
+                        <div class="logo d-none logo-light">
+                            <a href="#">
+                                <img src="{% static 'assets/images/logo/edukangola-logo-light.png' %}" alt="EdukAngola Logo">
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Categories Menu -->
+                    <div class="header-info">
+                        <div class="rbt-category-menu-wrapper rbt-category-update">
+                            <div class="rbt-category-btn">
+                                <div class="rbt-offcanvas-trigger md-size icon">
+                                    <span class="d-none d-xl-block"><i class="feather-grid"></i></span>
+                                    <i title="Categoria" class="feather-grid d-block d-xl-none"></i>
+                                </div>
+                                <span class="category-text d-none d-xl-block">Categorias</span>
+                            </div>
+
+                            <div class="category-dropdown-menu d-none d-xl-block">
+                                <div class="category-menu-item">
+                                    <div class="rbt-vertical-nav">
+                                        <ul class="rbt-vertical-nav-list-wrapper vertical-nav-menu">
+                                            <li class="vertical-nav-item active">
+                                                <a href="#tab1">Cursos Acadêmicos</a>
+                                            </li>
+                                            <li class="vertical-nav-item">
+                                                <a href="#tab2">Formação Profissional</a>
+                                            </li>
+                                            <li class="vertical-nav-item">
+                                                <a href="#tab3">Escolas</a>
+                                            </li>
+                                            <li class="vertical-nav-item">
+                                                <a href="#tab4">Estágios</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="rbt-vertical-nav-content">
+                                        <!-- Academic Courses -->
+                                        <div class="rbt-vertical-inner tab-content" id="tab1" style="display: block">
+                                            <div class="rbt-vertical-single">
+                                                <div class="row">
+                                                    <div class="col-lg-6 col-sm-6 col-6">
+                                                        <div class="vartical-nav-content-menu">
+                                                            <h3 class="rbt-short-title">Ensino Superior</h3>
+                                                            <ul class="rbt-vertical-nav-list-wrapper">
+                                                                <li><a href="#">Engenharias</a></li>
+                                                                <li><a href="#">Ciências Sociais</a></li>
+                                                                <li><a href="#">Medicina</a></li>
+                                                                <li><a href="#">Direito</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-sm-6 col-6">
+                                                        <div class="vartical-nav-content-menu">
+                                                            <h3 class="rbt-short-title">Ensino Médio</h3>
+                                                            <ul class="rbt-vertical-nav-list-wrapper">
+                                                                <li><a href="#">Ciências Exatas</a></li>
+                                                                <li><a href="#">Humanidades</a></li>
+                                                                <li><a href="#">Artes</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Professional Training -->
+                                        <div class="rbt-vertical-inner tab-content" id="tab2">
+                                            <div class="rbt-vertical-single">
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="vartical-nav-content-menu">
+                                                            <h3 class="rbt-short-title">Tecnologia</h3>
+                                                            <ul class="rbt-vertical-nav-list-wrapper">
+                                                                <li><a href="#">Programação</a></li>
+                                                                <li><a href="#">Design Gráfico</a></li>
+                                                                <li><a href="#">Redes de Computadores</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="vartical-nav-content-menu">
+                                                            <h3 class="rbt-short-title">Negócios</h3>
+                                                            <ul class="rbt-vertical-nav-list-wrapper">
+                                                                <li><a href="#">Gestão Empresarial</a></li>
+                                                                <li><a href="#">Marketing Digital</a></li>
+                                                                <li><a href="#">Contabilidade</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Schools -->
+                                        <div class="rbt-vertical-inner tab-content" id="tab3">
+                                            <div class="rbt-vertical-single">
+                                                <div class="row">
+                                                    <div class="col-lg-12">
+                                                        <div class="vartical-nav-content-menu">
+                                                            <h3 class="rbt-short-title">Instituições</h3>
+                                                            <ul class="rbt-vertical-nav-list-wrapper">
+                                                                <li><a href="#">Universidades</a></li>
+                                                                <li><a href="#">Escolas Técnicas</a></li>
+                                                                <li><a href="#">Centros de Formação</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Internships -->
+                                        <div class="rbt-vertical-inner tab-content" id="tab4">
+                                            <div class="rbt-vertical-single">
+                                                <div class="row">
+                                                    <div class="col-lg-12">
+                                                        <div class="vartical-nav-content-menu">
+                                                            <h3 class="rbt-short-title">Oportunidades</h3>
+                                                            <ul class="rbt-vertical-nav-list-wrapper">
+                                                                <li><a href="#">Estágios em TI</a></li>
+                                                                <li><a href="#">Estágios em Engenharia</a></li>
+                                                                <li><a href="#">Estágios em Administração</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Navigation -->
+                <div class="rbt-main-navigation d-none d-xl-block">
+                    <nav class="mainmenu-nav">
+                        <ul class="mainmenu">
+                            <li><a href="">Início</a></li>
+                            
+                            <li class="with-megamenu has-menu-child-item">
+                                <a href="#">Cursos <i class="feather-chevron-down"></i></a>
+                                <div class="rbt-megamenu grid-item-2">
+                                    <div class="wrapper">
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <div class="mega-top-banner">
+                                                    <div class="content">
+                                                        <h4 class="title">Encontre o Curso Perfeito</h4>
+                                                        <p class="description">Descubra oportunidades de aprendizagem em Angola</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row row--15">
+                                            <div class="col-lg-12 col-xl-6 col-xxl-6 single-mega-item">
+                                                <h3 class="rbt-short-title">Por Área</h3>
+                                                <ul class="mega-menu-item">
+                                                    <li><a href="#">Tecnologia</a></li>
+                                                    <li><a href="#">Negócios</a></li>
+                                                    <li><a href="#">Saúde</a></li>
+                                                    <li><a href="#">Engenharia</a></li>
+                                                    <li><a href="#">Artes</a></li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-lg-12 col-xl-6 col-xxl-6 single-mega-item">
+                                                <h3 class="rbt-short-title">Por Tipo</h3>
+                                                <ul class="mega-menu-item">
+                                                    <li><a href="#">Online</a></li>
+                                                    <li><a href="#">Presencial</a></li>
+                                                    <li><a href="#">Intensivos</a></li>
+                                                    <li><a href="#">Certificados</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            
+                            <li class="has-dropdown has-menu-child-item">
+                                <a href="#">Escolas <i class="feather-chevron-down"></i></a>
+                                <ul class="submenu">
+                                    <li><a href="#">Universidades</a></li>
+                                    <li><a href="#">Institutos Médios</a></li>
+                                    <li><a href="#">Centros de Formação</a></li>
+                                    <li><a href="#">Escolas Internacionais</a></li>
+                                </ul>
+                            </li>
+                            
+                            <li><a href="#">Estágios</a></li>
+                            
+                            <li class="has-dropdown has-menu-child-item">
+                                <a href="#">Recursos <i class="feather-chevron-down"></i></a>
+                                <ul class="submenu">
+                                    <li><a href="#">Biblioteca Digital</a></li>
+                                    <li><a href="#">Guias de Estudo</a></li>
+                                    <li><a href="#">Bolsa de Emprego</a></li>
+                                </ul>
+                            </li>
+                            
+                            <li><a href="#">Sobre Nós</a></li>
+                        </ul>
+                    </nav>
+                </div>
+
+                <!-- Right Side Icons -->
+                <div class="header-right">
+                    <ul class="quick-access">
+                        <li class="access-icon">
+                            <a class="search-trigger-active rbt-round-btn" href="#">
+                                <i class="feather-search"></i>
+                            </a>
+                        </li>
+
+                        <li class="account-access rbt-user-wrapper d-none d-xl-block">
+                                <a href="#"><i class="feather-user"></i>Minha Conta</a>
+                                <div class="rbt-user-menu-list-wrapper">
+                                    <div class="inner">
+                                        <div class="rbt-admin-profile">
+                                            <div class="admin-thumbnail">
+                                                <img src="{% static 'assets/images/team/avatar.jpg' %}" alt="Imagem do Usuário">
+                                            </div>
+                                            <div class="admin-info">
+                                                <span class="name"></span>
+                                                <a class="rbt-btn-link color-primary" href="">Ver Perfil</a>
+                                            </div>
+                                        </div>
+                                        <ul class="user-list-wrapper">
+                                            <li>
+                                                <a href="">
+                                                    <i class="feather-home"></i>
+                                                    <span>Meu Painel</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="">
+                                                    <i class="feather-book"></i>
+                                                    <span>Meus Cursos</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="">
+                                                    <i class="feather-briefcase"></i>
+                                                    <span>Meus Estágios</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                        <hr class="mt--10 mb--10">
+                                        <ul class="user-list-wrapper">
+                                            <li>
+                                                <a href="">
+                                                    <i class="feather-log-out"></i>
+                                                    <span>Sair</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <a class="rbt-btn btn-border-gradient radius-round btn-sm" href="">
+                                    <span>Entrar</span>
+                                </a>
+                        </li>
+                    </ul>
+
+                    <!-- Mobile Menu Button -->
+                    <div class="mobile-menu-bar d-block d-xl-none">
+                        <div class="hamberger">
+                            <button class="hamberger-button rbt-round-btn">
+                                <i class="feather-menu"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Dropdown -->
+        <div class="rbt-search-dropdown">
+            <div class="wrapper">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form action="#">
+                            <input type="text" placeholder="O que você está procurando?">
+                            <div class="submit-btn">
+                                <button class="rbt-btn btn-gradient btn-md" type="submit">Pesquisar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="rbt-separator-mid">
+                    <hr class="rbt-separator m-0">
+                </div>
+
+                <div class="row g-4 pt--30 pb--60">
+                    <div class="col-lg-12">
+                        <div class="section-title">
+                            <h5 class="rbt-title-style-2">Cursos em Destaque</h5>
+                        </div>
+                    </div>
+
+                    <!-- Sample Course Cards -->
+                    <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                        <div class="rbt-card variation-01 rbt-hover">
+                            <div class="rbt-card-img">
+                                <a href="#">
+                                    <img src="{% static 'assets/images/course/programacao.jpg' %}" alt="Programação">
+                                </a>
+                            </div>
+                            <div class="rbt-card-body">
+                                <h5 class="rbt-card-title"><a href="#">Programação Web</a></h5>
+                                <div class="rbt-card-bottom">
+                                    <div class="rbt-price">
+                                        <span class="current-price">Grátis</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                        <div class="rbt-card variation-01 rbt-hover">
+                            <div class="rbt-card-img">
+                                <a href="#">
+                                    <img src="{% static 'assets/images/course/gestao.jpg' %}" alt="Gestão">
+                                </a>
+                            </div>
+                            <div class="rbt-card-body">
+                                <h5 class="rbt-card-title"><a href="#">Gestão Empresarial</a></h5>
+                                <div class="rbt-card-bottom">
+                                    <div class="rbt-price">
+                                        <span class="current-price">50.000 Kz</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Search Dropdown -->
+    </div>
+
+    <!-- Mobile Side Menu -->
+    <div class="rbt-offcanvas-side-menu rbt-category-sidemenu">
+        <div class="inner-wrapper">
+            <div class="inner-top">
+                <div class="inner-title">
+                    <h4 class="title">Menu</h4>
+                </div>
+                <div class="rbt-btn-close">
+                    <button class="rbt-close-offcanvas rbt-round-btn"><i class="feather-x"></i></button>
+                </div>
+            </div>
+            <nav class="side-nav w-100">
+                <ul class="rbt-vertical-nav-list-wrapper vertical-nav-menu">
+                    <li><a href="#">Início</a></li>
+                    <li><a href="#">Cursos</a></li>
+                    <li><a href="#">Escolas</a></li>
+                    <li><a href="#">Estágios</a></li>
+                    <li><a href="#">Recursos</a></li>
+                    <li><a href="#">Sobre Nós</a></li>
+                    <li><a href="#">Meu Painel</a></li>
+                    <li><a href="#">Sair</a></li>
+                    <li><a href="#">Entrar</a></li>
+                    <li><a href="#">Registrar</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <!-- End Mobile Side Menu -->
+
+    <a class="rbt-close_side_menu" href="javascript:void(0);"></a>
+</header>
+
+
+<div class="popup-mobile-menu">
+    <div class="inner-wrapper">
+        <div class="inner-top">
+            <div class="content">
+                <div class="logo">
+                    <div class="logo logo-dark">
+                        <a href="#">
+                            <img src="{% static 'assets/images/logo/edukangola-logo.png' %}" alt="EdukAngola Logo">
+                        </a>
+                    </div>
+                    <div class="logo d-none logo-light">
+                        <a href="#">
+                            <img src="{% static 'assets/images/logo/edukangola-logo-light.png' %}" alt="EdukAngola Logo">
+                        </a>
+                    </div>
+                </div>
+                <div class="rbt-btn-close">
+                    <button class="close-button rbt-round-btn"><i class="feather-x"></i></button>
+                </div>
+            </div>
+            <p class="description">A plataforma de educação líder em Angola</p>
+            <ul class="navbar-top-left rbt-information-list justify-content-start">
+                <li>
+                    <a href="#"><i class="fab fa-instagram"></i>EdukAngola</a>
+                </li>
+                <li>
+                    <a href="#"><i class="fab fa-facebook-square"></i>EdukAngola</a>
+                </li>
+                <li>
+                    <a href="#"><i class="feather-phone"></i>+244 923 456 789</a>
+                </li>
+            </ul>
+        </div>
+
+        <nav class="mainmenu-nav">
+            <ul class="mainmenu">
+                <li><a href="">Início</a></li>
+                
+                <li class="with-megamenu has-menu-child-item">
+                    <a href="#">Cursos <i class="feather-chevron-down"></i></a>
+                    <div class="rbt-megamenu grid-item-2">
+                        <div class="wrapper">
+                            <div class="row row--15">
+                                <div class="col-lg-12 col-xl-6 col-xxl-6 single-mega-item">
+                                    <h3 class="rbt-short-title">Por Área</h3>
+                                    <ul class="mega-menu-item">
+                                        <li><a href="#">Tecnologia</a></li>
+                                        <li><a href="#">Negócios</a></li>
+                                        <li><a href="#">Saúde</a></li>
+                                        <li><a href="#">Engenharia</a></li>
+                                        <li><a href="#">Artes</a></li>
+                                    </ul>
+                                </div>
+                                <div class="col-lg-12 col-xl-6 col-xxl-6 single-mega-item">
+                                    <h3 class="rbt-short-title">Por Tipo</h3>
+                                    <ul class="mega-menu-item">
+                                        <li><a href="#">Online</a></li>
+                                        <li><a href="#">Presencial</a></li>
+                                        <li><a href="#">Intensivos</a></li>
+                                        <li><a href="#">Certificados</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                
+                <li class="has-dropdown has-menu-child-item">
+                    <a href="#">Escolas <i class="feather-chevron-down"></i></a>
+                    <ul class="submenu">
+                        <li><a href="#">Universidades</a></li>
+                        <li><a href="#">Institutos Médios</a></li>
+                        <li><a href="#">Centros de Formação</a></li>
+                        <li><a href="#">Escolas Internacionais</a></li>
+                    </ul>
+                </li>
+                
+                <li class="with-megamenu has-menu-child-item">
+                    <a href="#">Estágios <i class="feather-chevron-down"></i></a>
+                    <div class="rbt-megamenu grid-item-2">
+                        <div class="wrapper">
+                            <div class="row row--15">
+                                <div class="col-lg-12">
+                                    <div class="mega-top-banner">
+                                        <div class="content">
+                                            <h4 class="title">Oportunidades de Estágio</h4>
+                                            <p class="description">Ganhe experiência profissional durante seus estudos</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row row--15">
+                                <div class="col-lg-12 col-xl-6 col-xxl-6 single-mega-item">
+                                    <h3 class="rbt-short-title">Por Área</h3>
+                                    <ul class="mega-menu-item">
+                                        <li><a href="#">Tecnologia da Informação</a></li>
+                                        <li><a href="#">Engenharia</a></li>
+                                        <li><a href="#">Administração</a></li>
+                                        <li><a href="#">Saúde</a></li>
+                                        <li><a href="#">Direito</a></li>
+                                        <li><a href="#">Educação</a></li>
+                                    </ul>
+                                </div>
+                                <div class="col-lg-12 col-xl-6 col-xxl-6 single-mega-item">
+                                    <h3 class="rbt-short-title">Por Tipo</h3>
+                                    <ul class="mega-menu-item">
+                                        <li><a href="#">Remunerados</a></li>
+                                        <li><a href="#">Curriculares</a></li>
+                                        <li><a href="#">Profissionais</a></li>
+                                        <li><a href="#">Internacionais</a></li>
+                                        <li><a href="#">Voluntários</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="row row--15">
+                                <div class="col-lg-12">
+                                    <div class="mega-bottom-banner">
+                                        <div class="content">
+                                            <h4 class="title">Dicas para Estágios</h4>
+                                            <p class="description">Aprenda como se destacar no mercado de trabalho</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                
+                <li class="has-dropdown has-menu-child-item">
+                    <a href="#">Recursos <i class="feather-chevron-down"></i></a>
+                    <ul class="submenu">
+                        <li><a href="#">Biblioteca Digital</a></li>
+                        <li><a href="#">Guias de Estudo</a></li>
+                        <li><a href="#">Bolsa de Emprego</a></li>
+                    </ul>
+                </li>
+                
+                <li><a href="#">Sobre Nós</a></li>
+            </ul>
+        </nav>
+
+        <div class="mobile-menu-bottom">
+            <div class="rbt-btn-wrapper mb--20">
+                <a class="rbt-btn btn-border-gradient radius-round btn-sm hover-transform-none w-100 justify-content-center text-center" href="#">
+                    <span>Entrar</span>
+                </a>
+                <a class="rbt-btn btn-gradient radius-round btn-sm hover-transform-none w-100 justify-content-center text-center mt--10" href="#">
+                    <span>Registrar</span>
+                </a>
+            </div>
+
+            <div class="social-share-wrapper">
+                <span class="rbt-short-title d-block">Siga-nos</span>
+                <ul class="social-icon social-default transparent-with-border justify-content-start mt--20">
+                    <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+                    <li><a href="#"><i class="fab fa-twitter"></i></a></li>
+                    <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                    <li><a href="#"><i class="fab fa-linkedin-in"></i></a></li>
+                </ul>
+            </div>
+            
+            <div class="language-selector mt--20">
+                <span class="rbt-short-title d-block">Idioma</span>
+                <ul class="language-list">
+                    <li class="active"><a href="#"><img src="{% static 'assets/images/icons/pt-pt.png' %}" alt="Português"> Português</a></li>
+                    <li><a href="#"><img src="{% static 'assets/images/icons/en-us.png' %}" alt="Inglês"> Inglês</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="rbt-cart-side-menu">
+    <div class="inner-wrapper">
+        <div class="inner-top">
+            <div class="content">
+                <div class="title">
+                    <h4 class="title mb--0">Your shopping cart</h4>
+                </div>
+                <div class="rbt-btn-close" id="btn_sideNavClose">
+                    <button class="minicart-close-button rbt-round-btn"><i class="feather-x"></i></button>
+                </div>
+            </div>
+        </div>
+        <nav class="side-nav w-100">
+            <ul class="rbt-minicart-wrapper">
+                <li class="minicart-item">
+                    <div class="thumbnail">
+                        <a href="05-classic-lms.html#">
+                            <img src="{% static 'assets/images/product/1.jpg' %}" alt="Product Images">
+                        </a>
+                    </div>
+                    <div class="product-content">
+                        <h6 class="title"><a href="single-product.html">Miracle Morning</a></h6>
+
+                        <span class="quantity">1 * <span class="price">$22</span></span>
+                    </div>
+                    <div class="close-btn">
+                        <button class="rbt-round-btn"><i class="feather-x"></i></button>
+                    </div>
+                </li>
+
+                <li class="minicart-item">
+                    <div class="thumbnail">
+                        <a href="05-classic-lms.html#">
+                            <img src="assets/images/product/7.jpg" alt="Product Images">
+                        </a>
+                    </div>
+                    <div class="product-content">
+                        <h6 class="title"><a href="single-product.html">Happy Strong</a></h6>
+
+                        <span class="quantity">1 * <span class="price">$30</span></span>
+                    </div>
+                    <div class="close-btn">
+                        <button class="rbt-round-btn"><i class="feather-x"></i></button>
+                    </div>
+                </li>
+
+                <li class="minicart-item">
+                    <div class="thumbnail">
+                        <a href="05-classic-lms.html#">
+                            <img src="assets/images/product/3.jpg" alt="Product Images">
+                        </a>
+                    </div>
+                    <div class="product-content">
+                        <h6 class="title"><a href="single-product.html">Rich Dad Poor Dad</a></h6>
+
+                        <span class="quantity">1 * <span class="price">$50</span></span>
+                    </div>
+                    <div class="close-btn">
+                        <button class="rbt-round-btn"><i class="feather-x"></i></button>
+                    </div>
+                </li>
+
+                <li class="minicart-item">
+                    <div class="thumbnail">
+                        <a href="05-classic-lms.html#">
+                            <img src="{% static 'assets/images/product/4.jpg' %}" alt="Product Images">
+                        </a>
+                    </div>
+                    <div class="product-content">
+                        <h6 class="title"><a href="single-product.html">Momentum Theorem</a></h6>
+
+                        <span class="quantity">1 * <span class="price">$50</span></span>
+                    </div>
+                    <div class="close-btn">
+                        <button class="rbt-round-btn"><i class="feather-x"></i></button>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="rbt-minicart-footer">
+            <hr class="mb--0">
+            <div class="rbt-cart-subttotal">
+                <p class="subtotal"><strong>Subtotal:</strong></p>
+                <p class="price">$121</p>
+            </div>
+            <hr class="mb--0">
+            <div class="rbt-minicart-bottom mt--20">
+                <div class="view-cart-btn">
+                    <a class="rbt-btn btn-border icon-hover w-100 text-center" href="05-classic-lms.html#">
+                        <span class="btn-text">View Cart</span>
+                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                    </a>
+                </div>
+                <div class="checkout-btn mt--20">
+                    <a class="rbt-btn btn-gradient icon-hover w-100 text-center" href="05-classic-lms.html#">
+                        <span class="btn-text">Checkout</span>
+                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

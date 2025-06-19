@@ -1,0 +1,412 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EducAngola | Seleção de Perfil</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-lighter: #93c5fd;
+            --white: #ffffff;
+            --light-gray: #f8fafc;
+            --gray: #e2e8f0;
+            --dark-gray: #94a3b8;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: var(--light-gray);
+            color: var(--text-dark);
+            padding: 40px;
+        }
+
+        /* Efeitos de fundo circular */
+        .bg-circles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(37, 99, 235, 0.05);
+            pointer-events: none;
+        }
+
+        .circle-1 {
+            width: 600px;
+            height: 600px;
+            top: -200px;
+            left: -200px;
+        }
+
+        .circle-2 {
+            width: 400px;
+            height: 400px;
+            bottom: -100px;
+            right: -100px;
+        }
+
+        /* Container principal */
+        .profile-selector-container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Cabeçalho */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        .header p::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        /* Grid de perfis */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        /* Cards de perfil */
+        .profile-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 40px 30px;
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            border-top: 4px solid var(--primary);
+        }
+
+        .profile-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Ícone */
+        .icon-wrapper {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(37, 99, 235, 0.1);
+            border-radius: 50%;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .profile-card:hover .icon-wrapper {
+            background: var(--primary);
+            transform: rotate(15deg);
+        }
+
+        .icon-wrapper i {
+            font-size: 48px;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+
+        .profile-card:hover .icon-wrapper i {
+            color: var(--white);
+            transform: scale(1.1);
+        }
+
+        /* Conteúdo do card */
+        .profile-card h2 {
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .tech-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .tech-tag {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .profile-card:hover .tech-tag {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .profile-card p {
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        /* Botão */
+        .select-btn {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 12px 30px;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .select-btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px rgba(37, 99, 235, 0.2);
+            color: var(--white);
+            text-decoration: none;
+        }
+
+        .select-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Responsividade */
+        @media (max-width: 992px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.6rem;
+            }
+            
+            .profile-card {
+                padding: 30px 20px;
+            }
+            
+            .select-btn {
+                padding: 10px 25px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Efeitos de fundo circular -->
+    <div class="bg-circles">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+    </div>
+    
+    <div class="profile-selector-container">
+        <div class="header">
+            <h1>Bem-vindo ao Edukangola</h1>
+            <p>Selecione seu perfil para acessar o sistema educacional</p>
+        </div>
+        
+        <div class="profile-grid">
+            <!-- Card Aluno -->
+            <div class="profile-card">
+                <div class="icon-wrapper">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <h2>Aluno</h2>
+                <div class="tech-features">
+                    <span class="tech-tag">Cursos Online</span>
+                    <span class="tech-tag">Aprendizado</span>
+                    <span class="tech-tag">Certificados</span>
+                </div>
+                <p>Acesse cursos personalizados, materiais de estudo interativos e acompanhe seu progresso.</p>
+                <a href="{% url 'Login_aluno' %}" class="select-btn">Acessar</a>
+            </div>
+            
+            <!-- Card Instrutor -->
+            <div class="profile-card">
+                <div class="icon-wrapper">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <h2>Instrutor</h2>
+                <div class="tech-features">
+                    <span class="tech-tag">Criação</span>
+                    <span class="tech-tag">Gestão</span>
+                    <span class="tech-tag">Avaliações</span>
+                </div>
+                <p>Crie e ministre cursos, avalie o desempenho dos alunos e utilize ferramentas pedagógicas.</p>
+                <a href="{% url 'Login_instrutor' %}" class="select-btn">Acessar</a>
+            </div>
+            
+            <!-- Card Escola -->
+            <div class="profile-card">
+                <div class="icon-wrapper">
+                    <i class="fas fa-school"></i>
+                </div>
+                <h2>Escola</h2>
+                <div class="tech-features">
+                    <span class="tech-tag">Gestão</span>
+                    <span class="tech-tag">Relatórios</span>
+                    <span class="tech-tag">Comunicação</span>
+                </div>
+                <p>Gerencie sua instituição de ensino e acompanhe o desempenho de alunos e professores.</p>
+                <a href="{% url 'Login_escola' %}" class="select-btn">Acessar</a>
+            </div>
+            
+            <!-- Card Biblioteca -->
+            <div class="profile-card">
+                <div class="icon-wrapper">
+                    <i class="fas fa-book"></i>
+                </div>
+                <h2>Biblioteca</h2>
+                <div class="tech-features">
+                    <span class="tech-tag">Acervo</span>
+                    <span class="tech-tag">Empréstimos</span>
+                    <span class="tech-tag">Recursos</span>
+                </div>
+                <p>Disponibilize livros digitais e gerencie empréstimos para alunos e professores.</p>
+                <a href="{% url 'Login_biblioteca' %}" class="select-btn">Acessar</a>
+            </div>
+            
+            <!-- Card Empresa -->
+            <div class="profile-card">
+                <div class="icon-wrapper">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <h2>Empresa</h2>
+                <div class="tech-features">
+                    <span class="tech-tag">Oportunidades</span>
+                    <span class="tech-tag">Estágios</span>
+                    <span class="tech-tag">Recrutamento</span>
+                </div>
+                <p>Ofereça oportunidades de estágio e encontre talentos entre os alunos da plataforma.</p>
+                <a href="{% url 'Login_empresa' %}" class="select-btn">Acessar</a>
+            </div>
+            
+            <!-- Card Administrador -->
+            <div class="profile-card">
+                <div class="icon-wrapper">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <h2>Administrador</h2>
+                <div class="tech-features">
+                    <span class="tech-tag">Gestão</span>
+                    <span class="tech-tag">Relatórios</span>
+                    <span class="tech-tag">Configurações</span>
+                </div>
+                <p>Acesso completo ao sistema para gerenciar usuários e configurações da plataforma.</p>
+                <a href="#" class="select-btn">Acessar</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Efeito de hover nos cards
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.profile-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    const icon = card.querySelector('i');
+                    if (icon) {
+                        icon.style.transform = 'scale(1.1)';
+                    }
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    const icon = card.querySelector('i');
+                    if (icon) {
+                        icon.style.transform = 'scale(1)';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

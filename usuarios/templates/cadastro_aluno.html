@@ -1,0 +1,1034 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EducAngola | Cadastro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-lighter: #93c5fd;
+            --white: #ffffff;
+            --light-gray: #f8fafc;
+            --gray: #e2e8f0;
+            --dark-gray: #94a3b8;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: var(--light-gray);
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* Efeitos de fundo circular */
+        .bg-circles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(37, 99, 235, 0.05);
+            pointer-events: none;
+        }
+
+        .circle-1 {
+            width: 600px;
+            height: 600px;
+            top: -200px;
+            left: -200px;
+        }
+
+        .circle-2 {
+            width: 400px;
+            height: 400px;
+            bottom: -100px;
+            right: -100px;
+        }
+
+        /* Painel de informações */
+        .info-panel {
+            flex: 1;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+            overflow-y: auto;
+        }
+
+        .info-content {
+            position: relative;
+            z-index: 2;
+            max-width: 550px;
+        }
+
+        .welcome-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            line-height: 1.2;
+            color: var(--primary);
+        }
+
+        .welcome-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 40px;
+            line-height: 1.7;
+        }
+
+        .features-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: var(--white);
+            padding: 24px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(37, 99, 235, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            color: var(--primary);
+            font-size: 20px;
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+
+        .feature-item:hover .feature-icon {
+            background: var(--primary);
+            color: var(--white);
+            transform: rotate(15deg) scale(1.1);
+        }
+
+        .feature-text h3 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .feature-text p {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .education-icons {
+            position: absolute;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .icon-book {
+            top: 15%;
+            right: 15%;
+            font-size: 100px;
+            color: var(--primary);
+        }
+
+        .icon-graduation {
+            bottom: 20%;
+            left: 10%;
+            font-size: 80px;
+            color: var(--primary);
+        }
+
+        /* Painel de cadastro */
+        .register-panel {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+            position: relative;
+            overflow-y: auto;
+            z-index: 1;
+        }
+
+        .register-container {
+            max-width: 480px;
+            width: 100%;
+            background: var(--white);
+            padding: 50px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .register-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.05) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo img {
+            height: 60px;
+        }
+
+        .register-title {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .register-subtitle {
+            color: var(--text-light);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .input-field {
+            position: relative;
+        }
+
+        .input-field i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--dark-gray);
+            font-size: 18px;
+            transition: var(--transition);
+        }
+
+        .input-field input {
+            width: 100%;
+            padding: 14px 16px 14px 46px;
+            border: 1px solid var(--gray);
+            border-radius: var(--radius-full);
+            font-size: 0.95rem;
+            background: var(--white);
+            transition: var(--transition);
+            color: var(--text-dark);
+        }
+
+        .input-field input:focus {
+            border-color: var(--primary-light);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .input-field input:focus + i {
+            color: var(--primary);
+        }
+
+        .password-strength {
+            margin-top: 8px;
+            height: 4px;
+            background: var(--gray);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .password-strength::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            background: #ef4444; /* Vermelho para senha fraca */
+            transition: width 0.3s ease;
+        }
+
+        .password-strength.medium::after {
+            width: 50%;
+            background: #f59e0b; /* Amarelo para senha média */
+        }
+
+        .password-strength.strong::after {
+            width: 100%;
+            background: #10b981; /* Verde para senha forte */
+        }
+
+        .password-hints {
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .password-hints ul {
+            list-style: none;
+            padding-left: 5px;
+        }
+
+        .password-hints li {
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-hints li i {
+            margin-right: 5px;
+            font-size: 0.7rem;
+            color: var(--dark-gray);
+        }
+
+        .password-hints li.valid i {
+            color: #10b981;
+        }
+
+        .terms {
+            display: flex;
+            align-items: flex-start;
+            margin: 25px 0;
+            font-size: 0.85rem;
+        }
+
+        .terms input {
+            width: 18px;
+            height: 18px;
+            border: 1px solid var(--gray);
+            border-radius: var(--radius-sm);
+            margin-right: 10px;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-top: 3px;
+            appearance: none;
+            transition: var(--transition);
+        }
+
+        .terms input:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'%3E%3Cpath fill-rule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clip-rule='evenodd' /%3E%3C/svg%3E");
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .terms label {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .terms a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .terms a:hover {
+            text-decoration: underline;
+        }
+
+        .register-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-full);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+        }
+
+        .register-btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px rgba(37, 99, 235, 0.2);
+        }
+
+        .register-btn:active {
+            transform: translateY(1px);
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+
+        .login-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Decoração circular */
+        .circle-decoration {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(37, 99, 235, 0.05);
+            z-index: -1;
+        }
+
+        .circle-decoration-1 {
+            top: -50px;
+            right: -50px;
+            width: 300px;
+            height: 300px;
+        }
+
+        .circle-decoration-2 {
+            bottom: -30px;
+            left: -30px;
+            width: 150px;
+            height: 150px;
+        }
+
+        /* Responsividade */
+        @media (max-width: 1200px) {
+            .info-panel {
+                padding: 40px;
+            }
+            
+            .register-panel {
+                padding: 40px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .welcome-title {
+                font-size: 2rem;
+            }
+            
+            .register-title {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .info-panel {
+                padding: 40px 30px;
+                text-align: center;
+            }
+
+            .feature-item {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .feature-icon {
+                margin: 0 auto 15px;
+            }
+
+            .register-panel {
+                padding: 40px 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .info-panel {
+                padding: 30px 20px;
+            }
+            
+            .welcome-title {
+                font-size: 1.8rem;
+            }
+            
+            .register-title {
+                font-size: 1.5rem;
+            }
+            
+            .register-container {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Efeitos de fundo circular -->
+    <div class="bg-circles">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+    </div>
+    
+    <!-- Painel de informações -->
+    <div class="info-panel">
+        <div class="info-content">
+            <h1 class="welcome-title">JUNTE-SE A NÓS</h1>
+            <p class="welcome-subtitle">Crie sua conta e comece sua jornada educacional com acesso a recursos exclusivos e tecnologia de ponta.</p>
+            
+            <div class="features-list">
+                
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>CURSOS</h3>
+                        <p>Diversos cursos em múltiplas áreas do conhecimento com certificação reconhecida.</p>
+                    </div>
+                </div>
+            
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>CENTROS</h3>
+                        <p>Parceria com os melhores centros de formação e instituições educacionais.</p>
+                    </div>
+                </div>
+            
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>LIVROS</h3>
+                        <p>Biblioteca digital com vasto acervo de livros e materiais didáticos atualizados.</p>
+                    </div>
+                </div>
+            
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>ESTÁGIOS</h3>
+                        <p>Oportunidades de estágio em empresas parceiras para aplicar o conhecimento.</p>
+                    </div>
+                </div>
+            
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>CERTIFICADOS</h3>
+                        <p>Certificação digital reconhecida pelo mercado para comprovar suas habilidades.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Ícones de educação no fundo -->
+            <i class="fas fa-book-open education-icons icon-book"></i>
+            <i class="fas fa-graduation-cap education-icons icon-graduation"></i>
+        </div>
+    </div>
+
+    <!-- Painel de cadastro -->
+    <div class="register-panel">
+        <div class="register-container">
+            <!-- Elementos decorativos -->
+            <div class="circle-decoration circle-decoration-1"></div>
+            <div class="circle-decoration circle-decoration-2"></div>
+            
+            <div class="logo">
+                <img src="{% static 'assets/images/logo/logo.png' %}" alt="EducAngola Logo">
+            </div>
+            
+            <h1 class="register-title">Criar Conta</h1>
+            <p class="register-subtitle">Preencha seus dados para começar</p>
+            
+            <!-- Mensagens de status -->
+            
+    
+            <form method="POST" action="{% url 'valida_cadastro_aluno' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="name">Nome Completo</label>
+                    <div class="input-field">
+                        <i class="fas fa-user"></i>
+                        <input name="nome" type="text" id="name" 
+                               value="{% firstof request.GET.nome request.POST.nome '' %}" 
+                               placeholder="Seu nome completo" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <div class="input-field">
+                        <i class="fas fa-envelope"></i>
+                        <input name="email" type="email" id="email" 
+                               value="{% firstof request.GET.email request.POST.email '' %}" 
+                               placeholder="seu@email.com" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <div class="input-field">
+                        <i class="fas fa-lock"></i>
+                        <input name="senha" type="password" id="password" placeholder="••••••••" required>
+                    </div>
+                    <div class="password-hints">
+                        <ul>
+                            <li id="length-hint"><i class="fas fa-circle"></i> Mínimo 8 caracteres</li>
+                            <li id="number-hint"><i class="fas fa-circle"></i> Pelo menos 1 número</li>
+                            <li id="special-hint"><i class="fas fa-circle"></i> Pelo menos 1 caractere especial</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm-password">Confirmar Senha</label>
+                    <div class="input-field">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="confirm-password" name="confirmar_senha" placeholder="••••••••" required>
+                    </div>
+                </div>
+                
+                <div class="terms">
+                    <input type="checkbox" id="terms" name="terms" required
+                           {% if request.POST.terms %}checked{% endif %}>
+                    <label for="terms">Eu concordo com os <a href="#">Termos de Serviço</a> e <a href="#">Política de Privacidade</a>.</label>
+                </div>
+                
+                <button type="submit" class="register-btn">Criar Conta</button>
+                
+                <div class="login-link">
+                    Já tem uma conta? <a href="{% url 'Login_aluno' %}">Faça login</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <style>
+        /* Estilos para mensagens */
+        .alert-message {
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .alert-success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+        
+        .alert-error {
+            background-color: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+        
+        .alert-content {
+            margin-left: 10px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Mantenha os outros estilos existentes */
+    </style>
+
+    <!-- Adicione isso no final do seu body, antes dos scripts -->
+<div id="future-modal" class="future-modal">
+    <div class="future-modal-content">
+        <div class="holographic-effect"></div>
+        <div class="future-modal-body">
+            <div id="future-modal-icon"></div>
+            <h3 id="future-modal-title"></h3>
+            <p id="future-modal-message"></p>
+        </div>
+        <button class="future-modal-close" onclick="closeFutureModal()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
+
+<style>
+    /* Estilos do Modal Futurístico */
+    .future-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(5px);
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    .future-modal-content {
+        position: relative;
+        width: 400px;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 0 30px rgba(0, 255, 255, 0.3),
+                    0 0 60px rgba(0, 150, 255, 0.2);
+        border: 1px solid rgba(0, 255, 255, 0.2);
+        overflow: hidden;
+    }
+
+    .holographic-effect {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, 
+            rgba(0, 255, 255, 0) 0%, 
+            rgba(0, 255, 255, 0.8) 50%, 
+            rgba(0, 255, 255, 0) 100%);
+        animation: scanline 3s linear infinite;
+    }
+
+    .future-modal-body {
+        text-align: center;
+        color: #e6f7ff;
+        padding: 20px 0;
+    }
+
+    #future-modal-icon {
+        font-size: 50px;
+        margin-bottom: 20px;
+        text-shadow: 0 0 15px currentColor;
+    }
+
+    #future-modal-title {
+        font-size: 24px;
+        margin-bottom: 15px;
+        color: #00ffff;
+        text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+    }
+
+    #future-modal-message {
+        font-size: 16px;
+        line-height: 1.5;
+        margin-bottom: 20px;
+    }
+
+    .future-modal-close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .future-modal-close:hover {
+        color: #00ffff;
+        transform: rotate(90deg);
+    }
+
+    /* Animações */
+    @keyframes scanline {
+        0% { transform: translateY(-100%); }
+        100% { transform: translateY(400px); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* Efeitos para diferentes tipos de mensagem */
+    .success-icon {
+        color: #00ffaa;
+    }
+
+    .warning-icon {
+        color: #ffcc00;
+    }
+
+    .error-icon {
+        color: #ff3366;
+    }
+</style>
+
+<script>
+    // Mapeamento de status para mensagens
+    const statusMessages = {
+        "0": { 
+            title: "Sucesso!", 
+            message: "Cadastro realizado com sucesso!", 
+            icon: "✅", 
+            type: "success" 
+        },
+        "1": { 
+            title: "Atenção", 
+            message: "Preencha todos os campos obrigatórios.", 
+            icon: "⚠️", 
+            type: "warning" 
+        },
+        "2": { 
+            title: "Atenção", 
+            message: "A senha deve ter pelo menos 8 caracteres.", 
+            icon: "⚠️", 
+            type: "warning" 
+        },
+        "3": { 
+            title: "Erro", 
+            message: "Este e-mail já está cadastrado.", 
+            icon: "❌", 
+            type: "error" 
+        },
+        "4": { 
+            title: "Erro", 
+            message: "Ocorreu um erro inesperado. Tente novamente.", 
+            icon: "❌", 
+            type: "error" 
+        },
+        "5": { 
+            title: "Atenção", 
+            message: "As senhas não coincidem.", 
+            icon: "⚠️", 
+            type: "warning" 
+        },
+        "6": { 
+            title: "Erro", 
+            message: "Método de requisição inválido.", 
+            icon: "❌", 
+            type: "error" 
+        },
+        "7": { 
+            title: "Atenção", 
+            message: "Você deve aceitar os termos de serviço.", 
+            icon: "⚠️", 
+            type: "warning" 
+        }
+    };
+
+    // Função para mostrar o modal
+    function showFutureModal(status) {
+        const modal = document.getElementById('future-modal');
+        const modalData = statusMessages[status];
+        
+        if (modalData) {
+            document.getElementById('future-modal-icon').innerHTML = modalData.icon;
+            document.getElementById('future-modal-title').textContent = modalData.title;
+            document.getElementById('future-modal-message').textContent = modalData.message;
+            
+            // Adiciona classe baseada no tipo
+            const iconElement = document.getElementById('future-modal-icon');
+            iconElement.className = '';
+            iconElement.classList.add(`${modalData.type}-icon`);
+            
+            modal.style.display = 'flex';
+            
+            // Fecha automaticamente após 5 segundos
+            setTimeout(closeFutureModal, 5000);
+        }
+    }
+
+    // Função para fechar o modal
+    function closeFutureModal() {
+        document.getElementById('future-modal').style.display = 'none';
+    }
+
+    // Verifica o status na carga da página
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const status = urlParams.get('status');
+        
+        if (status) {
+            showFutureModal(status);
+        }
+    });
+</script>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Validação de senha em tempo real
+        const passwordInput = document.getElementById('password');
+        if (passwordInput) {
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                const lengthHint = document.getElementById('length-hint');
+                const numberHint = document.getElementById('number-hint');
+                const specialHint = document.getElementById('special-hint');
+                
+                // Atualiza dicas
+                lengthHint.innerHTML = password.length >= 8 ? 
+                    '<i class="fas fa-check"></i> Mínimo 8 caracteres' : 
+                    '<i class="fas fa-circle"></i> Mínimo 8 caracteres';
+                
+                numberHint.innerHTML = /\d/.test(password) ? 
+                    '<i class="fas fa-check"></i> Pelo menos 1 número' : 
+                    '<i class="fas fa-circle"></i> Pelo menos 1 número';
+                
+                specialHint.innerHTML = /[^A-Za-z0-9]/.test(password) ? 
+                    '<i class="fas fa-check"></i> Pelo menos 1 caractere especial' : 
+                    '<i class="fas fa-circle"></i> Pelo menos 1 caractere especial';
+            });
+        }
+    });
+    </script>
+    
+
+    <script>
+        // Validação de força da senha
+        document.addEventListener('DOMContentLoaded', () => {
+            const passwordInput = document.getElementById('password');
+            const passwordStrength = document.getElementById('password-strength');
+            const lengthHint = document.getElementById('length-hint');
+            const numberHint = document.getElementById('number-hint');
+            const specialHint = document.getElementById('special-hint');
+            
+            if (passwordInput) {
+                passwordInput.addEventListener('input', function() {
+                    const password = this.value;
+                    let strength = 0;
+                    
+                    // Verifica o comprimento
+                    if (password.length >= 8) {
+                        strength += 1;
+                        lengthHint.classList.add('valid');
+                        lengthHint.innerHTML = '<i class="fas fa-check-circle"></i> Mínimo 8 caracteres';
+                    } else {
+                        lengthHint.classList.remove('valid');
+                        lengthHint.innerHTML = '<i class="fas fa-circle"></i> Mínimo 8 caracteres';
+                    }
+                    
+                    // Verifica números
+                    if (/\d/.test(password)) {
+                        strength += 1;
+                        numberHint.classList.add('valid');
+                        numberHint.innerHTML = '<i class="fas fa-check-circle"></i> Pelo menos 1 número';
+                    } else {
+                        numberHint.classList.remove('valid');
+                        numberHint.innerHTML = '<i class="fas fa-circle"></i> Pelo menos 1 número';
+                    }
+                    
+                    // Verifica caracteres especiais
+                    if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+                        strength += 1;
+                        specialHint.classList.add('valid');
+                        specialHint.innerHTML = '<i class="fas fa-check-circle"></i> Pelo menos 1 caractere especial';
+                    } else {
+                        specialHint.classList.remove('valid');
+                        specialHint.innerHTML = '<i class="fas fa-circle"></i> Pelo menos 1 caractere especial';
+                    }
+                    
+                    // Atualiza a barra de força
+                    passwordStrength.className = 'password-strength';
+                    if (password.length > 0) {
+                        if (strength === 1) {
+                            passwordStrength.classList.add('weak');
+                        } else if (strength === 2) {
+                            passwordStrength.classList.add('medium');
+                        } else if (strength >= 3) {
+                            passwordStrength.classList.add('strong');
+                        }
+                    }
+                });
+            }
+            
+            // Validação de confirmação de senha
+            const confirmPassword = document.getElementById('confirm-password');
+            if (confirmPassword) {
+                confirmPassword.addEventListener('input', function() {
+                    if (this.value !== passwordInput.value) {
+                        this.setCustomValidity('As senhas não coincidem');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                });
+            }
+            
+            // Efeito de clique no botão de registro
+            const registerBtn = document.querySelector('.register-btn');
+            if (registerBtn) {
+                registerBtn.addEventListener('mousedown', () => {
+                    registerBtn.style.transform = 'translateY(1px)';
+                });
+                
+                registerBtn.addEventListener('mouseup', () => {
+                    registerBtn.style.transform = 'translateY(-3px)';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+
+
