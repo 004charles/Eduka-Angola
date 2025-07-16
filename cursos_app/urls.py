@@ -10,4 +10,6 @@ urlpatterns = [
     path('curso_detalhe/<int:id>/', views.curso_detalhe, name='curso_detalhe'),
     path('centro/<int:centro_id>/cursos/', views.cursos_por_centro, name='cursos_por_centro'),
     path('categoria/<slug:slug>/', views.cursos_por_categoria, name='cursos_por_categoria'),
+    path('pagina_categoria/', views.pagina_categoria, name = 'pagina_categoria')
+
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

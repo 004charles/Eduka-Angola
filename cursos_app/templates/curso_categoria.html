@@ -57,7 +57,7 @@
                             <!-- Fim da Área de Navegação -->
             
                             <div class="title-wrapper">
-                                <h1 class="title mb--0">Todos os Cursos</h1>
+                                <h1 class="title mb--0">Todos os Cursos -> </h1>
                                 <a href="#" class="rbt-badge-2">
                                     <div class="image">🎉</div>{{categoria.nome}}
                                 </a>
@@ -210,92 +210,100 @@
 
 
     <div class="rbt-section-overlayping-top rbt-section-gapBottom">
-        <div class="inner">
-            <div class="container">
-                <div class="rbt-course-grid-column">
-                    {% for curso in cursos %}
-                    <div class="course-grid-3">
-                        <div class="rbt-card variation-01 rbt-hover">
-                            <div class="rbt-card-img">
-                                <a href="{% url 'curso_detalhe' id=curso.id %}">
-                                    <img src="{{curso.imagem.url}}" alt="Card image">
-                                    <div class="rbt-badge-3 bg-white">
-                                        <span>-40%</span>
-                                        <span>Off</span>
+    <div class="inner">
+        <div class="container">
+            <div class="rbt-course-grid-column">
+                {% for curso in cursos %}
+                <div class="course-grid-3">
+                    <div class="rbt-card variation-01 rbt-hover">
+                        <div class="rbt-card-img">
+                            <a href="{% url 'curso_detalhe' id=curso.id %}">
+                                <img src="{{curso.imagem.url}}" alt="Card image">
+                                <div class="rbt-badge-3 bg-white">
+                                    <span>-40%</span>
+                                    <span>Off</span>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="rbt-card-body">
+                            <div class="rbt-card-top">
+                                <div class="rbt-review">
+                                    <div class="rating">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
                                     </div>
-                                </a>
+                                    <span class="rating-count"> (15 Reviews)</span>
+                                </div>
+                                <div class="rbt-bookmark-btn">
+                                    <a class="rbt-round-btn" title="Bookmark" href="course-filter-one-toggle.html#"><i
+                                            class="feather-bookmark"></i></a>
+                                </div>
                             </div>
-                            <div class="rbt-card-body">
-                                <div class="rbt-card-top">
-                                    <div class="rbt-review">
-                                        <div class="rating">
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                        </div>
-                                        <span class="rating-count"> (15 Reviews)</span>
-                                    </div>
-                                    <div class="rbt-bookmark-btn">
-                                        <a class="rbt-round-btn" title="Bookmark" href="course-filter-one-toggle.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                    </div>
-                                </div>
 
-                                <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a>
-                                </h4>
+                            <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a>
+                            </h4>
 
-                                <ul class="rbt-meta">
-                                    <li><i class="feather-book"></i>{{ curso.modulos.count }} Módulos</li>
-                                    <li><i class="feather-users"></i>{{ curso.inscricoes.count }} Inscritos</li>
-                                </ul>
+                            <ul class="rbt-meta">
+                                <li><i class="feather-book"></i>{{ curso.modulos.count }} Módulos</li>
+                                <li><i class="feather-users"></i>{{ curso.inscricoes.count }} Inscritos</li>
+                            </ul>
 
-                                <p class="rbt-card-text">{{ curso.descricao|truncatechars:50 }}</p>
-                                <div class="rbt-author-meta mb--10">
-                                    <div class="rbt-avater">
-                                        <a href="course-filter-one-toggle.html#">
-                                            <img src="{{ curso.centro.perfil.imagem.url }}" alt="Sophia Jaymes">
-                                        </a>
-                                    </div>
-                                    <div class="rbt-author-info">
-                                        por: <a href="#"></a>  <a href="#">{{ curso.centro.nome }}</a>
-                                    </div>
-                                </div>
-                                <div class="rbt-card-bottom">
-                                    <div class="rbt-price">
-                                        <span class="current-price">{{ curso.preco }} KZ</span>
-                                        {% if curso.preco_original %}
-                                        <span class="off-price">{{ curso.preco_original }} KZ</span>
-                                        {% endif %}
-                                    </div>
-                                    <a class="rbt-btn-link" href="{% url 'curso_detalhe' curso.id %}">
-                                        Ver Curso <i class="feather-arrow-right"></i>
+                            <p class="rbt-card-text">{{ curso.descricao|truncatechars:50 }}</p>
+                            <div class="rbt-author-meta mb--10">
+                                <div class="rbt-avater">
+                                    <a href="course-filter-one-toggle.html#">
+                                        <img src="{{ curso.centro.perfil.imagem.url }}" alt="Sophia Jaymes">
                                     </a>
                                 </div>
+                                <div class="rbt-author-info">
+                                    por: <a href="#"></a>  <a href="#">{{ curso.centro.nome }}</a>
+                                </div>
+                            </div>
+                            <div class="rbt-card-bottom">
+                                <div class="rbt-price">
+                                    <span class="current-price">{{ curso.preco }} KZ</span>
+                                    {% if curso.preco_original %}
+                                    <span class="off-price">{{ curso.preco_original }} KZ</span>
+                                    {% endif %}
+                                </div>
+                                <a class="rbt-btn-link" href="{% url 'curso_detalhe' curso.id %}">
+                                    Ver Curso <i class="feather-arrow-right"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
-                    {% endfor %}
-                    
                 </div>
-                <div class="row">
-                    <div class="col-lg-12 mt--60">
-                        <nav>
-                            <ul class="rbt-pagination">
-                                <li><a href="course-filter-one-toggle.html#" aria-label="Previous"><i class="feather-chevron-left"></i></a></li>
-                                <li><a href="course-filter-one-toggle.html#">1</a></li>
-                                <li class="active"><a href="course-filter-one-toggle.html#">2</a></li>
-                                <li><a href="course-filter-one-toggle.html#">3</a></li>
-                                <li><a href="course-filter-one-toggle.html#" aria-label="Next"><i class="feather-chevron-right"></i></a></li>
-                            </ul>
-                        </nav>
+                {% empty %}
+                <div class="course-grid-3" style="grid-column: 1/-1; text-align: center;">
+                    <div class="rbt-card variation-01">
+                        <div class="rbt-card-body">
+                            <i class="feather-book-open" style="font-size: 48px; color: #6f4ef6;"></i>
+                            <h4 class="rbt-card-title">Nenhum curso disponível</h4>
+                            <p class="rbt-card-text">Não encontramos cursos nesta categoria.</p>
+                        </div>
                     </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="row">
+                <div class="col-lg-12 mt--60">
+                    <nav>
+                        <ul class="rbt-pagination">
+                            <li><a href="course-filter-one-toggle.html#" aria-label="Previous"><i class="feather-chevron-left"></i></a></li>
+                            <li><a href="course-filter-one-toggle.html#">1</a></li>
+                            <li class="active"><a href="course-filter-one-toggle.html#">2</a></li>
+                            <li><a href="course-filter-one-toggle.html#">3</a></li>
+                            <li><a href="course-filter-one-toggle.html#" aria-label="Next"><i class="feather-chevron-right"></i></a></li>
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
     </div>
-
+</div>
 
     <div class="rbt-separator-mid">
         <div class="container">

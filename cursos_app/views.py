@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from django.shortcuts import render, get_object_or_404
-from .models import Curso, Instrutor
+from .models import Curso, Instrutor, Categoria
 from usuarios.models import Comentario
 from cursos_app.models import CentroDeFormacao
 from .models import Curso, Categoria
+from django.db.models import Count, Q
+
 
 def home_cursos(request):
     return render(request, 'home_cursos.html')
@@ -84,3 +86,13 @@ def cursos_por_categoria(request, slug):
         'cursos': cursos,
     }
     return render(request, 'curso_categoria.html', context)
+
+
+def pagina_categoria(request):
+    categoria = Categoria.objects.annotate(
+        num_cursos=Count('curso', filter=Q(curso__publicado=True, curso__ativo=True)))
+    
+    context = {
+        'categoria':categoria,
+    }
+    return render(request, 'core/categoria.html', context)
