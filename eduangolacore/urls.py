@@ -11,3 +11,6 @@ urlpatterns = [
     path('auth/', include('usuarios.urls')), 
     path('cursos/', include('cursos_app.urls')),
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+handler404 = 'core.views.erro_404_view'

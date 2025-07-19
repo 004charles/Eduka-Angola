@@ -42,10 +42,28 @@
                                 <ul class="rbt-dropdown-menu switcher-language">
                                     <li class="has-child-menu">
                                         <a href="#">
-                                            <img class="left-image" src="{% static 'assets/images/icons/pt-pt.png' %}" alt="Português">
+                                            <img class="left-image" src="{% static 'assets/images/icons/en-us.png' %}" alt="Português">
                                             <span class="menu-item">Português</span>
                                             <i class="right-icon feather-chevron-down"></i>
                                         </a>
+                                        <ul class="sub-menu">
+                                            <li>
+                                                <a href="#">
+                                                    <img class="left-image" src="{% static 'assets/images/icons/en-us.png' %}" alt="Inglês">
+                                                    <span class="menu-item">Inglês</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+
+                                        <ul class="sub-menu">
+                                            <li>
+                                                <a href="#">
+                                                    <img class="left-image" src="{% static 'assets/images/icons/en-us.png' %}" alt="Inglês">
+                                                    <span class="menu-item">Inglês</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+
                                         <ul class="sub-menu">
                                             <li>
                                                 <a href="#">
@@ -72,14 +90,14 @@
                 <!-- Logo -->
                 <div class="header-left rbt-header-content">
                     <div class="header-info">
-                        <div class="logo logo-dark">
+                        <div class="logo logo-dark" style="width: 100px; height: auto;"> <!-- Ajuste o tamanho conforme necessário -->
+                        <a href="#">
+                            <img src="{% static 'assets/images/Logo1.png' %}" alt="EdukAngola Logo" style="filter: brightness(0); width: 100%; height: auto;">
+                        </a>
+                    </div>
+                        <div class="logo d-none logo-light" style="width: 100px; height: auto;">
                             <a href="#">
-                                <img src="{% static 'assets/images/logo/edukangola-logo.png' %}" alt="EdukAngola Logo">
-                            </a>
-                        </div>
-                        <div class="logo d-none logo-light">
-                            <a href="#">
-                                <img src="{% static 'assets/images/logo/edukangola-logo-light.png' %}" alt="EdukAngola Logo">
+                                <img src="{% static 'assets/images/Logo1.png' %}" alt="EdukAngola Logo" style="width: 100%; height: auto;">
                             </a>
                         </div>
                     </div>
@@ -294,7 +312,7 @@
                         </li>
 
                         <li class="account-access rbt-user-wrapper d-none d-xl-block">
-                                <a href="#"><i class="feather-user"></i>Minha Conta</a>
+                                <a href="{% url 'Login_aluno' %}"><i class="feather-user"></i>Minha Conta</a>
                                 <div class="rbt-user-menu-list-wrapper">
                                     <div class="inner">
                                         <div class="rbt-admin-profile">
@@ -732,3 +750,4 @@
 
     </div>
 </div>
+

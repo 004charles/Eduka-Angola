@@ -37,7 +37,7 @@
             </li>
         </ul>
     </div>
-   {% include 'include/header_principal.html' %}
+   {% include 'include/header.html' %}
     
     <main class="rbt-main-wrapper">
         <!-- Start Banner Area  -->
@@ -1018,8 +1018,8 @@
                             </div>
                             <div class="rbt-card-bottom">
                                 <div class="rbt-price">
-                                    <span class="current-price">$60</span>
-                                    <span class="off-price">$120</span>
+                                    <span class="current-price">kz {{curso.preco}}</span>
+                                    <span class="off-price">kz 70.000</span>
                                 </div>
                                 <a class="rbt-btn-link" href="{% url 'curso_detalhe' id=curso.id %}">ler 
                                     mais<i class="feather-arrow-right"></i></a>

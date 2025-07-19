@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>404 Page - Online Courses & Education Bootstrap5 Template</title>
+    <meta name="robots" content="noindex, follow">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    {% include 'include/css.html' %}
+</head>
+
+<body class="rbt-header-sticky">
+    <div id="my_switcher" class="my_switcher">
+        <ul>
+            <li>
+                <a href="javascript: void(0);" data-theme="light" class="setColor light">
+                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode"> Light</span>
+                </a>
+            </li>
+            <li>
+                <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
+                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Vector Images"><span title="Dark Mode"> Dark</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Start Header Area -->
+    
+    {% include 'include/header.html' %}
+    
+    <div class="rbt-error-area bg-gradient-11 rbt-section-gap">
+    <div class="error-area">
+        <div class="container">
+            <div class="row justify-content-center text-center">
+                <div class="col-10">
+                    <h1 class="title">404!</h1>
+                    <h3 class="sub-title">Página não encontrada</h3>
+                    <p>A página que você procurava não foi encontrada.</p>
+                    <a class="rbt-btn btn-gradient icon-hover" href="/">
+                        <span class="btn-text">Voltar para a página inicial</span>
+                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="rbt-separator-mid">
+        <div class="container">
+            <hr class="rbt-separator m-0">
+        </div>
+    </div>
+    <!-- Start Footer aera -->
+    <!-- Start Footer aera -->
+        {% include 'include/footer.html' %}
+    <!-- JS
+============================================ -->
+        {% include 'include/java.html' %}</body>
+
+</html>

@@ -1,930 +1,143 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EducAngola | Portal de Acesso</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #2563eb;
-            --primary-light: #3b82f6;
-            --primary-lighter: #93c5fd;
-            --white: #ffffff;
-            --light-gray: #f8fafc;
-            --gray: #e2e8f0;
-            --dark-gray: #94a3b8;
-            --text-dark: #1e293b;
-            --text-light: #64748b;
-            --radius-lg: 24px;
-            --radius-md: 16px;
-            --radius-sm: 8px;
-            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            display: flex;
-            min-height: 100vh;
-            background-color: var(--light-gray);
-            color: var(--text-dark);
-            overflow-x: hidden;
-        }
-
-        /* Efeitos de fundo circular */
-        .bg-circles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            overflow: hidden;
-        }
-
-        .circle {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(37, 99, 235, 0.05);
-            pointer-events: none;
-        }
-
-        .circle-1 {
-            width: 600px;
-            height: 600px;
-            top: -200px;
-            left: -200px;
-        }
-
-        .circle-2 {
-            width: 400px;
-            height: 400px;
-            bottom: -100px;
-            right: -100px;
-        }
-
-        /* Painel de informações */
-        .info-panel {
-            flex: 1;
-            padding: 60px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            position: relative;
-            z-index: 1;
-            overflow-y: auto;
-        }
-
-        .info-content {
-            position: relative;
-            z-index: 2;
-            max-width: 550px;
-        }
-
-        .welcome-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 24px;
-            line-height: 1.2;
-            color: var(--primary);
-        }
-
-        .welcome-subtitle {
-            font-size: 1.1rem;
-            color: var(--text-light);
-            margin-bottom: 40px;
-            line-height: 1.7;
-        }
-
-        .features-list {
-            display: grid;
-            gap: 20px;
-        }
-
-        .feature-item {
-            display: flex;
-            align-items: flex-start;
-            background: var(--white);
-            padding: 24px;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-sm);
-            transition: var(--transition);
-        }
-
-        .feature-item:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .feature-icon {
-            width: 50px;
-            height: 50px;
-            background: rgba(37, 99, 235, 0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 20px;
-            color: var(--primary);
-            font-size: 20px;
-            flex-shrink: 0;
-            transition: var(--transition);
-        }
-
-        .feature-item:hover .feature-icon {
-            background: var(--primary);
-            color: var(--white);
-            transform: rotate(15deg) scale(1.1);
-        }
-
-        .feature-text h3 {
-            font-size: 1.2rem;
-            margin-bottom: 8px;
-            color: var(--text-dark);
-        }
-
-        .feature-text p {
-            font-size: 0.95rem;
-            color: var(--text-light);
-            line-height: 1.6;
-        }
-
-        .education-icons {
-            position: absolute;
-            opacity: 0.1;
-            z-index: -1;
-        }
-
-        .icon-book {
-            top: 15%;
-            right: 15%;
-            font-size: 100px;
-            color: var(--primary);
-        }
-
-        .icon-graduation {
-            bottom: 20%;
-            left: 10%;
-            font-size: 80px;
-            color: var(--primary);
-        }
-
-        /* Painel de login */
-        .login-panel {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 60px;
-            position: relative;
-            overflow-y: auto;
-            z-index: 1;
-        }
-
-        .login-container {
-            max-width: 480px;
-            width: 100%;
-            background: var(--white);
-            padding: 50px;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-container::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(37, 99, 235, 0.05) 0%, transparent 70%);
-            z-index: -1;
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .logo img {
-            height: 60px;
-        }
-
-        .login-title {
-            font-size: 2rem;
-            color: var(--primary);
-            margin-bottom: 15px;
-            text-align: center;
-            font-weight: 700;
-        }
-
-        .login-subtitle {
-            color: var(--text-light);
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 1rem;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-dark);
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-
-        .input-field {
-            position: relative;
-        }
-
-        .input-field i {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--dark-gray);
-            font-size: 18px;
-            transition: var(--transition);
-        }
-
-        .input-field input {
-            width: 100%;
-            padding: 14px 16px 14px 46px;
-            border: 1px solid var(--gray);
-            border-radius: var(--radius-full);
-            font-size: 0.95rem;
-            background: var(--white);
-            transition: var(--transition);
-            color: var(--text-dark);
-        }
-
-        .input-field input:focus {
-            border-color: var(--primary-light);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-        }
-
-        .input-field input:focus + i {
-            color: var(--primary);
-        }
-
-        .options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            font-size: 0.9rem;
-        }
-
-        .remember-me {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-        }
-
-        .remember-me input {
-            width: 18px;
-            height: 18px;
-            border: 1px solid var(--gray);
-            border-radius: var(--radius-sm);
-            margin-right: 10px;
-            cursor: pointer;
-            appearance: none;
-            transition: var(--transition);
-        }
-
-        .remember-me input:checked {
-            background-color: var(--primary);
-            border-color: var(--primary);
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'%3E%3Cpath fill-rule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clip-rule='evenodd' /%3E%3C/svg%3E");
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        .remember-me label {
-            color: var(--text-light);
-        }
-
-        .forgot-password a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .forgot-password a:hover {
-            text-decoration: underline;
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 16px;
-            background: var(--primary);
-            color: var(--white);
-            border: none;
-            border-radius: var(--radius-full);
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
-        }
-
-        .login-btn:hover {
-            background: var(--primary-light);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 15px rgba(37, 99, 235, 0.2);
-        }
-
-        .login-btn:active {
-            transform: translateY(1px);
-        }
-
-        .social-login {
-            margin-top: 30px;
-            text-align: center;
-        }
-
-        .social-login p {
-            color: var(--text-light);
-            font-size: 0.95rem;
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        .social-login p::before,
-        .social-login p::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            width: 30%;
-            height: 1px;
-            background-color: var(--gray);
-        }
-
-        .social-login p::before { left: 0; }
-        .social-login p::after { right: 0; }
-
-        .social-icons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-
-        .social-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--white);
-            color: var(--primary);
-            transition: var(--transition);
-            border: 1px solid var(--gray);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .social-icon:hover {
-            background: var(--primary);
-            color: var(--white);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
-        }
-
-        .register-link {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 0.95rem;
-            color: var(--text-light);
-        }
-
-        .register-link a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .register-link a:hover {
-            text-decoration: underline;
-        }
-
-        /* Decoração circular */
-        .circle-decoration {
-            position: absolute;
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: rgba(37, 99, 235, 0.05);
-            z-index: -1;
-        }
-
-        .circle-decoration-1 {
-            top: -50px;
-            right: -50px;
-            width: 300px;
-            height: 300px;
-        }
-
-        .circle-decoration-2 {
-            bottom: -30px;
-            left: -30px;
-            width: 150px;
-            height: 150px;
-        }
-
-        /* Responsividade */
-        @media (max-width: 1200px) {
-            .info-panel {
-                padding: 40px;
-            }
-            
-            .login-panel {
-                padding: 40px;
-            }
-        }
-
-        @media (max-width: 992px) {
-            .welcome-title {
-                font-size: 2rem;
-            }
-            
-            .login-title {
-                font-size: 1.8rem;
-            }
-        }
-
-        @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-            }
-
-            .info-panel {
-                padding: 40px 30px;
-                text-align: center;
-            }
-
-            .feature-item {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-
-            .feature-icon {
-                margin: 0 auto 15px;
-            }
-
-            .login-panel {
-                padding: 40px 30px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .info-panel {
-                padding: 30px 20px;
-            }
-            
-            .welcome-title {
-                font-size: 1.8rem;
-            }
-            
-            .login-title {
-                font-size: 1.5rem;
-            }
-            
-            .login-container {
-                padding: 30px 20px;
-            }
-            
-            .social-icons {
-                gap: 15px;
-            }
-        }
-    </style>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Login & Register - Online Courses & Education Bootstrap5 Template</title>
+    <meta name="robots" content="noindex, follow">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    {% include 'include/css.html' %}
 </head>
-<body>
-    <!-- Efeitos de fundo circular -->
-    <div class="bg-circles">
-        <div class="circle circle-1"></div>
-        <div class="circle circle-2"></div>
+
+<body class="rbt-header-sticky">
+
+    <div id="my_switcher" class="my_switcher">
+        <ul>
+            <li>
+                <a href="javascript: void(0);" data-theme="light" class="setColor light">
+                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode"> Light</span>
+                </a>
+            </li>
+            <li>
+                <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
+                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span title="Dark Mode"> Dark</span>
+                </a>
+            </li>
+        </ul>
     </div>
+
+    <!-- Start Header Area -->
+    {% include 'include/header.html' %}
+    <!-- Mobile Menu Section -->
     
-    <!-- Painel de informações -->
-    <div class="info-panel">
-        <div class="info-content">
-            <h1 class="welcome-title">ACESSO AO PORTAL</h1>
-            <p class="welcome-subtitle">Autentique-se no sistema educacional e desbloqueie o futuro da aprendizagem com tecnologia avançada.</p>
-            
-            <div class="features-list">
-                
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
-                    <div class="feature-text">
-                        <h3>CURSOS</h3>
-                        <p>Diversos cursos em múltiplas áreas do conhecimento com certificação reconhecida.</p>
-                    </div>
-                </div>
-            
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-university"></i>
-                    </div>
-                    <div class="feature-text">
-                        <h3>CENTROS</h3>
-                        <p>Parceria com os melhores centros de formação e instituições educacionais.</p>
-                    </div>
-                </div>
-            
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <div class="feature-text">
-                        <h3>LIVROS</h3>
-                        <p>Biblioteca digital com vasto acervo de livros e materiais didáticos atualizados.</p>
-                    </div>
-                </div>
-            
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-briefcase"></i>
-                    </div>
-                    <div class="feature-text">
-                        <h3>ESTÁGIOS</h3>
-                        <p>Oportunidades de estágio em empresas parceiras para aplicar o conhecimento.</p>
-                    </div>
-                </div>
-            
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-certificate"></i>
-                    </div>
-                    <div class="feature-text">
-                        <h3>CERTIFICADOS</h3>
-                        <p>Certificação digital reconhecida pelo mercado para comprovar suas habilidades.</p>
-                    </div>
+    
+
+    <!-- Start breadcrumb Area -->
+    <div class="rbt-breadcrumb-default ptb--100 ptb_md--50 ptb_sm--30 bg-gradient-1">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                <div class="breadcrumb-inner text-center">
+                    <h2 class="title">Bem-vindo de volta! </h2>
+                    <p class="welcome-message">Por favor faça login para acessar sua conta.</p>
+                    <ul class="page-list">
+                        <li class="rbt-breadcrumb-item"><a href="https://histudy.pixcelsthemes.com/histudy/index.html">Home</a></li>
+                        <li>
+                            <div class="icon-right"><i class="feather-chevron-right"></i></div>
+                        </li>
+                        <li class="rbt-breadcrumb-item active">Login & Register</li>
+                    </ul>
                 </div>
             </div>
-            
-            <!-- Ícones de educação no fundo -->
-            <i class="fas fa-book-open education-icons icon-book"></i>
-            <i class="fas fa-graduation-cap education-icons icon-graduation"></i>
+            </div>
         </div>
     </div>
+    <!-- End Breadcrumb Area -->
 
-    <!-- Painel de login -->
-    <div class="login-panel">
-        <div class="login-container">
-            <!-- Decoração circular -->
-            <div class="circle-decoration circle-decoration-1"></div>
-            <div class="circle-decoration circle-decoration-2"></div>
-            
-            <div class="logo">
-                <img style="width: 90px;" src="{% static 'assets/images/Logo1.png' %}" alt="EducAngola Logo">
+    <div class="rbt-elements-area bg-color-white rbt-section-gap">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="rbt-contact-form contact-form-style-1">
+                    <h3 class="title text-center mb-4">Login</h3>
+                    <form method="POST" action="{% url 'valida_login_aluno' %}">
+                        <div class="form-group">
+                            <input name="con_name" type="email" />
+                            <label>E-mail *</label>
+                            <span class="focus-border"></span>
+                        </div>
+                        <div class="form-group">
+                            <input name="senha" type="password"> <!-- Changed type to "password" -->
+                            <label>Senha *</label>
+                            <span class="focus-border"></span>
+                        </div>
+
+                        <div class="row mb--30">
+                            <div class="col-lg-6">
+                                <div class="rbt-checkbox">
+                                    <input type="checkbox" id="rememberme" name="rememberme">
+                                    <label for="rememberme">Lembrar-me</label> <!-- Translated to Portuguese -->
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="rbt-lost-password text-end">
+                                    <a class="rbt-btn-link" href="login.html#">Esqueceu a senha?</a> <!-- Translated -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-submit-group">
+                            <button type="submit" class="rbt-btn btn-md btn-gradient hover-icon-reverse w-100">
+                                <span class="icon-reverse-wrapper">
+                                    <span class="btn-text">Entrar</span> <!-- Translated -->
+                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            
-            <h1 class="login-title">Login</h1>
-            <p class="login-subtitle">Insira suas credenciais para acessar o sistema</p>
-            
-            <form method="POST" action="{% url 'valida_login_aluno' %}">
-                {% csrf_token %}
-                <!-- Substitua esta parte no primeiro formulário (login de aluno) -->
-            <div class="form-group">
-                <label for="email">Email</label>
-                <div class="input-field">
-                    <i class="fas fa-user"></i>
-                    <input name="email" type="email" id="email" placeholder="usuário@educangola.com" required>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="password">Senha</label>
-                <div class="input-field">
-                    <i class="fas fa-lock"></i>
-                    <input name="senha" type="password" id="password" placeholder="••••••••" required>
-                </div>
-            </div>
-
-
-                
-                <div class="options">
-                    <div class="remember-me">
-                        <input type="checkbox" id="remember">
-                        <label for="remember">Manter sessão</label>
-                    </div>
-                    <div class="forgot-password">
-                        <a href="#">Recuperar acesso</a>
-                    </div>
-                </div>
-                
-                <button type="submit" class="login-btn">Entrar</button>
-                
-                <div class="social-login">
-                    <p>Conecte-se via</p>
-                    <div class="social-icons">
-                        <a href="#" class="social-icon"><i class="fas fa-key"></i></a>
-                        <a href="#" class="social-icon"><i class="fas fa-mobile-alt"></i></a>
-                        <a href="#" class="social-icon"><i class="fas fa-fingerprint"></i></a>
-                    </div>
-                </div>
-                
-                <div class="register-link">
-                    Novo usuário? <a href="{% url 'Registro_aluno' %}">Cadastre-se</a>
-                </div>
-            </form>
         </div>
     </div>
+</div>
 
-    <div id="future-modal" class="future-modal">
-        <div class="future-modal-content">
-            <div class="holographic-effect"></div>
-            <div class="future-modal-body">
-                <div id="future-modal-icon"></div>
-                <h3 id="future-modal-title"></h3>
-                <p id="future-modal-message"></p>
+    <div class="rbt-newsletter-area bg-gradient-6 ptb--50">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-5 col-md-12 col-12">
+                <div class="inner">
+                    <div class="section-title text-center text-lg-start">
+                        <h4 class="title"><strong>Assine</strong> <br /> <span class="w-400">Nossa Newsletter</span></h4>
+                    </div>
+                </div>
             </div>
-            <button class="future-modal-close" onclick="closeFutureModal()">
-                <i class="fas fa-times"></i>
-            </button>
+            <div class="col-lg-7 col-md-12 col-12 text-start text-sm-end">
+                <form action="login.html#" class="newsletter-form-1 me-0">
+                    <input type="email" placeholder="Digite seu e-mail">
+                    <button type="submit" class="rbt-btn btn-md btn-gradient hover-icon-reverse">
+                        <span class="icon-reverse-wrapper">
+                            <span class="btn-text">Assinar</span>
+                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                        </span>
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
-    
-    <style>
-        /* Estilos do Modal Futurístico */
-        .future-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(5px);
-            animation: fadeIn 0.5s ease-out;
-        }
-    
-        .future-modal-content {
-            position: relative;
-            width: 400px;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3),
-                        0 0 60px rgba(0, 150, 255, 0.2);
-            border: 1px solid rgba(0, 255, 255, 0.2);
-            overflow: hidden;
-        }
-    
-        .holographic-effect {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, 
-                rgba(0, 255, 255, 0) 0%, 
-                rgba(0, 255, 255, 0.8) 50%, 
-                rgba(0, 255, 255, 0) 100%);
-            animation: scanline 3s linear infinite;
-        }
-    
-        .future-modal-body {
-            text-align: center;
-            color: #e6f7ff;
-            padding: 20px 0;
-        }
-    
-        #future-modal-icon {
-            font-size: 50px;
-            margin-bottom: 20px;
-            text-shadow: 0 0 15px currentColor;
-        }
-    
-        #future-modal-title {
-            font-size: 24px;
-            margin-bottom: 15px;
-            color: #00ffff;
-            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-        }
-    
-        #future-modal-message {
-            font-size: 16px;
-            line-height: 1.5;
-            margin-bottom: 20px;
-        }
-    
-        .future-modal-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: transparent;
-            border: none;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-    
-        .future-modal-close:hover {
-            color: #00ffff;
-            transform: rotate(90deg);
-        }
-    
-        /* Animações */
-        @keyframes scanline {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(400px); }
-        }
-    
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-    
-        /* Efeitos para diferentes tipos de mensagem */
-        .success-icon {
-            color: #00ffaa;
-        }
-    
-        .warning-icon {
-            color: #ffcc00;
-        }
-    
-        .error-icon {
-            color: #ff3366;
-        }
-    </style>
-    
-    <script>
-        // Mapeamento de status para mensagens (adaptado para o login)
-        const statusMessages = {
-            "0": { 
-                title: "Login Bem-sucedido!", 
-                message: "Redirecionando para sua conta...", 
-                icon: "✅", 
-                type: "success" 
-            },
-            "1": { 
-                title: "Credenciais Inválidas", 
-                message: "Email ou senha incorretos. Por favor, tente novamente.", 
-                icon: "⚠️", 
-                type: "warning" 
-            },
-            "2": { 
-                title: "Conta Inativa", 
-                message: "Sua conta está desativada. Entre em contato com o suporte.", 
-                icon: "⛔", 
-                type: "error" 
-            },
-            "3": { 
-                title: "Erro no Sistema", 
-                message: "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.", 
-                icon: "❌", 
-                type: "error" 
-            },
-            "10": { 
-                title: "Login Bem-sucedido!", 
-                message: "Você foi autenticado com sucesso!", 
-                icon: "✅", 
-                type: "success" 
-            }
-        };
-    
-        // Função para mostrar o modal
-        function showFutureModal(status) {
-            const modal = document.getElementById('future-modal');
-            const modalData = statusMessages[status];
-            
-            if (modalData) {
-                document.getElementById('future-modal-icon').innerHTML = modalData.icon;
-                document.getElementById('future-modal-title').textContent = modalData.title;
-                document.getElementById('future-modal-message').textContent = modalData.message;
-                
-                // Adiciona classe baseada no tipo
-                const iconElement = document.getElementById('future-modal-icon');
-                iconElement.className = '';
-                iconElement.classList.add(`${modalData.type}-icon`);
-                
-                modal.style.display = 'flex';
-                
-                // Fecha automaticamente após 5 segundos (exceto para sucesso)
-                if (status === "0" || status === "10") {
-                    // Redireciona após 2 segundos para login bem-sucedido
-                    setTimeout(() => {
-                        window.location.href = '/auth/conta_aluno';
-                    }, 2000);
-                } else {
-                    setTimeout(closeFutureModal, 5000);
-                }
-            }
-        }
-    
-        // Função para fechar o modal
-        function closeFutureModal() {
-            document.getElementById('future-modal').style.display = 'none';
-        }
-    
-        // Verifica o status na carga da página
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const status = urlParams.get('status');
-            
-            if (status) {
-                showFutureModal(status);
-            }
-        });
-    </script>
-    
-    <style>
-        /* Estilos para mensagens */
-        .alert-message {
-            padding: 12px 16px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            animation: fadeIn 0.3s ease-out;
-        }
-        
-        .alert-success {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            border-left: 4px solid #2e7d32;
-        }
-        
-        .alert-error {
-            background-color: #ffebee;
-            color: #c62828;
-            border-left: 4px solid #c62828;
-        }
-        
-        .alert-content {
-            margin-left: 10px;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* Mantenha os outros estilos existentes */
-    </style>
+</div>
 
-    
-
-    <script>
-        // Efeito de hover nos inputs
-        document.addEventListener('DOMContentLoaded', () => {
-            const inputs = document.querySelectorAll('.input-field input');
-            inputs.forEach(input => {
-                input.addEventListener('focus', () => {
-                    const icon = input.parentElement.querySelector('i');
-                    icon.style.transform = 'translateY(-50%) scale(1.2)';
-                    icon.style.color = 'var(--primary)';
-                });
-                
-                input.addEventListener('blur', () => {
-                    const icon = input.parentElement.querySelector('i');
-                    icon.style.transform = 'translateY(-50%) scale(1)';
-                    icon.style.color = 'var(--dark-gray)';
-                });
-            });
-            
-            // Efeito de clique no botão de login
-            const loginBtn = document.querySelector('.login-btn');
-            if (loginBtn) {
-                loginBtn.addEventListener('mousedown', () => {
-                    loginBtn.style.transform = 'translateY(1px)';
-                });
-                
-                loginBtn.addEventListener('mouseup', () => {
-                    loginBtn.style.transform = 'translateY(-3px)';
-                });
-            }
-        });
-    </script>
+    <!-- Start Footer aera -->
+    <!-- Start Footer aera -->
+        {% include 'include/footer.html' %}
+    <!-- JS
+============================================ -->
+        {% include 'include/java.html' %}
 </body>
+
 </html>
