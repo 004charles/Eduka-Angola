@@ -304,62 +304,107 @@
 
                 <!-- Right Side Icons -->
                 <div class="header-right">
-                    <ul class="quick-access">
-                        <li class="access-icon">
-                            <a class="search-trigger-active rbt-round-btn" href="#">
-                                <i class="feather-search"></i>
-                            </a>
-                        </li>
+                    <ul style="margin-right: 140px;" class="quick-access">
+                    <li class="access-icon">
+                        <a class="search-trigger-active rbt-round-btn" href="#">
+                            <i class="feather-search"></i>
+                        </a>
+                    </li>
 
-                        <li class="account-access rbt-user-wrapper d-none d-xl-block">
-                                <a href="{% url 'Login_aluno' %}"><i class="feather-user"></i>Minha Conta</a>
-                                <div class="rbt-user-menu-list-wrapper">
-                                    <div class="inner">
-                                        <div class="rbt-admin-profile">
-                                            <div class="admin-thumbnail">
-                                                <img src="{% static 'assets/images/team/avatar.jpg' %}" alt="Imagem do Usuário">
+                    {% if request.session.aluno %}
+                    <!-- Menu quando o aluno está logado -->
+                    <li class="account-access rbt-user-wrapper d-none d-xl-block">
+                        <a href="#" class="user-initials">
+                            {% with initials=aluno_nome|slice:":2"|upper %}
+                                {{ initials }}
+                            {% endwith %}
+                        </a>
+                        <div class="rbt-user-menu-list-wrapper">
+                            <div class="inner">
+                                <div class="rbt-admin-profile">
+                                    <div class="admin-thumbnail">
+                                        {% if perfil.foto_de_perfil %}
+                                            <img src="{{ perfil.foto_de_perfil.url }}" alt="Imagem do Usuário">
+                                        {% else %}
+                                            <div class="initials-avatar">
+                                                {% with initials=aluno_nome|slice:":2"|upper %}
+                                                    {{ initials }}
+                                                {% endwith %}
                                             </div>
-                                            <div class="admin-info">
-                                                <span class="name"></span>
-                                                <a class="rbt-btn-link color-primary" href="">Ver Perfil</a>
-                                            </div>
-                                        </div>
-                                        <ul class="user-list-wrapper">
-                                            <li>
-                                                <a href="">
-                                                    <i class="feather-home"></i>
-                                                    <span>Meu Painel</span>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a href="">
-                                                    <i class="feather-book"></i>
-                                                    <span>Meus Cursos</span>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a href="">
-                                                    <i class="feather-briefcase"></i>
-                                                    <span>Meus Estágios</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                        <hr class="mt--10 mb--10">
-                                        <ul class="user-list-wrapper">
-                                            <li>
-                                                <a href="">
-                                                    <i class="feather-log-out"></i>
-                                                    <span>Sair</span>
-                                                </a>
-                                            </li>
-                                        </ul>
+                                        {% endif %}
+                                    </div>
+                                    <div class="admin-info">
+                                        <span class="name">{{ aluno_nome }}</span>
+                                        <a class="rbt-btn-link color-primary" href="/perfil">Ver Perfil</a>
                                     </div>
                                 </div>
-                                <a class="rbt-btn btn-border-gradient radius-round btn-sm" href="">
-                                    <span>Entrar</span>
-                                </a>
-                        </li>
-                    </ul>
+                                <ul class="user-list-wrapper">
+                                            <li>
+                                                <a href="instructor-dashboard.html">
+                                                    <i class="feather-home"></i>
+                                                    <span>My Dashboard</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="privacy-policy.html#">
+                                                    <i class="feather-bookmark"></i>
+                                                    <span>Bookmark</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="instructor-enrolled-courses.html">
+                                                    <i class="feather-shopping-bag"></i>
+                                                    <span>Enrolled Courses</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="instructor-wishlist.html">
+                                                    <i class="feather-heart"></i>
+                                                    <span>Wishlist</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="instructor-reviews.html">
+                                                    <i class="feather-star"></i>
+                                                    <span>Reviews</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="instructor-my-quiz-attempts.html">
+                                                    <i class="feather-list"></i>
+                                                    <span>My Quiz Attempts</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="instructor-order-history.html">
+                                                    <i class="feather-clock"></i>
+                                                    <span>Order History</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="instructor-quiz-attempts.html">
+                                                    <i class="feather-message-square"></i>
+                                                    <span>Question & Answer</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                        
+                                <hr class="mt--10 mb--10">
+                                <ul class="user-list-wrapper">
+                                    <li><a href="{% url 'logout' %}"><i class="feather-log-out"></i><span>Sair</span></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                {% else %}
+                    <!-- Botão de login quando não está logado -->
+                    <li class="account-access rbt-user-wrapper d-none d-xl-block">
+                        <a class="rbt-btn btn-border-gradient radius-round btn-sm" href="{% url 'Login_aluno' %}">
+                            <span>Entrar</span>
+                        </a>
+                    </li>
+                {% endif %}
+                </ul>
 
                     <!-- Mobile Menu Button -->
                     <div class="mobile-menu-bar d-block d-xl-none">
@@ -615,13 +660,17 @@
         </nav>
 
         <div class="mobile-menu-bottom">
+            
             <div class="rbt-btn-wrapper mb--20">
-                <a class="rbt-btn btn-border-gradient radius-round btn-sm hover-transform-none w-100 justify-content-center text-center" href="#">
+                {% if request.session.aluno %}
+                <a class="rbt-btn btn-border-gradient radius-round btn-sm hover-transform-none w-100 justify-content-center text-center" href="{% url 'aluno' %}">
+                    <span>Minha conta</span>
+                </a>
+                {% else %}
+                <a class="rbt-btn btn-gradient radius-round btn-sm hover-transform-none w-100 justify-content-center text-center mt--10" href="{% url 'Login_aluno' %}">
                     <span>Entrar</span>
                 </a>
-                <a class="rbt-btn btn-gradient radius-round btn-sm hover-transform-none w-100 justify-content-center text-center mt--10" href="#">
-                    <span>Registrar</span>
-                </a>
+                {% endif %}
             </div>
 
             <div class="social-share-wrapper">
@@ -668,7 +717,7 @@
                     <div class="product-content">
                         <h6 class="title"><a href="single-product.html">Miracle Morning</a></h6>
 
-                        <span class="quantity">1 * <span class="price">$22</span></span>
+                        <span class="quantity">1 * <span class="price">kz 22</span></span>
                     </div>
                     <div class="close-btn">
                         <button class="rbt-round-btn"><i class="feather-x"></i></button>
@@ -684,7 +733,7 @@
                     <div class="product-content">
                         <h6 class="title"><a href="single-product.html">Happy Strong</a></h6>
 
-                        <span class="quantity">1 * <span class="price">$30</span></span>
+                        <span class="quantity">1 * <span class="price">kz 30</span></span>
                     </div>
                     <div class="close-btn">
                         <button class="rbt-round-btn"><i class="feather-x"></i></button>
@@ -700,7 +749,7 @@
                     <div class="product-content">
                         <h6 class="title"><a href="single-product.html">Rich Dad Poor Dad</a></h6>
 
-                        <span class="quantity">1 * <span class="price">$50</span></span>
+                        <span class="quantity">1 * <span class="price">kz 50</span></span>
                     </div>
                     <div class="close-btn">
                         <button class="rbt-round-btn"><i class="feather-x"></i></button>
@@ -716,7 +765,7 @@
                     <div class="product-content">
                         <h6 class="title"><a href="single-product.html">Momentum Theorem</a></h6>
 
-                        <span class="quantity">1 * <span class="price">$50</span></span>
+                        <span class="quantity">1 * <span class="price">kz 50</span></span>
                     </div>
                     <div class="close-btn">
                         <button class="rbt-round-btn"><i class="feather-x"></i></button>
@@ -729,7 +778,7 @@
             <hr class="mb--0">
             <div class="rbt-cart-subttotal">
                 <p class="subtotal"><strong>Subtotal:</strong></p>
-                <p class="price">$121</p>
+                <p class="price">kz 121</p>
             </div>
             <hr class="mb--0">
             <div class="rbt-minicart-bottom mt--20">
@@ -751,3 +800,31 @@
     </div>
 </div>
 
+
+<style>
+    .user-initials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #6c5ce7; /* Cor de fundo das iniciais */
+    color: white;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.initials-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: #6c5ce7; /* Cor de fundo do avatar */
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+</style>

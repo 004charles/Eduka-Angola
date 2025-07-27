@@ -13,6 +13,7 @@ ALLOWED_HOSTS = ['*']
 
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -21,7 +22,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'usuarios',
     'core',
-    'cursos_app'
+    'cursos_app',
+    'gestoreduka'
+
 ]
 
 MIDDLEWARE = [
@@ -35,6 +38,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+AUTH_USER_MODEL = 'gestoreduka.CustomUser'
 ROOT_URLCONF = 'eduangolacore.urls'
 
 TEMPLATES = [

@@ -1,0 +1,168 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Inscrição</title>
+    {% include 'include/css.html' %}
+    <style>
+        .registration-form {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .form-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--heading-color);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--input-bg);
+            color: var(--body-color);
+        }
+        .btn-submit {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        .btn-submit:hover {
+            background-color: var(--primary-dark);
+        }
+        .course-select {
+            height: 150px;
+        }
+    </style>
+</head>
+<body>
+    <div id="my_switcher" class="my_switcher">
+        <ul>
+            <li>
+                <a href="javascript: void(0);" data-theme="light" class="setColor light">
+                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode"> Light</span>
+                </a>
+            </li>
+            <li>
+                <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
+                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span title="Dark Mode"> Dark</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+   
+   {% include 'include/header.html' %}
+   
+   <main class="main-content">
+       <div class="registration-form">
+           <h2 class="form-title">Ficha de Inscrição em Curso</h2>
+           <form method="POST" action="#">
+               {% csrf_token %}
+               
+               <div class="form-group">
+                   <label class="form-label" for="full_name">Nome Completo</label>
+                   <input type="text" class="form-control" id="full_name" name="full_name" required>
+               </div>
+               
+               <div class="form-group">
+                   <label class="form-label" for="email">Email</label>
+                   <input type="email" class="form-control" id="email" name="email" required>
+               </div>
+               
+               <div class="form-group">
+                   <label class="form-label" for="phone">Telefone</label>
+                   <input type="tel" class="form-control" id="phone" name="phone" required>
+               </div>
+               
+               <div class="form-group">
+                   <label class="form-label" for="birth_date">Data de Nascimento</label>
+                   <input type="date" class="form-control" id="birth_date" name="birth_date" required>
+               </div>
+               
+               <div class="form-group">
+                   <label class="form-label" for="address">Endereço Completo</label>
+                   <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
+               </div>
+               
+               <div class="form-group">
+                   <label class="form-label" for="courses">Selecione o(s) curso(s)</label>
+                   <select multiple class="form-control course-select" id="courses" name="courses" required>
+                       <option value="web_development">Desenvolvimento Web</option>
+                       <option value="data_science">Ciência de Dados</option>
+                       <option value="graphic_design">Design Gráfico</option>
+                       <option value="digital_marketing">Marketing Digital</option>
+                       <option value="business_management">Gestão de Negócios</option>
+                   </select>
+               </div>
+               
+               <div class="form-group">
+                   <label class="form-label" for="education_level">Nível de Escolaridade</label>
+                   <select class="form-control" id="education_level" name="education_level" required>
+                       <option value="">Selecione...</option>
+                       <option value="fundamental">Ensino Fundamental</option>
+                       <option value="medio">Ensino Médio</option>
+                       <option value="superior">Ensino Superior</option>
+                       <option value="pos_graduacao">Pós-Graduação</option>
+                   </select>
+               </div>
+               
+               <div class="form-group">
+                   <label class="form-label">Como ficou sabendo do curso?</label>
+                   <div>
+                       <input type="radio" id="source_facebook" name="source" value="facebook">
+                       <label for="source_facebook">Facebook</label>
+                       
+                       <input type="radio" id="source_instagram" name="source" value="instagram">
+                       <label for="source_instagram">Instagram</label>
+                       
+                       <input type="radio" id="source_friend" name="source" value="friend">
+                       <label for="source_friend">Indicação de Amigo</label>
+                       
+                       <input type="radio" id="source_other" name="source" value="other">
+                       <label for="source_other">Outro</label>
+                   </div>
+               </div>
+               
+               <div class="form-group">
+                   <label class="form-label" for="comments">Observações</label>
+                   <textarea class="form-control" id="comments" name="comments" rows="3"></textarea>
+               </div>
+               
+               <div class="form-group">
+                   <button type="submit" class="btn-submit">Enviar Inscrição</button>
+               </div>
+           </form>
+       </div>
+   </main>
+   
+   {% include 'include/footer.html' %}
+   {% include 'include/java.html' %}
+   
+   <script>
+       // Adicione scripts específicos para o formulário aqui, se necessário
+       document.addEventListener('DOMContentLoaded', function() {
+           // Exemplo: Validação adicional pode ser adicionada aqui
+       });
+   </script>
+</body>
+</html>

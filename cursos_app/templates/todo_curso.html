@@ -1,0 +1,307 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Edukangola | Todos cursos</title>
+    <meta name="robots" content="noindex, follow">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    {% include 'include/css.html' %}
+</head>
+
+<body class="rbt-header-sticky">
+
+    <div id="my_switcher" class="my_switcher">
+        <ul>
+            <li>
+                <a href="javascript: void(0);" data-theme="light" class="setColor light">
+                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode"> Light</span>
+                </a>
+            </li>
+            <li>
+                <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
+                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span title="Dark Mode"> Dark</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+   {% include 'include/header.html' %}
+
+    <!-- Mobile Menu Section -->
+    
+    
+    <div class="rbt-page-banner-wrapper">
+        <!-- Start Banner BG Image  -->
+        <div class="rbt-banner-image"></div>
+        <!-- End Banner BG Image  -->
+        <div class="rbt-banner-content">
+
+            <!-- Start Banner Content Top  -->
+            <div class="rbt-banner-content-top">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <!-- Start Breadcrumb Area  -->
+                            <ul class="page-list">
+                                <li class="rbt-breadcrumb-item"><a href="https://histudy.pixcelsthemes.com/histudy/index.html">Home</a></li>
+                                <li>
+                                    <div class="icon-right"><i class="feather-chevron-right"></i></div>
+                                </li>
+                                <li class="rbt-breadcrumb-item active">Todos cursos</li>
+                            </ul>
+                            <!-- End Breadcrumb Area  -->
+
+                            <div class=" title-wrapper">
+                                <h1 class="title mb--0">Explore Nossa Plataforma de Conhecimento</h1>
+                                <a href="course-card-2.html#" class="rbt-badge-2">
+                                    <div class="image">🎉</div> 50 Cursos
+                                </a>
+                            </div>
+
+                            <p class="description">Descubra o caminho para dominar novas habilidades com nosso catálogo completo de cursos. 
+                    Desde desenvolvimento profissional até habilidades criativas, oferecemos conteúdo de alta 
+                    qualidade ministrado por especialistas. Encontre o curso perfeito para impulsionar sua 
+                    carreira, adquirir conhecimentos práticos ou explorar novos interesses.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End Banner Content Top  -->
+            <!-- Start Course Top  -->
+            <div class="rbt-course-top-wrapper mt--40">
+                <div class="container">
+                    <div class="row g-5 align-items-center">
+                        <div class="col-lg-5 col-md-12">
+                            <div class="rbt-sorting-list d-flex flex-wrap align-items-center">
+                                <div class="rbt-short-item switch-layout-container">
+                                    <ul class="course-switch-layout">
+                                        <li class="course-switch-item"><button class="rbt-grid-view" title="Grid Layout"><i class="feather-grid"></i> <span class="text">Grid</span></button></li>
+                                        <li class="course-switch-item"><button class="rbt-list-view active" title="List Layout"><i class="feather-list"></i> <span class="text">List</span></button></li>
+                                    </ul>
+                                </div>
+                                <div class="rbt-short-item">
+                                    <span class="course-index">Showing 1-9 of 19 results</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-7 col-md-12">
+                            <div class="rbt-sorting-list d-flex flex-wrap align-items-center justify-content-start justify-content-lg-end">
+                                <div class="rbt-short-item">
+                                    <form action="course-card-2.html#" class="rbt-search-style me-0">
+                                        <input type="text" placeholder="Search Your Course..">
+                                        <button type="submit" class="rbt-search-btn rbt-round-btn">
+                                            <i class="feather-search"></i>
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <div class="rbt-short-item">
+                                    <div class="view-more-btn text-start text-sm-end">
+                                        <button class="discover-filter-button discover-filter-activation rbt-btn btn-white btn-md radius-round">Filter<i class="feather-filter"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Start Filter Toggle  -->
+                    <div class="default-exp-wrapper default-exp-expand">
+                        <div class="filter-inner">
+                            <div class="filter-select-option">
+                                <div class="filter-select rbt-modern-select">
+                                    <span class="select-label d-block">Short By</span>
+                                    <select>
+                                        <option>Default</option>
+                                        <option>Latest</option>
+                                        <option>Popularity</option>
+                                        <option>Trending</option>
+                                        <option>Price: low to high</option>
+                                        <option>Price: high to low</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="filter-select-option">
+                                <div class="filter-select rbt-modern-select">
+                                    <span class="select-label d-block">Short By Author</span>
+                                    <select data-live-search="true" title="Select Author" multiple data-size="7" data-actions-box="true" data-selected-text-format="count > 2">
+                                        <option data-subtext="Experts">Janin Afsana</option>
+                                        <option data-subtext="Experts">Joe Biden</option>
+                                        <option data-subtext="Experts">Fatima Asrafy</option>
+                                        <option data-subtext="Experts">Aysha Baby</option>
+                                        <option data-subtext="Experts">Mohamad Ali</option>
+                                        <option data-subtext="Experts">Jone Li</option>
+                                        <option data-subtext="Experts">Alberd Roce</option>
+                                        <option data-subtext="Experts">Zeliski Noor</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="filter-select-option">
+                                <div class="filter-select rbt-modern-select">
+                                    <span class="select-label d-block">Short By Offer</span>
+                                    <select>
+                                        <option>Free</option>
+                                        <option>Paid</option>
+                                        <option>Premium</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="filter-select-option">
+                                <div class="filter-select rbt-modern-select">
+                                    <span class="select-label d-block">Short By Category</span>
+                                    <select data-live-search="true">
+                                        <option>Web Design</option>
+                                        <option>Graphic</option>
+                                        <option>App Development</option>
+                                        <option>Figma Design</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="filter-select-option">
+                                <div class="filter-select">
+                                    <span class="select-label d-block">Price Range</span>
+
+                                    <div class="price_filter s-filter clear">
+                                        <form action="course-card-2.html#" method="GET">
+                                            <div id="slider-range"></div>
+                                            <div class="slider__range--output">
+                                                <div class="price__output--wrap">
+                                                    <div class="price--output">
+                                                        <span>Price :</span><input type="text" id="amount">
+                                                    </div>
+                                                    <div class="price--filter">
+                                                        <a class="rbt-btn btn-gradient btn-sm" href="course-card-2.html#">Filter</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Filter Toggle  -->
+                </div>
+            </div>
+            <!-- End Course Top  -->
+        </div>
+    </div>
+
+
+        <!-- Start Card Style -->
+        <div style="margin-top: 50px;" class="rbt-section-overlayping-top rbt-section-gapBottom">
+        {% for grupo in categorias_com_cursos %}
+            <div class="container">
+                <div class="row g-5 align-items-center mb--50">
+                    <div class="col-lg-6 col-md-6 col-12">
+                        <div class="section-title">
+                            <h2 class="title">
+                                {{ grupo.categoria.mensagem_destaque|default:"Cursos disponíveis" }}
+                            </h2>
+                            <p class="mb-0">Cursos de {{ grupo.categoria.nome }} ({{ grupo.total_cursos }})</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-12">
+                        <div class="load-more-btn text-start text-md-end">
+                            <a class="rbt-btn btn-gradient rbt-marquee-btn radius-round" 
+                            href="{% url 'cursos_por_categoria' grupo.categoria.slug %}">
+                                <span data-text="Ver todos">Ver todos</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="rbt-course-grid-column list-column-half active-list-view">
+                    {% for curso in grupo.cursos %}
+                    <div class="course-grid-4" data-sal-delay="150" data-sal="slide-up" data-sal-duration="800">
+                        <div class="rbt-card variation-01 rbt-hover card-list-2">
+                            <div class="rbt-card-img">
+                                <a href="{% url 'curso_detalhe' curso.id %}">
+                                    <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}" class="img-fluid">
+                                </a>
+                            </div>
+                            <div class="rbt-card-body">
+                                <div class="rbt-category">
+                                    <a href="#">{{ curso.categoria.nome }}</a>
+                                    <span class="course-level">{{ curso.get_nivel_display }}</span>
+                                </div>
+                                <h4 class="rbt-card-title">
+                                    <a href="{% url 'curso_detalhe' curso.id %}">{{ curso.titulo }}</a>
+                                </h4>
+                                <div class="course-meta">
+                                    <span><i class="feather-clock"></i> {{ curso.carga_horaria }}h</span>
+                                    <span><i class="feather-calendar"></i> {{ curso.data_inicio|date:"d/m/Y" }}</span>
+                                </div>
+                                <p class="rbt-card-text">{{ curso.descricao|truncatechars:50 }}</p>
+                                <div class="rbt-card-bottom">
+                                    <div class="course-price">
+                                        {% if curso.preco > 0 %}
+                                            {{ curso.preco }} kz
+                                        {% else %}
+                                            Grátis
+                                        {% endif %}
+                                    </div>
+                                    <a class="rbt-btn-link" href="{% url 'curso_detalhe' curso.id %}">
+                                        Ver detalhes<i class="feather-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    
+    <!-- End Card Style -->
+
+    <!-- Start Call To Action  -->
+    <div class="rbt-callto-action-area">
+        <div class="rbt-callto-action rbt-cta-default style-4 bg-gradient-6 mt--75">
+            <div class="container">
+                <div class="row align-items-center content-wrapper row--30 mt_dec--30 position-relative">
+                    <div class="col-lg-8 mt--30 offset-lg-3">
+                        <div class="inner">
+                            <div class="content text-left">
+                                <h2 class="title" data-sal="slide-up">Pronto para testar suas habilidades?</h2>
+                                <div class="call-to-btn text-start mt--30">
+                                    <a class="rbt-btn btn-gradient hover-icon-reverse" href="course-card-2.html#">
+                                        <span class="icon-reverse-wrapper">
+                                    <span class="btn-text">Experimente Agora</span>
+                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="thumbnail">
+                        <img class="w-100" src="{% static 'assets/images/shape/cta.png' %}" alt="Shape Images">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- End Call To Action  -->
+
+    <!-- Start Footer aera -->
+    {% include 'include/footer.html' %}
+
+    {% include 'include/java.html' %}
+</body>
+
+</html>

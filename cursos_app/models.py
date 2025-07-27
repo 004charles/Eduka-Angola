@@ -5,8 +5,9 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinLengthValidator
 from django.utils import timezone
-from usuarios.models import CentroDeFormacao, Aluno
+from usuarios.models import Aluno
 from django.core.validators import MinValueValidator
+from gestoreduka.models import CentroDeFormacao
 from django.core.exceptions import ValidationError
 
 
@@ -60,6 +61,12 @@ class Categoria(models.Model):
     descricao = models.TextField(blank=True, null=True)
     slug = models.SlugField(unique=True)
     imagem = models.ImageField(upload_to='categorias/', blank=True, null=True)
+    mensagem_destaque = models.CharField(
+        max_length=200, 
+        blank=True, 
+        null=True,
+        help_text="Mensagem personalizada para exibir acima dos cursos desta categoria"
+    )
 
     class Meta:
         verbose_name = 'Categoria'
@@ -67,7 +74,7 @@ class Categoria(models.Model):
 
     def __str__(self):
         return self.nome
-
+        
 class Curso(models.Model):
     NIVEL_CHOICES = [
         ('B', 'Básico'),
@@ -81,6 +88,13 @@ class Curso(models.Model):
         ('ES', 'Espanhol'),
         ('FR', 'Francês'),
         ('OUTRO', 'Outro'),
+    ]
+
+    TURNO_CHOICES = [
+        ('M', 'Manhã'),
+        ('T', 'Tarde'),
+        ('N', 'Noite'),
+        ('I', 'Integral'),
     ]
 
     centro = models.ForeignKey(CentroDeFormacao, on_delete=models.CASCADE, verbose_name=_('Centro de Formação'), related_name='cursos')
@@ -101,11 +115,13 @@ class Curso(models.Model):
     vagas = models.PositiveIntegerField(_('Número de Vagas'))
     data_inicio = models.DateTimeField(default=timezone.now)
     data_termino = models.DateField(_('Data de Término'))
+    turno = models.CharField(_('Turno'), max_length=1, choices=TURNO_CHOICES, default='M')
     ativo = models.BooleanField(_('Curso Ativo'), default=True)
     publicado = models.BooleanField(_('Publicado'), default=False)
     imagem = models.ImageField(_('Imagem do Curso'), upload_to='cursos/', null=True, blank=True)
+    requisitos = models.TextField(_('Pré-requisitos'), blank=True, null=True)
+    video_apresentacao = models.URLField(_('Vídeo de Apresentação'), blank=True, null=True)
     destaque = models.BooleanField(_('Curso em Destaque'), default=False)
-
 
     def clean(self):
         if self.data_inicio and self.data_termino:
@@ -121,7 +137,20 @@ class Curso(models.Model):
         db_table = 'cursos'
         ordering = ['data_inicio']
         indexes = [models.Index(fields=['titulo', 'centro'])]
-        
+
+
+class Galeria(models.Model):
+    centro = models.ForeignKey(CentroDeFormacao, on_delete=models.CASCADE, related_name='galeria')
+    imagem = models.ImageField(_('Imagem'), upload_to='galeria/')
+    descricao = models.CharField(_('Descrição'), max_length=200, blank=True)
+    categoria = models.CharField(_('Categoria'), max_length=50, choices=[
+        ('SALAS', 'Salas de Aula'),
+        ('LABS', 'Laboratórios'),
+        ('EVENTOS', 'Eventos')
+    ])
+
+
+
 class Modulo(models.Model):
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='modulos')
     titulo = models.CharField(max_length=100)
@@ -215,3 +244,4 @@ class Inscricao(models.Model):
         verbose_name = 'Inscrição'
         verbose_name_plural = 'Inscrições'
         unique_together = ['aluno', 'curso']
+

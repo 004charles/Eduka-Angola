@@ -22,12 +22,6 @@ class UsuarioAdmin(UserAdmin):
     ordering = ('email',)
     readonly_fields = ('data_criacao', 'data_atualizacao')
 
-# Configurações para os outros modelos
-class CentroDeFormacaoAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'nif', 'email', 'ativo')
-    search_fields = ('nome', 'nif', 'email')
-    list_filter = ('ativo',)
-    readonly_fields = ('data_criacao',)
 
 class EscolaAdmin(admin.ModelAdmin):
     list_display = ('nome', 'tipo', 'email', 'ativo')
@@ -52,20 +46,6 @@ class EmpresaAdmin(admin.ModelAdmin):
     list_filter = ('ramo_atuacao',)
     
 
-@admin.register(PerfilCentroDeFormacao)
-class PerfilCentroDeFormacaoAdmin(admin.ModelAdmin):
-    list_display = ('centro', 'tipo', 'modalidade', 'destaque', 'dono')
-    search_fields = ('centro__nome', 'tipo', 'dono')
-    list_filter = ('modalidade', 'destaque')
-
-    fields = (
-        'centro', 'dono', 'imagem', 'banner', 'video_apresentacao',  # campo de vídeo adicionado aqui
-        'descricao', 'tipo', 'modalidade', 
-        'facebook', 'instagram', 'whatsapp', 
-        'destaque', 'slug'
-    )
-
-
 
 class ComentarioInline(admin.TabularInline):
     model = Comentario
@@ -79,7 +59,6 @@ class PerfilAlunoAdmin(admin.ModelAdmin):
 admin.site.register(Comentario)
 # Registro dos modelos
 admin.site.register(Usuario, UsuarioAdmin)
-admin.site.register(CentroDeFormacao, CentroDeFormacaoAdmin)
 admin.site.register(Escola, EscolaAdmin)
 admin.site.register(Aluno, AlunoAdmin)
 admin.site.register(Biblioteca, BibliotecaAdmin)

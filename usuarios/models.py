@@ -48,36 +48,6 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = 'Usuários'
         db_table = 'usuarios'
 
-class CentroDeFormacao(models.Model):
-    nome = models.CharField(_('Nome do Centro'), max_length=100)
-    nif = models.CharField(_('CNPJ'), max_length=18, unique=True)
-    endereco = models.CharField(_('Endereço'), max_length=255)
-    telefone = models.CharField(_('Telefone'), max_length=20)
-    email = models.EmailField(_('E-mail'), unique=True)
-    site = models.URLField(_('Site'), blank=True, null=True)
-    data_criacao = models.DateTimeField(_('Data de Criação'), auto_now_add=True)
-    ativo = models.BooleanField(_('Ativo'), default=True)
-
-    def __str__(self):
-        return self.nome
-    
-class PerfilCentroDeFormacao(models.Model):
-    centro = models.OneToOneField(CentroDeFormacao, on_delete=models.CASCADE, related_name='perfil')
-    dono = models.CharField(max_length=100, null=True, blank=True, verbose_name='Dono do Centro')
-    imagem = models.ImageField(_('Imagem ou Logo'), upload_to='centros/', null=True, blank=True)
-    banner = models.ImageField(_('Imagem de Capa'), upload_to='centros/banners/', null=True, blank=True)
-    video_apresentacao = models.FileField(_('Vídeo de Apresentação'), upload_to='centros videos/', null=True, blank=True)
-    descricao = models.TextField(_('Descrição'), null=True, blank=True)
-    tipo = models.CharField(_('Tipo de Centro'), max_length=50, null=True, blank=True)
-    modalidade = models.CharField(_('Modalidade'), max_length=20, choices=[('Presencial', 'Presencial'), ('Online', 'Online'), ('Híbrido', 'Híbrido')], default='Presencial')
-    facebook = models.URLField(_('Facebook'), blank=True, null=True)
-    instagram = models.URLField(_('Instagram'), blank=True, null=True)
-    whatsapp = models.CharField(_('WhatsApp'), max_length=20, blank=True, null=True)
-    destaque = models.BooleanField(_('Centro em Destaque'), default=False)
-    slug = models.SlugField(unique=True, null=True, blank=True)
-
-    def __str__(self):
-        return f"Perfil de {self.centro.nome}"
 
 
 class Escola(models.Model):
@@ -125,6 +95,7 @@ class Aluno(models.Model):
 class PerfilAluno(models.Model):
     aluno = models.OneToOneField('Aluno', on_delete=models.CASCADE, related_name='perfil')
     imagem = models.ImageField(_('Imagem de Perfil'), upload_to='perfil_alunos/', null=True, blank=True)
+    foto_de_perfil = models.ImageField(_('Foto de Perfil'), upload_to='fotos_perfil/', null=True, blank=True)  # Novo campo
     biografia = models.TextField(_('Biografia'), blank=True)
     telefone = models.CharField(_('Telefone'), max_length=20, blank=True, null=True)
     linkedin = models.URLField(_('LinkedIn'), blank=True, null=True)
@@ -137,7 +108,6 @@ class PerfilAluno(models.Model):
     class Meta:
         verbose_name = 'Perfil do Aluno'
         verbose_name_plural = 'Perfis dos Alunos'
-        
         
 class Comentario(models.Model):
     aluno = models.ForeignKey('Aluno', on_delete=models.CASCADE, related_name='comentarios')

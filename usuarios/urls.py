@@ -4,6 +4,7 @@ from usuarios import views
 
 urlpatterns = [
     path('conta_aluno/', views.conta_aluno, name = 'conta_aluno'),
+    path('aluno/', views.aluno, name = 'aluno'),
     #------------------login---------------------------------
     path('Login_aluno/', views.Login_aluno, name = 'Login_aluno'), 
     path('Login_empresa/', views.Login_empresa, name = 'Login_empresa'), 
@@ -12,6 +13,7 @@ urlpatterns = [
     path('Login_escola/', views.Login_escola, name = 'Login_escola'), 
     path('logout/', views.Logout, name='logout'),
     path('tipo_user/', views.tipo_user, name = 'tipo_user'),
+
     
     
     #------------------Registro-------------------------

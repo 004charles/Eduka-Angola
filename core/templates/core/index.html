@@ -10,10 +10,12 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 
     <!-- Favicon -->
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/images/favicon.png' %}">
 
     <!-- CSS
@@ -65,9 +67,9 @@
                                     </div>
                                     <div class="rbt-button-group justify-content-start mt--30">
                                         <a class="rbt-btn btn-gradient rbt-switch-btn" href="08-language-academy.html#">
-                                            <span data-text="Registe-se Agora">Registe-se Agora</span>
+                                            <span data-text="Testar habilidades">Testar habilidades</span>
                                         </a>
-                                        <a class="rbt-btn btn-border rbt-switch-btn" href="08-language-academy.html#">
+                                        <a class="rbt-btn btn-border rbt-switch-btn" href="{% url 'todo_curso' %}">
                                             <span data-text="Encontrar Cursos">Encontrar Cursos</span>
                                         </a>
                                     </div>
@@ -947,199 +949,179 @@
         </div>
     </div>
 
-    <div class="rbt-rbt-course-area rbt-section-gapBottom bg-color-white">
-        <div class="container">
-            <div class="row g-5 align-items-center mb--50">
-                <div class="col-lg-6 col-md-6 col-12">
-                    <div class="section-title">
-                        <h2 class="title">Resumo do Curso</h2>
+    <div class="rbt-course-area rbt-section-gapBottom bg-color-white">
+    <div class="container">
+        <div class="row g-5 align-items-center mb--50">
+            <div class="col-lg-6 col-md-6 col-12">
+                <div class="section-title">
+                    <h2 class="title">Resumo do Curso</h2>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-12">
+                <div class="load-more-btn text-start text-md-end">
+                    <a class="rbt-btn btn-gradient rbt-marquee-btn radius-round" href="#">
+                        <span data-text="Ver todos cursos">Ver todos cursos</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Linha 1 (ZIGUE) -->
+        <div class="swiper zigueLinha1 mb-5">
+            <div class="swiper-wrapper">
+                {% for curso in cursos_zigue1 %}
+                <div class="swiper-slide">
+                    <div class="rbt-card variation-01 rbt-hover card-list-2">
+                        <div class="rbt-card-img">
+                            <a href="{% url 'curso_detalhe' id=curso.id %}">
+                                <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}" style="height: 200px; object-fit: cover; width: 100%;">
+                            </a>
+                        </div>
+                        <div class="rbt-card-body">
+                            <h4 class="rbt-card-title"><a style="font-size: 19px;" href="{% url 'curso_detalhe' id=curso.id %}">{{ curso.titulo }}</a></h4>
+                            <p class="rbt-card-text">{{ curso.descricao|truncatechars:50 }}</p>
+                            <div class="rbt-price">
+                                <span class="current-price">kz {{ curso.preco }}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-lg-6 col-md-6 col-12">
-                    <div class="load-more-btn text-start text-md-end">
-                        <a class="rbt-btn btn-gradient rbt-marquee-btn radius-round" href="10-online-course.html#">
-                            <span data-text="Ver todos cursos">
-                                Ver todos cursos
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Linha 2 (ZAGUE - reversa) -->
+        <div class="swiper zigueLinha2">
+            <div class="swiper-wrapper">
+                {% for curso in cursos_zigue2 %}
+                <div class="swiper-slide">
+                    <div class="rbt-card variation-01 rbt-hover card-list-2">
+                        <div class="rbt-card-img">
+                            <a href="{% url 'curso_detalhe' id=curso.id %}">
+                                <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}" style="height: 200px; object-fit: cover; width: 100%;">
+                            </a>
+                        </div>
+                        <div class="rbt-card-body">
+                            <h4 class="rbt-card-title"><a style="font-size: 19px;" href="{% url 'curso_detalhe' id=curso.id %}">{{ curso.titulo }}</a></h4>
+                            <p class="rbt-card-text">{{ curso.descricao|truncatechars:50 }}</p>
+                            <div class="rbt-price">
+                                <span class="current-price">kz {{ curso.preco }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+        <div class="rbt-service-area bg-color-white rbt-section-gapBottom">
+    <div class="container">
+        <div class="row row--15 mt_dec--30">
+            <div class="col-lg-4 col-xl-4 col-md-6 col-sm-6 col-12 mt--30">
+                <div class="section-title text-start">
+                    <h2 class="title">O que você vai aprender após o curso?</h2>
+                    <p class="description mt--20">Existem muitas variações de passagens do Lorem Ipsum disponíveis.</p>
+                    <div class="read-more-btn">
+                        <a class="rbt-btn btn-gradient radius rbt-marquee-btn marquee-text-y" href="10-online-course.html#">
+                            <span data-text="Sobre Nós">
+                                Sobre Nós
                             </span>
                         </a>
                     </div>
                 </div>
             </div>
-            <!-- Start Card Area -->
-            <div class="row g-5">
 
-                <!-- Start Single Card  -->
-                {% for curso in cursos_destaque|slice:"0:6" %}
-
-                <div class="col-lg-6 col-md-6 col-sm-6 col-12" data-sal-delay="150" data-sal="slide-up" data-sal-duration="800">
-                    <div class="rbt-card variation-01 rbt-hover card-list-2">
-                        <div class="rbt-card-img">
-                            <a href="{% url 'curso_detalhe' id=curso.id %}">
-                                <img src="{{ curso.imagem.url }}" alt="Card image" style="height: 200px; object-fit: cover; width: 100%;">
-
-                            </a>
+            <!-- Início do Bloco de Serviço -->
+            <div class="col-lg-4 col-xl-4 col-md-6 col-sm-6 col-12 mt--30">
+                <div class="service-card service-card-6 bg-color bg-card-color-1">
+                    <div class="inner">
+                        <div class="icon">
+                            <img src="{% static 'assets/images/shape/service-01.png' %}" alt="Imagens de Ícone">
+                            <img class="opacity_image" src="{% static 'assets/images/shape/service-01.png' %}" alt="Imagens de Ícone">
                         </div>
-                        <div class="rbt-card-body">
-                            <div class="rbt-card-top">
-                                <div class="rbt-review">
-                                    <div class="rating">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <span class="rating-count"> (15 Reviews)</span>
-                                </div>
-                                <div class="rbt-bookmark-btn">
-                                    <a class="rbt-round-btn" title="Bookmark" href="{% url 'curso_detalhe' id=curso.id %}"><i
-                                            class="feather-bookmark"></i></a>
-                                </div>
-                            </div>
-
-                            <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}">{{ curso.titulo }}</a>
-                            </h4>
-
-                            <ul class="rbt-meta">
-                                <li><i class="feather-book"></i>12 Lessons</li>
-                                <li><i class="feather-users"></i>50 Students</li>
-                            </ul>
-
-                            <p class="rbt-card-text">{{ curso.descricao|truncatechars:40 }}</p>
-                            <div class="rbt-author-meta mb--10">
-                                <div class="rbt-avater">
-                                    <a href="{% url 'curso_detalhe' id=curso.id %}">
-                                        <img src="{% static 'assets/images/client/avatar-02.png' %}" alt="Sophia Jaymes">
-                                    </a>
-                                </div>
-                                <div class="rbt-author-info">
-                                    By <a href="profile.html">Angela</a> In <a href="10-online-course.html#">Development</a>
-                                </div>
-                            </div>
-                            <div class="rbt-card-bottom">
-                                <div class="rbt-price">
-                                    <span class="current-price">kz {{curso.preco}}</span>
-                                    <span class="off-price">kz 70.000</span>
-                                </div>
-                                <a class="rbt-btn-link" href="{% url 'curso_detalhe' id=curso.id %}">ler 
-                                    mais<i class="feather-arrow-right"></i></a>
-                            </div>
+                        <div class="content">
+                            <h6 class="title"><a href="10-online-course.html#">Aprendizado de Inglês</a></h6>
+                            <p class="description">Aprendizado de inglês. Se você está procurando por parágrafos aleatórios, você veio ao lugar certo.</p>
                         </div>
                     </div>
                 </div>
-                {% endfor%}
-                <!-- End Single Card  -->
-
-                
-                <!-- End Single Card  -->
             </div>
-            <!-- End Card Area -->
+            <!-- Fim do Bloco de Serviço -->
+
+            <!-- Início do Bloco de Serviço -->
+            <div class="col-lg-4 col-xl-4 col-md-6 col-sm-6 col-12 mt--30">
+                <div class="service-card service-card-6 bg-color bg-card-color-2">
+                    <div class="inner">
+                        <div class="icon">
+                            <img src="{% static 'assets/images/shape/service-04.png' %}" alt="Imagens de Ícone">
+                            <img class="opacity_image" src="{% static 'assets/images/shape/service-04.png' %}" alt="Imagens de Ícone">
+                        </div>
+                        <div class="content">
+                            <h6 class="title"><a href="10-online-course.html#">Aprendizado de JavaScript</a></h6>
+                            <p class="description">Aprendizado de JavaScript. Se você está procurando por parágrafos aleatórios, você veio ao lugar certo.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Fim do Bloco de Serviço -->
+
+            <!-- Início do Bloco de Serviço -->
+            <div class="col-lg-4 col-xl-4 col-xxl-4 col-md-6 col-sm-6 col-12 mt--30">
+                <div class="service-card service-card-6 bg-color bg-card-color-3">
+                    <div class="inner">
+                        <div class="icon">
+                            <img src="{% static 'assets/images/shape/service-03.png' %}" alt="Imagens de Ícone">
+                            <img class="opacity_image" src="{% static 'assets/images/shape/service-03.png' %}" alt="Imagens de Ícone">
+                        </div>
+                        <div class="content">
+                            <h6 class="title"><a href="10-online-course.html#">Aprendizado de Angular</a></h6>
+                            <p class="description">Aprendizado de Angular. Se você está procurando por parágrafos aleatórios, você veio ao lugar certo.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Fim do Bloco de Serviço -->
+
+            <!-- Início do Bloco de Serviço -->
+            <div class="col-lg-4 col-xl-4 col-xxl-4 col-md-6 col-sm-6 col-12 mt--30">
+                <div class="service-card service-card-6 bg-color bg-card-color-4">
+                    <div class="inner">
+                        <div class="icon">
+                            <img src="{% static 'assets/images/shape/service-02.png' %}" alt="Imagens de Ícone">
+                            <img class="opacity_image" src="{% static 'assets/images/shape/service-02.png' %}" alt="Imagens de Ícone">
+                        </div>
+                        <div class="content">
+                            <h6 class="title"><a href="10-online-course.html#">Aprendizado de PHP</a></h6>
+                            <p class="description">Aprendizado de PHP. Se você está procurando por parágrafos aleatórios, você veio ao lugar certo.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Fim do Bloco de Serviço -->
+
+            <!-- Início do Bloco de Serviço -->
+            <div class="col-lg-4 col-xl-4 col-xxl-4 col-md-6 col-sm-6 col-12 mt--30">
+                <div class="service-card service-card-6 bg-color bg-card-color-5">
+                    <div class="inner">
+                        <div class="icon">
+                            <img src="{% static 'assets/images/shape/service-05.png' %}" alt="Imagens de Ícone">
+                            <img class="opacity_image" src="{% static 'assets/images/shape/service-05.png' %}" alt="Imagens de Ícone">
+                        </div>
+                        <div class="content">
+                            <h6 class="title"><a href="10-online-course.html#">Inglês Falado</a></h6>
+                            <p class="description">Inglês falado. Se você está procurando por parágrafos aleatórios, você veio ao lugar certo.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Fim do Bloco de Serviço -->
+
         </div>
     </div>
+</div>
 
-        <div class="rbt-service-area bg-color-white rbt-section-gapBottom">
-        <div class="container">
-            <div class="row row--15 mt_dec--30">
-                <div class="col-lg-4 col-xl-4 col-md-6 col-sm-6 col-12 mt--30">
-                    <div class="section-title text-start">
-                        <h2 class="title">What will you learn after the course?.</h2>
-                        <p class="description mt--20">There are many variations of passages of the Ipsum available.</p>
-                        <div class="read-more-btn">
-                            <a class="rbt-btn btn-gradient radius rbt-marquee-btn marquee-text-y" href="10-online-course.html#">
-                                <span data-text="About More Us">
-                        About More Us
-                    </span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Start Service Grid  -->
-                <div class="col-lg-4 col-xl-4 col-md-6 col-sm-6 col-12 mt--30">
-                    <div class="service-card service-card-6 bg-color bg-card-color-1">
-                        <div class="inner">
-                            <div class="icon">
-                                <img src="{% static 'assets/images/shape/service-01.png' %}" alt="Shape Images">
-                                <img class="opacity_image" src="{% static 'assets/images/shape/service-01.png' %}" alt="Shape Images">
-                            </div>
-                            <div class="content">
-                                <h6 class="title"><a href="10-online-course.html#">English Learning</a></h6>
-                                <p class="description">English Learning looking for random paragraphs, you've come to the right place. When a random word.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- End Service Grid  -->
-
-                <!-- Start Service Grid  -->
-                <div class="col-lg-4 col-xl-4 col-md-6 col-sm-6 col-12 mt--30">
-                    <div class="service-card service-card-6 bg-color bg-card-color-2">
-                        <div class="inner">
-                            <div class="icon">
-                                <img src="{% static 'assets/images/shape/service-04.png' %}" alt="Shape Images">
-                                <img class="opacity_image" src="{% static 'assets/images/shape/service-04.png' %}" alt="Shape Images">
-                            </div>
-                            <div class="content">
-                                <h6 class="title"><a href="10-online-course.html#">Javascript Learning</a></h6>
-                                <p class="description">Javascript Learning looking for random paragraphs, you've come to the right place. When a random word.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- End Service Grid  -->
-
-                <!-- Start Service Grid  -->
-                <div class="col-lg-4 col-xl-4 col-xxl-4 col-md-6 col-sm-6 col-12 mt--30">
-                    <div class="service-card service-card-6 bg-color bg-card-color-3">
-                        <div class="inner">
-                            <div class="icon">
-                                <img src="{% static 'assets/images/shape/service-03.png' %}" alt="Shape Images">
-                                <img class="opacity_image" src="{% static 'assets/images/shape/service-03.png' %}" alt="Shape Images">
-                            </div>
-                            <div class="content">
-                                <h6 class="title"><a href="10-online-course.html#">Angular Learning</a></h6>
-                                <p class="description">Angular Learning looking for random paragraphs, you've come to the right place. When a random word.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- End Service Grid  -->
-
-                <!-- Start Service Grid  -->
-                <div class="col-lg-4 col-xl-4 col-xxl-4 col-md-6 col-sm-6 col-12 mt--30">
-                    <div class="service-card service-card-6 bg-color bg-card-color-4">
-                        <div class="inner">
-                            <div class="icon">
-                                <img src="{% static 'assets/images/shape/service-02.png' %}" alt="Shape Images">
-                                <img class="opacity_image" src="{% static 'assets/images/shape/service-02.png' %}" alt="Shape Images">
-                            </div>
-                            <div class="content">
-                                <h6 class="title"><a href="10-online-course.html#">Php Learning</a></h6>
-                                <p class="description">Php Learning looking for random paragraphs, you've come to the right place. When a random word.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- End Service Grid  -->
-
-                <!-- Start Service Grid  -->
-                <div class="col-lg-4 col-xl-4 col-xxl-4 col-md-6 col-sm-6 col-12 mt--30">
-                    <div class="service-card service-card-6 bg-color bg-card-color-5">
-                        <div class="inner">
-                            <div class="icon">
-                                <img src="{% static 'assets/images/shape/service-05.png' %}" alt="Shape Images">
-                                <img class="opacity_image" src="{% static 'assets/images/shape/service-05.png' %}" alt="Shape Images">
-                            </div>
-                            <div class="content">
-                                <h6 class="title"><a href="10-online-course.html#">Spoken English</a></h6>
-                                <p class="description">Spoken english looking for random paragraphs, you've come to the right place. When a random word.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- End Service Grid  -->
-            </div>
-        </div>
     </div>
 
         <div class="rbt-banner-area rbt-section-gapTop">
@@ -1259,235 +1241,56 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-lg-12">
-                <ul class="rbt-portfolio-filter filter-tab-button text-center nav nav-tabs" id="rbt-myTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true">
-                            <span class="filter-text">Todos os Cursos</span> 
-                            <span class="course-number">04</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="featured-tab" data-bs-toggle="tab" data-bs-target="#featured" type="button" role="tab" aria-controls="featured" aria-selected="false">
-                            <span class="filter-text">Destaques</span> 
-                            <span class="course-number">02</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="popular-tab" data-bs-toggle="tab" data-bs-target="#popular" type="button" role="tab" aria-controls="popular" aria-selected="false">
-                            <span class="filter-text">Populares</span> 
-                            <span class="course-number">03</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="trending-tab" data-bs-toggle="tab" data-bs-target="#trending" type="button" role="tab" aria-controls="trending" aria-selected="false">
-                            <span class="filter-text">Em Alta</span> 
-                            <span class="course-number">03</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="latest-tab" data-bs-toggle="tab" data-bs-target="#latest" type="button" role="tab" aria-controls="latest" aria-selected="false">
-                            <span class="filter-text">Recentes</span> 
-                            <span class="course-number">04</span>
-                        </button>
-                    </li>
-                </ul>
+        
+            <!-- Start Card Area -->
+            <div class="swiper mySwiper">
+            <div class="swiper-wrapper">
+                {% for curso in cursos_destaque %}
+                <div class="swiper-slide">
+                    <div class="rbt-card variation-01 rbt-hover">
+                        <div class="rbt-card-img">
+                            <a href="{% url 'curso_detalhe' id=curso.id %}">
+                                <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}">
+                            </a>
+                        </div>
+                        <div class="rbt-card-body">
+                            <div class="rbt-card-top">
+                                <div class="rbt-review">
+                                    <div class="rating">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <span class="rating-count"> ({{ curso.vagas }} Vagas)</span>
+                                </div>
+                            </div>
+                            <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}">{{ curso.titulo }}</a></h4>
+                            <ul class="rbt-meta">
+                                <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
+                                <li><i class="feather-users"></i>{{ curso.vagas }} Estudantes</li>
+                            </ul>
+                            <div class="rbt-card-bottom">
+                                <div class="rbt-price">
+                                    <span class="current-price">kz {{ curso.preco }}</span>
+                                </div>
+                                <a class="rbt-btn-link" href="{% url 'curso_detalhe' id=curso.id %}">Ver mais
+                                    <i class="feather-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
+
+            <!-- Botões de navegação -->
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+
+            <!-- Paginação (se quiser) -->
+            <div class="swiper-pagination"></div>
         </div>
 
-            <!-- Start Card Area -->
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="tab-content mt--60" id="rbt-myTabContent">
-
-                        <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all">
-                            <div class="row g-5">
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-01.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (15 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">React Front To Back</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>20 Lessons</li>
-                                                <li><i class="feather-users"></i>40 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 60</span>
-                                                    <span class="off-price">kz 120</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-02.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (15 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">PHP Beginner + Advanced</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>10 Lessons</li>
-                                                <li><i class="feather-users"></i>30 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 20</span>
-                                                    <span class="off-price">kz 43</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-03.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (4 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">Angular Zero to Mastery</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>14 Lessons</li>
-                                                <li><i class="feather-users"></i>26 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 23</span>
-                                                    <span class="off-price">kz 45</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-04.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (3 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">English Langiage Club</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>20 Lessons</li>
-                                                <li><i class="feather-users"></i>30 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 40</span>
-                                                    <span class="off-price">kz 86</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
-                            </div>
-                        </div>       
-                </div>
-            </div>
         </div>
     </div>
     <!-- End Course Area  -->
@@ -1507,230 +1310,53 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-lg-12">
-                <ul class="rbt-portfolio-filter filter-tab-button text-center nav nav-tabs" id="rbt-myTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true">
-                            <span class="filter-text">Todos os Cursos</span> 
-                            <span class="course-number">04</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="featured-tab" data-bs-toggle="tab" data-bs-target="#featured" type="button" role="tab" aria-controls="featured" aria-selected="false">
-                            <span class="filter-text">Destaques</span> 
-                            <span class="course-number">02</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="popular-tab" data-bs-toggle="tab" data-bs-target="#popular" type="button" role="tab" aria-controls="popular" aria-selected="false">
-                            <span class="filter-text">Populares</span> 
-                            <span class="course-number">03</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="trending-tab" data-bs-toggle="tab" data-bs-target="#trending" type="button" role="tab" aria-controls="trending" aria-selected="false">
-                            <span class="filter-text">Em Alta</span> 
-                            <span class="course-number">03</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="latest-tab" data-bs-toggle="tab" data-bs-target="#latest" type="button" role="tab" aria-controls="latest" aria-selected="false">
-                            <span class="filter-text">Recentes</span> 
-                            <span class="course-number">04</span>
-                        </button>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-            <!-- Start Card Area -->
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="tab-content mt--60" id="rbt-myTabContent">
-
-                        <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all">
-                            <div class="row g-5">
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
+        <!-- Start Card Area -->
+                            <div class="swiper mySwiper">
+                            <div class="swiper-wrapper">
+                                {% for curso in cursos_recentes %}
+                                <div class="swiper-slide">
                                     <div class="rbt-card variation-01 rbt-hover">
                                         <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-01.jpg' %}" alt="Card image">
+                                            <a href="{% url 'curso_detalhe' id=curso.id %}">
+                                                <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}">
                                             </a>
                                         </div>
                                         <div class="rbt-card-body">
                                             <div class="rbt-card-top">
                                                 <div class="rbt-review">
                                                     <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
                                                         <i class="fas fa-star"></i>
                                                     </div>
-                                                    <span class="rating-count"> (15 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
+                                                    <span class="rating-count"> ({{ curso.vagas }} Vagas)</span>
                                                 </div>
                                             </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">React Front To Back</a>
-                                            </h4>
+                                            <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}">{{ curso.titulo }}</a></h4>
                                             <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>20 Lessons</li>
-                                                <li><i class="feather-users"></i>40 Students</li>
+                                                <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
+                                                <li><i class="feather-users"></i>{{ curso.vagas }} Estudantes</li>
                                             </ul>
-
                                             <div class="rbt-card-bottom">
                                                 <div class="rbt-price">
-                                                    <span class="current-price">kz 60</span>
-                                                    <span class="off-price">kz 120</span>
+                                                    <span class="current-price">kz {{ curso.preco }}</span>
                                                 </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
+                                                <a class="rbt-btn-link" href="{% url 'curso_detalhe' id=curso.id %}">Ver mais
+                                                    <i class="feather-arrow-right"></i>
+                                                </a>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <!-- End Single Course  -->
+                                {% endfor %}
+                            </div>
 
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-02.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (15 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">PHP Beginner + Advanced</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>10 Lessons</li>
-                                                <li><i class="feather-users"></i>30 Students</li>
-                                            </ul>
+                            <!-- Botões de navegação -->
+                            <div class="swiper-button-next"></div>
+                            <div class="swiper-button-prev"></div>
 
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 20</span>
-                                                    <span class="off-price">kz 43</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-03.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (4 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">Angular Zero to Mastery</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>14 Lessons</li>
-                                                <li><i class="feather-users"></i>26 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 23</span>
-                                                    <span class="off-price">kz 45</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-04.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (3 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">English Langiage Club</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>20 Lessons</li>
-                                                <li><i class="feather-users"></i>30 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 40</span>
-                                                    <span class="off-price">kz 86</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
+                            <!-- Paginação (se quiser) -->
+                            <div class="swiper-pagination"></div>                      <!-- End Single Course  -->
 
                             </div>
                         </div>       
@@ -1757,231 +1383,53 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-lg-12">
-                <ul class="rbt-portfolio-filter filter-tab-button text-center nav nav-tabs" id="rbt-myTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true">
-                            <span class="filter-text">Todos os Cursos</span> 
-                            <span class="course-number">04</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="featured-tab" data-bs-toggle="tab" data-bs-target="#featured" type="button" role="tab" aria-controls="featured" aria-selected="false">
-                            <span class="filter-text">Destaques</span> 
-                            <span class="course-number">02</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="popular-tab" data-bs-toggle="tab" data-bs-target="#popular" type="button" role="tab" aria-controls="popular" aria-selected="false">
-                            <span class="filter-text">Populares</span> 
-                            <span class="course-number">03</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="trending-tab" data-bs-toggle="tab" data-bs-target="#trending" type="button" role="tab" aria-controls="trending" aria-selected="false">
-                            <span class="filter-text">Em Alta</span> 
-                            <span class="course-number">03</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="latest-tab" data-bs-toggle="tab" data-bs-target="#latest" type="button" role="tab" aria-controls="latest" aria-selected="false">
-                            <span class="filter-text">Recentes</span> 
-                            <span class="course-number">04</span>
-                        </button>
-                    </li>
-                </ul>
+        <!-- Start Card Area -->
+            <div class="swiper mySwiper">
+            <div class="swiper-wrapper">
+                {% for curso in cursos_destaque %}
+                <div class="swiper-slide">
+                    <div class="rbt-card variation-01 rbt-hover">
+                        <div class="rbt-card-img">
+                            <a href="{% url 'curso_detalhe' id=curso.id %}">
+                                <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}">
+                            </a>
+                        </div>
+                        <div class="rbt-card-body">
+                            <div class="rbt-card-top">
+                                <div class="rbt-review">
+                                    <div class="rating">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <span class="rating-count"> ({{ curso.vagas }} Vagas)</span>
+                                </div>
+                            </div>
+                            <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}">{{ curso.titulo }}</a></h4>
+                            <ul class="rbt-meta">
+                                <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
+                                <li><i class="feather-users"></i>{{ curso.vagas }} Estudantes</li>
+                            </ul>
+                            <div class="rbt-card-bottom">
+                                <div class="rbt-price">
+                                    <span class="current-price">kz {{ curso.preco }}</span>
+                                </div>
+                                <a class="rbt-btn-link" href="{% url 'curso_detalhe' id=curso.id %}">Ver mais
+                                    <i class="feather-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-        </div>
 
-            <!-- Start Card Area -->
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="tab-content mt--60" id="rbt-myTabContent">
+            <!-- Botões de navegação -->
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
 
-                        <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all">
-                            <div class="row g-5">
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-01.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (15 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">React Front To Back</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>20 Lessons</li>
-                                                <li><i class="feather-users"></i>40 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 60</span>
-                                                    <span class="off-price">kz 120</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-02.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (15 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">PHP Beginner + Advanced</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>10 Lessons</li>
-                                                <li><i class="feather-users"></i>30 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 20</span>
-                                                    <span class="off-price">kz 43</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-03.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (4 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">Angular Zero to Mastery</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>14 Lessons</li>
-                                                <li><i class="feather-users"></i>26 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 23</span>
-                                                    <span class="off-price">kz 45</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-04.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (3 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">English Langiage Club</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>20 Lessons</li>
-                                                <li><i class="feather-users"></i>30 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 40</span>
-                                                    <span class="off-price">kz 86</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
+            <!-- Paginação (se quiser) -->
+            <div class="swiper-pagination"></div>
                             </div>
                         </div>       
                 </div>
@@ -2005,231 +1453,53 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-lg-12">
-                <ul class="rbt-portfolio-filter filter-tab-button text-center nav nav-tabs" id="rbt-myTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true">
-                            <span class="filter-text">Todos os Cursos</span> 
-                            <span class="course-number">04</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="featured-tab" data-bs-toggle="tab" data-bs-target="#featured" type="button" role="tab" aria-controls="featured" aria-selected="false">
-                            <span class="filter-text">Destaques</span> 
-                            <span class="course-number">02</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="popular-tab" data-bs-toggle="tab" data-bs-target="#popular" type="button" role="tab" aria-controls="popular" aria-selected="false">
-                            <span class="filter-text">Populares</span> 
-                            <span class="course-number">03</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="trending-tab" data-bs-toggle="tab" data-bs-target="#trending" type="button" role="tab" aria-controls="trending" aria-selected="false">
-                            <span class="filter-text">Em Alta</span> 
-                            <span class="course-number">03</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="latest-tab" data-bs-toggle="tab" data-bs-target="#latest" type="button" role="tab" aria-controls="latest" aria-selected="false">
-                            <span class="filter-text">Recentes</span> 
-                            <span class="course-number">04</span>
-                        </button>
-                    </li>
-                </ul>
+        <!-- Start Card Area -->
+            <div class="swiper mySwiper">
+            <div class="swiper-wrapper">
+                {% for curso in cursos_destaque %}
+                <div class="swiper-slide">
+                    <div class="rbt-card variation-01 rbt-hover">
+                        <div class="rbt-card-img">
+                            <a href="{% url 'curso_detalhe' id=curso.id %}">
+                                <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}">
+                            </a>
+                        </div>
+                        <div class="rbt-card-body">
+                            <div class="rbt-card-top">
+                                <div class="rbt-review">
+                                    <div class="rating">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <span class="rating-count"> ({{ curso.vagas }} Vagas)</span>
+                                </div>
+                            </div>
+                            <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}">{{ curso.titulo }}</a></h4>
+                            <ul class="rbt-meta">
+                                <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
+                                <li><i class="feather-users"></i>{{ curso.vagas }} Estudantes</li>
+                            </ul>
+                            <div class="rbt-card-bottom">
+                                <div class="rbt-price">
+                                    <span class="current-price">kz {{ curso.preco }}</span>
+                                </div>
+                                <a class="rbt-btn-link" href="{% url 'curso_detalhe' id=curso.id %}">Ver mais
+                                    <i class="feather-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-        </div>
 
-            <!-- Start Card Area -->
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="tab-content mt--60" id="rbt-myTabContent">
+            <!-- Botões de navegação -->
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
 
-                        <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all">
-                            <div class="row g-5">
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-01.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (15 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">React Front To Back</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>20 Lessons</li>
-                                                <li><i class="feather-users"></i>40 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 60</span>
-                                                    <span class="off-price">kz 120</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-02.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (15 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">PHP Beginner + Advanced</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>10 Lessons</li>
-                                                <li><i class="feather-users"></i>30 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 20</span>
-                                                    <span class="off-price">kz 43</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-03.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (4 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">Angular Zero to Mastery</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>14 Lessons</li>
-                                                <li><i class="feather-users"></i>26 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 23</span>
-                                                    <span class="off-price">kz 45</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-04.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (3 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">English Langiage Club</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>20 Lessons</li>
-                                                <li><i class="feather-users"></i>30 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 40</span>
-                                                    <span class="off-price">kz 86</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
+            <!-- Paginação (se quiser) -->
+            <div class="swiper-pagination"></div>
                             </div>
                         </div>       
                 </div>
@@ -2253,231 +1523,53 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-lg-12">
-                <ul class="rbt-portfolio-filter filter-tab-button text-center nav nav-tabs" id="rbt-myTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true">
-                            <span class="filter-text">Todos os Cursos</span> 
-                            <span class="course-number">04</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="featured-tab" data-bs-toggle="tab" data-bs-target="#featured" type="button" role="tab" aria-controls="featured" aria-selected="false">
-                            <span class="filter-text">Destaques</span> 
-                            <span class="course-number">02</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="popular-tab" data-bs-toggle="tab" data-bs-target="#popular" type="button" role="tab" aria-controls="popular" aria-selected="false">
-                            <span class="filter-text">Populares</span> 
-                            <span class="course-number">03</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="trending-tab" data-bs-toggle="tab" data-bs-target="#trending" type="button" role="tab" aria-controls="trending" aria-selected="false">
-                            <span class="filter-text">Em Alta</span> 
-                            <span class="course-number">03</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="latest-tab" data-bs-toggle="tab" data-bs-target="#latest" type="button" role="tab" aria-controls="latest" aria-selected="false">
-                            <span class="filter-text">Recentes</span> 
-                            <span class="course-number">04</span>
-                        </button>
-                    </li>
-                </ul>
+        <!-- Start Card Area -->
+            <div class="swiper mySwiper">
+            <div class="swiper-wrapper">
+                {% for curso in cursos_destaque %}
+                <div class="swiper-slide">
+                    <div class="rbt-card variation-01 rbt-hover">
+                        <div class="rbt-card-img">
+                            <a href="{% url 'curso_detalhe' id=curso.id %}">
+                                <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}">
+                            </a>
+                        </div>
+                        <div class="rbt-card-body">
+                            <div class="rbt-card-top">
+                                <div class="rbt-review">
+                                    <div class="rating">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <span class="rating-count"> ({{ curso.vagas }} Vagas)</span>
+                                </div>
+                            </div>
+                            <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}">{{ curso.titulo }}</a></h4>
+                            <ul class="rbt-meta">
+                                <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
+                                <li><i class="feather-users"></i>{{ curso.vagas }} Estudantes</li>
+                            </ul>
+                            <div class="rbt-card-bottom">
+                                <div class="rbt-price">
+                                    <span class="current-price">kz {{ curso.preco }}</span>
+                                </div>
+                                <a class="rbt-btn-link" href="{% url 'curso_detalhe' id=curso.id %}">Ver mais
+                                    <i class="feather-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-        </div>
 
-            <!-- Start Card Area -->
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="tab-content mt--60" id="rbt-myTabContent">
+            <!-- Botões de navegação -->
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
 
-                        <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all">
-                            <div class="row g-5">
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-01.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (15 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">React Front To Back</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>20 Lessons</li>
-                                                <li><i class="feather-users"></i>40 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 60</span>
-                                                    <span class="off-price">kz 120</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-02.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (15 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">PHP Beginner + Advanced</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>10 Lessons</li>
-                                                <li><i class="feather-users"></i>30 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 20</span>
-                                                    <span class="off-price">kz 43</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-03.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (4 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">Angular Zero to Mastery</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>14 Lessons</li>
-                                                <li><i class="feather-users"></i>26 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 23</span>
-                                                    <span class="off-price">kz 45</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-04.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (3 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">English Langiage Club</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>20 Lessons</li>
-                                                <li><i class="feather-users"></i>30 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 40</span>
-                                                    <span class="off-price">kz 86</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
+            <!-- Paginação (se quiser) -->
+            <div class="swiper-pagination"></div>
                             </div>
                         </div>       
                 </div>
@@ -2500,231 +1592,53 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-lg-12">
-                <ul class="rbt-portfolio-filter filter-tab-button text-center nav nav-tabs" id="rbt-myTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true">
-                            <span class="filter-text">Todos os Cursos</span> 
-                            <span class="course-number">04</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="featured-tab" data-bs-toggle="tab" data-bs-target="#featured" type="button" role="tab" aria-controls="featured" aria-selected="false">
-                            <span class="filter-text">Destaques</span> 
-                            <span class="course-number">02</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="popular-tab" data-bs-toggle="tab" data-bs-target="#popular" type="button" role="tab" aria-controls="popular" aria-selected="false">
-                            <span class="filter-text">Populares</span> 
-                            <span class="course-number">03</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="trending-tab" data-bs-toggle="tab" data-bs-target="#trending" type="button" role="tab" aria-controls="trending" aria-selected="false">
-                            <span class="filter-text">Em Alta</span> 
-                            <span class="course-number">03</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="latest-tab" data-bs-toggle="tab" data-bs-target="#latest" type="button" role="tab" aria-controls="latest" aria-selected="false">
-                            <span class="filter-text">Recentes</span> 
-                            <span class="course-number">04</span>
-                        </button>
-                    </li>
-                </ul>
+        <!-- Start Card Area -->
+            <div class="swiper mySwiper">
+            <div class="swiper-wrapper">
+                {% for curso in cursos_destaque %}
+                <div class="swiper-slide">
+                    <div class="rbt-card variation-01 rbt-hover">
+                        <div class="rbt-card-img">
+                            <a href="{% url 'curso_detalhe' id=curso.id %}">
+                                <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}">
+                            </a>
+                        </div>
+                        <div class="rbt-card-body">
+                            <div class="rbt-card-top">
+                                <div class="rbt-review">
+                                    <div class="rating">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <span class="rating-count"> ({{ curso.vagas }} Vagas)</span>
+                                </div>
+                            </div>
+                            <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}">{{ curso.titulo }}</a></h4>
+                            <ul class="rbt-meta">
+                                <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
+                                <li><i class="feather-users"></i>{{ curso.vagas }} Estudantes</li>
+                            </ul>
+                            <div class="rbt-card-bottom">
+                                <div class="rbt-price">
+                                    <span class="current-price">kz {{ curso.preco }}</span>
+                                </div>
+                                <a class="rbt-btn-link" href="{% url 'curso_detalhe' id=curso.id %}">Ver mais
+                                    <i class="feather-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-        </div>
 
-            <!-- Start Card Area -->
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="tab-content mt--60" id="rbt-myTabContent">
+            <!-- Botões de navegação -->
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
 
-                        <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all">
-                            <div class="row g-5">
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-01.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (15 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">React Front To Back</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>20 Lessons</li>
-                                                <li><i class="feather-users"></i>40 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 60</span>
-                                                    <span class="off-price">kz 120</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-02.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (15 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">PHP Beginner + Advanced</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>10 Lessons</li>
-                                                <li><i class="feather-users"></i>30 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 20</span>
-                                                    <span class="off-price">kz 43</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-03.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (4 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">Angular Zero to Mastery</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>14 Lessons</li>
-                                                <li><i class="feather-users"></i>26 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 23</span>
-                                                    <span class="off-price">kz 45</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-04.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (3 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">English Langiage Club</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>20 Lessons</li>
-                                                <li><i class="feather-users"></i>30 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 40</span>
-                                                    <span class="off-price">kz 86</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
+            <!-- Paginação (se quiser) -->
+            <div class="swiper-pagination"></div>
                             </div>
                         </div>       
                 </div>
@@ -2748,231 +1662,53 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-lg-12">
-                <ul class="rbt-portfolio-filter filter-tab-button text-center nav nav-tabs" id="rbt-myTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true">
-                            <span class="filter-text">Todos os Cursos</span> 
-                            <span class="course-number">04</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="featured-tab" data-bs-toggle="tab" data-bs-target="#featured" type="button" role="tab" aria-controls="featured" aria-selected="false">
-                            <span class="filter-text">Destaques</span> 
-                            <span class="course-number">02</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="popular-tab" data-bs-toggle="tab" data-bs-target="#popular" type="button" role="tab" aria-controls="popular" aria-selected="false">
-                            <span class="filter-text">Populares</span> 
-                            <span class="course-number">03</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="trending-tab" data-bs-toggle="tab" data-bs-target="#trending" type="button" role="tab" aria-controls="trending" aria-selected="false">
-                            <span class="filter-text">Em Alta</span> 
-                            <span class="course-number">03</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button id="latest-tab" data-bs-toggle="tab" data-bs-target="#latest" type="button" role="tab" aria-controls="latest" aria-selected="false">
-                            <span class="filter-text">Recentes</span> 
-                            <span class="course-number">04</span>
-                        </button>
-                    </li>
-                </ul>
+        <!-- Start Card Area -->
+            <div class="swiper mySwiper">
+            <div class="swiper-wrapper">
+                {% for curso in cursos_proximos %}
+                <div class="swiper-slide">
+                    <div class="rbt-card variation-01 rbt-hover">
+                        <div class="rbt-card-img">
+                            <a href="{% url 'curso_detalhe' id=curso.id %}">
+                                <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}">
+                            </a>
+                        </div>
+                        <div class="rbt-card-body">
+                            <div class="rbt-card-top">
+                                <div class="rbt-review">
+                                    <div class="rating">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <span class="rating-count"> ({{ curso.vagas }} Vagas)</span>
+                                </div>
+                            </div>
+                            <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}">{{ curso.titulo }}</a></h4>
+                            <ul class="rbt-meta">
+                                <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
+                                <li><i class="feather-users"></i>{{ curso.vagas }} Estudantes</li>
+                            </ul>
+                            <div class="rbt-card-bottom">
+                                <div class="rbt-price">
+                                    <span class="current-price">kz {{ curso.preco }}</span>
+                                </div>
+                                <a class="rbt-btn-link" href="{% url 'curso_detalhe' id=curso.id %}">Ver mais
+                                    <i class="feather-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-        </div>
 
-            <!-- Start Card Area -->
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="tab-content mt--60" id="rbt-myTabContent">
+            <!-- Botões de navegação -->
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
 
-                        <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all">
-                            <div class="row g-5">
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-01.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (15 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">React Front To Back</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>20 Lessons</li>
-                                                <li><i class="feather-users"></i>40 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 60</span>
-                                                    <span class="off-price">kz 120</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-02.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (15 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">PHP Beginner + Advanced</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>10 Lessons</li>
-                                                <li><i class="feather-users"></i>30 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 20</span>
-                                                    <span class="off-price">kz 43</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-03.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (4 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">Angular Zero to Mastery</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>14 Lessons</li>
-                                                <li><i class="feather-users"></i>26 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 23</span>
-                                                    <span class="off-price">kz 45</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
-                                <!-- Start Single Course  -->
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-04.jpg' %}" alt="Card image">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (3 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-bookmark-btn">
-                                                    <a class="rbt-round-btn" title="Bookmark" href="10-online-course.html#"><i
-                                                class="feather-bookmark"></i></a>
-                                                </div>
-                                            </div>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">English Langiage Club</a>
-                                            </h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>20 Lessons</li>
-                                                <li><i class="feather-users"></i>30 Students</li>
-                                            </ul>
-
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz 40</span>
-                                                    <span class="off-price">kz 86</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                                    More<i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Course  -->
-
+            <!-- Paginação (se quiser) -->
+            <div class="swiper-pagination"></div>
                             </div>
                         </div>       
                 </div>
@@ -3429,12 +2165,11 @@
         </div>
         <!-- End Blog Area -->
 
-        <!-- Start Footer aera -->
+        
         {% include 'include/footer.html' %}
-    <!-- JS
-============================================ -->
+
         {% include 'include/java.html' %}
-        <!-- Scripts do Bootstrap e Owl Carousel -->
+        
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
@@ -3455,6 +2190,69 @@
     }
   });
 </script>
-</body>
 
+<script>
+    const swiper = new Swiper('.mySwiper', {
+        slidesPerView: 1,
+        spaceBetween: 20,
+        loop: true,
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+        },
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+        breakpoints: {
+            576: {
+                slidesPerView: 1,
+            },
+            768: {
+                slidesPerView: 2,
+            },
+            992: {
+                slidesPerView: 3,
+            },
+            1200: {
+                slidesPerView: 4,
+            }
+        }
+    });
+</script>
+<!-- Swiper JS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+  new Swiper(".zigueLinha1", {
+    slidesPerView: 2,
+    spaceBetween: 30,
+    loop: true,
+    autoplay: {
+      delay: 3000,
+      disableOnInteraction: false,
+    },
+    breakpoints: {
+      768: { slidesPerView: 2 },
+      992: { slidesPerView: 3 },
+    }
+  });
+
+  new Swiper(".zigueLinha2", {
+    slidesPerView: 2,
+    spaceBetween: 30,
+    loop: true,
+    autoplay: {
+      delay: 3000,
+      reverseDirection: true,  // Zig-ZAG efeito
+      disableOnInteraction: false,
+    },
+    breakpoints: {
+      768: { slidesPerView: 2 },
+      992: { slidesPerView: 3 },
+    }
+  });
+</script>
+
+
+</body>
 </html>

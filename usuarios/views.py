@@ -1,17 +1,24 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from .models import Usuario, Aluno, Empresa, Biblioteca
+from .models import Usuario, Aluno, Empresa, Biblioteca, PerfilAluno
 from django.shortcuts import redirect
 from hashlib import sha256
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.contrib.auth import logout as auth_logout
 from django.db import IntegrityError  
+from django.http import HttpResponseRedirect
+from django.contrib.auth import logout as auth_logout
+from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
+from django.shortcuts import redirect
+from hashlib import sha256
+from django.db import IntegrityError
+from .models import Biblioteca
 
 
 def conta_aluno(request):
-    
     return render(request, 'conta_aluno.html')
 
 
@@ -19,8 +26,35 @@ def conta_aluno(request):
 
 def Login_aluno(request):
     status = request.GET.get('status')
-
     return render(request, 'login_aluno.html', {'status':status})
+
+def aluno(request):
+    if 'aluno' not in request.session:
+        return redirect('/auth/Login_aluno?status=4')  
+    
+    try:
+        aluno = Aluno.objects.get(id=request.session['aluno'])
+        aluno = get_object_or_404(Aluno, id=request.session['aluno'])
+        perfil, created = PerfilAluno.objects.get_or_create(aluno=aluno)
+        return render(request, 'aluno.html', {'aluno_logado': True, 'aluno_nome': aluno.nome, 'perfil': perfil})
+    except Aluno.DoesNotExist:
+        return redirect('/auth/Login_aluno?status=4')
+        
+def Logout(request):
+    print(">>> Logout view executada")
+
+    try:
+        if 'aluno' in request.session:
+            del request.session['aluno']
+
+        auth_logout(request)
+
+        return HttpResponseRedirect('/auth/Login_aluno/?status=5')
+    
+    except Exception as e:
+        print("Erro no logout:", e)
+        return HttpResponseRedirect('/auth/Login_aluno/?status=erro')
+
 
 def valida_cadastro_aluno(request):
     nome = request.POST.get('nome')
@@ -62,7 +96,7 @@ def enviar_email_boas_vindas(nome, email):
     # Contexto para o template
     contexto = {
         'nome': nome,
-        'plataforma': 'EducAngola',
+        'plataforma': 'Edukangola',
         'cor_primaria': '#333333',  # Cinza escuro
         'cor_secundaria': '#000000',  # Preto
     }
@@ -107,7 +141,7 @@ def valida_login_aluno(request):
             
         # Login bem-sucedido
         request.session['aluno'] = aluno.id
-        return redirect('/auth/conta_aluno?status=0')  # Status 0 para sucesso
+        return redirect('/auth/aluno?status=0')  # Status 0 para sucesso
         
     except Aluno.DoesNotExist:
         return redirect('/auth/Login_aluno?status=1')  # Email não existe
@@ -345,10 +379,6 @@ def enviar_email_boas_vindas_biblioteca(nome, email, tipo):
         print(f"Erro ao enviar e-mail para biblioteca: {e}")
         
         
-from django.shortcuts import redirect
-from hashlib import sha256
-from django.db import IntegrityError
-from .models import Biblioteca
 
 def valida_login_biblioteca(request):
     if request.method != 'POST':
