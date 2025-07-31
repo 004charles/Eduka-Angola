@@ -1,0 +1,2 @@
+/*! For license information please see learning-onboarding.js.LICENSE.txt */
+"use strict";document.addEventListener("DOMContentLoaded",(function(){$("body").addClass("sidebar-close"),$("#smartwizard").smartWizard({theme:"dots",toolbar:{extraHtml:'<a class="btn btn-outline-accent float-start" href="learning-dashboard.html">Skip</a><a class="btn btn-theme finish-btn" style="display:none" href="learning-dashboard.html">Finish</a>'}}),$("#smartwizard").on("showStep",(function(t,a,n,s,e){"last"===e?$(".finish-btn").show():$(".finish-btn").hide()}))}));

@@ -138,6 +138,20 @@ class Curso(models.Model):
         ordering = ['data_inicio']
         indexes = [models.Index(fields=['titulo', 'centro'])]
 
+class Favorito(models.Model):
+    aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, related_name='favoritos')
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='favoritado_por')
+    data_adicao = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Favorito'
+        verbose_name_plural = 'Favoritos'
+        unique_together = ('aluno', 'curso')  
+        ordering = ['-data_adicao']
+
+    def __str__(self):
+        return f"{self.aluno.nome} - {self.curso.titulo}"
+
 
 class Galeria(models.Model):
     centro = models.ForeignKey(CentroDeFormacao, on_delete=models.CASCADE, related_name='galeria')

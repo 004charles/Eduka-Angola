@@ -11,7 +11,7 @@ urlpatterns = [
     path('Login_instrutor/', views.Login_instrutor, name = 'Login_instrutor'), 
     path('Login_biblioteca/', views.Login_biblioteca, name = 'Login_biblioteca'),
     path('Login_escola/', views.Login_escola, name = 'Login_escola'), 
-    path('logout/', views.Logout, name='logout'),
+    path('logout/', views.Logout, name='Logout'),
     path('tipo_user/', views.tipo_user, name = 'tipo_user'),
 
     

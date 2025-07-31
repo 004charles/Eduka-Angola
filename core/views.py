@@ -5,7 +5,6 @@ from django.shortcuts import redirect
 from django.db.models import Count, Q
 from django.utils import timezone
 from datetime import timedelta
-
 from datetime import timedelta
 from django.utils import timezone
 from django.db.models import Count, Q
@@ -84,6 +83,20 @@ def index(request):
     return render(request, 'core/index.html', context)
     
 def erro_404_view(request, exception):
-    return render(request, '404.html', status=404)
+    context = {
+        'aluno_logado': False,
+    }
+
+    if 'aluno' in request.session:
+        try:
+            aluno = Aluno.objects.get(id=request.session['aluno'])
+            context.update({
+                'aluno_logado': True,
+                'aluno_nome': aluno.nome,
+            })
+        except Aluno.DoesNotExist:
+            pass
+
+    return render(request, '404.html', context, status=404)
 
 

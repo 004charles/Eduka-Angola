@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from .models import Usuario, Aluno, Empresa, Biblioteca, PerfilAluno
 from django.shortcuts import redirect
 from hashlib import sha256
+from django.views.decorators.http import require_POST
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -21,6 +22,32 @@ from .models import Biblioteca
 def conta_aluno(request):
     return render(request, 'conta_aluno.html')
 
+@require_POST
+def adicionar_favorito(request, curso_id):
+    if 'aluno' not in request.session:
+        return JsonResponse({'status': 'error', 'message': 'Não autenticado'}, status=403)
+    
+    try:
+        curso = Curso.objects.get(id=curso_id)
+        aluno = Aluno.objects.get(id=request.session['aluno'])
+        
+        favorito, created = Favorito.objects.get_or_create(
+            aluno=aluno,
+            curso=curso
+        )
+        
+        if created:
+            return JsonResponse({'status': 'added', 'message': 'Curso adicionado aos favoritos'})
+        else:
+            favorito.delete()
+            return JsonResponse({'status': 'removed', 'message': 'Curso removido dos favoritos'})
+            
+    except Curso.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Curso não encontrado'}, status=404)
+    except Aluno.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Aluno não encontrado'}, status=404)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
 #-----------------------------validacao aluno----------------------------------
 
@@ -422,8 +449,13 @@ def Login_instrutor(request):
 def Login_escola(request):
     return render(request, 'login_escola.html')
 
+from django.shortcuts import redirect
+
 def Logout(request):
-    pass  
+    if 'aluno' in request.session:
+        del request.session['aluno']
+    return redirect('/')
+  
 
 def tipo_user(request):
     status = request.POST.get('status')

@@ -10,6 +10,7 @@ urlpatterns = [
     path('', views.index, name = 'index'),
     path('auth/', include('usuarios.urls')), 
     path('cursos/', include('cursos_app.urls')),
+    path('gestoreduka/', include('gestoreduka.urls')),
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
