@@ -6,7 +6,37 @@ from usuarios.models import Comentario
 from django.shortcuts import redirect
 from cursos_app.models import CentroDeFormacao
 from .models import Curso, Categoria
+from django.views.decorators.http import require_POST
 from django.db.models import Count, Q
+
+
+@require_POST
+def adicionar_favorito(request, curso_id):
+    if 'aluno' not in request.session:
+        return JsonResponse({'status': 'error', 'message': 'Não autenticado'}, status=403)
+    
+    try:
+        curso = Curso.objects.get(id=curso_id)
+        aluno = Aluno.objects.get(id=request.session['aluno'])
+        
+        favorito, created = Favorito.objects.get_or_create(
+            aluno=aluno,
+            curso=curso
+        )
+        
+        if created:
+            return JsonResponse({'status': 'added', 'message': 'Curso adicionado aos favoritos'})
+        else:
+            favorito.delete()
+            return JsonResponse({'status': 'removed', 'message': 'Curso removido dos favoritos'})
+            
+    except Curso.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Curso não encontrado'}, status=404)
+    except Aluno.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Aluno não encontrado'}, status=404)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
 
 
 def home_cursos(request):

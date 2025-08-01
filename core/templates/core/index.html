@@ -19,6 +19,19 @@
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/images/favicon.png' %}">
 
     {% include 'include/css.html' %}
+    <style>
+.favorito-btn {
+    border: none;
+    background: none;
+    color: #aaa;
+    transition: color 0.3s;
+}
+
+.favorito-btn.favorito-ativo {
+    color: red;
+}
+</style>
+
 </head>
 
 <body class="rbt-header-sticky">
@@ -588,7 +601,7 @@
                                 <span><i class="fas fa-user-graduate"></i> 92% aprovação</span>
                             </div>
                             <div class="price-tag">kz 899 <span class="original-price">kz 1.199</span></div>
-                            <a href="#" class="rbt-btn gradient-btn">Explorar Curso <i class="fas fa-arrow-right"></i></a>
+                            <a href="#" class="rbt-btn gradient-btn" style="font-size: 12px;">Explorar Curso <i class="fas fa-arrow-right"></i></a>
                         </div>
                         <div class="business-corner"></div>
                     </div>
@@ -636,788 +649,6 @@
         </div>
     </div>
 </div>
-
-<style>
-:root {
-    --primary-color: #6e45e2;
-    --secondary-color: #88d3ce;
-    --tech-accent: #4a00e0;
-    --business-accent: #00c6ff;
-    --dark-bg: #0f0f1a;
-    --card-bg: #1a1a2e;
-    --text-light: #ffffff;
-    --text-muted: #b8b8d1;
-    --neon-effect: 0 0 10px rgba(110, 69, 226, 0.7);
-}
-
-.rbt-courses-banner {
-    padding: 80px 0;
-    background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
-    position: relative;
-    overflow: hidden;
-}
-
-.container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 30px;
-    position: relative;
-    z-index: 2;
-}
-
-.section-header {
-    text-align: center;
-    margin-bottom: 60px;
-    position: relative;
-}
-
-.futuristic-title {
-    font-size: 3.5rem;
-    color: var(--text-light);
-    margin-bottom: 15px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    position: relative;
-    display: inline-block;
-}
-
-.futuristic-title .highlight {
-    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    position: relative;
-}
-
-.subtitle {
-    color: var(--text-muted);
-    font-size: 1.2rem;
-    max-width: 700px;
-    margin: 0 auto 25px;
-    line-height: 1.6;
-}
-
-.tech-underline {
-    width: 150px;
-    height: 4px;
-    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-    margin: 20px auto;
-    border-radius: 2px;
-    position: relative;
-}
-
-.tech-underline::after {
-    content: '';
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    background: var(--primary-color);
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%) rotate(45deg);
-    z-index: -1;
-    opacity: 0.7;
-}
-
-.dual-cards-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
-}
-
-.main-card {
-    background: var(--card-bg);
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    overflow: hidden;
-    height: 480px;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    transition: transform 0.5s ease, box-shadow 0.5s ease;
-    border: 1px solid rgba(255,255,255,0.05);
-}
-
-.main-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-}
-
-.tech-card {
-    border-top: 4px solid var(--tech-accent);
-}
-
-.business-card {
-    border-top: 4px solid var(--business-accent);
-}
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 25px;
-    background: rgba(26, 26, 46, 0.8);
-    backdrop-filter: blur(10px);
-    position: relative;
-    z-index: 3;
-}
-
-.center-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.center-logo {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid rgba(255,255,255,0.1);
-}
-
-.center-name {
-    margin: 0;
-    font-size: 1.4rem;
-    color: var(--text-light);
-    font-weight: 600;
-}
-
-.center-location {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    margin-top: 3px;
-}
-
-.center-nav {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.center-counter {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    min-width: 40px;
-    text-align: center;
-}
-
-.card-nav {
-    display: flex;
-    gap: 10px;
-}
-
-.nav-btn {
-    background: rgba(255,255,255,0.1);
-    border: none;
-    color: var(--text-light);
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255,255,255,0.1);
-}
-
-.nav-btn:hover {
-    background: rgba(255,255,255,0.2);
-    transform: scale(1.1);
-}
-
-.courses-slider {
-    flex: 1;
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 20px;
-    gap: 20px;
-    scrollbar-width: none;
-}
-
-.courses-slider::-webkit-scrollbar {
-    display: none;
-}
-
-.course-item {
-    flex: 0 0 calc(100% - 40px);
-    scroll-snap-align: start;
-    position: relative;
-    min-width: calc(100% - 40px);
-    height: 100%;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.course-item:hover {
-    transform: translateY(-10px) scale(1.02);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.5);
-}
-
-.course-bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center;
-    transition: all 0.5s ease;
-}
-
-.tech-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(74, 0, 224, 0.4) 0%, rgba(110, 69, 226, 0.2) 100%);
-}
-
-.business-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(0, 198, 255, 0.4) 0%, rgba(0, 114, 255, 0.2) 100%);
-}
-
-.course-item:hover .course-bg {
-    transform: scale(1.05);
-}
-
-.course-content {
-    position: relative;
-    height: 100%;
-    padding: 25px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    color: var(--text-light);
-    z-index: 2;
-    background: linear-gradient(to top, rgba(0,0,0,0.8) 40%, transparent 100%);
-}
-
-.difficulty {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.tech-card .difficulty {
-    background: var(--tech-accent);
-    color: white;
-}
-
-.business-card .difficulty {
-    background: var(--business-accent);
-    color: white;
-}
-
-.course-content h4 {
-    font-size: 1.4rem;
-    margin-bottom: 20px;
-    line-height: 1.4;
-    font-weight: 600;
-}
-
-.course-meta {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
-
-.course-meta span {
-    background: rgba(255,255,255,0.15);
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255,255,255,0.1);
-}
-
-.price-tag {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 20px;
-    color: var(--text-light);
-}
-
-.price-tag .original-price {
-    font-size: 1rem;
-    text-decoration: line-through;
-    color: var(--text-muted);
-    margin-left: 8px;
-}
-
-.gradient-btn {
-    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 30px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    align-self: flex-start;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    box-shadow: 0 4px 15px rgba(110, 69, 226, 0.4);
-    position: relative;
-    overflow: hidden;
-}
-
-.gradient-btn::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transition: 0.5s;
-}
-
-.gradient-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 7px 20px rgba(110, 69, 226, 0.6);
-}
-
-.gradient-btn:hover::after {
-    left: 100%;
-}
-
-.tech-corner {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 0;
-    height: 0;
-    border-top: 60px solid var(--tech-accent);
-    border-left: 60px solid transparent;
-    opacity: 0.8;
-}
-
-.business-corner {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 0;
-    height: 0;
-    border-top: 60px solid var(--business-accent);
-    border-left: 60px solid transparent;
-    opacity: 0.8;
-}
-
-.tech-grid-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: 
-        linear-gradient(rgba(110, 69, 226, 0.1) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(110, 69, 226, 0.1) 1px, transparent 1px);
-    background-size: 30px 30px;
-    opacity: 0.3;
-    pointer-events: none;
-}
-
-.business-grid-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: 
-        linear-gradient(rgba(0, 198, 255, 0.1) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 198, 255, 0.1) 1px, transparent 1px);
-    background-size: 30px 30px;
-    opacity: 0.3;
-    pointer-events: none;
-}
-
-/* Responsive design */
-@media (max-width: 1200px) {
-    .dual-cards-container {
-        grid-template-columns: 1fr;
-    }
-    
-    .course-item {
-        min-width: calc(100% - 40px);
-    }
-    
-    .futuristic-title {
-        font-size: 3rem;
-    }
-}
-
-@media (max-width: 768px) {
-    .futuristic-title {
-        font-size: 2.5rem;
-    }
-    
-    .subtitle {
-        font-size: 1rem;
-    }
-    
-    .center-info {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-    
-    .center-logo {
-        width: 30px;
-        height: 30px;
-    }
-    
-    .center-name {
-        font-size: 1.2rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .futuristic-title {
-        font-size: 2rem;
-    }
-    
-    .rbt-courses-banner {
-        padding: 60px 0;
-    }
-    
-    .card-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-    }
-    
-    .center-nav {
-        width: 100%;
-        justify-content: space-between;
-    }
-    
-    .card-nav {
-        align-self: flex-end;
-    }
-}
-.course-item {
-    height: 380px; /* Altura fixa */
-    overflow: hidden;
-}
-
-.main-card {
-    height: 480px; /* Altura fixa */
-    overflow: hidden;
-}
-</style>
-
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Array de centros educacionais com seus cursos
-    const centers = [
-        {
-            id: 'tech-center',
-            name: 'Centro de Tecnologia',
-            location: 'Luanda, Angola',
-            logo: 'https://via.placeholder.com/40x40',
-            courses: [
-                {
-                    title: 'Desenvolvimento Web Fullstack',
-                    image: 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-                    difficulty: 'Avançado',
-                    duration: '240h',
-                    rating: '94% aprovação',
-                    price: 'kz 1.299',
-                    originalPrice: 'kz 1.599'
-                },
-                {
-                    title: 'Data Science',
-                    image: 'https://images.unsplash.com/photo-1555774698-0b77e0d5fac6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-                    difficulty: 'Intermediário',
-                    duration: '200h',
-                    rating: '89% aprovação',
-                    price: 'kz 1.099',
-                    originalPrice: 'kz 1.399'
-                },
-                {
-                    title: 'Mobile Development',
-                    image: 'https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-                    difficulty: 'Avançado',
-                    duration: '180h',
-                    rating: '91% aprovação',
-                    price: 'kz 999',
-                    originalPrice: 'kz 1.299'
-                }
-            ]
-        },
-        {
-            id: 'business-center',
-            name: 'Centro de Negócios',
-            location: 'Luanda, Angola',
-            logo: 'https://via.placeholder.com/40x40',
-            courses: [
-                {
-                    title: 'Gestão de Projetos',
-                    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-                    difficulty: 'Intermediário',
-                    duration: '180h',
-                    rating: '92% aprovação',
-                    price: 'kz 899',
-                    originalPrice: 'kz 1.199'
-                },
-                {
-                    title: 'Marketing Digital',
-                    image: 'https://images.unsplash.com/photo-1434626881859-194d67b2b86f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-                    difficulty: 'Iniciante',
-                    duration: '150h',
-                    rating: '88% aprovação',
-                    price: 'kz 799',
-                    originalPrice: 'kz 999'
-                },
-                {
-                    title: 'UX/UI Design',
-                    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-                    difficulty: 'Intermediário',
-                    duration: '160h',
-                    rating: '95% aprovação',
-                    price: 'kz 1.099',
-                    originalPrice: 'kz 1.399'
-                }
-            ]
-        },
-        {
-            id: 'design-center',
-            name: 'Centro de Design',
-            location: 'Luanda, Angola',
-            logo: 'https://via.placeholder.com/40x40',
-            courses: [
-                {
-                    title: 'Design Gráfico',
-                    image: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-                    difficulty: 'Intermediário',
-                    duration: '160h',
-                    rating: '93% aprovação',
-                    price: 'kz 1.199',
-                    originalPrice: 'kz 1.499'
-                },
-                {
-                    title: 'Motion Design',
-                    image: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-                    difficulty: 'Avançado',
-                    duration: '200h',
-                    rating: '90% aprovação',
-                    price: 'kz 1.499',
-                    originalPrice: 'kz 1.799'
-                }
-            ]
-        }
-    ];
-
-    // Inicializa os sliders para cada centro
-    const centerCards = document.querySelectorAll('.main-card');
-    
-    centerCards.forEach((card, index) => {
-        const slider = card.querySelector('.courses-slider');
-        const prevBtn = card.querySelector('.prev-btn');
-        const nextBtn = card.querySelector('.next-btn');
-        const counter = card.querySelector('.center-counter');
-        
-        let currentCenterIndex = 0;
-        let currentCourseIndex = 0;
-        let autoChangeTimeout;
-        
-        // Atualiza o slider com os cursos do centro atual
-        function updateSlider() {
-            const center = centers[index];
-            
-            // Atualiza o cabeçalho do centro
-            const header = card.querySelector('.center-info');
-            header.querySelector('.center-logo').src = center.logo;
-            header.querySelector('.center-name').textContent = center.name;
-            header.querySelector('.center-location span').textContent = center.location;
-            
-            // Limpa os cursos existentes
-            slider.innerHTML = '';
-            
-            // Adiciona os cursos do centro atual
-            center.courses.forEach((course, i) => {
-                const courseItem = document.createElement('div');
-                courseItem.className = 'course-item';
-                courseItem.innerHTML = `
-                    <div class="course-bg" style="background-image: url('${course.image}')">
-                        <div class="${index === 0 ? 'tech-overlay' : 'business-overlay'}"></div>
-                    </div>
-                    <div class="course-content">
-                        <div class="difficulty">${course.difficulty}</div>
-                        <h4>${course.title}</h4>
-                        <div class="course-meta">
-                            <span><i class="fas fa-clock"></i> ${course.duration}</span>
-                            <span><i class="fas fa-certificate"></i> Certificado</span>
-                            <span><i class="fas fa-user-graduate"></i> ${course.rating}</span>
-                        </div>
-                        <div class="price-tag">${course.price} <span class="original-price">${course.originalPrice}</span></div>
-                        <a href="#" class="rbt-btn gradient-btn">Explorar Curso <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                    <div class="${index === 0 ? 'tech-corner' : 'business-corner'}"></div>
-                `;
-                slider.appendChild(courseItem);
-            });
-            
-            // Atualiza o contador
-            counter.textContent = `${index + 1}/${centers.length}`;
-            
-            // Rola para o curso atual
-            scrollToCourse(0);
-        }
-        
-        // Rola para um curso específico
-        function scrollToCourse(courseIndex) {
-            const items = slider.querySelectorAll('.course-item');
-            if (items.length > 0 && courseIndex >= 0 && courseIndex < items.length) {
-                const item = items[courseIndex];
-                // Substitua o scrollIntoView por transform/translate
-                slider.scrollTo({
-                    left: item.offsetLeft,
-                    behavior: 'auto' // Comportamento instantâneo
-                });
-                currentCourseIndex = courseIndex;
-                
-                if (courseIndex === items.length - 1) {
-                    clearTimeout(autoChangeTimeout);
-                    autoChangeTimeout = setTimeout(() => {
-                        nextCenter();
-                    }, 3000);
-                }
-            }
-        }
-        
-        // Avança para o próximo centro
-        function nextCenter() {
-            currentCenterIndex = (currentCenterIndex + 1) % centers.length;
-            updateSlider();
-        }
-        
-        // Retrocede para o centro anterior
-        function prevCenter() {
-            currentCenterIndex = (currentCenterIndex - 1 + centers.length) % centers.length;
-            updateSlider();
-        }
-        
-        // Event listeners para navegação
-        prevBtn.addEventListener('click', () => {
-            clearTimeout(autoChangeTimeout);
-            if (currentCourseIndex > 0) {
-                scrollToCourse(currentCourseIndex - 1);
-            } else {
-                prevCenter();
-            }
-        });
-        
-        nextBtn.addEventListener('click', () => {
-            clearTimeout(autoChangeTimeout);
-            const items = slider.querySelectorAll('.course-item');
-            if (currentCourseIndex < items.length - 1) {
-                scrollToCourse(currentCourseIndex + 1);
-            } else {
-                nextCenter();
-            }
-        });
-        
-        // Suporte para touch/swipe
-        let touchStartX = 0;
-        let touchEndX = 0;
-        
-        slider.addEventListener('touchstart', e => {
-            touchStartX = e.changedTouches[0].screenX;
-            clearTimeout(autoChangeTimeout);
-        }, {passive: true});
-        
-        slider.addEventListener('touchend', e => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        }, {passive: true});
-        
-        function handleSwipe() {
-            if (touchEndX < touchStartX - 50) { // Swipe para a esquerda
-                const items = slider.querySelectorAll('.course-item');
-                if (currentCourseIndex < items.length - 1) {
-                    scrollToCourse(currentCourseIndex + 1);
-                } else {
-                    nextCenter();
-                }
-            }
-            if (touchEndX > touchStartX + 50) { // Swipe para a direita
-                if (currentCourseIndex > 0) {
-                    scrollToCourse(currentCourseIndex - 1);
-                } else {
-                    prevCenter();
-                }
-            }
-        }
-        
-        // Inicializa o slider
-        updateSlider();
-        
-        // Configura rotação automática
-        setInterval(() => {
-            const items = slider.querySelectorAll('.course-item');
-            if (currentCourseIndex < items.length - 1) {
-                scrollToCourse(currentCourseIndex + 1);
-            } else {
-                nextCenter();
-            }
-        }, 5000); // Muda a cada 5 segundos
-    });
-    
-    // Efeito 3D nos cards
-    const cards = document.querySelectorAll('.main-card');
-    cards.forEach(card => {
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            const angleY = (x - centerX) / 20;
-            const angleX = (centerY - y) / 20;
-            
-            card.style.transform = `perspective(1000px) rotateX(${angleX}deg) rotateY(${angleY}deg)`;
-        });
-        
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
-        });
-    });
-});
-</script>
         
         <div class="rbt-categories-area bg-color-white rbt-section-gap">
         <div class="container">
@@ -1830,39 +1061,53 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="swiper-wrapper">
                                 {% for curso in cursos_recentes %}
                                 <div class="swiper-slide">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="{% url 'curso_detalhe' id=curso.id %}">
-                                                <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}">
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <div class="rbt-card-top">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> ({{ curso.vagas }} Vagas)</span>
+                                <div class="rbt-card variation-01 rbt-hover">
+                                    <div class="rbt-card-img">
+                                        <a href="{% url 'curso_detalhe' id=curso.id %}">
+                                            <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}">
+                                        </a>
+                                    </div>
+                                    <div class="rbt-card-body">
+                                        <div class="rbt-card-top">
+                                            <div class="rbt-review">
+                                                <div class="rating">
+                                                    <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
                                                 </div>
+                                                <span class="rating-count"> ({{ curso.vagas }} Vagas)</span>
                                             </div>
-                                            <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}">{{ curso.titulo }}</a></h4>
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
-                                                <li><i class="feather-users"></i>{{ curso.vagas }} Estudantes</li>
-                                            </ul>
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz {{ curso.preco }}</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="{% url 'curso_detalhe' id=curso.id %}">Ver mais
+                                        </div>
+                                        <h4 class="rbt-card-title">
+                                            <a href="{% url 'curso_detalhe' id=curso.id %}">{{ curso.titulo }}</a>
+                                        </h4>
+                                        <ul class="rbt-meta">
+                                            <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
+                                            <li><i class="feather-users"></i>{{ curso.vagas }} Estudantes</li>
+                                        </ul>
+                                        <div class="rbt-card-bottom d-flex justify-content-between align-items-center">
+                                            <div class="rbt-price">
+                                                <span class="current-price">kz {{ curso.preco }}</span>
+                                            </div>
+                                            <div>
+                                                <a class="rbt-btn-link me-2" href="{% url 'curso_detalhe' id=curso.id %}">Ver mais
                                                     <i class="feather-arrow-right"></i>
                                                 </a>
+
+                                                <!-- Botão de Favorito -->
+                                                <button 
+                                                    class="btn btn-sm favorito-btn {% if curso.id in favoritos %}favorito-ativo{% endif %}" 
+                                                    data-curso-id="{{ curso.id }}"
+                                                    title="Adicionar/Remover dos Favoritos"
+                                                >
+                                                    <i class="fas fa-heart"></i>
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+
                                 {% endfor %}
                             </div>
 
@@ -2767,6 +2012,44 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 </script>
+
+<script>
+const csrftoken = '{{ csrf_token }}';
+document.addEventListener('DOMContentLoaded', function () {
+    const botoes = document.querySelectorAll('.favorito-btn');
+
+    botoes.forEach(botao => {
+        botao.addEventListener('click', function () {
+            const cursoId = this.getAttribute('data-curso-id');
+
+            fetch(`/favorito/${cursoId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'added') {
+                    this.classList.add('favorito-ativo');
+                } else if (data.status === 'removed') {
+                    this.classList.remove('favorito-ativo');
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao atualizar favorito.');
+            });
+        });
+    });
+});
+</script>
+
 
 
 </body>

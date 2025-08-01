@@ -91,12 +91,12 @@
                 <div class="header-left rbt-header-content">
                     <div class="header-info">
                         <div class="logo logo-dark" style="width: 100px; height: auto;"> <!-- Ajuste o tamanho conforme necessário -->
-                        <a href="#">
+                        <a href="{% url 'index' %}">
                             <img src="{% static 'assets/images/Logo1.png' %}" alt="EdukAngola Logo" style="filter: brightness(0); width: 100%; height: auto;">
                         </a>
                     </div>
                         <div class="logo d-none logo-light" style="width: 100px; height: auto;">
-                            <a href="#">
+                            <a href="{% url 'index' %}">
                                 <img src="{% static 'assets/images/Logo1.png' %}" alt="EdukAngola Logo" style="width: 100%; height: auto;">
                             </a>
                         </div>
@@ -340,9 +340,9 @@
                                 </div>
                                 <ul class="user-list-wrapper">
                                             <li>
-                                                <a href="instructor-dashboard.html">
+                                                <a href="{% url 'aluno' %}">
                                                     <i class="feather-home"></i>
-                                                    <span>My Dashboard</span>
+                                                    <span>Minha Dashboard</span>
                                                 </a>
                                             </li>
                                             <li>
@@ -443,42 +443,25 @@
                         </div>
                     </div>
 
-                    <!-- Sample Course Cards -->
+                    {% for curso in cursos_destaque|slice:"0:4" %}
                     <div class="col-lg-3 col-md-4 col-sm-6 col-12">
                         <div class="rbt-card variation-01 rbt-hover">
                             <div class="rbt-card-img">
-                                <a href="#">
-                                    <img src="{% static 'assets/images/course/programacao.jpg' %}" alt="Programação">
+                                <a href="{% url 'curso_detalhe' id=curso.id %}">
+                                    <img src="{{curso.imagem.url}}" alt="Programação">
                                 </a>
                             </div>
                             <div class="rbt-card-body">
-                                <h5 class="rbt-card-title"><a href="#">Programação Web</a></h5>
+                                <h5 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a></h5>
                                 <div class="rbt-card-bottom">
                                     <div class="rbt-price">
-                                        <span class="current-price">Grátis</span>
+                                        <span class="current-price">{{curso.preco}}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <div class="col-lg-3 col-md-4 col-sm-6 col-12">
-                        <div class="rbt-card variation-01 rbt-hover">
-                            <div class="rbt-card-img">
-                                <a href="#">
-                                    <img src="{% static 'assets/images/course/gestao.jpg' %}" alt="Gestão">
-                                </a>
-                            </div>
-                            <div class="rbt-card-body">
-                                <h5 class="rbt-card-title"><a href="#">Gestão Empresarial</a></h5>
-                                <div class="rbt-card-bottom">
-                                    <div class="rbt-price">
-                                        <span class="current-price">50.000 Kz</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>

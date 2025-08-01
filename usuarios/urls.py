@@ -14,6 +14,7 @@ urlpatterns = [
     path('logout/', views.Logout, name='Logout'),
     path('tipo_user/', views.tipo_user, name = 'tipo_user'),
 
+
     
     
     #------------------Registro-------------------------

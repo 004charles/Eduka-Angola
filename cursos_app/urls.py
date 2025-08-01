@@ -13,5 +13,8 @@ urlpatterns = [
     path('pagina_categoria/', views.pagina_categoria, name = 'pagina_categoria'),
     path('todo_curso/', views.todo_curso, name = 'todo_curso'),
     path('ficha_inscricao/', views.ficha_inscricao, name = 'ficha_inscricao'),
+    path('favorito/<int:curso_id>/', views.adicionar_favorito, name='adicionar_favorito'),
+    
+
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from cursos_app.models import Curso, Categoria, Aluno
+from cursos_app.models import Curso, Categoria, Aluno, Favorito
 from django.conf import settings
 from django.shortcuts import redirect
 from django.db.models import Count, Q
@@ -8,6 +8,11 @@ from datetime import timedelta
 from datetime import timedelta
 from django.utils import timezone
 from django.db.models import Count, Q
+from django.shortcuts import render
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import Count, Q
+from django.conf import settings
 
 def index(request):
     agora = timezone.now()
@@ -56,7 +61,7 @@ def index(request):
         num_cursos=Count('curso', filter=Q(curso__publicado=True, curso__ativo=True))
     )
 
-    # Contexto para o template
+    # Contexto inicial
     context = {
         'cursos_destaque': cursos_destaque,
         'cursos_recentes': cursos_recentes,
@@ -67,15 +72,18 @@ def index(request):
         'categoria': categorias,
         'DEBUG': settings.DEBUG,
         'aluno_logado': False,
+        'favoritos': [],
     }
 
-    # Verificar se o aluno está logado
+    # Verificar se o aluno está logado e buscar seus favoritos
     if 'aluno' in request.session:
         try:
             aluno = Aluno.objects.get(id=request.session['aluno'])
+            favoritos = Favorito.objects.filter(aluno=aluno).values_list('curso_id', flat=True)
             context.update({
                 'aluno_logado': True,
                 'aluno_nome': aluno.nome,
+                'favoritos': list(favoritos),
             })
         except Aluno.DoesNotExist:
             pass
