@@ -57,9 +57,9 @@
                             <!-- Fim da Área de Navegação -->
             
                             <div class="title-wrapper">
-                                <h1 class="title mb--0">Todos os Cursos -> </h1>
+                                <h1 class="title mb--0">{{categoria.nome}}</h1>
                                 <a href="#" class="rbt-badge-2">
-                                    <div class="image">🎉</div>{{categoria.nome}}
+                                    <div class="image">🎉</div>{{ categoria.num_cursos }}
                                 </a>
                             </div>
             
@@ -219,7 +219,7 @@
                 {% for curso in cursos %}
                 <div class="course-grid-3">
                     <div class="rbt-card variation-01 rbt-hover">
-                        <div class="rbt-card-img">
+                        <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden">
                             <a href="{% url 'curso_detalhe' id=curso.id %}">
                                 <img src="{{curso.imagem.url}}" alt="Card image">
                                 <div class="rbt-badge-3 bg-white">
@@ -262,7 +262,12 @@
                                     </a>
                                 </div>
                                 <div class="rbt-author-info">
-                                    por: <a href="#"></a>  <a href="#">{{ curso.centro.nome }}</a>
+                                    por: 
+                                    {% if curso.centro %}
+                                        <a href="{% url 'cursos_por_centro' centro_id=curso.centro.id %}">{{ curso.centro.nome }}</a>
+                                    {% else %}
+                                        <span class="text-muted">Centro não especificado</span>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="rbt-card-bottom">

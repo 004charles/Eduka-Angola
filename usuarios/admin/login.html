@@ -1,0 +1,17 @@
+{% extends "admin/login.html" %}
+
+{% block content %}
+{{ block.super }}  {# Mantém o formulário original #}
+
+<div style="text-align: center; margin-top: 20px;">
+    <p>
+        <a href="{% url 'admin:password_reset' %}" style="color: #417690;">
+            Esqueci minha senha
+        </a>
+        &nbsp;|&nbsp;
+        <a href="{% url 'admin:cadastro' %}" style="color: #417690;">
+            Criar nova conta
+        </a>
+    </p>
+</div>
+{% endblock %}

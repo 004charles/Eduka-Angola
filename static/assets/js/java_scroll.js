@@ -1,277 +1,278 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Array de centros educacionais com seus cursos
+    // Dados dos centros (simplificado para exemplo)
     const centers = [
         {
-            id: 'tech-center',
-            name: 'Centro de Tecnologia',
-            location: 'Luanda, Angola',
-            logo: 'https://via.placeholder.com/40x40',
+            name: "Cinfotec",
+            logo: "https://via.placeholder.com/40x40",
+            location: "Luanda, Angola",
             courses: [
                 {
-                    title: 'Desenvolvimento Web Fullstack',
-                    image: 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-                    difficulty: 'Avançado',
-                    duration: '240h',
-                    rating: '94% aprovação',
-                    price: 'kz 1.299',
-                    originalPrice: 'kz 1.599'
+                    title: "Desenvolvimento Web Fullstack",
+                    image: "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+                    difficulty: "Avançado",
+                    duration: "240h",
+                    rating: "94% aprovação",
+                    price: "kz 1.299",
+                    originalPrice: "kz 1.599"
                 },
-                {
-                    title: 'Data Science',
-                    image: 'https://images.unsplash.com/photo-1555774698-0b77e0d5fac6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-                    difficulty: 'Intermediário',
-                    duration: '200h',
-                    rating: '89% aprovação',
-                    price: 'kz 1.099',
-                    originalPrice: 'kz 1.399'
-                },
-                {
-                    title: 'Mobile Development',
-                    image: 'https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-                    difficulty: 'Avançado',
-                    duration: '180h',
-                    rating: '91% aprovação',
-                    price: 'kz 999',
-                    originalPrice: 'kz 1.299'
-                }
+                // ... outros cursos
             ]
         },
-        {
-            id: 'business-center',
-            name: 'Centro de Negócios',
-            location: 'Luanda, Angola',
-            logo: 'https://via.placeholder.com/40x40',
-            courses: [
-                {
-                    title: 'Gestão de Projetos',
-                    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-                    difficulty: 'Intermediário',
-                    duration: '180h',
-                    rating: '92% aprovação',
-                    price: 'kz 899',
-                    originalPrice: 'kz 1.199'
-                },
-                {
-                    title: 'Marketing Digital',
-                    image: 'https://images.unsplash.com/photo-1434626881859-194d67b2b86f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-                    difficulty: 'Iniciante',
-                    duration: '150h',
-                    rating: '88% aprovação',
-                    price: 'kz 799',
-                    originalPrice: 'kz 999'
-                },
-                {
-                    title: 'UX/UI Design',
-                    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-                    difficulty: 'Intermediário',
-                    duration: '160h',
-                    rating: '95% aprovação',
-                    price: 'kz 1.099',
-                    originalPrice: 'kz 1.399'
-                }
-            ]
-        },
-        {
-            id: 'design-center',
-            name: 'Centro de Design',
-            location: 'Luanda, Angola',
-            logo: 'https://via.placeholder.com/40x40',
-            courses: [
-                {
-                    title: 'Design Gráfico',
-                    image: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-                    difficulty: 'Intermediário',
-                    duration: '160h',
-                    rating: '93% aprovação',
-                    price: 'kz 1.199',
-                    originalPrice: 'kz 1.499'
-                },
-                {
-                    title: 'Motion Design',
-                    image: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-                    difficulty: 'Avançado',
-                    duration: '200h',
-                    rating: '90% aprovação',
-                    price: 'kz 1.499',
-                    originalPrice: 'kz 1.799'
-                }
-            ]
-        }
+        // ... outros centros
     ];
 
-    // Inicializa os sliders para cada centro
-    const centerCards = document.querySelectorAll('.main-card');
+    // Configurações
+    const SCROLL_DURATION = 300; // Reduzido para mais suavidade
+    const AUTO_SCROLL_DELAY = 5000;
     
+    // Cache de elementos e estado
+    const centerCards = document.querySelectorAll('.main-card');
+    let activeAnimations = [];
+    
+    // Função de scroll suave otimizada
+    function smoothScroll(element, target, duration) {
+        // Cancela animações anteriores para o mesmo elemento
+        activeAnimations.forEach(anim => {
+            if (anim.element === element) anim.stop();
+        });
+        
+        const start = element.scrollLeft;
+        const change = target - start;
+        const startTime = performance.now();
+        let requestId;
+        
+        // Usando requestAnimationFrame com polyfill para melhor performance
+        const animateScroll = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const easeProgress = easeOutQuad(progress);
+            
+            // Usando transform para melhor performance (GPU accelerated)
+            element.style.transform = `translateX(${-(start + (change * easeProgress))}px)`;
+            
+            if (progress < 1) {
+                requestId = requestAnimationFrame(animateScroll);
+            } else {
+                // Finaliza a animação
+                element.style.transform = 'none';
+                element.scrollLeft = target;
+                activeAnimations = activeAnimations.filter(anim => anim.id !== requestId);
+            }
+        };
+        
+        function easeOutQuad(t) {
+            return t * (2 - t);
+        }
+        
+        // Inicia a animação
+        element.style.willChange = 'transform'; // Otimização para o browser
+        requestId = requestAnimationFrame(animateScroll);
+        
+        const animation = {
+            id: requestId,
+            element: element,
+            stop: () => {
+                cancelAnimationFrame(requestId);
+                element.style.transform = 'none';
+                element.style.willChange = 'auto';
+            }
+        };
+        
+        activeAnimations.push(animation);
+        return animation;
+    }
+
+    // Inicialização dos sliders otimizada
     centerCards.forEach((card, index) => {
         const slider = card.querySelector('.courses-slider');
         const prevBtn = card.querySelector('.prev-btn');
         const nextBtn = card.querySelector('.next-btn');
         const counter = card.querySelector('.center-counter');
         
-        let currentCenterIndex = 0;
+        // Variáveis de estado
         let currentCourseIndex = 0;
-        let autoChangeTimeout;
+        let autoScrollTimeout;
+        let isUserInteracting = false;
         
-        // Atualiza o slider com os cursos do centro atual
-        function updateSlider() {
-            const center = centers[index];
+        // Configuração inicial do slider
+        function setupSlider() {
+            const items = slider.querySelectorAll('.course-item');
+            if (!items.length) return;
             
-            // Atualiza o cabeçalho do centro
-            const header = card.querySelector('.center-info');
-            header.querySelector('.center-logo').src = center.logo;
-            header.querySelector('.center-name').textContent = center.name;
-            header.querySelector('.center-location span').textContent = center.location;
+            // Otimização: pré-carrega imagens dos próximos slides
+            if (currentCourseIndex < items.length - 1) {
+                const nextItem = items[currentCourseIndex + 1];
+                const img = nextItem.querySelector('.course-bg');
+                if (img) {
+                    const tempImg = new Image();
+                    tempImg.src = img.style.backgroundImage.replace(/url\(['"]?(.*?)['"]?\)/i, '$1');
+                }
+            }
             
-            // Limpa os cursos existentes
-            slider.innerHTML = '';
-            
-            // Adiciona os cursos do centro atual
-            center.courses.forEach((course, i) => {
-                const courseItem = document.createElement('div');
-                courseItem.className = 'course-item';
-                courseItem.innerHTML = `
-                    <div class="course-bg" style="background-image: url('${course.image}')">
-                        <div class="${index === 0 ? 'tech-overlay' : 'business-overlay'}"></div>
-                    </div>
-                    <div class="course-content">
-                        <div class="difficulty">${course.difficulty}</div>
-                        <h4>${course.title}</h4>
-                        <div class="course-meta">
-                            <span><i class="fas fa-clock"></i> ${course.duration}</span>
-                            <span><i class="fas fa-certificate"></i> Certificado</span>
-                            <span><i class="fas fa-user-graduate"></i> ${course.rating}</span>
-                        </div>
-                        <div class="price-tag">${course.price} <span class="original-price">${course.originalPrice}</span></div>
-                        <a href="#" class="rbt-btn gradient-btn">Explorar Curso <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                    <div class="${index === 0 ? 'tech-corner' : 'business-corner'}"></div>
-                `;
-                slider.appendChild(courseItem);
-            });
-            
-            // Atualiza o contador
-            counter.textContent = `${index + 1}/${centers.length}`;
-            
-            // Rola para o curso atual
-            scrollToCourse(0);
+            // Atualiza contador
+            if (counter) {
+                counter.textContent = `${currentCourseIndex + 1}/${items.length}`;
+            }
         }
         
-        // Rola para um curso específico
-        function scrollToCourse(courseIndex) {
+        // Navegação entre cursos
+        function goToSlide(index, animate = true) {
             const items = slider.querySelectorAll('.course-item');
-            if (items.length > 0 && courseIndex >= 0 && courseIndex < items.length) {
-                const item = items[courseIndex];
-                // Substitua o scrollIntoView por transform/translate
-                slider.scrollTo({
-                    left: item.offsetLeft,
-                    behavior: 'auto' // Comportamento instantâneo
+            if (!items.length) return;
+            
+            index = Math.max(0, Math.min(index, items.length - 1));
+            currentCourseIndex = index;
+            
+            const target = items[index].offsetLeft;
+            
+            if (animate) {
+                smoothScroll(slider, target, SCROLL_DURATION);
+            } else {
+                slider.scrollLeft = target;
+            }
+            
+            setupSlider();
+            
+            // Reinicia o auto-scroll após interação
+            if (isUserInteracting) {
+                resetAutoScroll();
+            }
+        }
+        
+        // Controle do auto-scroll
+        function startAutoScroll() {
+            clearTimeout(autoScrollTimeout);
+            if (!isUserInteracting) {
+                autoScrollTimeout = setTimeout(() => {
+                    const items = slider.querySelectorAll('.course-item');
+                    if (currentCourseIndex < items.length - 1) {
+                        goToSlide(currentCourseIndex + 1);
+                    } else {
+                        goToSlide(0);
+                    }
+                }, AUTO_SCROLL_DELAY);
+            }
+        }
+        
+        function resetAutoScroll() {
+            clearTimeout(autoScrollTimeout);
+            startAutoScroll();
+        }
+        
+        // Event listeners otimizados
+        function addEventListeners() {
+            // Navegação por botões
+            if (prevBtn) {
+                prevBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    isUserInteracting = true;
+                    const items = slider.querySelectorAll('.course-item');
+                    goToSlide((currentCourseIndex - 1 + items.length) % items.length);
+                    setTimeout(() => { isUserInteracting = false; }, 1000);
                 });
-                currentCourseIndex = courseIndex;
-                
-                if (courseIndex === items.length - 1) {
-                    clearTimeout(autoChangeTimeout);
-                    autoChangeTimeout = setTimeout(() => {
-                        nextCenter();
-                    }, 3000);
-                }
             }
-        }
-        
-        // Avança para o próximo centro
-        function nextCenter() {
-            currentCenterIndex = (currentCenterIndex + 1) % centers.length;
-            updateSlider();
-        }
-        
-        // Retrocede para o centro anterior
-        function prevCenter() {
-            currentCenterIndex = (currentCenterIndex - 1 + centers.length) % centers.length;
-            updateSlider();
-        }
-        
-        // Event listeners para navegação
-        prevBtn.addEventListener('click', () => {
-            clearTimeout(autoChangeTimeout);
-            if (currentCourseIndex > 0) {
-                scrollToCourse(currentCourseIndex - 1);
-            } else {
-                prevCenter();
-            }
-        });
-        
-        nextBtn.addEventListener('click', () => {
-            clearTimeout(autoChangeTimeout);
-            const items = slider.querySelectorAll('.course-item');
-            if (currentCourseIndex < items.length - 1) {
-                scrollToCourse(currentCourseIndex + 1);
-            } else {
-                nextCenter();
-            }
-        });
-        
-        // Suporte para touch/swipe
-        let touchStartX = 0;
-        let touchEndX = 0;
-        
-        slider.addEventListener('touchstart', e => {
-            touchStartX = e.changedTouches[0].screenX;
-            clearTimeout(autoChangeTimeout);
-        }, {passive: true});
-        
-        slider.addEventListener('touchend', e => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        }, {passive: true});
-        
-        function handleSwipe() {
-            if (touchEndX < touchStartX - 50) { // Swipe para a esquerda
-                const items = slider.querySelectorAll('.course-item');
-                if (currentCourseIndex < items.length - 1) {
-                    scrollToCourse(currentCourseIndex + 1);
-                } else {
-                    nextCenter();
-                }
-            }
-            if (touchEndX > touchStartX + 50) { // Swipe para a direita
-                if (currentCourseIndex > 0) {
-                    scrollToCourse(currentCourseIndex - 1);
-                } else {
-                    prevCenter();
-                }
-            }
-        }
-        
-        // Inicializa o slider
-        updateSlider();
-        
-        // Configura rotação automática
-        setInterval(() => {
-            const items = slider.querySelectorAll('.course-item');
-            if (currentCourseIndex < items.length - 1) {
-                scrollToCourse(currentCourseIndex + 1);
-            } else {
-                nextCenter();
-            }
-        }, 5000); // Muda a cada 5 segundos
-    });
-    
-    // Efeito 3D nos cards
-    const cards = document.querySelectorAll('.main-card');
-    cards.forEach(card => {
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            const angleY = (x - centerX) / 20;
-            const angleX = (centerY - y) / 20;
             
-            card.style.transform = `perspective(1000px) rotateX(${angleX}deg) rotateY(${angleY}deg)`;
+            if (nextBtn) {
+                nextBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    isUserInteracting = true;
+                    const items = slider.querySelectorAll('.course-item');
+                    goToSlide((currentCourseIndex + 1) % items.length);
+                    setTimeout(() => { isUserInteracting = false; }, 1000);
+                });
+            }
+            
+            // Touch events melhorados
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            slider.addEventListener('touchstart', (e) => {
+                touchStartX = e.touches[0].clientX;
+                isUserInteracting = true;
+                clearTimeout(autoScrollTimeout);
+            }, { passive: true });
+            
+            slider.addEventListener('touchmove', (e) => {
+                touchEndX = e.touches[0].clientX;
+            }, { passive: true });
+            
+            slider.addEventListener('touchend', () => {
+                const diff = touchStartX - touchEndX;
+                if (Math.abs(diff) > 50) {
+                    if (diff > 0) { // Swipe left
+                        const items = slider.querySelectorAll('.course-item');
+                        goToSlide(Math.min(currentCourseIndex + 1, items.length - 1));
+                    } else { // Swipe right
+                        goToSlide(Math.max(currentCourseIndex - 1, 0));
+                    }
+                }
+                setTimeout(() => { isUserInteracting = false; }, 1000);
+                resetAutoScroll();
+            }, { passive: true });
+            
+            // Otimização: Intersection Observer para lazy loading
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const bg = entry.target.querySelector('.course-bg');
+                            if (bg && !bg.dataset.loaded) {
+                                bg.dataset.loaded = true;
+                                // Pode adicionar lógica de carregamento otimizado aqui
+                            }
+                        }
+                    });
+                }, { threshold: 0.1 });
+                
+                slider.querySelectorAll('.course-item').forEach(item => {
+                    observer.observe(item);
+                });
+            }
+        }
+        
+        // Inicialização
+        setupSlider();
+        addEventListeners();
+        startAutoScroll();
+        
+        // Pausa auto-scroll quando o mouse está sobre o card
+        card.addEventListener('mouseenter', () => {
+            isUserInteracting = true;
+            clearTimeout(autoScrollTimeout);
         });
         
         card.addEventListener('mouseleave', () => {
-            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+            isUserInteracting = false;
+            resetAutoScroll();
         });
     });
+    
+    // Efeito 3D otimizado
+    if (!('ontouchstart' in window)) { // Apenas para dispositivos não touch
+        const cards = document.querySelectorAll('.main-card');
+        
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                requestAnimationFrame(() => {
+                    const rect = card.getBoundingClientRect();
+                    const x = (e.clientX - rect.left) / rect.width;
+                    const y = (e.clientY - rect.top) / rect.height;
+                    const centerX = 0.5;
+                    const centerY = 0.5;
+                    const angleY = (x - centerX) * 10;
+                    const angleX = (centerY - y) * 10;
+                    
+                    card.style.transform = `perspective(1000px) rotateX(${angleX}deg) rotateY(${angleY}deg)`;
+                    card.style.transition = 'transform 0.1s ease-out';
+                });
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                requestAnimationFrame(() => {
+                    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+                    card.style.transition = 'transform 0.5s ease-out';
+                });
+            });
+        });
+    }
 });

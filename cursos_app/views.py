@@ -68,6 +68,10 @@ def curso_detalhe(request, id):
         publicado=True
     )
 
+    categorias = Categoria.objects.annotate(
+        num_cursos=Count('curso', filter=Q(curso__publicado=True, curso__ativo=True))
+    )
+
     modulos = curso.modulos.all()
 
     # Comentários com perfil dos alunos
@@ -93,6 +97,7 @@ def curso_detalhe(request, id):
         'modulos': modulos,
         'comentarios': comentarios,
         'centro': centro,
+        'categoria': categorias,
         'cursos_relacionados': cursos_relacionados,
         'cursos_relacionados_lista': cursos_relacionados_lista,
         'video_preview': video_preview,
@@ -183,6 +188,7 @@ def cursos_por_categoria(request, slug):
             pass
 
     # Obtém a categoria pelo slug
+    
     categoria = get_object_or_404(Categoria, slug=slug)
 
     # Busca os cursos da categoria
