@@ -55,7 +55,7 @@ Ser a maior plataforma de gestão educacional e cursos online em Angola — com 
 | Camada              | Tecnologias                                     |
 |---------------------|--------------------------------------------------|
 | Backend             | Django / Django Rest Framework                  |
-| Frontend Web        | ReactJS / Next.js                               |
+| Frontend Web        | HTML CSS JAVASCRIPT                             |
 | Banco de Dados      | PostgreSQL                                      |
 | Autenticação        | Django Auth + JWT                               |
 | Armazenamento       | S3-compatible (AWS, MinIO)                      |
