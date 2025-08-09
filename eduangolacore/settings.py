@@ -22,7 +22,9 @@ INSTALLED_APPS = [
     'usuarios',
     'core',
     'cursos_app',
-    'gestoreduka'
+    'gestoreduka',
+    'blog',
+    
 
 ]
 
@@ -30,9 +32,12 @@ CSRF_TRUSTED_ORIGINS = [
     'https://eduka-angola-production.up.railway.app',
 ]
 
+SITE_DOMAIN = 'http://127.0.0.1:8000'  # ou o domínio real, tipo: https://edukangola.com
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    #'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -47,7 +52,7 @@ ROOT_URLCONF = 'eduangolacore.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'core/templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -109,8 +114,10 @@ STATICFILES_DIRS = [
 ]
 
 # Whitenoise (para servir arquivos estáticos em produção)
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+#STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# No settings.py, configure o WhiteNoise para não cachear arquivos em desenvolvimento:
+#WHITENOISE_AUTOREFRESH = True
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

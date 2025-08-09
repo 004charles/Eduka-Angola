@@ -1,0 +1,559 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Edukangola | Sobre</title>
+    <meta name="robots" content="noindex, follow">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    {% include 'include/css.html' %}
+</head>
+
+<body class="rbt-header-sticky">
+
+    <div id="my_switcher" class="my_switcher">
+        <ul>
+            <li>
+                <a href="javascript: void(0);" data-theme="light" class="setColor light">
+                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode">
+                        Light</span>
+                </a>
+            </li>
+            <li>
+                <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
+                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span
+                        title="Dark Mode"> Dark</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    {% include 'include/header.html' %}
+
+    <!-- Área do Banner Inicial -->
+    <div class="rbt-banner-area rbt-banner-8 variation-02">
+        <div class="container">
+            <div class="row g-5 align-items-center">
+                <div class="col-lg-10 offset-lg-1">
+                    <div class="content">
+                        <div class="inner text-center">
+                            <div class="rbt-new-badge rbt-new-badge-one">
+                                <span class="rbt-new-badge-icon">🏆</span> Líder em Aprendizagem Online
+                            </div>
+
+                            <h1 class="title">Conheça a Nossa
+                                <span class="header-caption">
+                                    <span class="cd-headline clip is-full-width">
+                                        <span class="cd-words-wrapper">
+                                            <b class="is-visible theme-gradient">Missão.</b>
+                                            <b class="is-hidden theme-gradient">Visão.</b>
+                                            <b class="is-hidden theme-gradient">Estratégia.</b>
+                                        </span>
+                                    </span>
+                                </span>
+                            </h1>
+                            <p class="description has-medium-font-size mt--20">Mergulhe e aprenda React.js desde o
+                                início! Aprenda Reactjs, Hooks, Redux, Rotas React, Animações, Next.js e muito mais!
+                            </p>
+                            <div class="slider-btn rbt-button-group justify-content-center">
+                                <a class="rbt-btn btn-gradient hover-icon-reverse" href="{% url 'aluno' %}">
+                                    <span class="icon-reverse-wrapper">
+                                        <span class="btn-text">Iniciar Sessão</span>
+                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                    </span>
+                                </a>
+                                <a class="rbt-btn hover-icon-reverse btn-white" href="about-us-02.html#">
+                                    <span class="icon-reverse-wrapper">
+                                        <span class="btn-text">Contacte-nos</span>
+                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fim da Área do Banner -->
+
+    <!-- Start Video Area  -->
+    <div class="rbt-video-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="video-popup-wrapper" style="position: relative;">
+                    <!-- Vídeo oculto inicialmente -->
+                    <video id="directVideo" class="w-100 rbt-radius" controls style="display: none;">
+                        <source src="https://assets.mixkit.co/videos/preview/mixkit-a-girl-blowing-a-bubble-gum-at-an-amusement-park-1226-large.mp4" type="video/mp4">
+                        Seu navegador não suporta vídeos HTML5.
+                    </video>
+                    
+                    <!-- Imagem de thumbnail -->
+                    <img id="videoThumbnail" class="w-100 rbt-radius" src="{% static 'assets/images/bg/bg-image-12.jpg' %}" alt="Thumbnail do Vídeo">
+                    
+                    <!-- Botão de play personalizado -->
+                    <a class="rbt-btn rounded-player-2 position-to-top with-animation btn-theme-color" 
+                       href="#" 
+                       onclick="playDirectVideo(); return false;"
+                       style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                        <span class="play-icon"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function playDirectVideo() {
+        const video = document.getElementById('directVideo');
+        const thumbnail = document.getElementById('videoThumbnail');
+        
+        // Oculta a thumbnail e mostra o vídeo
+        thumbnail.style.display = 'none';
+        video.style.display = 'block';
+        
+        // Inicia a reprodução
+        video.play();
+    }
+</script>
+
+    <div class="rbt-about-area about-style-1 bg-color-white rbt-section-gap">
+        <div class="container">
+            <div class="row g-5 align-items-center">
+                <div class="col-lg-6">
+                    <div class="content">
+                        <img src="{% static 'assets/images/2-removebg-preview.png' %}" alt="Imagens Sobre">
+                    </div>
+                </div>
+                <div class="col-lg-6" data-sal="slide-up" data-sal-duration="700">
+                    <div class="inner pl--50 pl_sm--5">
+                        <div class="content text-start">
+                            <span class="rbt-badge-6 bg-primary-opacity">Sobre a Edukangola</span>
+                            <h3 class="title">Bem-vindo à Edukangola para aprimorar suas habilidades com os melhores
+                                cursos online.</h3>
+                            <p class="description mt--30"><strong>Plataforma educacional Edukangola</strong> ipsum dolor
+                                sit amet consectetur adipisicing elit.</p>
+                            <p class="description">Nam inventore praesentium alias incidunt! Veritatis, necessitatibus
+                                fuga dolore tenetur, beatae suscipit fugit est ea perspiciatis quo provident nisi dolor
+                                similique architecto nihil.</p>
+                            <div class="read-more-btn mt--40">
+                                <a class="rbt-btn rbt-marquee-btn radius-round btn-gradient" href="about-us-02.html#">
+                                    <span data-text="Comece a Aprender de Graça">
+                                        Comece a Aprender de Graça
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Área de Chamada para Ação -->
+    <div class="rbt-call-to-action-area rbt-section-gap bg-gradient-8">
+        <div class="rbt-callto-action rbt-cta-default style-6">
+            <div class="container">
+                <div class="row g-5 align-items-center content-wrapper">
+                    <div class="col-xxl-3 col-xl-3 col-lg-6">
+                        <div class="inner">
+                            <div class="content text-start">
+                                <h2 class="title color-white mb--0">Teste Suas Habilidades</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xxl-6 col-xl-6 col-lg-6">
+                        <div class="inner-content text-start">
+                            <p class="color-white">Descubra seu potencial com nosso teste gratuito! Avalie suas
+                                competências em diversas áreas e receba um relatório personalizado com dicas para
+                                melhorar seu desempenho.</p>
+                        </div>
+                    </div>
+                    <div class="col-xxl-3 col-xl-3 col-lg-6">
+                        <div class="call-to-btn text-start text-xl-end">
+                            <a class="rbt-btn btn-white hover-icon-reverse" href="#teste-habilidades">
+                                <span class="icon-reverse-wrapper">
+                                    <span class="btn-text">Faça o Teste Agora</span>
+                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fim da Área de Chamada para Ação -->
+    <!-- Área de Serviços -->
+    <div class="rbt-service-area bg-color-white rbt-section-gap">
+        <div class="container">
+            <div class="row mb--60">
+                <div class="col-lg-12">
+                    <div class="section-title text-center">
+                        <h2 class="title">Por que aprender com nossos cursos?</h2>
+                        <p class="description mt--30"><strong>Plataforma educacional Edukangola</strong> oferece os
+                            melhores recursos para seu aprendizado.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Área de Cartões -->
+            <div class="row row--15 mt_dec--30">
+
+                <!-- Cartão de Serviço 1 -->
+                <div class="col-lg-4 col-xl-3 col-xxl-3 col-md-6 col-sm-6 col-12 mt--30">
+                    <div class="service-card service-card-6">
+                        <div class="inner">
+                            <div class="icon">
+                                <img src="{% static 'assets/images/icons/001-bulb.png' %}" alt="Ícone de Lâmpada">
+                            </div>
+                            <div class="content">
+                                <h6 class="title"><a href="about-us-02.html#">Inscreva-se</a></h6>
+                                <p class="description">Faça sua inscrição em poucos passos e comece sua jornada de
+                                    aprendizado.</p>
+                            </div>
+                            <span class="number-text">1</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Fim Cartão de Serviço 1 -->
+
+                <!-- Cartão de Serviço 2 -->
+                <div class="col-lg-4 col-xl-3 col-xxl-3 col-md-6 col-sm-6 col-12 mt--30">
+                    <div class="service-card service-card-6">
+                        <div class="inner">
+                            <div class="icon">
+                                <img src="{% static 'assets/images/icons/002-hat.png' %}"
+                                    alt="Ícone de Chapéu de Formatura">
+                            </div>
+                            <div class="content">
+                                <h6 class="title"><a href="about-us-02.html#">Conecte-se</a></h6>
+                                <p class="description">Acesse nossa plataforma e conecte-se com professores e colegas.
+                                </p>
+                            </div>
+                            <span class="number-text">2</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Fim Cartão de Serviço 2 -->
+
+                <!-- Cartão de Serviço 3 -->
+                <div class="col-lg-4 col-xl-3 col-xxl-3 col-md-6 col-sm-6 col-12 mt--30">
+                    <div class="service-card service-card-6">
+                        <div class="inner">
+                            <div class="icon">
+                                <img src="{% static 'assets/images/icons/003-id-card.png' %}"
+                                    alt="Ícone de Identificação">
+                            </div>
+                            <div class="content">
+                                <h6 class="title"><a href="about-us-02.html#">Prepare-se</a></h6>
+                                <p class="description">Tenha acesso a todos os materiais necessários para seu
+                                    desenvolvimento.</p>
+                            </div>
+                            <span class="number-text">3</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Fim Cartão de Serviço 3 -->
+
+                <!-- Cartão de Serviço 4 -->
+                <div class="col-lg-4 col-xl-3 col-xxl-3 col-md-6 col-sm-6 col-12 mt--30">
+                    <div class="service-card service-card-6">
+                        <div class="inner">
+                            <div class="icon">
+                                <img src="{% static 'assets/images/icons/004-pass.png' %}" alt="Ícone de Aprovação">
+                            </div>
+                            <div class="content">
+                                <h6 class="title"><a href="about-us-02.html#">Conclua</a></h6>
+                                <p class="description">Finalize seus cursos e receba sua certificação reconhecida.</p>
+                            </div>
+                            <span class="number-text">4</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Fim Cartão de Serviço 4 -->
+
+            </div>
+            <!-- Fim Área de Cartões -->
+        </div>
+    </div>
+    <!-- Fim Área de Serviços -->
+    <div class="rbt-team-area bg-gradient-8 rbt-section-gap">
+        <div class="container">
+            <div class="row mb--60 g-5 align-items-end">
+                <div class="col-lg-6 col-md-6 col-12">
+                    <div class="section-title text-start">
+                        <span class="subtitle bg-white-opacity">Nossos Instrutores</span>
+                        <h2 class="title color-white">Instrutores Especializados</h2>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 col-12">
+                    <div class="read-more-btn text-start text-md-end">
+                        <a class="rbt-btn hover-icon-reverse radius-round btn-white" href="about-us-02.html#">
+                            <div class="icon-reverse-wrapper">
+                                <span class="btn-text">TORNE-SE INSTRUTOR</span>
+                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-5">
+
+                <!-- Start Single Team  -->
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                    <div class="rbt-team-modal-thumb nav nav-tabs">
+                        <a class="rbt-team-thumbnail" href="javascript:void(0)" data-bs-toggle="modal"
+                            data-bs-target="#exampleModal">
+                            <div class="thumb">
+                                <img src="{% static 'assets/images/team/team-05.jpg' %}" alt="Testimonial Images">
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <!-- End Single Team  -->
+
+                <!-- Start Single Team  -->
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                    <div class="rbt-team-modal-thumb nav nav-tabs">
+                        <a class="rbt-team-thumbnail" href="javascript:void(0)" data-bs-toggle="modal"
+                            data-bs-target="#exampleModal">
+                            <div class="thumb">
+                                <img src="{% static 'assets/images/team/team-09.jpg' %}" alt="Testimonial Images">
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <!-- End Single Team  -->
+
+                <!-- Start Single Team  -->
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                    <div class="rbt-team-modal-thumb nav nav-tabs">
+                        <a class="rbt-team-thumbnail" href="javascript:void(0)" data-bs-toggle="modal"
+                            data-bs-target="#exampleModal">
+                            <div class="thumb">
+                                <img src="{% static 'assets/images/team/team-03.jpg' %}" alt="Testimonial Images">
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <!-- End Single Team  -->
+
+                <!-- Start Single Team  -->
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                    <div class="rbt-team-modal-thumb nav nav-tabs">
+                        <a class="rbt-team-thumbnail" href="javascript:void(0)" data-bs-toggle="modal"
+                            data-bs-target="#exampleModal">
+                            <div class="thumb">
+                                <img src="{% static 'assets/images/team/team-07.jpg' %}" alt="Testimonial Images">
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <!-- End Single Team  -->
+
+                <!-- Start Single Team  -->
+                <div class="col-lg-2 col-md-3 col-sm-4 col-12">
+                    <div class="rbt-team-modal-thumb nav nav-tabs">
+                        <a class="rbt-team-thumbnail" href="javascript:void(0)" data-bs-toggle="modal"
+                            data-bs-target="#exampleModal">
+                            <div class="thumb">
+                                <img src="{% static 'assets/images/team/team-01.jpg' %}" alt="Testimonial Images">
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <!-- End Single Team  -->
+
+                <!-- Start Single Team  -->
+                <div class="col-lg-2 col-md-3 col-sm-4 col-12">
+                    <div class="rbt-team-modal-thumb nav nav-tabs">
+                        <a class="rbt-team-thumbnail" href="javascript:void(0)" data-bs-toggle="modal"
+                            data-bs-target="#exampleModal">
+                            <div class="thumb">
+                                <img src="{% static 'assets/images/team/team-02.jpg' %}" alt="Testimonial Images">
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <!-- End Single Team  -->
+
+                <!-- Start Single Team  -->
+                <div class="col-lg-2 col-md-3 col-sm-4 col-12">
+                    <div class="rbt-team-modal-thumb nav nav-tabs">
+                        <a class="rbt-team-thumbnail" href="javascript:void(0)" data-bs-toggle="modal"
+                            data-bs-target="#exampleModal">
+                            <div class="thumb">
+                                <img src="{% static 'assets/images/team/team-04.jpg' %}" alt="Testimonial Images">
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <!-- End Single Team  -->
+
+                <!-- Start Single Team  -->
+                <div class="col-lg-2 col-md-3 col-sm-4 col-12">
+                    <div class="rbt-team-modal-thumb nav nav-tabs">
+                        <a class="rbt-team-thumbnail" href="javascript:void(0)" data-bs-toggle="modal"
+                            data-bs-target="#exampleModal">
+                            <div class="thumb">
+                                <img src="{% static 'assets/images/team/team-06.jpg' %}" alt="Testimonial Images">
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <!-- End Single Team  -->
+
+                <!-- Start Single Team  -->
+                <div class="col-lg-2 col-md-3 col-sm-4 col-12">
+                    <div class="rbt-team-modal-thumb nav nav-tabs">
+                        <a class="rbt-team-thumbnail" href="javascript:void(0)" data-bs-toggle="modal"
+                            data-bs-target="#exampleModal">
+                            <div class="thumb">
+                                <img src="{% static 'assets/images/team/team-08.jpg' %}" alt="Testimonial Images">
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <!-- End Single Team  -->
+
+                <!-- Start Single Team  -->
+                <div class="col-lg-2 col-md-3 col-sm-4 col-12">
+                    <div class="rbt-team-modal-thumb nav nav-tabs">
+                        <a class="rbt-team-thumbnail" href="javascript:void(0)" data-bs-toggle="modal"
+                            data-bs-target="#exampleModal">
+                            <div class="thumb">
+                                <img src="{% static 'assets/images/team/team-10.jpg' %}" alt="Testimonial Images">
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <!-- End Single Team  -->
+
+            </div>
+
+            <div class="rbt-team-modal modal fade rbt-modal-default" id="exampleModal" tabindex="-1"
+                aria-labelledby="exampleModal" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="rbt-round-btn" data-bs-dismiss="modal" aria-label="Close">
+                                <i class="feather-x"></i>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="inner">
+                                <div class="row g-5 row--30 align-items-center">
+                                    <div class="col-lg-4">
+                                        <div class="rbt-team-thumbnail">
+                                            <div class="thumb">
+                                                <img class="w-100" src="{% static 'assets/images/team/team-09.jpg' %}"
+                                                    alt="Testimonial Images">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-8">
+                                        <div class="rbt-team-details">
+                                            <div class="author-info">
+                                                <h4 class="title">Mames Mary</h4>
+                                                <span class="designation theme-gradient">English Teacher</span>
+                                                <span class="team-form">
+                                                    <i class="feather-map-pin"></i>
+                                                    <span class="location">CO Miego, AD,USA</span>
+                                                </span>
+                                            </div>
+                                            <p class="mb--15">You can run Histudy easily. Any School, University,
+                                                College can be use this histudy education template for their educational
+                                                purpose. A university can be success you.</p>
+
+                                            <p>Run their online leaning management system by histudy education template
+                                                any where and time.</p>
+                                            <ul class="social-icon social-default mt--20 justify-content-start">
+                                                <li><a href="https://www.facebook.com/">
+                                                        <i class="feather-facebook"></i>
+                                                    </a>
+                                                </li>
+                                                <li><a href="https://www.twitter.com">
+                                                        <i class="feather-twitter"></i>
+                                                    </a>
+                                                </li>
+                                                <li><a href="https://www.instagram.com/">
+                                                        <i class="feather-instagram"></i>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="https://www.linkdin.com/">
+                                                        <i class="feather-linkedin"></i>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                            <ul class="rbt-information-list mt--25">
+                                                <li>
+                                                    <a href="about-us-02.html#"><i
+                                                            class="feather-phone"></i>+1-202-555-0174</a>
+                                                </li>
+                                                <li>
+                                                    <a href="mailto:hello@example.com"><i
+                                                            class="feather-mail"></i>example@gmail.com</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="top-circle-shape"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="rbt-brand-area bg-color-white ptb--60">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-10 offset-lg-1">
+                    <div class="section-title text-center mb--40">
+                        <span class="small-title w-600">Os Clientes Mais Confiáveis no Mundo da Educação</span>
+                    </div>
+                    <ul class="brand-list brand-style-3 justify-content-center justify-content-lg-between">
+                        <li><a href="about-us-02.html#"><img src="{% static 'assets/images/brand/brand-01.png' %}"
+                                    alt="Brand Image"></a></li>
+                        <li><a href="about-us-02.html#"><img src="{% static 'assets/images/brand/brand-02.png' %}"
+                                    alt="Brand Image"></a></li>
+                        <li><a href="about-us-02.html#"><img src="{% static 'assets/images/brand/brand-03.png' %}"
+                                    alt="Brand Image"></a></li>
+                        <li><a href="about-us-02.html#"><img src="{% static 'assets/images/brand/brand-05.png' %}"
+                                    alt="Brand Image"></a></li>
+                        <li><a href="about-us-02.html#"><img src="{% static 'assets/images/brand/brand-06.png' %}"
+                                    alt="Brand Image"></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="rbt-separator-mid">
+        <div class="container">
+            <hr class="rbt-separator m-0">
+        </div>
+    </div>
+    <!-- Start Footer aera -->
+    {% include 'include/footer.html' %}
+    {% include 'include/java.html' %}
+</body>
+
+</html>

@@ -275,3 +275,11 @@ def todo_curso(request):
     
 def ficha_inscricao(request):
     return render(request, 'cursos_app/ficha.html')
+
+
+from .models import CentroDeFormacao
+
+def lista_centros(request):
+    centros = CentroDeFormacao.objects.filter(ativo=True)
+    print("CENTROS BUSCADOS:", centros)
+    return render(request, 'core/index.html', {'centros': centros})

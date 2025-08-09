@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinLengthValidator
 from django.utils import timezone
+from gestoreduka.models import CentroDeFormacao
 
 
 class UsuarioManager(BaseUserManager):
@@ -39,6 +40,14 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['nome']
 
     objects = UsuarioManager()
+    
+    def get_full_name(self):
+        """
+        Retorna o nome completo do usuário.
+        Se não existir, retorna o username
+        """
+        full_name = f"{self.first_name} {self.last_name}".strip()
+        return full_name if full_name else self.username
 
     def __str__(self):
         return self.nome
@@ -90,6 +99,22 @@ class Aluno(models.Model):
     class Meta:
         verbose_name = 'Aluno'
         verbose_name_plural = 'Alunos'
+
+
+class CentroSeguimento(models.Model):
+    aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, related_name='centros_seguidos', verbose_name=_('Aluno'))
+    centro = models.ForeignKey(CentroDeFormacao, on_delete=models.CASCADE, related_name='seguidores', verbose_name=_('Centro de Formação'))
+    data_seguimento = models.DateTimeField(_('Data do Seguimento'), default=timezone.now)
+
+    class Meta:
+        unique_together = ('aluno', 'centro')  # evita duplicações
+        verbose_name = _('Seguimento de Centro')
+        verbose_name_plural = _('Seguimentos de Centros')
+
+    def __str__(self):
+        return f"{self.aluno.nome} segue {self.centro.nome}"
+
+
         
 
 class PerfilAluno(models.Model):

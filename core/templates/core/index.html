@@ -20,18 +20,6 @@
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/images/favicon.png' %}">
 
     {% include 'include/css.html' %}
-    <style>
-        .favorito-btn {
-            border: none;
-            background: none;
-            color: #aaa;
-            transition: color 0.3s;
-        }
-
-        .favorito-btn.favorito-ativo {
-            color: red;
-        }
-    </style>
 
 </head>
 
@@ -70,25 +58,19 @@
                                     <h1 class="title">"Ondele y'Olemba" - <span class="theme-gradient">Saberes
                                             Ancestrais, Competências Modernas</span></h1>
                                     <div class="rbt-like-total">
-                                        <div class="profile-share">
-                                            <a href="08-language-academy.html#" class="avatar"
-                                                data-tooltip="Mark JOrdan" tabindex="0"><img
-                                                    src="{% static 'assets/images/testimonial/client-04.png' %}"
-                                                    alt="educação"></a>
-                                            <a href="08-language-academy.html#" class="avatar" data-tooltip="Mark"
-                                                tabindex="0"><img
-                                                    src="{% static 'assets/images/testimonial/client-05.png' %}"
-                                                    alt="educação"></a>
-                                            <a href="08-language-academy.html#" class="avatar" data-tooltip="Jordan"
-                                                tabindex="0"><img
-                                                    src="{% static 'assets/images/testimonial/client-06.png' %}"
-                                                    alt="educação"></a>
-                                            <div class="more-author-text">
-                                                <h5 class="total-join-students">Junte-se a Mais de 3000 Alunos</h5>
-                                                <p class="subtitle">Novas ideias todas as semanas.</p>
-                                            </div>
-                                        </div>
-                                    </div>
+    <div class="profile-share">
+        {% for perfil in primeiros_alunos %}
+            <a href="#" class="avatar" data-tooltip="{{ perfil.aluno.nome }}">
+                <img src="{{ perfil.foto_de_perfil.url }}" alt="{{ perfil.aluno.nome }}">
+            </a>
+        {% endfor %}
+        <div class="more-author-text">
+            <h5 class="total-join-students">Junte-se a Mais de 3000 Alunos</h5>
+            <p class="subtitle">Novas ideias todas as semanas.</p>
+        </div>
+    </div>
+</div>
+
                                     <div class="rbt-button-group justify-content-start mt--30">
                                         <a class="rbt-btn btn-gradient rbt-switch-btn" href="08-language-academy.html#">
                                             <span data-text="Testar habilidades">Testar habilidades</span>
@@ -106,397 +88,9 @@
                                     <img src="{% static 'assets/images/banner/language-club.png' %}"
                                         alt="Imagens de Educação">
                                 </div>
-                                <!-- Adicione este código dentro da div .thumbnail-wrapper, após a div .card-info -->
-                                <div class="assistant-bot bounce-slide">
-                                    <div class="assistant-trigger">
-                                        <div class="card-info small-assistant">
-                                            <div class="inner">
-                                                <div class="name">Ajuda</div>
-                                                <div class="status-wrapper d-block d-sm-flex">
-                                                    <div class="status-indicator online"></div>
-                                                    <span>Online</span>
-                                                </div>
-                                            </div>
-                                            <div class="notify-icon">
-                                                <img src="{% static 'assets/images/chatbot/assistant-avatar.png' %}"
-                                                    alt="Assistente Virtual">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="assistant-container">
-                                        <div class="assistant-header">
-                                            <div class="assistant-info">
-                                                <div class="avatar">
-
-                                                </div>
-                                                <div class="details">
-                                                    <h5>EdukAssist</h5>
-                                                    <div class="status">
-                                                        <span class="status-indicator online"></span>
-                                                        <span>Online</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <button class="close-assistant">
-                                                <i class="feather-x"></i>
-                                            </button>
-                                        </div>
-
-                                        <div class="assistant-messages">
-                                            <div class="message bot">
-                                                <div class="message-content">
-                                                    Olá! Sou o assistente da EdukAngola. Como posso te ajudar hoje?
-                                                </div>
-                                                <div class="message-time">Agora</div>
-                                            </div>
-                                        </div>
-
-                                        <div class="assistant-input">
-                                            <input type="text" placeholder="Digite sua mensagem..."
-                                                class="message-input">
-                                            <button class="send-button">
-                                                <i class="feather-send"></i>
-                                            </button>
-                                        </div>
-
-                                        <div class="quick-actions">
-                                            <button class="quick-action">Cursos</button>
-                                            <button class="quick-action">Estágios</button>
-                                            <button class="quick-action">Ajuda</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <style>
-                                    /* Estilos específicos para o assistente no banner */
-                                    .thumbnail-wrapper {
-                                        position: relative;
-                                    }
-
-                                    .assistant-bot {
-                                        position: absolute;
-                                        bottom: -30px;
-                                        right: 20px;
-                                        z-index: 10;
-                                        cursor: pointer;
-                                    }
-
-                                    .small-assistant {
-                                        width: 180px;
-                                        padding: 10px;
-                                        animation: bounce 2s infinite;
-                                    }
-
-                                    .small-assistant .name {
-                                        font-size: 14px;
-                                        margin-bottom: 3px;
-                                    }
-
-                                    .small-assistant .status-wrapper {
-                                        font-size: 11px;
-                                    }
-
-                                    .small-assistant .notify-icon img {
-                                        width: 40px;
-                                        height: 40px;
-                                    }
-
-                                    @keyframes bounce {
-
-                                        0%,
-                                        20%,
-                                        50%,
-                                        80%,
-                                        100% {
-                                            transform: translateY(0);
-                                        }
-
-                                        40% {
-                                            transform: translateY(-10px);
-                                        }
-
-                                        60% {
-                                            transform: translateY(-5px);
-                                        }
-                                    }
-
-                                    /* Estilos do container do assistente (quando aberto) */
-                                    .assistant-container {
-                                        position: fixed;
-                                        bottom: 30px;
-                                        right: 30px;
-                                        width: 320px;
-                                        background: white;
-                                        border-radius: 15px;
-                                        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-                                        overflow: hidden;
-                                        display: none;
-                                        z-index: 9999;
-                                    }
-
-                                    .assistant-bot.active .assistant-container {
-                                        display: block;
-                                        animation: fadeInUp 0.3s ease;
-                                    }
-
-                                    @keyframes fadeInUp {
-                                        from {
-                                            opacity: 0;
-                                            transform: translateY(20px);
-                                        }
-
-                                        to {
-                                            opacity: 1;
-                                            transform: translateY(0);
-                                        }
-                                    }
-
-                                    /* Restante dos estilos do assistente (mantidos do exemplo anterior) */
-                                    .assistant-header {
-                                        background: linear-gradient(135deg, #6e8efb, #a777e3);
-                                        color: white;
-                                        padding: 15px;
-                                        display: flex;
-                                        justify-content: space-between;
-                                        align-items: center;
-                                    }
-
-                                    .assistant-info {
-                                        display: flex;
-                                        align-items: center;
-                                    }
-
-                                    .assistant-info .avatar img {
-                                        width: 40px;
-                                        height: 40px;
-                                        border-radius: 50%;
-                                        margin-right: 10px;
-                                        border: 2px solid white;
-                                    }
-
-                                    .assistant-info h5 {
-                                        margin: 0;
-                                        font-size: 16px;
-                                    }
-
-                                    .assistant-info .status {
-                                        display: flex;
-                                        align-items: center;
-                                        font-size: 12px;
-                                        margin-top: 3px;
-                                    }
-
-                                    .assistant-info .status-indicator {
-                                        width: 8px;
-                                        height: 8px;
-                                        border-radius: 50%;
-                                        background: #4caf50;
-                                        margin-right: 5px;
-                                    }
-
-                                    .close-assistant {
-                                        background: none;
-                                        border: none;
-                                        color: white;
-                                        font-size: 18px;
-                                        cursor: pointer;
-                                    }
-
-                                    .assistant-messages {
-                                        height: 250px;
-                                        overflow-y: auto;
-                                        padding: 15px;
-                                        background: #f9f9f9;
-                                    }
-
-                                    .message {
-                                        margin-bottom: 15px;
-                                        max-width: 80%;
-                                        padding: 10px 15px;
-                                        border-radius: 18px;
-                                        font-size: 14px;
-                                        position: relative;
-                                    }
-
-                                    .message.bot {
-                                        background: white;
-                                        border-bottom-left-radius: 5px;
-                                        align-self: flex-start;
-                                        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-                                    }
-
-                                    .message.user {
-                                        background: #6e8efb;
-                                        color: white;
-                                        border-bottom-right-radius: 5px;
-                                        margin-left: auto;
-                                    }
-
-                                    .message-time {
-                                        font-size: 10px;
-                                        color: #999;
-                                        text-align: right;
-                                        margin-top: 5px;
-                                    }
-
-                                    .assistant-input {
-                                        display: flex;
-                                        padding: 15px;
-                                        border-top: 1px solid #eee;
-                                        background: white;
-                                    }
-
-                                    .message-input {
-                                        flex: 1;
-                                        border: 1px solid #ddd;
-                                        border-radius: 30px;
-                                        padding: 10px 15px;
-                                        outline: none;
-                                        font-size: 14px;
-                                    }
-
-                                    .send-button {
-                                        background: #6e8efb;
-                                        color: white;
-                                        border: none;
-                                        width: 40px;
-                                        height: 40px;
-                                        border-radius: 50%;
-                                        margin-left: 10px;
-                                        cursor: pointer;
-                                        display: flex;
-                                        align-items: center;
-                                        justify-content: center;
-                                    }
-
-                                    .quick-actions {
-                                        display: flex;
-                                        padding: 0 15px 15px;
-                                        gap: 8px;
-                                        flex-wrap: wrap;
-                                    }
-
-                                    .quick-action {
-                                        background: #f0f4ff;
-                                        border: none;
-                                        border-radius: 15px;
-                                        padding: 5px 12px;
-                                        font-size: 12px;
-                                        color: #6e8efb;
-                                        cursor: pointer;
-                                        transition: all 0.2s ease;
-                                    }
-
-                                    .quick-action:hover {
-                                        background: #e0e8ff;
-                                    }
-                                </style>
-
-                                <script>
-                                    document.addEventListener('DOMContentLoaded', function () {
-                                        const assistantBot = document.querySelector('.assistant-bot');
-                                        const trigger = document.querySelector('.assistant-trigger');
-                                        const closeBtn = document.querySelector('.close-assistant');
-                                        const sendBtn = document.querySelector('.send-button');
-                                        const messageInput = document.querySelector('.message-input');
-                                        const messagesContainer = document.querySelector('.assistant-messages');
-                                        const quickActions = document.querySelectorAll('.quick-action');
-
-                                        // Abrir/fechar o assistente
-                                        trigger.addEventListener('click', function (e) {
-                                            e.stopPropagation();
-                                            assistantBot.classList.toggle('active');
-                                        });
-
-                                        closeBtn.addEventListener('click', function () {
-                                            assistantBot.classList.remove('active');
-                                        });
-
-                                        // Fechar ao clicar fora
-                                        document.addEventListener('click', function (e) {
-                                            if (!assistantBot.contains(e.target)) {
-                                                assistantBot.classList.remove('active');
-                                            }
-                                        });
-
-                                        // Enviar mensagem
-                                        function sendMessage() {
-                                            const message = messageInput.value.trim();
-                                            if (message) {
-                                                // Adicionar mensagem do usuário
-                                                addMessage(message, 'user');
-                                                messageInput.value = '';
-
-                                                // Simular resposta do bot
-                                                setTimeout(() => {
-                                                    const responses = [
-                                                        "Entendi sua pergunta sobre: " + message,
-                                                        "Posso te ajudar com isso!",
-                                                        "Ótima pergunta! Vou verificar para você.",
-                                                        "Estou pesquisando sobre isso...",
-                                                        "Aqui estão algumas informações que podem ajudar:"
-                                                    ];
-                                                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-                                                    addMessage(randomResponse, 'bot');
-                                                }, 1000);
-                                            }
-                                        }
-
-                                        // Enviar com botão ou Enter
-                                        sendBtn.addEventListener('click', sendMessage);
-                                        messageInput.addEventListener('keypress', function (e) {
-                                            if (e.key === 'Enter') {
-                                                sendMessage();
-                                            }
-                                        });
-
-                                        // Ações rápidas
-                                        quickActions.forEach(button => {
-                                            button.addEventListener('click', function () {
-                                                const action = this.textContent;
-                                                addMessage(action, 'user');
-
-                                                setTimeout(() => {
-                                                    let response = "";
-                                                    switch (action) {
-                                                        case "Cursos":
-                                                            response = "Temos diversos cursos disponíveis. Você pode explorar por categoria na nossa página principal.";
-                                                            break;
-                                                        case "Estágios":
-                                                            response = "Confira as oportunidades de estágio na seção dedicada. Posso te mostrar as vagas mais recentes?";
-                                                            break;
-                                                        case "Ajuda":
-                                                            response = "Claro! Posso te ajudar com informações sobre cursos, estágios, escolas ou outros assuntos. O que você precisa?";
-                                                            break;
-                                                        default:
-                                                            response = "Posso te ajudar com informações sobre " + action;
-                                                    }
-                                                    addMessage(response, 'bot');
-                                                }, 1000);
-                                            });
-                                        });
-
-                                        // Adicionar mensagem ao chat
-                                        function addMessage(text, sender) {
-                                            const messageDiv = document.createElement('div');
-                                            messageDiv.className = `message ${sender}`;
-
-                                            const now = new Date();
-                                            const timeString = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
-
-                                            messageDiv.innerHTML = `
-                                        <div class="message-content">${text}</div>
-                                        <div class="message-time">${timeString}</div>
-                                    `;
-
-                                            messagesContainer.appendChild(messageDiv);
-                                            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                                        }
-                                    });
-                                </script>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -504,193 +98,95 @@
 
 
 
-        <div class="rbt-courses-banner">
-            <div class="container">
-                <div class="section-header">
-                    <h2 class="futuristic-title">Centros <span class="highlight">Educacionais</span></h2>
-                    <p class="subtitle">Explore os melhores cursos dos principais centros de formação</p>
-                    <div class="tech-underline"></div>
-                </div>
+        <section style="margin-top: 170px;">
+            <div class="banner-overlay-section">
+                <div class="container">
+                    <div class="row row--15">
+                        <div class="col-lg-12">
+                            <div style="text-align: center; margin-bottom: 30px;">
+                                <h2 style="font-weight: 700; font-size: 28px;">Centros de Formação Especializados</h2>
+                                <p style="color: #666;">Conheça nossos polos de ensino em diversas áreas profissionais
+                                </p>
+                            </div>
 
-                <div class="dual-cards-container">
-                    <!-- Card 1 - Centro de Tecnologia -->
-                    <div class="main-card tech-card">
-                        <div class="card-header">
-                            <div class="center-info">
-                                <img src="https://via.placeholder.com/40x40" alt="#" class="center-logo">
-                                <div>
-                                    <h3 class="center-name">Cinfotec</h3>
-                                    <div class="center-location">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                        <span>Luanda, Angola</span>
+                            <div class="swiper team-slide-activation-4 rbt-arrow-between rbt-dot-bottom-center">
+                                <div class="swiper-wrapper">
+
+                                    {% for centro in centros %}
+                                    <div class="swiper-slide">
+                                        <div class="team team-style--bottom variation-2">
+                                            <div class="thumbnail" style="position: relative;">
+                                                <!-- LOGO no canto -->
+                                                <div style="position: absolute; top: 10px; right: 10px; z-index: 2;">
+                                                    <img src="{% static 'assets/images/logo/logo-black.png' %}"
+                                                        alt="Logo" style="width: 90px; height: auto;">
+                                                </div>
+                                                <!-- IMAGEM -->
+                                                <a href="{% url 'cursos_por_centro' centro.id %}"><img src="{% static 'assets/images/team/team-02.jpg' %}"
+                                                        alt="{{ centro.nome }}"></a>
+                                            </div>
+                                            <div class="content">
+                                                <div class="inner">
+                                                    <h4 class="title"><a href="{% url 'cursos_por_centro' centro.id %}">{{ centro.nome }}</a></h4>
+                                                    <p class="designation">{{ centro.endereco }}</p>
+                                                    <p class="designation"
+                                                        style="margin-top: 5px; font-size: 14px; color: black;">
+                                                        {{ centro.cursos.count }} cursos · {{ centro.seguidores.count }}
+                                                        seguidores
+                                                    </p>
+                                                    {% if aluno_logado %}
+                                                    {% if centro.id in centros_seguidos %}
+                                                    <a href="javascript:void(0);" class="seguir-centro-btn seguindo"
+                                                        style="padding: 6px 14px; background-color: #38a169; color: #fff;
+                  border-radius: 4px; font-size: 14px; text-decoration: none; display: inline-block;">
+                                                        Seguindo
+                                                    </a>
+                                                    {% else %}
+                                                    <a href="javascript:void(0);" class="seguir-centro-btn"
+                                                        data-centro-id="{{ centro.id }}" style="padding: 6px 14px; background-color: #4f46e5; color: #fff;
+                  border-radius: 4px; font-size: 14px; text-decoration: none; display: inline-block;">
+                                                        Seguir
+                                                    </a>
+                                                    {% endif %}
+                                                    {% endif %}
+
+
+                                                </div>
+                                                <div class="icon-right">
+                                                    <a href="{% url 'cursos_por_centro' centro.id %}"><i class="feather-arrow-right"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <p style="text-align: center;">Nenhum centro disponível no momento.</p>
+                                    {% endfor %}
+
+                                </div>
+
+                                <div class="rbt-swiper-arrow rbt-arrow-left">
+                                    <div class="custom-overfolow">
+                                        <i class="rbt-icon feather-arrow-left"></i>
+                                        <i class="rbt-icon-top feather-arrow-left"></i>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="center-nav">
-                                <span class="center-counter">1/3</span>
-                                <div class="card-nav">
-                                    <button class="nav-btn prev-btn"><i class="fas fa-chevron-left"></i></button>
-                                    <button class="nav-btn next-btn"><i class="fas fa-chevron-right"></i></button>
+
+                                <div class="rbt-swiper-arrow rbt-arrow-right">
+                                    <div class="custom-overfolow">
+                                        <i class="rbt-icon feather-arrow-right"></i>
+                                        <i class="rbt-icon-top feather-arrow-right"></i>
+                                    </div>
                                 </div>
+
+                                <div class="rbt-swiper-pagination"></div>
                             </div>
                         </div>
-                        <div class="courses-slider">
-                            <!-- Curso 1 -->
-                            <div class="course-item">
-                                <div class="course-bg"
-                                    style="background-image: url('https://images.unsplash.com/photo-1546410531-bb4caa6b424d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')">
-                                    <div class="tech-overlay"></div>
-                                </div>
-                                <div class="course-content">
-                                    <div class="difficulty">Avançado</div>
-                                    <h4>Desenvolvimento Web Fullstack</h4>
-                                    <div class="course-meta">
-                                        <span><i class="fas fa-clock"></i> 240h</span>
-                                        <span><i class="fas fa-certificate"></i> Certificado</span>
-                                        <span><i class="fas fa-user-graduate"></i> 94% aprovação</span>
-                                    </div>
-                                    <div class="price-tag">kz 1.299 <span class="original-price">kz 1.599</span></div>
-                                    <a href="#" class="rbt-btn gradient-btn">Explorar Curso <i
-                                            class="fas fa-arrow-right"></i></a>
-                                </div>
-                                <div class="tech-corner"></div>
-                            </div>
-
-                            <!-- Curso 2 -->
-                            <div class="course-item">
-                                <div class="course-bg"
-                                    style="background-image: url('https://images.unsplash.com/photo-1555774698-0b77e0d5fac6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')">
-                                    <div class="tech-overlay"></div>
-                                </div>
-                                <div class="course-content">
-                                    <div class="difficulty">Intermediário</div>
-                                    <h4>Data Science</h4>
-                                    <div class="course-meta">
-                                        <span><i class="fas fa-clock"></i> 200h</span>
-                                        <span><i class="fas fa-certificate"></i> Certificado</span>
-                                        <span><i class="fas fa-user-graduate"></i> 89% aprovação</span>
-                                    </div>
-                                    <div class="price-tag">kz 1.099 <span class="original-price">kz 1.399</span></div>
-                                    <a href="#" class="rbt-btn gradient-btn">Explorar Curso <i
-                                            class="fas fa-arrow-right"></i></a>
-                                </div>
-                                <div class="tech-corner"></div>
-                            </div>
-
-                            <!-- Curso 3 -->
-                            <div class="course-item">
-                                <div class="course-bg"
-                                    style="background-image: url('https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')">
-                                    <div class="tech-overlay"></div>
-                                </div>
-                                <div class="course-content">
-                                    <div class="difficulty">Avançado</div>
-                                    <h4>Mobile Development</h4>
-                                    <div class="course-meta">
-                                        <span><i class="fas fa-clock"></i> 180h</span>
-                                        <span><i class="fas fa-certificate"></i> Certificado</span>
-                                        <span><i class="fas fa-user-graduate"></i> 91% aprovação</span>
-                                    </div>
-                                    <div class="price-tag">kz 999 <span class="original-price">kz 1.299</span></div>
-                                    <a href="#" class="rbt-btn gradient-btn">Explorar Curso <i
-                                            class="fas fa-arrow-right"></i></a>
-                                </div>
-                                <div class="tech-corner"></div>
-                            </div>
-                        </div>
-                        <div class="tech-grid-overlay"></div>
-                    </div>
-
-                    <!-- Card 2 - Centro de Negócios -->
-                    <div class="main-card business-card">
-                        <div class="card-header">
-                            <div class="center-info">
-                                <img src="https://via.placeholder.com/40x40" alt="#" class="center-logo">
-                                <div>
-                                    <h3 class="center-name">Mundo da tecnologia</h3>
-                                    <div class="center-location">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                        <span>Luanda, Angola</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="center-nav">
-                                <span class="center-counter">1/3</span>
-                                <div class="card-nav">
-                                    <button class="nav-btn prev-btn"><i class="fas fa-chevron-left"></i></button>
-                                    <button class="nav-btn next-btn"><i class="fas fa-chevron-right"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="courses-slider">
-                            <!-- Curso 1 -->
-                            <div class="course-item">
-                                <div class="course-bg"
-                                    style="background-image: url('https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')">
-                                    <div class="business-overlay"></div>
-                                </div>
-                                <div class="course-content">
-                                    <div class="difficulty">Intermediário</div>
-                                    <h4>Gestão de Projetos</h4>
-                                    <div class="course-meta">
-                                        <span><i class="fas fa-clock"></i> 180h</span>
-                                        <span><i class="fas fa-certificate"></i> Certificado</span>
-                                        <span><i class="fas fa-user-graduate"></i> 92% aprovação</span>
-                                    </div>
-                                    <div class="price-tag">kz 899 <span class="original-price">kz 1.199</span></div>
-                                    <a href="#" class="rbt-btn gradient-btn" style="font-size: 12px;">Explorar Curso <i
-                                            class="fas fa-arrow-right"></i></a>
-                                </div>
-                                <div class="business-corner"></div>
-                            </div>
-
-                            <!-- Curso 2 -->
-                            <div class="course-item">
-                                <div class="course-bg"
-                                    style="background-image: url('https://images.unsplash.com/photo-1434626881859-194d67b2b86f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')">
-                                    <div class="business-overlay"></div>
-                                </div>
-                                <div class="course-content">
-                                    <div class="difficulty">Iniciante</div>
-                                    <h4>Marketing Digital</h4>
-                                    <div class="course-meta">
-                                        <span><i class="fas fa-clock"></i> 150h</span>
-                                        <span><i class="fas fa-certificate"></i> Certificado</span>
-                                        <span><i class="fas fa-user-graduate"></i> 88% aprovação</span>
-                                    </div>
-                                    <div class="price-tag">kz 799 <span class="original-price">kz 999</span></div>
-                                    <a href="#" class="rbt-btn gradient-btn">Explorar Curso <i
-                                            class="fas fa-arrow-right"></i></a>
-                                </div>
-                                <div class="business-corner"></div>
-                            </div>
-
-                            <!-- Curso 3 -->
-                            <div class="course-item">
-                                <div class="course-bg"
-                                    style="background-image: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')">
-                                    <div class="business-overlay"></div>
-                                </div>
-                                <div class="course-content">
-                                    <div class="difficulty">Intermediário</div>
-                                    <h4>UX/UI Design</h4>
-                                    <div class="course-meta">
-                                        <span><i class="fas fa-clock"></i> 160h</span>
-                                        <span><i class="fas fa-certificate"></i> Certificado</span>
-                                        <span><i class="fas fa-user-graduate"></i> 95% aprovação</span>
-                                    </div>
-                                    <div class="price-tag">kz 1.099 <span class="original-price">kz 1.399</span></div>
-                                    <a href="#" class="rbt-btn gradient-btn">Explorar Curso <i
-                                            class="fas fa-arrow-right"></i></a>
-                                </div>
-                                <div class="business-corner"></div>
-                            </div>
-                        </div>
-                        <div class="business-grid-overlay"></div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
+
+
 
         <div class="rbt-categories-area bg-color-white rbt-section-gap">
             <div class="container">
@@ -1041,7 +537,7 @@
 
 
 
-
+        {% if cursos_destaque %}
         <div class="rbt-course-area bg-color-extra2 rbt-section-gap">
             <div class="container">
                 <div class="row mb--60">
@@ -1060,57 +556,61 @@
 
 
                 <!-- Start Card Area -->
-                <div class="swiper mySwiper">
+                <div style="margin-bottom: 70px;" class="swiper mySwiper">
                     <div class="swiper-wrapper">
                         {% for curso in cursos_destaque %}
-                        <div class="swiper-slide h-auto">
-                            <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column">
-                                <!-- Container da Imagem com proporção 16:9 -->
-                                <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden">
+                        <div class="swiper-slide" style="width: 320px;"> <!-- Aumentei de 290px para 320px -->
+                            <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column shadow rounded-4">
+                                <!-- Imagem com proporção 16:9 -->
+                                <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden rounded-top-4">
                                     <a href="{% url 'curso_detalhe' id=curso.id %}" class="d-block h-100 w-100">
                                         <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}"
                                             class="object-fit-cover w-100 h-100" loading="lazy"
-                                            onerror="this.src='{% static 'assets/images/placeholder-curso.jpg' %}'">
+                                            onerror="this.src='{% static 'images/placeholder-curso.jpg' %}'">
                                     </a>
                                 </div>
 
                                 <!-- Corpo do Card -->
-                                <div class="rbt-card-body d-flex flex-column flex-grow-1">
-                                    <div class="rbt-card-top mb-2">
-                                        <div class="rbt-review d-flex align-items-center">
-                                            <div class="rating text-warning me-1">
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                            </div>
-                                            <span class="rating-count small text-muted">({{ curso.vagas }} Vagas)</span>
+                                <div class="rbt-card-body d-flex flex-column flex-grow-1 p-4">
+                                    <div class="rbt-card-top mb-3 d-flex align-items-center">
+                                        <div class="rating text-warning me-2 fs-5">
+                                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                                class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                                class="fas fa-star"></i>
                                         </div>
+                                        <small class="rating-count text-muted fs-6">({{ curso.vagas }} Vagas)</small>
                                     </div>
 
-                                    <h4 class="rbt-card-title mb-2">
-                                        <a href="{% url 'curso_detalhe' id=curso.id %}" class="text-decoration-none">
+                                    <h4 class="rbt-card-title mb-3 fs-5">
+                                        <a href="{% url 'curso_detalhe' id=curso.id %}"
+                                            class="text-decoration-none text-truncate d-block"
+                                            title="{{ curso.titulo }}">
                                             {{ curso.titulo }}
                                         </a>
                                     </h4>
 
-                                    <ul class="rbt-meta list-unstyled d-flex mb-3">
-                                        <li class="me-3"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
+                                    <ul class="rbt-meta list-unstyled d-flex mb-4 fs-6">
+                                        <li class="me-4"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
                                         </li>
                                         <li><i class="feather-users me-1"></i>{{ curso.vagas }} Estudantes</li>
                                     </ul>
 
+                                    <p class="rbt-card-text mb-4 fs-6">
+                                        {{ curso.descricao|truncatechars:60 }}
+                                    </p>
+
                                     <div
-                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center">
-                                        <div class="rbt-price">
-                                            <span class="current-price fw-bold text-primary">kz {{ curso.preco }}</span>
+                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center fs-6">
+                                        <div class="rbt-price fw-bold text-primary">
+                                            kz {{ curso.preco }}
                                             {% if curso.preco_original %}
-                                            <span class="original-price text-muted text-decoration-line-through ms-2">kz
-                                                {{ curso.preco_original }}</span>
+                                            <span
+                                                class="original-price text-muted text-decoration-line-through ms-2 fs-6">
+                                                kz {{ curso.preco_original }}
+                                            </span>
                                             {% endif %}
                                         </div>
-                                        <a class="rbt-btn-link text-decoration-none"
+                                        <a class="rbt-btn-link text-decoration-none small"
                                             href="{% url 'curso_detalhe' id=curso.id %}">
                                             Ver mais <i class="feather-arrow-right ms-1"></i>
                                         </a>
@@ -1126,15 +626,15 @@
                     <div class="swiper-button-prev"></div>
 
                     <!-- Paginação (se quiser) -->
-                    <div class="swiper-pagination"></div>
                 </div>
 
             </div>
         </div>
+        {% endif %}
         <!-- End Course Area  -->
 
-
-        <div class="rbt-course-area bg-color-extra2 rbt-section-gap">
+        {% if cursos_recentes %}
+        <div class="rbt-course-area bg-color-extra2 pt-2 pb-4">
             <div class="container">
                 <div class="row mb--60">
                     <div class="col-lg-12">
@@ -1151,13 +651,13 @@
                 </div>
 
                 <!-- Start Card Area -->
-                <div class="swiper mySwiper">
+                <div style="margin-bottom: 70px;" class="swiper mySwiper">
                     <div class="swiper-wrapper">
                         {% for curso in cursos_recentes %}
-                        <div class="swiper-slide h-auto">
-                            <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column">
-                                <!-- Container da Imagem com proporção 16:9 -->
-                                <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden">
+                        <div class="swiper-slide" style="width: 320px;"> <!-- Aumentei de 290px para 320px -->
+                            <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column shadow rounded-4">
+                                <!-- Imagem com proporção 16:9 -->
+                                <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden rounded-top-4">
                                     <a href="{% url 'curso_detalhe' id=curso.id %}" class="d-block h-100 w-100">
                                         <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}"
                                             class="object-fit-cover w-100 h-100" loading="lazy"
@@ -1166,42 +666,46 @@
                                 </div>
 
                                 <!-- Corpo do Card -->
-                                <div class="rbt-card-body d-flex flex-column flex-grow-1">
-                                    <div class="rbt-card-top mb-2">
-                                        <div class="rbt-review d-flex align-items-center">
-                                            <div class="rating text-warning me-1">
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                            </div>
-                                            <span class="rating-count small text-muted">({{ curso.vagas }} Vagas)</span>
+                                <div class="rbt-card-body d-flex flex-column flex-grow-1 p-4">
+                                    <div class="rbt-card-top mb-3 d-flex align-items-center">
+                                        <div class="rating text-warning me-2 fs-5">
+                                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                                class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                                class="fas fa-star"></i>
                                         </div>
+                                        <small class="rating-count text-muted fs-6">({{ curso.vagas }} Vagas)</small>
                                     </div>
 
-                                    <h4 class="rbt-card-title mb-2">
-                                        <a href="{% url 'curso_detalhe' id=curso.id %}" class="text-decoration-none">
+                                    <h4 class="rbt-card-title mb-3 fs-5">
+                                        <a href="{% url 'curso_detalhe' id=curso.id %}"
+                                            class="text-decoration-none text-truncate d-block"
+                                            title="{{ curso.titulo }}">
                                             {{ curso.titulo }}
                                         </a>
                                     </h4>
 
-                                    <ul class="rbt-meta list-unstyled d-flex mb-3">
-                                        <li class="me-3"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
+                                    <ul class="rbt-meta list-unstyled d-flex mb-4 fs-6">
+                                        <li class="me-4"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
                                         </li>
                                         <li><i class="feather-users me-1"></i>{{ curso.vagas }} Estudantes</li>
                                     </ul>
 
+                                    <p class="rbt-card-text mb-4 fs-6">
+                                        {{ curso.descricao|truncatechars:60 }}
+                                    </p>
+
                                     <div
-                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center">
-                                        <div class="rbt-price">
-                                            <span class="current-price fw-bold text-primary">kz {{ curso.preco }}</span>
+                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center fs-6">
+                                        <div class="rbt-price fw-bold text-primary">
+                                            kz {{ curso.preco }}
                                             {% if curso.preco_original %}
-                                            <span class="original-price text-muted text-decoration-line-through ms-2">kz
-                                                {{ curso.preco_original }}</span>
+                                            <span
+                                                class="original-price text-muted text-decoration-line-through ms-2 fs-6">
+                                                kz {{ curso.preco_original }}
+                                            </span>
                                             {% endif %}
                                         </div>
-                                        <a class="rbt-btn-link text-decoration-none"
+                                        <a class="rbt-btn-link text-decoration-none small"
                                             href="{% url 'curso_detalhe' id=curso.id %}">
                                             Ver mais <i class="feather-arrow-right ms-1"></i>
                                         </a>
@@ -1219,7 +723,6 @@
                     <div class="swiper-button-prev"></div>
 
                     <!-- Paginação (se quiser) -->
-                    <div class="swiper-pagination"></div> <!-- End Single Course  -->
 
                 </div>
             </div>
@@ -1227,12 +730,13 @@
         </div>
         </div>
         </div>
+        {% endif %}
 
 
 
 
-
-        <div class="rbt-course-area bg-color-extra2 rbt-section-gap">
+        {% if cursos_destaque %}
+        <div class="rbt-course-area bg-color-extra2 pt-2 pb-4">
             <div class="container">
                 <div class="row mb--60">
                     <div class="col-lg-12">
@@ -1249,13 +753,13 @@
                 </div>
 
                 <!-- Start Card Area -->
-                <div class="swiper mySwiper">
+                <div style="margin-bottom: 70px;" class="swiper mySwiper">
                     <div class="swiper-wrapper">
                         {% for curso in cursos_destaque %}
-                        <div class="swiper-slide h-auto">
-                            <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column">
-                                <!-- Container da Imagem com proporção 16:9 -->
-                                <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden">
+                        <div class="swiper-slide" style="width: 320px;"> <!-- Aumentei de 290px para 320px -->
+                            <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column shadow rounded-4">
+                                <!-- Imagem com proporção 16:9 -->
+                                <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden rounded-top-4">
                                     <a href="{% url 'curso_detalhe' id=curso.id %}" class="d-block h-100 w-100">
                                         <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}"
                                             class="object-fit-cover w-100 h-100" loading="lazy"
@@ -1264,42 +768,46 @@
                                 </div>
 
                                 <!-- Corpo do Card -->
-                                <div class="rbt-card-body d-flex flex-column flex-grow-1">
-                                    <div class="rbt-card-top mb-2">
-                                        <div class="rbt-review d-flex align-items-center">
-                                            <div class="rating text-warning me-1">
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                            </div>
-                                            <span class="rating-count small text-muted">({{ curso.vagas }} Vagas)</span>
+                                <div class="rbt-card-body d-flex flex-column flex-grow-1 p-4">
+                                    <div class="rbt-card-top mb-3 d-flex align-items-center">
+                                        <div class="rating text-warning me-2 fs-5">
+                                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                                class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                                class="fas fa-star"></i>
                                         </div>
+                                        <small class="rating-count text-muted fs-6">({{ curso.vagas }} Vagas)</small>
                                     </div>
 
-                                    <h4 class="rbt-card-title mb-2">
-                                        <a href="{% url 'curso_detalhe' id=curso.id %}" class="text-decoration-none">
+                                    <h4 class="rbt-card-title mb-3 fs-5">
+                                        <a href="{% url 'curso_detalhe' id=curso.id %}"
+                                            class="text-decoration-none text-truncate d-block"
+                                            title="{{ curso.titulo }}">
                                             {{ curso.titulo }}
                                         </a>
                                     </h4>
 
-                                    <ul class="rbt-meta list-unstyled d-flex mb-3">
-                                        <li class="me-3"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
+                                    <ul class="rbt-meta list-unstyled d-flex mb-4 fs-6">
+                                        <li class="me-4"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
                                         </li>
                                         <li><i class="feather-users me-1"></i>{{ curso.vagas }} Estudantes</li>
                                     </ul>
 
+                                    <p class="rbt-card-text mb-4 fs-6">
+                                        {{ curso.descricao|truncatechars:60 }}
+                                    </p>
+
                                     <div
-                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center">
-                                        <div class="rbt-price">
-                                            <span class="current-price fw-bold text-primary">kz {{ curso.preco }}</span>
+                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center fs-6">
+                                        <div class="rbt-price fw-bold text-primary">
+                                            kz {{ curso.preco }}
                                             {% if curso.preco_original %}
-                                            <span class="original-price text-muted text-decoration-line-through ms-2">kz
-                                                {{ curso.preco_original }}</span>
+                                            <span
+                                                class="original-price text-muted text-decoration-line-through ms-2 fs-6">
+                                                kz {{ curso.preco_original }}
+                                            </span>
                                             {% endif %}
                                         </div>
-                                        <a class="rbt-btn-link text-decoration-none"
+                                        <a class="rbt-btn-link text-decoration-none small"
                                             href="{% url 'curso_detalhe' id=curso.id %}">
                                             Ver mais <i class="feather-arrow-right ms-1"></i>
                                         </a>
@@ -1316,17 +824,17 @@
                     <div class="swiper-button-prev"></div>
 
                     <!-- Paginação (se quiser) -->
-                    <div class="swiper-pagination"></div>
                 </div>
             </div>
         </div>
         </div>
         </div>
         </div>
+        {% endif %}
 
 
-
-        <div class="rbt-course-area bg-color-extra2 rbt-section-gap">
+        {% if cursos_destaque %}
+        <div class="rbt-course-area bg-color-extra2 pt-2 pb-4">
             <div class="container">
                 <div class="row mb--60">
                     <div class="col-lg-12">
@@ -1343,13 +851,13 @@
                 </div>
 
                 <!-- Start Card Area -->
-                <div class="swiper mySwiper">
+                <div style="margin-bottom: 70px;" class="swiper mySwiper">
                     <div class="swiper-wrapper">
                         {% for curso in cursos_destaque %}
-                        <div class="swiper-slide h-auto">
-                            <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column">
-                                <!-- Container da Imagem com proporção 16:9 -->
-                                <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden">
+                        <div class="swiper-slide" style="width: 320px;"> <!-- Aumentei de 290px para 320px -->
+                            <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column shadow rounded-4">
+                                <!-- Imagem com proporção 16:9 -->
+                                <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden rounded-top-4">
                                     <a href="{% url 'curso_detalhe' id=curso.id %}" class="d-block h-100 w-100">
                                         <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}"
                                             class="object-fit-cover w-100 h-100" loading="lazy"
@@ -1358,42 +866,46 @@
                                 </div>
 
                                 <!-- Corpo do Card -->
-                                <div class="rbt-card-body d-flex flex-column flex-grow-1">
-                                    <div class="rbt-card-top mb-2">
-                                        <div class="rbt-review d-flex align-items-center">
-                                            <div class="rating text-warning me-1">
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                            </div>
-                                            <span class="rating-count small text-muted">({{ curso.vagas }} Vagas)</span>
+                                <div class="rbt-card-body d-flex flex-column flex-grow-1 p-4">
+                                    <div class="rbt-card-top mb-3 d-flex align-items-center">
+                                        <div class="rating text-warning me-2 fs-5">
+                                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                                class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                                class="fas fa-star"></i>
                                         </div>
+                                        <small class="rating-count text-muted fs-6">({{ curso.vagas }} Vagas)</small>
                                     </div>
 
-                                    <h4 class="rbt-card-title mb-2">
-                                        <a href="{% url 'curso_detalhe' id=curso.id %}" class="text-decoration-none">
+                                    <h4 class="rbt-card-title mb-3 fs-5">
+                                        <a href="{% url 'curso_detalhe' id=curso.id %}"
+                                            class="text-decoration-none text-truncate d-block"
+                                            title="{{ curso.titulo }}">
                                             {{ curso.titulo }}
                                         </a>
                                     </h4>
 
-                                    <ul class="rbt-meta list-unstyled d-flex mb-3">
-                                        <li class="me-3"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
+                                    <ul class="rbt-meta list-unstyled d-flex mb-4 fs-6">
+                                        <li class="me-4"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
                                         </li>
                                         <li><i class="feather-users me-1"></i>{{ curso.vagas }} Estudantes</li>
                                     </ul>
 
+                                    <p class="rbt-card-text mb-4 fs-6">
+                                        {{ curso.descricao|truncatechars:60 }}
+                                    </p>
+
                                     <div
-                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center">
-                                        <div class="rbt-price">
-                                            <span class="current-price fw-bold text-primary">kz {{ curso.preco }}</span>
+                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center fs-6">
+                                        <div class="rbt-price fw-bold text-primary">
+                                            kz {{ curso.preco }}
                                             {% if curso.preco_original %}
-                                            <span class="original-price text-muted text-decoration-line-through ms-2">kz
-                                                {{ curso.preco_original }}</span>
+                                            <span
+                                                class="original-price text-muted text-decoration-line-through ms-2 fs-6">
+                                                kz {{ curso.preco_original }}
+                                            </span>
                                             {% endif %}
                                         </div>
-                                        <a class="rbt-btn-link text-decoration-none"
+                                        <a class="rbt-btn-link text-decoration-none small"
                                             href="{% url 'curso_detalhe' id=curso.id %}">
                                             Ver mais <i class="feather-arrow-right ms-1"></i>
                                         </a>
@@ -1401,7 +913,6 @@
                                 </div>
                             </div>
                         </div>
-
                         {% endfor %}
                     </div>
 
@@ -1410,17 +921,17 @@
                     <div class="swiper-button-prev"></div>
 
                     <!-- Paginação (se quiser) -->
-                    <div class="swiper-pagination"></div>
                 </div>
             </div>
         </div>
         </div>
         </div>
         </div>
+        {% endif %}
 
 
-
-        <div class="rbt-course-area bg-color-extra2 rbt-section-gap">
+        {% if cursos_destaque %}
+        <div class="rbt-course-area bg-color-extra2 pt-2 pb-4">
             <div class="container">
                 <div class="row mb--60">
                     <div class="col-lg-12">
@@ -1437,13 +948,13 @@
                 </div>
 
                 <!-- Start Card Area -->
-                <div class="swiper mySwiper">
+                <div style="margin-bottom: 70px;" class="swiper mySwiper">
                     <div class="swiper-wrapper">
                         {% for curso in cursos_destaque %}
-                        <div class="swiper-slide h-auto">
-                            <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column">
-                                <!-- Container da Imagem com proporção 16:9 -->
-                                <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden">
+                        <div class="swiper-slide" style="width: 320px;"> <!-- Aumentei de 290px para 320px -->
+                            <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column shadow rounded-4">
+                                <!-- Imagem com proporção 16:9 -->
+                                <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden rounded-top-4">
                                     <a href="{% url 'curso_detalhe' id=curso.id %}" class="d-block h-100 w-100">
                                         <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}"
                                             class="object-fit-cover w-100 h-100" loading="lazy"
@@ -1452,42 +963,46 @@
                                 </div>
 
                                 <!-- Corpo do Card -->
-                                <div class="rbt-card-body d-flex flex-column flex-grow-1">
-                                    <div class="rbt-card-top mb-2">
-                                        <div class="rbt-review d-flex align-items-center">
-                                            <div class="rating text-warning me-1">
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                            </div>
-                                            <span class="rating-count small text-muted">({{ curso.vagas }} Vagas)</span>
+                                <div class="rbt-card-body d-flex flex-column flex-grow-1 p-4">
+                                    <div class="rbt-card-top mb-3 d-flex align-items-center">
+                                        <div class="rating text-warning me-2 fs-5">
+                                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                                class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                                class="fas fa-star"></i>
                                         </div>
+                                        <small class="rating-count text-muted fs-6">({{ curso.vagas }} Vagas)</small>
                                     </div>
 
-                                    <h4 class="rbt-card-title mb-2">
-                                        <a href="{% url 'curso_detalhe' id=curso.id %}" class="text-decoration-none">
+                                    <h4 class="rbt-card-title mb-3 fs-5">
+                                        <a href="{% url 'curso_detalhe' id=curso.id %}"
+                                            class="text-decoration-none text-truncate d-block"
+                                            title="{{ curso.titulo }}">
                                             {{ curso.titulo }}
                                         </a>
                                     </h4>
 
-                                    <ul class="rbt-meta list-unstyled d-flex mb-3">
-                                        <li class="me-3"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
+                                    <ul class="rbt-meta list-unstyled d-flex mb-4 fs-6">
+                                        <li class="me-4"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
                                         </li>
                                         <li><i class="feather-users me-1"></i>{{ curso.vagas }} Estudantes</li>
                                     </ul>
 
+                                    <p class="rbt-card-text mb-4 fs-6">
+                                        {{ curso.descricao|truncatechars:60 }}
+                                    </p>
+
                                     <div
-                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center">
-                                        <div class="rbt-price">
-                                            <span class="current-price fw-bold text-primary">kz {{ curso.preco }}</span>
+                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center fs-6">
+                                        <div class="rbt-price fw-bold text-primary">
+                                            kz {{ curso.preco }}
                                             {% if curso.preco_original %}
-                                            <span class="original-price text-muted text-decoration-line-through ms-2">kz
-                                                {{ curso.preco_original }}</span>
+                                            <span
+                                                class="original-price text-muted text-decoration-line-through ms-2 fs-6">
+                                                kz {{ curso.preco_original }}
+                                            </span>
                                             {% endif %}
                                         </div>
-                                        <a class="rbt-btn-link text-decoration-none"
+                                        <a class="rbt-btn-link text-decoration-none small"
                                             href="{% url 'curso_detalhe' id=curso.id %}">
                                             Ver mais <i class="feather-arrow-right ms-1"></i>
                                         </a>
@@ -1504,16 +1019,16 @@
                     <div class="swiper-button-prev"></div>
 
                     <!-- Paginação (se quiser) -->
-                    <div class="swiper-pagination"></div>
                 </div>
             </div>
         </div>
         </div>
         </div>
         </div>
+        {% endif %}
 
-
-        <div class="rbt-course-area bg-color-extra2 rbt-section-gap">
+        {% if cursos_destaque %}
+        <div class="rbt-course-area bg-color-extra2 pt-2 pb-4">
             <div class="container">
                 <div class="row mb--60">
                     <div class="col-lg-12">
@@ -1533,10 +1048,10 @@
                 <div class="swiper mySwiper">
                     <div class="swiper-wrapper">
                         {% for curso in cursos_destaque %}
-                        <div class="swiper-slide h-auto">
-                            <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column">
-                                <!-- Container da Imagem com proporção 16:9 -->
-                                <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden">
+                        <div class="swiper-slide" style="width: 320px;"> <!-- Aumentei de 290px para 320px -->
+                            <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column shadow rounded-4">
+                                <!-- Imagem com proporção 16:9 -->
+                                <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden rounded-top-4">
                                     <a href="{% url 'curso_detalhe' id=curso.id %}" class="d-block h-100 w-100">
                                         <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}"
                                             class="object-fit-cover w-100 h-100" loading="lazy"
@@ -1545,42 +1060,46 @@
                                 </div>
 
                                 <!-- Corpo do Card -->
-                                <div class="rbt-card-body d-flex flex-column flex-grow-1">
-                                    <div class="rbt-card-top mb-2">
-                                        <div class="rbt-review d-flex align-items-center">
-                                            <div class="rating text-warning me-1">
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                            </div>
-                                            <span class="rating-count small text-muted">({{ curso.vagas }} Vagas)</span>
+                                <div class="rbt-card-body d-flex flex-column flex-grow-1 p-4">
+                                    <div class="rbt-card-top mb-3 d-flex align-items-center">
+                                        <div class="rating text-warning me-2 fs-5">
+                                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                                class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                                class="fas fa-star"></i>
                                         </div>
+                                        <small class="rating-count text-muted fs-6">({{ curso.vagas }} Vagas)</small>
                                     </div>
 
-                                    <h4 class="rbt-card-title mb-2">
-                                        <a href="{% url 'curso_detalhe' id=curso.id %}" class="text-decoration-none">
+                                    <h4 class="rbt-card-title mb-3 fs-5">
+                                        <a href="{% url 'curso_detalhe' id=curso.id %}"
+                                            class="text-decoration-none text-truncate d-block"
+                                            title="{{ curso.titulo }}">
                                             {{ curso.titulo }}
                                         </a>
                                     </h4>
 
-                                    <ul class="rbt-meta list-unstyled d-flex mb-3">
-                                        <li class="me-3"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
+                                    <ul class="rbt-meta list-unstyled d-flex mb-4 fs-6">
+                                        <li class="me-4"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
                                         </li>
                                         <li><i class="feather-users me-1"></i>{{ curso.vagas }} Estudantes</li>
                                     </ul>
 
+                                    <p class="rbt-card-text mb-4 fs-6">
+                                        {{ curso.descricao|truncatechars:60 }}
+                                    </p>
+
                                     <div
-                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center">
-                                        <div class="rbt-price">
-                                            <span class="current-price fw-bold text-primary">kz {{ curso.preco }}</span>
+                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center fs-6">
+                                        <div class="rbt-price fw-bold text-primary">
+                                            kz {{ curso.preco }}
                                             {% if curso.preco_original %}
-                                            <span class="original-price text-muted text-decoration-line-through ms-2">kz
-                                                {{ curso.preco_original }}</span>
+                                            <span
+                                                class="original-price text-muted text-decoration-line-through ms-2 fs-6">
+                                                kz {{ curso.preco_original }}
+                                            </span>
                                             {% endif %}
                                         </div>
-                                        <a class="rbt-btn-link text-decoration-none"
+                                        <a class="rbt-btn-link text-decoration-none small"
                                             href="{% url 'curso_detalhe' id=curso.id %}">
                                             Ver mais <i class="feather-arrow-right ms-1"></i>
                                         </a>
@@ -1588,25 +1107,24 @@
                                 </div>
                             </div>
                         </div>
-
                         {% endfor %}
                     </div>
 
-                    <!-- Botões de navegação -->
                     <div class="swiper-button-next"></div>
                     <div class="swiper-button-prev"></div>
-
-                    <!-- Paginação (se quiser) -->
-                    <div class="swiper-pagination"></div>
                 </div>
+
             </div>
         </div>
         </div>
         </div>
         </div>
+        {% endif %}
 
 
-        <div class="rbt-course-area bg-color-extra2 rbt-section-gap">
+
+        {% if cursos_proximos %}
+        <div class="rbt-course-area bg-color-extra2 pt-2 pb-4">
             <div class="container">
                 <div class="row mb--60">
                     <div class="col-lg-12">
@@ -1627,10 +1145,10 @@
                 <div class="swiper mySwiper">
                     <div class="swiper-wrapper">
                         {% for curso in cursos_proximos %}
-                        <div class="swiper-slide h-auto">
-                            <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column">
-                                <!-- Container da Imagem com proporção 16:9 -->
-                                <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden">
+                        <div class="swiper-slide" style="width: 320px;"> <!-- Aumentei de 290px para 320px -->
+                            <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column shadow rounded-4">
+                                <!-- Imagem com proporção 16:9 -->
+                                <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden rounded-top-4">
                                     <a href="{% url 'curso_detalhe' id=curso.id %}" class="d-block h-100 w-100">
                                         <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}"
                                             class="object-fit-cover w-100 h-100" loading="lazy"
@@ -1639,42 +1157,46 @@
                                 </div>
 
                                 <!-- Corpo do Card -->
-                                <div class="rbt-card-body d-flex flex-column flex-grow-1">
-                                    <div class="rbt-card-top mb-2">
-                                        <div class="rbt-review d-flex align-items-center">
-                                            <div class="rating text-warning me-1">
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                            </div>
-                                            <span class="rating-count small text-muted">({{ curso.vagas }} Vagas)</span>
+                                <div class="rbt-card-body d-flex flex-column flex-grow-1 p-4">
+                                    <div class="rbt-card-top mb-3 d-flex align-items-center">
+                                        <div class="rating text-warning me-2 fs-5">
+                                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                                class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                                class="fas fa-star"></i>
                                         </div>
+                                        <small class="rating-count text-muted fs-6">({{ curso.vagas }} Vagas)</small>
                                     </div>
 
-                                    <h4 class="rbt-card-title mb-2">
-                                        <a href="{% url 'curso_detalhe' id=curso.id %}" class="text-decoration-none">
+                                    <h4 class="rbt-card-title mb-3 fs-5">
+                                        <a href="{% url 'curso_detalhe' id=curso.id %}"
+                                            class="text-decoration-none text-truncate d-block"
+                                            title="{{ curso.titulo }}">
                                             {{ curso.titulo }}
                                         </a>
                                     </h4>
-
-                                    <ul class="rbt-meta list-unstyled d-flex mb-3">
-                                        <li class="me-3"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
+                                    
+                                    <ul class="rbt-meta list-unstyled d-flex mb-4 fs-6">
+                                        <li class="me-4"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
                                         </li>
                                         <li><i class="feather-users me-1"></i>{{ curso.vagas }} Estudantes</li>
                                     </ul>
 
+                                    <p class="rbt-card-text mb-4 fs-6">
+                                        {{ curso.descricao|truncatechars:60 }}
+                                    </p>
+
                                     <div
-                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center">
-                                        <div class="rbt-price">
-                                            <span class="current-price fw-bold text-primary">kz {{ curso.preco }}</span>
+                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center fs-6">
+                                        <div class="rbt-price fw-bold text-primary">
+                                            kz {{ curso.preco }}
                                             {% if curso.preco_original %}
-                                            <span class="original-price text-muted text-decoration-line-through ms-2">kz
-                                                {{ curso.preco_original }}</span>
+                                            <span
+                                                class="original-price text-muted text-decoration-line-through ms-2 fs-6">
+                                                kz {{ curso.preco_original }}
+                                            </span>
                                             {% endif %}
                                         </div>
-                                        <a class="rbt-btn-link text-decoration-none"
+                                        <a class="rbt-btn-link text-decoration-none small"
                                             href="{% url 'curso_detalhe' id=curso.id %}">
                                             Ver mais <i class="feather-arrow-right ms-1"></i>
                                         </a>
@@ -1691,119 +1213,15 @@
                     <div class="swiper-button-prev"></div>
 
                     <!-- Paginação (se quiser) -->
-                    <div class="swiper-pagination"></div>
                 </div>
             </div>
         </div>
         </div>
         </div>
         </div>
+        {% endif %}
 
 
-
-        <div class="rbt-course-area rbt-section-gapBottom">
-            <div class="container">
-                <div class="section-title-2 text-center with-shape mb--170 mb_lg--100 mb_md--100 mb_sm--100">
-                    <div class="shape-1" data-parallax='{"x": 0, "y": 130}'>
-                        <img src="{% static 'assets/images/shape/wishlist-title-bg-shape.png' %}"
-                            alt="Forma decorativa">
-                    </div>
-                    <h2 class="title">Uma ferramenta de design <span class="color-body">(Figma)</span> para criar
-                        experiências envolventes de UI/UX <span class="color-body">e ativos visuais com</span> <span
-                            class="theme-gradient">EdukAngola.</span></h2>
-                </div>
-                <div class="row g-5">
-
-                    <!-- Cartão 1 -->
-                    <div class="col-xl-6 col-lg-6 col-md-6 col-12">
-                        <div class="rbt-card variation-03 style_2">
-                            <div class="rbt-card-body">
-                                <h5 class="rbt-card-title">Aprenda Design UX/UI (Figma) do Zero à Maestria</h5>
-                                <p class="rbt-card-text">Dê um passo além e fique conosco.</p>
-                            </div>
-                            <div class="rbt-card-img">
-                                <img src="{% static 'assets/images/course/wishlist-course-01.png' %}"
-                                    alt="Imagem do curso">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Cartão 2 -->
-                    <div class="col-xl-6 col-lg-6 col-md-6 col-12">
-                        <div class="rbt-card variation-03 style_2">
-                            <div class="rbt-card-body">
-                                <h5 class="rbt-card-title">26 Aulas e 180 Horas</h5>
-                                <p class="rbt-card-text">Vamos ensinar diferentes partes de cada capítulo, como
-                                    Tipografia, Protótipos, Cores e muito mais.</p>
-                            </div>
-                            <div class="rbt-card-img">
-                                <img class="w-100" src="{% static 'assets/images/course/wishlist-course-02.gif' %}"
-                                    alt="Imagem do curso">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Cartão 3 -->
-                    <div class="col-xl-6 col-lg-6 col-md-6 col-12">
-                        <div class="rbt-card variation-03 style_2">
-                            <div class="rbt-card-body">
-                                <h5 class="rbt-card-title">Conheça Figma, Photoshop, XD, Illustrator</h5>
-                                <p class="rbt-card-text">As ferramentas necessárias para o trabalho serão ensinadas.</p>
-                            </div>
-                            <div class="rbt-card-img">
-                                <img src="{% static 'assets/images/course/wishlist-course-03.png' %}"
-                                    alt="Imagem do curso">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Cartão 4 -->
-                    <div class="col-xl-6 col-lg-6 col-md-6 col-12">
-                        <div class="rbt-card variation-03 style_2">
-                            <div class="rbt-card-body">
-                                <h5 class="rbt-card-title">Aprenda Online e Offline</h5>
-                                <p class="rbt-card-text">As ferramentas necessárias para o trabalho serão ensinadas.</p>
-                            </div>
-                            <div class="rbt-card-img">
-                                <img src="{% static 'assets/images/course/wishlist-course-04.png' %}"
-                                    alt="Imagem do curso">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Cartão de Suporte -->
-                    <div class="col-12">
-                        <div class="rbt-card variation-03 style_2 card-horizontal">
-                            <div class="rbt-card-body">
-                                <h6><span class="theme-gradient">Sistema de Suporte</span></h6>
-                                <h5 class="rbt-card-title">Estou <span><img
-                                            src="{% static 'assets/images/shape/wishlist-text-shape-01.png' %}"
-                                            alt="Forma"></span> Sempre Contigo, Para Resolver Qualquer <span><img
-                                            src="{% static 'assets/images/shape/wishlist-text-shape-02.png' %}"
-                                            alt="Forma"></span>Problema</h5>
-                                <p class="rbt-card-text">Sinta-se à vontade para informar qualquer problema com o curso
-                                    — vamos resolver juntos.</p>
-                            </div>
-                            <div class="rbt-card-img-wrap">
-                                <div class="shape-1">
-                                    <img src="{% static 'assets/images/shape/wishlist-dots.png' %}"
-                                        alt="Forma decorativa">
-                                </div>
-                                <div class="men-circle">
-                                    <img src="{% static 'assets/images/shape/wishlist-b-men.png' %}"
-                                        alt="Homem com notebook">
-                                </div>
-                                <div class="rbt-card-img">
-                                    <img src="{% static 'assets/images/course/wishlist-course-05.png' %}"
-                                        alt="Imagem do curso">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
 
 
 
@@ -1821,8 +1239,8 @@
                     <div class="col-lg-5">
                         <div class="inner">
                             <div class="section-title text-start">
-                                <h2 style="font-size: 19px;" class="title">O Que é a Educangola Para Você?</h2>
-                                <p class="description mt--20"><strong>A plataforma educacional Educangola</strong>
+                                <h2 style="font-size: 19px;" class="title">O Que é a Edukangola Para Você?</h2>
+                                <p class="description mt--20"><strong>A plataforma eduacional Edukangola</strong>
                                     oferece soluções inovadoras para seu aprendizado. Com tecnologia avançada e conteúdo
                                     de qualidade, capacitamos estudantes e profissionais para os desafios do mercado
                                     angolano. Nossa missão é democratizar o acesso à educação de excelência em todo o
@@ -1842,263 +1260,103 @@
 
 
 
-        <div class="rbt-course-banner-area rbt-section-gap bg-color-white" id="guideline">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="inner">
-                            <div class="section-title text-center mb--60">
-                                <h2 class="title"><span class="theme-gradient">Guia completo</span> desde o nível <br />
-                                    básico até a contratação no mercado.</h2>
-                                <div class="rbt-button-group mt--30">
-                                    <a class="rbt-btn btn-gradient hover-icon-reverse" href="15-home-technology.html#">
-                                        <span class="icon-reverse-wrapper">
-                                            <span class="btn-text">Explorar Cursos</span>
-                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        </span>
-                                    </a>
-                                    <a class="rbt-btn hover-icon-reverse btn-border" href="15-home-technology.html#">
-                                        <span class="icon-reverse-wrapper">
-                                            <span class="btn-text">Alunos Contratados</span>
-                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        </span>
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div class="row g-5">
-                                <div class="col-lg-6">
-                                    <div class="modern-course-features-box one-colume-grid h-100">
-                                        <div class="inner">
-                                            <div class="thumbnail">
-                                                <img src="{% static 'assets/images/course/course-feature-01.jpg' %}"
-                                                    alt="Image">
-                                            </div>
-                                            <div class="content">
-                                                <h2 class="title">Obtenha seu Certificado</h2>
-                                                <p>Inscreva-se para o Diploma de Pós-Graduação. Prazo final: 26 de
-                                                    Setembro para candidatos de graduação.</p>
-                                                <ul class="course-feature-list">
-                                                    <li>
-                                                        <div class="icon">
-                                                            <img src="{% static 'assets/images/icons/card-icon-11.png' %}"
-                                                                alt="Ícone de Certificados">
-                                                        </div>
-                                                        <div class="feature-content">
-                                                            <h4 class="featute-title">5000+ <span>Certificados
-                                                                    Entregues</span></h4>
-                                                        </div>
-                                                    </li>
-                                                    <li>
-                                                        <div class="icon">
-                                                            <img src="{% static 'assets/images/icons/card-icon-12.png' %}"
-                                                                alt="Ícone de Carreira">
-                                                        </div>
-                                                        <div class="feature-content">
-                                                            <h4 class="featute-title">10K+ <span>Do Zero à
-                                                                    Profissão</span></h4>
-                                                        </div>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Feature Box  -->
-
-                                <!-- Start Single Feature Box  -->
-                                <div class="col-lg-6">
-                                    <div class="modern-course-features-box grid-content-reverse h-100">
-                                        <div class="inner">
-                                            <div class="rbt-image-gallery-wrapper">
-                                                <div class="swiper modern-course-carousel-activation rbt-arrow-between">
-                                                    <div class="swiper-wrapper">
-                                                        <div class="swiper-slide">
-                                                            <div class="thumbnail mt--0">
-                                                                <img src="{% static 'assets/images/course/course-feature-02.jpg' %}"
-                                                                    alt="Image">
-                                                            </div>
-                                                        </div>
-                                                        <div class="swiper-slide">
-                                                            <div class="thumbnail mt--0">
-                                                                <img src="{% static 'assets/images/course/course-feature-01.jpg' %}"
-                                                                    alt="Image">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="rbt-swiper-arrow rbt-arrow-left">
-                                                        <div class="custom-overfolow">
-                                                            <i class="rbt-icon feather-arrow-left"></i>
-                                                            <i class="rbt-icon-top feather-arrow-left"></i>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="rbt-swiper-arrow rbt-arrow-right">
-                                                        <div class="custom-overfolow">
-                                                            <i class="rbt-icon feather-arrow-right"></i>
-                                                            <i class="rbt-icon-top feather-arrow-right"></i>
-                                                        </div>
-                                                    </div>
-
-                                                </div>
-                                            </div>
-                                            <div class="content">
-                                                <h2 class="title">Projetos Que Você Vai Desenvolver</h2>
-                                                <p>Inscreva-se para o Diploma de Pós-Graduação. Prazo final: 26 de
-                                                    Setembro.</p>
-                                                <ul class="rbt-list-style-2 flex-wrap">
-                                                    <li><i class="feather-check"></i>Loja Virtual (E-commerce)</li>
-                                                    <li><i class="feather-check"></i>Plataforma de Turismo</li>
-                                                    <li><i class="feather-check"></i>Carrinho de Compras</li>
-                                                    <li><i class="feather-check"></i>Portal de Notícias</li>
-                                                    <li><i class="feather-check"></i>Sistema de Gestão Escolar</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Feature Box  -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        
         <!-- Start Testimonial Area -->
-        <div class="rbt-testimonial-area bg-color-white rbt-section-gap">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12 mb--60">
-                        <div class="section-title text-center">
-                            <h6 class="b2 mb--15"><span class="theme-gradient">Depoimentos</span></h6>
-                            <h2 class="title w-600">Opinião dos <span class="theme-gradient">Nossos Alunos</span></h2>
-                        </div>
-                    </div>
+<div class="rbt-testimonial-area bg-color-white rbt-section-gap">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 mb--60">
+                <div class="section-title text-center">
+                    <h6 class="b2 mb--15"><span class="theme-gradient">Depoimentos</span></h6>
+                    <h2 class="title w-600">Opinião dos <span class="theme-gradient">Nossos Alunos</span></h2>
                 </div>
-                <div class="row g-5">
-                    <!-- Início Depoimento 1 -->
-                    <div class="col-lg-4 col-md-6 col-12">
-                        <div class="rbt-testimonial-box">
-                            <div class="inner">
-                                <div class="clint-info-wrapper">
-                                    <div class="thumb">
-                                        <img src="{% static 'assets/images/testimonial/client-01.png' %}"
-                                            alt="Foto do Aluno">
-                                    </div>
-                                    <div class="client-info">
-                                        <h5 class="title">Joana dos Santos</h5>
-                                        <span>Estudante de Engenharia <i>@ UAN</i></span>
-                                    </div>
-                                </div>
-                                <div class="description">
-                                    <p class="subtitle-3">A Educangola transformou minha forma de aprender. Os cursos
-                                        são completos e me prepararam para o mercado de trabalho angolano.</p>
-                                    <div class="rating mt--20">
-                                        <a href="20-multilingual.html#"><i class="fa fa-star"></i></a>
-                                        <a href="20-multilingual.html#"><i class="fa fa-star"></i></a>
-                                        <a href="20-multilingual.html#"><i class="fa fa-star"></i></a>
-                                        <a href="20-multilingual.html#"><i class="fa fa-star"></i></a>
-                                        <a href="20-multilingual.html#"><i class="fa fa-star"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Fim Depoimento 1 -->
-
-                    <!-- Início Depoimento 2 -->
-                    <div class="col-lg-4 col-md-6 col-12">
-                        <div class="rbt-testimonial-box">
-                            <div class="inner">
-                                <div class="clint-info-wrapper">
-                                    <div class="thumb">
-                                        <img src="{% static 'assets/images/testimonial/client-02.png' %}"
-                                            alt="Foto do Aluno">
-                                    </div>
-                                    <div class="client-info">
-                                        <h5 class="title">Carlos Manuel</h5>
-                                        <span>Empreendedor <i>@ Luanda</i></span>
-                                    </div>
-                                </div>
-                                <div class="description">
-                                    <p class="subtitle-3">Graças aos cursos da Educangola, consegui melhorar meu negócio
-                                        e expandir para novas áreas. Conteúdo adaptado à realidade angolana.</p>
-                                    <div class="rating mt--20">
-                                        <a href="20-multilingual.html#"><i class="fa fa-star"></i></a>
-                                        <a href="20-multilingual.html#"><i class="fa fa-star"></i></a>
-                                        <a href="20-multilingual.html#"><i class="fa fa-star"></i></a>
-                                        <a href="20-multilingual.html#"><i class="fa fa-star"></i></a>
-                                        <a href="20-multilingual.html#"><i class="fa fa-star"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Fim Depoimento 2 -->
-
-                    <!-- Início Depoimento 3 -->
-                    <div class="col-lg-4 col-md-6 col-12">
-                        <div class="rbt-testimonial-box">
-                            <div class="inner">
-                                <div class="clint-info-wrapper">
-                                    <div class="thumb">
-                                        <img src="{% static 'assets/images/testimonial/client-03.png' %}"
-                                            alt="Foto do Aluno">
-                                    </div>
-                                    <div class="client-info">
-                                        <h5 class="title">Maria Eduardo</h5>
-                                        <span>Professora <i>@ Benguela</i></span>
-                                    </div>
-                                </div>
-                                <div class="description">
-                                    <p class="subtitle-3">Recomendo a Educangola para todos que querem se qualificar.
-                                        Material de qualidade e acessível em todo o território nacional.</p>
-                                    <div class="rating mt--20">
-                                        <a href="20-multilingual.html#"><i class="fa fa-star"></i></a>
-                                        <a href="20-multilingual.html#"><i class="fa fa-star"></i></a>
-                                        <a href="20-multilingual.html#"><i class="fa fa-star"></i></a>
-                                        <a href="20-multilingual.html#"><i class="fa fa-star"></i></a>
-                                        <a href="20-multilingual.html#"><i class="fa fa-star">
-                                            </i></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Fim Depoimento 3 -->
-                </div>
-                <!-- Início Parceiros -->
-                <div class="mt--80">
-                    <div class="rbt-brand-title-wrap">
-                        <h5 class="rbt-brand-title w-600 text-center mb-0">Formando <span
-                                class="theme-gradient">profissionais qualificados</span> para <span
-                                class="theme-gradient">empresas líderes</span> como</h5>
-                    </div>
-                    <ul class="brand-list brand-style-3 justify-content-start justify-content-lg-between mt--30">
-                        <li><a href="20-multilingual.html#"><img src="{% static 'assets/images/brand/partner-5.webp' %}"
-                                    alt="Logo Parceiro"></a></li>
-                        <li><a href="20-multilingual.html#"><img src="{% static 'assets/images/brand/partner-1.webp' %}"
-                                    alt="Logo Parceiro"></a></li>
-                        <li><a href="20-multilingual.html#"><img src="{% static 'assets/images/brand/partner-6.webp' %}"
-                                    alt="Logo Parceiro"></a></li>
-                        <li><a href="20-multilingual.html#"><img src="{% static 'assets/images/brand/partner-3.webp' %}"
-                                    alt="Logo Parceiro"></a></li>
-                        <li><a href="20-multilingual.html#"><img src="{% static 'assets/images/brand/partner-1.webp' %}"
-                                    alt="Logo Parceiro"></a></li>
-                        <li><a href="20-multilingual.html#"><img src="{% static 'assets/images/brand/partner-6.webp' %}"
-                                    alt="Logo Parceiro"></a></li>
-                    </ul>
-                </div>
-                <!-- Fim Parceiros -->
             </div>
         </div>
-        <!-- End Testimonial Area -->
 
+        <!-- Carousel -->
+        <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+            <div class="carousel-inner">
+                <!-- Depoimento 1 -->
+                <div class="carousel-item active">
+                    <div class="rbt-testimonial-box text-center">
+                        <div class="inner">
+                            <div class="clint-info-wrapper">
+                                <div class="thumb">
+                                    <img src="{% static 'assets/images/testimonial/client-01.png' %}" alt="Foto do Aluno">
+                                </div>
+                                <div class="client-info">
+                                    <h5 class="title">Joana dos Santos</h5>
+                                    <span>Estudante de Engenharia <i>@ UAN</i></span>
+                                </div>
+                            </div>
+                            <div class="description">
+                                <p class="subtitle-3">A Educangola transformou minha forma de aprender...</p>
+                                <div class="rating mt--20">
+                                    <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- Depoimento 2 -->
+                <div class="carousel-item">
+                    <div class="rbt-testimonial-box text-center">
+                        <div class="inner">
+                            <div class="clint-info-wrapper">
+                                <div class="thumb">
+                                    <img src="{% static 'assets/images/testimonial/client-02.png' %}" alt="Foto do Aluno">
+                                </div>
+                                <div class="client-info">
+                                    <h5 class="title">Carlos Manuel</h5>
+                                    <span>Empreendedor <i>@ Luanda</i></span>
+                                </div>
+                            </div>
+                            <div class="description">
+                                <p class="subtitle-3">Graças aos cursos da Educangola...</p>
+                                <div class="rating mt--20">
+                                    <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Depoimento 3 -->
+                <div class="carousel-item">
+                    <div class="rbt-testimonial-box text-center">
+                        <div class="inner">
+                            <div class="clint-info-wrapper">
+                                <div class="thumb">
+                                    <img src="{% static 'assets/images/testimonial/client-03.png' %}" alt="Foto do Aluno">
+                                </div>
+                                <div class="client-info">
+                                    <h5 class="title">Maria Eduardo</h5>
+                                    <span>Professora <i>@ Benguela</i></span>
+                                </div>
+                            </div>
+                            <div class="description">
+                                <p class="subtitle-3">Recomendo a Educangola para todos...</p>
+                                <div class="rating mt--20">
+                                    <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controles opcionais -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        </div>
+    </div>
+</div>
+<!-- End Testimonial Area -->
 
         <!-- Start Blog Area -->
         <div class="rbt-blog-area rbt-sec-cir-shadow-1 rbt-section-gap bg-color-extra2 rbt-section-box">
@@ -2341,6 +1599,49 @@
                 });
             });
         </script>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const botoes = document.querySelectorAll(".seguir-centro-btn");
+                const som = document.getElementById("som-seguir");
+
+                botoes.forEach(botao => {
+                    botao.addEventListener("click", function () {
+                        const centroId = botao.getAttribute("data-centro-id");
+
+                        fetch(`/auth/seguir-centro/${centroId}/`, {
+                            method: "GET",
+                            headers: {
+                                "X-Requested-With": "XMLHttpRequest"
+                            }
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                alert(data.mensagem);  // ou criar uma caixinha estilizada na página
+
+                                if (data.status === "sucesso") {
+                                    botao.textContent = "Seguindo";
+                                    botao.style.backgroundColor = "#10b981"; // verde
+                                    botao.disabled = true;
+                                    if (som) {
+                                        som.play();
+                                    }
+                                }
+
+                                if (data.status === "info") {
+                                    botao.textContent = "Já seguindo";
+                                    botao.disabled = true;
+                                }
+                            })
+                            .catch(error => {
+                                alert("Erro ao seguir o centro.");
+                                console.error(error);
+                            });
+                    });
+                });
+            });
+        </script>
+
 
 
 

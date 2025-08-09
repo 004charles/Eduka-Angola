@@ -131,6 +131,22 @@ class Curso(models.Model):
     def __str__(self):
         return f"{self.titulo} - {self.centro.nome}"
 
+    def save(self, *args, **kwargs):
+        novo = self.pk is None  # Se é um novo curso
+        curso_antigo = None
+        if not novo:
+            try:
+                curso_antigo = Curso.objects.get(pk=self.pk)
+            except Curso.DoesNotExist:
+                pass
+
+        super().save(*args, **kwargs)
+
+        # Enviar notificação apenas se o curso foi publicado agora
+        if self.publicado and (novo or (curso_antigo and not curso_antigo.publicado)):
+            from .utils import notificar_seguidores  # evite import circular
+            notificar_seguidores(self)    
+
     class Meta:
         verbose_name = _('Curso')
         verbose_name_plural = _('Cursos')

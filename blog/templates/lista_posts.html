@@ -1,0 +1,297 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Edukangola | Blog</title>
+    <meta name="robots" content="noindex, follow">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    {% include 'include/css.html' %}
+    <style>
+       .rbt-social-share {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #6c757d;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.social-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.social-icon.facebook { background-color: #3b5998; }
+.social-icon.twitter { background-color: #1da1f2; }
+.social-icon.whatsapp { background-color: #25d366; }
+.social-icon.pinterest { background-color: #e60023; }
+.social-icon.linkedin { background-color: #0077b5; }
+
+.social-icon:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body class="rbt-header-sticky">
+
+    <div id="my_switcher" class="my_switcher">
+        <ul>
+            <li>
+                <a href="javascript: void(0);" data-theme="light" class="setColor light">
+                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode"> Light</span>
+                </a>
+            </li>
+            <li>
+                <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
+                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span title="Dark Mode"> Dark</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    {% include 'include/header.html' %}
+
+    
+    
+    <div class="rbt-page-banner-wrapper">
+    <!-- Banner BG -->
+    <div class="rbt-banner-image"></div>
+
+    <div class="rbt-banner-content">
+        <!-- Topo -->
+        <div class="rbt-banner-content-top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+
+                        <!-- Breadcrumb -->
+                        <ul class="page-list">
+                            <li class="rbt-breadcrumb-item">
+                                <a href="/">Home</a>
+                            </li>
+                            <li>
+                                <div class="icon-right"><i class="feather-chevron-right"></i></div>
+                            </li>
+                            <li class="rbt-breadcrumb-item active">
+                                Blog
+                            </li>
+                        </ul>
+
+                        <!-- Título -->
+                        <div class="title-wrapper">
+                            <h1 class="title mb--0">Nosso Blog</h1>
+                            <span class="rbt-badge-2">
+                                <div class="image">📰</div> {{ posts.count }} Posts
+                            </span>
+                        </div>
+
+                        <!-- Descrição -->
+                        <p class="description">
+                            Acompanhe as últimas notícias, dicas e artigos sobre tecnologia, educação e novidades do setor.
+                        </p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Fim Topo -->
+    </div>
+</div>
+
+<div class="rbt-section-overlayping-top rbt-section-gapBottom">
+    <div class="container">
+        <div class="row row--30 gy-5">
+
+            <div class="col-lg-8">
+                <!-- Start Card Area -->
+                <div class="row g-5">
+                    {% for post in posts %}
+                    <div class="col-lg-6 col-md-6 col-12">
+                        <div class="rbt-blog-grid rbt-card variation-02 rbt-hover">
+                            <div class="rbt-card-img">
+                                <a href="">
+                                    {% if post.imagem_capa %}
+                                    <img src="{{ post.imagem_capa.url }}" alt="{{ post.titulo }}">
+                                    {% else %}
+                                    <img src="/static/images/blog/default-image.jpg" alt="{{ post.titulo }}">
+                                    {% endif %}
+                                </a>
+                            </div>
+                            <div class="rbt-card-body">
+                                <h5 class="rbt-card-title"><a href="">{{ post.titulo }}</a></h5>
+
+                                <ul class="blog-meta">
+                                    <li><i class="feather-user"></i>admin</li>
+                                    <li><i class="feather-clock"></i> {{ post.publicado_em|date:"d M, Y" }}</li>
+                                    <li><i class="feather-watch"></i> {{ post.tempo_leitura }} min read</li>
+                                </ul>
+                                <p class="rbt-card-text">
+                                    {{ post.resumo|default:post.conteudo|truncatewords:30 }}
+                                </p>
+                                <div class="rbt-social-share mt-3 mb-3">
+    <span class="me-2">Partilhar:</span>
+    
+    <!-- Facebook -->
+    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}{% url 'blog:detalhe_post' post.slug %}&picture={{ request.build_absolute_uri }}{{ post.imagem_capa.url }}&description={{ post.resumo|default:post.conteudo|truncatewords:30|urlencode }}" 
+       target="_blank" 
+       class="social-icon facebook"
+       aria-label="Compartilhar no Facebook">
+        <i class="fab fa-facebook-f"></i>
+    </a>
+    
+    <!-- Twitter -->
+    <a href="https://twitter.com/intent/tweet?text={{ post.titulo|urlencode }}&url={{ request.build_absolute_uri }}{% url 'blog:detalhe_post' post.slug %}" 
+       target="_blank" 
+       class="social-icon twitter"
+       aria-label="Compartilhar no Twitter">
+        <i class="fab fa-twitter"></i>
+    </a>
+    
+    <!-- WhatsApp -->
+    <a href="https://api.whatsapp.com/send?text={{ post.titulo|urlencode }}%20{{ request.build_absolute_uri }}{% url 'blog:detalhe_post' post.slug %}" 
+       target="_blank" 
+       class="social-icon whatsapp"
+       aria-label="Compartilhar no WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    
+    <!-- Pinterest (só aparece se tiver imagem) -->
+    {% if post.imagem_capa %}
+    <a href="https://pinterest.com/pin/create/button/?url={{ request.build_absolute_uri }}{% url 'blog:detalhe_post' post.slug %}&media={{ request.build_absolute_uri }}{{ post.imagem_capa.url }}&description={{ post.titulo|urlencode }}" 
+       target="_blank" 
+       class="social-icon pinterest"
+       aria-label="Partilhar no Pinterest">
+        <i class="fab fa-pinterest-p"></i>
+    </a>
+    {% endif %}
+</div>
+        
+                                <div class="rbt-card-bottom">
+                                    <a class="transparent-button" href="">Ler Mais
+                                        <i><svg width="17" height="12" xmlns="http://www.w3.org/2000/svg"><g stroke="#27374D" fill="none" fill-rule="evenodd"><path d="M10.614 0l5.629 5.629-5.63 5.629"/><path stroke-linecap="square" d="M.663 5.572h14.594"/></g></svg></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12">
+                        <div class="alert alert-info">Nenhum post encontrado.</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <!-- End Card Area -->
+
+                <!-- Paginação -->
+                {% if posts.has_other_pages %}
+                <div class="row">
+                    <div class="col-lg-12 mt--60">
+                        <nav>
+                            <ul class="rbt-pagination">
+                                {% if posts.has_previous %}
+                                <li><a href="?page={{ posts.previous_page_number }}" aria-label="Previous"><i class="feather-chevron-left"></i></a></li>
+                                {% endif %}
+                                
+                                {% for num in posts.paginator.page_range %}
+                                    {% if posts.number == num %}
+                                    <li class="active"><a href="#">{{ num }}</a></li>
+                                    {% else %}
+                                    <li><a href="?page={{ num }}">{{ num }}</a></li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if posts.has_next %}
+                                <li><a href="?page={{ posts.next_page_number }}" aria-label="Next"><i class="feather-chevron-right"></i></a></li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-lg-4">
+                <aside class="rbt-sidebar-widget-wrapper rbt-gradient-border">
+
+                    <!-- Widget de Busca -->
+                    <div class="rbt-single-widget rbt-widget-search">
+                        <div class="inner">
+                            <form action="{% url 'blog:lista_posts' %}" method="get" class="rbt-search-style-1">
+                                <input type="text" name="q" placeholder="Buscar posts..." value="{{ request.GET.q }}">
+                                <button type="submit" class="search-btn"><i class="feather-search"></i></button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Widget de Posts Recentes -->
+                    <div class="rbt-single-widget rbt-widget-recent">
+                        <div class="inner">
+                            <h4 class="rbt-widget-title">Posts Recentes</h4>
+                            <ul class="rbt-sidebar-list-wrapper recent-post-list">
+                                {% for recente in posts_recentes %}
+                                <li>
+                                    <div class="thumbnail">
+                                        <a href="">
+                                            {% if recente.imagem_capa %}
+                                            <img src="{{ recente.imagem_capa.url }}" alt="{{ recente.titulo }}">
+                                            {% else %}
+                                            <img src="/static/images/blog/default-thumb.jpg" alt="{{ recente.titulo }}">
+                                            {% endif %}
+                                        </a>
+                                    </div>
+                                    <div class="content">
+                                        <h6 class="title"><a href="">{{ recente.titulo }}</a></h6>
+                                        <ul class="rbt-meta">
+                                            <li><i class="feather-clock"></i>{{ recente.publicado_em|date:"d M, Y" }}</li>
+                                        </ul>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Widget de Tags -->
+                    <div class="rbt-single-widget rbt-widget-tag">
+                        <div class="inner">
+                            <h4 class="rbt-widget-title">Tags</h4>
+                            <div class="rbt-sidebar-list-wrapper rbt-tag-list">
+                                {% for tag in tags_mais_utilizadas %}
+                                <a href="">{{ tag.nome }}</a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <div class="rbt-separator-mid">
+        <div class="container">
+            <hr class="rbt-separator m-0">
+        </div>
+    </div>
+    {% include 'include/footer.html' %}
+    {% include 'include/java.html' %}
+</body>
+
+</html>

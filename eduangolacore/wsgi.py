@@ -1,4 +1,4 @@
-from whitenoise import WhiteNoise
+#from whitenoise import WhiteNoise
 import os
 
 from django.core.wsgi import get_wsgi_application
@@ -6,4 +6,4 @@ from django.core.wsgi import get_wsgi_application
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'eduangolacore.settings')
 
 application = get_wsgi_application()
-application = WhiteNoise(application, root='staticfiles')
+#application = WhiteNoise(application, root='staticfiles')

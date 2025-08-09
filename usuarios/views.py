@@ -3,6 +3,12 @@ from django.http import HttpResponse
 from .models import Usuario, Aluno, Empresa, Biblioteca, PerfilAluno
 from django.shortcuts import redirect
 from hashlib import sha256
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect
+from .models import CentroDeFormacao, Aluno, CentroSeguimento
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from .models import Aluno, CentroDeFormacao, CentroSeguimento
 from django.views.decorators.http import require_POST
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
@@ -118,7 +124,7 @@ def valida_cadastro_aluno(request):
         return redirect('/auth/registro_aluno?status=4')
 
 def enviar_email_boas_vindas(nome, email):
-    assunto = "Bem-vindo à Plataforma Educangola!"
+    assunto = "Bem-vindo à Plataforma Edukangola!"
     
     # Contexto para o template
     contexto = {
@@ -490,3 +496,29 @@ def cadastro_view(request):
     else:
         form = UserCreationForm()
     return render(request, 'admin/cadastro.html', {'form': form})
+
+
+def seguir_centro(request, centro_id):
+    # Verifica se o aluno está logado na sessão
+    if 'aluno' not in request.session:
+        return JsonResponse({'status': 'erro', 'mensagem': 'É necessário estar logado para seguir um centro.'}, status=401)
+
+    centro = get_object_or_404(CentroDeFormacao, id=centro_id)
+
+    try:
+        aluno = Aluno.objects.get(id=request.session['aluno'])
+    except Aluno.DoesNotExist:
+        return JsonResponse({'status': 'erro', 'mensagem': 'Aluno não encontrado.'}, status=404)
+
+    seguimento, criado = CentroSeguimento.objects.get_or_create(aluno=aluno, centro=centro)
+
+    if criado:
+        return JsonResponse({
+            'status': 'sucesso',
+            'mensagem': f"Agora você está seguindo o centro {centro.nome}."
+        })
+    else:
+        return JsonResponse({
+            'status': 'info',
+            'mensagem': f"Você já segue o centro {centro.nome}."
+        })

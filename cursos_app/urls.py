@@ -14,6 +14,8 @@ urlpatterns = [
     path('todo_curso/', views.todo_curso, name = 'todo_curso'),
     path('ficha_inscricao/', views.ficha_inscricao, name = 'ficha_inscricao'),
     path('favorito/<int:curso_id>/', views.adicionar_favorito, name='adicionar_favorito'),
+    path('centros/', views.lista_centros, name='lista_centros'),
+
     
 
 

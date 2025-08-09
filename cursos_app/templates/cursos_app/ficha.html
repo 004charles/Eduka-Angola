@@ -1,168 +1,523 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulário de Inscrição</title>
-    {% include 'include/css.html' %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Inscrição em Cursos | Educangola</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .registration-form {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 30px;
-            background-color: var(--card-bg);
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        :root {
+            --primary-color: #3a7bd5;
+            --secondary-color: #00d2ff;
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --neon-shadow: 0 0 15px rgba(58, 123, 213, 0.5);
         }
-        .form-title {
-            text-align: center;
-            margin-bottom: 30px;
-            color: var(--heading-color);
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .form-group {
-            margin-bottom: 20px;
+        
+        .registration-hero {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            position: relative;
+            overflow: hidden;
+            padding: 5rem 0;
         }
-        .form-label {
+        
+        .step-container {
+            display: none;
+        }
+        
+        .step-container.active {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--heading-color);
+            animation: fadeIn 0.5s ease;
         }
-        .form-control {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            background-color: var(--input-bg);
-            color: var(--body-color);
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .btn-submit {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 5px;
+        
+        .registration-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            z-index: 2;
+            position: relative;
+            padding: 2rem;
+        }
+        
+        .course-card {
+            border-left: 4px solid var(--primary-color);
+            background: rgba(255,255,255,0.9);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
             cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s;
         }
-        .btn-submit:hover {
-            background-color: var(--primary-dark);
+        
+        .course-card:hover, .course-card.active {
+            transform: translateX(10px);
+            background: rgba(58, 123, 213, 0.1);
+            border-left: 4px solid var(--secondary-color);
         }
-        .course-select {
-            height: 150px;
+        
+        .btn-holographic {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border: none;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            padding: 0.8rem 2rem;
+            font-weight: 500;
+            border-radius: 10px;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        
+        .step {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 15px;
+            font-weight: bold;
+            color: #6c757d;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .step.completed {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .step::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            width: 30px;
+            height: 2px;
+            background: #e9ecef;
+        }
+        
+        .step:last-child::after {
+            display: none;
+        }
+        
+        .step.active::after, .step.completed::after {
+            background: var(--primary-color);
+        }
+        
+        .confirmation-item {
+            background: rgba(255,255,255,0.8);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
         }
     </style>
 </head>
 <body>
-    <div id="my_switcher" class="my_switcher">
-        <ul>
-            <li>
-                <a href="javascript: void(0);" data-theme="light" class="setColor light">
-                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode"> Light</span>
-                </a>
-            </li>
-            <li>
-                <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
-                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span title="Dark Mode"> Dark</span>
-                </a>
-            </li>
-        </ul>
-    </div>
-   
-   {% include 'include/header.html' %}
-   
-   <main class="main-content">
-       <div class="registration-form">
-           <h2 class="form-title">Ficha de Inscrição em Curso</h2>
-           <form method="POST" action="#">
-               {% csrf_token %}
-               
-               <div class="form-group">
-                   <label class="form-label" for="full_name">Nome Completo</label>
-                   <input type="text" class="form-control" id="full_name" name="full_name" required>
-               </div>
-               
-               <div class="form-group">
-                   <label class="form-label" for="email">Email</label>
-                   <input type="email" class="form-control" id="email" name="email" required>
-               </div>
-               
-               <div class="form-group">
-                   <label class="form-label" for="phone">Telefone</label>
-                   <input type="tel" class="form-control" id="phone" name="phone" required>
-               </div>
-               
-               <div class="form-group">
-                   <label class="form-label" for="birth_date">Data de Nascimento</label>
-                   <input type="date" class="form-control" id="birth_date" name="birth_date" required>
-               </div>
-               
-               <div class="form-group">
-                   <label class="form-label" for="address">Endereço Completo</label>
-                   <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
-               </div>
-               
-               <div class="form-group">
-                   <label class="form-label" for="courses">Selecione o(s) curso(s)</label>
-                   <select multiple class="form-control course-select" id="courses" name="courses" required>
-                       <option value="web_development">Desenvolvimento Web</option>
-                       <option value="data_science">Ciência de Dados</option>
-                       <option value="graphic_design">Design Gráfico</option>
-                       <option value="digital_marketing">Marketing Digital</option>
-                       <option value="business_management">Gestão de Negócios</option>
-                   </select>
-               </div>
-               
-               <div class="form-group">
-                   <label class="form-label" for="education_level">Nível de Escolaridade</label>
-                   <select class="form-control" id="education_level" name="education_level" required>
-                       <option value="">Selecione...</option>
-                       <option value="fundamental">Ensino Fundamental</option>
-                       <option value="medio">Ensino Médio</option>
-                       <option value="superior">Ensino Superior</option>
-                       <option value="pos_graduacao">Pós-Graduação</option>
-                   </select>
-               </div>
-               
-               <div class="form-group">
-                   <label class="form-label">Como ficou sabendo do curso?</label>
-                   <div>
-                       <input type="radio" id="source_facebook" name="source" value="facebook">
-                       <label for="source_facebook">Facebook</label>
-                       
-                       <input type="radio" id="source_instagram" name="source" value="instagram">
-                       <label for="source_instagram">Instagram</label>
-                       
-                       <input type="radio" id="source_friend" name="source" value="friend">
-                       <label for="source_friend">Indicação de Amigo</label>
-                       
-                       <input type="radio" id="source_other" name="source" value="other">
-                       <label for="source_other">Outro</label>
-                   </div>
-               </div>
-               
-               <div class="form-group">
-                   <label class="form-label" for="comments">Observações</label>
-                   <textarea class="form-control" id="comments" name="comments" rows="3"></textarea>
-               </div>
-               
-               <div class="form-group">
-                   <button type="submit" class="btn-submit">Enviar Inscrição</button>
-               </div>
-           </form>
-       </div>
-   </main>
-   
-   {% include 'include/footer.html' %}
-   {% include 'include/java.html' %}
-   
-   <script>
-       // Adicione scripts específicos para o formulário aqui, se necessário
-       document.addEventListener('DOMContentLoaded', function() {
-           // Exemplo: Validação adicional pode ser adicionada aqui
-       });
-   </script>
+
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-primary" href="#">
+                <i class="fas fa-graduation-cap me-2"></i>Educangola
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="registration-hero text-white text-center">
+        <div class="container position-relative">
+            <h1 class="display-5 fw-bold mb-4">Inscreva-se em Nossos Cursos</h1>
+            <p class="lead mb-5">Preencha o formulário em 3 simples passos</p>
+        </div>
+    </section>
+
+    <!-- Registration Form -->
+    <section class="py-5">
+        <div class="container">
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active" id="step1-indicator">1</div>
+                <div class="step" id="step2-indicator">2</div>
+                <div class="step" id="step3-indicator">3</div>
+            </div>
+            
+            <!-- Step 1: Seleção do Curso -->
+            <div class="step-container active" id="step1">
+                <div class="registration-card">
+                    <h2 class="text-center mb-4 fw-bold">1. Escolha seu curso</h2>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="course-card active" data-course="marketing">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0 me-3">
+                                        <img src="https://via.placeholder.com/80" alt="Marketing Digital" class="rounded" width="80">
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h5 class="mb-1 fw-bold">Marketing Digital Avançado</h5>
+                                        <p class="mb-2 text-muted small">Aprenda estratégias modernas de marketing digital</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-primary fw-bold">kz 25.000</span>
+                                            <span class="badge bg-success">Certificado</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-4">
+                            <div class="course-card" data-course="programacao">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0 me-3">
+                                        <img src="https://via.placeholder.com/80" alt="Programação Web" class="rounded" width="80">
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h5 class="mb-1 fw-bold">Programação Web Moderna</h5>
+                                        <p class="mb-2 text-muted small">Domine as tecnologias mais demandadas do mercado</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-primary fw-bold">kz 30.000</span>
+                                            <span class="badge bg-success">Certificado</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-4">
+                            <div class="course-card" data-course="gestao">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0 me-3">
+                                        <img src="https://via.placeholder.com/80" alt="Gestão de Projetos" class="rounded" width="80">
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h5 class="mb-1 fw-bold">Gestão de Projetos Ágeis</h5>
+                                        <p class="mb-2 text-muted small">Metodologias ágeis para gerir projetos com eficiência</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-primary fw-bold">kz 28.000</span>
+                                            <span class="badge bg-success">Certificado</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-4">
+                            <div class="course-card" data-course="design">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0 me-3">
+                                        <img src="https://via.placeholder.com/80" alt="Design UX/UI" class="rounded" width="80">
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h5 class="mb-1 fw-bold">Design UX/UI Moderno</h5>
+                                        <p class="mb-2 text-muted small">Crie interfaces intuitivas e experiências memoráveis</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-primary fw-bold">kz 27.000</span>
+                                            <span class="badge bg-success">Certificado</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end mt-4">
+                        <button class="btn btn-holographic" onclick="nextStep(1, 2)">
+                            Próximo <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 2: Dados Pessoais -->
+            <div class="step-container" id="step2">
+                <div class="registration-card">
+                    <h2 class="text-center mb-4 fw-bold">2. Seus dados pessoais</h2>
+                    
+                    <form id="personal-data-form">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="firstName" class="form-label">Primeiro Nome *</label>
+                                    <input type="text" class="form-control" id="firstName" required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="lastName" class="form-label">Último Nome *</label>
+                                    <input type="text" class="form-control" id="lastName" required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email *</label>
+                                    <input type="email" class="form-control" id="email" required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">Telefone *</label>
+                                    <input type="tel" class="form-control" id="phone" required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="address" class="form-label">Endereço</label>
+                                    <input type="text" class="form-control" id="address">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="city" class="form-label">Cidade</label>
+                                    <input type="text" class="form-control" id="city">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="country" class="form-label">País</label>
+                                    <select class="form-select" id="country">
+                                        <option value="Angola">Angola</option>
+                                        <option value="Portugal">Portugal</option>
+                                        <option value="Brasil">Brasil</option>
+                                        <option value="Outro">Outro</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-outline-primary" onclick="prevStep(2, 1)">
+                                <i class="fas fa-arrow-left me-2"></i> Voltar
+                            </button>
+                            <button type="submit" class="btn btn-holographic">
+                                Próximo <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Step 3: Confirmação -->
+            <div class="step-container" id="step3">
+                <div class="registration-card">
+                    <h2 class="text-center mb-4 fw-bold">3. Confirme sua inscrição</h2>
+                    
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i> Verifique cuidadosamente os dados antes de finalizar
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <h4 class="mb-3">Detalhes do Curso</h4>
+                            <div class="confirmation-item">
+                                <div class="d-flex align-items-center mb-3">
+                                    <img src="{% static 'assets/images/category/image/finance.jpg' %}" id="confirm-course-image" class="rounded me-3" width="80">
+                                    <div>
+                                        <h5 id="confirm-course-name" class="mb-1 fw-bold">Marketing Digital Avançado</h5>
+                                        <p id="confirm-course-desc" class="mb-2 text-muted small">Aprenda estratégias modernas de marketing digital</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span id="confirm-course-price" class="text-primary fw-bold">kz 25.000</span>
+                                            <span class="badge bg-success">Certificado</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="confirmation-item mt-3">
+                                    <h6><i class="fas fa-calendar-alt me-2"></i> Início do Curso</h6>
+                                    <p class="mb-0">15 de Outubro de 2023</p>
+                                </div>
+                                
+                                <div class="confirmation-item mt-3">
+                                    <h6><i class="fas fa-clock me-2"></i> Duração</h6>
+                                    <p class="mb-0">8 semanas (40 horas totais)</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-6 mt-4 mt-lg-0">
+                            <h4 class="mb-3">Seus Dados</h4>
+                            <div class="confirmation-item">
+                                <h6><i class="fas fa-user me-2"></i> Nome Completo</h6>
+                                <p id="confirm-fullname" class="mb-3">Carlos Muquissi</p>
+                                
+                                <h6><i class="fas fa-envelope me-2"></i> Email</h6>
+                                <p id="confirm-email" class="mb-3">carlos@exemplo.com</p>
+                                
+                                <h6><i class="fas fa-phone me-2"></i> Telefone</h6>
+                                <p id="confirm-phone" class="mb-3">+244 123 456 789</p>
+                                
+                                <h6><i class="fas fa-map-marker-alt me-2"></i> Localização</h6>
+                                <p id="confirm-location" class="mb-0">Luanda, Angola</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-check mt-4">
+                        <input class="form-check-input" type="checkbox" id="terms-confirm" required>
+                        <label class="form-check-label" for="terms-confirm">
+                            Confirmo que li e aceito os <a href="#" class="text-primary">Termos de Serviço</a> e <a href="#" class="text-primary">Política de Privacidade</a>
+                        </label>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="button" class="btn btn-outline-primary" onclick="prevStep(3, 2)">
+                            <i class="fas fa-arrow-left me-2"></i> Voltar
+                        </button>
+                        <button type="button" class="btn btn-holographic" onclick="submitRegistration()">
+                            Confirmar Inscrição <i class="fas fa-check ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Variáveis globais para armazenar os dados
+        let selectedCourse = {
+            name: "Marketing Digital Avançado",
+            desc: "Aprenda estratégias modernas de marketing digital",
+            price: "kz 25.000",
+            image: "https://via.placeholder.com/80"
+        };
+        
+        // Função para avançar para o próximo passo
+        function nextStep(current, next) {
+            // Validação do passo 1 (seleção do curso)
+            if(current === 1) {
+                const selected = document.querySelector('.course-card.active');
+                if(!selected) {
+                    alert("Por favor, selecione um curso antes de continuar.");
+                    return;
+                }
+                
+                // Armazena o curso selecionado
+                selectedCourse = {
+                    name: selected.querySelector('h5').innerText,
+                    desc: selected.querySelector('p').innerText,
+                    price: selected.querySelector('.text-primary').innerText,
+                    image: selected.querySelector('img').src
+                };
+            }
+            
+            // Validação do passo 2 (dados pessoais)
+            if(current === 2) {
+                const form = document.getElementById('personal-data-form');
+                if(!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+                
+                // Atualiza os dados de confirmação
+                document.getElementById('confirm-fullname').textContent = 
+                    document.getElementById('firstName').value + ' ' + document.getElementById('lastName').value;
+                document.getElementById('confirm-email').textContent = document.getElementById('email').value;
+                document.getElementById('confirm-phone').textContent = document.getElementById('phone').value;
+                document.getElementById('confirm-location').textContent = 
+                    (document.getElementById('city').value || '') + 
+                    (document.getElementById('city').value && document.getElementById('country').value ? ', ' : '') + 
+                    (document.getElementById('country').value || '');
+                
+                // Atualiza os dados do curso
+                document.getElementById('confirm-course-name').textContent = selectedCourse.name;
+                document.getElementById('confirm-course-desc').textContent = selectedCourse.desc;
+                document.getElementById('confirm-course-price').textContent = selectedCourse.price;
+                document.getElementById('confirm-course-image').src = selectedCourse.image;
+            }
+            
+            // Atualiza os indicadores de passo
+            document.getElementById(`step${current}-indicator`).classList.remove('active');
+            document.getElementById(`step${next}-indicator`).classList.add('active');
+            
+            // Mostra o próximo passo
+            document.getElementById(`step${current}`).classList.remove('active');
+            document.getElementById(`step${next}`).classList.add('active');
+            
+            // Rola para o topo do formulário
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Função para voltar ao passo anterior
+        function prevStep(current, prev) {
+            // Atualiza os indicadores de passo
+            document.getElementById(`step${current}-indicator`).classList.remove('active');
+            document.getElementById(`step${prev}-indicator`).classList.add('active');
+            
+            // Mostra o passo anterior
+            document.getElementById(`step${current}`).classList.remove('active');
+            document.getElementById(`step${prev}`).classList.add('active');
+            
+            // Rola para o topo do formulário
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Função para enviar a inscrição
+        function submitRegistration() {
+            const termsChecked = document.getElementById('terms-confirm').checked;
+            
+            if(!termsChecked) {
+                alert("Por favor, aceite os termos e condições antes de continuar.");
+                return;
+            }
+            
+            // Simulação de envio
+            alert("Inscrição realizada com sucesso! Você receberá um email de confirmação.");
+            
+            // Aqui você pode adicionar o código para enviar os dados para o servidor
+            // ...
+        }
+        
+        // Seleção de cursos
+        document.querySelectorAll('.course-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.course-card').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Prevenir envio do formulário
+        document.getElementById('personal-data-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            nextStep(2, 3);
+        });
+    </script>
 </body>
 </html>

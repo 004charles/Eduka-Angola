@@ -3,6 +3,6 @@ from gestoreduka import views
 
 
 urlpatterns = [
-    path('dashboard/centro/', views.centro_dashboard, name='centro_dashboard')
+    path('dashboard/centro/', views.centro_dashboard, name='centro_dashboard'),
 
 ]
