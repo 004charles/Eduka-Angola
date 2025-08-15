@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from .models import Usuario, Aluno, Empresa, Biblioteca, PerfilAluno
 from django.shortcuts import redirect
 from hashlib import sha256
+from cursos_app.models import Curso
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from .models import CentroDeFormacao, Aluno, CentroSeguimento
@@ -59,7 +60,11 @@ def adicionar_favorito(request, curso_id):
 
 def Login_aluno(request):
     status = request.GET.get('status')
-    return render(request, 'login_aluno.html', {'status':status})
+    cursos_destaque = Curso.objects.filter(
+        destaque=True, publicado=True, ativo=True
+    ).select_related('centro').prefetch_related('instrutores')
+
+    return render(request, 'login_aluno.html', {'status':status, 'cursos_destaque':cursos_destaque})
 
 def aluno(request):
     if 'aluno' not in request.session:
@@ -68,6 +73,12 @@ def aluno(request):
     try:
         aluno = Aluno.objects.get(id=request.session['aluno'])
         aluno = get_object_or_404(Aluno, id=request.session['aluno'])
+
+        cursos_destaque = Curso.objects.filter(
+        destaque=True, publicado=True, ativo=True
+    ).select_related('centro').prefetch_related('instrutores')
+
+        
         perfil, created = PerfilAluno.objects.get_or_create(aluno=aluno)
         return render(request, 'aluno.html', {'aluno_logado': True, 'aluno_nome': aluno.nome, 'perfil': perfil})
     except Aluno.DoesNotExist:

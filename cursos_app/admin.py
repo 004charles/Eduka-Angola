@@ -79,21 +79,6 @@ class MaterialApoioAdmin(admin.ModelAdmin):
     search_fields = ('titulo',)
     readonly_fields = ('data_adicao',)
 
-class InscricaoAdmin(admin.ModelAdmin):
-    list_display = ('aluno', 'curso', 'status', 'data_inscricao', 'certificado_emitido')
-    list_filter = ('status', 'certificado_emitido', 'curso')
-    search_fields = ('aluno__nome', 'curso__titulo')
-    raw_id_fields = ('aluno', 'curso')
-    readonly_fields = ('data_inscricao',)
-    actions = ['aprovar_inscricoes', 'rejeitar_inscricoes']
-
-    def aprovar_inscricoes(self, request, queryset):
-        queryset.update(status='APR')
-    aprovar_inscricoes.short_description = "Aprovar inscrições selecionadas"
-
-    def rejeitar_inscricoes(self, request, queryset):
-        queryset.update(status='REJ')
-    rejeitar_inscricoes.short_description = "Rejeitar inscrições selecionadas"
     
 
 class PerfilInstrutorInline(admin.StackedInline):
@@ -107,4 +92,4 @@ admin.site.register(Curso, CursoAdmin)
 admin.site.register(Modulo, ModuloAdmin)
 admin.site.register(Video, VideoAdmin)
 admin.site.register(MaterialApoio, MaterialApoioAdmin)
-admin.site.register(Inscricao, InscricaoAdmin)
+admin.site.register(Inscricao)

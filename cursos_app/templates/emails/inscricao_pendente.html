@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Inscrição recebida</title>
+<style>
+  :root { --primary:#2f57ef; --secondary:#b966e7; --text:#1f2a37; --muted:#6b7280; --bg:#f8fafc; }
+  body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+  .wrap{max-width:600px;margin:0 auto;padding:24px}
+  .card{background:#fff;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.06);overflow:hidden}
+  .header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;padding:24px}
+  h1{font-size:20px;margin:0}
+  .content{padding:24px;color:var(--text)}
+  .row{margin:12px 0}
+  .muted{color:var(--muted)}
+  .btn{display:inline-block;padding:12px 20px;border-radius:10px;background:var(--primary);color:#fff;text-decoration:none}
+  .btn:hover{opacity:.92}
+  .footer{padding:16px 24px;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="header">
+        <h1>Sua inscrição foi recebida ✅</h1>
+        <div class="muted">Edukangola</div>
+      </div>
+      <div class="content">
+        <p>Olá <strong>{{ aluno.nome }}</strong>,</p>
+        <p>Recebemos a sua inscrição no curso <strong>{{ curso.titulo }}</strong>. Neste momento, o status está
+        <strong>pendente de aprovação</strong> pelo centro <strong>{{ curso.centro.nome }}</strong>.</p>
+
+        <div class="row">
+          <div class="muted">Início previsto:</div>
+          <div><strong>{{ curso.data_inicio|date:"d/m/Y H:i" }}</strong></div>
+        </div>
+        <div class="row">
+          <div class="muted">Carga horária:</div>
+          <div><strong>{{ curso.carga_horaria }} horas</strong></div>
+        </div>
+
+        {% if link_curso %}
+        <p style="margin-top:16px">
+          <a class="btn" href="{{ link_curso }}">Ver detalhes do curso</a>
+        </p>
+        {% endif %}
+
+        <p class="muted" style="margin-top:18px">
+          Você receberá outro e-mail assim que sua inscrição for analisada.
+        </p>
+      </div>
+      <div class="footer">
+        Precisa de ajuda? Fale com a gente: <a href="mailto:{{ suporte_email }}">{{ suporte_email }}</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

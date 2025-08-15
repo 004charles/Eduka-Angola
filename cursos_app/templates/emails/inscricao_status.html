@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Status da inscrição</title>
+<style>
+  :root { --primary:#2f57ef; --secondary:#b966e7; --text:#1f2a37; --muted:#6b7280; --bg:#f8fafc; --ok:#16a34a; --no:#dc2626; }
+  body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+  .wrap{max-width:600px;margin:0 auto;padding:24px}
+  .card{background:#fff;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.06);overflow:hidden}
+  .header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;padding:24px}
+  h1{font-size:20px;margin:0}
+  .content{padding:24px;color:var(--text)}
+  .badge{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:600;color:#fff}
+  .badge.ok{background:var(--ok)}
+  .badge.no{background:var(--no)}
+  .muted{color:var(--muted)}
+  .btn{display:inline-block;padding:12px 20px;border-radius:10px;background:var(--primary);color:#fff;text-decoration:none}
+  .btn:hover{opacity:.92}
+  .footer{padding:16px 24px;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="header">
+        <h1>Atualização da sua inscrição</h1>
+        <div class="muted">Edukangola</div>
+      </div>
+      <div class="content">
+        <p>Olá <strong>{{ aluno.nome }}</strong>,</p>
+
+        <p>O status da sua inscrição no curso <strong>{{ curso.titulo }}</strong> foi atualizado pelo centro
+        <strong>{{ curso.centro.nome }}</strong>:</p>
+
+        {% if status_codigo == 'A' %}
+          <p><span class="badge ok">ACEITA</span></p>
+          <p>Parabéns! Em breve você receberá orientações com próximos passos.</p>
+        {% elif status_codigo == 'N' %}
+          <p><span class="badge no">NEGADA</span></p>
+          <p>Infelizmente sua inscrição não foi aprovada desta vez. Caso tenha dúvidas, entre em contacto com o centro.</p>
+        {% else %}
+          <p><span class="badge">STATUS: {{ status_legivel }}</span></p>
+        {% endif %}
+
+        {% if link_curso %}
+        <p style="margin-top:16px">
+          <a class="btn" href="{{ link_curso }}">Ver página do curso</a>
+        </p>
+        {% endif %}
+
+        <p class="muted" style="margin-top:18px">
+          Se você não reconhece esta alteração, responda este e-mail.
+        </p>
+      </div>
+      <div class="footer">
+        Dúvidas? <a href="mailto:{{ suporte_email }}">{{ suporte_email }}</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

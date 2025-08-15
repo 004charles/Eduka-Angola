@@ -12,9 +12,11 @@ urlpatterns = [
     path('categoria/<slug:slug>/', views.cursos_por_categoria, name='cursos_por_categoria'),
     path('pagina_categoria/', views.pagina_categoria, name = 'pagina_categoria'),
     path('todo_curso/', views.todo_curso, name = 'todo_curso'),
-    path('ficha_inscricao/', views.ficha_inscricao, name = 'ficha_inscricao'),
+    path('buscar/', views.buscar_cursos, name='buscar_cursos'),
+    path('curso/<int:curso_id>/inscrever/', views.inscrever_curso, name='inscrever_curso'),
+    path('inscricao/<int:inscricao_id>/status/<str:status>/', views.alterar_status_inscricao, name='alterar_status_inscricao'),
+    path('ficha_inscricao/<int:curso_id>/', views.ficha_inscricao, name='ficha_inscricao'),
     path('favorito/<int:curso_id>/', views.adicionar_favorito, name='adicionar_favorito'),
-    path('centros/', views.lista_centros, name='lista_centros'),
 
     
 

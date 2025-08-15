@@ -1,13 +1,70 @@
-from django.shortcuts import render
-from django.shortcuts import render, get_object_or_404
-from .models import Curso, Instrutor, Categoria
-from cursos_app.models import Aluno
-from usuarios.models import Comentario
-from django.shortcuts import redirect
-from cursos_app.models import CentroDeFormacao
-from .models import Curso, Categoria
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.urls import reverse
+from django.conf import settings
 from django.views.decorators.http import require_POST
 from django.db.models import Count, Q
+from .models import Curso, Instrutor, Categoria, Inscricao, Aluno
+from cursos_app.models import Favorito, CentroDeFormacao
+from usuarios.models import Comentario, CentroSeguimento
+from core.models import Galeria
+
+def inscrever_curso(request, curso_id):
+    aluno_id = request.session.get('aluno')
+    if not aluno_id:
+        messages.error(request, "Você precisa estar logado como aluno para se inscrever.")
+        return redirect('/auth/Login_aluno')
+
+    curso = get_object_or_404(Curso, id=curso_id)
+    aluno = get_object_or_404(Aluno, id=aluno_id)
+
+    inscricao, created = Inscricao.objects.get_or_create(aluno=aluno, curso=curso)
+
+    if not created:
+        messages.warning(request, "Você já está inscrito neste curso.")
+    else:
+        try:
+            link_curso = request.build_absolute_uri(
+                reverse('curso_detalhe', kwargs={'id': curso.id})
+            )
+            inscricao.enviar_email_confirmacao(link_curso=link_curso)
+        except Exception as e:
+            messages.warning(request, f"Inscrição feita, mas houve um problema ao enviar o e-mail: {e}")
+
+        messages.success(request, "Inscrição realizada com sucesso! Aguarde aprovação.")
+
+    return redirect('curso_detalhe', id=curso.id)
+
+
+def alterar_status_inscricao(request, inscricao_id, status):
+    centro_id = request.session.get('centro')
+    if not centro_id:
+        messages.error(request, "Você precisa estar logado como centro para alterar o status.")
+        return redirect('/auth/Login_centro')
+
+    inscricao = get_object_or_404(Inscricao, id=inscricao_id)
+    if inscricao.curso.centro_id != centro_id:
+        messages.error(request, "Você não tem permissão para alterar esta inscrição.")
+        return redirect('painel_centro')
+
+    if status in ['A', 'N']:  
+        inscricao.status = status
+        inscricao.save()
+
+        try:
+            link_curso = request.build_absolute_uri(
+                reverse('curso_detalhe', kwargs={'id': inscricao.curso.id})
+            )
+            inscricao.enviar_email_status(link_curso=link_curso)
+        except Exception as e:
+            messages.warning(request, f"Status alterado, mas houve problema ao enviar o e-mail: {e}")
+
+        messages.success(request, f"Inscrição marcada como {inscricao.get_status_display()}.")
+    else:
+        messages.error(request, "Status inválido.")
+
+    return redirect('painel_centro')
+
 
 
 @require_POST
@@ -46,7 +103,6 @@ def curso_detalhe(request, id):
     if 'aluno' not in request.session:
         return redirect('/auth/curso_detalhe?status=4')
 
-    # Inicializa o contexto
     context = {
         'aluno_logado': False,
     }
@@ -60,7 +116,6 @@ def curso_detalhe(request, id):
     except Aluno.DoesNotExist:
         pass
 
-    # Obtém o curso com centro e instrutores
     curso = get_object_or_404(
         Curso.objects.select_related('centro')
                     .prefetch_related('instrutores'),
@@ -74,24 +129,26 @@ def curso_detalhe(request, id):
 
     modulos = curso.modulos.all()
 
-    # Comentários com perfil dos alunos
     comentarios = Comentario.objects.select_related('aluno__perfil').filter(
         curso=curso
     ).order_by('-data_comentario')
 
     centro = curso.centro
 
-    # Cursos do mesmo centro e da mesma categoria
+    cursos_destaque = Curso.objects.filter(
+        destaque=True, publicado=True, ativo=True
+    ).select_related('centro').prefetch_related('instrutores')
+
+
     cursos_relacionados = Curso.objects.filter(centro=centro).exclude(id=curso.id)
     cursos_relacionados_lista = Curso.objects.filter(categoria=curso.categoria).exclude(id=curso.id)
+    imagem = Galeria.objects.all()[:6]
 
-    # Vídeo de preview
     video_preview = None
     if modulos:
         modulo = modulos.first()
         video_preview = modulo.videos.filter(liberado=True).order_by('ordem').first()
 
-    # Atualiza o contexto com os dados do curso
     context.update({
         'curso': curso,
         'modulos': modulos,
@@ -101,17 +158,16 @@ def curso_detalhe(request, id):
         'cursos_relacionados': cursos_relacionados,
         'cursos_relacionados_lista': cursos_relacionados_lista,
         'video_preview': video_preview,
+        'imagem': imagem,
     })
 
     return render(request, 'curso_detalhe.html', context)
 
 
 
-
 def instrutor_detalhes(request, id):
     instrutor = get_object_or_404(Instrutor, id=id)
     
-    # Obtém os cursos ministrados por esse instrutor
     cursos = Curso.objects.filter(instrutores=instrutor)
     
     context = {
@@ -127,7 +183,6 @@ def cursos_por_centro(request, centro_id):
         'aluno_logado': False,
     }
 
-    # Verifica se o aluno está logado
     if 'aluno' in request.session:
         try:
             aluno = Aluno.objects.get(id=request.session['aluno'])
@@ -138,10 +193,8 @@ def cursos_por_centro(request, centro_id):
         except Aluno.DoesNotExist:
             pass
 
-    # Obtém o centro de formação
     centro = get_object_or_404(CentroDeFormacao, id=centro_id)
 
-    # Categorias com cursos publicados neste centro
     categorias = Categoria.objects.filter(
         curso__centro=centro,
         curso__publicado=True
@@ -149,7 +202,6 @@ def cursos_por_centro(request, centro_id):
         num_cursos=Count('curso')
     ).distinct().order_by('nome')
 
-    # Organiza os cursos por categoria
     cursos_por_categoria = []
     for categoria in categorias:
         cursos = centro.cursos.filter(
@@ -163,7 +215,6 @@ def cursos_por_centro(request, centro_id):
             'total_cursos': categoria.num_cursos
         })
 
-    # Atualiza o contexto com os dados do centro e cursos
     context.update({
         'centro': centro,
         'cursos_por_categoria': cursos_por_categoria,
@@ -176,7 +227,6 @@ def cursos_por_categoria(request, slug):
         'aluno_logado': False,
     }
 
-    # Verifica se o aluno está logado
     if 'aluno' in request.session:
         try:
             aluno = Aluno.objects.get(id=request.session['aluno'])
@@ -187,31 +237,35 @@ def cursos_por_categoria(request, slug):
         except Aluno.DoesNotExist:
             pass
 
-    # Obtém a categoria pelo slug
     
+    imagens = Galeria.objects.all()[:6]
     categoria = get_object_or_404(Categoria, slug=slug)
 
-    # Busca os cursos da categoria
     cursos = Curso.objects.filter(
         categoria=categoria,
         publicado=True,
         ativo=True
     ).select_related('centro').prefetch_related('instrutores')
 
-    # Atualiza o contexto com os dados da categoria
+    cursos_destaque = Curso.objects.filter(
+        destaque=True, publicado=True, ativo=True
+    ).select_related('centro').prefetch_related('instrutores')
+
     context.update({
         'categoria': categoria,
         'cursos': cursos,
+        'imagens': imagens,
     })
 
     return render(request, 'curso_categoria.html', context)
 
 def pagina_categoria(request):
+    imagens = Galeria.objects.all()[:6]
     context = {
         'aluno_logado': False,
+        'imagens': imagens,
     }
 
-    # Verifica se o aluno está logado
     if 'aluno' in request.session:
         try:
             aluno = Aluno.objects.get(id=request.session['aluno'])
@@ -222,10 +276,13 @@ def pagina_categoria(request):
         except Aluno.DoesNotExist:
             pass
 
-    # Busca as categorias com contagem de cursos ativos e publicados
     categorias = Categoria.objects.annotate(
         num_cursos=Count('curso', filter=Q(curso__publicado=True, curso__ativo=True))
     )
+
+    cursos_destaque = Curso.objects.filter(
+        destaque=True, publicado=True, ativo=True
+    ).select_related('centro').prefetch_related('instrutores')
 
     # Atualiza o contexto com as categorias
     context.update({
@@ -266,6 +323,10 @@ def todo_curso(request):
                 'total_cursos': cursos.count()
             })
 
+    cursos_destaque = Curso.objects.filter(
+        destaque=True, publicado=True, ativo=True
+    ).select_related('centro').prefetch_related('instrutores')
+
     # Atualiza o contexto com os dados
     context.update({
         'categorias_com_cursos': categorias_com_cursos,
@@ -273,13 +334,116 @@ def todo_curso(request):
 
     return render(request, 'todo_curso.html', context)
     
-def ficha_inscricao(request):
-    return render(request, 'cursos_app/ficha.html')
+def ficha_inscricao(request, curso_id):
+    curso = get_object_or_404(Curso, id=curso_id)
 
+    aluno = None
+    aluno_id = request.session.get('aluno')
+    if aluno_id:
+        aluno = get_object_or_404(Aluno, id=aluno_id)
 
-from .models import CentroDeFormacao
+    contexto = {
+        'curso': curso,
+        'aluno': aluno,
+    }
+
+    return render(request, 'cursos_app/ficha.html', contexto)
+
 
 def lista_centros(request):
     centros = CentroDeFormacao.objects.filter(ativo=True)
-    print("CENTROS BUSCADOS:", centros)
     return render(request, 'core/index.html', {'centros': centros})
+
+
+def buscar_cursos(request):
+    termo = request.GET.get('q', '').strip()
+    centro_id = request.GET.get('centro')
+    categoria_id = request.GET.get('categoria')
+    nivel = request.GET.get('nivel')
+    idioma = request.GET.get('idioma')
+    turno = request.GET.get('turno')
+    preco_min = request.GET.get('preco_min')
+    preco_max = request.GET.get('preco_max')
+    
+    cursos = Curso.objects.filter(ativo=True, publicado=True)
+    
+    if termo:
+        cursos = cursos.filter(
+            Q(titulo__icontains=termo) | 
+            Q(descricao__icontains=termo) |
+            Q(centro__nome__icontains=termo)
+        )
+    
+    if centro_id:
+        cursos = cursos.filter(centro_id=centro_id)
+        
+    if categoria_id:
+        cursos = cursos.filter(categoria_id=categoria_id)
+        
+    if nivel in ['B', 'I', 'A']:
+        cursos = cursos.filter(nivel=nivel)
+        
+    if idioma in ['PT', 'EN', 'ES', 'FR', 'OUTRO']:
+        cursos = cursos.filter(idioma=idioma)
+        
+    if turno in ['M', 'T', 'N', 'I']:
+        cursos = cursos.filter(turno=turno)
+        
+    if preco_min:
+        try:
+            cursos = cursos.filter(preco__gte=float(preco_min))
+        except ValueError:
+            pass
+            
+    if preco_max:
+        try:
+            cursos = cursos.filter(preco__lte=float(preco_max))
+        except ValueError:
+            pass
+    
+    ordenar_por = request.GET.get('ordenar_por', 'data_inicio')
+    ordem = request.GET.get('ordem', 'asc')
+    
+    if ordem == 'desc':
+        ordenar_por = f'-{ordenar_por}'
+    
+    cursos = cursos.order_by(ordenar_por)
+    
+    cursos_destaque = Curso.objects.filter(
+        destaque=True, publicado=True, ativo=True
+    ).select_related('centro').prefetch_related('instrutores')
+
+    
+    context = {
+        'cursos': cursos,
+        'termo_busca': termo,
+        'centros': CentroDeFormacao.objects.filter(ativo=True),
+        'categorias': Categoria.objects.all(),
+        'filtros': {
+            'centro': centro_id,
+            'categoria': categoria_id,
+            'nivel': nivel,
+            'idioma': idioma,
+            'turno': turno,
+            'preco_min': preco_min,
+            'preco_max': preco_max,
+        }
+    }
+
+    if 'aluno' in request.session:
+        try:
+            aluno = Aluno.objects.get(id=request.session['aluno'])
+            favoritos = Favorito.objects.filter(aluno=aluno).values_list('curso_id', flat=True)
+            centros_seguidos = list(
+                CentroSeguimento.objects.filter(aluno=aluno).values_list('centro_id', flat=True)
+            )
+            context.update({
+                'aluno_logado': True,
+                'aluno_nome': aluno.nome,
+                'favoritos': list(favoritos),
+                'centros_seguidos': centros_seguidos,
+            })
+        except Aluno.DoesNotExist:
+            pass
+
+    return render(request, 'resultados_busca.html', context)

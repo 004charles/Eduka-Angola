@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}  
 <header class="rbt-header rbt-header-10">
     <div class="rbt-sticky-placeholder"></div>
 
@@ -13,7 +14,7 @@
                             <div class="header-info">
                                 <ul class="rbt-information-list">
                                     <li>
-                                    <a href="#"><i class="fas fa-handshake"></i> Quer se tornar parceiro?</a>
+                                        <a href="#"><i class="fas fa-handshake"></i> Quer se tornar parceiro?</a>
                                     </li>
                                     <li>
                                         <a href="#"><i class="fab fa-facebook-square"></i>EdukAngola</a>
@@ -40,46 +41,39 @@
                             <div class="rbt-separator d-none d-xl-block"></div>
 
                             <div class="header-info">
-                                <ul class="rbt-dropdown-menu switcher-language">
-                                    <li class="has-child-menu">
-                                        <a href="#">
-                                            <img class="left-image" src="{% static 'assets/images/icons/en-us.png' %}"
-                                                alt="Português">
-                                            <span class="menu-item">Português</span>
-                                            <i class="right-icon feather-chevron-down"></i>
-                                        </a>
-                                        <ul class="sub-menu">
-                                            <li>
-                                                <a href="#">
-                                                    <img class="left-image"
-                                                        src="{% static 'assets/images/icons/en-us.png' %}" alt="Inglês">
-                                                    <span class="menu-item">Inglês</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-
-                                        <ul class="sub-menu">
-                                            <li>
-                                                <a href="#">
-                                                    <img class="left-image"
-                                                        src="{% static 'assets/images/icons/en-us.png' %}" alt="Inglês">
-                                                    <span class="menu-item">Inglês</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-
-                                        <ul class="sub-menu">
-                                            <li>
-                                                <a href="#">
-                                                    <img class="left-image"
-                                                        src="{% static 'assets/images/icons/en-us.png' %}" alt="Inglês">
-                                                    <span class="menu-item">Inglês</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </div>
+    <ul class="rbt-dropdown-menu switcher-language">
+        <li class="has-child-menu">
+            <a href="#">
+                <img class="left-image" src="https://flagcdn.com/w20/{{ CURRENT_LANGUAGE }}.png" 
+                     alt="{% trans 'Idioma atual' %}">
+                <span class="menu-item">
+                    {% for code, name in LANGUAGES %}
+                        {% if code == CURRENT_LANGUAGE %}{{ name }}{% endif %}
+                    {% endfor %}
+                </span>
+                <i class="right-icon feather-chevron-down"></i>
+            </a>
+            <ul class="sub-menu">
+                {% for code, name in LANGUAGES %}
+                    {% if code != CURRENT_LANGUAGE %}
+                    <li>
+                        <form action="{% url 'set_language' %}" method="post" class="language-form">
+                            {% csrf_token %}
+                            <input name="next" type="hidden" value="{{ request.path }}">
+                            <input name="language" type="hidden" value="{{ code }}">
+                            <button type="submit" class="language-button">
+                                <img class="left-image" src="https://flagcdn.com/w20/{{ code }}.png" 
+                                     alt="{{ name }}">
+                                <span class="menu-item">{{ name }}</span>
+                            </button>
+                        </form>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </li>
+    </ul>
+</div>
                         </div>
                     </div>
                 </div>
@@ -305,8 +299,10 @@
                                     <li><a href="#">Bolsa de Emprego</a></li>
                                 </ul>
                             </li>
-                            <li><a href="{% url 'sobre' %}">Sobre Nós</a></li>
+                            <li><a href="{% url 'blog:lista_posts' %}">
                             <li><a href="{% url 'blog:lista_posts' %}">Blog</a></li>
+                            </a></li>
+                            <li><a href="{% url 'sobre' %}">Sobre</a></li>
                         </ul>
                     </nav>
                 </div>
@@ -433,10 +429,14 @@
             <div class="wrapper">
                 <div class="row">
                     <div class="col-lg-12">
-                        <form action="#">
-                            <input type="text" placeholder="O que você está procurando?">
+                        <form action="{% url 'buscar_cursos' %}" method="get" class="search-form">
+                            {% csrf_token %}
+                            <input type="text" name="q" placeholder="O que você está procurando?"
+                                value="{{ request.GET.q }}">
                             <div class="submit-btn">
-                                <button class="rbt-btn btn-gradient btn-md" type="submit">Pesquisar</button>
+                                <button class="rbt-btn btn-gradient btn-md" type="submit">
+                                    <i class="feather-search"></i> Pesquisar
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -463,7 +463,9 @@
                             </div>
                             <div class="rbt-card-body">
                                 <h5 class="rbt-card-title"><a
-                                        href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a></h5>
+                                        href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a>
+                                </h5>
+
                                 <div class="rbt-card-bottom">
                                     <div class="rbt-price">
                                         <span class="current-price">{{curso.preco}}</span>
@@ -517,15 +519,12 @@
         <div class="inner-top">
             <div class="content">
                 <div class="logo">
-                    <div class="logo logo-dark">
-                        <a href="#">
-                            <img src="{% static 'assets/images/logo/edukangola-logo.png' %}" alt="EdukAngola Logo">
-                        </a>
-                    </div>
-                    <div class="logo d-none logo-light">
-                        <a href="#">
-                            <img src="{% static 'assets/images/logo/edukangola-logo-light.png' %}"
-                                alt="EdukAngola Logo">
+
+                    <div class="logo logo-dark" style="width: 100px; height: auto;">
+                        <!-- Ajuste o tamanho conforme necessário -->
+                        <a href="{% url 'index' %}">
+                            <img src="{% static 'assets/images/Logo1.png' %}" alt="EdukAngola Logo"
+                                style="filter: brightness(0); width: 100%; height: auto;">
                         </a>
                     </div>
                 </div>
@@ -533,18 +532,8 @@
                     <button class="close-button rbt-round-btn"><i class="feather-x"></i></button>
                 </div>
             </div>
-            <p class="description">A plataforma de educação líder em Angola</p>
-            <ul class="navbar-top-left rbt-information-list justify-content-start">
-                <li>
-                    <a href="#"><i class="fab fa-instagram"></i>EdukAngola</a>
-                </li>
-                <li>
-                    <a href="#"><i class="fab fa-facebook-square"></i>EdukAngola</a>
-                </li>
-                <li>
-                    <a href="#"><i class="feather-phone"></i>+244 923 456 789</a>
-                </li>
-            </ul>
+            <p class="description">A plataforma de educação!</p>
+
         </div>
 
         <nav class="mainmenu-nav">
@@ -650,9 +639,8 @@
                         <li><a href="#">Bolsa de Emprego</a></li>
                     </ul>
                 </li>
-
+                <li><a href="{% url 'blog:lista_posts' %}">Blog & Noticias</a></li>
                 <li><a href="{% url 'sobre' %}">Sobre Nós</a></li>
-                <li><a href="{% url 'blog:lista_posts' %}">Blog</a></li>
             </ul>
         </nav>
 
@@ -804,28 +792,34 @@
 
 <!-- Meta Tags Dinâmicas para Compartilhamento -->
 {% if post %}
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="article">
-    <meta property="og:url" content="{{ request.build_absolute_uri }}{% url 'blog:detalhe_post' post.slug %}">
-    <meta property="og:title" content="{{ post.titulo }}">
-    <meta property="og:description" content="{{ post.resumo|default:post.conteudo|truncatewords:30 }}">
-    {% if post.imagem_capa %}
-    <meta property="og:image" content="{{ request.build_absolute_uri }}{{ post.imagem_capa.url }}">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    {% endif %}
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="{{ request.build_absolute_uri }}{% url 'blog:detalhe_post' post.slug %}">
+<meta property="og:title" content="{{ post.titulo }}">
+<meta property="og:description" content="{{ post.resumo|default:post.conteudo|truncatewords:30 }}">
+{% if post.imagem_capa %}
+<meta property="og:image" content="{{ request.build_absolute_uri }}{{ post.imagem_capa.url }}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+{% endif %}
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ post.titulo }}">
-    <meta name="twitter:description" content="{{ post.resumo|default:post.conteudo|truncatewords:30 }}">
-    {% if post.imagem_capa %}
-    <meta name="twitter:image" content="{{ request.build_absolute_uri }}{{ post.imagem_capa.url }}">
-    {% endif %}
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ post.titulo }}">
+<meta name="twitter:description" content="{{ post.resumo|default:post.conteudo|truncatewords:30 }}">
+{% if post.imagem_capa %}
+<meta name="twitter:image" content="{{ request.build_absolute_uri }}{{ post.imagem_capa.url }}">
+{% endif %}
 {% endif %}
 
 
 <style>
+    .sub-menu {
+        left: 0;
+        /* Garante que o submenu alinhe com o item pai */
+        right: auto;
+    }
+
     .user-initials {
         display: flex;
         align-items: center;
@@ -853,4 +847,83 @@
         font-weight: bold;
         font-size: 1.2rem;
     }
+    /* Adicione ao seu arquivo CSS principal */
+.switcher-language {
+    position: relative;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.has-child-menu {
+    position: relative;
+}
+
+.sub-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border-radius: 4px;
+    padding: 10px 0;
+    min-width: 160px;
+    z-index: 1000;
+    display: none;
+}
+
+.has-child-menu:hover .sub-menu {
+    display: block;
+}
+
+.language-button {
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    padding: 8px 15px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.language-button:hover {
+    background-color: #f5f5f5;
+}
+
+.left-image {
+    margin-right: 10px;
+    width: 20px;
+    height: auto;
+}
 </style>
+
+<script>
+    // static/js/language.js
+document.addEventListener('DOMContentLoaded', function() {
+    // Fechar menu ao clicar fora
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.has-child-menu')) {
+            document.querySelectorAll('.sub-menu').forEach(menu => {
+                menu.style.display = 'none';
+            });
+        }
+    });
+
+    // Alternar menu ao clicar no botão principal
+    const mainButton = document.querySelector('.has-child-menu > a');
+    if (mainButton) {
+        mainButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            const subMenu = this.nextElementSibling;
+            const isOpen = subMenu.style.display === 'block';
+            
+            document.querySelectorAll('.sub-menu').forEach(menu => {
+                menu.style.display = 'none';
+            });
+            
+            subMenu.style.display = isOpen ? 'none' : 'block';
+        });
+    }
+});
+</script>

@@ -5,10 +5,19 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinLengthValidator
 from django.utils import timezone
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.core.mail import EmailMultiAlternatives
 from usuarios.models import Aluno
+from django.core.mail import EmailMultiAlternatives
 from django.core.validators import MinValueValidator
 from gestoreduka.models import CentroDeFormacao
 from django.core.exceptions import ValidationError
+from django.db import models
+from usuarios.models import Aluno
+from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
+
 
 
 class Instrutor(models.Model):
@@ -132,7 +141,7 @@ class Curso(models.Model):
         return f"{self.titulo} - {self.centro.nome}"
 
     def save(self, *args, **kwargs):
-        novo = self.pk is None  # Se é um novo curso
+        novo = self.pk is None  
         curso_antigo = None
         if not novo:
             try:
@@ -142,9 +151,8 @@ class Curso(models.Model):
 
         super().save(*args, **kwargs)
 
-        # Enviar notificação apenas se o curso foi publicado agora
         if self.publicado and (novo or (curso_antigo and not curso_antigo.publicado)):
-            from .utils import notificar_seguidores  # evite import circular
+            from .utils import notificar_seguidores  
             notificar_seguidores(self)    
 
     class Meta:
@@ -153,6 +161,76 @@ class Curso(models.Model):
         db_table = 'cursos'
         ordering = ['data_inicio']
         indexes = [models.Index(fields=['titulo', 'centro'])]
+
+
+
+from django.core.mail import send_mail
+from django.conf import settings
+
+class Inscricao(models.Model):
+    STATUS_CHOICES = [
+        ('P', 'Pendente'),
+        ('A', 'Aceita'),
+        ('N', 'Negada'),
+    ]
+
+    aluno = models.ForeignKey('usuarios.Aluno', on_delete=models.CASCADE, related_name='inscricoes')
+    curso = models.ForeignKey('Curso', on_delete=models.CASCADE, related_name='inscricoes')
+    data_inscricao = models.DateTimeField(_('Data de Inscrição'), default=timezone.now)
+    status = models.CharField(_('Status'), max_length=1, choices=STATUS_CHOICES, default='P')
+
+    def __str__(self):
+        return f"{self.aluno.nome} → {self.curso.titulo} ({self.get_status_display()})"
+
+    def enviar_email_confirmacao(self, link_curso=None):
+        contexto = {
+            'aluno': self.aluno,
+            'curso': self.curso,
+            'suporte_email': getattr(settings, 'SUPORTE_EMAIL', settings.DEFAULT_FROM_EMAIL),
+            'link_curso': link_curso,  
+        }
+        assunto = f"Inscrição recebida: {self.curso.titulo}"
+        html = render_to_string('emails/inscricao_pendente.html', contexto)
+        txt = strip_tags(html)
+
+        msg = EmailMultiAlternatives(
+            subject=assunto,
+            body=txt,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[self.aluno.email],
+        )
+        msg.attach_alternative(html, "text/html")
+        msg.send()
+
+    def enviar_email_status(self, link_curso=None):
+        contexto = {
+            'aluno': self.aluno,
+            'curso': self.curso,
+            'status_legivel': self.get_status_display(),
+            'status_codigo': self.status,  
+            'suporte_email': getattr(settings, 'SUPORTE_EMAIL', settings.DEFAULT_FROM_EMAIL),
+            'link_curso': link_curso,  
+        }
+        assunto = f"Status da inscrição: {self.curso.titulo} — {self.get_status_display()}"
+        html = render_to_string('emails/inscricao_status.html', contexto)
+        txt = strip_tags(html)
+
+        msg = EmailMultiAlternatives(
+            subject=assunto,
+            body=txt,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[self.aluno.email],
+        )
+        msg.attach_alternative(html, "text/html")
+        msg.send()
+
+
+    class Meta:
+        verbose_name = _('Inscrição')
+        verbose_name_plural = _('Inscrições')
+        unique_together = ('aluno', 'curso')
+
+
 
 class Favorito(models.Model):
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, related_name='favoritos')
@@ -216,7 +294,6 @@ class Video(models.Model):
 
     @property
     def fonte_video(self):
-        """Retorna a fonte do vídeo (URL externa ou arquivo local)"""
         return self.url if self.url else self.arquivo.url if self.arquivo else None
     
 class MaterialApoio(models.Model):
@@ -252,26 +329,4 @@ class MaterialApoio(models.Model):
         return f"{self.titulo} ({self.get_tipo_display()})"
 
 
-class Inscricao(models.Model):
-    STATUS_CHOICES = [
-        ('PEN', 'Pendente'),
-        ('APR', 'Aprovado'),
-        ('REJ', 'Rejeitado'),
-        ('CAN', 'Cancelado'),
-    ]
-    
-    aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, verbose_name=_('Aluno'))
-    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, verbose_name=_('Curso'))
-    data_inscricao = models.DateTimeField(_('Data de Inscrição'), default=timezone.now)
-    status = models.CharField(_('Status'), max_length=3, choices=STATUS_CHOICES, default='PEN')
-    certificado_emitido = models.BooleanField(_('Certificado Emitido'), default=False)
-    nota_final = models.DecimalField(_('Nota Final'), max_digits=5, decimal_places=2, null=True, blank=True)
-    
-    def __str__(self):
-        return f"Inscrição #{self.id} - {self.aluno.nome} em {self.curso.titulo}"
-
-    class Meta:
-        verbose_name = 'Inscrição'
-        verbose_name_plural = 'Inscrições'
-        unique_together = ['aluno', 'curso']
 

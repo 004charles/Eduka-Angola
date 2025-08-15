@@ -4,6 +4,8 @@ from django.conf import settings
 from django.shortcuts import redirect
 from django.db.models import Count, Q
 from django.utils import timezone
+from .models import Galeria
+from blog.models import Post
 from gestoreduka.models import CentroDeFormacao
 from datetime import timedelta
 from datetime import timedelta
@@ -28,6 +30,10 @@ def index(request):
         destaque=True, publicado=True, ativo=True
     ).select_related('centro').prefetch_related('instrutores')
 
+    posts = Post.objects.filter(status='publicado') \
+        .select_related('categoria') \
+        .prefetch_related('tags')
+
     cursos_recentes = list(
         Curso.objects.filter(publicado=True, ativo=True)
         .order_by('-data_inicio')[:20]
@@ -40,6 +46,8 @@ def index(request):
     cursos_gratuitos = Curso.objects.filter(
         preco=0, publicado=True, ativo=True
     ).order_by('-data_inicio')[:10]
+
+    imagens = Galeria.objects.all()[:6]
 
     cursos_proximos = Curso.objects.filter(
         publicado=True,
@@ -65,7 +73,9 @@ def index(request):
         'cursos_zigue1': cursos_zigue1,
         'cursos_zigue2': cursos_zigue2,
         'categoria': categorias,
+        'posts': posts,
         'centros': centros,
+        'imagens': imagens,
         'primeiros_alunos': primeiros_alunos,
         'DEBUG': settings.DEBUG,
         'aluno_logado': False,
@@ -110,8 +120,11 @@ def erro_404_view(request, exception):
 
 
 def sobre(request):
+    imagens = Galeria.objects.all()[:6]
+
     context = {
         'aluno_logado': False,
+        'imagens': imagens,
     }
 
     if 'aluno' in request.session:

@@ -28,6 +28,30 @@ INSTALLED_APPS = [
 
 ]
 
+import os
+from django.utils.translation import gettext_lazy as _
+
+# Configurações de internacionalização
+USE_I18N = True
+USE_L10N = True
+LANGUAGE_CODE = 'pt'
+
+# Idiomas suportados
+LANGUAGES = [
+    ('pt', _('Português')),
+    ('en', _('Inglês')),
+    ('fr', _('Francês')),
+    ('es', _('Espanhol')),
+    ('umb', _('Umbundo')),
+    ('kik', _('Kikongo')),
+    ('kmb', _('Kimbundu')),
+    ('cok', _('Chokwe')),
+]
+
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale'),
+]
+
 CSRF_TRUSTED_ORIGINS = [
     'https://eduka-angola-production.up.railway.app',
 ]
@@ -38,6 +62,7 @@ SITE_DOMAIN = 'http://127.0.0.1:8000'  # ou o domínio real, tipo: https://eduka
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     #'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -58,6 +83,8 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.template.context_processors.i18n',
+                'core.context_processors.languages',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],

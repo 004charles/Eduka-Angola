@@ -700,7 +700,7 @@
                                 </div>
 
                                 <div class="buy-now-btn mt--15">
-                                    <a class="rbt-btn btn-border icon-hover w-100 d-block text-center" href="course-details.html#">
+                                    <a class="rbt-btn btn-border icon-hover w-100 d-block text-center" href="{% url 'ficha_inscricao' curso.id %}">
                                         <span class="btn-text">Inscrever-se</span>
                                         <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                     </a>
@@ -899,6 +899,28 @@
             </div>
         </div>
     </div>
+
+    <div style="margin-top: 40px;" class="container-fluid">
+        <div class="row g-3">
+            {% for img in imagens %}
+            <div class="col-lg-2 col-md-4 col-sm-6 col-6">
+                <div class="instagram-grid">
+                    <a href="{{ img.link|default:'#' }}">
+                        <img src="{{ img.imagem.url }}" alt="#">
+                        {% if img.usuario %}
+                        <span class="user-info">
+                            <span class="icon"><i class="icon-instagram"></i></span>
+                            <span class="user-name">{{ img.usuario }}</span>
+                        </span>
+                        {% endif %}
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+        </div>
+
     
     <!-- End Course Action Bottom  -->
     <div class="rbt-separator-mid">

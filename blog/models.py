@@ -65,13 +65,38 @@ class Post(models.Model):
         return self.titulo
 
 
+class ReacaoComentario(models.Model):
+    REACOES_CHOICES = [
+        ('like', 'Curtir 👍'),
+        ('love', 'Amei ❤️'),
+        ('laugh', 'Haha 😂'),
+        ('surprised', 'Uau 😮'),
+        ('sad', 'Triste 😢'),
+        ('angry', 'Bravo 😡'),
+    ]
+    comentario = models.ForeignKey('Comentario', on_delete=models.CASCADE, related_name='reacoes')
+    usuario = models.ForeignKey('usuarios.Aluno', on_delete=models.CASCADE)
+    tipo = models.CharField(max_length=20, choices=REACOES_CHOICES)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('comentario', 'usuario', 'tipo')
+
+    def __str__(self):
+        return f"{self.usuario} reagiu com {self.get_tipo_display()} no comentário {self.comentario.id}"
+
+
 class Comentario(models.Model):
+    REACOES_CHOICES = ReacaoComentario.REACOES_CHOICES  # agora funciona
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comentarios')
     nome = models.CharField(_('Nome'), max_length=100)
     email = models.EmailField(_('E-mail'))
     mensagem = models.TextField(_('Mensagem'))
     criado_em = models.DateTimeField(_('Criado em'), default=timezone.now)
     aprovado = models.BooleanField(_('Aprovado'), default=True)
+    parent = models.ForeignKey(
+        'self', null=True, blank=True, on_delete=models.CASCADE, related_name='respostas'
+    )
 
     class Meta:
         verbose_name = 'Comentário'
@@ -80,3 +105,17 @@ class Comentario(models.Model):
 
     def __str__(self):
         return f"Comentário de {self.nome} no post {self.post.titulo}"
+
+    def contar_reacoes(self, tipo):
+        return self.reacoes.filter(tipo=tipo).count()
+
+    def is_resposta(self):
+        return self.parent is not None
+
+    def get_user_reaction(self, user):
+        if user.is_authenticated:
+            try:
+                return self.reacoes.get(usuario=user).tipo
+            except ReacaoComentario.DoesNotExist:
+                return None
+        return None
