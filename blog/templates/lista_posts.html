@@ -278,11 +278,14 @@
                                             </a>
                                         </div>
                                         <div class="content">
-                                            <h6 class="title"><a href="{% url 'blog:detalhe_post' recente.slug %}">{{
-                                                    recente.titulo }}</a></h6>
+                                            <h6 class="title">
+  <a href="{% url 'blog:detalhe_post' recente.slug %}">
+    {{ recente.titulo|striptags }}
+  </a>
+</h6>
+
                                             <ul class="rbt-meta">
-                                                <li><i class="feather-clock"></i>{{ recente.publicado_em|date:"d M, Y"
-                                                    }}</li>
+                                                <li><i class="feather-clock"></i>{{ recente.publicado_em|date:"d M, Y" }}</li>
                                             </ul>
                                         </div>
                                     </li>

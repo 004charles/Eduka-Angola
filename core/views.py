@@ -21,6 +21,7 @@ from django.conf import settings
 from usuarios.models import CentroSeguimento, PerfilAluno
 from django.utils import timezone
 from datetime import timedelta
+from cursovideoapp.models import Curso_video
 
 def index(request):
     agora = timezone.now()
@@ -29,6 +30,9 @@ def index(request):
     cursos_destaque = Curso.objects.filter(
         destaque=True, publicado=True, ativo=True
     ).select_related('centro').prefetch_related('instrutores')
+
+    cursos = Curso_video.objects.all()[:5]
+
 
     posts = Post.objects.filter(status='publicado') \
         .select_related('categoria') \
@@ -73,6 +77,7 @@ def index(request):
         'cursos_zigue1': cursos_zigue1,
         'cursos_zigue2': cursos_zigue2,
         'categoria': categorias,
+        'cursos': cursos,
         'posts': posts,
         'centros': centros,
         'imagens': imagens,
@@ -80,7 +85,7 @@ def index(request):
         'DEBUG': settings.DEBUG,
         'aluno_logado': False,
         'favoritos': [],
-        'centros_seguidos': [],
+        'centros_seguidos': []
     }
 
     if 'aluno' in request.session:
@@ -138,3 +143,24 @@ def sobre(request):
             pass
 
     return render(request, 'core/sobre.html', context)
+
+
+def privacidade(request):
+    imagens = Galeria.objects.all()[:6]
+
+    context = {
+        'aluno_logado': False,
+        'imagens': imagens,
+
+    }
+    if 'aluno' in request.session:
+        try:
+            aluno = Aluno.objects.get(id=request.session['aluno'])
+            context.update({
+                'aluno_logado': True,
+                'aluno_nome': aluno.nome,
+            })
+        except Aluno.DoesNotExist:
+            pass
+
+    return render(request, 'core/privacidade.html', context)

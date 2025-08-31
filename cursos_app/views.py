@@ -327,9 +327,15 @@ def todo_curso(request):
         destaque=True, publicado=True, ativo=True
     ).select_related('centro').prefetch_related('instrutores')
 
+    # Lista simples de cursos para animação
+    cursos_animacao = Curso.objects.filter(
+    publicado=True
+    ).values_list('titulo', flat=True)
+
     # Atualiza o contexto com os dados
     context.update({
         'categorias_com_cursos': categorias_com_cursos,
+        'cursos_animacao': cursos_animacao
     })
 
     return render(request, 'todo_curso.html', context)

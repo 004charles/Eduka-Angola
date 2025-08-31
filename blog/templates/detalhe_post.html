@@ -305,220 +305,231 @@
                             </div>
                         </div>
 
-                        <!-- Lista de comentários -->
-                        {% if comentarios %}
-                        <ul class="comment-list">
-                            {% for comentario in comentarios %}
-                            {% if not comentario.parent %}
-                            <li class="comment">
-                                <div class="comment-body">
-                                    <div class="single-comment">
-                                        <div class="comment-img">
-                                            <img src="{% static 'assets/images/testimonial/testimonial-1.jpg' %}"
-                                                alt="Author Images">
-                                        </div>
-                                        <div class="comment-inner">
-                                            <h6 class="commenter">
-                                                <a href="#">{{ comentario.nome }}</a>
-                                            </h6>
-                                            <div class="comment-meta">
-                                                <div class="time-spent">{{ comentario.criado_em|date:"d M Y H:i" }}
-                                                </div>
-                                            </div>
-                                            <div class="comment-text">
-                                                <p class="b2">{{ comentario.mensagem }}</p>
-                                            </div>
+                        <!-- ================================
+    LISTA DE COMENTÁRIOS
+================================ -->
+{% if comentarios %}
+<ul class="comment-list">
+    {% for comentario in comentarios %}
+    {% if not comentario.parent %}
+    <li class="comment">
+        <div class="comment-body">
+            <div class="single-comment">
+                <!-- Avatar -->
+                <div class="comment-img">
+                    <img src="{% static 'assets/images/testimonial/testimonial-1.jpg' %}" alt="Author Image">
+                </div>
 
-                                            <!-- Reações -->
-                                            <!-- Substitua a div comment-reactions por: -->
-                                            <div class="comment-reactions">
-                                                <div class="reaction-container">
-                                                    <button type="button" class="reaction-main-btn">
-                                                        <span class="reaction-icon">👍</span>
-                                                        <span class="reaction-count">{{
-                                                            comentario.reacoes_dict.like|default:0 }}</span>
-                                                    </button>
+                <div class="comment-inner">
+                    <!-- Nome -->
+                    <h6 class="commenter">
+                        <a href="#">{{ comentario.nome }}</a>
+                    </h6>
 
-                                                    <div class="reaction-dropdown">
-                                                        {% for value, label in reacoes_choices %}
-                                                        <form method="post"
-                                                            action="{% url 'blog:reagir_comentario' comentario.id value %}"
-                                                            class="reaction-form">
-                                                            {% csrf_token %}
-                                                            <button type="submit" class="reaction-option"
-                                                                title="{{ label }}">
-                                                                {% if value == 'like' %} 👍
-                                                                {% elif value == 'love' %} ❤️
-                                                                {% elif value == 'haha' %} 😂
-                                                                {% elif value == 'wow' %} 😲
-                                                                {% elif value == 'sad' %} 😢
-                                                                {% elif value == 'angry' %} 😠
-                                                                {% endif %}
-                                                            </button>
-                                                        </form>
-                                                        {% endfor %}
-                                                    </div>
-                                                </div>
-                                            </div>
-
-
-                                            <!-- Botão responder -->
-                                            <div class="comment-reply">
-                                                <a href="#responder-{{ comentario.id }}" class="reply-btn">Responder</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Respostas -->
-                                {% if comentario.respostas.all %}
-                                <ul class="children">
-                                    {% for resposta in comentario.respostas.all %}
-                                    <li class="comment">
-                                        <div class="comment-body">
-                                            <div class="single-comment">
-                                                <div class="comment-img">
-                                                    <img src="{% static 'assets/images/testimonial/testimonial-1.jpg' %}"
-                                                        alt="Author Images">
-                                                </div>
-                                                <div class="comment-inner">
-                                                    <h6 class="commenter">
-                                                        <a href="#">{{ resposta.nome }}</a>
-                                                    </h6>
-                                                    <div class="comment-meta">
-                                                        <div class="time-spent">{{ resposta.criado_em|date:"d M Y H:i"
-                                                            }}</div>
-                                                    </div>
-                                                    <div class="comment-text">
-                                                        <p class="b2">{{ resposta.mensagem }}</p>
-                                                    </div>
-
-                                                    <!-- Reações -->
-                                                    <div class="comment-reactions">
-                                                        <div class="reaction-container">
-                                                            <button type="button" class="reaction-main-btn">
-                                                                <span class="reaction-icon">👍</span>
-                                                                <span class="reaction-count">{{
-                                                                    comentario.reacoes_dict.like|default:0 }}</span>
-                                                            </button>
-
-                                                            <div class="reaction-dropdown">
-                                                                {% for value, label in reacoes_choices %}
-                                                                <form method="post"
-                                                                    action="{% url 'blog:reagir_comentario' comentario.id value %}"
-                                                                    class="reaction-form">
-                                                                    {% csrf_token %}
-                                                                    <button type="submit" class="reaction-option"
-                                                                        title="{{ label }}">
-                                                                        {% if value == 'like' %} 👍
-                                                                        {% elif value == 'love' %} ❤️
-                                                                        {% elif value == 'haha' %} 😂
-                                                                        {% elif value == 'wow' %} 😲
-                                                                        {% elif value == 'sad' %} 😢
-                                                                        {% elif value == 'angry' %} 😠
-                                                                        {% endif %}
-                                                                    </button>
-                                                                </form>
-                                                                {% endfor %}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    {% endfor %}
-                                </ul>
-                                {% endif %}
-
-                                <!-- Form responder -->
-                                <div class="comment-respond" id="responder-{{ comentario.id }}">
-                                    <form method="post" action="{% url 'blog:comentar_post' post.slug %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="parent" value="{{ comentario.id }}">
-
-                                        {% if aluno_logado %}
-                                        <!-- Preenche automaticamente quando logado -->
-                                        <input type="hidden" name="nome" value="{{ aluno_nome }}">
-                                        <input type="hidden" name="email" value="{{ aluno_email }}">
-                                        {% else %}
-                                        <!-- Mostra campos quando não logado -->
-                                        <div class="form-group">
-                                            {{ form.nome.label_tag }}
-                                            {{ form.nome }}
-                                        </div>
-                                        <div class="form-group">
-                                            {{ form.email.label_tag }}
-                                            {{ form.email }}
-                                        </div>
-                                        {% endif %}
-
-                                        <div class="form-group">
-                                            {{ form.mensagem.label_tag }}
-                                            {{ form.mensagem }}
-                                        </div>
-                                        <button type="submit"
-                                            class="rbt-btn btn-gradient icon-hover radius-round btn-md">
-                                            <span class="btn-text">Enviar Resposta</span>
-                                        </button>
-                                    </form>
-                                </div>
-
-                            </li>
-                            {% endif %}
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
-
-                        <!-- Form comentário principal -->
-                        <div class="comment-respond" id="comentar">
-                            <h4 class="title">{{ _('Deixe um comentário') }}</h4>
-                            <form method="post" action="{% url 'blog:comentar_post' post.slug %}">
-                                {% csrf_token %}
-                                <p class="comment-notes">
-                                    <span id="email-notes">{{ _('Seu email não será publicado.') }}</span>
-                                    {{ _('Campos obrigatórios marcados com') }} <span class="required">*</span>
-                                </p>
-                                <div class="row row--10">
-
-                                    {% if aluno_logado %}
-                                    <!-- Preenche automaticamente quando logado -->
-                                    <input type="hidden" name="nome" value="{{ aluno_nome }}">
-                                    <input type="hidden" name="email" value="{{ aluno_email }}">
-                                    {% else %}
-                                    <!-- Mostra campos quando não logado -->
-                                    <div class="col-lg-6 col-md-6 col-12">
-                                        <div class="form-group">
-                                            {{ form.nome.label_tag }}
-                                            {{ form.nome }}
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6 col-md-6 col-12">
-                                        <div class="form-group">
-                                            {{ form.email.label_tag }}
-                                            {{ form.email }}
-                                        </div>
-                                    </div>
-                                    {% endif %}
-
-                                    <div class="col-12">
-                                        <div class="form-group">
-                                            {{ form.mensagem.label_tag }}
-                                            {{ form.mensagem }}
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <button type="submit"
-                                            class="rbt-btn btn-gradient icon-hover radius-round btn-md">
-                                            <span class="btn-text">{{ _('Enviar Comentário') }}</span>
-                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
+                    <!-- Data -->
+                    <div class="comment-meta">
+                        <div class="time-spent">
+                            {{ comentario.criado_em|date:"d M Y H:i" }}
                         </div>
+                    </div>
+
+                    <!-- Texto -->
+                    <div class="comment-text">
+                        <p class="b2">{{ comentario.mensagem }}</p>
+                    </div>
+
+                    <!-- Reações -->
+                    <div class="comment-reactions">
+                        <div class="reaction-container">
+                            <!-- Botão principal (like default) -->
+                            <button type="button" class="reaction-main-btn">
+                                <span class="reaction-icon">👍</span>
+                                <span class="reaction-count">{{ comentario.reacoes_dict.like|default:0 }}</span>
+                            </button>
+
+                            <!-- Dropdown de reações -->
+                            <div class="reaction-dropdown">
+                                {% for value, label in reacoes_choices %}
+                                <form method="post" action="{% url 'blog:reagir_comentario' comentario.id value %}" class="reaction-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="reaction-option" title="{{ label }}">
+                                        {% if value == 'like' %} 👍
+                                        {% elif value == 'love' %} ❤️
+                                        {% elif value == 'haha' %} 😂
+                                        {% elif value == 'wow' %} 😲
+                                        {% elif value == 'sad' %} 😢
+                                        {% elif value == 'angry' %} 😠
+                                        {% endif %}
+                                    </button>
+                                </form>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botão responder -->
+                    <div class="comment-reply">
+                        <a href="#responder-{{ comentario.id }}" class="reply-btn">Responder</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Respostas -->
+        {% if comentario.respostas.all %}
+        <ul class="children">
+            {% for resposta in comentario.respostas.all %}
+            <li class="comment">
+                <div class="comment-body">
+                    <div class="single-comment">
+                        <!-- Avatar -->
+                        <div class="comment-img">
+                            <img src="{% static 'assets/images/testimonial/testimonial-1.jpg' %}" alt="Author Image">
+                        </div>
+
+                        <div class="comment-inner">
+                            <!-- Nome -->
+                            <h6 class="commenter">
+                                <a href="#">{{ resposta.nome }}</a>
+                            </h6>
+
+                            <!-- Data -->
+                            <div class="comment-meta">
+                                <div class="time-spent">
+                                    {{ resposta.criado_em|date:"d M Y H:i" }}
+                                </div>
+                            </div>
+
+                            <!-- Texto -->
+                            <div class="comment-text">
+                                <p class="b2">{{ resposta.mensagem }}</p>
+                            </div>
+
+                            <!-- Reações -->
+                            <div class="comment-reactions">
+                                <div class="reaction-container">
+                                    <!-- Botão principal -->
+                                    <button type="button" class="reaction-main-btn">
+                                        <span class="reaction-icon">👍</span>
+                                        <span class="reaction-count">{{ resposta.reacoes_dict.like|default:0 }}</span>
+                                    </button>
+
+                                    <!-- Dropdown de reações -->
+                                    <div class="reaction-dropdown">
+                                        {% for value, label in reacoes_choices %}
+                                        <form method="post" action="{% url 'blog:reagir_comentario' resposta.id value %}" class="reaction-form">
+                                            {% csrf_token %}
+                                            <button type="submit" class="reaction-option" title="{{ label }}">
+                                                {% if value == 'like' %} 👍
+                                                {% elif value == 'love' %} ❤️
+                                                {% elif value == 'haha' %} 😂
+                                                {% elif value == 'wow' %} 😲
+                                                {% elif value == 'sad' %} 😢
+                                                {% elif value == 'angry' %} 😠
+                                                {% endif %}
+                                            </button>
+                                        </form>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <!-- Formulário responder -->
+        <div class="comment-respond" id="responder-{{ comentario.id }}">
+            <form method="post" action="{% url 'blog:comentar_post' post.slug %}">
+                {% csrf_token %}
+                <input type="hidden" name="parent" value="{{ comentario.id }}">
+
+                {% if aluno_logado %}
+                <!-- Preenche automaticamente quando logado -->
+                <input type="hidden" name="nome" value="{{ aluno_nome }}">
+                <input type="hidden" name="email" value="{{ aluno_email }}">
+                {% else %}
+                <!-- Campos quando não logado -->
+                <div class="form-group">
+                    {{ form.nome.label_tag }}
+                    {{ form.nome }}
+                </div>
+                <div class="form-group">
+                    {{ form.email.label_tag }}
+                    {{ form.email }}
+                </div>
+                {% endif %}
+
+                <div class="form-group">
+                    {{ form.mensagem.label_tag }}
+                    {{ form.mensagem }}
+                </div>
+
+                <button type="submit" class="rbt-btn btn-gradient icon-hover radius-round btn-md">
+                    <span class="btn-text">Enviar Resposta</span>
+                </button>
+            </form>
+        </div>
+    </li>
+    {% endif %}
+    {% endfor %}
+</ul>
+{% endif %}
+
+
+<!-- ================================
+    FORM DE NOVO COMENTÁRIO
+================================ -->
+<div class="comment-respond" id="comentar">
+    <h4 class="title">{{ _('Deixe um comentário') }}</h4>
+    <form method="post" action="{% url 'blog:comentar_post' post.slug %}">
+        {% csrf_token %}
+        <p class="comment-notes">
+            <span id="email-notes">{{ _('Seu email não será publicado.') }}</span>
+            {{ _('Campos obrigatórios marcados com') }} <span class="required">*</span>
+        </p>
+
+        <div class="row row--10">
+            {% if aluno_logado %}
+            <!-- Preenche automaticamente -->
+            <input type="hidden" name="nome" value="{{ aluno_nome }}">
+            <input type="hidden" name="email" value="{{ aluno_email }}">
+            {% else %}
+            <div class="col-lg-6 col-md-6 col-12">
+                <div class="form-group">
+                    {{ form.nome.label_tag }}
+                    {{ form.nome }}
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-12">
+                <div class="form-group">
+                    {{ form.email.label_tag }}
+                    {{ form.email }}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="col-12">
+                <div class="form-group">
+                    {{ form.mensagem.label_tag }}
+                    {{ form.mensagem }}
+                </div>
+            </div>
+
+            <div class="col-lg-12">
+                <button type="submit" class="rbt-btn btn-gradient icon-hover radius-round btn-md">
+                    <span class="btn-text">{{ _('Enviar Comentário') }}</span>
+                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
 
                     </div>
 
@@ -531,34 +542,32 @@
                             <h4 class="title">Você pode gostar</h4>
                         </div>
 
-                        {% for post in relacionados %}
+                        {% for relacionado in relacionados %}
                         <div class="rbt-card card-list variation-02 rbt-hover mt--30">
                             <div class="rbt-card-img">
-                                <a href="{{ post.get_absolute_url }}">
-                                    {% if post.imagem %}
-                                    <img src="{{ post.imagem.url }}" alt="{{ post.titulo }}">
+                                <a href="{{ relacionado.get_absolute_url }}">
+                                    {% if relacionado.imagem %}
+                                    <img src="{{ relacionado.imagem.url }}" alt="{{ relacionado.titulo }}">
                                     {% else %}
                                     <img src="{% static 'assets/images/blog/blog-card-02.jpg' %}" alt="Card image">
                                     {% endif %}
                                 </a>
                             </div>
                             <div class="rbt-card-body">
-                                <h5 class="rbt-card-title"><a href="{{ post.get_absolute_url }}">{{ post.titulo }}</a>
+                                <h5 class="rbt-card-title">
+                                    <a href="{{ relacionado.get_absolute_url }}">{{ relacionado.titulo }}</a>
                                 </h5>
                                 <div class="rbt-card-bottom">
-                                    <a class="transparent-button" href="{{ post.get_absolute_url }}">Ler artigo<i><svg
-                                                width="17" height="12" xmlns="http://www.w3.org/2000/svg">
-                                                <g stroke="#27374D" fill="none" fill-rule="evenodd">
-                                                    <path d="M10.614 0l5.629 5.629-5.63 5.629" />
-                                                    <path stroke-linecap="square" d="M.663 5.572h14.594" />
-                                                </g>
-                                            </svg></i></a>
+                                    <a class="transparent-button" href="{{ relacionado.get_absolute_url }}">
+                                        Ler artigo
+                                    </a>
                                 </div>
                             </div>
                         </div>
                         {% endfor %}
                     </div>
                     {% endif %}
+
                 </div>
             </div>
         </div>

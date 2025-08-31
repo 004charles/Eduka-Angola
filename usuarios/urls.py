@@ -6,11 +6,13 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('conta_aluno/', views.conta_aluno, name = 'conta_aluno'),
     path('aluno/', views.aluno, name = 'aluno'),
+    path('editar_perfil/', views.editar_perfil, name='editar_perfil'),
     path('seguir-centro/<int:centro_id>/', views.seguir_centro, name='seguir_centro'),
 
     #------------------login---------------------------------
     path('Login_aluno/', views.Login_aluno, name = 'Login_aluno'), 
     path('Login_empresa/', views.Login_empresa, name = 'Login_empresa'), 
+    path('user_profile/', views.user_profile, name='user_profile'),
     path('Login_instrutor/', views.Login_instrutor, name = 'Login_instrutor'), 
     path('Login_biblioteca/', views.Login_biblioteca, name = 'Login_biblioteca'),
     path('Login_escola/', views.Login_escola, name = 'Login_escola'), 

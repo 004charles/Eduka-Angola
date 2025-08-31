@@ -533,3 +533,40 @@ def seguir_centro(request, centro_id):
             'status': 'info',
             'mensagem': f"Você já segue o centro {centro.nome}."
         })
+
+
+def user_profile(request):
+    if 'aluno' not in request.session:
+        return redirect('/auth/Login_aluno?status=4')  
+    aluno = get_object_or_404(Aluno, id=request.session['aluno'])
+    
+    return render(request, 'user_profile.html', {'aluno': aluno})
+
+
+from django.shortcuts import redirect
+from django.contrib import messages
+
+def editar_perfil(request):
+    if 'aluno' not in request.session:
+        return redirect('/auth/Login_aluno?status=4')
+    
+    aluno = Aluno.objects.get(id=request.session['aluno'])
+    perfil, created = PerfilAluno.objects.get_or_create(aluno=aluno)
+
+    if request.method == 'POST':
+        aluno.nome = request.POST.get('nome')
+        perfil.telefone = request.POST.get('telefone')
+        perfil.biografia = request.POST.get('biografia')
+        perfil.linkedin = request.POST.get('linkedin')
+        perfil.github = request.POST.get('github')
+
+        if 'foto_de_perfil' in request.FILES:
+            perfil.foto_de_perfil = request.FILES['foto_de_perfil']
+        
+        aluno.save()
+        perfil.save()
+        
+        messages.success(request, "Perfil atualizado com sucesso!")
+        return redirect('/auth/aluno')  
+
+    return redirect('/auth/aluno')

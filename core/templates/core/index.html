@@ -20,6 +20,14 @@
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/images/favicon.png' %}">
 
     {% include 'include/css.html' %}
+    <style>
+        body {
+            overflow-x: hidden;
+            /* Esconde a rolagem horizontal */
+            width: 100%;
+            /* Garante que o body ocupe 100% da largura */
+        }
+    </style>
 
 </head>
 
@@ -130,8 +138,8 @@
                                             <div class="content">
                                                 <div class="inner">
                                                     <h4 class="title"><a
-                                                            href="{% url 'cursos_por_centro' centro.id %}">{{
-                                                            centro.nome }}</a></h4>
+                                                            href="{% url 'cursos_por_centro' centro.id %}">{{centro.nome}}
+                                                        </a></h4>
                                                     <p class="designation">{{ centro.endereco }}</p>
                                                     <p class="designation"
                                                         style="margin-top: 5px; font-size: 14px; color: black;">
@@ -215,7 +223,7 @@
                                 <div class="content">
                                     <h5 class="title">{{categoria.nome}}</h5>
                                     <div class="read-more-btn">
-                                        <span class="rbt-btn-link">Cursos {{ categoria.num_cursos }}<i
+                                        <span class="rbt-btn-link">Cursos {{categoria.num_cursos}}<i
                                                 class="feather-arrow-right"></i></span>
                                     </div>
                                 </div>
@@ -540,7 +548,80 @@
         </div>
         <!-- End Feature Area -->
 
+        <div style="margin-bottom: 10px;" class="mt--80">
+            <div class="rbt-brand-title-wrap">
+                <h5 class="rbt-brand-title w-600 text-center mb-0">Descubra <span class="theme-gradient">cursos
+                        exclusivos</span> dos nossos <span class="theme-gradient">centros parceiros</span></h5>
+            </div>
+        </div>
 
+        <!-- Start Call To Action  -->
+        <div class="rbt-callto-action-area mt_dec--half">
+            <div class="container">
+                <div class="row g-5">
+                    <!-- Primeiro Card - Destaque para Centros Parceiros -->
+                    <div class="col-lg-6">
+                        <div class="rbt-callto-action callto-action-default bg-color-white rbt-radius shadow-1">
+                            <div class="row align-items-center">
+                                <div class="col-lg-12 col-xl-5">
+                                    <div class="inner">
+                                        <div class="rbt-category mb--20">
+                                            <a href="#">Parcerias</a>
+                                        </div>
+                                        <h4 class="title mb--15">Cursos Certificados</h4>
+                                        <p class="mb--15">Conheça os cursos oferecidos por nossas instituições parceiras
+                                        </p>
+                                        <div class="badge bg-primary-soft mt--10">
+                                            <span>Parcerias de Qualidade</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 col-xl-7">
+                                    <div class="video-popup-wrapper mt_lg--10 mt_md--20 mt_sm--20">
+                                        <img class="w-100 rbt-radius"
+                                            src="{% static 'assets/images/others/video-01.jpg' %}"
+                                            alt="Centros Parceiros">
+                                        <a class="rbt-btn rounded-player-2 sm-size popup-video position-to-top with-animation"
+                                            href="#centros-parceiros">
+                                            <span class="play-icon"></span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Segundo Card - Seja um Centro Parceiro -->
+                    <div class="col-lg-6">
+                        <div class="rbt-callto-action callto-action-default bg-color-white rbt-radius shadow-1">
+                            <div class="row align-items-center">
+                                <div class="col-lg-12">
+                                    <div class="inner">
+                                        <div class="rbt-category mb--20">
+                                            <a href="#">Para Instituições</a>
+                                        </div>
+                                        <h4 class="title mb--10">Torne-se um Centro Parceiro</h4>
+                                        <p class="mb--15">Divulgue seus cursos para milhares de estudantes</p>
+                                        <ul class="rbt-list-style-1 mb--15">
+                                            <li><i class="feather-check"></i>Maior visibilidade para seus cursos</li>
+                                            <li><i class="feather-check"></i>Plataforma de gestão integrada</li>
+                                            <li><i class="feather-check"></i>Relatórios de desempenho</li>
+                                        </ul>
+                                        <div class="read-more-btn">
+                                            <a class="rbt-btn rbt-switch-btn btn-gradient btn-sm" href="#seja-parceiro">
+                                                <span data-text="Quero ser Parceiro">Quero ser Parceiro</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Benefícios para Parceiros -->
 
         {% if cursos_destaque %}
         <div class="rbt-course-area bg-color-extra2 rbt-section-gap">
@@ -1252,7 +1333,7 @@
                                     território nacional.</p>
                                 <div class="read-more-btn mt--40">
                                     <a class="rbt-btn btn-gradient rbt-switch-btn rbt-switch-y" href="sobre.html#">
-                                        <span data-text="Sobre a Educangola">Sobre a Educangola</span>
+                                        <span data-text="Sobre a Edukangola">Sobre a Edukangola</span>
                                     </a>
                                 </div>
                             </div>
@@ -1261,6 +1342,863 @@
                 </div>
             </div>
         </div>
+
+        <div style="margin-bottom: 10px;" class="mt--80">
+            <div class="rbt-brand-title-wrap">
+                <h5 class="rbt-brand-title w-600 text-center mb-0">Criando <span
+                        class="theme-gradient">oportunidades</span> através de <span class="theme-gradient">cursos de
+                        excelência</span> como</h5>
+            </div>
+        </div>
+
+        <!-- Start Call To Action  -->
+        <div class="rbt-callto-action-area mt_dec--half">
+            <div class="container">
+                <div class="row g-5">
+                    <!-- First Card -->
+                    <div class="col-lg-6">
+                        <div class="rbt-callto-action callto-action-default bg-color-white rbt-radius shadow-1">
+                            <div class="row align-items-center">
+                                <div class="col-lg-12 col-xl-5">
+                                    <div class="inner">
+                                        <div class="rbt-category mb--20">
+                                            <a href="#">Novos Cursos</a>
+                                        </div>
+                                        <h4 class="title mb--15">Cursos em Destaque</h4>
+                                        <p class="mb--15">Aprenda com os melhores instrutores do mercado</p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 col-xl-7">
+                                    <div class="video-popup-wrapper mt_lg--10 mt_md--20 mt_sm--20">
+                                        <img class="w-100 rbt-radius"
+                                            src="{% static 'assets/images/others/video-01.jpg' %}"
+                                            alt="Cursos em Destaque">
+                                        <a class="rbt-btn rounded-player-2 sm-size popup-video position-to-top with-animation"
+                                            href="https://www.youtube.com/watch?v=VIDEO_CURSOS">
+                                            <span class="play-icon"></span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Second Card -->
+                    <div class="col-lg-6">
+                        <div class="rbt-callto-action callto-action-default bg-color-white rbt-radius shadow-1">
+                            <div class="row align-items-center">
+                                <div class="col-lg-12">
+                                    <div class="inner">
+                                        <div class="rbt-category mb--20">
+                                            <a href="#">Instrutores</a>
+                                        </div>
+                                        <h4 class="title mb--10">Torne-se um Instrutor</h4>
+                                        <p class="mb--15">Compartilhe seu conhecimento e gere renda</p>
+                                        <div class="read-more-btn">
+                                            <a class="rbt-btn rbt-switch-btn btn-gradient btn-sm" href="#">
+                                                <span data-text="Cadastre-se">Cadastre-se</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="rbt-course-area bg-color-white rbt-section-gapTop masonary-wrapper-activation">
+            <div class="container">
+                <div class="row mb--60">
+                    <div class="col-lg-12">
+                        <div class="section-title text-center">
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row g-5">
+                    {% for curso in cursos %}
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-12">
+                        <div class="rbt-card variation-01 rbt-hover card-list-2">
+                            <div class="rbt-card-img">
+                                <a href="{% url 'detalhe_curso' curso.slug %}">
+                                    {% if curso.capa %}
+                                    <img src="{{ curso.capa.url }}" alt="{{ curso.titulo }}">
+                                    {% else %}
+                                    <img src="{% static 'assets/images/course/default.jpg' %}" alt="{{ curso.titulo }}">
+                                    {% endif %}
+                                </a>
+                            </div>
+                            <div class="rbt-card-body">
+                                <div class="rbt-card-top">
+                                    <div class="rbt-review">
+                                        <div class="rating">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                        <span class="rating-count"> (0 Reviews)</span>
+                                    </div>
+                                    <div class="rbt-bookmark-btn">
+                                        <a class="rbt-round-btn" title="Bookmark" href="#">
+                                            <i class="feather-bookmark"></i>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <h4 class="rbt-card-title">
+                                    <a href="{% url 'detalhe_curso' curso.slug %}">{{ curso.titulo }}</a>
+                                </h4>
+
+                                <ul class="rbt-meta">
+                                    <li><i class="feather-book"></i>{{ curso.aulas.count }} Aulas</li>
+                                    <li><i class="feather-users"></i>-- Alunos</li>
+                                </ul>
+
+                                <p class="rbt-card-text">{{ curso.descricao|truncatewords:12 }}</p>
+
+                                <div class="rbt-author-meta mb--10">
+                                    <div class="rbt-avater">
+                                        <img src="{% static 'assets/images/client/avatar-02.png' %}"
+                                            alt="{{ curso.instrutor }}">
+                                    </div>
+                                    <div class="rbt-author-info">
+                                        por <a href="#">{{ curso.instrutor }}</a>
+                                        em <a href="#">{{ curso.categoria.nome }}</a>
+                                    </div>
+                                </div>
+
+                                <div class="rbt-card-bottom">
+                                    <div class="rbt-price">
+                                        <span class="current-price">Grátis</span>
+                                    </div>
+                                    <a class="rbt-btn-link left-icon" href="{% url 'detalhe_curso' curso.slug %}">
+                                        <i class="feather-arrow-right"></i> Ver Curso
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p>Nenhum curso disponível.</p>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+
+
+
+
+        <div style="margin-top: 20px;" class="mt--80">
+            <div class="rbt-brand-title-wrap">
+                <h5 class="rbt-brand-title w-600 text-center mb-0">Preparando <span class="theme-gradient">futuros
+                        profissionais</span> para <span class="theme-gradient">empresas líderes</span> como</h5>
+            </div>
+        </div>
+
+
+
+        <!-- Start Call To Action  -->
+        <div class="rbt-callto-action-area mt_dec--half">
+            <div class="container">
+                <div class="row g-5">
+                    <!-- Primeiro Card -->
+                    <div class="col-lg-6">
+                        <div class="rbt-callto-action callto-action-default bg-color-white rbt-radius shadow-1">
+                            <div class="row align-items-center">
+                                <div class="col-lg-12 col-xl-5">
+                                    <div class="inner">
+                                        <div class="rbt-category mb--20">
+                                            <a href="#">Novas Vagas</a>
+                                        </div>
+                                        <h4 class="title mb--15">Oportunidades de Estágio em Destaque</h4>
+                                        <p class="mb--15">Empresas parceiras buscando novos talentos</p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 col-xl-7">
+                                    <div class="video-popup-wrapper mt_lg--10 mt_md--20 mt_sm--20">
+                                        <img class="w-100 rbt-radius"
+                                            src="{% static 'assets/images/others/video-01.jpg' %}"
+                                            alt="Estágios em Destaque">
+                                        <a class="rbt-btn rounded-player-2 sm-size popup-video position-to-top with-animation"
+                                            href="https://www.youtube.com/watch?v=VIDEO_ESTAGIOS">
+                                            <span class="play-icon"></span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Segundo Card -->
+                    <div class="col-lg-6">
+                        <div class="rbt-callto-action callto-action-default bg-color-white rbt-radius shadow-1">
+                            <div class="row align-items-center">
+                                <div class="col-lg-12">
+                                    <div class="inner">
+                                        <div class="rbt-category mb--20">
+                                            <a href="#">Para Empresas</a>
+                                        </div>
+                                        <h4 class="title mb--10">Cadastre Sua Empresa e Encontre os Melhores Talentos
+                                        </h4>
+                                        <p class="mb--15">Acesse nosso banco de currículos de estudantes qualificados
+                                        </p>
+                                        <div class="read-more-btn">
+                                            <a class="rbt-btn rbt-switch-btn btn-gradient btn-sm" href="#">
+                                                <span data-text="Cadastrar Empresa">Cadastrar Empresa</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 50px;" class="rbt-categories-area bg-color-extra2 rbt-section-gap">
+            <div class="container">
+                <div class="row g-5">
+                    <!-- Start Category Box Layout  -->
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="rbt-cat-box rbt-cat-box-1 variation-3 text-center">
+                            <div class="inner">
+                                <div class="thumbnail">
+                                    <a href="course-filter-one-toggle.html">
+                                        <img src="{% static 'assets/images/category/image/web-design.jpg' %}"
+                                            alt="Category Images">
+                                        <div class="read-more-btn">
+                                            <span class="rbt-btn btn-sm btn-white radius-round">20 Courses</span>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="content">
+                                    <h5 class="title"><a href="course-filter-one-toggle.html">Web Design</a></h5>
+                                    <p class="description">Web App Application</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Category Box Layout  -->
+                    <!-- Start Category Box Layout  -->
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="rbt-cat-box rbt-cat-box-1 variation-3 text-center">
+                            <div class="inner">
+                                <div class="thumbnail">
+                                    <a href="course-filter-one-toggle.html">
+                                        <img src="{% static 'assets/images/category/image/graphic-design.jpg' %}"
+                                            alt="Category Images">
+                                        <div class="read-more-btn">
+                                            <span class="rbt-btn btn-sm btn-white radius-round">15 Courses</span>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="content">
+                                    <h5 class="title"><a href="course-filter-one-toggle.html">Graphic Design</a></h5>
+                                    <p class="description">Design is Art</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Category Box Layout  -->
+                    <!-- Start Category Box Layout  -->
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="rbt-cat-box rbt-cat-box-1 variation-3 text-center">
+                            <div class="inner">
+                                <div class="thumbnail">
+                                    <a href="course-filter-one-toggle.html">
+                                        <img src="{% static 'assets/images/category/image/personal-development.jpg' %}"
+                                            alt="Category Images">
+                                        <div class="read-more-btn">
+                                            <span class="rbt-btn btn-sm btn-white radius-round">9 Courses</span>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="content">
+                                    <h5 class="title"><a href="course-filter-one-toggle.html">Personal Development</a>
+                                    </h5>
+                                    <p class="description">Web App Application</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Category Box Layout  -->
+                    <!-- Start Category Box Layout  -->
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="rbt-cat-box rbt-cat-box-1 variation-3 text-center">
+                            <div class="inner">
+                                <div class="thumbnail">
+                                    <a href="course-filter-one-toggle.html">
+                                        <img src="{% static 'assets/images/category/image/software.jpg' %}"
+                                            alt="Category Images">
+                                        <div class="read-more-btn">
+                                            <span class="rbt-btn btn-sm btn-white radius-round">15 Courses</span>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="content">
+                                    <h5 class="title"><a href="course-filter-one-toggle.html">IT and Software</a></h5>
+                                    <p class="description">Web App Application</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Category Box Layout  -->
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+        <div class="rbt-events-area bg-color-white rbt-section-gap">
+            <div class="container">
+                <div class="row mb--60 g-5 align-items-end">
+                    <div class="col-lg-6 col-md-6 col-12">
+                        <div class="section-title text-start">
+                            <span class="subtitle bg-primary-opacity">Vagas Disponíveis</span>
+                            <h2 class="title">Oportunidades de Estágio</h2>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-12">
+                        <div class="read-more-btn text-start text-md-end">
+                            <a class="rbt-btn btn-gradient hover-icon-reverse radius-round" href="#">
+                                <div class="icon-reverse-wrapper">
+                                    <span class="btn-text">VER TODAS AS VAGAS</span>
+                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-5">
+                    <!-- Vaga 1 -->
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-12">
+                        <div class="rbt-card card-list-2 event-list-card variation-01 rbt-hover">
+                            <div class="rbt-card-img">
+                                <a href="detalhes-vaga.html">
+                                    <img src="{% static 'assets/images/event/grid-type-03.jpg' %}"
+                                        alt="Área de Tecnologia">
+                                </a>
+                            </div>
+                            <div class="rbt-card-body">
+                                <ul class="rbt-meta">
+                                    <li><i class="feather-briefcase"></i>Tecnologia</li>
+                                    <li><i class="feather-map-pin"></i>Remoto</li>
+                                    <li><i class="feather-clock"></i>6h/dia</li>
+                                </ul>
+                                <h4 class="rbt-card-title"><a href="detalhes-vaga.html">Estágio em Desenvolvimento de
+                                        Software</a></h4>
+                                <p class="rbt-card-text">Bolsa auxílio + benefícios. Requisitos: Cursar TI e
+                                    conhecimentos em Python.</p>
+                                <div class="read-more-btn">
+                                    <a class="rbt-btn btn-border hover-icon-reverse btn-sm radius-round"
+                                        href="detalhes-vaga.html">
+                                        <span class="icon-reverse-wrapper">
+                                            <span class="btn-text">Candidatar-se</span>
+                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vaga 2 -->
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-12">
+                        <div class="rbt-card card-list-2 event-list-card variation-01 rbt-hover">
+                            <div class="rbt-card-img">
+                                <a href="detalhes-vaga.html">
+                                    <img src="{% static 'assets/images/event/grid-type-03.jpg' %}"
+                                        alt="Área Administrativa">
+                                </a>
+                            </div>
+                            <div class="rbt-card-body">
+                                <ul class="rbt-meta">
+                                    <li><i class="feather-briefcase"></i>Administração</li>
+                                    <li><i class="feather-map-pin"></i>São Paulo/SP</li>
+                                    <li><i class="feather-clock"></i>4h/dia</li>
+                                </ul>
+                                <h4 class="rbt-card-title"><a href="detalhes-vaga.html">Estágio em Gestão
+                                        Empresarial</a></h4>
+                                <p class="rbt-card-text">Auxílio transporte + refeição no local. Para estudantes de ADM
+                                    a partir do 3º semestre.</p>
+                                <div class="read-more-btn">
+                                    <a class="rbt-btn btn-border hover-icon-reverse btn-sm radius-round"
+                                        href="detalhes-vaga.html">
+                                        <span class="icon-reverse-wrapper">
+                                            <span class="btn-text">Candidatar-se</span>
+                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="rbt-events-area bg-color-white rbt-section-gap">
+            <div class="container">
+                <div class="row mb--60 g-5 align-items-end">
+                    <div class="col-lg-6 col-md-6 col-12">
+                        <div class="section-title text-start">
+                            <h2 class="title">Oportunidades de Estágio</h2>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-12">
+                        <div class="read-more-btn text-start text-md-end">
+                            <a class="rbt-btn btn-gradient hover-icon-reverse radius-round" href="#">
+                                <div class="icon-reverse-wrapper">
+                                    <span class="btn-text">VER TODAS AS VAGAS</span>
+                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-5">
+                    <!-- Vaga 1 -->
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-12">
+                        <div class="rbt-card card-list-2 event-list-card variation-01 rbt-hover">
+                            <div class="rbt-card-img">
+                                <a href="detalhes-vaga.html">
+                                    <img src="{% static 'assets/images/event/grid-type-03.jpg' %}"
+                                        alt="Área de Tecnologia">
+                                </a>
+                            </div>
+                            <div class="rbt-card-body">
+                                <ul class="rbt-meta">
+                                    <li><i class="feather-briefcase"></i>Tecnologia</li>
+                                    <li><i class="feather-map-pin"></i>Remoto</li>
+                                    <li><i class="feather-clock"></i>6h/dia</li>
+                                </ul>
+                                <h4 class="rbt-card-title"><a href="detalhes-vaga.html">Estágio em Desenvolvimento de
+                                        Software</a></h4>
+                                <p class="rbt-card-text">Bolsa auxílio + benefícios. Requisitos: Cursar TI e
+                                    conhecimentos em Python.</p>
+                                <div class="read-more-btn">
+                                    <a class="rbt-btn btn-border hover-icon-reverse btn-sm radius-round"
+                                        href="detalhes-vaga.html">
+                                        <span class="icon-reverse-wrapper">
+                                            <span class="btn-text">Candidatar-se</span>
+                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vaga 2 -->
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-12">
+                        <div class="rbt-card card-list-2 event-list-card variation-01 rbt-hover">
+                            <div class="rbt-card-img">
+                                <a href="detalhes-vaga.html">
+                                    <img src="{% static 'assets/images/event/grid-type-03.jpg' %}"
+                                        alt="Área Administrativa">
+                                </a>
+                            </div>
+                            <div class="rbt-card-body">
+                                <ul class="rbt-meta">
+                                    <li><i class="feather-briefcase"></i>Administração</li>
+                                    <li><i class="feather-map-pin"></i>São Paulo/SP</li>
+                                    <li><i class="feather-clock"></i>4h/dia</li>
+                                </ul>
+                                <h4 class="rbt-card-title"><a href="detalhes-vaga.html">Estágio em Gestão
+                                        Empresarial</a></h4>
+                                <p class="rbt-card-text">Auxílio transporte + refeição no local. Para estudantes de ADM
+                                    a partir do 3º semestre.</p>
+                                <div class="read-more-btn">
+                                    <a class="rbt-btn btn-border hover-icon-reverse btn-sm radius-round"
+                                        href="detalhes-vaga.html">
+                                        <span class="icon-reverse-wrapper">
+                                            <span class="btn-text">Candidatar-se</span>
+                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="rbt-events-area bg-color-white rbt-section-gap">
+            <div class="container">
+                <div class="row mb--60 g-5 align-items-end">
+                    <div class="col-lg-6 col-md-6 col-12">
+                        <div class="section-title text-start">
+                            <h2 class="title">Oportunidades de Estágio</h2>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-12">
+                        <div class="read-more-btn text-start text-md-end">
+                            <a class="rbt-btn btn-gradient hover-icon-reverse radius-round" href="#">
+                                <div class="icon-reverse-wrapper">
+                                    <span class="btn-text">VER TODAS AS VAGAS</span>
+                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-5">
+                    <!-- Vaga 1 -->
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-12">
+                        <div class="rbt-card card-list-2 event-list-card variation-01 rbt-hover">
+                            <div class="rbt-card-img">
+                                <a href="detalhes-vaga.html">
+                                    <img src="{% static 'assets/images/event/grid-type-03.jpg' %}"
+                                        alt="Área de Tecnologia">
+                                </a>
+                            </div>
+                            <div class="rbt-card-body">
+                                <ul class="rbt-meta">
+                                    <li><i class="feather-briefcase"></i>Tecnologia</li>
+                                    <li><i class="feather-map-pin"></i>Remoto</li>
+                                    <li><i class="feather-clock"></i>6h/dia</li>
+                                </ul>
+                                <h4 class="rbt-card-title"><a href="detalhes-vaga.html">Estágio em Desenvolvimento de
+                                        Software</a></h4>
+                                <p class="rbt-card-text">Bolsa auxílio + benefícios. Requisitos: Cursar TI e
+                                    conhecimentos em Python.</p>
+                                <div class="read-more-btn">
+                                    <a class="rbt-btn btn-border hover-icon-reverse btn-sm radius-round"
+                                        href="detalhes-vaga.html">
+                                        <span class="icon-reverse-wrapper">
+                                            <span class="btn-text">Candidatar-se</span>
+                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vaga 2 -->
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-12">
+                        <div class="rbt-card card-list-2 event-list-card variation-01 rbt-hover">
+                            <div class="rbt-card-img">
+                                <a href="detalhes-vaga.html">
+                                    <img src="{% static 'assets/images/event/grid-type-03.jpg' %}"
+                                        alt="Área Administrativa">
+                                </a>
+                            </div>
+                            <div class="rbt-card-body">
+                                <ul class="rbt-meta">
+                                    <li><i class="feather-briefcase"></i>Administração</li>
+                                    <li><i class="feather-map-pin"></i>São Paulo/SP</li>
+                                    <li><i class="feather-clock"></i>4h/dia</li>
+                                </ul>
+                                <h4 class="rbt-card-title"><a href="detalhes-vaga.html">Estágio em Gestão
+                                        Empresarial</a></h4>
+                                <p class="rbt-card-text">Auxílio transporte + refeição no local. Para estudantes de ADM
+                                    a partir do 3º semestre.</p>
+                                <div class="read-more-btn">
+                                    <a class="rbt-btn btn-border hover-icon-reverse btn-sm radius-round"
+                                        href="detalhes-vaga.html">
+                                        <span class="icon-reverse-wrapper">
+                                            <span class="btn-text">Candidatar-se</span>
+                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt--80">
+            <div class="rbt-brand-title-wrap">
+                <h5 class="rbt-brand-title w-600 text-center mb-0">Descubra <span class="theme-gradient">livros
+                        incríveis</span> para todos os <span class="theme-gradient">tipos de leitores</span></h5>
+            </div>
+        </div>
+
+
+        <!-- Start Call To Action -->
+        <div class="rbt-callto-action-area mt_dec--half">
+            <div class="container">
+                <div class="row g-5">
+                    <!-- Primeiro Card -->
+                    <div class="col-lg-6">
+                        <div class="rbt-callto-action callto-action-default bg-color-white rbt-radius shadow-1">
+                            <div class="row align-items-center">
+                                <div class="col-lg-12 col-xl-5">
+                                    <div class="inner">
+                                        <div class="rbt-category mb--20">
+                                            <a href="#">Novos Livros</a>
+                                        </div>
+                                        <h4 class="title mb--15">Lançamentos em Destaque</h4>
+                                        <p class="mb--15">Confira os livros mais recentes adicionados à nossa biblioteca
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 col-xl-7">
+                                    <div class="video-popup-wrapper mt_lg--10 mt_md--20 mt_sm--20">
+                                        <img class="w-100 rbt-radius"
+                                            src="{% static 'assets/images/others/video-01.jpg' %}"
+                                            alt="Novos Livros em Destaque">
+                                        <a class="rbt-btn rounded-player-2 sm-size popup-video position-to-top with-animation"
+                                            href="https://www.youtube.com/watch?v=VIDEO_LIVROS">
+                                            <span class="play-icon"></span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Segundo Card -->
+                    <div class="col-lg-6">
+                        <div class="rbt-callto-action callto-action-default bg-color-white rbt-radius shadow-1">
+                            <div class="row align-items-center">
+                                <div class="col-lg-12">
+                                    <div class="inner">
+                                        <div class="rbt-category mb--20">
+                                            <a href="#">Para Bibliotecas</a>
+                                        </div>
+                                        <h4 class="title mb--10">Cadastre Sua Biblioteca e Compartilhe Conhecimento</h4>
+                                        <p class="mb--15">Disponibilize seu acervo e alcance milhares de leitores</p>
+                                        <div class="read-more-btn">
+                                            <a class="rbt-btn rbt-switch-btn btn-gradient btn-sm" href="#">
+                                                <span data-text="Cadastrar Biblioteca">Cadastrar Biblioteca</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div style="margin-top: 120px;" class="rbt-shop-area rbt-section-overlayping-top rbt-section-gapBottom">
+            <div class="container">
+                <div class="row g-5">
+                    <!-- Start Single Product  -->
+                    <div class="col-lg-4 col-md-6 col-12">
+                        <div class="rbt-default-card style-three rbt-hover" style="max-width: 280px; margin: auto;">
+                            <div class="inner p-3">
+                                <div class="content pt--0 pb--10 text-center">
+                                    <h4 class="title"><a href="single-product.html">Miracle Morning</a></h4>
+                                </div>
+                                <div class="thumbnail text-center">
+                                    <a href="single-product.html">
+                                        <img src="{% static 'assets/images/product/1.jpg' %}" alt="Histudy Book Image"
+                                            style="width: 80%; height: auto; border-radius: 10px;">
+                                    </a>
+                                </div>
+                                <div class="content text-center">
+                                    <div class="rbt-price justify-content-center mt--10">
+                                        <span class="current-price theme-gradient">kz 60.50</span>
+                                        <span class="off-price">kz 110.50</span>
+                                    </div>
+                                    <div class="addto-cart-btn mt--15">
+                                        <a class="rbt-btn btn-gradient hover-icon-reverse btn-sm" href="cart.html">
+                                            <span class="icon-reverse-wrapper">
+                                                <span class="btn-text">Ler Mais</span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            </span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- End Single Product  -->
+
+                    <div class="col-lg-4 col-md-6 col-12">
+                        <div class="rbt-default-card style-three rbt-hover" style="max-width: 280px; margin: auto;">
+                            <div class="inner p-3">
+                                <div class="content pt--0 pb--10 text-center">
+                                    <h4 class="title"><a href="single-product.html">Miracle Morning</a></h4>
+                                </div>
+                                <div class="thumbnail text-center">
+                                    <a href="single-product.html">
+                                        <img src="{% static 'assets/images/product/1.jpg' %}" alt="Histudy Book Image"
+                                            style="width: 80%; height: auto; border-radius: 10px;">
+                                    </a>
+                                </div>
+                                <div class="content text-center">
+                                    <div class="rbt-price justify-content-center mt--10">
+                                        <span class="current-price theme-gradient">kz 60.50</span>
+                                        <span class="off-price">kz 110.50</span>
+                                    </div>
+                                    <div class="addto-cart-btn mt--15">
+                                        <a class="rbt-btn btn-gradient hover-icon-reverse btn-sm" href="cart.html">
+                                            <span class="icon-reverse-wrapper">
+                                                <span class="btn-text">Ler Mais</span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            </span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 col-12">
+                        <div class="rbt-default-card style-three rbt-hover" style="max-width: 280px; margin: auto;">
+                            <div class="inner p-3">
+                                <div class="content pt--0 pb--10 text-center">
+                                    <h4 class="title"><a href="single-product.html">Miracle Morning</a></h4>
+                                </div>
+                                <div class="thumbnail text-center">
+                                    <a href="single-product.html">
+                                        <img src="{% static 'assets/images/product/1.jpg' %}" alt="Histudy Book Image"
+                                            style="width: 80%; height: auto; border-radius: 10px;">
+                                    </a>
+                                </div>
+                                <div class="content text-center">
+                                    <div class="rbt-price justify-content-center mt--10">
+                                        <span class="current-price theme-gradient">kz 60.50</span>
+                                        <span class="off-price">kz 110.50</span>
+                                    </div>
+                                    <div class="addto-cart-btn mt--15">
+                                        <a class="rbt-btn btn-gradient hover-icon-reverse btn-sm" href="cart.html">
+                                            <span class="icon-reverse-wrapper">
+                                                <span class="btn-text">Ler Mais</span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            </span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 col-12">
+                        <div class="rbt-default-card style-three rbt-hover" style="max-width: 280px; margin: auto;">
+                            <div class="inner p-3">
+                                <div class="content pt--0 pb--10 text-center">
+                                    <h4 class="title"><a href="single-product.html">Miracle Morning</a></h4>
+                                </div>
+                                <div class="thumbnail text-center">
+                                    <a href="single-product.html">
+                                        <img src="{% static 'assets/images/product/1.jpg' %}" alt="Histudy Book Image"
+                                            style="width: 80%; height: auto; border-radius: 10px;">
+                                    </a>
+                                </div>
+                                <div class="content text-center">
+                                    <div class="rbt-price justify-content-center mt--10">
+                                        <span class="current-price theme-gradient">kz 60.50</span>
+                                        <span class="off-price">kz 110.50</span>
+                                    </div>
+                                    <div class="addto-cart-btn mt--15">
+                                        <a class="rbt-btn btn-gradient hover-icon-reverse btn-sm" href="cart.html">
+                                            <span class="icon-reverse-wrapper">
+                                                <span class="btn-text">Ler Mais</span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            </span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 col-12">
+                        <div class="rbt-default-card style-three rbt-hover" style="max-width: 280px; margin: auto;">
+                            <div class="inner p-3">
+                                <div class="content pt--0 pb--10 text-center">
+                                    <h4 class="title"><a href="single-product.html">Miracle Morning</a></h4>
+                                </div>
+                                <div class="thumbnail text-center">
+                                    <a href="single-product.html">
+                                        <img src="{% static 'assets/images/product/1.jpg' %}" alt="Histudy Book Image"
+                                            style="width: 80%; height: auto; border-radius: 10px;">
+                                    </a>
+                                </div>
+                                <div class="content text-center">
+                                    <div class="rbt-price justify-content-center mt--10">
+                                        <span class="current-price theme-gradient">kz 60.50</span>
+                                        <span class="off-price">kz 110.50</span>
+                                    </div>
+                                    <div class="addto-cart-btn mt--15">
+                                        <a class="rbt-btn btn-gradient hover-icon-reverse btn-sm" href="cart.html">
+                                            <span class="icon-reverse-wrapper">
+                                                <span class="btn-text">Ler Mais</span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            </span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 col-12">
+                        <div class="rbt-default-card style-three rbt-hover" style="max-width: 280px; margin: auto;">
+                            <div class="inner p-3">
+                                <div class="content pt--0 pb--10 text-center">
+                                    <h4 class="title"><a href="single-product.html">Miracle Morning</a></h4>
+                                </div>
+                                <div class="thumbnail text-center">
+                                    <a href="single-product.html">
+                                        <img src="{% static 'assets/images/product/1.jpg' %}" alt="Histudy Book Image"
+                                            style="width: 80%; height: auto; border-radius: 10px;">
+                                    </a>
+                                </div>
+                                <div class="content text-center">
+                                    <div class="rbt-price justify-content-center mt--10">
+                                        <span class="current-price theme-gradient">kz 60.50</span>
+                                        <span class="off-price">kz 110.50</span>
+                                    </div>
+                                    <div class="addto-cart-btn mt--15">
+                                        <a class="rbt-btn btn-gradient hover-icon-reverse btn-sm" href="cart.html">
+                                            <span class="icon-reverse-wrapper">
+                                                <span class="btn-text">Ler Mais</span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            </span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- End Single Product  -->
+                </div>
+
+            </div>
+        </div>
+
+
+
 
 
 
@@ -1442,24 +2380,24 @@
 
 
         <div style="margin-top: 40px;" class="container-fluid">
-        <div class="row g-3">
-            {% for img in imagens %}
-            <div class="col-lg-2 col-md-4 col-sm-6 col-6">
-                <div class="instagram-grid">
-                    <a href="{{ img.link|default:'#' }}">
-                        <img src="{{ img.imagem.url }}" alt="#">
-                        {% if img.usuario %}
-                        <span class="user-info">
-                            <span class="icon"><i class="icon-instagram"></i></span>
-                            <span class="user-name">{{ img.usuario }}</span>
-                        </span>
-                        {% endif %}
-                    </a>
+            <div class="row g-3">
+                {% for img in imagens %}
+                <div class="col-lg-2 col-md-4 col-sm-6 col-6">
+                    <div class="instagram-grid">
+                        <a href="{{ img.link|default:'#' }}">
+                            <img src="{{ img.imagem.url }}" alt="#">
+                            {% if img.usuario %}
+                            <span class="user-info">
+                                <span class="icon"><i class="icon-instagram"></i></span>
+                                <span class="user-name">{{ img.usuario }}</span>
+                            </span>
+                            {% endif %}
+                        </a>
+                    </div>
                 </div>
-            </div>
-            {% endfor %}
+                {% endfor %}
 
-        </div>
+            </div>
         </div>
 
 
@@ -1530,8 +2468,9 @@
                     disableOnInteraction: false,
                 },
                 breakpoints: {
-                    768: { slidesPerView: 2 },
-                    992: { slidesPerView: 3 },
+                    0: { slidesPerView: 1 },   // 📱 celular: 1 card
+                    768: { slidesPerView: 2 }, // tablet
+                    992: { slidesPerView: 3 }, // desktop
                 }
             });
 
@@ -1545,8 +2484,9 @@
                     disableOnInteraction: false,
                 },
                 breakpoints: {
-                    768: { slidesPerView: 2 },
-                    992: { slidesPerView: 3 },
+                    0: { slidesPerView: 1 },   // 📱 celular: 1 card
+                    768: { slidesPerView: 2 }, // tablet
+                    992: { slidesPerView: 3 }, // desktop
                 }
             });
         </script>

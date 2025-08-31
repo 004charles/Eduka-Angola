@@ -19,6 +19,4 @@ urlpatterns = [
     path('favorito/<int:curso_id>/', views.adicionar_favorito, name='adicionar_favorito'),
 
     
-
-
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

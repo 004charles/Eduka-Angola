@@ -11,6 +11,7 @@ urlpatterns = [
     path('', views.index, name = 'index'),
     path('i18n/', include('django.conf.urls.i18n')),
     path('auth/', include('usuarios.urls')), 
+    path('curso_video/', include('cursovideoapp.urls')),
     path('sobre/', views.sobre, name = 'sobre'),
     path('cursos/', include('cursos_app.urls')),
     path('gestoreduka/', include('gestoreduka.urls')),

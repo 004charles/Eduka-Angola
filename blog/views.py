@@ -274,3 +274,19 @@ def buscar_posts(request):
             Q(categoria__nome__icontains=termo)
         ).filter(status='publicado').distinct()
     return render(request, 'blog/buscar_posts.html', {'termo': termo, 'posts': posts})
+
+def privacidade(request):
+    context = {
+        'aluno_logado': False,
+    }
+    if 'aluno' in request.session:
+        try:
+            aluno = Aluno.objects.get(id=request.session['aluno'])
+            context.update({
+                'aluno_logado': True,
+                'aluno_nome': aluno.nome,
+            })
+        except Aluno.DoesNotExist:
+            pass
+
+    return render(request, 'core/privacidade.html', context)

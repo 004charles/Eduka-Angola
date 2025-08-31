@@ -1,0 +1,922 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Edukangola | {{curso.titulo}}</title>
+    <meta name="robots" content="noindex, follow">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    {% include 'include/css.html' %}
+    
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+    
+    <style>
+        /* Estilos principais do curso */
+        .youtube-featured-card {
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .youtube-featured-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .featured-thumbnail {
+            position: relative;
+            height: 0;
+            padding-bottom: 56.25%;
+            overflow: hidden;
+        }
+
+        .featured-thumbnail img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .thumbnail-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.1) 100%);
+        }
+
+        .play-all-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+        }
+
+        .play-all-btn {
+            background: rgba(255, 255, 255, 0.9);
+            color: #0f0f0f;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .play-all-btn:hover {
+            background: #fff;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .video-count {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .total-duration {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .featured-content {
+            padding: 16px;
+        }
+
+        .course-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #0f0f0f;
+            line-height: 1.4;
+        }
+
+        .course-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .channel-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .channel-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .channel-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .channel-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .channel-name {
+            font-weight: 500;
+            color: #0f0f0f;
+            font-size: 0.95rem;
+        }
+
+        .video-stats {
+            font-size: 0.8rem;
+            color: #606060;
+        }
+
+        .subscribe-btn {
+            background: #0f0f0f;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 18px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .subscribe-btn:hover {
+            background: #272727;
+        }
+
+        .description-section {
+            margin-bottom: 16px;
+        }
+
+        .description-text {
+            font-size: 0.9rem;
+            color: #606060;
+            line-height: 1.5;
+        }
+
+        .course-stats {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #606060;
+            font-size: 0.85rem;
+        }
+
+        .progress-section {
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: #606060;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #f0f0f0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #FF0000;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* Estilo YouTube para as aulas */
+        .youtube-style-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .youtube-style-video {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+        }
+
+        .youtube-style-video:hover {
+            background-color: #f9f9f9;
+        }
+
+        .youtube-style-video .video-content {
+            position: relative;
+            flex-shrink: 0;
+            width: 168px;
+            height: 94px;
+        }
+
+        .youtube-style-video img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .video-number {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 2px;
+            font-size: 12px;
+        }
+
+        .position-to-top {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .rbt-btn.rounded-player-2 {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 0, 0, 0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .rbt-btn.rounded-player-2:hover {
+            background: rgba(255, 0, 0, 1);
+        }
+
+        .play-icon {
+            width: 0;
+            height: 0;
+            border-top: 7px solid transparent;
+            border-bottom: 7px solid transparent;
+            border-left: 12px solid white;
+            margin-left: 2px;
+        }
+
+        .video-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .video-title {
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 4px;
+            line-height: 1.4;
+            color: #0f0f0f;
+        }
+
+        .video-meta {
+            display: flex;
+            gap: 12px;
+            color: #606060;
+            font-size: 12px;
+        }
+
+        /* Estilos do carrossel de cursos recomendados */
+        .recommended-courses-slider {
+            padding: 20px 40px;
+            position: relative;
+        }
+
+        .swiper-slide {
+            height: auto;
+        }
+
+        .rbt-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .rbt-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .rbt-card-img {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rbt-card-img img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .rbt-card:hover .rbt-card-img img {
+            transform: scale(1.05);
+        }
+
+        .rbt-card-body {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rbt-card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .rbt-card-title a {
+            color: #333;
+            text-decoration: none;
+        }
+
+        .rbt-card-title a:hover {
+            color: #ff0000;
+        }
+
+        .rbt-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .rbt-card-text {
+            color: #666;
+            margin-bottom: 15px;
+            flex: 1;
+        }
+
+        .rbt-card-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .rbt-price {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .current-price {
+            font-weight: 600;
+            color: #ff0000;
+            font-size: 18px;
+        }
+
+        .off-price {
+            text-decoration: line-through;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .rbt-btn-link {
+            color: #ff0000;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.3s ease;
+        }
+
+        .rbt-btn-link:hover {
+            color: #cc0000;
+        }
+
+        .swiper-button-next, .swiper-button-prev {
+            color: #ff0000;
+            background: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .swiper-button-next:after, .swiper-button-prev:after {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .swiper-pagination-bullet-active {
+            background: #ff0000;
+        }
+
+        /* Responsividade */
+        @media (max-width: 992px) {
+            .course-meta {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .subscribe-btn {
+                align-self: flex-end;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .recommended-courses-slider {
+                padding: 20px 30px;
+            }
+            
+            .swiper-button-next, .swiper-button-prev {
+                display: none;
+            }
+            
+            .youtube-style-video {
+                flex-direction: column;
+            }
+            
+            .youtube-style-video .video-content {
+                width: 100%;
+                height: 180px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .course-stats {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .channel-info {
+                flex: 1;
+            }
+
+            .subscribe-btn {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
+            
+            .recommended-courses-slider {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="my_switcher" class="my_switcher">
+        <ul>
+            <li>
+                <a href="javascript: void(0);" data-theme="light" class="setColor light">
+                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode">
+                        Light</span>
+                </a>
+            </li>
+            <li>
+                <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
+                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span
+                        title="Dark Mode"> Dark</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    {% include 'include/header.html' %}
+
+    <!-- Start breadcrumb Area -->
+    <div class="rbt-breadcrumb-default rbt-breadcrumb-style-3">
+        <div class="breadcrumb-inner breadcrumb-dark">
+            <img src="{% static 'assets/images/bg/bg-image-10.jpg' %}" alt="Education Images">
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="content text-start">
+                        <ul class="page-list">
+                            <li class="rbt-breadcrumb-item"><a href="/">Home</a></li>
+                            <li>
+                                <div class="icon-right"><i class="feather-chevron-right"></i></div>
+                            </li>
+                            <li class="rbt-breadcrumb-item"><a href="{% url 'lista_cursos' %}">Cursos</a></li>
+                            <li>
+                                <div class="icon-right"><i class="feather-chevron-right"></i></div>
+                            </li>
+                            <li class="rbt-breadcrumb-item active">{{curso.titulo}}</li>
+                        </ul>
+                        <h2 class="title">{{curso.titulo}}</h2>
+
+                        <div class="d-flex align-items-center mb--20 flex-wrap rbt-course-details-feature">
+                            <div class="feature-sin best-seller-badge">
+                                <span class="rbt-badge-2">
+                                    <span class="image"><img src="{% static 'assets/images/icons/card-icon-1.png' %}"
+                                            alt="Best Seller Icon"></span> Bestseller
+                                </span>
+                            </div>
+
+                            <div class="feature-sin rating">
+                                <a href="#">4.8</a>
+                                <a href="#"><i class="fa fa-star"></i></a>
+                                <a href="#"><i class="fa fa-star"></i></a>
+                                <a href="#"><i class="fa fa-star"></i></a>
+                                <a href="#"><i class="fa fa-star"></i></a>
+                                <a href="#"><i class="fa fa-star"></i></a>
+                            </div>
+
+                            <div class="feature-sin total-rating">
+                                <a class="rbt-badge-4" href="#">215,475 avaliações</a>
+                            </div>
+
+                            <div class="feature-sin total-student">
+                                <span>{{ curso.total_inscritos }} alunos</span>
+                            </div>
+                        </div>
+
+                        <div class="rbt-author-meta mb--20">
+                            <div class="rbt-avater">
+                                <a href="#">
+                                    <img src="{% static 'assets/images/client/avatar-02.png' %}" alt="{{ curso.instrutor }}">
+                                </a>
+                            </div>
+                            <div class="rbt-author-info">
+                                Por <a href="#">{{ curso.instrutor }}</a> Em <a href="#">{{ curso.categoria.nome }}</a>
+                            </div>
+                        </div>
+
+                        <ul class="rbt-meta">
+                            <li><i class="feather-calendar"></i>Atualizado em {{ curso.data_publicacao|date:"M Y" }}</li>
+                            <li><i class="feather-globe"></i>Português</li>
+                            <li><i class="feather-award"></i>Curso Certificado</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Breadcrumb Area -->
+
+    <div class="rbt-course-details-area ptb--60">
+        <div class="container">
+            <div class="row g-5">
+                <!-- Conteúdo Principal do Curso -->
+                <div class="col-lg-8">
+                    <div class="youtube-featured-card rbt-shadow-box">
+                        <!-- Imagem de capa com overlay -->
+                        <div class="featured-thumbnail">
+                            {% if curso.capa %}
+                            <img class="w-100" src="{{ curso.capa.url }}" alt="{{ curso.titulo }}">
+                            {% else %}
+                            <img class="w-100" src="{% static 'assets/images/others/video-01.jpg' %}" alt="{{ curso.titulo }}">
+                            {% endif %}
+                            <div class="thumbnail-overlay"></div>
+
+                            <!-- Botão de play grande -->
+                            {% with primeira_aula=curso.aulas.first %}
+                            {% if primeira_aula %}
+                            <div class="play-all-button">
+                                <a style="color: black;" href="{% url 'ver_aula' curso.slug primeira_aula.id %}" class="rbt-btn play-all-btn with-animation">
+                                    <i class="fas fa-play"></i>
+                                    Play
+                                </a>
+                            </div>
+                            {% endif %}
+                            {% endwith %}
+
+                            <!-- Contador de vídeos -->
+                            <div class="video-count">
+                                <i class="fas fa-play-circle"></i>
+                                <span>{{ curso.aulas.count }} vídeos</span>
+                            </div>
+
+                            <!-- Duração total -->
+                            {% if curso.duracao_total != "0:00:00" %}
+                            <div class="total-duration">
+                                <span>{{ curso.duracao_total }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Informações do curso -->
+                        <div class="featured-content">
+                            <h3 style="font-size: 20px;" class="course-title">{{ curso.titulo }}</h3>
+
+                            <div class="course-meta">
+                                <!-- Informações do canal -->
+                                <div class="channel-info">
+                                    <div class="channel-avatar">
+                                        <img src="{% static 'assets/images/client/avatar-02.png' %}" alt="{{ curso.instrutor }}">
+                                    </div>
+                                    <div class="channel-details">
+                                        <span style="margin-bottom: 10px; font-size: 15px;" class="channel-name">{{ curso.instrutor }}</span>
+                                        <span style="font-size: 15px;" class="video-stats">{{ curso.aulas.count }} vídeos • {{ curso.total_inscritos }} inscritos</span>
+                                    </div>
+                                </div>
+
+                                <!-- Botão de inscrição -->
+                                {% if aluno_logado %}
+                                <button class="subscribe-btn {% if aluno_inscrito %}subscribed{% endif %}" id="subscribe-btn" data-curso-slug="{{ curso.slug }}">
+                                    <i class="fas fa-bell"></i>
+                                    <span class="subscribe-text">
+                                        {% if aluno_inscrito %}Inscrito{% else %}Inscrever-se{% endif %}
+                                    </span>
+                                </button>
+                                {% else %}
+                                <a href="{% url 'Login_aluno' %}?next={{ request.path }}" class="subscribe-btn">
+                                    <i class="fas fa-bell"></i>
+                                    Inscrever-se
+                                </a>
+                                {% endif %}
+                            </div>
+
+                            <!-- Descrição -->
+                            <div class="description-section">
+                                <div class="description-text">
+                                    <p>{{ curso.descricao }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Estatísticas -->
+                            <div class="course-stats">
+                                <div class="stat-item">
+                                    <i class="fas fa-play-circle"></i>
+                                    <span style="font-size: 15px;" >{{ curso.aulas.count }} aulas</span>
+                                </div>
+                                <div class="stat-item">
+                                    <i class="fas fa-eye"></i>
+                                    <span style="font-size: 15px;" >{{ total_visualizacoes }} visualizações</span>
+                                </div>
+                                <div class="stat-item">
+                                    <i class="fas fa-calendar"></i>
+                                    <span style="font-size: 15px;" >Atualizado em: {{ curso.data_publicacao|date:"M Y" }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Progresso -->
+                            {% if progresso_geral > 0 %}
+                            <div class="progress-section">
+                                <div class="progress-info">
+                                    <span>Seu progresso</span>
+                                    <span>{{ progresso_geral }}%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: {{ progresso_geral }}%"></div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar com Aulas -->
+                <div class="col-lg-4">
+                    <div class="course-sidebar sticky-top rbt-shadow-box course-sidebar-top rbt-gradient-border">
+                        <div class="inner">
+                            <h4 class="mb-3">Aulas do Curso</h4>
+                            <div class="youtube-style-container">
+                                {% for aula in aulas %}
+                                <div class="youtube-style-video">
+                                    <a class="video-popup-with-text video-popup-wrapper text-center popup-vide" href="{% url 'ver_aula' curso.slug aula.id %}">
+                                        <div class="video-content">
+                                            <span class="video-number">Aula {{ aula.ordem }}</span>
+                                            {% if curso.capa %}
+                                            <img class="w-100 rbt-radius" src="{{ curso.capa.url }}" alt="{{ aula.titulo }}">
+                                            {% else %}
+                                            <img class="w-100 rbt-radius" src="{% static 'assets/images/others/video-01.jpg' %}" alt="{{ aula.titulo }}">
+                                            {% endif %}
+                                            <div class="position-to-top">
+                                                <span class="rbt-btn rounded-player-2 with-animation">
+                                                    <span class="play-icon"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <div class="video-info">
+                                        <div class="video-title"><a href="{% url 'ver_aula' curso.slug aula.id %}">{{ aula.titulo }}</a></div>
+                                        <div class="video-meta">
+                                            <span>{{ aula.duracao_formatada }}</span>
+                                            <span>{{ aula.visualizacoes }} view</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="empty-message">
+                                    <p>Nenhuma aula disponível para este curso.</p>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção de Cursos Recomendados -->
+            <div class="row mt--60">
+                <div class="col-lg-12">
+                    <div class="section-title text-center">
+                        <h4 class="title">Cursos Recomendados</h4>
+                        <p>Descubra outros cursos que podem te interessar</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="recommended-courses-slider swiper-container">
+                        <div class="swiper-wrapper">
+                            {% for curso_recomendado in cursos_recomendados %}
+                            <div class="swiper-slide">
+                                <div class="rbt-card variation-01 rbt-hover">
+                                    <div class="rbt-card-img">
+                                        <a href="{% url 'detalhe_curso' curso_recomendado.slug %}">
+                                            {% if curso_recomendado.capa %}
+                                            <img src="{{ curso_recomendado.capa.url }}" alt="{{ curso_recomendado.titulo }}">
+                                            {% else %}
+                                            <img src="{% static 'assets/images/course/default.jpg' %}" alt="{{ curso_recomendado.titulo }}">
+                                            {% endif %}
+                                        </a>
+                                    </div>
+                                    <div class="rbt-card-body">
+                                        <h4 class="rbt-card-title">
+                                            <a style="font-size: 18px;" href="{% url 'detalhe_curso' curso_recomendado.slug %}">{{ curso_recomendado.titulo|truncatewords:5 }}</a>
+                                        </h4>
+                                        
+                                        <ul class="rbt-meta">
+                                            <li><i class="feather-book"></i>{{ curso_recomendado.aulas.count }} Aulas</li>
+                                            <li><i class="feather-users"></i>{{ curso_recomendado.total_inscritos }} Alunos</li>
+                                        </ul>
+                                        
+                                        
+                                        <div class="rbt-card-bottom">
+                                            <div class="rbt-price">
+                                                <span class="current-price">Grátis</span>
+                                            </div>
+                                            <a class="rbt-btn-link" href="{% url 'detalhe_curso' curso_recomendado.slug %}">
+                                                Ver Curso
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Navigation buttons -->
+                        <div class="swiper-button-next"></div>
+                        <div class="swiper-button-prev"></div>
+                        
+                        <!-- Pagination -->
+                        <div class="swiper-pagination"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer e scripts -->
+    <div class="rbt-separator-mid">
+        <div class="container">
+            <hr class="rbt-separator m-0">
+        </div>
+    </div>
+
+    {% include 'include/footer.html' %}
+
+    <!-- JavaScript do Swiper -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar o carrossel de cursos recomendados
+            const swiper = new Swiper('.recommended-courses-slider', {
+                slidesPerView: 1,
+                spaceBetween: 20,
+                loop: true,
+                autoplay: {
+                    delay: 3000,
+                    disableOnInteraction: false,
+                },
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                },
+                breakpoints: {
+                    576: {
+                        slidesPerView: 2,
+                    },
+                    768: {
+                        slidesPerView: 3,
+                    },
+                    992: {
+                        slidesPerView: 4,
+                    }
+                }
+            });
+
+            // JavaScript para o botão de inscrição
+            document.getElementById('subscribe-btn')?.addEventListener('click', function() {
+                const cursoSlug = this.dataset.cursoSlug;
+                const button = this;
+                
+                fetch(`/curso_video/${cursoSlug}/inscrever/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
+                    
+                    const subscribeText = button.querySelector('.subscribe-text');
+                    if (data.inscrito) {
+                        button.classList.add('subscribed');
+                        subscribeText.textContent = 'Inscrito';
+                    } else {
+                        button.classList.remove('subscribed');
+                        subscribeText.textContent = 'Inscrever-se';
+                    }
+                    
+                    // Atualizar contador de inscritos
+                    const videoStats = document.querySelector('.video-stats');
+                    if (videoStats) {
+                        const parts = videoStats.textContent.split('•');
+                        if (parts.length === 2) {
+                            videoStats.textContent = `${parts[0]} • ${data.total_inscritos} inscritos`;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao processar inscrição. Tente novamente.');
+                });
+            });
+        });
+    </script>
+
+    {% include 'include/java.html' %}
+</body>
+</html>
