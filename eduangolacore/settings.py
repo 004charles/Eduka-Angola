@@ -2,9 +2,10 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 import os
+from django.utils.translation import gettext_lazy as _
 
 
-SECRET_KEY = 'django-insecure-+^d1ro$++*=wt-_=jgoejthk_@l$t4m8^%)w)f&2c@@$xyp92o'
+
 
 DEBUG = True
 
@@ -29,15 +30,11 @@ INSTALLED_APPS = [
 
 ]
 
-import os
-from django.utils.translation import gettext_lazy as _
 
-# Configurações de internacionalização
 USE_I18N = True
 USE_L10N = True
 LANGUAGE_CODE = 'pt'
 
-# Idiomas suportados
 LANGUAGES = [
     ('pt', _('Português')),
     ('en', _('Inglês')),
@@ -96,10 +93,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'eduangolacore.wsgi.application'
 
 
+from decouple import config
+
+SECRET_KEY = config("SECRET_KEY")
+DEBUG = config("DEBUG", default=False, cast=bool)
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config("DB_NAME"),
+        'USER': config("DB_USER"),
+        'PASSWORD': config("DB_PASSWORD"),
+        'HOST': config("DB_HOST"),
+        'PORT': config("DB_PORT", cast=int),
     }
 }
 

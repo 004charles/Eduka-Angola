@@ -8,6 +8,7 @@ from .models import Curso, Instrutor, Categoria, Inscricao, Aluno
 from cursos_app.models import Favorito, CentroDeFormacao
 from usuarios.models import Comentario, CentroSeguimento
 from core.models import Galeria
+from cursovideoapp.models import Curso_video
 
 def inscrever_curso(request, curso_id):
     aluno_id = request.session.get('aluno')
@@ -371,6 +372,7 @@ def buscar_cursos(request):
     preco_min = request.GET.get('preco_min')
     preco_max = request.GET.get('preco_max')
     
+    # --- Cursos de Centros ---
     cursos = Curso.objects.filter(ativo=True, publicado=True)
     
     if termo:
@@ -415,13 +417,31 @@ def buscar_cursos(request):
     
     cursos = cursos.order_by(ordenar_por)
     
+    # --- Cursos em Vídeo ---
+    cursos_video = Curso_video.objects.all()
+    
+    if termo:
+        cursos_video = cursos_video.filter(
+            Q(titulo__icontains=termo) | 
+            Q(descricao__icontains=termo) |
+            Q(instrutor__icontains=termo)
+        )
+    
+    if categoria_id:
+        cursos_video = cursos_video.filter(categoria_id=categoria_id)
+    
+    cursos_video = cursos_video.order_by('-data_publicacao')
+    
+    # --- Destaques ---
     cursos_destaque = Curso.objects.filter(
         destaque=True, publicado=True, ativo=True
     ).select_related('centro').prefetch_related('instrutores')
-
     
+    cursos_destaque_video = Curso_video.objects.filter(destaque=True)
+
     context = {
         'cursos': cursos,
+        'cursos_video': cursos_video,  # ✅ adicionados
         'termo_busca': termo,
         'centros': CentroDeFormacao.objects.filter(ativo=True),
         'categorias': Categoria.objects.all(),

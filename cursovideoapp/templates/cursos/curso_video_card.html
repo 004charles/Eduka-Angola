@@ -1,0 +1,16 @@
+<div class="rbt-card variation-01 rbt-hover">
+    <div class="rbt-card-img">
+        {% if curso.capa %}
+            <img src="{{ curso.capa.url }}" alt="{{ curso.titulo }}">
+        {% else %}
+            <img src="{% static 'assets/images/default-course.jpg' %}" alt="{{ curso.titulo }}">
+        {% endif %}
+    </div>
+    <div class="rbt-card-body">
+        <h5 class="card-title">{{ curso.titulo }}</h5>
+        <p class="card-text">{{ curso.descricao|truncatewords:20 }}</p>
+        <a href="{% url 'detalhe_curso_video' curso.slug %}" class="rbt-btn btn-sm btn-gradient">
+            Ver detalhes
+        </a>
+    </div>
+</div>

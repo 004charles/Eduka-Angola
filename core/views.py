@@ -33,6 +33,7 @@ def index(request):
 
     cursos = Curso_video.objects.all()[:5]
 
+    cursos_destaque_video = Curso_video.objects.filter(destaque=True)
 
     posts = Post.objects.filter(status='publicado') \
         .select_related('categoria') \
@@ -75,6 +76,7 @@ def index(request):
         'cursos_gratuitos': cursos_gratuitos,
         'cursos_proximos': cursos_proximos,
         'cursos_zigue1': cursos_zigue1,
+        'cursos_destaque_video':cursos_destaque_video,
         'cursos_zigue2': cursos_zigue2,
         'categoria': categorias,
         'cursos': cursos,

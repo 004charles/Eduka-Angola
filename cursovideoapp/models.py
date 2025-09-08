@@ -30,8 +30,8 @@ class Curso_video(models.Model):
     data_publicacao = models.DateTimeField(auto_now_add=True)
     capa = models.ImageField(upload_to="cursos/capas/", blank=True, null=True)
     slug = models.SlugField(unique=True, blank=True)
-    # Correção: Referência correta ao modelo Aluno em outro app
     inscritos = models.ManyToManyField('usuarios.Aluno', related_name='cursos_inscritos', blank=True)
+    destaque = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if not self.slug:

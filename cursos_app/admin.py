@@ -8,7 +8,6 @@ class CategoriaAdmin(admin.ModelAdmin):
     search_fields = ('nome',)
     prepopulated_fields = {'slug': ('nome',)}  # Isso preenche o slug automaticamente com base no nome
 
-# Register your models here.
 class InstrutorAdmin(admin.ModelAdmin):
     list_display = ('nome', 'email', 'area_especializacao', 'ativo')
     search_fields = ('nome', 'email')
