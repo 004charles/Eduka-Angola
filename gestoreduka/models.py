@@ -2,6 +2,10 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinLengthValidator
 from django.utils import timezone
+import uuid
+from django.db import models
+from django.utils import timezone
+from django.conf import settings
 
 
 
@@ -18,6 +22,18 @@ class CentroDeFormacao(models.Model):
 
     def __str__(self):
         return self.nome
+
+
+
+class ConviteCentro(models.Model):
+    centro = models.OneToOneField(CentroDeFormacao, on_delete=models.CASCADE, related_name="convite")
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    criado_em = models.DateTimeField(default=timezone.now)
+    usado = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Convite para {self.centro.email}"
+
 
 class Certificacao(models.Model):
     centro = models.ForeignKey(

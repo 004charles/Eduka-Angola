@@ -196,6 +196,7 @@ def cursos_por_centro(request, centro_id):
 
     centro = get_object_or_404(CentroDeFormacao, id=centro_id)
 
+    # Cursos por categoria
     categorias = Categoria.objects.filter(
         curso__centro=centro,
         curso__publicado=True
@@ -216,12 +217,47 @@ def cursos_por_centro(request, centro_id):
             'total_cursos': categoria.num_cursos
         })
 
+    # Instrutores do centro
+    instrutores = Instrutor.objects.filter(
+        centro_de_formacao=centro, 
+        ativo=True
+    ).select_related('perfil').order_by('nome')
+
     context.update({
         'centro': centro,
         'cursos_por_categoria': cursos_por_categoria,
+        'instrutores': instrutores,
     })
 
     return render(request, 'cursos_por_centro.html', context)
+
+def instrutores_do_centro(request, centro_id):
+    context = {
+        'aluno_logado': False,
+    }
+
+    if 'aluno' in request.session:
+        try:
+            aluno = Aluno.objects.get(id=request.session['aluno'])
+            context.update({
+                'aluno_logado': True,
+                'aluno_nome': aluno.nome,
+            })
+        except Aluno.DoesNotExist:
+            pass
+
+    centro = get_object_or_404(CentroDeFormacao, id=centro_id)
+    instrutores = Instrutor.objects.filter(
+        centro_de_formacao=centro, 
+        ativo=True
+    ).prefetch_related('perfil').order_by('nome')
+
+    context.update({
+        'centro': centro,
+        'instrutores': instrutores,
+    })
+
+    return render(request, 'cursos_porcentro.html', context)
 
 def cursos_por_categoria(request, slug):
     context = {

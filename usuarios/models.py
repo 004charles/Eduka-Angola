@@ -7,13 +7,17 @@ from django.utils import timezone
 from gestoreduka.models import CentroDeFormacao
 
 
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+from django.db import models
+from django.utils.translation import gettext_lazy as _
+
 class UsuarioManager(BaseUserManager):
     def create_user(self, email, nome, password=None, **extra_fields):
         if not email:
             raise ValueError('O email é obrigatório')
         email = self.normalize_email(email)
         user = self.model(email=email, nome=nome, **extra_fields)
-        user.set_password(password)
+        user.set_password(password)  # usa o campo password do AbstractBaseUser
         user.save(using=self._db)
         return user
 
@@ -27,10 +31,10 @@ class UsuarioManager(BaseUserManager):
 
         return self.create_user(email, nome, password, **extra_fields)
 
+
 class Usuario(AbstractBaseUser, PermissionsMixin):
-    nome = models.CharField(_('Nome Completo'), max_length=100)
+    nome = models.CharField(_('Nome Completo'), max_length=100, blank=True, null=True)
     email = models.EmailField(_('E-mail'), unique=True)
-    senha = models.CharField(_('Senha'), max_length=100)
     is_active = models.BooleanField(_('Ativo'), default=True)
     is_staff = models.BooleanField(_('Equipe'), default=False)
     data_criacao = models.DateTimeField(_('Data de Criação'), auto_now_add=True)
@@ -40,14 +44,12 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['nome']
 
     objects = UsuarioManager()
-    
+
     def get_full_name(self):
-        """
-        Retorna o nome completo do usuário.
-        Se não existir, retorna o username
-        """
-        full_name = f"{self.first_name} {self.last_name}".strip()
-        return full_name if full_name else self.username
+        return self.nome
+
+    def get_short_name(self):
+        return self.nome.split()[0] if self.nome else self.email
 
     def __str__(self):
         return self.nome

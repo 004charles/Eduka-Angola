@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -54,12 +54,10 @@ CSRF_TRUSTED_ORIGINS = [
     'https://eduka-angola-production.up.railway.app',
 ]
 
-SITE_DOMAIN = 'http://127.0.0.1:8000'  # ou o domínio real, tipo: https://edukangola.com
-
-
+SITE_DOMAIN = 'http://127.0.0.1:8000'  
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    #'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -110,6 +108,14 @@ DATABASES = {
 }
 
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+    }
+}
+
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -142,16 +148,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATIC_URL = '/static/'
-#STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Pasta coletada em produção
+#STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),  # Pasta local com seus arquivos estáticos
+    os.path.join(BASE_DIR, 'static'),  
 ]
 
-# Whitenoise (para servir arquivos estáticos em produção)
-#STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# No settings.py, configure o WhiteNoise para não cachear arquivos em desenvolvimento:
-#WHITENOISE_AUTOREFRESH = True
+WHITENOISE_AUTOREFRESH = True
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

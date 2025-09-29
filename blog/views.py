@@ -187,7 +187,7 @@ def comentar_post(request, slug):
         if form.is_valid():
             comentario = form.save(commit=False)
             comentario.post = post
-            comentario.aprovado = True  # mostra direto
+            comentario.aprovado = True  
 
             parent_id = request.POST.get('parent')
             if parent_id:

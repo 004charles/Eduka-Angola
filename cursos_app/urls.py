@@ -17,6 +17,7 @@ urlpatterns = [
     path('inscricao/<int:inscricao_id>/status/<str:status>/', views.alterar_status_inscricao, name='alterar_status_inscricao'),
     path('ficha_inscricao/<int:curso_id>/', views.ficha_inscricao, name='ficha_inscricao'),
     path('favorito/<int:curso_id>/', views.adicionar_favorito, name='adicionar_favorito'),
+    path('centro/<int:centro_id>/instrutores/', views.instrutores_do_centro, name='instrutores_centro'),
 
     
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

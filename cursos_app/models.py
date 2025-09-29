@@ -22,16 +22,23 @@ from django.utils import timezone
 
 class Instrutor(models.Model):
     TIPO_CHOICES_ESPECIALIZACAO = [
-        ('TECNOLOGIA_INFORMACAO', 'tecnologia de informacao'),
-        ('NEGOCIO', 'negocio'),
-        ('LINGUAS', 'linguas'),
-        ('ESPECIALIZADA', 'especializada'),
-        ('CIENCIAS', 'ciencias'),
-        ('ARTES', 'artes'),
-        ('ENGENHARIA', 'engenharia'),
-        ('SAUDE', 'saude'),
-        ('OUTRO', 'outro'),
+        ('TECNOLOGIA_INFORMACAO', 'Tecnologia de Informação'),
+        ('NEGOCIO', 'Negócio'),
+        ('LINGUAS', 'Línguas'),
+        ('ESPECIALIZADA', 'Especializada'),
+        ('CIENCIAS', 'Ciências'),
+        ('ARTES', 'Artes'),
+        ('ENGENHARIA', 'Engenharia'),
+        ('SAUDE', 'Saúde'),
+        ('OUTRO', 'Outro'),
     ]
+    
+    centro_de_formacao = models.ForeignKey(
+        CentroDeFormacao, 
+        on_delete=models.CASCADE, 
+        related_name='instrutores',
+        verbose_name='Centro de Formação'
+    )
     nome = models.CharField(max_length=100, validators=[MinLengthValidator(3)])
     biografia = models.TextField()
     foto = models.ImageField(upload_to='instrutores/', null=True, blank=True)
@@ -46,7 +53,10 @@ class Instrutor(models.Model):
         ordering = ['nome']
 
     def __str__(self):
-        return self.nome
+        return f"{self.nome} - {self.centro_de_formacao.nome}"
+    
+    def get_especializacao_display(self):
+        return dict(self.TIPO_CHOICES_ESPECIALIZACAO).get(self.area_especializacao, self.area_especializacao)
     
     
 class PerfilInstrutor(models.Model):
@@ -64,7 +74,8 @@ class PerfilInstrutor(models.Model):
 
     def __str__(self):
         return f'Perfil de {self.instrutor.nome}'
-    
+        
+            
 class Categoria(models.Model):
     nome = models.CharField(max_length=100)
     descricao = models.TextField(blank=True, null=True)

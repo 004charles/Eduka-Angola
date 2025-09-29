@@ -22,6 +22,7 @@ from usuarios.models import CentroSeguimento, PerfilAluno
 from django.utils import timezone
 from datetime import timedelta
 from cursovideoapp.models import Curso_video
+from .models import SobreNos
 
 def index(request):
     agora = timezone.now()
@@ -43,6 +44,8 @@ def index(request):
         Curso.objects.filter(publicado=True, ativo=True)
         .order_by('-data_inicio')[:20]
     )
+
+    sobre = SobreNos.objects.last()  
 
     todos_cursos = Curso.objects.filter(publicado=True, ativo=True).order_by('-data_inicio')
     cursos_zigue1 = todos_cursos[::2]
@@ -87,7 +90,8 @@ def index(request):
         'DEBUG': settings.DEBUG,
         'aluno_logado': False,
         'favoritos': [],
-        'centros_seguidos': []
+        'centros_seguidos': [],
+        'sobre': sobre,
     }
 
     if 'aluno' in request.session:

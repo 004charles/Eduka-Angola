@@ -86,9 +86,12 @@ class PerfilInstrutorInline(admin.StackedInline):
     verbose_name_plural = 'Perfil do Instrutor'
     
 
+
+
 admin.site.register(Instrutor, InstrutorAdmin)
 admin.site.register(Curso, CursoAdmin)
 admin.site.register(Modulo, ModuloAdmin)
 admin.site.register(Video, VideoAdmin)
 admin.site.register(MaterialApoio, MaterialApoioAdmin)
 admin.site.register(Inscricao)
+admin.site.register(PerfilInstrutor)
