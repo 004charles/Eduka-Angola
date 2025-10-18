@@ -295,7 +295,7 @@
                             <li class="has-dropdown has-menu-child-item">
                                 <a href="#">Recursos <i class="feather-chevron-down"></i></a>
                                 <ul class="submenu">
-                                    <li><a href="#">Biblioteca Digital</a></li>
+                                    <li><a href="{% url 'biblioteca' %}">Biblioteca Digital</a></li>
                                     <li><a href="#">Guias de Estudo</a></li>
                                     <li><a href="#">Bolsa de Emprego</a></li>
                                 </ul>
@@ -791,9 +791,7 @@
 </div>
 <a class="close_side_menu" href="javascript:void(0);"></a>
 
-<!-- Meta Tags Dinâmicas para Compartilhamento -->
 {% if post %}
-<!-- Open Graph / Facebook -->
 <meta property="og:type" content="article">
 <meta property="og:url" content="{{ request.build_absolute_uri }}{% url 'blog:detalhe_post' post.slug %}">
 <meta property="og:title" content="{{ post.titulo }}">
@@ -804,7 +802,6 @@
 <meta property="og:image:height" content="630">
 {% endif %}
 
-<!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{ post.titulo }}">
 <meta name="twitter:description" content="{{ post.resumo|default:post.conteudo|truncatewords:30 }}">

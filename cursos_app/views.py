@@ -477,7 +477,8 @@ def buscar_cursos(request):
 
     context = {
         'cursos': cursos,
-        'cursos_video': cursos_video,  # ✅ adicionados
+        'cursos_destaque':cursos_destaque,
+        'cursos_video': cursos_video, 
         'termo_busca': termo,
         'centros': CentroDeFormacao.objects.filter(ativo=True),
         'categorias': Categoria.objects.all(),

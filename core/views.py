@@ -23,6 +23,7 @@ from django.utils import timezone
 from datetime import timedelta
 from cursovideoapp.models import Curso_video
 from .models import SobreNos
+from estagio.models import Estagio
 
 def index(request):
     agora = timezone.now()
@@ -45,6 +46,7 @@ def index(request):
         .order_by('-data_inicio')[:20]
     )
 
+    estagios = Estagio.objects.filter(ativo=True).select_related('area', 'centro_formacao')
     sobre = SobreNos.objects.last()  
 
     todos_cursos = Curso.objects.filter(publicado=True, ativo=True).order_by('-data_inicio')
@@ -92,6 +94,7 @@ def index(request):
         'favoritos': [],
         'centros_seguidos': [],
         'sobre': sobre,
+        'estagios':estagios
     }
 
     if 'aluno' in request.session:

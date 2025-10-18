@@ -23,9 +23,385 @@
 
     {% include 'include/css.html' %}
     <style>
+        .animated-text {
+            display: inline-block;
+            position: relative;
+            background: linear-gradient(45deg, var(--color-primary), var(--color-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(var(--color-primary-rgb), 0.3);
+        }
+
+        .cursor-pulse {
+            display: inline-block;
+            width: 3px;
+            height: 1.2em;
+            background: linear-gradient(45deg, var(--color-primary), var(--color-secondary));
+            margin-left: 2px;
+            animation: cursor-pulse 1.5s infinite, cursor-float 3s ease-in-out infinite;
+            border-radius: 2px;
+            box-shadow: 0 0 10px var(--color-primary);
+        }
+
+        @keyframes cursor-pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scaleY(1);
+            }
+
+            50% {
+                opacity: 0.7;
+                transform: scaleY(0.7);
+            }
+        }
+
+        @keyframes cursor-float {
+
+            0%,
+            100% {
+                transform: translateY(0px) scaleY(1);
+            }
+
+            50% {
+                transform: translateY(-2px) scaleY(1.1);
+            }
+        }
+
+        .banner-title-wrapper {
+            min-height: 140px;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .typing-effect {
+            animation: typing-glow 0.8s ease-out;
+        }
+
+        @keyframes typing-glow {
+            0% {
+                text-shadow: 0 0 20px var(--color-primary);
+                transform: scale(1.05);
+            }
+
+            100% {
+                text-shadow: 0 0 30px rgba(var(--color-primary-rgb), 0.3);
+                transform: scale(1);
+            }
+        }
+
+        .text-change-effect {
+            animation: text-change 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes text-change {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) rotateX(90deg);
+                filter: blur(10px);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: translateY(-10px) rotateX(45deg);
+                filter: blur(5px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) rotateX(0);
+                filter: blur(0);
+            }
+        }
+
+        .solution-text-effect {
+            animation: solution-appear 2s ease-out;
+        }
+
+        @keyframes solution-appear {
+            0% {
+                opacity: 0;
+                transform: scale(0.8) translateY(50px);
+                filter: blur(20px);
+            }
+
+            60% {
+                opacity: 1;
+                transform: scale(1.05) translateY(-10px);
+                filter: blur(5px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+                filter: blur(0);
+            }
+        }
+
+        /* Efeito de partículas no texto */
+        .text-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particle-float 2s ease-out forwards;
+        }
+
+        @keyframes particle-float {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(var(--tx, 0), var(--ty, -50px)) scale(0);
+            }
+        }
+
+        /* Botão com efeito sparkle */
+        .btn-sparkle {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sparkle-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0;
+            animation: sparkle-pop 2s infinite;
+        }
+
+        .sparkle:nth-child(1) {
+            top: 20%;
+            left: 20%;
+            animation-delay: 0s;
+        }
+
+        .sparkle:nth-child(2) {
+            top: 60%;
+            left: 80%;
+            animation-delay: 0.7s;
+        }
+
+        .sparkle:nth-child(3) {
+            top: 80%;
+            left: 40%;
+            animation-delay: 1.4s;
+        }
+
+        @keyframes sparkle-pop {
+
+            0%,
+            100% {
+                opacity: 0;
+                transform: scale(0) rotate(0deg);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1) rotate(180deg);
+            }
+        }
+
+        /* Efeito de brilho especial para o texto da solução */
+        .solution-glow {
+            position: relative;
+        }
+
+        .solution-glow::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            background: linear-gradient(45deg,
+                    #ff0000, #ff8000, #ffff00, #00ff00,
+                    #00ffff, #0000ff, #8000ff, #ff0080);
+            background-size: 400% 400%;
+            border-radius: 10px;
+            z-index: -1;
+            opacity: 0.3;
+            animation: rainbow-glow 3s ease-in-out infinite;
+            filter: blur(15px);
+        }
+
+        @keyframes rainbow-glow {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+                opacity: 0.3;
+            }
+
+            50% {
+                background-position: 100% 50%;
+                opacity: 0.6;
+            }
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .banner-title-wrapper {
+                min-height: 120px;
+            }
+
+            .cursor-pulse {
+                height: 1em;
+            }
+
+            .animated-text {
+                font-size: 0.9em;
+            }
+        }
+
+        /* Variáveis CSS para cores */
+        :root {
+            --color-primary: #7c3aed;
+            --color-secondary: #ec4899;
+            --color-primary-rgb: 124, 58, 237;
+        }
+
         body {
             overflow-x: hidden;
             width: 100%;
+        }
+
+        .categories-scroll-container {
+            overflow: hidden;
+            position: relative;
+            margin: 40px 0;
+            padding: 20px 0;
+        }
+
+        .categories-scroll-wrapper {
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .categories-track {
+            display: flex;
+            animation: scroll-categories 40s linear infinite;
+            gap: 20px;
+            padding: 10px 0;
+        }
+
+        .category-item {
+            flex: 0 0 auto;
+            width: 280px;
+            /* Largura fixa para cada categoria */
+            transition: transform 0.3s ease;
+        }
+
+        .category-item:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Animação do scroll */
+        @keyframes scroll-categories {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(calc(-280px * 8));
+                /* Move pela largura de 8 categorias */
+            }
+        }
+
+        /* Pausa a animação no hover */
+        .categories-track:hover {
+            animation-play-state: paused;
+        }
+
+        /* Efeitos visuais adicionais */
+        .rbt-cat-box {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .rbt-cat-box:hover {
+            border-color: var(--color-primary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Gradiente sutil no container */
+        .categories-scroll-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100px;
+            height: 100%;
+            background: linear-gradient(90deg, white 0%, transparent 100%);
+            z-index: 2;
+        }
+
+        .categories-scroll-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100%;
+            background: linear-gradient(270deg, white 0%, transparent 100%);
+            z-index: 2;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .category-item {
+                width: 250px;
+            }
+
+            @keyframes scroll-categories {
+                0% {
+                    transform: translateX(0);
+                }
+
+                100% {
+                    transform: translateX(calc(-250px * 8));
+                }
+            }
+
+            .categories-scroll-container::before,
+            .categories-scroll-container::after {
+                width: 50px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .category-item {
+                width: 220px;
+            }
+
+            @keyframes scroll-categories {
+                0% {
+                    transform: translateX(0);
+                }
+
+                100% {
+                    transform: translateX(calc(-220px * 8));
+                }
+            }
         }
     </style>
 
@@ -61,10 +437,18 @@
                             <div class="content">
                                 <div class="inner">
                                     <div class="section-title text-start">
-                                        <span class="subtitle bg-primary-opacity">EDUCAÇÃO PARA TODOS</span>
+                                        <span class="subtitle bg-primary-opacity">EDUCAÇÃO QUE TRANSFORMA VIDAS</span>
                                     </div>
-                                    <h1 class="title">"Ondele y'Olemba" - <span class="theme-gradient">Saberes
-                                            Ancestrais, Competências Modernas</span></h1>
+
+                                    <!-- Título com animação deslumbrante -->
+                                    <div class="banner-title-wrapper">
+                                        <h1 class="title">
+                                            <span class="static-text">"Edukangola: Aprender e crescer" - </span>
+                                            <span class="theme-gradient animated-text" id="animatedText"></span>
+                                            <span class="cursor-pulse"></span>
+                                        </h1>
+                                    </div>
+
                                     <div class="rbt-like-total">
                                         <div class="profile-share">
                                             {% for perfil in primeiros_alunos %}
@@ -75,17 +459,22 @@
                                             {% endfor %}
                                             <div class="more-author-text">
                                                 <h5 class="total-join-students">Junte-se a Mais de 3000 Alunos</h5>
-                                                <p class="subtitle">Novas ideias todas as semanas.</p>
+                                                <p class="subtitle">Transformando vidas através da educação.</p>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="rbt-button-group justify-content-start mt--30">
-                                        <a class="rbt-btn btn-gradient rbt-switch-btn" href="08-language-academy.html#">
-                                            <span data-text="Testar habilidades">Testar habilidades</span>
+                                        <a class="rbt-btn btn-gradient rbt-switch-btn btn-sparkle" href="#">
+                                            <span data-text="Começar Agora">Começar Agora</span>
+                                            <div class="sparkle-container">
+                                                <div class="sparkle"></div>
+                                                <div class="sparkle"></div>
+                                                <div class="sparkle"></div>
+                                            </div>
                                         </a>
                                         <a class="rbt-btn btn-border rbt-switch-btn" href="{% url 'todo_curso' %}">
-                                            <span data-text="Encontrar Cursos">Encontrar Cursos</span>
+                                            <span data-text="Ver Cursos">Ver Cursos</span>
                                         </a>
                                     </div>
                                 </div>
@@ -99,19 +488,19 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
         </div>
 
+
         <style>
             .banner-padrao {
-    width: 100%;
-    height: 330px;
-    object-fit: cover;
-    display: block;
-}
+                width: 100%;
+                height: 330px;
+                object-fit: cover;
+                display: block;
+            }
         </style>
 
 
@@ -142,15 +531,14 @@
                                             <div class="thumbnail" style="position: relative;">
                                                 <!-- LOGO no canto -->
                                                 <div style="position: absolute; top: 10px; right: 10px; z-index: 2;">
-                                                    <img src="{{centro.perfil.imagem.url}}"
-                                                        alt="Logo" style="width: 90px; height: auto;">
+                                                    <img src="{{centro.perfil.imagem.url}}" alt="Logo"
+                                                        style="width: 90px; height: auto;">
                                                 </div>
 
                                                 <a href="{% url 'cursos_por_centro' centro.id %}">
-    <img src="{{ centro.perfil.banner.url }}" 
-         alt="{{ centro.nome }}"
-         class="banner-padrao">
-</a>
+                                                    <img src="{{ centro.perfil.banner.url }}" alt="{{ centro.nome }}"
+                                                        class="banner-padrao">
+                                                </a>
                                             </div>
                                             <div class="content">
                                                 <div class="inner">
@@ -227,44 +615,73 @@
                         </div>
                     </div>
                 </div>
-                <div class="row g-5 mt--30">
-                    <!-- Start Category Box Layout  -->
-                    {% for categoria in categoria|slice:"0:8" %}
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                        <a class="rbt-cat-box rbt-cat-box-1 text-center"
-                            href="{% url 'cursos_por_categoria' categoria.slug %}">
-                            <div class="inner">
-                                <div class="icons">
-                                    <img src="{{categoria.imagem.url}}" alt="Icons Images">
-                                </div>
-                                <div class="content">
-                                    <h5 class="title">{{categoria.nome}}</h5>
-                                    <div class="read-more-btn">
-                                        <span class="rbt-btn-link">Cursos {{categoria.num_cursos}}<i
-                                                class="feather-arrow-right"></i></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                    {% endfor %}
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="read-more-btn text-center mt--40">
-                                <a class="rbt-btn btn-border-gradient hover-icon-reverse radius-round btn-md"
-                                    href="{% url 'pagina_categoria' %}">
-                                    <div class="icon-reverse-wrapper">
-                                        <span class="btn-text">VER TODAS AS CATEGORIAS</span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+
+                <!-- Container para o scroll horizontal -->
+                <div class="categories-scroll-container">
+                    <div class="categories-scroll-wrapper">
+                        <!-- Primeira linha - categorias principais -->
+                        <div class="categories-track">
+                            {% for categoria in categoria|slice:"0:8" %}
+                            <div class="category-item">
+                                <a class="rbt-cat-box rbt-cat-box-1 text-center"
+                                    href="{% url 'cursos_por_categoria' categoria.slug %}">
+                                    <div class="inner">
+                                        <div class="icons">
+                                            <img src="{{categoria.imagem.url}}" alt="Icons Images">
+                                        </div>
+                                        <div class="content">
+                                            <h5 class="title">{{categoria.nome}}</h5>
+                                            <div class="read-more-btn">
+                                                <span class="rbt-btn-link">Cursos {{categoria.num_cursos}}<i
+                                                        class="feather-arrow-right"></i></span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </a>
                             </div>
+                            {% endfor %}
+
+                            <!-- Duplicar as categorias para criar loop contínuo -->
+                            {% for categoria in categoria|slice:"0:8" %}
+                            <div class="category-item">
+                                <a class="rbt-cat-box rbt-cat-box-1 text-center"
+                                    href="{% url 'cursos_por_categoria' categoria.slug %}">
+                                    <div class="inner">
+                                        <div class="icons">
+                                            <img src="{{categoria.imagem.url}}" alt="Icons Images">
+                                        </div>
+                                        <div class="content">
+                                            <h5 class="title">{{categoria.nome}}</h5>
+                                            <div class="read-more-btn">
+                                                <span class="rbt-btn-link">Cursos {{categoria.num_cursos}}<i
+                                                        class="feather-arrow-right"></i></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="read-more-btn text-center mt--40">
+                            <a class="rbt-btn btn-border-gradient hover-icon-reverse radius-round btn-md"
+                                href="{% url 'pagina_categoria' %}">
+                                <div class="icon-reverse-wrapper">
+                                    <span class="btn-text">VER TODAS AS CATEGORIAS</span>
+                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                </div>
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
 
         <div class="rbt-course-area rbt-section-gapBottom bg-color-white">
             <div class="container">
@@ -343,12 +760,11 @@
                 <div class="row row--15 mt_dec--30">
                     <div class="col-lg-4 col-xl-4 col-md-6 col-sm-6 col-12 mt--30">
                         <div class="section-title text-start">
-                            <h2 class="title">O que você vai aprender após o curso?</h2>
-                            <p class="description mt--20">Existem muitas variações de passagens do Lorem Ipsum
-                                disponíveis.</p>
+                            <h2 class="title">O que você vai encontrar na EdukAngola?</h2>
+                            <p class="description mt--20">Uma plataforma completa para sua formação profissional e
+                                crescimento na carreira.</p>
                             <div class="read-more-btn">
-                                <a class="rbt-btn btn-gradient radius rbt-marquee-btn marquee-text-y"
-                                    href="10-online-course.html#">
+                                <a class="rbt-btn btn-gradient radius rbt-marquee-btn marquee-text-y" href="#">
                                     <span data-text="Sobre Nós">
                                         Sobre Nós
                                     </span>
@@ -357,106 +773,99 @@
                         </div>
                     </div>
 
-                    <!-- Início do Bloco de Serviço -->
+                    <!-- Habilidades Técnicas -->
                     <div class="col-lg-4 col-xl-4 col-md-6 col-sm-6 col-12 mt--30">
                         <div class="service-card service-card-6 bg-color bg-card-color-1">
                             <div class="inner">
                                 <div class="icon">
-                                    <img src="{% static 'assets/images/shape/service-01.png' %}" alt="Imagens de Ícone">
+                                    <img src="{% static 'assets/images/shape/service-01.png' %}"
+                                        alt="Desenvolvimento Web">
                                     <img class="opacity_image" src="{% static 'assets/images/shape/service-01.png' %}"
-                                        alt="Imagens de Ícone">
+                                        alt="Desenvolvimento Web">
                                 </div>
                                 <div class="content">
-                                    <h6 class="title"><a href="10-online-course.html#">Aprendizado de Inglês</a></h6>
-                                    <p class="description">Aprendizado de inglês. Se você está procurando por parágrafos
-                                        aleatórios, você veio ao lugar certo.</p>
+                                    <h6 class="title"><a href="#">Habilidades Técnicas</a></h6>
+                                    <p class="description">Programação, desenvolvimento web, data science e as
+                                        tecnologias mais demandadas pelo mercado angolano.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!-- Fim do Bloco de Serviço -->
 
-                    <!-- Início do Bloco de Serviço -->
+                    <!-- Competências Profissionais -->
                     <div class="col-lg-4 col-xl-4 col-md-6 col-sm-6 col-12 mt--30">
                         <div class="service-card service-card-6 bg-color bg-card-color-2">
                             <div class="inner">
                                 <div class="icon">
-                                    <img src="{% static 'assets/images/shape/service-04.png' %}" alt="Imagens de Ícone">
+                                    <img src="{% static 'assets/images/shape/service-04.png' %}"
+                                        alt="Competências Profissionais">
                                     <img class="opacity_image" src="{% static 'assets/images/shape/service-04.png' %}"
-                                        alt="Imagens de Ícone">
+                                        alt="Competências Profissionais">
                                 </div>
                                 <div class="content">
-                                    <h6 class="title"><a href="10-online-course.html#">Aprendizado de JavaScript</a>
-                                    </h6>
-                                    <p class="description">Aprendizado de JavaScript. Se você está procurando por
-                                        parágrafos aleatórios, você veio ao lugar certo.</p>
+                                    <h6 class="title"><a href="#">Competências Profissionais</a></h6>
+                                    <p class="description">Gestão, marketing digital, finanças e soft skills essenciais
+                                        para se destacar no mercado de trabalho.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!-- Fim do Bloco de Serviço -->
 
-                    <!-- Início do Bloco de Serviço -->
+                    <!-- Estágios e Oportunidades -->
                     <div class="col-lg-4 col-xl-4 col-xxl-4 col-md-6 col-sm-6 col-12 mt--30">
                         <div class="service-card service-card-6 bg-color bg-card-color-3">
                             <div class="inner">
                                 <div class="icon">
-                                    <img src="{% static 'assets/images/shape/service-03.png' %}" alt="Imagens de Ícone">
+                                    <img src="{% static 'assets/images/shape/service-03.png' %}" alt="Estágios">
                                     <img class="opacity_image" src="{% static 'assets/images/shape/service-03.png' %}"
-                                        alt="Imagens de Ícone">
+                                        alt="Estágios">
                                 </div>
                                 <div class="content">
-                                    <h6 class="title"><a href="10-online-course.html#">Aprendizado de Angular</a></h6>
-                                    <p class="description">Aprendizado de Angular. Se você está procurando por
-                                        parágrafos aleatórios, você veio ao lugar certo.</p>
+                                    <h6 class="title"><a href="#">Estágios e Oportunidades</a></h6>
+                                    <p class="description">Acesso exclusivo a estágios remunerados em empresas parceiras
+                                        e oportunidades de primeiro emprego.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!-- Fim do Bloco de Serviço -->
 
-                    <!-- Início do Bloco de Serviço -->
+                    <!-- Certificações Reconhecidas -->
                     <div class="col-lg-4 col-xl-4 col-xxl-4 col-md-6 col-sm-6 col-12 mt--30">
                         <div class="service-card service-card-6 bg-color bg-card-color-4">
                             <div class="inner">
                                 <div class="icon">
-                                    <img src="{% static 'assets/images/shape/service-02.png' %}" alt="Imagens de Ícone">
+                                    <img src="{% static 'assets/images/shape/service-02.png' %}" alt="Certificações">
                                     <img class="opacity_image" src="{% static 'assets/images/shape/service-02.png' %}"
-                                        alt="Imagens de Ícone">
+                                        alt="Certificações">
                                 </div>
                                 <div class="content">
-                                    <h6 class="title"><a href="10-online-course.html#">Aprendizado de PHP</a></h6>
-                                    <p class="description">Aprendizado de PHP. Se você está procurando por parágrafos
-                                        aleatórios, você veio ao lugar certo.</p>
+                                    <h6 class="title"><a href="#">Certificações Reconhecidas</a></h6>
+                                    <p class="description">Certificados válidos no mercado angolano que comprovam suas
+                                        competências e aumentam sua empregabilidade.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!-- Fim do Bloco de Serviço -->
 
-                    <!-- Início do Bloco de Serviço -->
                     <div class="col-lg-4 col-xl-4 col-xxl-4 col-md-6 col-sm-6 col-12 mt--30">
                         <div class="service-card service-card-6 bg-color bg-card-color-5">
                             <div class="inner">
                                 <div class="icon">
-                                    <img src="{% static 'assets/images/shape/service-05.png' %}" alt="Imagens de Ícone">
+                                    <img src="{% static 'assets/images/shape/service-05.png' %}" alt="Networking">
                                     <img class="opacity_image" src="{% static 'assets/images/shape/service-05.png' %}"
-                                        alt="Imagens de Ícone">
+                                        alt="Networking">
                                 </div>
                                 <div class="content">
-                                    <h6 class="title"><a href="10-online-course.html#">Inglês Falado</a></h6>
-                                    <p class="description">Inglês falado. Se você está procurando por parágrafos
-                                        aleatórios, você veio ao lugar certo.</p>
+                                    <h6 class="title"><a href="#">Networking e Conexões</a></h6>
+                                    <p class="description">Conecte-se com profissionais, empresas e centros de formação
+                                        que podem impulsionar sua carreira em Angola.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!-- Fim do Bloco de Serviço -->
-
                 </div>
             </div>
         </div>
-
         </div>
 
         <div class="rbt-banner-area rbt-section-gapTop">
@@ -648,22 +1057,20 @@
                     <div class="col-lg-12 text-center">
                         <div style="margin-bottom: 10px;" class="mt--80">
                             <div class="rbt-brand-title-wrap">
-                                <h5 class="rbt-brand-title w-600 text-center mb-0">
+                                <h5 class="rbt-brand-title w-600 text-center mb-0"> <!-- Aumentado -->
                                     Cursos <span class="theme-gradient">em destaque | </span>
                                     Novos Cursos <span class="theme-gradient">{{ grupo.categoria.nome }}</span>
                                 </h5>
                             </div>
                         </div>
                     </div>
-
                 </div>
-
 
                 <!-- Start Card Area -->
                 <div style="" class="swiper mySwiper">
                     <div class="swiper-wrapper">
                         {% for curso in cursos_destaque %}
-                        <div class="swiper-slide" style="width: 320px;"> <!-- Aumentei de 290px para 320px -->
+                        <div class="swiper-slide" style="width: 320px;">
                             <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column shadow rounded-4">
                                 <!-- Imagem com proporção 16:9 -->
                                 <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden rounded-top-4">
@@ -675,17 +1082,17 @@
                                 </div>
 
                                 <!-- Corpo do Card -->
-                                <div class="rbt-card-body d-flex flex-column flex-grow-1 p-4">
+                                <div class="rbt-card-body d-flex flex-column flex-grow-1 p-4 fs-5"> <!-- Base maior -->
                                     <div class="rbt-card-top mb-3 d-flex align-items-center">
-                                        <div class="rating text-warning me-2 fs-5">
+                                        <div class="rating text-warning me-2 fs-4"> <!-- Estrelas maiores -->
                                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i
                                                 class="fas fa-star"></i><i class="fas fa-star"></i><i
                                                 class="fas fa-star"></i>
                                         </div>
-                                        <small class="rating-count text-muted fs-6">({{ curso.vagas }} Vagas)</small>
+                                        <small class="rating-count text-muted fs-5">({{ curso.vagas }} Vagas)</small>
                                     </div>
 
-                                    <h4 class="rbt-card-title mb-3 fs-5">
+                                    <h4 class="rbt-card-title mb-3 fs-4 fw-bold"> <!-- Título maior -->
                                         <a href="{% url 'curso_detalhe' id=curso.id %}"
                                             class="text-decoration-none text-truncate d-block"
                                             title="{{ curso.titulo }}">
@@ -693,19 +1100,19 @@
                                         </a>
                                     </h4>
 
-                                    <ul class="rbt-meta list-unstyled d-flex mb-4 fs-6">
+                                    <ul class="rbt-meta list-unstyled d-flex mb-4 fs-5"> <!-- Meta maior -->
                                         <li class="me-4"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
                                         </li>
                                         <li><i class="feather-users me-1"></i>{{ curso.vagas }} Estudantes</li>
                                     </ul>
 
-                                    <p class="rbt-card-text mb-4 fs-6">
+                                    <p class="rbt-card-text mb-4 fs-5"> <!-- Descrição maior -->
                                         {{ curso.descricao|truncatechars:60 }}
                                     </p>
 
                                     <div
-                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center fs-6">
-                                        <div class="rbt-price fw-bold text-primary">
+                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center fs-5">
+                                        <div class="rbt-price fw-bold text-primary fs-4"> <!-- Preço maior -->
                                             kz {{ curso.preco }}
                                             {% if curso.preco_original %}
                                             <span
@@ -714,7 +1121,7 @@
                                             </span>
                                             {% endif %}
                                         </div>
-                                        <a class="rbt-btn-link text-decoration-none small"
+                                        <a class="rbt-btn-link text-decoration-none fs-5"
                                             href="{% url 'curso_detalhe' id=curso.id %}">
                                             Ver mais <i class="feather-arrow-right ms-1"></i>
                                         </a>
@@ -744,21 +1151,20 @@
                     <div class="col-lg-12 text-center">
                         <div style="margin-bottom: 10px;" class="mt--80">
                             <div class="rbt-brand-title-wrap">
-                                <h5 class="rbt-brand-title w-600 text-center mb-0">
+                                <h5 class="rbt-brand-title w-600 text-center mb-0"> <!-- Aumentado -->
                                     Cursos <span class="theme-gradient">adicionados recente | </span>
                                     Novos Cursos <span class="theme-gradient">{{ grupo.categoria.nome }}</span>
                                 </h5>
                             </div>
                         </div>
                     </div>
-
                 </div>
 
                 <!-- Start Card Area -->
                 <div style="margin-bottom: 70px;" class="swiper mySwiper">
                     <div class="swiper-wrapper">
                         {% for curso in cursos_recentes %}
-                        <div class="swiper-slide" style="width: 320px;"> <!-- Aumentei de 290px para 320px -->
+                        <div class="swiper-slide" style="width: 320px;">
                             <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column shadow rounded-4">
                                 <!-- Imagem com proporção 16:9 -->
                                 <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden rounded-top-4">
@@ -770,17 +1176,18 @@
                                 </div>
 
                                 <!-- Corpo do Card -->
-                                <div class="rbt-card-body d-flex flex-column flex-grow-1 p-4">
+                                <div class="rbt-card-body d-flex flex-column flex-grow-1 p-4 fs-5">
+                                    <!-- Fonte base maior -->
                                     <div class="rbt-card-top mb-3 d-flex align-items-center">
-                                        <div class="rating text-warning me-2 fs-5">
+                                        <div class="rating text-warning me-2 fs-4"> <!-- Estrelas maiores -->
                                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i
                                                 class="fas fa-star"></i><i class="fas fa-star"></i><i
                                                 class="fas fa-star"></i>
                                         </div>
-                                        <small class="rating-count text-muted fs-6">({{ curso.vagas }} Vagas)</small>
+                                        <small class="rating-count text-muted fs-5">({{ curso.vagas }} Vagas)</small>
                                     </div>
 
-                                    <h4 class="rbt-card-title mb-3 fs-5">
+                                    <h4 class="rbt-card-title mb-3 fs-4 fw-bold"> <!-- Título maior -->
                                         <a href="{% url 'curso_detalhe' id=curso.id %}"
                                             class="text-decoration-none text-truncate d-block"
                                             title="{{ curso.titulo }}">
@@ -788,19 +1195,19 @@
                                         </a>
                                     </h4>
 
-                                    <ul class="rbt-meta list-unstyled d-flex mb-4 fs-6">
+                                    <ul class="rbt-meta list-unstyled d-flex mb-4 fs-5"> <!-- Meta maior -->
                                         <li class="me-4"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
                                         </li>
                                         <li><i class="feather-users me-1"></i>{{ curso.vagas }} Estudantes</li>
                                     </ul>
 
-                                    <p class="rbt-card-text mb-4 fs-6">
+                                    <p class="rbt-card-text mb-4 fs-5"> <!-- Descrição maior -->
                                         {{ curso.descricao|truncatechars:60 }}
                                     </p>
 
                                     <div
-                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center fs-6">
-                                        <div class="rbt-price fw-bold text-primary">
+                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center fs-5">
+                                        <div class="rbt-price fw-bold text-primary fs-4"> <!-- Preço maior -->
                                             kz {{ curso.preco }}
                                             {% if curso.preco_original %}
                                             <span
@@ -809,7 +1216,7 @@
                                             </span>
                                             {% endif %}
                                         </div>
-                                        <a class="rbt-btn-link text-decoration-none small"
+                                        <a class="rbt-btn-link text-decoration-none fs-5"
                                             href="{% url 'curso_detalhe' id=curso.id %}">
                                             Ver mais <i class="feather-arrow-right ms-1"></i>
                                         </a>
@@ -817,8 +1224,6 @@
                                 </div>
                             </div>
                         </div>
-
-
                         {% endfor %}
                     </div>
 
@@ -827,12 +1232,8 @@
                     <div class="swiper-button-prev"></div>
 
                     <!-- Paginação (se quiser) -->
-
                 </div>
             </div>
-        </div>
-        </div>
-        </div>
         </div>
         {% endif %}
 
@@ -846,21 +1247,20 @@
                     <div class="col-lg-12 text-center">
                         <div style="margin-bottom: 10px;" class="mt--80">
                             <div class="rbt-brand-title-wrap">
-                                <h5 class="rbt-brand-title w-600 text-center mb-0">
+                                <h5 class="rbt-brand-title w-600 text-center mb-0"> <!-- Aumentado -->
                                     Cursos <span class="theme-gradient">Gratuitos | </span>
                                     Novos Cursos <span class="theme-gradient">{{ grupo.categoria.nome }}</span>
                                 </h5>
                             </div>
                         </div>
                     </div>
-
                 </div>
 
                 <!-- Start Card Area -->
                 <div style="margin-bottom: 70px;" class="swiper mySwiper">
                     <div class="swiper-wrapper">
                         {% for curso in cursos_destaque %}
-                        <div class="swiper-slide" style="width: 320px;"> <!-- Aumentei de 290px para 320px -->
+                        <div class="swiper-slide" style="width: 320px;">
                             <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column shadow rounded-4">
                                 <!-- Imagem com proporção 16:9 -->
                                 <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden rounded-top-4">
@@ -872,17 +1272,17 @@
                                 </div>
 
                                 <!-- Corpo do Card -->
-                                <div class="rbt-card-body d-flex flex-column flex-grow-1 p-4">
+                                <div class="rbt-card-body d-flex flex-column flex-grow-1 p-4 fs-5"> <!-- Fonte maior -->
                                     <div class="rbt-card-top mb-3 d-flex align-items-center">
-                                        <div class="rating text-warning me-2 fs-5">
+                                        <div class="rating text-warning me-2 fs-4"> <!-- Estrelas maiores -->
                                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i
                                                 class="fas fa-star"></i><i class="fas fa-star"></i><i
                                                 class="fas fa-star"></i>
                                         </div>
-                                        <small class="rating-count text-muted fs-6">({{ curso.vagas }} Vagas)</small>
+                                        <small class="rating-count text-muted fs-5">({{ curso.vagas }} Vagas)</small>
                                     </div>
 
-                                    <h4 class="rbt-card-title mb-3 fs-5">
+                                    <h4 class="rbt-card-title mb-3 fs-4 fw-bold"> <!-- Título maior -->
                                         <a href="{% url 'curso_detalhe' id=curso.id %}"
                                             class="text-decoration-none text-truncate d-block"
                                             title="{{ curso.titulo }}">
@@ -890,19 +1290,19 @@
                                         </a>
                                     </h4>
 
-                                    <ul class="rbt-meta list-unstyled d-flex mb-4 fs-6">
+                                    <ul class="rbt-meta list-unstyled d-flex mb-4 fs-5">
                                         <li class="me-4"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
                                         </li>
                                         <li><i class="feather-users me-1"></i>{{ curso.vagas }} Estudantes</li>
                                     </ul>
 
-                                    <p class="rbt-card-text mb-4 fs-6">
+                                    <p class="rbt-card-text mb-4 fs-5"> <!-- Descrição maior -->
                                         {{ curso.descricao|truncatechars:60 }}
                                     </p>
 
                                     <div
-                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center fs-6">
-                                        <div class="rbt-price fw-bold text-primary">
+                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center fs-5">
+                                        <div class="rbt-price fw-bold text-primary fs-4"> <!-- Preço maior -->
                                             kz {{ curso.preco }}
                                             {% if curso.preco_original %}
                                             <span
@@ -911,7 +1311,7 @@
                                             </span>
                                             {% endif %}
                                         </div>
-                                        <a class="rbt-btn-link text-decoration-none small"
+                                        <a class="rbt-btn-link text-decoration-none fs-5"
                                             href="{% url 'curso_detalhe' id=curso.id %}">
                                             Ver mais <i class="feather-arrow-right ms-1"></i>
                                         </a>
@@ -919,20 +1319,14 @@
                                 </div>
                             </div>
                         </div>
-
                         {% endfor %}
                     </div>
 
                     <!-- Botões de navegação -->
                     <div class="swiper-button-next"></div>
                     <div class="swiper-button-prev"></div>
-
-                    <!-- Paginação (se quiser) -->
                 </div>
             </div>
-        </div>
-        </div>
-        </div>
         </div>
         {% endif %}
 
@@ -1330,36 +1724,41 @@
 
 
         <div class="rbt-about-area bg-color-darker rbt-section-gap">
-    <div class="container">
-        {% if sobre and sobre.video_explicacao %}
-            <div class="content radius-6 overflow-hidden video-sobre-container">
-                <video class="video-sobre" controls autoplay muted loop>
-                    <source src="{{ sobre.video_explicacao.url }}" type="video/mp4">
-                    Seu navegador não suporta a tag de vídeo.
-                </video>
+            <div class="container">
+                {% if sobre and sobre.video_explicacao %}
+                <div class="content radius-6 overflow-hidden video-sobre-container">
+                    <video class="video-sobre" controls autoplay muted loop>
+                        <source src="{{ sobre.video_explicacao.url }}" type="video/mp4">
+                        Seu navegador não suporta a tag de vídeo.
+                    </video>
+                </div>
+                {% else %}
+                <p style="color: white;">Vídeo ainda não disponível.</p>
+                {% endif %}
             </div>
-        {% else %}
-            <p style="color: white;">Vídeo ainda não disponível.</p>
-        {% endif %}
-    </div>
-</div>
+        </div>
 
-<style>
-    .video-sobre-container {
-    margin: 0 auto;        /* centraliza o vídeo */
-    max-width: 800px;      /* largura máxima do vídeo */
-    padding: 0 20px;       /* espaço lateral */
-}
+        <style>
+            .video-sobre-container {
+                margin: 0 auto;
+                /* centraliza o vídeo */
+                max-width: 800px;
+                /* largura máxima do vídeo */
+                padding: 0 20px;
+                /* espaço lateral */
+            }
 
-.video-sobre {
-    width: 100%;           /* ocupa toda a largura disponível */
-    aspect-ratio: 16 / 9;  /* mantém proporção 16:9 */
-    height: auto;
-    border-radius: 12px;   /* opcional, cantos arredondados */
-    object-fit: cover;
-}
-
-</style>
+            .video-sobre {
+                width: 100%;
+                /* ocupa toda a largura disponível */
+                aspect-ratio: 16 / 9;
+                /* mantém proporção 16:9 */
+                height: auto;
+                border-radius: 12px;
+                /* opcional, cantos arredondados */
+                object-fit: cover;
+            }
+        </style>
 
         <div style="margin-bottom: 10px;" class="mt--80">
             <div class="rbt-brand-title-wrap">
@@ -1431,7 +1830,7 @@
 
         <div class="rbt-course-area bg-color-white rbt-section-gapTop">
             <div class="container">
-            {% if cursos_destaque_video %}
+                {% if cursos_destaque_video %}
 
                 <div class="row mb--40">
                     <div class="col-lg-12 text-center">
@@ -1875,99 +2274,107 @@
             </div>
         </div>
 
-        <div style="margin-top: 50px;" class="rbt-categories-area bg-color-extra2 rbt-section-gap">
+
+        <div style="margin-top: 140px;" class="rbt-course-area bg-color-extra2 pt-2 pb-4">
             <div class="container">
-                <div class="row g-5">
-                    <!-- Start Category Box Layout  -->
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                        <div class="rbt-cat-box rbt-cat-box-1 variation-3 text-center">
-                            <div class="inner">
-                                <div class="thumbnail">
-                                    <a href="course-filter-one-toggle.html">
-                                        <img src="{% static 'assets/images/category/image/web-design.jpg' %}"
-                                            alt="Category Images">
-                                        <div class="read-more-btn">
-                                            <span class="rbt-btn btn-sm btn-white radius-round">20 Courses</span>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="content">
-                                    <h5 class="title"><a href="course-filter-one-toggle.html">Web Design</a></h5>
-                                    <p class="description">Web App Application</p>
-                                </div>
+                <div class="row mb--40">
+                    <div class="col-lg-12 text-center">
+                        <div style="margin-bottom: 10px;" class="mt--80">
+                            <div class="rbt-brand-title-wrap">
+                                <h5 class="rbt-brand-title w-600 text-center mb-0">Estágios <span
+                                        class="theme-gradient">Disponíveis | </span> Para Você<span
+                                        class="theme-gradient"></span>
+                                </h5>
                             </div>
                         </div>
                     </div>
-                    <!-- End Category Box Layout  -->
-                    <!-- Start Category Box Layout  -->
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                        <div class="rbt-cat-box rbt-cat-box-1 variation-3 text-center">
-                            <div class="inner">
-                                <div class="thumbnail">
-                                    <a href="course-filter-one-toggle.html">
-                                        <img src="{% static 'assets/images/category/image/graphic-design.jpg' %}"
-                                            alt="Category Images">
-                                        <div class="read-more-btn">
-                                            <span class="rbt-btn btn-sm btn-white radius-round">15 Courses</span>
-                                        </div>
+                </div>
+
+                <!-- Start Card Area -->
+                <div class="swiper mySwiper">
+                    <div class="swiper-wrapper">
+                        {% for estagio in estagios %}
+                        <div class="swiper-slide" style="width: 320px;">
+                            <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column shadow rounded-4">
+                                <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden rounded-top-4">
+                                    <a href="#" class="d-block h-100 w-100">
+                                        {% if estagio.imagem_principal %}
+                                        <img src="{{ estagio.imagem_principal.url }}" alt="{{ estagio.titulo }}"
+                                            class="object-fit-cover w-100 h-100" loading="lazy"
+                                            onerror="this.src='{% static 'images/placeholder-curso.jpg' %}'">
+                                        {% else %}
+                                        <img src="{% static 'images/estagio-default.jpg' %}" alt="{{ estagio.titulo }}"
+                                            class="object-fit-cover w-100 h-100" loading="lazy">
+                                        {% endif %}
                                     </a>
                                 </div>
-                                <div class="content">
-                                    <h5 class="title"><a href="course-filter-one-toggle.html">Graphic Design</a></h5>
-                                    <p class="description">Design is Art</p>
+
+                                <div class="rbt-card-body d-flex flex-column flex-grow-1 p-4">
+                                    <div class="rbt-card-top mb-3 d-flex align-items-center">
+                                        <div class="rating text-warning me-2 fs-5">
+                                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                                class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                                class="fas fa-star"></i>
+                                        </div>
+                                        <small class="rating-count text-muted fs-6">({{ estagio.vagas_disponiveis }}
+                                            Vagas)</small>
+                                    </div>
+
+                                    <h4 class="rbt-card-title mb-3 fs-5">
+                                        <a href="#" class="text-decoration-none text-truncate d-block"
+                                            title="{{ estagio.titulo }}">
+                                            {{ estagio.titulo }}
+                                        </a>
+                                    </h4>
+
+                                    <!-- ÁREA DO ESTÁGIO - AQUI ESTÁ FALTANDO -->
+                                    {% if estagio.area %}
+                                    <div class="mb-3">
+                                        <span class="badge bg-primary bg-opacity-10 text-primary fs-6">
+                                            <i class="feather-briefcase me-1"></i>{{ estagio.area.nome }}
+                                        </span>
+                                    </div>
+                                    {% endif %}
+
+                                    <ul class="rbt-meta list-unstyled d-flex mb-4 fs-6">
+                                        <li class="me-4"><i class="feather-clock me-1"></i>{{ estagio.duracao_meses }}
+                                            Meses</li>
+                                        <li><i class="feather-users me-1"></i>{{ estagio.vagas_disponiveis }}
+                                            Estagiários</li>
+                                    </ul>
+
+                                    <p class="rbt-card-text mb-4 fs-6">
+                                        {{ estagio.resumo|default:estagio.descricao|striptags|truncatechars:100 }}
+                                    </p>
+
+                                    <div
+                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center fs-6">
+                                        <div class="rbt-price fw-bold text-primary">
+                                            {{ estagio.get_tipo_remuneracao_display }}
+                                            {% if estagio.valor_remuneracao %}
+                                            - kz {{ estagio.valor_remuneracao }}
+                                            {% endif %}
+                                        </div>
+                                        <a class="rbt-btn-link text-decoration-none small" href="#">
+                                            Ver mais <i class="feather-arrow-right ms-1"></i>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <!-- End Category Box Layout  -->
-                    <!-- Start Category Box Layout  -->
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                        <div class="rbt-cat-box rbt-cat-box-1 variation-3 text-center">
-                            <div class="inner">
-                                <div class="thumbnail">
-                                    <a href="course-filter-one-toggle.html">
-                                        <img src="{% static 'assets/images/category/image/personal-development.jpg' %}"
-                                            alt="Category Images">
-                                        <div class="read-more-btn">
-                                            <span class="rbt-btn btn-sm btn-white radius-round">9 Courses</span>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="content">
-                                    <h5 class="title"><a href="course-filter-one-toggle.html">Personal Development</a>
-                                    </h5>
-                                    <p class="description">Web App Application</p>
-                                </div>
-                            </div>
+                        {% empty %}
+                        <div class="col-12 text-center">
+                            <p class="text-muted">Nenhum estágio disponível no momento.</p>
                         </div>
+                        {% endfor %}
                     </div>
-                    <!-- End Category Box Layout  -->
-                    <!-- Start Category Box Layout  -->
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                        <div class="rbt-cat-box rbt-cat-box-1 variation-3 text-center">
-                            <div class="inner">
-                                <div class="thumbnail">
-                                    <a href="course-filter-one-toggle.html">
-                                        <img src="{% static 'assets/images/category/image/software.jpg' %}"
-                                            alt="Category Images">
-                                        <div class="read-more-btn">
-                                            <span class="rbt-btn btn-sm btn-white radius-round">15 Courses</span>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="content">
-                                    <h5 class="title"><a href="course-filter-one-toggle.html">IT and Software</a></h5>
-                                    <p class="description">Web App Application</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- End Category Box Layout  -->
+
+                    <!-- Botões de navegação -->
+                    <div class="swiper-button-next"></div>
+                    <div class="swiper-button-prev"></div>
                 </div>
             </div>
         </div>
-
-
 
         <!-- Start Testimonial Area -->
         <div class="rbt-testimonial-area bg-color-white rbt-section-gap">
@@ -2359,6 +2766,163 @@
 });
         </script>
 
+
+        <script>
+            // JavaScript para melhor controle da animação
+            document.addEventListener('DOMContentLoaded', function () {
+                const track = document.querySelector('.categories-track');
+                const items = document.querySelectorAll('.category-item');
+
+                // Pausa a animação quando o mouse está sobre qualquer categoria
+                items.forEach(item => {
+                    item.addEventListener('mouseenter', () => {
+                        track.style.animationPlayState = 'paused';
+                    });
+
+                    item.addEventListener('mouseleave', () => {
+                        track.style.animationPlayState = 'running';
+                    });
+                });
+
+                // Ajusta a velocidade baseada na preferência de redução de movimento
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    track.style.animationDuration = '60s';
+                }
+            });
+        </script>
+
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const animatedText = document.getElementById('animatedText');
+                const cursor = document.querySelector('.cursor-pulse');
+
+                // Texto especial da solução (aparece primeiro por 5 minutos)
+                const solutionText = "A Solução Definitiva para Estudar Online em Angola";
+
+                // Textos normais (começam após 5 minutos)
+                const normalTexts = [
+                    "Sua ponte para o futuro profissional",
+                    "Conectamos talentos a oportunidades reais",
+                    "Educação que gera empregos e renda",
+                    "Do aprendizado à colocação no mercado",
+                    "Desenvolvendo competências para Angola crescer",
+                    "Formação + Estágio = Carreira de Sucesso"
+                ];
+
+                let isShowingSolution = true;
+                let textIndex = 0;
+                let charIndex = 0;
+                let isDeleting = false;
+                let typingSpeed = 60;
+                let deletingSpeed = 30;
+                let pauseBetween = 3000;
+
+                function createParticles(element, count = 8) {
+                    const rect = element.getBoundingClientRect();
+                    for (let i = 0; i < count; i++) {
+                        const particle = document.createElement('div');
+                        particle.className = 'text-particle';
+                        particle.style.setProperty('--tx', `${(Math.random() - 0.5) * 100}px`);
+                        particle.style.setProperty('--ty', `${-Math.random() * 80 - 20}px`);
+                        particle.style.left = `${Math.random() * rect.width}px`;
+                        particle.style.top = `${Math.random() * rect.height}px`;
+                        element.appendChild(particle);
+
+                        setTimeout(() => particle.remove(), 2000);
+                    }
+                }
+
+                function showSolutionText() {
+                    animatedText.textContent = solutionText;
+                    animatedText.classList.add('solution-text-effect', 'solution-glow');
+
+                    // Efeito especial de partículas para a solução
+                    createParticles(animatedText, 25);
+
+                    // Manter o texto da solução por 5 minutos (300.000ms)
+                    setTimeout(() => {
+                        animatedText.classList.remove('solution-text-effect', 'solution-glow');
+                        isShowingSolution = false;
+                        // Iniciar o ciclo normal após 5 minutos
+                        startNormalCycle();
+                    }, 300000); // 5 minutos = 300.000 milissegundos
+                }
+
+                function startNormalCycle() {
+                    // Iniciar o ciclo normal de animação
+                    typeWriter();
+                }
+
+                function typeWriter() {
+                    if (isShowingSolution) return;
+
+                    const currentText = normalTexts[textIndex];
+
+                    if (!isDeleting && charIndex < currentText.length) {
+                        // Digitando - com efeito de partículas
+                        if (charIndex % 3 === 0) {
+                            createParticles(animatedText, 3);
+                        }
+
+                        animatedText.textContent = currentText.substring(0, charIndex + 1);
+                        animatedText.classList.add('typing-effect');
+                        setTimeout(() => animatedText.classList.remove('typing-effect'), 300);
+
+                        charIndex++;
+                        setTimeout(typeWriter, typingSpeed);
+
+                    } else if (isDeleting && charIndex > 0) {
+                        // Apagando
+                        animatedText.textContent = currentText.substring(0, charIndex - 1);
+                        charIndex--;
+                        setTimeout(typeWriter, deletingSpeed);
+
+                    } else {
+                        // Troca de texto - efeito especial
+                        if (!isDeleting) {
+                            createParticles(animatedText, 15);
+                            animatedText.classList.add('text-change-effect');
+                            setTimeout(() => animatedText.classList.remove('text-change-effect'), 1200);
+                        }
+
+                        isDeleting = !isDeleting;
+
+                        if (!isDeleting) {
+                            textIndex = (textIndex + 1) % normalTexts.length;
+                        }
+
+                        setTimeout(typeWriter, isDeleting ? pauseBetween / 2 : pauseBetween);
+                    }
+                }
+
+                // Efeito de brilho intermitente no cursor
+                function cursorGlow() {
+                    cursor.style.animation = 'none';
+                    setTimeout(() => {
+                        cursor.style.animation = '';
+                    }, 100);
+                }
+
+                // Iniciar animações
+                showSolutionText(); // Começa com o texto da solução
+                setInterval(cursorGlow, 4000);
+
+                // Efeito de interação com o botão
+                const sparkleBtn = document.querySelector('.btn-sparkle');
+                if (sparkleBtn) {
+                    sparkleBtn.addEventListener('mouseenter', function () {
+                        createParticles(this, 20);
+                    });
+                }
+
+                // Mostrar contador no console (para debug)
+                console.log('🚀 Texto da solução aparecerá por 5 minutos...');
+                setTimeout(() => {
+                    console.log('🔄 Iniciando ciclo normal de textos...');
+                }, 300000);
+            });
+        </script>
 
 
 
