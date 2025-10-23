@@ -3,6 +3,7 @@ from cursos_app.models import Curso, Categoria, Aluno, Favorito
 from django.conf import settings
 from django.shortcuts import redirect
 from django.db.models import Count, Q
+from django.db.models import Prefetch, Q, Count
 from django.utils import timezone
 from .models import Galeria
 from blog.models import Post
@@ -66,12 +67,20 @@ def index(request):
         data_inicio__lte=proximos_dias
     ).order_by('data_inicio')
 
-    categorias = Categoria.objects.annotate(
+    # Categorias com cursos publicados e ativos
+    categorias = Categoria.objects.prefetch_related(
+        Prefetch(
+            'curso',
+            queryset=Curso.objects.filter(publicado=True, ativo=True).select_related('centro'),
+            to_attr='cursos_ativos'
+        )
+    ).annotate(
         num_cursos=Count('curso', filter=Q(curso__publicado=True, curso__ativo=True))
-    )
+    ).filter(num_cursos__gt=0)  # Filtra apenas categorias que têm cursos
+
     primeiros_alunos = PerfilAluno.objects.filter(
-    foto_de_perfil__isnull=False
-).exclude(foto_de_perfil='').order_by('aluno__data_cadastro')[:3]
+        foto_de_perfil__isnull=False
+    ).exclude(foto_de_perfil='').order_by('aluno__data_cadastro')[:3]
 
     centros = CentroDeFormacao.objects.filter(ativo=True)
 
@@ -81,9 +90,9 @@ def index(request):
         'cursos_gratuitos': cursos_gratuitos,
         'cursos_proximos': cursos_proximos,
         'cursos_zigue1': cursos_zigue1,
-        'cursos_destaque_video':cursos_destaque_video,
+        'cursos_destaque_video': cursos_destaque_video,
         'cursos_zigue2': cursos_zigue2,
-        'categoria': categorias,
+        'categorias': categorias,  # Mudei para 'categorias' (plural) para ficar mais claro
         'cursos': cursos,
         'posts': posts,
         'centros': centros,
@@ -94,7 +103,7 @@ def index(request):
         'favoritos': [],
         'centros_seguidos': [],
         'sobre': sobre,
-        'estagios':estagios
+        'estagios': estagios
     }
 
     if 'aluno' in request.session:

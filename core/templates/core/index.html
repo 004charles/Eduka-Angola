@@ -299,15 +299,16 @@
 
         .categories-track {
             display: flex;
-            animation: scroll-categories 40s linear infinite;
+            animation: scroll-categories 30s linear infinite;
             gap: 20px;
             padding: 10px 0;
+            width: max-content;
+            /* Importante para o cálculo correto */
         }
 
         .category-item {
             flex: 0 0 auto;
             width: 280px;
-            /* Largura fixa para cada categoria */
             transition: transform 0.3s ease;
         }
 
@@ -315,15 +316,25 @@
             transform: translateY(-5px);
         }
 
-        /* Animação do scroll */
+        /* Animação do scroll infinito */
         @keyframes scroll-categories {
             0% {
                 transform: translateX(0);
             }
 
             100% {
-                transform: translateX(calc(-280px * 8));
-                /* Move pela largura de 8 categorias */
+                transform: translateX(calc(-280px * {
+                                {
+                                categorias.count
+                            }
+                        }
+
+                        - 20px * {
+                                {
+                                categorias.count
+                            }
+                        }));
+                /* Move pela largura total de todas as categorias + gaps */
             }
         }
 
@@ -343,7 +354,7 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
-        /* Gradiente sutil no container */
+        /* Gradiente sutil nas bordas para efeito de fade */
         .categories-scroll-container::before {
             content: '';
             position: absolute;
@@ -351,8 +362,9 @@
             left: 0;
             width: 100px;
             height: 100%;
-            background: linear-gradient(90deg, white 0%, transparent 100%);
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.9) 0%, transparent 100%);
             z-index: 2;
+            pointer-events: none;
         }
 
         .categories-scroll-container::after {
@@ -362,8 +374,9 @@
             right: 0;
             width: 100px;
             height: 100%;
-            background: linear-gradient(270deg, white 0%, transparent 100%);
+            background: linear-gradient(270deg, rgba(255, 255, 255, 0.9) 0%, transparent 100%);
             z-index: 2;
+            pointer-events: none;
         }
 
         /* Responsividade */
@@ -378,7 +391,17 @@
                 }
 
                 100% {
-                    transform: translateX(calc(-250px * 8));
+                    transform: translateX(calc(-250px * {
+                                    {
+                                    categorias.count
+                                }
+                            }
+
+                            - 20px * {
+                                    {
+                                    categorias.count
+                                }
+                            }));
                 }
             }
 
@@ -399,7 +422,17 @@
                 }
 
                 100% {
-                    transform: translateX(calc(-220px * 8));
+                    transform: translateX(calc(-220px * {
+                                    {
+                                    categorias.count
+                                }
+                            }
+
+                            - 20px * {
+                                    {
+                                    categorias.count
+                                }
+                            }));
                 }
             }
         }
@@ -426,6 +459,9 @@
         </ul>
     </div>
     {% include 'include/header.html' %}
+    {% include 'include/loading.html' %}
+
+    
 
     <main class="rbt-main-wrapper ">
         <!-- Start Banner Area  -->
@@ -619,9 +655,9 @@
                 <!-- Container para o scroll horizontal -->
                 <div class="categories-scroll-container">
                     <div class="categories-scroll-wrapper">
-                        <!-- Primeira linha - categorias principais -->
                         <div class="categories-track">
-                            {% for categoria in categoria|slice:"0:8" %}
+                            <!-- Primeira cópia das categorias -->
+                            {% for categoria in categorias %}
                             <div class="category-item">
                                 <a class="rbt-cat-box rbt-cat-box-1 text-center"
                                     href="{% url 'cursos_por_categoria' categoria.slug %}">
@@ -641,8 +677,8 @@
                             </div>
                             {% endfor %}
 
-                            <!-- Duplicar as categorias para criar loop contínuo -->
-                            {% for categoria in categoria|slice:"0:8" %}
+                            <!-- Segunda cópia das categorias (para loop infinito) -->
+                            {% for categoria in categorias %}
                             <div class="category-item">
                                 <a class="rbt-cat-box rbt-cat-box-1 text-center"
                                     href="{% url 'cursos_por_categoria' categoria.slug %}">
@@ -868,6 +904,139 @@
         </div>
         </div>
 
+        <!-- Start Course Area -->
+        <style>
+            .rbt-card.variation-04 {
+                padding: 15px;
+            }
+
+            .rbt-card-body {
+                padding: 15px 10px;
+            }
+
+            .rbt-card-img img {
+                height: 180px;
+                object-fit: cover;
+            }
+
+            .rbt-card-title {
+                font-size: 16px;
+                line-height: 1.3;
+            }
+
+            .rbt-card-text {
+                font-size: 13px;
+                line-height: 1.4;
+            }
+
+            .rbt-meta {
+                font-size: 12px;
+            }
+        </style>
+
+        <div class="rbt-course-area rbt-sec-cir-shadow-1 bg-color-extra2 rbt-section-gap">
+            <div class="gradient-shape-top"></div>
+            <div class="gradient-shape-bottom"></div>
+            <div class="container">
+                <div class="row mb--30">
+                    <div class="col-lg-12">
+                        <div class="section-title text-center">
+                            <h6 class="b2 mb--15">
+                                <span class="theme-gradient">Nossos Cursos</span>
+                            </h6>
+                            <h2 class="title w-600">Aprendizado Ilimitado, Mais <br> <span
+                                    class="theme-gradient">Possibilidades</span></h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb--40">
+                    <div class="col-lg-12">
+                        <ul class="rbt-course-tab-button nav nav-tabs" id="rbt-myTab" role="tablist">
+                            {% for categoria in categorias %}
+                            <li class="nav-item" role="presentation">
+                                <button class="{% if forloop.first %}active{% endif %}" id="{{ categoria.slug }}-tab"
+                                    data-bs-toggle="tab" data-bs-target="#{{ categoria.slug }}" type="button" role="tab"
+                                    aria-controls="{{ categoria.slug }}"
+                                    aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                                    <span class="filter-text">{{categoria.nome}}</span>
+                                </button>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="tab-content" id="rbt-myTabContent">
+                            {% for categoria in categorias %}
+                            <div class="tab-pane fade {% if forloop.first %}active show{% endif %}"
+                                id="{{categoria.slug}}" role="tabpanel" aria-labelledby="{{categoria.slug}}-tab">
+                                <div class="row g-4">
+                                    {% for curso in categoria.cursos_ativos|slice:":8" %}
+                                    <!-- Start Single Course  -->
+                                    <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                                        <!-- Mudei para col-xl-3 col-lg-4 -->
+                                        <div class="rbt-card variation-04 rbt-hover" style="padding: 15px;">
+                                            <div class="rbt-card-img">
+                                                <a href="{% url 'curso_detalhe' id=curso.id %}">
+                                                    {% if curso.imagem %}
+                                                    <img src="{{ curso.imagem.url }}" alt="{{curso.titulo}}"
+                                                        style="height: 180px; object-fit: cover;">
+                                                    {% else %}
+                                                    <img src="{% static 'assets/images/course/default-course.jpg' %}"
+                                                        alt="{{curso.titulo}}"
+                                                        style="height: 180px; object-fit: cover;">
+                                                    {% endif %}
+                                                </a>
+                                            </div>
+                                            <div class="rbt-card-body" style="padding: 15px 10px;">
+                                                <ul class="rbt-meta" style="font-size: 12px;">
+                                                    <li><i class="feather-book"></i>{{ curso.carga_horaria }} Horas</li>
+                                                    <li><i class="feather-users"></i>{{ curso.vagas }} Vagas</li>
+                                                </ul>
+                                                <h4 class="rbt-card-title" style="font-size: 16px; line-height: 1.3;"><a
+                                                        href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a>
+                                                </h4>
+                                                <p class="rbt-card-text" style="font-size: 13px; line-height: 1.4;">
+                                                    {{curso.descricao|truncatewords:15}}</p>
+                                                <div class="rbt-review">
+                                                    <div class="rating" style="font-size: 12px;">
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                    </div>
+                                                    <span class="rating-count" style="font-size: 12px;"> (Em
+                                                        breve)</span>
+                                                </div>
+                                                <div class="rbt-card-bottom">
+                                                    <div class="rbt-price">
+                                                        <h6 class="current-price mb-0" style="font-size: 16px;">kz
+                                                            {{curso.preco}}</h6>
+                                                    </div>
+                                                    <a class="rbt-btn-link color-primary"
+                                                        href="{% url 'curso_detalhe' id=curso.id %}"
+                                                        style="font-size: 13px;">Inscrever-se<i
+                                                            class="feather-arrow-right"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- End Single Course  -->
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
         <div class="rbt-banner-area rbt-section-gapTop">
             <div class="container">
                 <div class="row">
@@ -1051,13 +1220,42 @@
         <!-- Seção de Benefícios para Parceiros -->
 
         {% if cursos_destaque %}
+        <style>
+            .swiper-slide .rbt-card.variation-01 {
+                padding: 15px;
+            }
+
+            .swiper-slide .rbt-card-body {
+                padding: 15px 10px;
+            }
+
+            .swiper-slide .rbt-card-img img {
+                height: 180px;
+                object-fit: cover;
+            }
+
+            .swiper-slide .rbt-card-title {
+                font-size: 16px;
+                line-height: 1.3;
+            }
+
+            .swiper-slide .rbt-card-text {
+                font-size: 13px;
+                line-height: 1.4;
+            }
+
+            .swiper-slide .rbt-meta {
+                font-size: 12px;
+            }
+        </style>
+
         <div class="rbt-course-area bg-color-extra2 rbt-section-gap">
             <div class="container">
                 <div class="row mb--60">
                     <div class="col-lg-12 text-center">
                         <div style="margin-bottom: 10px;" class="mt--80">
                             <div class="rbt-brand-title-wrap">
-                                <h5 class="rbt-brand-title w-600 text-center mb-0"> <!-- Aumentado -->
+                                <h5 class="rbt-brand-title w-600 text-center mb-0">
                                     Cursos <span class="theme-gradient">em destaque | </span>
                                     Novos Cursos <span class="theme-gradient">{{ grupo.categoria.nome }}</span>
                                 </h5>
@@ -1070,29 +1268,30 @@
                 <div style="" class="swiper mySwiper">
                     <div class="swiper-wrapper">
                         {% for curso in cursos_destaque %}
-                        <div class="swiper-slide" style="width: 320px;">
+                        <div class="swiper-slide" style="width: 300px;"> <!-- Largura ajustada -->
                             <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column shadow rounded-4">
-                                <!-- Imagem com proporção 16:9 -->
-                                <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden rounded-top-4">
-                                    <a href="{% url 'curso_detalhe' id=curso.id %}" class="d-block h-100 w-100">
+                                <!-- Imagem com altura fixa -->
+                                <div class="rbt-card-img bg-light overflow-hidden rounded-top-4">
+                                    <a href="{% url 'curso_detalhe' id=curso.id %}" class="d-block">
                                         <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}"
-                                            class="object-fit-cover w-100 h-100" loading="lazy"
+                                            style="height: 180px; object-fit: cover; width: 100%;" loading="lazy"
                                             onerror="this.src='{% static 'images/placeholder-curso.jpg' %}'">
                                     </a>
                                 </div>
 
                                 <!-- Corpo do Card -->
-                                <div class="rbt-card-body d-flex flex-column flex-grow-1 p-4 fs-5"> <!-- Base maior -->
-                                    <div class="rbt-card-top mb-3 d-flex align-items-center">
-                                        <div class="rating text-warning me-2 fs-4"> <!-- Estrelas maiores -->
+                                <div class="rbt-card-body d-flex flex-column flex-grow-1" style="padding: 15px 10px;">
+                                    <div class="rbt-card-top mb-2 d-flex align-items-center">
+                                        <div class="rating text-warning me-2" style="font-size: 12px;">
                                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i
                                                 class="fas fa-star"></i><i class="fas fa-star"></i><i
                                                 class="fas fa-star"></i>
                                         </div>
-                                        <small class="rating-count text-muted fs-5">({{ curso.vagas }} Vagas)</small>
+                                        <small class="rating-count text-muted" style="font-size: 12px;">({{ curso.vagas
+                                            }} Vagas)</small>
                                     </div>
 
-                                    <h4 class="rbt-card-title mb-3 fs-4 fw-bold"> <!-- Título maior -->
+                                    <h4 class="rbt-card-title mb-2" style="font-size: 16px; line-height: 1.3;">
                                         <a href="{% url 'curso_detalhe' id=curso.id %}"
                                             class="text-decoration-none text-truncate d-block"
                                             title="{{ curso.titulo }}">
@@ -1100,29 +1299,29 @@
                                         </a>
                                     </h4>
 
-                                    <ul class="rbt-meta list-unstyled d-flex mb-4 fs-5"> <!-- Meta maior -->
-                                        <li class="me-4"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
+                                    <ul class="rbt-meta list-unstyled d-flex mb-3" style="font-size: 12px;">
+                                        <li class="me-3"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
                                         </li>
-                                        <li><i class="feather-users me-1"></i>{{ curso.vagas }} Estudantes</li>
+                                        <li><i class="feather-users me-1"></i>{{ curso.vagas }}</li>
                                     </ul>
 
-                                    <p class="rbt-card-text mb-4 fs-5"> <!-- Descrição maior -->
-                                        {{ curso.descricao|truncatechars:60 }}
+                                    <p class="rbt-card-text mb-3" style="font-size: 13px; line-height: 1.4;">
+                                        {{ curso.descricao|truncatechars:80 }}
                                     </p>
 
                                     <div
-                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center fs-5">
-                                        <div class="rbt-price fw-bold text-primary fs-4"> <!-- Preço maior -->
+                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center">
+                                        <div class="rbt-price fw-bold text-primary" style="font-size: 16px;">
                                             kz {{ curso.preco }}
                                             {% if curso.preco_original %}
-                                            <span
-                                                class="original-price text-muted text-decoration-line-through ms-2 fs-6">
+                                            <span class="original-price text-muted text-decoration-line-through ms-2"
+                                                style="font-size: 12px;">
                                                 kz {{ curso.preco_original }}
                                             </span>
                                             {% endif %}
                                         </div>
-                                        <a class="rbt-btn-link text-decoration-none fs-5"
-                                            href="{% url 'curso_detalhe' id=curso.id %}">
+                                        <a class="rbt-btn-link text-decoration-none"
+                                            href="{% url 'curso_detalhe' id=curso.id %}" style="font-size: 13px;">
                                             Ver mais <i class="feather-arrow-right ms-1"></i>
                                         </a>
                                     </div>
@@ -1135,23 +1334,48 @@
                     <!-- Botões de navegação -->
                     <div class="swiper-button-next"></div>
                     <div class="swiper-button-prev"></div>
-
-                    <!-- Paginação (se quiser) -->
                 </div>
-
             </div>
         </div>
-        {% endif %}
-        <!-- End Course Area  -->
+        {% endif %}<!-- End Course Area  -->
 
         {% if cursos_recentes %}
+        <style>
+            .swiper-slide .rbt-card.variation-01 {
+                padding: 15px;
+            }
+
+            .swiper-slide .rbt-card-body {
+                padding: 15px 10px;
+            }
+
+            .swiper-slide .rbt-card-img img {
+                height: 180px;
+                object-fit: cover;
+            }
+
+            .swiper-slide .rbt-card-title {
+                font-size: 16px;
+                line-height: 1.3;
+            }
+
+            .swiper-slide .rbt-card-text {
+                font-size: 13px;
+                line-height: 1.4;
+            }
+
+            .swiper-slide .rbt-meta {
+                font-size: 12px;
+            }
+        </style>
+
         <div class="rbt-course-area bg-color-extra2 pt-2 pb-4" style="margin-top: -8px;">
             <div class="container">
                 <div class="row mb--60">
                     <div class="col-lg-12 text-center">
                         <div style="margin-bottom: 10px;" class="mt--80">
                             <div class="rbt-brand-title-wrap">
-                                <h5 class="rbt-brand-title w-600 text-center mb-0"> <!-- Aumentado -->
+                                <h5 class="rbt-brand-title w-600 text-center mb-0">
                                     Cursos <span class="theme-gradient">adicionados recente | </span>
                                     Novos Cursos <span class="theme-gradient">{{ grupo.categoria.nome }}</span>
                                 </h5>
@@ -1164,30 +1388,30 @@
                 <div style="margin-bottom: 70px;" class="swiper mySwiper">
                     <div class="swiper-wrapper">
                         {% for curso in cursos_recentes %}
-                        <div class="swiper-slide" style="width: 320px;">
+                        <div class="swiper-slide" style="width: 300px;"> <!-- Largura ajustada -->
                             <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column shadow rounded-4">
-                                <!-- Imagem com proporção 16:9 -->
-                                <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden rounded-top-4">
-                                    <a href="{% url 'curso_detalhe' id=curso.id %}" class="d-block h-100 w-100">
+                                <!-- Imagem com altura fixa -->
+                                <div class="rbt-card-img bg-light overflow-hidden rounded-top-4">
+                                    <a href="{% url 'curso_detalhe' id=curso.id %}" class="d-block">
                                         <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}"
-                                            class="object-fit-cover w-100 h-100" loading="lazy"
+                                            style="height: 180px; object-fit: cover; width: 100%;" loading="lazy"
                                             onerror="this.src='{% static 'images/placeholder-curso.jpg' %}'">
                                     </a>
                                 </div>
 
                                 <!-- Corpo do Card -->
-                                <div class="rbt-card-body d-flex flex-column flex-grow-1 p-4 fs-5">
-                                    <!-- Fonte base maior -->
-                                    <div class="rbt-card-top mb-3 d-flex align-items-center">
-                                        <div class="rating text-warning me-2 fs-4"> <!-- Estrelas maiores -->
+                                <div class="rbt-card-body d-flex flex-column flex-grow-1" style="padding: 15px 10px;">
+                                    <div class="rbt-card-top mb-2 d-flex align-items-center">
+                                        <div class="rating text-warning me-2" style="font-size: 12px;">
                                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i
                                                 class="fas fa-star"></i><i class="fas fa-star"></i><i
                                                 class="fas fa-star"></i>
                                         </div>
-                                        <small class="rating-count text-muted fs-5">({{ curso.vagas }} Vagas)</small>
+                                        <small class="rating-count text-muted" style="font-size: 12px;">({{ curso.vagas
+                                            }} Vagas)</small>
                                     </div>
 
-                                    <h4 class="rbt-card-title mb-3 fs-4 fw-bold"> <!-- Título maior -->
+                                    <h4 class="rbt-card-title mb-2" style="font-size: 16px; line-height: 1.3;">
                                         <a href="{% url 'curso_detalhe' id=curso.id %}"
                                             class="text-decoration-none text-truncate d-block"
                                             title="{{ curso.titulo }}">
@@ -1195,29 +1419,29 @@
                                         </a>
                                     </h4>
 
-                                    <ul class="rbt-meta list-unstyled d-flex mb-4 fs-5"> <!-- Meta maior -->
-                                        <li class="me-4"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
+                                    <ul class="rbt-meta list-unstyled d-flex mb-3" style="font-size: 12px;">
+                                        <li class="me-3"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
                                         </li>
-                                        <li><i class="feather-users me-1"></i>{{ curso.vagas }} Estudantes</li>
+                                        <li><i class="feather-users me-1"></i>{{ curso.vagas }}</li>
                                     </ul>
 
-                                    <p class="rbt-card-text mb-4 fs-5"> <!-- Descrição maior -->
-                                        {{ curso.descricao|truncatechars:60 }}
+                                    <p class="rbt-card-text mb-3" style="font-size: 13px; line-height: 1.4;">
+                                        {{ curso.descricao|truncatechars:80 }}
                                     </p>
 
                                     <div
-                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center fs-5">
-                                        <div class="rbt-price fw-bold text-primary fs-4"> <!-- Preço maior -->
+                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center">
+                                        <div class="rbt-price fw-bold text-primary" style="font-size: 16px;">
                                             kz {{ curso.preco }}
                                             {% if curso.preco_original %}
-                                            <span
-                                                class="original-price text-muted text-decoration-line-through ms-2 fs-6">
+                                            <span class="original-price text-muted text-decoration-line-through ms-2"
+                                                style="font-size: 12px;">
                                                 kz {{ curso.preco_original }}
                                             </span>
                                             {% endif %}
                                         </div>
-                                        <a class="rbt-btn-link text-decoration-none fs-5"
-                                            href="{% url 'curso_detalhe' id=curso.id %}">
+                                        <a class="rbt-btn-link text-decoration-none"
+                                            href="{% url 'curso_detalhe' id=curso.id %}" style="font-size: 13px;">
                                             Ver mais <i class="feather-arrow-right ms-1"></i>
                                         </a>
                                     </div>
@@ -1230,8 +1454,6 @@
                     <!-- Botões de navegação -->
                     <div class="swiper-button-next"></div>
                     <div class="swiper-button-prev"></div>
-
-                    <!-- Paginação (se quiser) -->
                 </div>
             </div>
         </div>
@@ -1239,15 +1461,43 @@
 
 
 
-
         {% if cursos_destaque %}
+        <style>
+            .swiper-slide .rbt-card.variation-01 {
+                padding: 15px;
+            }
+
+            .swiper-slide .rbt-card-body {
+                padding: 15px 10px;
+            }
+
+            .swiper-slide .rbt-card-img img {
+                height: 180px;
+                object-fit: cover;
+            }
+
+            .swiper-slide .rbt-card-title {
+                font-size: 16px;
+                line-height: 1.3;
+            }
+
+            .swiper-slide .rbt-card-text {
+                font-size: 13px;
+                line-height: 1.4;
+            }
+
+            .swiper-slide .rbt-meta {
+                font-size: 12px;
+            }
+        </style>
+
         <div class="rbt-course-area bg-color-extra2 pt-2 pb-4">
             <div class="container">
                 <div class="row mb--60">
                     <div class="col-lg-12 text-center">
                         <div style="margin-bottom: 10px;" class="mt--80">
                             <div class="rbt-brand-title-wrap">
-                                <h5 class="rbt-brand-title w-600 text-center mb-0"> <!-- Aumentado -->
+                                <h5 class="rbt-brand-title w-600 text-center mb-0">
                                     Cursos <span class="theme-gradient">Gratuitos | </span>
                                     Novos Cursos <span class="theme-gradient">{{ grupo.categoria.nome }}</span>
                                 </h5>
@@ -1260,29 +1510,30 @@
                 <div style="margin-bottom: 70px;" class="swiper mySwiper">
                     <div class="swiper-wrapper">
                         {% for curso in cursos_destaque %}
-                        <div class="swiper-slide" style="width: 320px;">
+                        <div class="swiper-slide" style="width: 300px;"> <!-- Largura ajustada -->
                             <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column shadow rounded-4">
-                                <!-- Imagem com proporção 16:9 -->
-                                <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden rounded-top-4">
-                                    <a href="{% url 'curso_detalhe' id=curso.id %}" class="d-block h-100 w-100">
+                                <!-- Imagem com altura fixa -->
+                                <div class="rbt-card-img bg-light overflow-hidden rounded-top-4">
+                                    <a href="{% url 'curso_detalhe' id=curso.id %}" class="d-block">
                                         <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}"
-                                            class="object-fit-cover w-100 h-100" loading="lazy"
+                                            style="height: 180px; object-fit: cover; width: 100%;" loading="lazy"
                                             onerror="this.src='{% static 'images/placeholder-curso.jpg' %}'">
                                     </a>
                                 </div>
 
                                 <!-- Corpo do Card -->
-                                <div class="rbt-card-body d-flex flex-column flex-grow-1 p-4 fs-5"> <!-- Fonte maior -->
-                                    <div class="rbt-card-top mb-3 d-flex align-items-center">
-                                        <div class="rating text-warning me-2 fs-4"> <!-- Estrelas maiores -->
+                                <div class="rbt-card-body d-flex flex-column flex-grow-1" style="padding: 15px 10px;">
+                                    <div class="rbt-card-top mb-2 d-flex align-items-center">
+                                        <div class="rating text-warning me-2" style="font-size: 12px;">
                                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i
                                                 class="fas fa-star"></i><i class="fas fa-star"></i><i
                                                 class="fas fa-star"></i>
                                         </div>
-                                        <small class="rating-count text-muted fs-5">({{ curso.vagas }} Vagas)</small>
+                                        <small class="rating-count text-muted" style="font-size: 12px;">({{ curso.vagas
+                                            }} Vagas)</small>
                                     </div>
 
-                                    <h4 class="rbt-card-title mb-3 fs-4 fw-bold"> <!-- Título maior -->
+                                    <h4 class="rbt-card-title mb-2" style="font-size: 16px; line-height: 1.3;">
                                         <a href="{% url 'curso_detalhe' id=curso.id %}"
                                             class="text-decoration-none text-truncate d-block"
                                             title="{{ curso.titulo }}">
@@ -1290,29 +1541,33 @@
                                         </a>
                                     </h4>
 
-                                    <ul class="rbt-meta list-unstyled d-flex mb-4 fs-5">
-                                        <li class="me-4"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
+                                    <ul class="rbt-meta list-unstyled d-flex mb-3" style="font-size: 12px;">
+                                        <li class="me-3"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
                                         </li>
-                                        <li><i class="feather-users me-1"></i>{{ curso.vagas }} Estudantes</li>
+                                        <li><i class="feather-users me-1"></i>{{ curso.vagas }}</li>
                                     </ul>
 
-                                    <p class="rbt-card-text mb-4 fs-5"> <!-- Descrição maior -->
-                                        {{ curso.descricao|truncatechars:60 }}
+                                    <p class="rbt-card-text mb-3" style="font-size: 13px; line-height: 1.4;">
+                                        {{ curso.descricao|truncatechars:80 }}
                                     </p>
 
                                     <div
-                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center fs-5">
-                                        <div class="rbt-price fw-bold text-primary fs-4"> <!-- Preço maior -->
+                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center">
+                                        <div class="rbt-price fw-bold text-primary" style="font-size: 16px;">
+                                            {% if curso.preco == 0 %}
+                                            <span class="text-success">Grátis</span>
+                                            {% else %}
                                             kz {{ curso.preco }}
-                                            {% if curso.preco_original %}
-                                            <span
-                                                class="original-price text-muted text-decoration-line-through ms-2 fs-6">
+                                            {% endif %}
+                                            {% if curso.preco_original and curso.preco != 0 %}
+                                            <span class="original-price text-muted text-decoration-line-through ms-2"
+                                                style="font-size: 12px;">
                                                 kz {{ curso.preco_original }}
                                             </span>
                                             {% endif %}
                                         </div>
-                                        <a class="rbt-btn-link text-decoration-none fs-5"
-                                            href="{% url 'curso_detalhe' id=curso.id %}">
+                                        <a class="rbt-btn-link text-decoration-none"
+                                            href="{% url 'curso_detalhe' id=curso.id %}" style="font-size: 13px;">
                                             Ver mais <i class="feather-arrow-right ms-1"></i>
                                         </a>
                                     </div>
@@ -1330,8 +1585,36 @@
         </div>
         {% endif %}
 
-
         {% if cursos_destaque %}
+        <style>
+            .swiper-slide .rbt-card.variation-01 {
+                padding: 15px;
+            }
+
+            .swiper-slide .rbt-card-body {
+                padding: 15px 10px;
+            }
+
+            .swiper-slide .rbt-card-img img {
+                height: 180px;
+                object-fit: cover;
+            }
+
+            .swiper-slide .rbt-card-title {
+                font-size: 16px;
+                line-height: 1.3;
+            }
+
+            .swiper-slide .rbt-card-text {
+                font-size: 13px;
+                line-height: 1.4;
+            }
+
+            .swiper-slide .rbt-meta {
+                font-size: 12px;
+            }
+        </style>
+
         <div class="rbt-course-area bg-color-extra2 pt-2 pb-4">
             <div class="container">
                 <div class="row mb--60">
@@ -1345,36 +1628,36 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
 
                 <!-- Start Card Area -->
                 <div style="margin-bottom: 70px;" class="swiper mySwiper">
                     <div class="swiper-wrapper">
                         {% for curso in cursos_destaque %}
-                        <div class="swiper-slide" style="width: 320px;"> <!-- Aumentei de 290px para 320px -->
+                        <div class="swiper-slide" style="width: 300px;"> <!-- Largura padronizada -->
                             <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column shadow rounded-4">
-                                <!-- Imagem com proporção 16:9 -->
-                                <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden rounded-top-4">
-                                    <a href="{% url 'curso_detalhe' id=curso.id %}" class="d-block h-100 w-100">
+                                <!-- Imagem com altura fixa -->
+                                <div class="rbt-card-img bg-light overflow-hidden rounded-top-4">
+                                    <a href="{% url 'curso_detalhe' id=curso.id %}" class="d-block">
                                         <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}"
-                                            class="object-fit-cover w-100 h-100" loading="lazy"
+                                            style="height: 180px; object-fit: cover; width: 100%;" loading="lazy"
                                             onerror="this.src='{% static 'images/placeholder-curso.jpg' %}'">
                                     </a>
                                 </div>
 
                                 <!-- Corpo do Card -->
-                                <div class="rbt-card-body d-flex flex-column flex-grow-1 p-4">
-                                    <div class="rbt-card-top mb-3 d-flex align-items-center">
-                                        <div class="rating text-warning me-2 fs-5">
+                                <div class="rbt-card-body d-flex flex-column flex-grow-1" style="padding: 15px 10px;">
+                                    <div class="rbt-card-top mb-2 d-flex align-items-center">
+                                        <div class="rating text-warning me-2" style="font-size: 12px;">
                                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i
                                                 class="fas fa-star"></i><i class="fas fa-star"></i><i
                                                 class="fas fa-star"></i>
                                         </div>
-                                        <small class="rating-count text-muted fs-6">({{ curso.vagas }} Vagas)</small>
+                                        <small class="rating-count text-muted" style="font-size: 12px;">({{ curso.vagas
+                                            }} Vagas)</small>
                                     </div>
 
-                                    <h4 class="rbt-card-title mb-3 fs-5">
+                                    <h4 class="rbt-card-title mb-2" style="font-size: 16px; line-height: 1.3;">
                                         <a href="{% url 'curso_detalhe' id=curso.id %}"
                                             class="text-decoration-none text-truncate d-block"
                                             title="{{ curso.titulo }}">
@@ -1382,29 +1665,29 @@
                                         </a>
                                     </h4>
 
-                                    <ul class="rbt-meta list-unstyled d-flex mb-4 fs-6">
-                                        <li class="me-4"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
+                                    <ul class="rbt-meta list-unstyled d-flex mb-3" style="font-size: 12px;">
+                                        <li class="me-3"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
                                         </li>
-                                        <li><i class="feather-users me-1"></i>{{ curso.vagas }} Estudantes</li>
+                                        <li><i class="feather-users me-1"></i>{{ curso.vagas }}</li>
                                     </ul>
 
-                                    <p class="rbt-card-text mb-4 fs-6">
-                                        {{ curso.descricao|truncatechars:60 }}
+                                    <p class="rbt-card-text mb-3" style="font-size: 13px; line-height: 1.4;">
+                                        {{ curso.descricao|truncatechars:80 }}
                                     </p>
 
                                     <div
-                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center fs-6">
-                                        <div class="rbt-price fw-bold text-primary">
+                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center">
+                                        <div class="rbt-price fw-bold text-primary" style="font-size: 16px;">
                                             kz {{ curso.preco }}
                                             {% if curso.preco_original %}
-                                            <span
-                                                class="original-price text-muted text-decoration-line-through ms-2 fs-6">
+                                            <span class="original-price text-muted text-decoration-line-through ms-2"
+                                                style="font-size: 12px;">
                                                 kz {{ curso.preco_original }}
                                             </span>
                                             {% endif %}
                                         </div>
-                                        <a class="rbt-btn-link text-decoration-none small"
-                                            href="{% url 'curso_detalhe' id=curso.id %}">
+                                        <a class="rbt-btn-link text-decoration-none"
+                                            href="{% url 'curso_detalhe' id=curso.id %}" style="font-size: 13px;">
                                             Ver mais <i class="feather-arrow-right ms-1"></i>
                                         </a>
                                     </div>
@@ -1417,18 +1700,41 @@
                     <!-- Botões de navegação -->
                     <div class="swiper-button-next"></div>
                     <div class="swiper-button-prev"></div>
-
-                    <!-- Paginação (se quiser) -->
                 </div>
             </div>
         </div>
-        </div>
-        </div>
-        </div>
         {% endif %}
 
-
         {% if cursos_destaque %}
+        <style>
+            .swiper-slide .rbt-card.variation-01 {
+                padding: 15px;
+            }
+
+            .swiper-slide .rbt-card-body {
+                padding: 15px 10px;
+            }
+
+            .swiper-slide .rbt-card-img img {
+                height: 180px;
+                object-fit: cover;
+            }
+
+            .swiper-slide .rbt-card-title {
+                font-size: 16px;
+                line-height: 1.3;
+            }
+
+            .swiper-slide .rbt-card-text {
+                font-size: 13px;
+                line-height: 1.4;
+            }
+
+            .swiper-slide .rbt-meta {
+                font-size: 12px;
+            }
+        </style>
+
         <div class="rbt-course-area bg-color-extra2 pt-2 pb-4">
             <div class="container">
                 <div class="row mb--60">
@@ -1442,36 +1748,36 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
 
                 <!-- Start Card Area -->
                 <div style="margin-bottom: 70px;" class="swiper mySwiper">
                     <div class="swiper-wrapper">
                         {% for curso in cursos_destaque %}
-                        <div class="swiper-slide" style="width: 320px;"> <!-- Aumentei de 290px para 320px -->
+                        <div class="swiper-slide" style="width: 300px;"> <!-- Largura padronizada -->
                             <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column shadow rounded-4">
-                                <!-- Imagem com proporção 16:9 -->
-                                <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden rounded-top-4">
-                                    <a href="{% url 'curso_detalhe' id=curso.id %}" class="d-block h-100 w-100">
+                                <!-- Imagem com altura fixa -->
+                                <div class="rbt-card-img bg-light overflow-hidden rounded-top-4">
+                                    <a href="{% url 'curso_detalhe' id=curso.id %}" class="d-block">
                                         <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}"
-                                            class="object-fit-cover w-100 h-100" loading="lazy"
+                                            style="height: 180px; object-fit: cover; width: 100%;" loading="lazy"
                                             onerror="this.src='{% static 'images/placeholder-curso.jpg' %}'">
                                     </a>
                                 </div>
 
                                 <!-- Corpo do Card -->
-                                <div class="rbt-card-body d-flex flex-column flex-grow-1 p-4">
-                                    <div class="rbt-card-top mb-3 d-flex align-items-center">
-                                        <div class="rating text-warning me-2 fs-5">
+                                <div class="rbt-card-body d-flex flex-column flex-grow-1" style="padding: 15px 10px;">
+                                    <div class="rbt-card-top mb-2 d-flex align-items-center">
+                                        <div class="rating text-warning me-2" style="font-size: 12px;">
                                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i
                                                 class="fas fa-star"></i><i class="fas fa-star"></i><i
                                                 class="fas fa-star"></i>
                                         </div>
-                                        <small class="rating-count text-muted fs-6">({{ curso.vagas }} Vagas)</small>
+                                        <small class="rating-count text-muted" style="font-size: 12px;">({{ curso.vagas
+                                            }} Vagas)</small>
                                     </div>
 
-                                    <h4 class="rbt-card-title mb-3 fs-5">
+                                    <h4 class="rbt-card-title mb-2" style="font-size: 16px; line-height: 1.3;">
                                         <a href="{% url 'curso_detalhe' id=curso.id %}"
                                             class="text-decoration-none text-truncate d-block"
                                             title="{{ curso.titulo }}">
@@ -1479,53 +1785,76 @@
                                         </a>
                                     </h4>
 
-                                    <ul class="rbt-meta list-unstyled d-flex mb-4 fs-6">
-                                        <li class="me-4"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
+                                    <ul class="rbt-meta list-unstyled d-flex mb-3" style="font-size: 12px;">
+                                        <li class="me-3"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
                                         </li>
-                                        <li><i class="feather-users me-1"></i>{{ curso.vagas }} Estudantes</li>
+                                        <li><i class="feather-users me-1"></i>{{ curso.vagas }}</li>
                                     </ul>
 
-                                    <p class="rbt-card-text mb-4 fs-6">
-                                        {{ curso.descricao|truncatechars:60 }}
+                                    <p class="rbt-card-text mb-3" style="font-size: 13px; line-height: 1.4;">
+                                        {{ curso.descricao|truncatechars:80 }}
                                     </p>
 
                                     <div
-                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center fs-6">
-                                        <div class="rbt-price fw-bold text-primary">
+                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center">
+                                        <div class="rbt-price fw-bold text-primary" style="font-size: 16px;">
                                             kz {{ curso.preco }}
                                             {% if curso.preco_original %}
-                                            <span
-                                                class="original-price text-muted text-decoration-line-through ms-2 fs-6">
+                                            <span class="original-price text-muted text-decoration-line-through ms-2"
+                                                style="font-size: 12px;">
                                                 kz {{ curso.preco_original }}
                                             </span>
                                             {% endif %}
                                         </div>
-                                        <a class="rbt-btn-link text-decoration-none small"
-                                            href="{% url 'curso_detalhe' id=curso.id %}">
+                                        <a class="rbt-btn-link text-decoration-none"
+                                            href="{% url 'curso_detalhe' id=curso.id %}" style="font-size: 13px;">
                                             Ver mais <i class="feather-arrow-right ms-1"></i>
                                         </a>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
                         {% endfor %}
                     </div>
 
                     <!-- Botões de navegação -->
                     <div class="swiper-button-next"></div>
                     <div class="swiper-button-prev"></div>
-
-                    <!-- Paginação (se quiser) -->
                 </div>
             </div>
-        </div>
-        </div>
-        </div>
         </div>
         {% endif %}
 
         {% if cursos_destaque %}
+        <style>
+            .swiper-slide .rbt-card.variation-01 {
+                padding: 15px;
+            }
+
+            .swiper-slide .rbt-card-body {
+                padding: 15px 10px;
+            }
+
+            .swiper-slide .rbt-card-img img {
+                height: 180px;
+                object-fit: cover;
+            }
+
+            .swiper-slide .rbt-card-title {
+                font-size: 16px;
+                line-height: 1.3;
+            }
+
+            .swiper-slide .rbt-card-text {
+                font-size: 13px;
+                line-height: 1.4;
+            }
+
+            .swiper-slide .rbt-meta {
+                font-size: 12px;
+            }
+        </style>
+
         <div class="rbt-course-area bg-color-extra2 pt-2 pb-4">
             <div class="container">
                 <div class="row mb--60">
@@ -1539,36 +1868,36 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
 
                 <!-- Start Card Area -->
                 <div class="swiper mySwiper">
                     <div class="swiper-wrapper">
                         {% for curso in cursos_destaque %}
-                        <div class="swiper-slide" style="width: 320px;"> <!-- Aumentei de 290px para 320px -->
+                        <div class="swiper-slide" style="width: 300px;"> <!-- Largura padronizada -->
                             <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column shadow rounded-4">
-                                <!-- Imagem com proporção 16:9 -->
-                                <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden rounded-top-4">
-                                    <a href="{% url 'curso_detalhe' id=curso.id %}" class="d-block h-100 w-100">
+                                <!-- Imagem com altura fixa -->
+                                <div class="rbt-card-img bg-light overflow-hidden rounded-top-4">
+                                    <a href="{% url 'curso_detalhe' id=curso.id %}" class="d-block">
                                         <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}"
-                                            class="object-fit-cover w-100 h-100" loading="lazy"
+                                            style="height: 180px; object-fit: cover; width: 100%;" loading="lazy"
                                             onerror="this.src='{% static 'images/placeholder-curso.jpg' %}'">
                                     </a>
                                 </div>
 
                                 <!-- Corpo do Card -->
-                                <div class="rbt-card-body d-flex flex-column flex-grow-1 p-4">
-                                    <div class="rbt-card-top mb-3 d-flex align-items-center">
-                                        <div class="rating text-warning me-2 fs-5">
+                                <div class="rbt-card-body d-flex flex-column flex-grow-1" style="padding: 15px 10px;">
+                                    <div class="rbt-card-top mb-2 d-flex align-items-center">
+                                        <div class="rating text-warning me-2" style="font-size: 12px;">
                                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i
                                                 class="fas fa-star"></i><i class="fas fa-star"></i><i
                                                 class="fas fa-star"></i>
                                         </div>
-                                        <small class="rating-count text-muted fs-6">({{ curso.vagas }} Vagas)</small>
+                                        <small class="rating-count text-muted" style="font-size: 12px;">({{ curso.vagas
+                                            }} Vagas)</small>
                                     </div>
 
-                                    <h4 class="rbt-card-title mb-3 fs-5">
+                                    <h4 class="rbt-card-title mb-2" style="font-size: 16px; line-height: 1.3;">
                                         <a href="{% url 'curso_detalhe' id=curso.id %}"
                                             class="text-decoration-none text-truncate d-block"
                                             title="{{ curso.titulo }}">
@@ -1576,29 +1905,29 @@
                                         </a>
                                     </h4>
 
-                                    <ul class="rbt-meta list-unstyled d-flex mb-4 fs-6">
-                                        <li class="me-4"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
+                                    <ul class="rbt-meta list-unstyled d-flex mb-3" style="font-size: 12px;">
+                                        <li class="me-3"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
                                         </li>
-                                        <li><i class="feather-users me-1"></i>{{ curso.vagas }} Estudantes</li>
+                                        <li><i class="feather-users me-1"></i>{{ curso.vagas }}</li>
                                     </ul>
 
-                                    <p class="rbt-card-text mb-4 fs-6">
-                                        {{ curso.descricao|truncatechars:60 }}
+                                    <p class="rbt-card-text mb-3" style="font-size: 13px; line-height: 1.4;">
+                                        {{ curso.descricao|truncatechars:80 }}
                                     </p>
 
                                     <div
-                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center fs-6">
-                                        <div class="rbt-price fw-bold text-primary">
+                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center">
+                                        <div class="rbt-price fw-bold text-primary" style="font-size: 16px;">
                                             kz {{ curso.preco }}
                                             {% if curso.preco_original %}
-                                            <span
-                                                class="original-price text-muted text-decoration-line-through ms-2 fs-6">
+                                            <span class="original-price text-muted text-decoration-line-through ms-2"
+                                                style="font-size: 12px;">
                                                 kz {{ curso.preco_original }}
                                             </span>
                                             {% endif %}
                                         </div>
-                                        <a class="rbt-btn-link text-decoration-none small"
-                                            href="{% url 'curso_detalhe' id=curso.id %}">
+                                        <a class="rbt-btn-link text-decoration-none"
+                                            href="{% url 'curso_detalhe' id=curso.id %}" style="font-size: 13px;">
                                             Ver mais <i class="feather-arrow-right ms-1"></i>
                                         </a>
                                     </div>
@@ -1611,17 +1940,41 @@
                     <div class="swiper-button-next"></div>
                     <div class="swiper-button-prev"></div>
                 </div>
-
             </div>
-        </div>
-        </div>
-        </div>
         </div>
         {% endif %}
 
 
-
         {% if cursos_proximos %}
+        <style>
+            .swiper-slide .rbt-card.variation-01 {
+                padding: 15px;
+            }
+
+            .swiper-slide .rbt-card-body {
+                padding: 15px 10px;
+            }
+
+            .swiper-slide .rbt-card-img img {
+                height: 180px;
+                object-fit: cover;
+            }
+
+            .swiper-slide .rbt-card-title {
+                font-size: 16px;
+                line-height: 1.3;
+            }
+
+            .swiper-slide .rbt-card-text {
+                font-size: 13px;
+                line-height: 1.4;
+            }
+
+            .swiper-slide .rbt-meta {
+                font-size: 12px;
+            }
+        </style>
+
         <div class="rbt-course-area bg-color-extra2 pt-2 pb-4">
             <div class="container">
                 <div class="row mb--60">
@@ -1634,7 +1987,6 @@
                                 mesmo e não perca a oportunidade de iniciar sua formação o quanto antes. Ideal para quem
                                 quer começar a aprender já!
                             </p>
-                            </p>
                         </div>
                     </div>
                 </div>
@@ -1643,29 +1995,30 @@
                 <div class="swiper mySwiper">
                     <div class="swiper-wrapper">
                         {% for curso in cursos_proximos %}
-                        <div class="swiper-slide" style="width: 320px;"> <!-- Aumentei de 290px para 320px -->
+                        <div class="swiper-slide" style="width: 300px;"> <!-- Largura padronizada -->
                             <div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column shadow rounded-4">
-                                <!-- Imagem com proporção 16:9 -->
-                                <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden rounded-top-4">
-                                    <a href="{% url 'curso_detalhe' id=curso.id %}" class="d-block h-100 w-100">
+                                <!-- Imagem com altura fixa -->
+                                <div class="rbt-card-img bg-light overflow-hidden rounded-top-4">
+                                    <a href="{% url 'curso_detalhe' id=curso.id %}" class="d-block">
                                         <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}"
-                                            class="object-fit-cover w-100 h-100" loading="lazy"
+                                            style="height: 180px; object-fit: cover; width: 100%;" loading="lazy"
                                             onerror="this.src='{% static 'images/placeholder-curso.jpg' %}'">
                                     </a>
                                 </div>
 
                                 <!-- Corpo do Card -->
-                                <div class="rbt-card-body d-flex flex-column flex-grow-1 p-4">
-                                    <div class="rbt-card-top mb-3 d-flex align-items-center">
-                                        <div class="rating text-warning me-2 fs-5">
+                                <div class="rbt-card-body d-flex flex-column flex-grow-1" style="padding: 15px 10px;">
+                                    <div class="rbt-card-top mb-2 d-flex align-items-center">
+                                        <div class="rating text-warning me-2" style="font-size: 12px;">
                                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i
                                                 class="fas fa-star"></i><i class="fas fa-star"></i><i
                                                 class="fas fa-star"></i>
                                         </div>
-                                        <small class="rating-count text-muted fs-6">({{ curso.vagas }} Vagas)</small>
+                                        <small class="rating-count text-muted" style="font-size: 12px;">({{ curso.vagas
+                                            }} Vagas)</small>
                                     </div>
 
-                                    <h4 class="rbt-card-title mb-3 fs-5">
+                                    <h4 class="rbt-card-title mb-2" style="font-size: 16px; line-height: 1.3;">
                                         <a href="{% url 'curso_detalhe' id=curso.id %}"
                                             class="text-decoration-none text-truncate d-block"
                                             title="{{ curso.titulo }}">
@@ -1673,52 +2026,45 @@
                                         </a>
                                     </h4>
 
-                                    <ul class="rbt-meta list-unstyled d-flex mb-4 fs-6">
-                                        <li class="me-4"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
+                                    <ul class="rbt-meta list-unstyled d-flex mb-3" style="font-size: 12px;">
+                                        <li class="me-3"><i class="feather-book me-1"></i>{{ curso.carga_horaria }}h
                                         </li>
-                                        <li><i class="feather-users me-1"></i>{{ curso.vagas }} Estudantes</li>
+                                        <li><i class="feather-users me-1"></i>{{ curso.vagas }}</li>
                                     </ul>
 
-                                    <p class="rbt-card-text mb-4 fs-6">
-                                        {{ curso.descricao|truncatechars:60 }}
+                                    <p class="rbt-card-text mb-3" style="font-size: 13px; line-height: 1.4;">
+                                        {{ curso.descricao|truncatechars:80 }}
                                     </p>
 
                                     <div
-                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center fs-6">
-                                        <div class="rbt-price fw-bold text-primary">
+                                        class="rbt-card-bottom mt-auto d-flex justify-content-between align-items-center">
+                                        <div class="rbt-price fw-bold text-primary" style="font-size: 16px;">
                                             kz {{ curso.preco }}
                                             {% if curso.preco_original %}
-                                            <span
-                                                class="original-price text-muted text-decoration-line-through ms-2 fs-6">
+                                            <span class="original-price text-muted text-decoration-line-through ms-2"
+                                                style="font-size: 12px;">
                                                 kz {{ curso.preco_original }}
                                             </span>
                                             {% endif %}
                                         </div>
-                                        <a class="rbt-btn-link text-decoration-none small"
-                                            href="{% url 'curso_detalhe' id=curso.id %}">
+                                        <a class="rbt-btn-link text-decoration-none"
+                                            href="{% url 'curso_detalhe' id=curso.id %}" style="font-size: 13px;">
                                             Ver mais <i class="feather-arrow-right ms-1"></i>
                                         </a>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
                         {% endfor %}
                     </div>
 
                     <!-- Botões de navegação -->
                     <div class="swiper-button-next"></div>
                     <div class="swiper-button-prev"></div>
-
-                    <!-- Paginação (se quiser) -->
                 </div>
             </div>
         </div>
-        </div>
-        </div>
-        </div>
         {% endif %}
-
 
 
 
@@ -2921,6 +3267,44 @@
                 setTimeout(() => {
                     console.log('🔄 Iniciando ciclo normal de textos...');
                 }, 300000);
+            });
+        </script>
+
+        <script>
+            // Adicione este script no final da página
+            document.addEventListener('DOMContentLoaded', function () {
+                const track = document.querySelector('.categories-track');
+                const categories = document.querySelectorAll('.category-item');
+                const categoryCount = categories.length / 2; // Porque duplicamos
+
+                // Calcular a distância total baseada no número real de categorias
+                const itemWidth = 280; // Largura do item
+                const gap = 20; // Gap entre itens
+                const totalWidth = (itemWidth * categoryCount) + (gap * categoryCount);
+
+                // Aplicar a animação dinamicamente
+                const style = document.createElement('style');
+                style.textContent = `
+        @keyframes scroll-categories {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-${totalWidth}px); }
+        }
+        
+        @media (max-width: 768px) {
+            @keyframes scroll-categories {
+                0% { transform: translateX(0); }
+                100% { transform: translateX(-${(250 * categoryCount) + (20 * categoryCount)}px); }
+            }
+        }
+        
+        @media (max-width: 576px) {
+            @keyframes scroll-categories {
+                0% { transform: translateX(0); }
+                100% { transform: translateX(-${(220 * categoryCount) + (20 * categoryCount)}px); }
+            }
+        }
+    `;
+                document.head.appendChild(style);
             });
         </script>
 

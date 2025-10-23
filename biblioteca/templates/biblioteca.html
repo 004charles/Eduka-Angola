@@ -1,20 +1,22 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Shop - Online Courses & Education Bootstrap5 Template</title>
-    <meta name="robots" content="noindex, follow">
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-        {% include 'include/css.html' %}
-
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="gramentheme">
+    <meta name="description" content="Bookle - Book Store WooCommerce Html Template ">
+    <!-- ======== Page title ============ -->
+    <title>Edukangola | Biblioteca</title>
+    {% include 'include/css-book.html' %}
+    {% include 'include/css.html' %}
 </head>
 
-<body class="rbt-header-sticky">
+<body>
+    <!-- Cursor follower -->
+    <div class="cursor-follower"></div>
 
     <div id="my_switcher" class="my_switcher">
         <ul>
@@ -32,538 +34,891 @@
             </li>
         </ul>
     </div>
+
+    <!-- Preloader start -->
+    {% include 'include/loading.html' %}
     {% include 'include/header.html' %}
 
-    <div class="rbt-page-banner-wrapper">
-        <!-- Start Banner BG Image  -->
-        <div class="rbt-banner-image"></div>
-        <!-- End Banner BG Image  -->
-        <div class="rbt-banner-content">
 
-            <!-- Start Banner Content Top  -->
-            <div class="rbt-banner-content-top">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <!-- Start Breadcrumb Area  -->
-                            <ul class="page-list">
-                                <li class="rbt-breadcrumb-item"><a href="https://histudy.pixcelsthemes.com/livepreview/histudy/index.html">Home</a></li>
-                                <li>
-                                    <div class="icon-right"><i class="feather-chevron-right"></i></div>
-                                </li>
-                                <li class="rbt-breadcrumb-item active">All Products</li>
-                            </ul>
-                            <!-- End Breadcrumb Area  -->
 
-                            <div class=" title-wrapper">
-                                <h1 class="title mb--0">All Products</h1>
-                                <a href="shop.html#" class="rbt-badge-2">
-                                    <div class="image">🎉</div> 50 Products
-                                </a>
-                            </div>
 
-                            <p class="description">Products that help beginner designers become true unicorns. </p>
+
+
+
+
+    <!-- Hero Section start  -->
+    <div class="hero-section hero-1 fix">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-xl-8 col-lg-6">
+                    <div class="hero-items">
+                        <div class="book-shape">
+                            <img src="{% static 'assets-book/img/hero/book.png' %}" alt="shape-img">
                         </div>
+                        <div class="frame-shape1 float-bob-x">
+                            <img src="{% static 'assets-book/img/hero/frame.png' %}" alt="shape-img">
+                        </div>
+                        <div class="frame-shape2 float-bob-y">
+                            <img src="{% static 'assets-book/img/hero/frame-2.png' %}" alt="shape-img">
+                        </div>
+                        <div class="frame-shape3">
+                            <img src="{% static 'assets-book/img/hero/xstar.png' %}" alt="img">
+                        </div>
+                        <div class="frame-shape4 float-bob-x">
+                            <img src="{% static 'assets-book/img/hero/frame-shape.png' %}" alt="img">
+                        </div>
+                        <div class="bg-shape1">
+                            <img src="{% static 'assets-book/img/hero/bg-shape.png' %}" alt="img">
+                        </div>
+                        <div class="bg-shape2">
+                            <img src="{% static 'assets-book/img/hero/bg-shape2.png' %}" alt="shape-img">
+                        </div>
+                        <div class="hero-content">
+                            <h6 class="wow fadeInUp" data-wow-delay=".3s">Acervo com Mais de 10.000 Livros</h6>
+                            <h1 class="wow fadeInUp" data-wow-delay=".5s">Biblioteca EdukAngola <br> Conhecimento Sem
+                                Limites</h1>
+                            <div class="form-clt wow fadeInUp" data-wow-delay=".9s">
+                                <button type="submit" class="theme-btn">
+                                    Explorar Acervo <i class="fa-solid fa-arrow-right-long"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-12 col-xl-4 col-lg-6">
+                    <div class="girl-image">
+                        <img class=" float-bob-x" src="{% static 'assets-book/img/hero/hero-girl.png' %}" alt="img">
                     </div>
                 </div>
             </div>
-            <!-- End Banner Content Top  -->
-
-            <!-- Start Course Top  -->
-            <div class="rbt-course-top-wrapper mt--40">
-                <div class="container">
-                    <div class="row g-5 align-items-center">
-                        <div class="col-lg-5 col-md-12">
-                            <div class="rbt-sorting-list d-flex flex-wrap align-items-center">
-                                <div class="rbt-short-item">
-                                    <span class="course-index">Showing 1-9 of 19 results</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-7 col-md-12">
-                            <div class="rbt-sorting-list d-flex flex-wrap align-items-center justify-content-start justify-content-lg-end">
-                                <div class="rbt-short-item">
-                                    <div class="filter-select">
-                                        <span class="select-label d-block">Short By</span>
-                                        <div class="filter-select rbt-modern-select search-by-category">
-                                            <select>
-                                                <option>Default</option>
-                                                <option>Latest</option>
-                                                <option>Popularity</option>
-                                                <option>Trending</option>
-                                                <option>Price: low to high</option>
-                                                <option>Price: high to low</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-            <!-- End Course Top  -->
         </div>
     </div>
 
-    <div class="rbt-shop-area rbt-section-overlayping-top rbt-section-gapBottom">
+    <!-- Feature Section start  -->
+    <section class="feature-section fix section-padding">
         <div class="container">
-            <div class="row g-5">
-                <!-- Start Single Product  -->
-                <div class="col-lg-4 col-md-6 col-12">
-                    <div class="rbt-default-card style-three rbt-hover">
-                        <div class="inner">
-                            <div class="content pt--0 pb--10">
-                                <h2 class="title"><a href="single-product.html">Miracle Morning</a></h2>
-
-                                <span class="team-form">
-                                    <span class="location">By John Due</span>
-                                </span>
-                            </div>
-                            <div class="thumbnail"><a href="single-product.html"><img src="assets/images/product/1.jpg" alt="Histudy Book Image"></a></div>
-                            <div class="content">
-
-                                <div class="rbt-review justify-content-center">
-                                    <div class="rating">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <span class="rating-count">(15) - 100% Positive Reviews</span>
-                                </div>
-                                <div class="rbt-price justify-content-center mt--10">
-                                    <span class="current-price theme-gradient">$60.50</span>
-                                    <span class="off-price">$110.50</span>
-                                </div>
-                                <div class="addto-cart-btn mt--20">
-                                    <a class="rbt-btn btn-gradient hover-icon-reverse" href="cart.html">
-                                        <span class="icon-reverse-wrapper">
-                                            <span class="btn-text">Add To Cart</span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        </span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+            <div class="feature-wrapper">
+                <div class="feature-box-items wow fadeInUp" data-wow-delay=".2s">
+                    <div class="icon">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+                    <div class="content">
+                        <h3>Empréstimo Flexível</h3>
+                        <p>Renovação online e prazos estendidos</p>
                     </div>
                 </div>
-                <!-- End Single Product  -->
-
-                <!-- Start Single Product  -->
-                <div class="col-lg-4 col-md-6 col-12">
-                    <div class="rbt-default-card style-three rbt-hover">
-                        <div class="inner">
-                            <div class="content pt--0 pb--10">
-                                <h2 class="title"><a href="single-product.html">Happy Strong</a></h2>
-
-                                <span class="team-form">
-                                    <span class="location">By John Due</span>
-                                </span>
-                            </div>
-                            <div class="thumbnail"><a href="single-product.html"><img src="assets/images/product/7.jpg" alt="Histudy Book Image"></a></div>
-                            <div class="content">
-
-                                <div class="rbt-review justify-content-center">
-                                    <div class="rating">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <span class="rating-count">(75) - 100% Positive Reviews</span>
-                                </div>
-                                <div class="rbt-price justify-content-center mt--10">
-                                    <span class="current-price theme-gradient">$95.00</span>
-                                    <span class="off-price">$150.00</span>
-                                </div>
-                                <div class="addto-cart-btn mt--20">
-                                    <a class="rbt-btn btn-gradient hover-icon-reverse" href="cart.html">
-                                        <span class="icon-reverse-wrapper">
-                                            <span class="btn-text">Add To Cart</span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        </span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                <div class="feature-box-items wow fadeInUp" data-wow-delay=".4s">
+                    <div class="icon">
+                        <i class="fa-solid fa-shield-alt"></i>
+                    </div>
+                    <div class="content">
+                        <h3>Acesso Seguro</h3>
+                        <p>Plataforma protegida e dados privados</p>
                     </div>
                 </div>
-                <!-- End Single Product  -->
-
-                <!-- Start Single Product  -->
-                <div class="col-lg-4 col-md-6 col-12">
-                    <div class="rbt-default-card style-three rbt-hover">
-                        <div class="inner">
-                            <div class="content pt--0 pb--10">
-                                <h2 class="title"><a href="single-product.html">Rich Dad Poor Dad</a></h2>
-
-                                <span class="team-form">
-                                    <span class="location">By John Due</span>
-                                </span>
-                            </div>
-                            <div class="thumbnail"><a href="single-product.html"><img src="assets/images/product/3.jpg" alt="Histudy Book Image"></a></div>
-                            <div class="content">
-
-                                <div class="rbt-review justify-content-center">
-                                    <div class="rating">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <span class="rating-count">(84) - 100% Positive Reviews</span>
-                                </div>
-                                <div class="rbt-price justify-content-center mt--10">
-                                    <span class="current-price theme-gradient">$12.50</span>
-                                    <span class="off-price">$20.00</span>
-                                </div>
-                                <div class="addto-cart-btn mt--20">
-                                    <a class="rbt-btn btn-gradient hover-icon-reverse" href="cart.html">
-                                        <span class="icon-reverse-wrapper">
-                                            <span class="btn-text">Add To Cart</span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        </span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                <div class="feature-box-items wow fadeInUp" data-wow-delay=".6s">
+                    <div class="icon">
+                        <i class="fa-solid fa-headset"></i>
+                    </div>
+                    <div class="content">
+                        <h3>Suporte Académico</h3>
+                        <p>Orientacao para pesquisa e estudos</p>
                     </div>
                 </div>
-                <!-- End Single Product  -->
-
-                <!-- Start Single Product  -->
-                <div class="col-lg-4 col-md-6 col-12">
-                    <div class="rbt-default-card style-three rbt-hover">
-                        <div class="inner">
-                            <div class="content pt--0 pb--10">
-                                <h2 class="title"><a href="single-product.html">Momentum Theorem</a></h2>
-
-                                <span class="team-form">
-                                    <span class="location">By John Due</span>
-                                </span>
-                            </div>
-                            <div class="thumbnail"><a href="single-product.html"><img src="assets/images/product/4.jpg" alt="Histudy Book Image"></a></div>
-                            <div class="content">
-
-                                <div class="rbt-review justify-content-center">
-                                    <div class="rating">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <span class="rating-count">(95) - 100% Positive Reviews</span>
-                                </div>
-                                <div class="rbt-price justify-content-center mt--10">
-                                    <span class="current-price theme-gradient">$75.00</span>
-                                    <span class="off-price">$150.50</span>
-                                </div>
-                                <div class="addto-cart-btn mt--20">
-                                    <a class="rbt-btn btn-gradient hover-icon-reverse" href="cart.html">
-                                        <span class="icon-reverse-wrapper">
-                                            <span class="btn-text">Add To Cart</span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        </span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                <div class="feature-box-items wow fadeInUp" data-wow-delay=".8s">
+                    <div class="icon">
+                        <i class="fa-solid fa-calendar-plus"></i>
+                    </div>
+                    <div class="content">
+                        <h3>Novas Aquisições</h3>
+                        <p>Livros atualizados semanalmente</p>
                     </div>
                 </div>
-                <!-- End Single Product  -->
+            </div>
+        </div>
+    </section>
 
-                <!-- Start Single Product  -->
-                <div class="col-lg-4 col-md-6 col-12">
-                    <div class="rbt-default-card style-three rbt-hover">
-                        <div class="inner">
-                            <div class="content pt--0 pb--10">
-                                <h2 class="title"><a href="single-product.html">Happy Days</a></h2>
 
-                                <span class="team-form">
-                                    <span class="location">By John Due</span>
+    {% load static %}
+    <!-- Shop Section start  -->
+    <section class="shop-section section-padding fix">
+        <div class="container">
+            <div class="section-title-area">
+                <div class="section-title mb- wow fadeInUp" data-wow-delay=".3s">
+                    <h2>Livros em Destaque</h2>
+                </div>
+                <a href="shop.html" class="theme-btn transparent-btn wow fadeInUp" data-wow-delay=".5s">Explorar Mais <i
+                        class="fa-solid fa-arrow-right-long"></i></a>
+            </div>
+            <div class="book-shop-wrapper">
+
+                {% for livro in livros_destaque|slice:":8" %}
+                <div class="shop-box-items style-2">
+                    <div class="book-thumb center">
+                        <a href="{% url 'livro_detalhes' livro.id %}">
+                            {% if livro.capa %}
+                            <img src="{{ livro.capa.url }}" alt="{{ livro.titulo }}">
+                            {% else %}
+                            <img src="{% static 'assets-book/img/book/default.png' %}" alt="Capa padrão">
+                            {% endif %}
+                        </a>
+
+                        <ul class="post-box">
+                            {% if livro.em_promocao and livro.desconto_percentual %}
+                            <li class="promocao">
+                                -{{ livro.desconto_percentual }}%
+                            </li>
+                            {% endif %}
+                            {% if livro.visualizacoes > 100 %}
+                            <li class="popular">Popular</li>
+                            {% endif %}
+                            {% if livro.e_gratuito %}
+                            <li class="gratuito">Grátis</li>
+                            {% endif %}
+                        </ul>
+
+                        <ul class="shop-icon d-grid justify-content-center align-items-center">
+                            <li>
+                                <a href="#" class="favoritar-btn" data-livro-id="{{ livro.id }}">
+                                    <i class="far fa-heart"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'livro_detalhes' livro.id %}">
+                                    <img class="icon" src="{% static 'assets-book/img/icon/shuffle.svg' %}"
+                                        alt="Ver detalhes">
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'livro_detalhes' livro.id %}">
+                                    <i class="far fa-eye"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="shop-content">
+                        <h5>{{ livro.get_tipo_display }}</h5>
+                        <h3>
+                            <a href="{% url 'livro_detalhes' livro.id %}">{{ livro.titulo }}</a>
+                        </h3>
+
+                        <ul class="price-list">
+                            {% if livro.em_promocao and livro.preco_promocional %}
+                            <li>kz {{ livro.preco_promocional }}</li>
+                            <li><del>kz {{ livro.preco }}</del></li>
+                            {% else %}
+                            <li>
+                                {% if livro.e_gratuito %}
+                                Grátis
+                                {% else %}
+                                kz {{ livro.preco }}
+                                {% endif %}
+                            </li>
+                            {% endif %}
+                        </ul>
+
+                        <ul class="author-post">
+                            <li class="authot-list">
+                                <span class="thumb">
+                                    {% if livro.autor.foto %}
+                                    <img src="{{ livro.autor.foto.url }}" alt="{{ livro.autor.nome }}">
+                                    {% else %}
+                                    <img src="{% static 'assets-book/img/testimonial/client-default.png' %}"
+                                        alt="Autor">
+                                    {% endif %}
                                 </span>
-                            </div>
-                            <div class="thumbnail"><a href="single-product.html"><img src="assets/images/product/8.jpg" alt="Histudy Book Image"></a></div>
-                            <div class="content">
+                                <span class="content">{{ livro.autor.nome }}</span>
+                            </li>
+                            <li class="star">
+                                {% with rating=livro.avaliacao_media|default:0 %}
+                                {% for i in "12345" %}
+                                {% if forloop.counter <= rating %} <i class="fa-solid fa-star"></i>
+                                    {% else %}
+                                    <i class="fa-regular fa-star"></i>
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endwith %}
+                                    <small>({{ livro.total_avaliacoes }})</small>
+                            </li>
+                        </ul>
+                    </div>
 
-                                <div class="rbt-review justify-content-center">
-                                    <div class="rating">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <span class="rating-count">(120) - 100% Positive Reviews</span>
-                                </div>
-                                <div class="rbt-price justify-content-center mt--10">
-                                    <span class="current-price theme-gradient">$45.00</span>
-                                    <span class="off-price">$90.00</span>
-                                </div>
-                                <div class="addto-cart-btn mt--20">
-                                    <a class="rbt-btn btn-gradient hover-icon-reverse" href="cart.html">
-                                        <span class="icon-reverse-wrapper">
-                                            <span class="btn-text">Add To Cart</span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        </span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="shop-button">
+                        {% if livro.e_gratuito %}
+                        <a href="#" class="theme-btn download-gratuito" data-livro-id="{{ livro.id }}">
+                            <i class="fa-solid fa-download"></i> Baixar Grátis
+                        </a>
+                        {% else %}
+                        <a href="#" class="theme-btn adicionar-carrinho" data-livro-id="{{ livro.id }}">
+                            <i class="fa-solid fa-basket-shopping"></i> Adicionar ao Carrinho
+                        </a>
+                        {% endif %}
                     </div>
                 </div>
-                <!-- End Single Product  -->
+                {% empty %}
+                <div class="col-12 text-center">
+                    <p>Nenhum livro disponível no momento.</p>
+                </div>
+                {% endfor %}
 
-                <!-- Start Single Product  -->
-                <div class="col-lg-4 col-md-6 col-12">
-                    <div class="rbt-default-card style-three rbt-hover">
-                        <div class="inner">
-                            <div class="content pt--0 pb--10">
-                                <h2 class="title"><a href="single-product.html">The Road</a></h2>
 
-                                <span class="team-form">
-                                    <span class="location">By John Due</span>
-                                </span>
-                            </div>
-                            <div class="thumbnail"><a href="single-product.html"><img src="assets/images/product/6.jpg" alt="Histudy Book Image"></a></div>
-                            <div class="content">
+            </div>
+        </div>
+    </section>
 
-                                <div class="rbt-review justify-content-center">
-                                    <div class="rating">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
+    <style>
+        .author-post .authot-list .thumb img,
+        .authot-list .thumb img {
+            width: 48px;
+            /* tamanho pequeno — ajusta se quiseres 40/56px */
+            height: 48px;
+            /* manter quadrado para ficar redondo */
+            border-radius: 50%;
+            /* torna redondo */
+            object-fit: cover;
+            /* garante que a imagem preenche o círculo sem distorcer */
+            display: block;
+            overflow: hidden;
+            border: 2px solid #fff;
+            /* opcional: borda clara */
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+            /* opcional: sombra leve */
+        }
+    </style>
+    <!-- Book Catagories Section start  -->
+    <!-- Book Catagories Section start -->
+    <section class="book-catagories-section fix section-padding">
+        <div class="container">
+            <div class="book-catagories-wrapper">
+                <div class="section-title text-center">
+                    <h2 class="wow fadeInUp" data-wow-delay=".3s">Principais Categorias de Livros</h2>
+                </div>
+                <div class="array-button">
+                    <button class="array-prev"><i class="fal fa-arrow-left"></i></button>
+                    <button class="array-next"><i class="fal fa-arrow-right"></i></button>
+                </div>
+                <div class="swiper book-catagories-slider">
+                    <div class="swiper-wrapper">
+                        {% for categoria in categorias %}
+                        <div class="swiper-slide">
+                            <div class="book-catagories-items">
+                                <div class="book-thumb">
+                                    {% if categoria.imagem %}
+                                    <img src="{{ categoria.imagem.url }}" alt="{{ categoria.nome }}" class="img-fluid"
+                                        style="max-width: 120px; height: auto;">
+                                    {% else %}
+                                    <img src="{% static 'assets-book/img/book-categori/default.png' %}"
+                                        alt="{{ categoria.nome }}" class="img-fluid"
+                                        style="max-width: 120px; height: auto;">
+                                    {% endif %}
+                                    <div class="circle-shape">
+                                        <img src="{% static 'assets-book/img/book-categori/circle-shape.png' %}"
+                                            alt="shape-img" class="img-fluid">
                                     </div>
-                                    <span class="rating-count">(350) - 100% Positive Reviews</span>
                                 </div>
-                                <div class="rbt-price justify-content-center mt--10">
-                                    <span class="current-price theme-gradient">$11.50</span>
-                                    <span class="off-price">$45.00</span>
-                                </div>
-                                <div class="addto-cart-btn mt--20">
-                                    <a class="rbt-btn btn-gradient hover-icon-reverse" href="cart.html">
-                                        <span class="icon-reverse-wrapper">
-                                            <span class="btn-text">Add To Cart</span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        </span>
-                                    </a>
-                                </div>
+                                <div class="number"> {{ categoria.total_livros }}</div>
+                                <h3 style="font-size: 24px;"><a href="#">{{ categoria.nome }}</a></h3>
                             </div>
                         </div>
+                        {% empty %}
+                        <div class="swiper-slide">
+                            <div class="book-catagories-items">
+                                <div class="book-thumb">
+                                    <img src="{% static 'assets-book/img/book-categori/default.png' %}"
+                                        alt="Sem categorias" class="img-fluid" style="max-width: 120px; height: auto;">
+                                    <div class="circle-shape">
+                                        <img src="{% static 'assets-book/img/book-categori/circle-shape.png' %}"
+                                            alt="shape-img" class="img-fluid">
+                                    </div>
+                                </div>
+                                <div class="number"> 00 </div>
+                                <h3><a href="#">Nenhuma Categoria</a></h3>
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
-                <!-- End Single Product  -->
+            </div>
+        </div>
+    </section>
+
+
+
+    <section class="shop-section section-padding fix">
+    <div class="container">
+        <div class="section-title-area">
+            <div class="section-title mb- wow fadeInUp" data-wow-delay=".3s">
+                <h2>Livros Principais da plataforma</h2>
+            </div>
+            <a href="#" class="theme-btn transparent-btn wow fadeInUp" data-wow-delay=".5s">
+                Explorar Mais <i class="fa-solid fa-arrow-right-long"></i>
+            </a>
+        </div>
+        <div class="book-shop-wrapper">
+            
+            {% for livro in livros_principais|slice:":4" %}
+            <div class="shop-box-items style-2">
+                <div class="book-thumb center">
+                    <a href="#">
+                        {% if livro.capa %}
+                            <img src="{{ livro.capa.url }}" alt="{{ livro.titulo }}" class="img-fluid">
+                        {% else %}
+                            <img src="{% static 'assets-book/img/book/default.png' %}" alt="{{ livro.titulo }}">
+                        {% endif %}
+                    </a>
+                    
+                    <!-- Badges dinâmicas -->
+                    <ul class="post-box">
+                        {% if livro.em_promocao and livro.desconto_percentual > 0 %}
+                            <li>-{{ livro.desconto_percentual }}%</li>
+                        {% endif %}
+                        {% if livro.visualizacoes > 100 %}
+                            <li>Popular</li>
+                        {% endif %}
+                        {% if livro.e_gratuito %}
+                            <li>Grátis</li>
+                        {% endif %}
+                    </ul>
+                    
+                    <ul class="shop-icon d-grid justify-content-center align-items-center">
+                        <li>
+                            <a href="#" class="favorito-btn" data-livro-id="{{ livro.id }}">
+                                <i class="far fa-heart"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="comparar-btn" data-livro-id="{{ livro.id }}">
+                                <img class="icon" src="{% static 'assets-book/img/icon/shuffle.svg' %}" alt="svg-icon">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <i class="far fa-eye"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="shop-content">
+                    <h5>{{ livro.get_tipo_display }}</h5>
+                    <h3>
+                        <a href="#">
+                            {{ livro.titulo }}
+                        </a>
+                    </h3>
+                    <ul class="price-list">
+                        {% if livro.e_gratuito %}
+                            <li class="text-success">Grátis</li>
+                        {% else %}
+                            {% if livro.em_promocao and livro.preco_promocional %}
+                                <li>kz {{ livro.preco_promocional|floatformat:2 }}</li>
+                                <li><del>kz {{ livro.preco|floatformat:2 }}</del></li>
+                            {% else %}
+                                <li>kz {{ livro.preco|floatformat:2 }}</li>
+                            {% endif %}
+                        {% endif %}
+                    </ul>
+                    <ul class="author-post">
+                        <li class="authot-list">
+                            <span class="thumb">
+                                {% if livro.autor.foto %}
+                                    <img src="{{ livro.autor.foto.url }}" alt="{{ livro.autor.nome }}">
+                                {% else %}
+                                    <img src="{% static 'assets-book/img/testimonial/client-default.png' %}" alt="{{ livro.autor.nome }}">
+                                {% endif %}
+                            </span>
+                            <span class="content">{{ livro.autor.nome }}</span>
+                        </li>
+                        <li class="star">
+                            {% with ''|center:5 as range %}
+                            {% for i in range %}
+                                {% if forloop.counter <= livro.avaliacao_media %}
+                                    <i class="fa-solid fa-star"></i>
+                                {% else %}
+                                    <i class="fa-regular fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                            {% endwith %}
+                        </li>
+                    </ul>
+                </div>
+                <div class="shop-button">
+                    {% if livro.disponivel_venda %}
+                        <a href="#" class="theme-btn add-carrinho" data-livro-id="{{ livro.id }}">
+                            <i class="fa-solid fa-basket-shopping"></i>
+                            Adicionar ao Carrinho
+                        </a>
+                    {% elif livro.e_gratuito and livro.arquivo_digital %}
+                        <a href="#" class="theme-btn">
+                            <i class="fa-solid fa-download"></i>
+                            Baixar Grátis
+                        </a>
+                    {% elif livro.disponivel_emprestimo %}
+                        <a href="#" class="theme-btn">
+                            <i class="fa-solid fa-book"></i>
+                            Solicitar Empréstimo
+                        </a>
+                    {% else %}
+                        <a href="#" class="theme-btn">
+                            <i class="fa-solid fa-info-circle"></i>
+                            Ver Detalhes
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="far fa-book fa-3x text-muted mb-3"></i>
+                <h4>Nenhum livro principal encontrado</h4>
+                <p class="text-muted">Em breve teremos novidades!</p>
+            </div>
+            {% endfor %}
+
+            <div class="cta-shop-box">
+                <h2 class="wow fadeInUp" data-wow-delay=".2s">
+                    Encontre Seus Livros
+                    Favoritos!
+                </h2>
+                <h6 class="wow fadeInUp" data-wow-delay=".4s">E obtenha seu desconto de 25% agora!</h6>
+                <a href="#" class="theme-btn white-bg wow fadeInUp" data-wow-delay=".6s">
+                    Explorar Agora <i class="fa-solid fa-arrow-right-long"></i>
+                </a>
+                <div class="girl-shape">
+                    <img src="{% static 'assets-book/img/girl-shape.png' %}" alt="shape-img">
+                </div>
+                <div class="circle-shape">
+                    <img src="{% static 'assets-book/img/circle-shape.png' %}" alt="shape-img">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+    <!-- Cta Banner Section start  -->
+    <section class="cta-banner-section fix section-padding pt-0">
+        <div class="container">
+            <div class="cta-banner-wrapper section-padding bg-cover"
+                style="background-image: url('{% static 'assets-book/img/cta-banner.jpg' %}');">
+                <div class="book-shape">
+                    <img src="{% static 'assets-book/img/book-shape.png' %}" alt="shape-img">
+                </div>
+                <div class="girl-shape float-bob-x">
+                    <img src="{% static 'assets-book/img/girl-shape-2.png' %}" alt="shape-img">
+                </div>
+                <div class="cta-content text-center">
+                    <h2 class="mb-40 wow fadeInUp" data-wow-delay=".3s"
+                        style="visibility: visible; animation-delay: 0.3s; animation-name: fadeInUp;">Obtenha 25% de
+                        desconto
+                        em todos os tipos <br> de
+                        Super Vendas</h2>
+                    <a href="shop.html" class="theme-btn wow fadeInUp" data-wow-delay=".5s"
+                        style="visibility: visible; animation-delay: 0.5s; animation-name: fadeInUp;">Explorar Agora <i
+                            class="fa-solid fa-arrow-right-long"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Top Ratting Book Section start  -->
+    <section class="top-ratting-book-section fix section-padding section-bg">
+    <div class="container">
+        <div class="top-ratting-book-wrapper">
+            <div class="section-title-area">
+                <div class="section-title">
+                    <h2 class="wow fadeInUp" data-wow-delay=".3s">Livros Mais Bem Avaliados</h2>
+                </div>
+                <a href="#" class="theme-btn transparent-btn wow fadeInUp" data-wow-delay=".5s">
+                    Ver Mais <i class="fa-solid fa-arrow-right-long"></i>
+                </a>
             </div>
             <div class="row">
-                <div class="col-lg-12 mt--60">
-                    <nav>
-                        <ul class="rbt-pagination">
-                            <li><a href="shop.html#" aria-label="Previous"><i class="feather-chevron-left"></i></a></li>
-                            <li><a href="shop.html#">1</a></li>
-                            <li class="active"><a href="shop.html#">2</a></li>
-                            <li><a href="shop.html#">3</a></li>
-                            <li><a href="shop.html#" aria-label="Next"><i class="feather-chevron-right"></i></a></li>
-                        </ul>
-                    </nav>
+                {% for livro in livros_melhor_avaliados %}
+                <div class="col-xl-6 wow fadeInUp" data-wow-delay=".{{ forloop.counter|add:'2' }}s">
+                    <div class="top-ratting-box-items">
+                        <div class="book-thumb">
+                            <a href="#">
+                                {% if livro.capa %}
+                                    <img src="{{ livro.capa.url }}" alt="{{ livro.titulo }}" class="img-fluid">
+                                {% else %}
+                                    <img src="{% static 'assets-book/img/book/default.png' %}" alt="{{ livro.titulo }}">
+                                {% endif %}
+                            </a>
+                        </div>
+                        <div class="book-content">
+                            <div class="title-header">
+                                <div>
+                                    <h5>{{ livro.get_tipo_display }}</h5>
+                                    <h3>
+                                        <a href="#">
+                                            {{ livro.titulo }}
+                                        </a>
+                                    </h3>
+                                </div>
+                                <ul class="shop-icon d-flex justify-content-center align-items-center">
+                                    <li>
+                                        <a href="#" class="favorito-btn" data-livro-id="{{ livro.id }}">
+                                            <i class="far fa-heart"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="comparar-btn" data-livro-id="{{ livro.id }}">
+                                            <img class="icon" src="{% static 'assets-book/img/icon/shuffle.svg' %}" alt="svg-icon">
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <i class="far fa-eye"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Preço -->
+                            <span class="mt-10">
+                                {% if livro.e_gratuito %}
+                                    <span class="text-success fw-bold">Grátis</span>
+                                {% else %}
+                                    {% if livro.em_promocao and livro.preco_promocional %}
+                                        <span class="fw-bold">kz {{ livro.preco_promocional|floatformat:2 }}</span>
+                                        <small class="text-muted"><del>kz {{ livro.preco|floatformat:2 }}</del></small>
+                                    {% else %}
+                                        kz {{ livro.preco|floatformat:2 }}
+                                    {% endif %}
+                                {% endif %}
+                            </span>
+                            
+                            <!-- Autor -->
+                            <ul class="author-post">
+                                <li class="authot-list">
+                                    <span class="thumb">
+                                        {% if livro.autor.foto %}
+                                            <img src="{{ livro.autor.foto.url }}" alt="{{ livro.autor.nome }}">
+                                        {% else %}
+                                            <img src="{% static 'assets-book/img/testimonial/client-default.png' %}" alt="{{ livro.autor.nome }}">
+                                        {% endif %}
+                                    </span>
+                                    <span class="content mt-10">{{ livro.autor.nome }}</span>
+                                </li>
+                            </ul>
+                            
+                            <!-- Avaliação e Botão -->
+                            <div class="shop-btn">
+                                <div class="star">
+                                    {% with stars=livro.avaliacao_media|floatformat:0 %}
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= stars|add:0 %}
+                                            <i class="fa-solid fa-star"></i>
+                                        {% else %}
+                                            <i class="fa-regular fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% endwith %}
+                                    <small class="text-muted ms-2">({{ livro.total_avaliacoes }})</small>
+                                </div>
+                                
+                                <!-- Botão de ação -->
+                                {% if livro.disponivel_venda %}
+                                    <a href="#" class="theme-btn add-carrinho" data-livro-id="{{ livro.id }}">
+                                        <i class="fa-solid fa-basket-shopping"></i> Adicionar ao Carrinho
+                                    </a>
+                                {% elif livro.e_gratuito and livro.arquivo_digital %}
+                                    <a href="#" class="theme-btn">
+                                        <i class="fa-solid fa-download"></i> Baixar Grátis
+                                    </a>
+                                {% elif livro.disponivel_emprestimo %}
+                                    <a href="#" class="theme-btn">
+                                        <i class="fa-solid fa-book"></i> Emprestar
+                                    </a>
+                                {% else %}
+                                    <a href="#" class="theme-btn">
+                                        <i class="fa-solid fa-info-circle"></i> Ver Detalhes
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <i class="far fa-star fa-3x text-muted mb-3"></i>
+                    <h4>Nenhum livro bem avaliado encontrado</h4>
+                    <p class="text-muted">Ainda não temos avaliações suficientes</p>
+                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
+</section>
+    <!-- Shop Section start  -->
+    <section class="shop-section section-padding fix">
+    <div class="container">
+        <div class="section-title-area">
+            <div class="section-title wow fadeInUp" data-wow-delay=".3s">
+                <h2>Livros Mais Vendidos</h2>
+            </div>
+            <a href="#" class="theme-btn transparent-btn wow fadeInUp" data-wow-delay=".5s">
+                Explorar Mais <i class="fa-solid fa-arrow-right-long"></i>
+            </a>
+        </div>
+        <div class="swiper book-slider">
+            <div class="swiper-wrapper">
+                {% for livro in livros_mais_vendidos %}
+                <div class="swiper-slide">
+                    <div class="shop-box-items style-2">
+                        <div class="book-thumb center">
+                            <a href="#">
+                                {% if livro.capa %}
+                                    <img src="{{ livro.capa.url }}" alt="{{ livro.titulo }}" class="img-fluid">
+                                {% else %}
+                                    <img src="{% static 'assets-book/img/book/default.png' %}" alt="{{ livro.titulo }}">
+                                {% endif %}
+                            </a>
+                            
+                            <!-- Badges dinâmicas -->
+                            <ul class="post-box">
+                                {% if livro.vendas_totais > 50 %}
+                                    <li class="best-seller">🔥 Best Seller</li>
+                                {% endif %}
+                                {% if livro.em_promocao and livro.desconto_percentual > 0 %}
+                                    <li class="promocao">-{{ livro.desconto_percentual }}%</li>
+                                {% endif %}
+                                {% if livro.visualizacoes > 100 %}
+                                    <li class="popular">Popular</li>
+                                {% endif %}
+                            </ul>
+                            
+                            <ul class="shop-icon d-grid justify-content-center align-items-center">
+                                <li>
+                                    <a href="#" class="favorito-btn" data-livro-id="{{ livro.id }}">
+                                        <i class="far fa-heart"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="comparar-btn" data-livro-id="{{ livro.id }}">
+                                        <img class="icon" src="{% static 'assets-book/img/icon/shuffle.svg' %}" alt="svg-icon">
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        <i class="far fa-eye"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="shop-content">
+                            <h5>{{ livro.get_tipo_display }}</h5>
+                            <h3>
+                                <a href="#">
+                                    {{ livro.titulo }}
+                                    {% if livro.subtitulo %}<br>{{ livro.subtitulo }}{% endif %}
+                                </a>
+                            </h3>
+                            <ul class="price-list">
+                                {% if livro.e_gratuito %}
+                                    <li class="text-success">Grátis</li>
+                                {% else %}
+                                    {% if livro.em_promocao and livro.preco_promocional %}
+                                        <li>kz {{ livro.preco_promocional|floatformat:2 }}</li>
+                                        <li><del>kz {{ livro.preco|floatformat:2 }}</del></li>
+                                    {% else %}
+                                        <li>kz {{ livro.preco|floatformat:2 }}</li>
+                                    {% endif %}
+                                {% endif %}
+                            </ul>
+                            <ul class="author-post">
+                                <li class="authot-list">
+                                    <span class="thumb">
+                                        {% if livro.autor.foto %}
+                                            <img src="{{ livro.autor.foto.url }}" alt="{{ livro.autor.nome }}">
+                                        {% else %}
+                                            <img src="{% static 'assets-book/img/testimonial/client-default.png' %}" alt="{{ livro.autor.nome }}">
+                                        {% endif %}
+                                    </span>
+                                    <span class="content">{{ livro.autor.nome }}</span>
+                                </li>
 
-    <div class="rbt-separator-mid">
+                                <li class="star">
+                                    {% with stars=livro.avaliacao_media|floatformat:0 %}
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= stars|add:0 %}
+                                            <i class="fa-solid fa-star"></i>
+                                        {% else %}
+                                            <i class="fa-regular fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% endwith %}
+                                    <small class="text-muted ms-1">({{ livro.total_avaliacoes }})</small>
+                                </li>
+                            </ul>
+                            
+                            <!-- Badge de vendas -->
+                            <div class="vendas-info">
+                                <small class="text-muted">
+                                    <i class="fas fa-chart-line"></i> {{ livro.vendas_totais }} vendas
+                                </small>
+                            </div>
+                        </div>
+                        <div class="shop-button">
+                            {% if livro.disponivel_venda %}
+                                <a href="#" class="theme-btn add-carrinho" data-livro-id="{{ livro.id }}">
+                                    <i class="fa-solid fa-basket-shopping"></i> Adicionar ao Carrinho
+                                </a>
+                            {% elif livro.e_gratuito and livro.arquivo_digital %}
+                                <a href="#" class="theme-btn">
+                                    <i class="fa-solid fa-download"></i> Baixar Grátis
+                                </a>
+                            {% elif livro.disponivel_emprestimo %}
+                                <a href="#" class="theme-btn">
+                                    <i class="fa-solid fa-book"></i> Emprestar
+                                </a>
+                            {% else %}
+                                <a href="#" class="theme-btn">
+                                    <i class="fa-solid fa-info-circle"></i> Ver Detalhes
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="swiper-slide">
+                    <div class="text-center py-5">
+                        <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                        <h4>Nenhum livro vendido ainda</h4>
+                        <p class="text-muted">Seja o primeiro a comprar!</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Paginação do Swiper -->
+            <div class="swiper-pagination"></div>
+            
+            <!-- Navegação do Swiper -->
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+        </div>
+    </div>
+</section>
+
+    <!-- Team Section start  -->
+    <section class="team-section fix section-padding pt-0 margin-bottom-30">
         <div class="container">
-            <hr class="rbt-separator m-0">
-        </div>
-    </div>
-    <!-- Start Footer aera -->
-    <footer class="rbt-footer footer-style-1 bg-color-white overflow-hidden">
-        <div class="footer-top">
-            <div class="container">
-                <div class="row g-5">
-                    <div class="col-lg-4 col-md-6 col-sm-6 col-12">
-                        <div class="footer-widget">
-                            <div class="logo logo-dark">
-                                <a href="https://histudy.pixcelsthemes.com/livepreview/histudy/index.html">
-                                    <img src="assets/images/logo/logo.png" alt="Edu-cause">
-                                </a>
-                            </div>
-                            <div class="logo d-none logo-light">
-                                <a href="https://histudy.pixcelsthemes.com/livepreview/histudy/index.html">
-                                    <img src="assets/images/dark/logo/logo-light.png" alt="Edu-cause">
-                                </a>
-                            </div>
-
-                            <p class="description mt--20">We’re always in search for talented
-                                and motivated people. Don’t be shy introduce yourself!
-                            </p>
-
-                            <ul class="social-icon social-default justify-content-start">
-                                <li><a href="https://www.facebook.com/">
-                                        <i class="feather-facebook"></i>
-                                    </a>
-                                </li>
-                                <li><a href="https://www.twitter.com">
-                                        <i class="feather-twitter"></i>
-                                    </a>
-                                </li>
-                                <li><a href="https://www.instagram.com/">
-                                        <i class="feather-instagram"></i>
-                                    </a>
-                                </li>
-                                <li><a href="https://www.linkdin.com/">
-                                        <i class="feather-linkedin"></i>
-                                    </a>
-                                </li>
-                            </ul>
-
-                            <div class="contact-btn mt--30">
-                                <a class="rbt-btn hover-icon-reverse btn-border-gradient radius-round" href="shop.html#">
-                                    <div class="icon-reverse-wrapper">
-                                        <span class="btn-text">Contact With Us</span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-2 col-md-6 col-sm-6 col-12">
-                        <div class="footer-widget">
-                            <h5 class="ft-title">Useful Links</h5>
-                            <ul class="ft-link">
-                                <li>
-                                    <a href="12-marketplace.html">Marketplace</a>
-                                </li>
-                                <li>
-                                    <a href="04-kindergarten.html">kindergarten</a>
-                                </li>
-                                <li>
-                                    <a href="13-university-classic.html">University</a>
-                                </li>
-                                <li>
-                                    <a href="09-gym-coaching.html">GYM Coaching</a>
-                                </li>
-                                <li>
-                                    <a href="faqs.html">FAQ</a>
-                                </li>
-                                <li>
-                                    <a href="about-us-01.html">About Us</a>
-                                </li>
-                                <li>
-                                    <a href="privacy-policy.html">Privacy policy</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-2 col-md-6 col-sm-6 col-12">
-                        <div class="footer-widget">
-                            <h5 class="ft-title">Our Company</h5>
-                            <ul class="ft-link">
-                                <li>
-                                    <a href="contact.html">Contact Us</a>
-                                </li>
-                                <li>
-                                    <a href="become-a-teacher.html">Become Teacher</a>
-                                </li>
-                                <li>
-                                    <a href="blog.html">Blog</a>
-                                </li>
-                                <li>
-                                    <a href="instructor.html">Instructor</a>
-                                </li>
-                                <li>
-                                    <a href="event-list.html">Events</a>
-                                </li>
-                                <li>
-                                    <a href="course-filter-one-toggle.html">Course</a>
-                                </li>
-                                <li>
-                                    <a href="contact.html">Contact</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4 col-md-6 col-sm-6 col-12">
-                        <div class="footer-widget">
-                            <h5 class="ft-title">Get Contact</h5>
-                            <ul class="ft-link">
-                                <li><span>Phone:</span> <a href="shop.html#">(406) 555-0120</a></li>
-                                <li><span>E-mail:</span> <a href="mailto:hr@example.com">admin@example.com</a></li>
-                            </ul>
-
-                            <form class="newsletter-form mt--20" action="shop.html#">
-                                <h6 class="w-600">Newsletter</h6>
-                                <p class="description">2000+ Our students are subscribe Around the World.<br> Don’t be shy
-                                introduce yourself!</p>
-
-                                <div class="form-group right-icon icon-email mb--20">
-                                    <label for="email">Enter Your Email Here</label>
-                                    <input id="email" type="email">
+            <div class="section-title text-center">
+                <h2 class="mb-3 wow fadeInUp" data-wow-delay=".3s">Autores em Destaque</h2>
+                <p class="wow fadeInUp" data-wow-delay=".5s">Interdum et malesuada fames ac ante ipsum primis in
+                    faucibus. <br> Donec at nulla nulla. Duis posuere ex lacus</p>
+            </div>
+            <div class="array-button">
+                <button class="array-prev"><i class="fal fa-arrow-left"></i></button>
+                <button class="array-next"><i class="fal fa-arrow-right"></i></button>
+            </div>
+            <div class="swiper team-slider">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <div class="team-box-items">
+                            <div class="team-image">
+                                <div class="thumb">
+                                    <img src="{% static 'assets-book/img/team/01.jpg' %}" alt="img">
                                 </div>
-
-                                <div class="form-group mb--0">
-                                    <button class="rbt-btn rbt-switch-btn btn-gradient radius-round btn-sm" type="submit">
-                                        <span data-text="Submit Now">Submit Now</span>
-                                    </button>
+                                <div class="shape-img">
+                                    <img src="{% static 'assets-book/img/team/shape-img.png' %}" alt="img">
                                 </div>
-                            </form>
+                            </div>
+                            <div class="team-content text-center">
+                                <h6><a href="team-details.html">Esther Howard</a></h6>
+                                <p>10 Livros Publicados</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="team-box-items">
+                            <div class="team-image">
+                                <div class="thumb">
+                                    <img src="{% static 'assets-book/img/team/02.jpg' %}" alt="img">
+                                </div>
+                                <div class="shape-img">
+                                    <img src="{% static 'assets-book/img/team/shape-img.png' %}" alt="img">
+                                </div>
+                            </div>
+                            <div class="team-content text-center">
+                                <h6><a href="team-details.html">Shikhon Islam</a></h6>
+                                <p>07 Livros Publicados</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="team-box-items">
+                            <div class="team-image">
+                                <div class="thumb">
+                                    <img src="{% static 'assets-book/img/team/03.jpg' %}" alt="img">
+                                </div>
+                                <div class="shape-img">
+                                    <img src="{% static 'assets-book/img/team/shape-img.png' %}" alt="img">
+                                </div>
+                            </div>
+                            <div class="team-content text-center">
+                                <h6><a href="team-details.html">Kawser Ahmed</a></h6>
+                                <p>04 Livros Publicados</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="team-box-items">
+                            <div class="team-image">
+                                <div class="thumb">
+                                    <img src="{% static 'assets-book/img/team/04.jpg' %}" alt="img">
+                                </div>
+                                <div class="shape-img">
+                                    <img src="{% static 'assets-book/img/team/shape-img.png' %}" alt="img">
+                                </div>
+                            </div>
+                            <div class="team-content text-center">
+                                <h6><a href="team-details.html">Brooklyn Simmons</a></h6>
+                                <p>15 Livros Publicados</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="team-box-items">
+                            <div class="team-image">
+                                <div class="thumb">
+                                    <img src="{% static 'assets-book/img/team/05.jpg' %}" alt="img">
+                                </div>
+                                <div class="shape-img">
+                                    <img src="{% static 'assets-book/img/team/shape-img.png' %}" alt="img">
+                                </div>
+                            </div>
+                            <div class="team-content text-center">
+                                <h6><a href="team-details.html">Leslie Alexander</a></h6>
+                                <p>05 Livros Publicados</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="team-box-items">
+                            <div class="team-image">
+                                <div class="thumb">
+                                    <img src="{% static 'assets-book/img/team/06.jpg' %}" alt="img">
+                                </div>
+                                <div class="shape-img">
+                                    <img src="{% static 'assets-book/img/team/shape-img.png' %}" alt="img">
+                                </div>
+                            </div>
+                            <div class="team-content text-center">
+                                <h6><a href="team-details.html">Guy Hawkins</a></h6>
+                                <p>12 Livros Publicados</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="rbt-separator-mid">
-            <div class="container">
-                <hr class="rbt-separator m-0">
-            </div>
-        </div>
-        <!-- Start Copyright Area  -->
-        <div class="copyright-area copyright-style-1 ptb--20">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-12">
-                        <p class="rbt-link-hover text-center text-lg-start">Copyright © 2025 <a href="https://www.pixcelsthemes.com/">Pixcels Themes.</a> All Rights Reserved</p>
-                    </div>
-                    <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-12">
-                        <ul class="copyright-link rbt-link-hover justify-content-center justify-content-lg-end mt_sm--10 mt_md--10">
-                            <li><a href="shop.html#">Terms of service</a></li>
-                            <li><a href="privacy-policy.html">Privacy policy</a></li>
-                            <li><a href="subscription.html">Subscription</a></li>
-                            <li><a href="login.html">Login & Register</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- End Copyright Area  -->
-    </footer>
-    <!-- End Footer aera -->
-    <div class="rbt-progress-parent">
-        <svg class="rbt-back-circle svg-inner" width="100%" height="100%" viewBox="-1 -1 102 102">
-            <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" />
-        </svg>
-    </div>
+    </section>
 
-    {% include 'include/footer.html' %}
 
+    {% include 'include/java-book.html' %}
     {% include 'include/java.html' %}
 </body>
 
