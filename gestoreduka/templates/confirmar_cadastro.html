@@ -58,35 +58,54 @@
                 Bem-vindo: <strong>{{ convite.centro.email }}</strong>
             </p>
 
+            <!-- Mensagens de alerta -->
+            {% if messages %}
+            <div class="mb-24">
+                {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} 
+                            alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
             <form method="post">
                 {% csrf_token %}
                 <div class="mb-24">
                     <label for="fullname" class="form-label mb-8 h6">Nome Completo</label>
                     <div class="position-relative">
-                        <input type="text" name="nome" class="form-control py-11 ps-40" id="fullname" placeholder="Digite seu nome completo">
+                        <input type="text" name="nome" class="form-control py-11 ps-40" id="fullname" 
+                               placeholder="Digite seu nome completo" 
+                               value="{{ nome_value|default:'' }}" required>
                         <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-600 d-flex">
                             <i class="ph ph-user"></i>
                         </span>
                     </div>
                 </div>
 
-
                 <div class="mb-24">
                     <label for="password" class="form-label mb-8 h6">Senha</label>
                     <div class="position-relative">
-                        <input type="password" name="senha" class="form-control py-11 ps-40" id="password" placeholder="Crie uma senha">
-                        <span class="toggle-password position-absolute top-50 inset-inline-end-0 me-16 translate-middle-y ph ph-eye-slash" id="#password"></span>
+                        <input type="password" name="senha" class="form-control py-11 ps-40" id="password" 
+                               placeholder="Crie uma senha" 
+                               value="{{ senha_value|default:'' }}" required>
+                        <span class="toggle-password position-absolute top-50 inset-inline-end-0 me-16 translate-middle-y ph ph-eye-slash" data-target="password"></span>
                         <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-600 d-flex">
                             <i class="ph ph-lock"></i>
                         </span>
                     </div>
+                    <small class="text-muted">Mínimo 8 caracteres, com letras maiúsculas, minúsculas, números e símbolos</small>
                 </div>
 
                 <div class="mb-24">
                     <label for="confirm-password" class="form-label mb-8 h6">Confirmar Senha</label>
                     <div class="position-relative">
-                        <input type="password" name="confirm_senha" class="form-control py-11 ps-40" id="confirm-password" placeholder="Repita a senha">
-                        <span class="toggle-password position-absolute top-50 inset-inline-end-0 me-16 translate-middle-y ph ph-eye-slash" id="#confirm-password"></span>
+                        <input type="password" name="confirm_senha" class="form-control py-11 ps-40" id="confirm-password" 
+                               placeholder="Repita a senha" 
+                               value="{{ confirm_senha_value|default:'' }}" required>
+                        <span class="toggle-password position-absolute top-50 inset-inline-end-0 me-16 translate-middle-y ph ph-eye-slash" data-target="confirm-password"></span>
                         <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-600 d-flex">
                             <i class="ph ph-lock"></i>
                         </span>
@@ -94,9 +113,6 @@
                 </div>
 
                 <button type="submit" class="btn btn-main rounded-pill w-100">Cadastrar</button>
-                <p class="mt-32 text-gray-600 text-center">Já tem uma conta?
-                    <a href="sign-in.html" class="text-main-600 hover-text-decoration-underline">Enviar</a>
-                </p>
 
                 <div class="divider my-32 position-relative text-center">
                     <span class="divider__text text-gray-600 text-13 fw-medium px-26 bg-white">ou cadastre-se com</span>
@@ -124,6 +140,56 @@
     </div>
 </section>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mostrar/ocultar senha
+    const toggleButtons = document.querySelectorAll('.toggle-password');
+    
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const passwordInput = document.getElementById(targetId);
+            
+            if (passwordInput) {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.classList.toggle('ph-eye');
+                this.classList.toggle('ph-eye-slash');
+            }
+        });
+    });
+
+    // Auto-dismiss alerts após 8 segundos
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(function(alert) {
+        setTimeout(function() {
+            if (alert.parentNode) {
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    if (alert.parentNode) {
+                        alert.parentNode.removeChild(alert);
+                    }
+                }, 300);
+            }
+        }, 8000);
+    });
+
+    // Validação em tempo real da senha
+    const passwordInput = document.getElementById('password');
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            const senha = this.value;
+            const hasUpperCase = /[A-Z]/.test(senha);
+            const hasLowerCase = /[a-z]/.test(senha);
+            const hasNumbers = /[0-9]/.test(senha);
+            const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(senha);
+            const isLongEnough = senha.length >= 8;
+
+            // Aqui você pode adicionar feedback visual se quiser
+        });
+    }
+});
+</script>
 
         <!-- Jquery js -->
     <script src="{% static 'assets1/js/jquery-3.7.1.min.js' %}"></script>

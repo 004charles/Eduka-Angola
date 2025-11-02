@@ -59,6 +59,9 @@ urlpatterns = [
     path('registro_instrutor/', views.Registro_instrutor, name='registro_instrutor'),
     path('registro_biblioteca/', views.registro_biblioteca, name = 'registro_biblioteca'),
     
+    #----------------perfil de usuarios--------------------
+    path('configuracao_user/', views.configuracao_user, name = 'configuracao_user'),
+
     
     #----------------redefinir senha--------------------
     path('redefinir_senha/', views.Redefinir_senha, name='redefinir_senha'),

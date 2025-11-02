@@ -510,3 +510,6 @@ def buscar_cursos(request):
             pass
 
     return render(request, 'resultados_busca.html', context)
+
+
+

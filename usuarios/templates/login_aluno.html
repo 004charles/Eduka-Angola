@@ -19,12 +19,14 @@
         <ul>
             <li>
                 <a href="javascript: void(0);" data-theme="light" class="setColor light">
-                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode"> Light</span>
+                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode">
+                        Light</span>
                 </a>
             </li>
             <li>
                 <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
-                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span title="Dark Mode"> Dark</span>
+                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span
+                        title="Dark Mode"> Dark</span>
                 </a>
             </li>
         </ul>
@@ -34,164 +36,177 @@
     {% include 'include/header.html' %}
     {% include 'include/loading.html' %}
     <!-- Mobile Menu Section -->
-    
-    
+
+
 
     <!-- Start breadcrumb Area -->
-<div class="rbt-breadcrumb-default ptb--100 ptb_md--50 ptb_sm--30 bg-gradient-1">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="breadcrumb-inner text-center">
-                    <h2 class="title">Bem-vindo de volta!</h2>
-                    <p class="welcome-message">Por favor faça login para acessar sua conta.</p>
-                    <ul class="page-list">
-                        <li class="rbt-breadcrumb-item"><a href="https://histudy.pixcelsthemes.com/histudy/index.html">Home</a></li>
-                        <li>
-                            <div class="icon-right"><i class="feather-chevron-right"></i></div>
-                        </li>
-                        <li class="rbt-breadcrumb-item active">Login & Register</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- End Breadcrumb Area -->
-
-<div class="rbt-elements-area bg-color-white rbt-section-gap">
-    <div class="container">
-        <!-- Mensagens de status - TODAS VISÍVEIS -->
-        <div class="row justify-content-center mb-4">
-            <div class="col-lg-6">
-                <!-- Status 0 - Sucesso -->
-                <div class="alert alert-success {% if status != '0' %}d-none{% endif %}" id="status-0" role="alert">
-                    <i class="feather-check-circle me-2"></i> Login realizado com sucesso!
-                </div>
-                
-                <!-- Status 1 - Credenciais inválidas -->
-                <div class="alert alert-danger {% if status != '1' %}d-none{% endif %}" id="status-1" role="alert">
-                    <i class="feather-alert-circle me-2"></i> E-mail ou senha incorretos. Por favor, tente novamente.
-                </div>
-                
-                <!-- Status 2 - Conta inativa -->
-                <div class="alert alert-warning {% if status != '2' %}d-none{% endif %}" id="status-2" role="alert">
-                    <i class="feather-alert-octagon me-2"></i> Sua conta está inativa. Entre em contato com o suporte.
-                </div>
-                
-                <!-- Status 3 - Erro inesperado -->
-                <div class="alert alert-danger {% if status != '3' %}d-none{% endif %}" id="status-3" role="alert">
-                    <i class="feather-alert-triangle me-2"></i> Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.
-                </div>
-            </div>
-        </div>
-
-        <div class="row justify-content-center">
-    <div class="col-lg-6">
-        <div class="rbt-contact-form contact-form-style-1">
-            <h3 class="title text-center mb-4">Login</h3>
-            <form method="POST" action="{% url 'valida_login_aluno' %}">
-                {% csrf_token %}
-                <div class="form-group">
-                    <input name="email" type="email" required />
-                    <label>E-mail *</label>
-                    <span class="focus-border"></span>
-                </div>
-                <div class="form-group">
-                    <input name="senha" type="password" required>
-                    <label>Senha *</label>
-                    <span class="focus-border"></span>
-                </div>
-
-                <div class="row mb--30">
-                    <div class="col-lg-6">
-                        <div class="rbt-checkbox">
-                            <input type="checkbox" id="rememberme" name="rememberme">
-                            <label for="rememberme">Lembrar-me</label>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="rbt-lost-password text-end">
-                            <a class="rbt-btn-link" href="#">Esqueceu a senha?</a>
-                        </div>
+    <div class="rbt-breadcrumb-default ptb--100 ptb_md--50 ptb_sm--30 bg-gradient-1">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="breadcrumb-inner text-center">
+                        <h2 class="title">Bem-vindo de volta!</h2>
+                        <p class="welcome-message">Por favor faça login para acessar sua conta.</p>
+                        <ul class="page-list">
+                            <li class="rbt-breadcrumb-item"><a
+                                    href="https://histudy.pixcelsthemes.com/histudy/index.html">Home</a></li>
+                            <li>
+                                <div class="icon-right"><i class="feather-chevron-right"></i></div>
+                            </li>
+                            <li class="rbt-breadcrumb-item active">Login & Register</li>
+                        </ul>
                     </div>
                 </div>
-
-                <div class="form-submit-group">
-                    <button type="submit" class="rbt-btn btn-md btn-gradient hover-icon-reverse w-100">
-                        <span class="icon-reverse-wrapper">
-                            <span class="btn-text">Entrar</span>
-                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                        </span>
-                    </button>
-                </div>
-            </form>
-
-            <div class="text-center mt-3">
-                <p class="mb-0">Nao tem uma conta? <a href="{% url 'Registro_aluno' %}" class="rbt-btn-link">Cadastre-se</a></p>
             </div>
         </div>
     </div>
-</div>
-    </div>
-</div>
+    <!-- End Breadcrumb Area -->
 
-<!-- Script para controle das mensagens -->
-<script>
-    // Mostra apenas a mensagem correspondente ao status
-    document.addEventListener('DOMContentLoaded', function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const status = urlParams.get('status');
-        
-        // Esconde todas as mensagens primeiro
-        document.querySelectorAll('[id^="status-"]').forEach(el => {
-            el.classList.add('d-none');
-        });
-        
-        // Mostra apenas a mensagem do status atual
-        if (status) {
-            const statusElement = document.getElementById(`status-${status}`);
-            if (statusElement) {
-                statusElement.classList.remove('d-none');
+    <div class="rbt-elements-area bg-color-white rbt-section-gap"
+        style="display: flex; align-items: center; min-height: 100vh;">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="rbt-contact-form contact-form-style-1 mx-auto">
+                        <h3 class="title text-center mb-4">Login</h3>
+
+                        <!-- Mensagens de status APENAS para login -->
+                        <div class="messages-container">
+                            <!-- Status 0 - Cadastro bem-sucedido (vindo do cadastro) -->
+                            <div class="alert alert-success {% if status != '0' %}d-none{% endif %}" id="status-0"
+                                role="alert">
+                                <i class="feather-check-circle me-2"></i> Cadastro realizado com sucesso! Faça login
+                                para continuar.
+                            </div>
+
+                            <!-- Status 1 - Credenciais inválidas -->
+                            <div class="alert alert-danger {% if status != '1' %}d-none{% endif %}" id="status-1"
+                                role="alert">
+                                <i class="feather-alert-circle me-2"></i> E-mail ou senha incorretos. Por favor, tente
+                                novamente.
+                            </div>
+
+                            <!-- Status 2 - Conta inativa -->
+                            <div class="alert alert-warning {% if status != '2' %}d-none{% endif %}" id="status-2"
+                                role="alert">
+                                <i class="feather-alert-octagon me-2"></i> Sua conta está inativa. Entre em contato com
+                                o suporte.
+                            </div>
+
+                            <!-- Status 3 - Erro inesperado -->
+                            <div class="alert alert-danger {% if status != '3' %}d-none{% endif %}" id="status-3"
+                                role="alert">
+                                <i class="feather-alert-triangle me-2"></i> Ocorreu um erro inesperado. Por favor, tente
+                                novamente mais tarde.
+                            </div>
+                        </div>
+
+                        <form method="POST" action="{% url 'valida_login_aluno' %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <input name="email" type="email" required />
+                                <label>E-mail *</label>
+                                <span class="focus-border"></span>
+                            </div>
+                            <div class="form-group">
+                                <input name="senha" type="password" required>
+                                <label>Senha *</label>
+                                <span class="focus-border"></span>
+                            </div>
+
+                            <div class="row mb--30">
+                                <div class="col-lg-6">
+                                    <div class="rbt-checkbox">
+                                        <input type="checkbox" id="rememberme" name="rememberme">
+                                        <label for="rememberme">Lembrar-me</label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="rbt-lost-password text-end">
+                                        <a class="rbt-btn-link" href="#">Esqueceu a senha?</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-submit-group">
+                                <button type="submit" class="rbt-btn btn-md btn-gradient hover-icon-reverse w-100">
+                                    <span class="icon-reverse-wrapper">
+                                        <span class="btn-text">Entrar</span>
+                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                    </span>
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="text-center mt-3">
+                            <p class="mb-0">Não tem uma conta? <a href="{% url 'Registro_aluno' %}"
+                                    class="rbt-btn-link">Cadastre-se</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- Script para controle das mensagens -->
+    <script>
+        // Mostra apenas a mensagem correspondente ao status
+        document.addEventListener('DOMContentLoaded', function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status');
+
+            // Esconde todas as mensagens primeiro
+            document.querySelectorAll('[id^="status-"]').forEach(el => {
+                el.classList.add('d-none');
+            });
+
+            // Mostra apenas a mensagem do status atual
+            if (status) {
+                const statusElement = document.getElementById(`status-${status}`);
+                if (statusElement) {
+                    statusElement.classList.remove('d-none');
+                }
             }
-        }
-    });
-</script>
-</div>
+        });
+    </script>
+    </div>
 
     <div class="rbt-newsletter-area bg-gradient-6 ptb--50">
-    <div class="container">
-        <div class="row g-5 align-items-center">
-            <div class="col-lg-5 col-md-12 col-12">
-                <div class="inner">
-                    <div class="section-title text-center text-lg-start">
-                        <h4 class="title"><strong>Assine</strong> <br /> <span class="w-400">Nossa Newsletter</span></h4>
+        <div class="container">
+            <div class="row g-5 align-items-center">
+                <div class="col-lg-5 col-md-12 col-12">
+                    <div class="inner">
+                        <div class="section-title text-center text-lg-start">
+                            <h4 class="title"><strong>Assine</strong> <br /> <span class="w-400">Nossa Newsletter</span>
+                            </h4>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-7 col-md-12 col-12 text-start text-sm-end">
-                <form action="login.html#" class="newsletter-form-1 me-0">
-                    <input type="email" placeholder="Digite seu e-mail">
-                    <button type="submit" class="rbt-btn btn-md btn-gradient hover-icon-reverse">
-                        <span class="icon-reverse-wrapper">
-                            <span class="btn-text">Assinar</span>
-                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                        </span>
-                    </button>
-                </form>
+                <div class="col-lg-7 col-md-12 col-12 text-start text-sm-end">
+                    <form action="login.html#" class="newsletter-form-1 me-0">
+                        <input type="email" placeholder="Digite seu e-mail">
+                        <button type="submit" class="rbt-btn btn-md btn-gradient hover-icon-reverse">
+                            <span class="icon-reverse-wrapper">
+                                <span class="btn-text">Assinar</span>
+                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                            </span>
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
     <!-- Start Footer aera -->
     <!-- Start Footer aera -->
-        {% include 'include/footer.html' %}
+    {% include 'include/footer.html' %}
     <!-- JS
 ============================================ -->
-        {% include 'include/java.html' %}
+    {% include 'include/java.html' %}
 </body>
 
 </html>

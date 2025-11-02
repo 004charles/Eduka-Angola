@@ -45,17 +45,11 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-6">
-                <div class="rbt-contact-form contact-form-style-1">
+                <div class="rbt-contact-form contact-form-style-1 mx-auto">
                     <h3 class="title text-center mb-4">Cadastro</h3>
 
-                    <!-- Todas as mensagens de status VISÍVEIS SEMPRE -->
+                    <!-- Mensagens de status APENAS para cadastro -->
                     <div class="messages-container">
-                        <!-- Status 0 - Sucesso -->
-                        <div class="alert alert-success {% if status != '0' %}d-none{% endif %}" id="status-0">
-                            <i class="feather-check-circle me-2"></i> Cadastro realizado com sucesso! Verifique seu
-                            e-mail.
-                        </div>
-
                         <!-- Status 1 - Campos obrigatórios -->
                         <div class="alert alert-danger {% if status != '1' %}d-none{% endif %}" id="status-1">
                             <i class="feather-alert-circle me-2"></i> Preencha todos os campos corretamente!

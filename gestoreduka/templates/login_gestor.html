@@ -51,20 +51,35 @@
     <div class="auth-right py-40 px-24 flex-center flex-column">
         <div class="auth-right__inner mx-auto w-100">
             <a href="/" class="auth-right__logo">
-                <img src="{% static 'assets1/images/logo/logo.png' %}" alt="">
+                <h1 style="font-size: 30px;">Bem vindo de Volta!</h1>
             </a>
             <h2 class="mb-8">Acesse sua conta 🔑</h2>
             <p class="text-gray-600 text-15 mb-32">
-                Insira seu e-mail e senha para continuar
+                Insira seu e-mail e token de acesso
             </p>
+
+            <!-- Mensagens de alerta -->
+            {% if messages %}
+            <div class="mb-24">
+                {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} 
+                            alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
 
             <form method="post" action="{% url 'login_gestor' %}">
                 {% csrf_token %}
 
                 <div class="mb-24">
-                    <label for="email" class="form-label mb-8 h6">E-mail</label>
+                    <label for="email" class="form-label mb-8 h6">E-mail do Centro</label>
                     <div class="position-relative">
-                        <input type="email" name="email" class="form-control py-11 ps-40" id="email" placeholder="Digite seu e-mail" required>
+                        <input type="email" name="email" class="form-control py-11 ps-40" id="email" 
+                               placeholder="Digite seu e-mail" required 
+                               value="{{ request.POST.email|default:'' }}">
                         <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-600 d-flex">
                             <i class="ph ph-envelope"></i>
                         </span>
@@ -72,49 +87,46 @@
                 </div>
                 
                 <div class="mb-24">
-                    <label for="password" class="form-label mb-8 h6">Senha</label>
+                    <label for="senha" class="form-label mb-8 h6">Senha de acesso</label>
                     <div class="position-relative">
-                        <input type="password" name="senha" class="form-control py-11 ps-40" id="password" placeholder="Digite sua senha" required>
+                        <input type="password" name="senha" class="form-control py-11 ps-40" id="senha" 
+                               placeholder="Digite seu token" required>
                         <span class="toggle-password position-absolute top-50 inset-inline-end-0 me-16 translate-middle-y ph ph-eye-slash"></span>
                         <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-600 d-flex">
-                            <i class="ph ph-lock"></i>
+                            <i class="ph ph-key"></i>
                         </span>
                     </div>
-                </div>
-
-                <div class="mb-24 flex-between flex-wrap gap-8">
-                    <div class="form-check mb-0 flex-shrink-0">
-                        <input class="form-check-input flex-shrink-0 rounded-4" type="checkbox" value="" id="remember">
-                        <label class="form-check-label text-15 flex-grow-1" for="remember">Lembrar-me</label>
-                    </div>
-                    <a href="" class="text-main-600 hover-text-decoration-underline text-15 fw-medium">Esqueceu a senha?</a>
+                    <small class="text-muted"></small>
                 </div>
 
                 <button type="submit" class="btn btn-main rounded-pill w-100">Entrar</button>
-                
-                
 
-                <div class="divider my-32 position-relative text-center">
-                    <span class="divider__text text-gray-600 text-13 fw-medium px-26 bg-white">ou entre com</span>
+                <div class="mt-3 text-center">
+                    <a href="#" class="text-main-600 hover-text-decoration-underline text-15 fw-medium">
+                        Solicitar novo token
+                    </a>
                 </div>
-
-                <ul class="flex-align gap-10 flex-wrap justify-content-center">
-                    <li>
-                        <a href="#" class="w-38 h-38 flex-center rounded-6 text-facebook-600 bg-facebook-50 hover-bg-facebook-600 hover-text-white text-lg">
-                            <i class="ph-fill ph-facebook-logo"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="w-38 h-38 flex-center rounded-6 text-google-600 bg-google-50 hover-bg-google-600 hover-text-white text-lg">
-                            <i class="ph ph-google-logo"></i>
-                        </a>
-                    </li>
-                </ul>
             </form>
         </div>
     </div>
 </section>
 
+<script>
+// Script para mostrar/ocultar token
+document.addEventListener('DOMContentLoaded', function() {
+    const togglePassword = document.querySelector('.toggle-password');
+    const passwordInput = document.getElementById('senha');
+    
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('ph-eye');
+            this.classList.toggle('ph-eye-slash');
+        });
+    }
+});
+</script>
 
 
         <!-- Jquery js -->

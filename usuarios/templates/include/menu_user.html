@@ -1,5 +1,5 @@
 {% load static %}
-<div class="rbt-dashboard-area rbt-section-overlayping-top rbt-section-gapBottom">
+<div style="margin-top: 10px;" class="rbt-dashboard-area rbt-section-overlayping-top rbt-section-gapBottom">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
@@ -77,7 +77,7 @@
 
                                         <nav class="mainmenu-nav">
                                             <ul class="dashboard-mainmenu rbt-default-sidebar-list">
-                                                <li><a href="student-settings.html"><i class="feather-settings"></i><span>Configurações</span></a></li>
+                                                <li><a href="{% url 'configuracao_user' %}"><i class="feather-settings"></i><span>Configurações</span></a></li>
                                                 <li><a href="{% url 'Logout' %}"><i class="feather-log-out"></i><span>Sair</span></a></li>
                                             </ul>
                                         </nav>

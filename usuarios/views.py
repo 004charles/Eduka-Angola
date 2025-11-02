@@ -128,12 +128,13 @@ def valida_cadastro_aluno(request):
         # Enviar e-mail de boas-vindas
         enviar_email_boas_vindas(nome, email)
         
-        return redirect('/auth/registro_aluno?status=0')
+        # REDIRECIONAR PARA LOGIN COM STATUS DE SUCESSO
+        return redirect('/auth/Login_aluno?status=0')
     
     except Exception as e:
         print(f"Erro ao cadastrar aluno: {e}")
         return redirect('/auth/registro_aluno?status=4')
-
+        
 def enviar_email_boas_vindas(nome, email):
     assunto = "Bem-vindo à Plataforma Edukangola!"
     
@@ -570,3 +571,6 @@ def editar_perfil(request):
         return redirect('/auth/aluno')  
 
     return redirect('/auth/aluno')
+
+def configuracao_user(request):
+    return render(request, 'configuracao_user.html')

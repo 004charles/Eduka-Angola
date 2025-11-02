@@ -10,20 +10,33 @@ from django.conf import settings
 
 
 
+from django.contrib.auth.hashers import make_password, check_password
+
 class CentroDeFormacao(models.Model):
-    nome = models.CharField(_('Nome do Centro'), max_length=100)
-    nif = models.CharField(_('CNPJ'), max_length=18, unique=True)
-    endereco = models.CharField(_('Endereço'), max_length=255)
-    telefone = models.CharField(_('Telefone'), max_length=20)
-    email = models.EmailField(_('E-mail'), unique=True)
+    nome = models.CharField(_('Nome do Centro'), max_length=100, blank=True, null=True)  # Permite em branco
+    nif = models.CharField(_('CNPJ'), max_length=18, unique=True, blank=True, null=True)  # Permite em branco
+    endereco = models.CharField(_('Endereço'), max_length=255, blank=True, null=True)  # Permite em branco
+    telefone = models.CharField(_('Telefone'), max_length=20, blank=True, null=True)  # Permite em branco
+    email = models.EmailField(_('E-mail'), unique=True)  # Apenas este campo é obrigatório
     site = models.URLField(_('Site'), blank=True, null=True)
     data_criacao = models.DateTimeField(_('Data de Criação'), auto_now_add=True)
     ativo = models.BooleanField(_('Ativo'), default=True)
+    
+    # Adicionar este campo para armazenar a senha
+    senha_hash = models.CharField(_('Senha Hash'), max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return self.nome
+        return self.nome or self.email  # Retorna email se nome estiver em branco
 
-
+    def set_senha(self, senha):
+        """Define a senha com hash"""
+        self.senha_hash = make_password(senha)
+    
+    def verificar_senha(self, senha):
+        """Verifica se a senha está correta"""
+        if not self.senha_hash:
+            return False
+        return check_password(senha, self.senha_hash)
 
 class ConviteCentro(models.Model):
     centro = models.OneToOneField(CentroDeFormacao, on_delete=models.CASCADE, related_name="convite")
