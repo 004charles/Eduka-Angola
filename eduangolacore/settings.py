@@ -14,7 +14,9 @@ ALLOWED_HOSTS = ['*']
 
 
 INSTALLED_APPS = [
+    'django.contrib.gis',
     'django.contrib.admin',
+    'channels',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -31,6 +33,30 @@ INSTALLED_APPS = [
     
 
 ]
+
+
+
+# Configuração do ASGI
+ASGI_APPLICATION = 'seu_projeto.asgi.application'
+
+# Configuração do Channel Layer (para produção use Redis)
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
+
+# Para desenvolvimento, use InMemoryChannelLayer
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels.layers.InMemoryChannelLayer'
+#     },
+# }
+
+
 
 
 USE_I18N = True
@@ -102,7 +128,7 @@ from decouple import config
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',        
         'NAME': config('DB_NAME'),
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
@@ -110,6 +136,8 @@ DATABASES = {
         'PORT': config('DB_PORT', default='5432'),
     }
 }
+
+
 
 
 CACHES = {

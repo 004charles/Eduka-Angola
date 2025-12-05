@@ -1,24 +1,31 @@
 {% load static %}
-<link rel="shortcut icon" href="{% static 'assets1/images/logo/favicon.png' %}">
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="{% static 'assets1/css/bootstrap.min.css' %}">
-    <!-- file upload -->
-    <link rel="stylesheet" href="{% static 'assets1/css/file-upload.css' %}">
-    <!-- file upload -->
-    <link rel="stylesheet" href="{% static 'assets1/css/plyr.css' %}">
-    <!-- DataTables -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
-    <!-- full calendar -->
-    <link rel="stylesheet" href="{% static 'assets1/css/full-calendar.css' %}">
-    <!-- jquery Ui -->
-    <link rel="stylesheet" href="{% static 'assets1/css/jquery-ui.css' %}">
-    <!-- editor quill Ui -->
-    <link rel="stylesheet" href="{% static 'assets1/css/editor-quill.css' %}">
-    <!-- apex charts Css -->
-    <link rel="stylesheet" href="{% static 'assets1/css/apexcharts.css' %}">
-    <!-- calendar Css -->
-    <link rel="stylesheet" href="{% static 'assets1/css/calendar.css' %}">
-    <!-- jvector map Css -->
-    <link rel="stylesheet" href="{% static 'assets1/css/jquery-jvectormap-2.0.5.css' %}">
-    <!-- Main css -->
-    <link rel="stylesheet" href="{% static 'assets1/css/main.css' %}">
+<link rel="shortcut icon" href="
+{% if perfil and perfil.imagem %}
+    {{ perfil.imagem.url }}
+{% else %}
+    {% static 'assets1/images/logofavicon.png' %}
+{% endif %}">
+
+
+
+<link rel="stylesheet" href="{% static 'assets1/css/bootstrap.min.css' %}">
+<!-- file upload -->
+<link rel="stylesheet" href="{% static 'assets1/css/file-upload.css' %}">
+<!-- file upload -->
+<link rel="stylesheet" href="{% static 'assets1/css/plyr.css' %}">
+<!-- DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
+<!-- full calendar -->
+<link rel="stylesheet" href="{% static 'assets1/css/full-calendar.css' %}">
+<!-- jquery Ui -->
+<link rel="stylesheet" href="{% static 'assets1/css/jquery-ui.css' %}">
+<!-- editor quill Ui -->
+<link rel="stylesheet" href="{% static 'assets1/css/editor-quill.css' %}">
+<!-- apex charts Css -->
+<link rel="stylesheet" href="{% static 'assets1/css/apexcharts.css' %}">
+<!-- calendar Css -->
+<link rel="stylesheet" href="{% static 'assets1/css/calendar.css' %}">
+<!-- jvector map Css -->
+<link rel="stylesheet" href="{% static 'assets1/css/jquery-jvectormap-2.0.5.css' %}">
+<!-- Main css -->
+<link rel="stylesheet" href="{% static 'assets1/css/main.css' %}">

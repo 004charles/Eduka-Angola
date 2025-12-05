@@ -6,7 +6,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Title -->
+    <title> {{centro.nome}} | Configuracoes  </title>
+
     {% include 'include/css_gestor.html' %}
 </head>
 
@@ -196,6 +197,233 @@
                                 <option value="Híbrido" {% if perfil.modalidade == 'Híbrido' %}selected{% endif %}>Híbrido</option>
                             </select>
                         </div>
+
+
+                        <!-- Localização Geográfica -->
+<div class="col-12">
+    <h6 class="mb-16 border-bottom pb-8">Localização Geográfica</h6>
+</div>
+
+<div class="col-sm-6 col-xs-6">
+    <label for="latitude" class="form-label mb-8 h6">Latitude</label>
+    <input type="number" step="0.000001" class="form-control py-11" id="latitude" name="latitude"
+        placeholder="Ex: -8.8383" value="{% if centro.latitude %}{{ centro.latitude }}{% endif %}">
+    <small class="text-muted">Coordenada latitude do centro</small>
+</div>
+
+<div class="col-sm-6 col-xs-6">
+    <label for="longitude" class="form-label mb-8 h6">Longitude</label>
+    <input type="number" step="0.000001" class="form-control py-11" id="longitude" name="longitude"
+        placeholder="Ex: 13.2344" value="{% if centro.longitude %}{{ centro.longitude }}{% endif %}">
+    <small class="text-muted">Coordenada longitude do centro</small>
+</div>
+
+<div class="col-12">
+    <div class="alert alert-info">
+        <div class="flex-align gap-8">
+            <i class="ph ph-info text-info"></i>
+            <div>
+                <strong>Como obter as coordenadas:</strong>
+                <ul class="mb-0 mt-2">
+                    <li>Use o Google Maps: clique com o botão direito no local e copie as coordenadas</li>
+                    <li>Formato: Latitude (ex: -8.8383), Longitude (ex: 13.2344)</li>
+                    <li>Deixe em branco se não souber as coordenadas exatas</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mapa de Visualização (se coordenadas existirem) -->
+{% if centro.latitude and centro.longitude %}
+<!-- Mapa de Visualização -->
+<div class="col-12">
+    <label class="form-label mb-8 h6">Localização no Mapa</label>
+    <div id="mapa-localizacao" style="height: 300px; border-radius: 12px; border: 1px solid #e5e7eb; overflow: hidden;"></div>
+    <small class="text-muted">Visualização da localização do centro no mapa</small>
+</div>
+
+<!-- Leaflet CSS e JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar mapa
+    inicializarMapa();
+    
+    // Atualizar mapa quando coordenadas mudarem
+    document.getElementById('latitude').addEventListener('input', atualizarMapa);
+    document.getElementById('longitude').addEventListener('input', atualizarMapa);
+});
+
+let mapa;
+let marcador;
+
+function inicializarMapa() {
+    const mapaDiv = document.getElementById('mapa-localizacao');
+    
+    // Obter coordenadas do backend ou usar padrão
+    const lat = {% if centro.latitude %}{{ centro.latitude }}{% else %}-8.8383{% endif %};
+    const lng = {% if centro.longitude %}{{ centro.longitude }}{% else %}13.2344{% endif %};
+    
+    console.log('Inicializando mapa com:', lat, lng);
+    
+    // Criar mapa
+    mapa = L.map('mapa-localizacao').setView([lat, lng], {% if centro.latitude and centro.longitude %}15{% else %}10{% endif %});
+    
+    // Adicionar camada do OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(mapa);
+    
+    // Adicionar marcador se coordenadas existirem
+    if ({% if centro.latitude and centro.longitude %}true{% else %}false{% endif %}) {
+        adicionarMarcador(lat, lng);
+    }
+    
+    // Permitir clique no mapa para definir localização
+    mapa.on('click', function(e) {
+        definirLocalizacaoNoMapa(e.latlng.lat, e.latlng.lng);
+    });
+}
+
+function adicionarMarcador(lat, lng) {
+    // Remover marcador anterior se existir
+    if (marcador) {
+        mapa.removeLayer(marcador);
+    }
+    
+    // Adicionar novo marcador
+    marcador = L.marker([lat, lng])
+        .addTo(mapa)
+        .bindPopup('📍 Localização do Centro')
+        .openPopup();
+}
+
+function atualizarMapa() {
+    const latInput = document.getElementById('latitude');
+    const lngInput = document.getElementById('longitude');
+    const lat = parseFloat(latInput.value);
+    const lng = parseFloat(lngInput.value);
+    
+    console.log('Atualizando mapa:', lat, lng);
+    
+    if (!isNaN(lat) && !isNaN(lng)) {
+        // Atualizar posição do mapa
+        mapa.setView([lat, lng], 15);
+        
+        // Adicionar/atualizar marcador
+        adicionarMarcador(lat, lng);
+        
+        console.log('Mapa atualizado com sucesso');
+    } else {
+        console.log('Coordenadas inválidas para atualizar mapa');
+    }
+}
+
+function definirLocalizacaoNoMapa(lat, lng) {
+    console.log('Definindo localização no mapa:', lat, lng);
+    
+    // Atualizar campos de entrada
+    document.getElementById('latitude').value = lat.toFixed(6);
+    document.getElementById('longitude').value = lng.toFixed(6);
+    
+    // Atualizar mapa
+    atualizarMapa();
+    
+    mostrarMensagem('📍 Localização definida no mapa!', 'success');
+}
+
+function mostrarMensagem(texto, tipo) {
+    // Remover mensagens anteriores
+    const mensagensAnteriores = document.querySelectorAll('.mensagem-localizacao');
+    mensagensAnteriores.forEach(msg => msg.remove());
+    
+    // Criar nova mensagem
+    const mensagem = document.createElement('div');
+    mensagem.className = `alert alert-${tipo} mensagem-localizacao mt-2`;
+    mensagem.innerHTML = `
+        <div class="flex-align gap-2">
+            <i class="ph ${getIconePorTipo(tipo)}"></i>
+            <span>${texto}</span>
+        </div>
+    `;
+    
+    // Inserir após o mapa
+    const mapaContainer = document.getElementById('mapa-localizacao');
+    mapaContainer.parentNode.insertBefore(mensagem, mapaContainer.nextSibling);
+    
+    // Auto-remover após 5 segundos
+    setTimeout(() => {
+        if (mensagem.parentNode) {
+            mensagem.remove();
+        }
+    }, 5000);
+}
+
+function getIconePorTipo(tipo) {
+    const icones = {
+        'success': 'ph-check-circle',
+        'warning': 'ph-warning',
+        'danger': 'ph-x-circle',
+        'info': 'ph-info'
+    };
+    return icones[tipo] || 'ph-info';
+}
+
+// Adicionar instruções de uso
+const instrucoesMapa = document.createElement('div');
+instrucoesMapa.className = 'alert alert-light border mt-2';
+instrucoesMapa.innerHTML = `
+    <div class="flex-align gap-2">
+        <i class="ph ph-lightbulb text-warning"></i>
+        <div>
+            <strong>Dica:</strong> Clique em qualquer lugar do mapa para definir a localização automaticamente!
+        </div>
+    </div>
+`;
+
+// Inserir instruções após o mapa
+document.getElementById('mapa-localizacao').parentNode.appendChild(instrucoesMapa);
+</script>
+
+<style>
+.leaflet-container {
+    background: #f8f9fa;
+    font-family: inherit;
+    z-index: 1;
+}
+
+.leaflet-popup-content {
+    font-family: inherit;
+    margin: 12px;
+}
+
+.leaflet-popup-content-wrapper {
+    border-radius: 8px;
+}
+
+#mapa-localizacao {
+    min-height: 300px;
+}
+
+.mensagem-localizacao {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+{% endif %}
                         
                         <!-- Vídeo de Apresentação -->
                         <div class="col-12">

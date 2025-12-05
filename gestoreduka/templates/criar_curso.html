@@ -24,258 +24,384 @@
         {% include 'include/menu.html' %}
 
         <!-- criar_curso.html -->
-{% load static %}
+        {% load static %}
 
-<!-- Mensagens do Django -->
-{% if messages %}
-<div class="container mt-4">
-    {% for message in messages %}
-    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
-
-<div class="dashboard-body">
-    <div class="breadcrumb-with-buttons mb-24 flex-between flex-wrap gap-8">
-        <!-- Breadcrumb Start -->
-        <div class="breadcrumb mb-24">
-            <ul class="flex-align gap-4">
-                <li><a href="{% url 'centro_dashboard' %}" class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
-                <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
-                <li><a href="{% url 'listar_cursos' %}" class="text-gray-200 fw-normal text-15 hover-text-main-600">Cursos</a></li>
-                <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
-                <li><span class="text-main-600 fw-normal text-15">Criar Curso</span></li>
-            </ul>
+        <!-- Mensagens do Django -->
+        {% if messages %}
+        <div class="container mt-4">
+            {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show"
+                role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
         </div>
-        <!-- Breadcrumb End -->
+        {% endif %}
 
-        <!-- Buttons Start -->
-        <div class="flex-align justify-content-end gap-8">
-            <button type="button" class="btn btn-outline-main bg-main-100 border-main-100 text-main-600 rounded-pill py-9" onclick="salvarRascunho()">Salvar como Rascunho</button>
-            <button type="submit" form="cursoForm" class="btn btn-main rounded-pill py-9">Criar Curso</button>
-        </div>
-        <!-- Buttons End -->
-    </div>
-
-    <!-- Create Course Step List Start -->
-    <ul class="step-list mb-24">
-        <li class="step-list__item py-15 px-24 text-15 text-heading fw-medium flex-center gap-6 active">
-            <span class="icon text-xl d-flex"><i class="ph ph-circle"></i></span>
-            Detalhes do Curso
-            <span class="line position-relative"></span>
-        </li>
-        <li class="step-list__item py-15 px-24 text-15 text-heading fw-medium flex-center gap-6">
-            <span class="icon text-xl d-flex"><i class="ph ph-circle"></i></span>
-            Conteúdo
-            <span class="line position-relative"></span>
-        </li>
-        <li class="step-list__item py-15 px-24 text-15 text-heading fw-medium flex-center gap-6">
-            <span class="icon text-xl d-flex"><i class="ph ph-circle"></i></span>
-            Sobre o Curso
-            <span class="line position-relative"></span>
-        </li>
-        <li class="step-list__item py-15 px-24 text-15 text-heading fw-medium flex-center gap-6">
-            <span class="icon text-xl d-flex"><i class="ph ph-circle"></i></span>
-            Configurações
-            <span class="line position-relative"></span>
-        </li>
-        <li class="step-list__item py-15 px-24 text-15 text-heading fw-medium flex-center gap-6">
-            <span class="icon text-xl d-flex"><i class="ph ph-circle"></i></span>
-            Publicar
-            <span class="line position-relative"></span>
-        </li>
-    </ul>
-    <!-- Create Course Step List End -->
-
-    <!-- Course Tab Start -->
-    <div class="card">
-        <div class="card-header border-bottom border-gray-100 flex-align gap-8">
-            <h5 class="mb-0">Detalhes do Curso</h5>
-            <button type="button" class="text-main-600 text-md d-flex" data-bs-toggle="tooltip"
-                data-bs-placement="top" data-bs-title="Detalhes do Curso">
-                <i class="ph-fill ph-question"></i>
-            </button>
-        </div>
-        <div class="card-body">
-            <form id="cursoForm" method="post" action="{% url 'criar_curso' %}" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="row gy-20">
-                    <div class="col-xxl-3 col-md-4 col-sm-5">
-                        <div class="mb-20">
-                            <label class="h5 fw-semibold font-heading mb-0">Imagem do Curso <span
-                                    class="text-13 text-gray-400 fw-medium">(Opcional)</span> </label>
-                        </div>
-                        <div class="image-upload">
-                            <div class="avatar-upload">
-                                <input type='file' id="imagem" name="imagem" accept=".png, .jpg, .jpeg" style="display: none;">
-                                <div class="avatar-preview">
-                                    <div id="imagePreview"
-                                        style="background-image: url('{% static 'assets1/images/thumbs/default-course.jpg' %}'); height: 200px; background-size: cover; background-position: center;">
-                                    </div>
-                                </div>
-                                <label for="imagem" class="btn btn-outline-main w-100 mt-2 rounded-pill py-8">
-                                    <i class="ph ph-upload me-2"></i>Escolher Imagem
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xxl-9 col-md-8 col-sm-7">
-                        <div class="row g-20">
-                            <div class="col-sm-12">
-                                <label for="titulo" class="h5 mb-8 fw-semibold font-heading">Título do Curso <span class="text-13 text-gray-400 fw-medium">(Obrigatório)</span></label>
-                                <div class="position-relative">
-                                    {{ form.titulo }}
-                                    <div class="text-gray-400 position-absolute inset-inline-end-0 top-50 translate-middle-y me-16">
-                                        <span id="current">0</span>
-                                        <span id="maximum">/ 200</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-sm-12">
-                                <label for="descricao" class="h5 mb-8 fw-semibold font-heading">Descrição do Curso</label>
-                                {{ form.descricao }}
-                            </div>
-
-                            <div class="col-sm-6">
-                                <label for="categoria" class="h5 mb-8 fw-semibold font-heading">Categoria</label>
-                                {{ form.categoria }}
-                            </div>
-                            
-                            <div class="col-sm-6">
-                                <label for="nivel" class="h5 mb-8 fw-semibold font-heading">Nível</label>
-                                {{ form.nivel }}
-                            </div>
-
-                            <div class="col-sm-6">
-                                <label for="idioma" class="h5 mb-8 fw-semibold font-heading">Idioma</label>
-                                {{ form.idioma }}
-                            </div>
-
-                            <div class="col-sm-6">
-                                <label for="turno" class="h5 mb-8 fw-semibold font-heading">Turno</label>
-                                {{ form.turno }}
-                            </div>
-
-                            <div class="col-sm-6">
-                                <label for="carga_horaria" class="h5 mb-8 fw-semibold font-heading">Carga Horária (horas)</label>
-                                {{ form.carga_horaria }}
-                            </div>
-
-                            <div class="col-sm-6">
-                                <label for="vagas" class="h5 mb-8 fw-semibold font-heading">Vagas Disponíveis</label>
-                                {{ form.vagas }}
-                            </div>
-
-                            <div class="col-sm-6">
-                                <label for="preco" class="h5 mb-8 fw-semibold font-heading">Preço (Kz)</label>
-                                {{ form.preco }}
-                            </div>
-
-                            <div class="col-sm-6">
-                                <label for="certificado" class="h5 mb-8 fw-semibold font-heading d-block">
-                                    {{ form.certificado }} Fornece Certificado?
-                                </label>
-                            </div>
-
-                            <div class="col-sm-6">
-                                <label for="data_inicio" class="h5 mb-8 fw-semibold font-heading">Data de Início</label>
-                                {{ form.data_inicio }}
-                            </div>
-
-                            <div class="col-sm-6">
-                                <label for="data_termino" class="h5 mb-8 fw-semibold font-heading">Data de Término</label>
-                                {{ form.data_termino }}
-                            </div>
-
-                            <div class="col-sm-12">
-                                <label for="instrutores" class="h5 mb-8 fw-semibold font-heading">Instrutores</label>
-                                {{ form.instrutores }}
-                                {% if not form.instrutores.field.queryset %}
-                                <div class="alert alert-warning mt-2">
-                                    <small>Nenhum instrutor cadastrado. <a href="#" onclick="alert('Funcionalidade para cadastrar instrutores em breve!')">Cadastre instrutores primeiro</a>.</small>
-                                </div>
-                                {% endif %}
-                            </div>
-
-                            <div class="col-sm-12">
-                                <label for="requisitos" class="h5 mb-8 fw-semibold font-heading">Pré-requisitos</label>
-                                {{ form.requisitos }}
-                            </div>
-
-                            <div class="col-sm-12">
-                                <label for="video_apresentacao" class="h5 mb-8 fw-semibold font-heading">Vídeo de Apresentação (URL)</label>
-                                {{ form.video_apresentacao }}
-                            </div>
-
-                            <div class="col-sm-12">
-                                <label for="destaque" class="h5 mb-8 fw-semibold font-heading d-block">
-                                    {{ form.destaque }} Curso em Destaque?
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-12">
-                        <div class="flex-align justify-content-end gap-8">
-                            <a href="{% url 'listar_cursos' %}" class="btn btn-outline-main rounded-pill py-9">Cancelar</a>
-                            <button type="submit" class="btn btn-main rounded-pill py-9">Criar Curso</button>
-                        </div>
-                    </div>
+        <div class="dashboard-body">
+            <div class="breadcrumb-with-buttons mb-24 flex-between flex-wrap gap-8">
+                <!-- Breadcrumb Start -->
+                <div class="breadcrumb mb-24">
+                    <ul class="flex-align gap-4">
+                        <li><a href="{% url 'centro_dashboard' %}"
+                                class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
+                        <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
+                        <li><a href="{% url 'listar_cursos' %}"
+                                class="text-gray-200 fw-normal text-15 hover-text-main-600">Cursos</a></li>
+                        <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
+                        <li><span class="text-main-600 fw-normal text-15">Criar Curso</span></li>
+                    </ul>
                 </div>
-            </form>
+                <!-- Breadcrumb End -->
+
+                <!-- Buttons Start -->
+                <div class="flex-align justify-content-end gap-8">
+                    <button type="button"
+                        class="btn btn-outline-main bg-main-100 border-main-100 text-main-600 rounded-pill py-9"
+                        onclick="salvarRascunho()">Salvar como Rascunho</button>
+                    <button type="submit" form="cursoForm" class="btn btn-main rounded-pill py-9">Criar Curso</button>
+                </div>
+                <!-- Buttons End -->
+            </div>
+
+            <!-- Create Course Step List Start -->
+            <ul class="step-list mb-24">
+                <li class="step-list__item py-15 px-24 text-15 text-heading fw-medium flex-center gap-6 active">
+                    <span class="icon text-xl d-flex"><i class="ph ph-circle"></i></span>
+                    Detalhes do Curso
+                    <span class="line position-relative"></span>
+                </li>
+                <li class="step-list__item py-15 px-24 text-15 text-heading fw-medium flex-center gap-6">
+                    <span class="icon text-xl d-flex"><i class="ph ph-circle"></i></span>
+                    Conteúdo
+                    <span class="line position-relative"></span>
+                </li>
+                <li class="step-list__item py-15 px-24 text-15 text-heading fw-medium flex-center gap-6">
+                    <span class="icon text-xl d-flex"><i class="ph ph-circle"></i></span>
+                    Sobre o Curso
+                    <span class="line position-relative"></span>
+                </li>
+                <li class="step-list__item py-15 px-24 text-15 text-heading fw-medium flex-center gap-6">
+                    <span class="icon text-xl d-flex"><i class="ph ph-circle"></i></span>
+                    Configurações
+                    <span class="line position-relative"></span>
+                </li>
+                <li class="step-list__item py-15 px-24 text-15 text-heading fw-medium flex-center gap-6">
+                    <span class="icon text-xl d-flex"><i class="ph ph-circle"></i></span>
+                    Publicar
+                    <span class="line position-relative"></span>
+                </li>
+            </ul>
+            <!-- Create Course Step List End -->
+
+            <!-- Course Tab Start -->
+            <div class="card">
+                <div class="card-header border-bottom border-gray-100 flex-align gap-8">
+                    <h5 class="mb-0">Detalhes do Curso</h5>
+                    <button type="button" class="text-main-600 text-md d-flex" data-bs-toggle="tooltip"
+                        data-bs-placement="top" data-bs-title="Detalhes do Curso">
+                        <i class="ph-fill ph-question"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <form id="cursoForm" method="post" action="{% url 'criar_curso' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row gy-20">
+                            <div class="col-xxl-3 col-md-4 col-sm-5">
+                                <div class="mb-20">
+                                    <label class="h5 fw-semibold font-heading mb-0">Imagem do Curso <span
+                                            class="text-13 text-gray-400 fw-medium">(Opcional)</span> </label>
+                                </div>
+                                <div class="image-upload">
+                                    <div class="avatar-upload">
+                                        {{ form.imagem }}
+                                        <div class="avatar-preview">
+                                            <div id="imagePreview"
+                                                style="background-image: url('{% static 'assets1/images/thumbs/default-course.jpg' %}'); height: 200px; background-size: cover; background-position: center;">
+                                            </div>
+                                        </div>
+                                        <label for="id_imagem"
+                                            class="btn btn-outline-main w-100 mt-2 rounded-pill py-8">
+                                            <i class="ph ph-upload me-2"></i>Escolher Imagem
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xxl-9 col-md-8 col-sm-7">
+                                <div class="row g-20">
+                                    <!-- Campos Básicos -->
+                                    <div class="col-sm-12">
+                                        <label for="id_titulo" class="h5 mb-8 fw-semibold font-heading">Título do Curso
+                                            <span class="text-13 text-gray-400 fw-medium">(Obrigatório)</span></label>
+                                        <div class="position-relative">
+                                            {{ form.titulo }}
+                                            <div
+                                                class="text-gray-400 position-absolute inset-inline-end-0 top-50 translate-middle-y me-16">
+                                                <span id="current">0</span>
+                                                <span id="maximum">/ 200</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-12">
+                                        <label for="id_descricao_curta"
+                                            class="h5 mb-8 fw-semibold font-heading">Descrição Curta *</label>
+                                        {{ form.descricao_curta }}
+                                        <small class="text-gray-400">{{ form.descricao_curta.help_text }}</small>
+                                    </div>
+
+                                    <div class="col-sm-12">
+                                        <label for="id_descricao" class="h5 mb-8 fw-semibold font-heading">Descrição
+                                            Detalhada *</label>
+                                        {{ form.descricao }}
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <label for="id_categoria" class="h5 mb-8 fw-semibold font-heading">Categoria
+                                            *</label>
+                                        {{ form.categoria }}
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <label for="id_nivel" class="h5 mb-8 fw-semibold font-heading">Nível *</label>
+                                        {{ form.nivel }}
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <label for="id_idioma" class="h5 mb-8 fw-semibold font-heading">Idioma *</label>
+                                        {{ form.idioma }}
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <label for="id_modalidade" class="h5 mb-8 fw-semibold font-heading">Modalidade
+                                            *</label>
+                                        {{ form.modalidade }}
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <label for="id_carga_horaria" class="h5 mb-8 fw-semibold font-heading">Carga
+                                            Horária (horas) *</label>
+                                        {{ form.carga_horaria }}
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <label for="id_vagas_minimas" class="h5 mb-8 fw-semibold font-heading">Vagas
+                                            Mínimas *</label>
+                                        {{ form.vagas_minimas }}
+                                        <small class="text-gray-400">{{ form.vagas_minimas.help_text }}</small>
+                                    </div>
+
+                                    <!-- Preços -->
+                                    <div class="col-sm-4">
+                                        <label for="id_preco" class="h5 mb-8 fw-semibold font-heading">Preço Normal (Kz)
+                                            *</label>
+                                        {{ form.preco }}
+                                        <small class="text-gray-400">{{ form.preco.help_text }}</small>
+                                    </div>
+
+                                    <div class="col-sm-4">
+                                        <label for="id_preco_inscricao" class="h5 mb-8 fw-semibold font-heading">Taxa de
+                                            Inscrição (Kz)</label>
+                                        {{ form.preco_inscricao }}
+                                    </div>
+
+                                    <div class="col-sm-4">
+                                        <label for="id_preco_promocional" class="h5 mb-8 fw-semibold font-heading">Preço
+                                            Promocional (Kz)</label>
+                                        {{ form.preco_promocional }}
+                                    </div>
+
+                                    <!-- Datas de Inscrição -->
+                                    <div class="col-sm-6">
+                                        <label for="id_data_inicio_inscricoes"
+                                            class="h5 mb-8 fw-semibold font-heading">Início das Inscrições *</label>
+                                        {{ form.data_inicio_inscricoes }}
+                                        <small class="text-gray-400">{{ form.data_inicio_inscricoes.help_text }}</small>
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <label for="id_data_fim_inscricoes" class="h5 mb-8 fw-semibold font-heading">Fim
+                                            das Inscrições</label>
+                                        {{ form.data_fim_inscricoes }}
+                                        <small class="text-gray-400">{{ form.data_fim_inscricoes.help_text }}</small>
+                                    </div>
+
+                                    <!-- Datas de Promoção -->
+                                    <div class="col-sm-6">
+                                        <label for="id_data_inicio_promocao"
+                                            class="h5 mb-8 fw-semibold font-heading">Início da Promoção</label>
+                                        {{ form.data_inicio_promocao }}
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <label for="id_data_fim_promocao" class="h5 mb-8 fw-semibold font-heading">Fim
+                                            da Promoção</label>
+                                        {{ form.data_fim_promocao }}
+                                    </div>
+
+                                    <!-- Checkboxes -->
+                                    <div class="col-sm-4">
+                                        <label for="id_certificado" class="h5 mb-8 fw-semibold font-heading d-block">
+                                            {{ form.certificado }} Oferece Certificado?
+                                        </label>
+                                    </div>
+
+                                    <div class="col-sm-4">
+                                        <label for="id_destaque" class="h5 mb-8 fw-semibold font-heading d-block">
+                                            {{ form.destaque }} Destacar este curso?
+                                        </label>
+                                    </div>
+
+                                    <div class="col-sm-4">
+                                        <label for="id_publicado" class="h5 mb-8 fw-semibold font-heading d-block">
+                                            {{ form.publicado }} Publicar Curso?
+                                        </label>
+                                    </div>
+
+                                    <!-- Parcelamento -->
+                                    <div class="col-sm-6">
+                                        <label for="id_permite_parcelamento"
+                                            class="h5 mb-8 fw-semibold font-heading d-block">
+                                            {{ form.permite_parcelamento }} Permitir Parcelamento?
+                                        </label>
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <label for="id_max_parcelas" class="h5 mb-8 fw-semibold font-heading">Máximo de
+                                            Parcelas</label>
+                                        {{ form.max_parcelas }}
+                                    </div>
+
+                                    <!-- Instrutores -->
+                                    <div class="col-sm-12">
+                                        <label for="id_instrutores" class="h5 mb-8 fw-semibold font-heading">Instrutores
+                                            *</label>
+                                        {{ form.instrutores }}
+                                        {% if not form.instrutores.field.queryset %}
+                                        <div class="alert alert-warning mt-2">
+                                            <small>Nenhum instrutor cadastrado. <a href="#"
+                                                    onclick="alert('Funcionalidade para cadastrar instrutores em breve!')">Cadastre
+                                                    instrutores primeiro</a>.</small>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- Tags -->
+                                    <div class="col-sm-12">
+                                        <label for="id_tags" class="h5 mb-8 fw-semibold font-heading">Tags
+                                            (Palavras-chave)</label>
+                                        {{ form.tags }}
+                                        <small class="text-gray-400">Separe as tags por vírgula</small>
+                                    </div>
+
+                                    <!-- Campos de Conteúdo -->
+                                    <div class="col-sm-12">
+                                        <label for="id_requisitos"
+                                            class="h5 mb-8 fw-semibold font-heading">Pré-requisitos</label>
+                                        {{ form.requisitos }}
+                                    </div>
+
+                                    <div class="col-sm-12">
+                                        <label for="id_objetivo_geral" class="h5 mb-8 fw-semibold font-heading">Objetivo
+                                            Geral</label>
+                                        {{ form.objetivo_geral }}
+                                    </div>
+
+                                    <div class="col-sm-12">
+                                        <label for="id_publico_alvo"
+                                            class="h5 mb-8 fw-semibold font-heading">Público-Alvo</label>
+                                        {{ form.publico_alvo }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="flex-align justify-content-end gap-8">
+                                    <a href="{% url 'listar_cursos' %}"
+                                        class="btn btn-outline-main rounded-pill py-9">Cancelar</a>
+                                    <button type="submit" class="btn btn-main rounded-pill py-9">Criar Curso</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- Course Tab End -->
         </div>
-    </div>
-    <!-- Course Tab End -->
-</div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Preview de imagem
-    const imagemInput = document.getElementById('imagem');
-    const imagePreview = document.getElementById('imagePreview');
-    
-    if (imagemInput) {
-        imagemInput.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    imagePreview.style.backgroundImage = `url(${e.target.result})`;
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Preview de imagem
+                const imagemInput = document.getElementById('id_imagem');
+                const imagePreview = document.getElementById('imagePreview');
+
+                if (imagemInput) {
+                    imagemInput.addEventListener('change', function () {
+                        const file = this.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = function (e) {
+                                imagePreview.style.backgroundImage = `url(${e.target.result})`;
+                            }
+                            reader.readAsDataURL(file);
+                        }
+                    });
                 }
-                reader.readAsDataURL(file);
-            }
-        });
-    }
 
-    // Contador de caracteres para título
-    const tituloInput = document.getElementById('titulo');
-    const currentSpan = document.getElementById('current');
-    
-    if (tituloInput && currentSpan) {
-        tituloInput.addEventListener('input', function() {
-            currentSpan.textContent = this.value.length;
-        });
-        
-        // Inicializar contador
-        currentSpan.textContent = tituloInput.value.length;
-    }
+                // Contador de caracteres para título
+                const tituloInput = document.getElementById('id_titulo');
+                const currentSpan = document.getElementById('current');
 
-    // Salvar como rascunho
-    window.salvarRascunho = function() {
-        const form = document.getElementById('cursoForm');
-        const rascunhoInput = document.createElement('input');
-        rascunhoInput.type = 'hidden';
-        rascunhoInput.name = 'rascunho';
-        rascunhoInput.value = 'true';
-        form.appendChild(rascunhoInput);
-        form.submit();
-    }
-});
-</script>
+                if (tituloInput && currentSpan) {
+                    tituloInput.addEventListener('input', function () {
+                        currentSpan.textContent = this.value.length;
+                    });
+
+                    // Inicializar contador
+                    currentSpan.textContent = tituloInput.value.length;
+                }
+
+                // Contador para descrição curta
+                const descricaoCurtaInput = document.getElementById('id_descricao_curta');
+                if (descricaoCurtaInput) {
+                    descricaoCurtaInput.addEventListener('input', function () {
+                        const count = this.value.length;
+                        if (count > 300) {
+                            this.value = this.value.substring(0, 300);
+                        }
+                    });
+                }
+
+                // Salvar como rascunho
+                window.salvarRascunho = function () {
+                    const form = document.getElementById('cursoForm');
+                    const rascunhoInput = document.createElement('input');
+                    rascunhoInput.type = 'hidden';
+                    rascunhoInput.name = 'rascunho';
+                    rascunhoInput.value = 'true';
+                    form.appendChild(rascunhoInput);
+                    form.submit();
+                }
+
+                // Mostrar/ocultar campos de parcelamento
+                const permiteParcelamento = document.getElementById('id_permite_parcelamento');
+                const maxParcelasField = document.querySelector('.col-sm-6:has(#id_max_parcelas)');
+
+                if (permiteParcelamento && maxParcelasField) {
+                    function toggleParcelamento() {
+                        if (permiteParcelamento.checked) {
+                            maxParcelasField.style.display = 'block';
+                        } else {
+                            maxParcelasField.style.display = 'none';
+                        }
+                    }
+
+                    permiteParcelamento.addEventListener('change', toggleParcelamento);
+                    toggleParcelamento(); // Estado inicial
+                }
+            });
+        </script>
         <div class="dashboard-footer">
             <div class="flex-between flex-wrap gap-16">
                 <p class="text-gray-300 text-13 fw-normal"> &copy; Copyright Edmate 2024, All Right Reserverd</p>

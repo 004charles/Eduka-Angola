@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% include 'include/css_gestor.html' %}
+
+</head>
+
+<body>
+
+    <!--==================== Preloader Start ====================-->
+    <div class="preloader">
+        <div class="loader"></div>
+    </div>
+    <!--==================== Preloader End ====================-->
+
+    <!--==================== Sidebar Overlay End ====================-->
+    <div class="side-overlay"></div>
+    <!--==================== Sidebar Overlay End ====================-->
+
+    <!-- ============================ Sidebar Start ============================ -->
+
+    {% include 'include/header_gestor.html' %}
+    <!-- ============================ Sidebar End  ============================ -->
+
+    <div class="dashboard-main-wrapper">
+    {% include 'include/menu.html' %}
+
+
+{% load static %}
+
+<div class="dashboard-body">
+    <!-- Breadcrumb Start -->
+    <div class="breadcrumb mb-24">
+        <ul class="flex-align gap-4">
+            <li><a href="{% url 'centro_dashboard' %}" class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
+            <li><span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span></li>
+            <li><span class="text-main-600 fw-normal text-15">Meus Cursos</span></li>
+        </ul>
+    </div>
+    <!-- Breadcrumb End -->
+
+    <!-- Buttons Start -->
+    <div class="flex-align justify-content-end gap-8 mb-24">
+        <a href="{% url 'criar_curso' %}" class="btn btn-main rounded-pill py-9">
+            <i class="ph ph-plus me-2"></i>Criar Novo Curso
+        </a>
+    </div>
+    <!-- Buttons End -->
+
+    <!-- Course Tab Start -->
+    <div class="card">
+        <div class="card-body">
+            <div class="mb-24">
+                <ul class="nav nav-pills common-tab gap-20" id="pills-tab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="pills-todos-tab" data-bs-toggle="pill"
+                            data-bs-target="#pills-todos" type="button" role="tab"
+                            aria-controls="pills-todos" aria-selected="true">
+                            Todos ({{ cursos.count }})
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pills-publicados-tab" data-bs-toggle="pill"
+                            data-bs-target="#pills-publicados" type="button" role="tab"
+                            aria-controls="pills-publicados" aria-selected="false">
+                            Publicados ({{ cursos_publicados.count }})
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pills-rascunhos-tab" data-bs-toggle="pill"
+                            data-bs-target="#pills-rascunhos" type="button" role="tab"
+                            aria-controls="pills-rascunhos" aria-selected="false">
+                            Rascunhos ({{ cursos_rascunhos.count }})
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pills-destaque-tab" data-bs-toggle="pill"
+                            data-bs-target="#pills-destaque" type="button" role="tab"
+                            aria-controls="pills-destaque" aria-selected="false">
+                            Destaque ({{ cursos_destaque.count }})
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="tab-content" id="pills-tabContent">
+                <!-- Tab Todos -->
+                <div class="tab-pane fade show active" id="pills-todos" role="tabpanel"
+                    aria-labelledby="pills-todos-tab" tabindex="0">
+                    {% if cursos %}
+                    <div class="row g-20">
+                        {% for curso in cursos %}
+                        <div class="col-xxl-3 col-lg-4 col-sm-6">
+                            <div class="card border border-gray-100">
+                                <div class="card-body p-8">
+                                    <a href="{% url 'curso_overview' curso.id %}"
+                                        class="bg-main-100 rounded-8 overflow-hidden text-center mb-8 h-164 flex-center p-8">
+                                        {% if curso.imagem %}
+                                        <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}" class="img-fluid">
+                                        {% else %}
+                                        <img src="{% static 'assets/images/thumbs/default-course.jpg' %}" alt="{{ curso.titulo }}" class="img-fluid">
+                                        {% endif %}
+                                    </a>
+                                    <div class="p-8">
+                                        <!-- Categoria com cores baseadas no nome -->
+                                        <span class="text-13 py-2 px-10 rounded-pill 
+                                            {% if 'Desenvolvimento' in curso.categoria.nome %}bg-success-50 text-success-600
+                                            {% elif 'Design' in curso.categoria.nome %}bg-warning-50 text-warning-600
+                                            {% elif 'Frontend' in curso.categoria.nome %}bg-danger-50 text-danger-600
+                                            {% elif 'Marketing' in curso.categoria.nome %}bg-info-50 text-info-600
+                                            {% elif 'IA' in curso.categoria.nome or 'Inteligência' in curso.categoria.nome %}bg-purple-50 text-purple-600
+                                            {% else %}bg-gray-50 text-gray-600{% endif %} mb-16">
+                                            {{ curso.categoria.nome|default:"Geral" }}
+                                        </span>
+                                        
+                                        <h5 class="mb-0">
+                                            <a href="{% url 'curso_overview' curso.id %}" class="hover-text-main-600">
+                                                {{ curso.titulo }}
+                                            </a>
+                                        </h5>
+
+                                        <!-- Status do curso -->
+                                        <div class="flex-align gap-8 mt-12">
+                                            <span class="text-main-600 flex-shrink-0 text-13 fw-medium">
+                                                {% if curso.publicado %}
+                                                <span class="text-success-600">Publicado</span>
+                                                {% else %}
+                                                <span class="text-warning-600">Rascunho</span>
+                                                {% endif %}
+                                            </span>
+                                            <div class="progress w-100 bg-main-100 rounded-pill h-8" role="progressbar">
+                                                <div class="progress-bar bg-main-600 rounded-pill" 
+                                                     style="width: {% if curso.publicado %}100%{% else %}50%{% endif %}">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Instrutores -->
+                                        <div class="flex-align gap-8 flex-wrap mt-16">
+                                            {% with primeiro_instrutor=curso.instrutores.first %}
+                                            {% if primeiro_instrutor %}
+                                                {% if primeiro_instrutor.foto %}
+                                                <img src="{{ primeiro_instrutor.foto.url }}" 
+                                                     class="w-32 h-32 rounded-circle object-fit-cover" 
+                                                     alt="{{ primeiro_instrutor.nome }}">
+                                                {% else %}
+                                                <div class="w-32 h-32 rounded-circle bg-main-100 flex-center">
+                                                    <span class="text-main-600 fw-bold text-sm">
+                                                        {{ primeiro_instrutor.nome|first }}
+                                                    </span>
+                                                </div>
+                                                {% endif %}
+                                                <div>
+                                                    <span class="text-gray-600 text-13">
+                                                        Criado por 
+                                                        <span class="fw-semibold text-gray-700 hover-text-main-600 hover-text-decoration-underline">
+                                                            {{ primeiro_instrutor.nome }}
+                                                        </span>
+                                                    </span>
+                                                    <div class="flex-align gap-4">
+                                                        <span class="text-15 fw-bold text-warning-600 d-flex">
+                                                            <i class="ph-fill ph-star"></i>
+                                                        </span>
+                                                        <span class="text-13 fw-bold text-gray-600">{{ curso.get_nivel_display }}</span>
+                                                        <span class="text-13 fw-bold text-gray-600">{{ curso.carga_horaria }}h</span>
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <div class="text-gray-600 text-13">
+                                                    Sem instrutor
+                                                </div>
+                                            {% endif %}
+                                            {% endwith %}
+                                        </div>
+
+                                        <!-- Ações -->
+                                        <div class="flex-align gap-8 mt-24">
+                                            {% if not curso.publicado %}
+                                            <form method="post" action="{% url 'publicar_curso' curso.id %}" class="w-100">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-outline-main rounded-pill py-9 w-100">
+                                                    Publicar Curso
+                                                </button>
+                                            </form>
+                                            {% else %}
+                                            <a href="{% url 'curso_overview' curso.id %}" class="btn btn-outline-main rounded-pill py-9 w-100">
+                                                Ver Detalhes
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-40">
+                        <div class="text-gray-400 text-5xl mb-16">
+                            <i class="ph ph-book-open"></i>
+                        </div>
+                        <h4 class="text-gray-600 mb-8">Nenhum curso encontrado</h4>
+                        <p class="text-gray-500 mb-24">Comece criando seu primeiro curso.</p>
+                        <a href="{% url 'criar_curso' %}" class="btn btn-main rounded-pill py-9">
+                            <i class="ph ph-plus me-2"></i>Criar Primeiro Curso
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Tab Publicados -->
+                <div class="tab-pane fade" id="pills-publicados" role="tabpanel"
+                    aria-labelledby="pills-publicados-tab" tabindex="0">
+                    {% if cursos_publicados %}
+                    <div class="row g-20">
+                        {% for curso in cursos_publicados %}
+                        <div class="col-xxl-3 col-lg-4 col-sm-6">
+                            <div class="card border border-gray-100">
+                                <div class="card-body p-8">
+                                    <a href="{% url 'curso_overview' curso.id %}"
+                                        class="bg-main-100 rounded-8 overflow-hidden text-center mb-8 h-164 flex-center p-8">
+                                        {% if curso.imagem %}
+                                        <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}" class="img-fluid">
+                                        {% else %}
+                                        <img src="{% static 'assets/images/thumbs/default-course.jpg' %}" alt="{{ curso.titulo }}" class="img-fluid">
+                                        {% endif %}
+                                    </a>
+                                    <div class="p-8">
+                                        <span class="text-13 py-2 px-10 rounded-pill 
+                                            {% if 'Desenvolvimento' in curso.categoria.nome %}bg-success-50 text-success-600
+                                            {% elif 'Design' in curso.categoria.nome %}bg-warning-50 text-warning-600
+                                            {% elif 'Frontend' in curso.categoria.nome %}bg-danger-50 text-danger-600
+                                            {% elif 'Marketing' in curso.categoria.nome %}bg-info-50 text-info-600
+                                            {% elif 'IA' in curso.categoria.nome or 'Inteligência' in curso.categoria.nome %}bg-purple-50 text-purple-600
+                                            {% else %}bg-gray-50 text-gray-600{% endif %} mb-16">
+                                            {{ curso.categoria.nome|default:"Geral" }}
+                                        </span>
+                                        
+                                        <h5 class="mb-0">
+                                            <a href="{% url 'curso_overview' curso.id %}" class="hover-text-main-600">
+                                                {{ curso.titulo }}
+                                            </a>
+                                        </h5>
+
+                                        <div class="flex-align gap-8 mt-12">
+                                            <span class="text-main-600 flex-shrink-0 text-13 fw-medium">100%</span>
+                                            <div class="progress w-100 bg-main-100 rounded-pill h-8" role="progressbar">
+                                                <div class="progress-bar bg-main-600 rounded-pill" style="width: 100%"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex-align gap-8 flex-wrap mt-16">
+                                            {% with primeiro_instrutor=curso.instrutores.first %}
+                                            {% if primeiro_instrutor %}
+                                                {% if primeiro_instrutor.foto %}
+                                                <img src="{{ primeiro_instrutor.foto.url }}" 
+                                                     class="w-32 h-32 rounded-circle object-fit-cover" 
+                                                     alt="{{ primeiro_instrutor.nome }}">
+                                                {% else %}
+                                                <div class="w-32 h-32 rounded-circle bg-main-100 flex-center">
+                                                    <span class="text-main-600 fw-bold text-sm">
+                                                        {{ primeiro_instrutor.nome|first }}
+                                                    </span>
+                                                </div>
+                                                {% endif %}
+                                                <div>
+                                                    <span class="text-gray-600 text-13">
+                                                        Criado por 
+                                                        <span class="fw-semibold text-gray-700 hover-text-main-600 hover-text-decoration-underline">
+                                                            {{ primeiro_instrutor.nome }}
+                                                        </span>
+                                                    </span>
+                                                    <div class="flex-align gap-4">
+                                                        <span class="text-15 fw-bold text-warning-600 d-flex">
+                                                            <i class="ph-fill ph-star"></i>
+                                                        </span>
+                                                        <span class="text-13 fw-bold text-gray-600">{{ curso.get_nivel_display }}</span>
+                                                        <span class="text-13 fw-bold text-gray-600">{{ curso.carga_horaria }}h</span>
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <div class="text-gray-600 text-13">
+                                                    Sem instrutor
+                                                </div>
+                                            {% endif %}
+                                            {% endwith %}
+                                        </div>
+
+                                        <a href="{% url 'curso_overview' curso.id %}" class="btn btn-outline-main rounded-pill py-9 w-100 mt-24">
+                                            Ver Detalhes
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-40">
+                        <div class="text-gray-400 text-5xl mb-16">
+                            <i class="ph ph-megaphone"></i>
+                        </div>
+                        <h4 class="text-gray-600 mb-8">Nenhum curso publicado</h4>
+                        <p class="text-gray-500">Publique seus cursos para torná-los visíveis.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Tab Rascunhos -->
+                <div class="tab-pane fade" id="pills-rascunhos" role="tabpanel"
+                    aria-labelledby="pills-rascunhos-tab" tabindex="0">
+                    {% if cursos_rascunhos %}
+                    <div class="row g-20">
+                        {% for curso in cursos_rascunhos %}
+                        <div class="col-xxl-3 col-lg-4 col-sm-6">
+                            <div class="card border border-gray-100">
+                                <div class="card-body p-8">
+                                    <a href="{% url 'curso_overview' curso.id %}"
+                                        class="bg-main-100 rounded-8 overflow-hidden text-center mb-8 h-164 flex-center p-8">
+                                        {% if curso.imagem %}
+                                        <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}" class="img-fluid">
+                                        {% else %}
+                                        <img src="{% static 'assets/images/thumbs/default-course.jpg' %}" alt="{{ curso.titulo }}" class="img-fluid">
+                                        {% endif %}
+                                    </a>
+                                    <div class="p-8">
+                                        <span class="text-13 py-2 px-10 rounded-pill 
+                                            {% if 'Desenvolvimento' in curso.categoria.nome %}bg-success-50 text-success-600
+                                            {% elif 'Design' in curso.categoria.nome %}bg-warning-50 text-warning-600
+                                            {% elif 'Frontend' in curso.categoria.nome %}bg-danger-50 text-danger-600
+                                            {% elif 'Marketing' in curso.categoria.nome %}bg-info-50 text-info-600
+                                            {% elif 'IA' in curso.categoria.nome or 'Inteligência' in curso.categoria.nome %}bg-purple-50 text-purple-600
+                                            {% else %}bg-gray-50 text-gray-600{% endif %} mb-16">
+                                            {{ curso.categoria.nome|default:"Geral" }}
+                                        </span>
+                                        
+                                        <h5 class="mb-0">
+                                            <a href="{% url 'curso_overview' curso.id %}" class="hover-text-main-600">
+                                                {{ curso.titulo }}
+                                            </a>
+                                        </h5>
+
+                                        <div class="flex-align gap-8 mt-12">
+                                            <span class="text-main-600 flex-shrink-0 text-13 fw-medium">50%</span>
+                                            <div class="progress w-100 bg-main-100 rounded-pill h-8" role="progressbar">
+                                                <div class="progress-bar bg-main-600 rounded-pill" style="width: 50%"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex-align gap-8 flex-wrap mt-16">
+                                            {% with primeiro_instrutor=curso.instrutores.first %}
+                                            {% if primeiro_instrutor %}
+                                                {% if primeiro_instrutor.foto %}
+                                                <img src="{{ primeiro_instrutor.foto.url }}" 
+                                                     class="w-32 h-32 rounded-circle object-fit-cover" 
+                                                     alt="{{ primeiro_instrutor.nome }}">
+                                                {% else %}
+                                                <div class="w-32 h-32 rounded-circle bg-main-100 flex-center">
+                                                    <span class="text-main-600 fw-bold text-sm">
+                                                        {{ primeiro_instrutor.nome|first }}
+                                                    </span>
+                                                </div>
+                                                {% endif %}
+                                                <div>
+                                                    <span class="text-gray-600 text-13">
+                                                        Criado por 
+                                                        <span class="fw-semibold text-gray-700 hover-text-main-600 hover-text-decoration-underline">
+                                                            {{ primeiro_instrutor.nome }}
+                                                        </span>
+                                                    </span>
+                                                    <div class="flex-align gap-4">
+                                                        <span class="text-15 fw-bold text-warning-600 d-flex">
+                                                            <i class="ph-fill ph-star"></i>
+                                                        </span>
+                                                        <span class="text-13 fw-bold text-gray-600">{{ curso.get_nivel_display }}</span>
+                                                        <span class="text-13 fw-bold text-gray-600">{{ curso.carga_horaria }}h</span>
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <div class="text-gray-600 text-13">
+                                                    Sem instrutor
+                                                </div>
+                                            {% endif %}
+                                            {% endwith %}
+                                        </div>
+
+                                        <form method="post" action="{% url 'publicar_curso' curso.id %}" class="w-100 mt-24">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-main rounded-pill py-9 w-100">
+                                                Publicar Curso
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-40">
+                        <div class="text-gray-400 text-5xl mb-16">
+                            <i class="ph ph-note-pencil"></i>
+                        </div>
+                        <h4 class="text-gray-600 mb-8">Nenhum rascunho</h4>
+                        <p class="text-gray-500">Todos os seus cursos estão publicados.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Tab Destaque -->
+                <div class="tab-pane fade" id="pills-destaque" role="tabpanel"
+                    aria-labelledby="pills-destaque-tab" tabindex="0">
+                    {% if cursos_destaque %}
+                    <div class="row g-20">
+                        {% for curso in cursos_destaque %}
+                        <div class="col-xxl-3 col-lg-4 col-sm-6">
+                            <div class="card border border-gray-100">
+                                <div class="card-body p-8">
+                                    <a href="{% url 'curso_overview' curso.id %}"
+                                        class="bg-main-100 rounded-8 overflow-hidden text-center mb-8 h-164 flex-center p-8">
+                                        {% if curso.imagem %}
+                                        <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}" class="img-fluid">
+                                        {% else %}
+                                        <img src="{% static 'assets/images/thumbs/default-course.jpg' %}" alt="{{ curso.titulo }}" class="img-fluid">
+                                        {% endif %}
+                                    </a>
+                                    <div class="p-8">
+                                        <span class="text-13 py-2 px-10 rounded-pill 
+                                            {% if 'Desenvolvimento' in curso.categoria.nome %}bg-success-50 text-success-600
+                                            {% elif 'Design' in curso.categoria.nome %}bg-warning-50 text-warning-600
+                                            {% elif 'Frontend' in curso.categoria.nome %}bg-danger-50 text-danger-600
+                                            {% elif 'Marketing' in curso.categoria.nome %}bg-info-50 text-info-600
+                                            {% elif 'IA' in curso.categoria.nome or 'Inteligência' in curso.categoria.nome %}bg-purple-50 text-purple-600
+                                            {% else %}bg-gray-50 text-gray-600{% endif %} mb-16">
+                                            {{ curso.categoria.nome|default:"Geral" }}
+                                        </span>
+                                        
+                                        <h5 class="mb-0">
+                                            <a href="{% url 'curso_overview' curso.id %}" class="hover-text-main-600">
+                                                {{ curso.titulo }}
+                                            </a>
+                                        </h5>
+
+                                        <div class="flex-align gap-8 mt-12">
+                                            <span class="text-main-600 flex-shrink-0 text-13 fw-medium">
+                                                {% if curso.publicado %}100%{% else %}50%{% endif %}
+                                            </span>
+                                            <div class="progress w-100 bg-main-100 rounded-pill h-8" role="progressbar">
+                                                <div class="progress-bar bg-main-600 rounded-pill" 
+                                                     style="width: {% if curso.publicado %}100%{% else %}50%{% endif %}">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex-align gap-8 flex-wrap mt-16">
+                                            {% with primeiro_instrutor=curso.instrutores.first %}
+                                            {% if primeiro_instrutor %}
+                                                {% if primeiro_instrutor.foto %}
+                                                <img src="{{ primeiro_instrutor.foto.url }}" 
+                                                     class="w-32 h-32 rounded-circle object-fit-cover" 
+                                                     alt="{{ primeiro_instrutor.nome }}">
+                                                {% else %}
+                                                <div class="w-32 h-32 rounded-circle bg-main-100 flex-center">
+                                                    <span class="text-main-600 fw-bold text-sm">
+                                                        {{ primeiro_instrutor.nome|first }}
+                                                    </span>
+                                                </div>
+                                                {% endif %}
+                                                <div>
+                                                    <span class="text-gray-600 text-13">
+                                                        Criado por 
+                                                        <span class="fw-semibold text-gray-700 hover-text-main-600 hover-text-decoration-underline">
+                                                            {{ primeiro_instrutor.nome }}
+                                                        </span>
+                                                    </span>
+                                                    <div class="flex-align gap-4">
+                                                        <span class="text-15 fw-bold text-warning-600 d-flex">
+                                                            <i class="ph-fill ph-star"></i>
+                                                        </span>
+                                                        <span class="text-13 fw-bold text-gray-600">{{ curso.get_nivel_display }}</span>
+                                                        <span class="text-13 fw-bold text-gray-600">{{ curso.carga_horaria }}h</span>
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <div class="text-gray-600 text-13">
+                                                    Sem instrutor
+                                                </div>
+                                            {% endif %}
+                                            {% endwith %}
+                                        </div>
+
+                                        {% if not curso.publicado %}
+                                        <form method="post" action="{% url 'publicar_curso' curso.id %}" class="w-100 mt-24">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-main rounded-pill py-9 w-100">
+                                                Publicar Curso
+                                            </button>
+                                        </form>
+                                        {% else %}
+                                        <a href="{% url 'curso_overview' curso.id %}" class="btn btn-outline-main rounded-pill py-9 w-100 mt-24">
+                                            Ver Detalhes
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-40">
+                        <div class="text-gray-400 text-5xl mb-16">
+                            <i class="ph ph-star"></i>
+                        </div>
+                        <h4 class="text-gray-600 mb-8">Nenhum curso em destaque</h4>
+                        <p class="text-gray-500">Marque cursos como destaque para destacá-los.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Course Tab End -->
+</div>
+
+{% if messages %}
+<div class="container mt-4">
+    {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show"
+        role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+        <div class="dashboard-footer">
+            <div class="flex-between flex-wrap gap-16">
+                <p class="text-gray-300 text-13 fw-normal"> &copy; Copyright Edmate 2024, All Right Reserverd</p>
+                <div class="flex-align flex-wrap gap-16">
+                    <a href="student-courses.html#"
+                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">License</a>
+                    <a href="student-courses.html#"
+                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">More
+                        Themes</a>
+                    <a href="student-courses.html#"
+                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">Documentation</a>
+                    <a href="student-courses.html#"
+                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">Support</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'include/java_gestor.html' %}
+
+
+
+</body>
+
+</html>

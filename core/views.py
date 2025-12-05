@@ -26,46 +26,57 @@ from cursovideoapp.models import Curso_video
 from .models import SobreNos
 from estagio.models import Estagio
 
+
 def index(request):
     agora = timezone.now()
     proximos_dias = agora + timedelta(days=7)
 
+    # Cursos em destaque
     cursos_destaque = Curso.objects.filter(
         destaque=True, publicado=True, ativo=True
     ).select_related('centro').prefetch_related('instrutores')
 
+    # Cursos de vídeo
     cursos = Curso_video.objects.all()[:5]
-
     cursos_destaque_video = Curso_video.objects.filter(destaque=True)
 
+    # Posts do blog
     posts = Post.objects.filter(status='publicado') \
         .select_related('categoria') \
         .prefetch_related('tags')
 
+    # Cursos recentes (ordenados pela data de início das inscrições)
     cursos_recentes = list(
         Curso.objects.filter(publicado=True, ativo=True)
-        .order_by('-data_inicio')[:20]
+        .order_by('-data_inicio_inscricoes')[:20]
     )
 
+    # Estágios ativos
     estagios = Estagio.objects.filter(ativo=True).select_related('area', 'centro_formacao')
+
+    # Sobre nós
     sobre = SobreNos.objects.last()  
 
-    todos_cursos = Curso.objects.filter(publicado=True, ativo=True).order_by('-data_inicio')
+    # Todos os cursos publicados e ativos, ordenados
+    todos_cursos = Curso.objects.filter(publicado=True, ativo=True).order_by('-data_inicio_inscricoes')
     cursos_zigue1 = todos_cursos[::2]
     cursos_zigue2 = todos_cursos[1::2]
 
+    # Cursos gratuitos
     cursos_gratuitos = Curso.objects.filter(
         preco=0, publicado=True, ativo=True
-    ).order_by('-data_inicio')[:10]
+    ).order_by('-data_inicio_inscricoes')[:10]
 
+    # Galeria de imagens
     imagens = Galeria.objects.all()[:6]
 
+    # Cursos próximos (a começar nos próximos 7 dias)
     cursos_proximos = Curso.objects.filter(
         publicado=True,
         ativo=True,
-        data_inicio__gte=agora,
-        data_inicio__lte=proximos_dias
-    ).order_by('data_inicio')
+        data_inicio_inscricoes__gte=agora,
+        data_inicio_inscricoes__lte=proximos_dias
+    ).order_by('data_inicio_inscricoes')
 
     # Categorias com cursos publicados e ativos
     categorias = Categoria.objects.prefetch_related(
@@ -76,14 +87,17 @@ def index(request):
         )
     ).annotate(
         num_cursos=Count('curso', filter=Q(curso__publicado=True, curso__ativo=True))
-    ).filter(num_cursos__gt=0)  # Filtra apenas categorias que têm cursos
+    ).filter(num_cursos__gt=0)
 
+    # Primeiros alunos com foto de perfil
     primeiros_alunos = PerfilAluno.objects.filter(
         foto_de_perfil__isnull=False
     ).exclude(foto_de_perfil='').order_by('aluno__data_cadastro')[:3]
 
+    # Centros ativos
     centros = CentroDeFormacao.objects.filter(ativo=True)
 
+    # Montagem do contexto
     context = {
         'cursos_destaque': cursos_destaque,
         'cursos_recentes': cursos_recentes,
@@ -92,7 +106,7 @@ def index(request):
         'cursos_zigue1': cursos_zigue1,
         'cursos_destaque_video': cursos_destaque_video,
         'cursos_zigue2': cursos_zigue2,
-        'categorias': categorias,  # Mudei para 'categorias' (plural) para ficar mais claro
+        'categorias': categorias,
         'cursos': cursos,
         'posts': posts,
         'centros': centros,
@@ -106,6 +120,7 @@ def index(request):
         'estagios': estagios
     }
 
+    # Se houver aluno logado na sessão
     if 'aluno' in request.session:
         try:
             aluno = Aluno.objects.get(id=request.session['aluno'])

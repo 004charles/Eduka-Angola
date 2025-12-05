@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Title -->
+    <title> Edmate Learning Dashboard HTML Template</title>
+    <!-- Favicon -->
+    {% include 'include/css_gestor.html' %}
+
+</head>
+
+<body>
+
+    <!--==================== Preloader Start ====================-->
+    <div class="preloader">
+        <div class="loader"></div>
+    </div>
+    <!--==================== Preloader End ====================-->
+
+    <!--==================== Sidebar Overlay End ====================-->
+    <div class="side-overlay"></div>
+    <!--==================== Sidebar Overlay End ====================-->
+
+    <!-- ============================ Sidebar Start ============================ -->
+
+    {% include 'include/header_gestor.html' %}
+    <!-- ============================ Sidebar End  ============================ -->
+
+    <div class="dashboard-main-wrapper">
+        {% include 'include/menu.html' %}
+
+
+
+        {% load static %}
+
+        <div class="dashboard-body">
+    <div class="breadcrumb-with-buttons mb-24 flex-between flex-wrap gap-8">
+        <!-- Breadcrumb Start -->
+        <div class="breadcrumb mb-24">
+            <ul class="flex-align gap-4">
+                <li><a href="{% url 'centro_dashboard' %}"
+                        class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
+                <li><span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span></li>
+                <li><a href="{% url 'listar_cursos' %}"
+                        class="text-gray-200 fw-normal text-15 hover-text-main-600">Cursos</a></li>
+                <li><span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span></li>
+                <li><span class="text-main-600 fw-normal text-15">Visão Geral do Curso</span></li>
+            </ul>
+        </div>
+        <!-- Breadcrumb End -->
+
+        <!-- Buttons Start -->
+        <div class="flex-align justify-content-end gap-8">
+            <a href="{% url 'editar_curso' curso.id %}"
+                class="btn btn-outline-main bg-main-100 border-main-100 text-main-600 rounded-pill py-9">
+                Editar Curso
+            </a>
+            <form method="post" action="{% url 'publicar_curso_final' curso.id %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-main rounded-pill py-9">Publicar Curso</button>
+            </form>
+        </div>
+        <!-- Buttons End -->
+    </div>
+
+    <!-- Create Course Step List Start -->
+    <ul class="step-list mb-24">
+        <li class="step-list__item py-15 px-24 text-15 text-heading fw-medium flex-center gap-6 done">
+            <span class="icon text-xl d-flex"><i class="ph ph-circle"></i></span>
+            Detalhes do Curso
+            <span class="line position-relative"></span>
+        </li>
+        <li class="step-list__item py-15 px-24 text-15 text-heading fw-medium flex-center gap-6">
+            <span class="icon text-xl d-flex"><i class="ph ph-circle"></i></span>
+            Conteúdo
+            <span class="line position-relative"></span>
+        </li>
+        <li class="step-list__item py-15 px-24 text-15 text-heading fw-medium flex-center gap-6">
+            <span class="icon text-xl d-flex"><i class="ph ph-circle"></i></span>
+            Sobre o Curso
+            <span class="line position-relative"></span>
+        </li>
+        <li class="step-list__item py-15 px-24 text-15 text-heading fw-medium flex-center gap-6">
+            <span class="icon text-xl d-flex"><i class="ph ph-circle"></i></span>
+            Configurações
+            <span class="line position-relative"></span>
+        </li>
+        <li class="step-list__item py-15 px-24 text-15 text-heading fw-medium flex-center gap-6 active">
+            <span class="icon text-xl d-flex"><i class="ph ph-circle"></i></span>
+            Revisão e Publicação
+            <span class="line position-relative"></span>
+        </li>
+    </ul>
+    <!-- Create Course Step List End -->
+
+    <!-- Course Overview Start -->
+    <div class="card">
+        <div class="card-header border-0 flex-align gap-8">
+            <h5 class="mb-0">Visão Geral do Curso</h5>
+            <button type="button" class="text-main-600 text-md d-flex" data-bs-toggle="tooltip"
+                data-bs-placement="top" data-bs-title="Revise todos os detalhes do curso antes de publicar">
+                <i class="ph-fill ph-question"></i>
+            </button>
+        </div>
+        <div class="card-body pt-0">
+            <div class="border border-gray-100 p-20 rounded-12">
+                <div class="flex-between">
+                    <div class="flex-align gap-8">
+                        <span class="py-6 px-16 bg-gray-50 text-gray-500 rounded-pill text-15">
+                            {{ curso.categoria.nome|default:"Sem categoria" }}
+                        </span>
+                        <span class="py-6 px-16 bg-main-50 text-main-600 rounded-pill text-15">
+                            {{ curso.get_modalidade_display|default:"Presencial" }}
+                        </span>
+                        <span class="py-6 px-16 bg-success-50 text-success-600 rounded-pill text-15">
+                            {% if curso.publicado %}Publicado{% else %}Rascunho{% endif %}
+                        </span>
+                    </div>
+                    <div class="flex-align gap-8">
+                        <span class="text-main-600 d-flex text-xl">
+                            <i class="ph-fill ph-check-circle"></i>
+                        </span>
+                        <!-- Dropdown Start -->
+                        <div class="dropdown flex-shrink-0">
+                            <button class="text-gray-600 text-xl d-flex rounded-4" type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="ph-fill ph-dots-three-outline"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu--md border-0 bg-transparent p-0">
+                                <div class="card border border-gray-100 rounded-12 box-shadow-custom">
+                                    <div class="card-body p-12">
+                                        <div class="max-h-200 overflow-y-auto scroll-sm pe-8">
+                                            <ul>
+                                                <li class="mb-0">
+                                                    <a href="{% url 'editar_curso' curso.id %}"
+                                                        class="edit-item-btn py-6 text-15 px-8 hover-bg-gray-50 text-gray-300 w-100 rounded-8 fw-normal text-xs d-block text-start text-decoration-none">
+                                                        <span class="text">Editar</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Dropdown end -->
+                    </div>
+                </div>
+
+                <h3 class="my-8">{{ curso.titulo }}</h3>
+
+                {% if curso.descricao_curta %}
+                <p class="text-gray-500 mb-16">{{ curso.descricao_curta }}</p>
+                {% endif %}
+
+                <div class="flex-align gap-24 flex-wrap">
+                    <div class="flex-align gap-8">
+                        <span class="text-gray-200 d-flex text-16"><i class="ph-fill ph-video-camera"></i></span>
+                        <span class="text-gray-200 d-flex text-15">{{ curso.carga_horaria }} Horas</span>
+                    </div>
+                    <div class="flex-align gap-8">
+                        <span class="text-gray-200 d-flex text-16"><i class="ph-fill ph-clock"></i></span>
+                        <span class="text-gray-200 d-flex text-15">{{ curso.get_modalidade_display }}</span>
+                    </div>
+                    <div class="flex-align gap-8">
+                        <span class="text-gray-200 d-flex text-16"><i class="ph-fill ph-graduation-cap"></i></span>
+                        <span class="text-gray-200 d-flex text-15">{{ curso.get_nivel_display }}</span>
+                    </div>
+                    <div class="flex-align gap-8">
+                        <span class="text-gray-200 d-flex text-16"><i class="ph-fill ph-translate"></i></span>
+                        <span class="text-gray-200 d-flex text-15">{{ curso.get_idioma_display }}</span>
+                    </div>
+                </div>
+
+                {% if curso.imagem %}
+                <div class="my-24">
+                    <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}" class="rounded-16 cover-img"
+                        style="width: 100%; max-height: 300px; object-fit: cover;">
+                </div>
+                {% endif %}
+
+                <!-- Descrição Detalhada -->
+                <h5 class="mb-16 fw-bold">Descrição do Curso</h5>
+                <p class="text-gray-300 text-15 max-w-845">
+                    {{ curso.descricao|linebreaksbr }}
+                </p>
+
+                <div class="row mt-24">
+                    <!-- Informações Básicas -->
+                    <div class="col-md-6">
+                        <h5 class="mb-16 fw-semibold">Informações do Curso</h5>
+                        <div class="space-y-12">
+                            <div class="flex-between">
+                                <span class="text-gray-500">Preço Normal:</span>
+                                <span class="fw-semibold">
+                                    {% if curso.preco %}
+                                    {{ curso.preco }} Kz
+                                    {% else %}
+                                    <span class="text-success">Gratuito</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                            {% if curso.preco_inscricao %}
+                            <div class="flex-between">
+                                <span class="text-gray-500">Taxa de Inscrição:</span>
+                                <span class="fw-semibold">{{ curso.preco_inscricao }} Kz</span>
+                            </div>
+                            {% endif %}
+                            {% if curso.preco_promocional %}
+                            <div class="flex-between">
+                                <span class="text-gray-500">Preço Promocional:</span>
+                                <span class="fw-semibold text-success">{{ curso.preco_promocional }} Kz</span>
+                            </div>
+                            {% endif %}
+                            <div class="flex-between">
+                                <span class="text-gray-500">Vagas Mínimas:</span>
+                                <span class="fw-semibold">{{ curso.vagas_minimas }}</span>
+                            </div>
+                            <div class="flex-between">
+                                <span class="text-gray-500">Certificado:</span>
+                                <span class="fw-semibold">
+                                    {% if curso.certificado %}
+                                    <span class="text-success">Sim</span>
+                                    {% else %}
+                                    <span class="text-danger">Não</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="flex-between">
+                                <span class="text-gray-500">Destaque:</span>
+                                <span class="fw-semibold">
+                                    {% if curso.destaque %}
+                                    <span class="text-success">Sim</span>
+                                    {% else %}
+                                    <span class="text-danger">Não</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                            {% if curso.permite_parcelamento %}
+                            <div class="flex-between">
+                                <span class="text-gray-500">Parcelamento:</span>
+                                <span class="fw-semibold">
+                                    Até {{ curso.max_parcelas }}x
+                                </span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Datas e Períodos -->
+                    <div class="col-md-6">
+                        <h5 class="mb-16 fw-semibold">Datas e Períodos</h5>
+                        <div class="space-y-12">
+                            <div class="flex-between">
+                                <span class="text-gray-500">Início Inscrições:</span>
+                                <span class="fw-semibold">{{ curso.data_inicio_inscricoes|date:"d/m/Y H:i"|default:"Não definido" }}</span>
+                            </div>
+                            {% if curso.data_fim_inscricoes %}
+                            <div class="flex-between">
+                                <span class="text-gray-500">Fim Inscrições:</span>
+                                <span class="fw-semibold">{{ curso.data_fim_inscricoes|date:"d/m/Y H:i" }}</span>
+                            </div>
+                            {% endif %}
+                            {% if curso.data_inicio_promocao %}
+                            <div class="flex-between">
+                                <span class="text-gray-500">Início Promoção:</span>
+                                <span class="fw-semibold">{{ curso.data_inicio_promocao|date:"d/m/Y H:i" }}</span>
+                            </div>
+                            {% endif %}
+                            {% if curso.data_fim_promocao %}
+                            <div class="flex-between">
+                                <span class="text-gray-500">Fim Promoção:</span>
+                                <span class="fw-semibold">{{ curso.data_fim_promocao|date:"d/m/Y H:i" }}</span>
+                            </div>
+                            {% endif %}
+                            <div class="flex-between">
+                                <span class="text-gray-500">Status:</span>
+                                <span class="fw-semibold">
+                                    {% if curso.publicado %}
+                                    <span class="text-success">Publicado</span>
+                                    {% else %}
+                                    <span class="text-warning">Rascunho</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conteúdo Educacional -->
+                <div class="row mt-24">
+                    <div class="col-12">
+                        <h5 class="mb-16 fw-semibold">Conteúdo Educacional</h5>
+                    </div>
+                    
+                    {% if curso.objetivo_geral %}
+                    <div class="col-md-6">
+                        <h6 class="fw-semibold text-gray-700 mb-8">Objetivo Geral</h6>
+                        <p class="text-gray-300 text-14">{{ curso.objetivo_geral|linebreaksbr }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if curso.publico_alvo %}
+                    <div class="col-md-6">
+                        <h6 class="fw-semibold text-gray-700 mb-8">Público-Alvo</h6>
+                        <p class="text-gray-300 text-14">{{ curso.publico_alvo|linebreaksbr }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if curso.metodologia %}
+                    <div class="col-md-6 mt-16">
+                        <h6 class="fw-semibold text-gray-700 mb-8">Metodologia</h6>
+                        <p class="text-gray-300 text-14">{{ curso.metodologia|linebreaksbr }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if curso.avaliacao %}
+                    <div class="col-md-6 mt-16">
+                        <h6 class="fw-semibold text-gray-700 mb-8">Sistema de Avaliação</h6>
+                        <p class="text-gray-300 text-14">{{ curso.avaliacao|linebreaksbr }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if curso.material_incluso %}
+                    <div class="col-md-6 mt-16">
+                        <h6 class="fw-semibold text-gray-700 mb-8">Material Incluso</h6>
+                        <p class="text-gray-300 text-14">{{ curso.material_incluso|linebreaksbr }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if curso.bibliografia %}
+                    <div class="col-md-6 mt-16">
+                        <h6 class="fw-semibold text-gray-700 mb-8">Bibliografia</h6>
+                        <p class="text-gray-300 text-14">{{ curso.bibliografia|linebreaksbr }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Tags -->
+                {% if curso.tags %}
+                <div class="mt-24">
+                    <h5 class="mb-12 fw-semibold">Tags</h5>
+                    <div class="flex-align gap-8 flex-wrap">
+                        {% for tag in curso.tags.split %}
+                        <span class="py-4 px-12 bg-gray-50 text-gray-600 rounded-pill text-13">
+                            {{ tag }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Instrutores -->
+                {% if curso.instrutores.all %}
+                <h5 class="mt-32 mb-16 fw-semibold">Instrutores</h5>
+                <div class="flex-align gap-16 flex-wrap">
+                    {% for instrutor in curso.instrutores.all %}
+                    <div class="flex-align gap-8">
+                        <div class="w-40 h-40 rounded-circle bg-main-100 flex-center">
+                            <span class="text-main-600 fw-bold">
+                                {{ instrutor.nome|first }}{{ instrutor.sobrenome|first }}
+                            </span>
+                        </div>
+                        <span class="text-gray-700">{{ instrutor.nome_completo }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Pré-requisitos -->
+                {% if curso.requisitos %}
+                <h5 class="mt-32 mb-16 fw-semibold">Pré-requisitos</h5>
+                <p class="text-gray-300 text-15">
+                    {{ curso.requisitos|linebreaksbr }}
+                </p>
+                {% endif %}
+            </div>
+
+            <div class="flex-align justify-content-end gap-8 mt-24">
+                <a href="{% url 'editar_curso' curso.id %}"
+                    class="btn btn-outline-main rounded-pill py-9">Editar Curso</a>
+                <form method="post" action="{% url 'publicar_curso_final' curso.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-main rounded-pill py-9">
+                        {% if curso.publicado %}Atualizar Publicação{% else %}Publicar Agora{% endif %}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Course Overview End -->
+</div>
+
+{% if messages %}
+<div class="container mt-4">
+    {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show"
+        role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+        <div class="dashboard-footer">
+            <div class="flex-between flex-wrap gap-16">
+                <p class="text-gray-300 text-13 fw-normal"> &copy; Copyright Edmate 2024, All Right Reserverd</p>
+                <div class="flex-align flex-wrap gap-16">
+                    <a href="publish-course.html#"
+                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">License</a>
+                    <a href="publish-course.html#"
+                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">More
+                        Themes</a>
+                    <a href="publish-course.html#"
+                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">Documentation</a>
+                    <a href="publish-course.html#"
+                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">Support</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'include/java_gestor.html' %}
+
+
+
+    <script>
+        $('.delete-item-btn').on('click', function () {
+            $(this).closest('.upload-card-item').addClass('d-none')
+        }); 
+    </script>
+</body>
+
+</html>

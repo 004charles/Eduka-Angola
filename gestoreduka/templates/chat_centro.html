@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Title -->
+    <title> {{centro.nome}} | chat </title>
+    {% include 'include/css_gestor.html' %}
+
+</head>
+
+<body>
+
+    <!--==================== Preloader Start ====================-->
+    <div class="preloader">
+        <div class="loader"></div>
+    </div>
+    <!--==================== Preloader End ====================-->
+
+    <!--==================== Sidebar Overlay End ====================-->
+    <div class="side-overlay"></div>
+    <!--==================== Sidebar Overlay End ====================-->
+
+    <!-- ============================ Sidebar Start ============================ -->
+
+    {% include 'include/header_gestor.html' %}
+    <!-- ============================ Sidebar End  ============================ -->
+
+    <div class="dashboard-main-wrapper">
+        {% include 'include/menu.html' %}
+
+{% load static %}
+
+<div class="dashboard-body">
+    <!-- Breadcrumb Start -->
+    <div class="breadcrumb mb-24">
+        <ul class="flex-align gap-4">
+            <li><a href="{% url 'centro_dashboard' %}" class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
+            <li><span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span></li>
+            <li><span class="text-main-600 fw-normal text-15">Chat com Alunos</span></li>
+        </ul>
+    </div>
+    <!-- Breadcrumb End -->
+
+    <div class="chart-wrapper d-flex flex-wrap gap-24">
+        <!-- chat sidebar Start -->
+        <div class="card chat-list">
+            <div class="card-header py-16 border-bottom border-gray-100">
+                <form class="position-relative">
+                    <button type="submit" class="input-icon text-xl d-flex text-gray-600 pointer-event-none">
+                        <i class="ph ph-magnifying-glass"></i>
+                    </button>
+                    <input type="text" id="search-chat"
+                        class="form-control ps-44 h-44 border-gray-100 focus-border-main-600 rounded-pill placeholder-15"
+                        placeholder="Buscar aluno...">
+                </form>
+            </div>
+            <div class="card-body p-0">
+                <div class="chat-list-wrapper p-24 overflow-y-auto scroll-sm">
+                    {% for conversa in conversas %}
+                    <div class="chat-list__item flex-between gap-8 cursor-pointer {% if conversa_atual and conversa_atual.id == conversa.id %}active{% endif %}"
+                         onclick="selecionarConversa({{ conversa.id }})">
+                        <div class="d-flex align-items-start gap-16">
+                            <div class="position-relative flex-shrink-0">
+                                {% if conversa.aluno.perfil.get_foto_perfil_url %}
+                                <img src="{{ conversa.aluno.perfil.get_foto_perfil_url }}" alt="{{ conversa.aluno.nome }}" 
+                                     class="w-44 h-44 rounded-circle object-fit-cover flex-shrink-0">
+                                {% else %}
+                                <div class="w-44 h-44 rounded-circle bg-main-600 flex-center">
+                                    <span class="text-white fw-bold">
+                                        {{ conversa.aluno.perfil.get_inicial_nome }}
+                                    </span>
+                                </div>
+                                {% endif %}
+                                <span class="activation-badge w-12 h-12 border-2 position-absolute inset-block-end-0 inset-inline-end-0 bg-success"></span>
+                            </div>
+                            <div class="d-flex flex-column">
+                                <h6 class="text-line-1 text-15 text-gray-400 fw-bold mb-0">{{ conversa.aluno.nome }}</h6>
+                                <span class="text-line-1 text-13 text-gray-200">
+                                    {% with ultima_msg=conversa.mensagens.last %}
+                                        {% if ultima_msg and not ultima_msg.digitando %}
+                                            {{ ultima_msg.mensagem|truncatechars:30 }}
+                                        {% else %}
+                                            Inicie uma conversa...
+                                        {% endif %}
+                                    {% endwith %}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="dropdown flex-shrink-0">
+                            <button class="text-gray-400 text-xl d-flex rounded-4" type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="ph-fill ph-dots-three-outline"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu--md border-0 bg-transparent p-0">
+                                <div class="card border border-gray-100 rounded-12 box-shadow-custom">
+                                    <div class="card-body p-12">
+                                        <div class="max-h-200 overflow-y-auto scroll-sm pe-8">
+                                            <ul>
+                                                <li class="mb-0">
+                                                    <button type="button" class="delete-item-btn py-6 text-15 px-8 hover-bg-gray-50 text-gray-300 w-100 rounded-8 fw-normal text-xs d-block text-start">
+                                                        <span class="text"> <i class="ph ph-user me-4"></i>Perfil do Aluno</span>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-20">
+                        <i class="ph ph-chats text-4xl text-gray-300 mb-8"></i>
+                        <p class="text-gray-400 text-sm">Nenhuma conversa iniciada</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <!-- chat sidebar End -->
+
+        <!-- chat box Start -->
+        <div class="card chat-box">
+            {% if conversa_atual %}
+            <div class="card-header py-16 border-bottom border-gray-100">
+                <div class="chat-list__item flex-between gap-8">
+                    <div class="d-flex align-items-start gap-16">
+                        <div class="position-relative flex-shrink-0">
+                            {% if conversa_atual.aluno.perfil.get_foto_perfil_url %}
+                            <img src="{{ conversa_atual.aluno.perfil.get_foto_perfil_url }}" alt="{{ conversa_atual.aluno.nome }}" 
+                                 class="w-40 h-40 rounded-circle object-fit-cover flex-shrink-0">
+                            {% else %}
+                            <div class="w-40 h-40 rounded-circle bg-main-600 flex-center">
+                                <span class="text-white fw-bold">
+                                    {{ conversa_atual.aluno.perfil.get_inicial_nome }}
+                                </span>
+                            </div>
+                            {% endif %}
+                            <span class="activation-badge w-12 h-12 border-2 position-absolute inset-block-end-0 inset-inline-end-0 bg-success"></span>
+                        </div>
+                        <div class="d-flex flex-column">
+                            <h6 class="text-line-1 text-15 text-gray-400 fw-bold mb-0">{{ conversa_atual.aluno.nome }}</h6>
+                            <span class="text-line-1 text-13 text-gray-200">Aluno</span>
+                        </div>
+                    </div>
+
+                    <div class="flex-align gap-16">
+                        <div class="dropdown flex-shrink-0">
+                            <button class="text-gray-400 text-xl d-flex rounded-4" type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="ph-fill ph-dots-three-outline-vertical"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu--md border-0 bg-transparent p-0">
+                                <div class="card border border-gray-100 rounded-12 box-shadow-custom">
+                                    <div class="card-body p-12">
+                                        <div class="max-h-200 overflow-y-auto scroll-sm pe-8">
+                                            <ul>
+                                                <li class="mb-0">
+                                                    <button type="button" class="delete-item-btn py-6 text-15 px-8 hover-bg-gray-50 text-gray-300 w-100 rounded-8 fw-normal text-xs d-block text-start">
+                                                        <span class="text"><i class="ph ph-x-circle"></i> Limpar Conversa</span>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-body p-0">
+                <div class="chat-box-item-wrapper overflow-y-auto scroll-sm p-24" id="mensagens-container">
+                    {% for mensagem in mensagens %}
+                    <div class="chat-box-item {% if mensagem.is_centro %}right{% endif %} d-flex align-items-end gap-8">
+                        {% if not mensagem.is_centro %}
+                            {% if conversa_atual.aluno.perfil.get_foto_perfil_url %}
+                            <img src="{{ conversa_atual.aluno.perfil.get_foto_perfil_url }}" 
+                                 class="w-40 h-40 rounded-circle object-fit-cover flex-shrink-0" 
+                                 alt="{{ conversa_atual.aluno.nome }}">
+                            {% else %}
+                            <div class="w-40 h-40 rounded-circle bg-main-100 flex-center flex-shrink-0">
+                                <span class="text-main-600 fw-bold text-sm">
+                                    {{ conversa_atual.aluno.perfil.get_inicial_nome }}
+                                </span>
+                            </div>
+                            {% endif %}
+                        {% endif %}
+                        
+                        <div class="chat-box-item__content">
+                            {% if mensagem.digitando %}
+                            <div class="digitando-animation py-16 px-16 px-lg-4">
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                            </div>
+                            {% else %}
+                            <p class="chat-box-item__text py-16 px-16 px-lg-4 {% if mensagem.is_centro %}bg-main-600 text-white{% endif %}">
+                                {{ mensagem.mensagem }}
+                            </p>
+                            {% endif %}
+                            <span class="text-gray-200 text-13 mt-2 d-block">{{ mensagem.data_envio|date:"H:i" }}</span>
+                        </div>
+
+                        {% if mensagem.is_centro %}
+                        <div class="w-40 h-40 rounded-circle bg-main-600 flex-center flex-shrink-0">
+                            <span class="text-white fw-bold text-sm">
+                                {{ centro.nome|first }}
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="card-footer border-top border-gray-100">
+                <form id="form-mensagem" class="flex-align gap-8 chat-box-bottom">
+                    <input type="hidden" id="conversa-id" value="{{ conversa_atual.id }}">
+                    
+                    <label for="fileUp" class="flex-shrink-0 file-btn w-48 h-48 flex-center bg-main-50 text-24 text-main-600 rounded-circle hover-bg-main-100 transition-2">
+                        <i class="ph ph-paperclip"></i>
+                    </label>
+                    <input type="file" name="fileName" id="fileUp" hidden>
+                    
+                    <input type="text" id="input-mensagem"
+                        class="form-control h-48 border-transparent px-20 focus-border-main-600 bg-main-50 rounded-pill placeholder-15"
+                        placeholder="Digite sua mensagem..." 
+                        onkeydown="handleTyping(event)"
+                        onkeyup="stopTyping()">
+                    
+                    <button type="submit" class="flex-shrink-0 submit-btn btn btn-main rounded-pill flex-align gap-4 py-15">
+                        Enviar <span class="d-flex text-md d-sm-flex d-none"><i class="ph-fill ph-paper-plane-tilt"></i></span>
+                    </button>
+                </form>
+            </div>
+            {% else %}
+            <div class="card-body d-flex align-items-center justify-content-center" style="min-height: 400px;">
+                <div class="text-center">
+                    <i class="ph ph-chat-text text-5xl text-gray-300 mb-16"></i>
+                    <h4 class="text-gray-400 mb-8">Selecione uma conversa</h4>
+                    <p class="text-gray-300">Escolha um aluno para iniciar o chat</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <!-- chat box End -->
+    </div>
+</div>
+
+<style>
+.chat-list__item.active {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.digitando-animation {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #6b7280;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+.dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+}
+</style>
+
+<script>
+let typingTimer;
+const TYPING_INTERVAL = 1000; // 1 segundo
+let isTyping = false;
+
+function selecionarConversa(conversaId) {
+    window.location.href = `{% url 'chat_centro' %}?conversa_id=${conversaId}`;
+}
+
+function handleTyping(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        enviarMensagem();
+        return;
+    }
+    
+    clearTimeout(typingTimer);
+    iniciarDigitando();
+}
+
+function iniciarDigitando() {
+    const conversaId = document.getElementById('conversa-id').value;
+    
+    if (!isTyping) {
+        isTyping = true;
+        
+        fetch('{% url "atualizar_status_digitando" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                conversa_id: conversaId,
+                digitando: true
+            })
+        });
+    }
+    
+    typingTimer = setTimeout(stopTyping, TYPING_INTERVAL);
+}
+
+function stopTyping() {
+    const conversaId = document.getElementById('conversa-id').value;
+    
+    if (isTyping) {
+        isTyping = false;
+        
+        fetch('{% url "atualizar_status_digitando" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                conversa_id: conversaId,
+                digitando: false
+            })
+        });
+    }
+}
+
+function enviarMensagem() {
+    const input = document.getElementById('input-mensagem');
+    const mensagem = input.value.trim();
+    const conversaId = document.getElementById('conversa-id').value;
+    
+    if (!mensagem) return;
+    
+    fetch('{% url "enviar_mensagem_centro" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            conversa_id: conversaId,
+            mensagem: mensagem
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            input.value = '';
+            carregarMensagens();
+        }
+    });
+}
+
+function carregarMensagens() {
+    const conversaId = document.getElementById('conversa-id').value;
+    
+    fetch(`{% url "buscar_mensagens" 0 %}`.replace('0', conversaId))
+    .then(response => response.json())
+    .then(data => {
+        const container = document.getElementById('mensagens-container');
+        container.innerHTML = '';
+        
+        data.mensagens.forEach(msg => {
+            let avatarHTML = '';
+            
+            if (!msg.is_centro) {
+                if (msg.foto_perfil) {
+                    avatarHTML = `<img src="${msg.foto_perfil}" class="w-40 h-40 rounded-circle object-fit-cover flex-shrink-0" alt="${msg.remetente_nome}">`;
+                } else {
+                    const inicial = msg.inicial || msg.remetente_nome.charAt(0);
+                    avatarHTML = `<div class="w-40 h-40 rounded-circle bg-main-100 flex-center flex-shrink-0">
+                        <span class="text-main-600 fw-bold text-sm">${inicial}</span>
+                    </div>`;
+                }
+            }
+            
+            const centroAvatarHTML = msg.is_centro ? `
+                <div class="w-40 h-40 rounded-circle bg-main-600 flex-center flex-shrink-0">
+                    <span class="text-white fw-bold text-sm">{{ centro.nome|first }}</span>
+                </div>
+            ` : '';
+            
+            const mensagemHTML = `
+                <div class="chat-box-item ${msg.is_centro ? 'right' : ''} d-flex align-items-end gap-8">
+                    ${avatarHTML}
+                    
+                    <div class="chat-box-item__content">
+                        ${msg.digitando ? `
+                        <div class="digitando-animation py-16 px-16 px-lg-4">
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                        </div>
+                        ` : `
+                        <p class="chat-box-item__text py-16 px-16 px-lg-4 ${msg.is_centro ? 'bg-main-600 text-white' : ''}">
+                            ${msg.mensagem}
+                        </p>
+                        `}
+                        <span class="text-gray-200 text-13 mt-2 d-block">${msg.data_envio}</span>
+                    </div>
+
+                    ${centroAvatarHTML}
+                </div>
+            `;
+            container.innerHTML += mensagemHTML;
+        });
+        
+        container.scrollTop = container.scrollHeight;
+    });
+}
+
+// Enviar mensagem ao submeter o formulário
+document.getElementById('form-mensagem').addEventListener('submit', function(e) {
+    e.preventDefault();
+    enviarMensagem();
+});
+
+// Atualizar mensagens a cada 3 segundos
+{% if conversa_atual %}
+setInterval(carregarMensagens, 3000);
+{% endif %}
+</script>
+        <div class="dashboard-footer">
+            <div class="flex-between flex-wrap gap-16">
+                <p class="text-gray-300 text-13 fw-normal"> &copy; Copyright Edmate 2024, All Right Reserverd</p>
+                <div class="flex-align flex-wrap gap-16">
+                    <a href="message.html#"
+                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">License</a>
+                    <a href="message.html#"
+                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">More
+                        Themes</a>
+                    <a href="message.html#"
+                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">Documentation</a>
+                    <a href="message.html#"
+                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">Support</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'include/java_gestor.html' %}
+
+</body>
+
+</html>

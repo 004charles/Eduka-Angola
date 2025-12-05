@@ -31,34 +31,46 @@ class MaterialApoioInline(admin.TabularInline):
 
 
 class CursoAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'centro', 'categoria', 'nivel', 'data_inicio', 'publicado', 'ativo', 'destaque')
-    search_fields = ('titulo', 'descricao')
-    list_filter = ('nivel', 'publicado', 'ativo', 'centro', 'idioma', 'destaque')
-    filter_horizontal = ('instrutores',)
-    readonly_fields = ('vagas_disponiveis',)
+    list_display = [
+        'titulo', 
+        'centro', 
+        'categoria', 
+        'nivel', 
+        'data_criacao',
+        'publicado', 
+        'ativo', 
+        'destaque'
+    ]
+    list_filter = ['centro', 'categoria', 'nivel', 'publicado', 'ativo', 'destaque']
+    search_fields = ['titulo', 'descricao']
+    filter_horizontal = ['instrutores']
     
     fieldsets = (
-        (None, {
-            'fields': ('centro', 'titulo', 'descricao', 'imagem', 'categoria')  # Adicionei o campo 'categoria' aqui
+        ('Informações Básicas', {
+            'fields': ('centro', 'titulo', 'descricao', 'descricao_curta', 'categoria', 'imagem')
         }),
-        ('Configurações', {
-            'fields': ('nivel', 'idioma', 'certificado', 'carga_horaria', 'preco', 'vagas')
+        ('Configurações do Curso', {
+            'fields': ('nivel', 'idioma', 'modalidade', 'carga_horaria', 'certificado')
+        }),
+        ('Preços', {
+            'fields': ('preco', 'preco_inscricao', 'preco_promocional')
         }),
         ('Datas', {
-            'fields': ('data_inicio', 'data_termino')
+            'fields': ('data_inicio_inscricoes', 'data_fim_inscricoes', 'data_inicio_promocao', 'data_fim_promocao')
+        }),
+        ('Vagas', {
+            'fields': ('vagas_minimas',)
+        }),
+        ('Conteúdo', {
+            'fields': ('requisitos', 'objetivo_geral', 'publico_alvo')  # Removidos: metodologia, avaliacao, material_incluso, bibliografia
+        }),
+        ('Configurações Avançadas', {
+            'fields': ('instrutores', 'tags', 'permite_parcelamento', 'max_parcelas')
         }),
         ('Status', {
             'fields': ('publicado', 'ativo', 'destaque')
         }),
-        ('Instrutores', {
-            'fields': ('instrutores',)
-        }),
     )
-
-    def vagas_disponiveis(self, obj):
-        return obj.vagas - obj.inscricoes.filter(status='APR').count()
-    vagas_disponiveis.short_description = 'Vagas Disponíveis'
-
 
 class ModuloAdmin(admin.ModelAdmin):
     list_display = ('titulo', 'curso', 'ordem')

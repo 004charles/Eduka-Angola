@@ -122,7 +122,7 @@ class CentroSeguimento(models.Model):
 class PerfilAluno(models.Model):
     aluno = models.OneToOneField('Aluno', on_delete=models.CASCADE, related_name='perfil')
     imagem = models.ImageField(_('Imagem de Perfil'), upload_to='perfil_alunos/', null=True, blank=True)
-    foto_de_perfil = models.ImageField(_('Foto de Perfil'), upload_to='fotos_perfil/', null=True, blank=True)  # Novo campo
+    foto_de_perfil = models.ImageField(_('Foto de Perfil'), upload_to='fotos_perfil/', null=True, blank=True)
     biografia = models.TextField(_('Biografia'), blank=True)
     telefone = models.CharField(_('Telefone'), max_length=20, blank=True, null=True)
     linkedin = models.URLField(_('LinkedIn'), blank=True, null=True)
@@ -132,10 +132,40 @@ class PerfilAluno(models.Model):
     def __str__(self):
         return f"Perfil de {self.aluno.nome}"
 
+    def get_foto_perfil_url(self):
+        """Retorna a URL da foto de perfil ou None se não existir"""
+        if self.foto_de_perfil:
+            return self.foto_de_perfil.url
+        elif self.imagem:
+            return self.imagem.url
+        return None
+
+    def get_foto_ou_inicial(self):
+        """Retorna a foto de perfil ou a inicial do nome"""
+        foto_url = self.get_foto_perfil_url()
+        if foto_url:
+            return f'<img src="{foto_url}" alt="{self.aluno.nome}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">'
+        else:
+            inicial = self.aluno.nome[0].upper() if self.aluno.nome else 'A'
+            return f'<div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">{inicial}</div>'
+
+    def get_foto_ou_inicial_html(self, size=40):
+        """Retorna HTML para exibir foto ou inicial com tamanho personalizado"""
+        foto_url = self.get_foto_perfil_url()
+        if foto_url:
+            return f'<img src="{foto_url}" alt="{self.aluno.nome}" class="rounded-circle" style="width: {size}px; height: {size}px; object-fit: cover;">'
+        else:
+            inicial = self.aluno.nome[0].upper() if self.aluno.nome else 'A'
+            return f'<div class="rounded-circle bg-main-600 text-white d-flex align-items-center justify-content-center fw-bold" style="width: {size}px; height: {size}px; font-size: {size*0.4}px;">{inicial}</div>'
+
+    def get_inicial_nome(self):
+        """Retorna apenas a inicial do nome"""
+        return self.aluno.nome[0].upper() if self.aluno.nome else 'A'
+
     class Meta:
         verbose_name = 'Perfil do Aluno'
         verbose_name_plural = 'Perfis dos Alunos'
-        
+                
 class Comentario(models.Model):
     aluno = models.ForeignKey('Aluno', on_delete=models.CASCADE, related_name='comentarios')
     curso = models.ForeignKey('cursos_app.Curso', on_delete=models.CASCADE, related_name='comentarios')

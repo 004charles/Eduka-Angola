@@ -19,11 +19,41 @@ def inscrever_curso(request, curso_id):
     curso = get_object_or_404(Curso, id=curso_id)
     aluno = get_object_or_404(Aluno, id=aluno_id)
 
-    inscricao, created = Inscricao.objects.get_or_create(aluno=aluno, curso=curso)
+    # Verificar se o curso está publicado
+    if not curso.publicado:
+        messages.error(request, "Este curso não está disponível para inscrições.")
+        return redirect('curso_detalhe', id=curso.id)
 
-    if not created:
+    # Verificar se as inscrições estão abertas
+    if not curso.inscricoes_abertas:
+        messages.error(request, "As inscrições para este curso estão fechadas.")
+        return redirect('curso_detalhe', id=curso.id)
+
+    # Verificar se o curso tem turmas ativas
+    if not curso.turmas_abertas.exists():
+        messages.error(request, "Não há turmas disponíveis para este curso no momento.")
+        return redirect('curso_detalhe', id=curso.id)
+
+    # Verificar se o curso está lotado
+    if curso.lotado:
+        messages.error(request, "Este curso está lotado. Não há vagas disponíveis.")
+        return redirect('curso_detalhe', id=curso.id)
+
+    # Verificar se o aluno já está inscrito
+    if Inscricao.objects.filter(aluno=aluno, curso=curso).exists():
         messages.warning(request, "Você já está inscrito neste curso.")
-    else:
+        return redirect('curso_detalhe', id=curso.id)
+
+    # Criar a inscrição
+    try:
+        inscricao = Inscricao.objects.create(
+            aluno=aluno,
+            curso=curso,
+            tipo_inscricao='ONLINE',
+            status='P'  # Pendente
+        )
+
+        # Tentar enviar e-mail de confirmação
         try:
             link_curso = request.build_absolute_uri(
                 reverse('curso_detalhe', kwargs={'id': curso.id})
@@ -32,26 +62,45 @@ def inscrever_curso(request, curso_id):
         except Exception as e:
             messages.warning(request, f"Inscrição feita, mas houve um problema ao enviar o e-mail: {e}")
 
-        messages.success(request, "Inscrição realizada com sucesso! Aguarde aprovação.")
+        messages.success(request, "Inscrição realizada com sucesso! Aguarde a aprovação do centro.")
+
+    except Exception as e:
+        messages.error(request, f"Erro ao realizar inscrição: {str(e)}")
 
     return redirect('curso_detalhe', id=curso.id)
 
 
+
 def alterar_status_inscricao(request, inscricao_id, status):
-    centro_id = request.session.get('centro')
+    centro_id = request.session.get('centro_id')
     if not centro_id:
         messages.error(request, "Você precisa estar logado como centro para alterar o status.")
-        return redirect('/auth/Login_centro')
+        return redirect('login_gestor')
 
     inscricao = get_object_or_404(Inscricao, id=inscricao_id)
+    
+    # Verificar se o centro tem permissão para este curso
     if inscricao.curso.centro_id != centro_id:
         messages.error(request, "Você não tem permissão para alterar esta inscrição.")
         return redirect('painel_centro')
 
-    if status in ['A', 'N']:  
+    if status in ['A', 'N', 'C']:  
+        old_status = inscricao.status
         inscricao.status = status
+        
+        # Atualizar datas conforme o status
+        if status == 'A' and not inscricao.data_confirmacao:
+            inscricao.data_confirmacao = timezone.now()
+        elif status == 'C' and not inscricao.data_cancelamento:
+            inscricao.data_cancelamento = timezone.now()
+        
         inscricao.save()
 
+        # Atualizar vagas do curso se necessário
+        if (status == 'A' and old_status != 'A') or (old_status == 'A' and status != 'A'):
+            inscricao.curso.atualizar_vagas_globais()
+
+        # Tentar enviar e-mail de notificação
         try:
             link_curso = request.build_absolute_uri(
                 reverse('curso_detalhe', kwargs={'id': inscricao.curso.id})
@@ -60,12 +109,275 @@ def alterar_status_inscricao(request, inscricao_id, status):
         except Exception as e:
             messages.warning(request, f"Status alterado, mas houve problema ao enviar o e-mail: {e}")
 
-        messages.success(request, f"Inscrição marcada como {inscricao.get_status_display()}.")
+        messages.success(request, f"Inscrição de {inscricao.aluno.nome} marcada como {inscricao.get_status_display()}.")
     else:
         messages.error(request, "Status inválido.")
 
+    return redirect('gestao_inscricoes', curso_id=inscricao.curso.id)
+
+
+
+def gestao_turmas(request, curso_id):
+    """Página principal de gestão de turmas de um curso"""
+    centro_id = request.session.get('centro_id')
+    if not centro_id:
+        messages.error(request, "Sessão expirada.")
+        return redirect('login_gestor')
+    
+    try:
+        curso = get_object_or_404(Curso, id=curso_id, centro_id=centro_id)
+        turmas = curso.turmas.all().order_by('data_inicio', 'turno')
+        
+        # Estatísticas
+        total_turmas = turmas.count()
+        turmas_abertas = turmas.filter(status='ABERTA').count()
+        turmas_em_andamento = turmas.filter(status='EM_ANDAMENTO').count()
+        turmas_concluidas = turmas.filter(status='CONCLUIDA').count()
+        
+        context = {
+            'centro': curso.centro,
+            'curso': curso,
+            'turmas': turmas,
+            'total_turmas': total_turmas,
+            'turmas_abertas': turmas_abertas,
+            'turmas_em_andamento': turmas_em_andamento,
+            'turmas_concluidas': turmas_concluidas,
+            'active_tab': 'classes'
+        }
+        return render(request, 'gestor/turmas/gestao_turmas.html', context)
+        
+    except Exception as e:
+        messages.error(request, f"Erro ao carregar gestão de turmas: {str(e)}")
+        return redirect('painel_centro')
+
+def criar_turma(request, curso_id):
+    """View para criar uma nova turma"""
+    centro_id = request.session.get('centro_id')
+    if not centro_id:
+        messages.error(request, "Sessão expirada.")
+        return redirect('login_gestor')
+    
+    if request.method == 'POST':
+        try:
+            curso = get_object_or_404(Curso, id=curso_id, centro_id=centro_id)
+            
+            # Gerar código único para a turma
+            turno = request.POST.get('turno')
+            codigo = f"T{curso.id}_{turno[:3]}_{timezone.now().strftime('%H%M%S')}"
+            
+            # Processar dias da semana
+            dias_semana = request.POST.getlist('dias_semana')
+            dias_semana_str = ','.join(dias_semana)
+            
+            turma = Turma.objects.create(
+                curso=curso,
+                nome=request.POST.get('nome'),
+                codigo=codigo,
+                data_inicio=request.POST.get('data_inicio'),
+                data_fim=request.POST.get('data_fim'),
+                turno=turno,
+                horario_inicio=request.POST.get('horario_inicio'),
+                horario_fim=request.POST.get('horario_fim'),
+                dias_semana=dias_semana_str,
+                vagas_totais=int(request.POST.get('vagas_totais')),
+                local=request.POST.get('local', ''),
+                sala=request.POST.get('sala', ''),
+                observacoes=request.POST.get('observacoes', ''),
+                status='ABERTA'
+            )
+            
+            # Associar instrutor se especificado
+            instrutor_id = request.POST.get('instrutor_principal')
+            if instrutor_id:
+                instrutor = get_object_or_404(Instrutor, id=instrutor_id, centro=curso.centro)
+                turma.instrutor_principal = instrutor
+                turma.save()
+            
+            messages.success(request, 'Turma criada com sucesso!')
+            return redirect('gestao_turmas', curso_id=curso.id)
+            
+        except Exception as e:
+            messages.error(request, f'Erro ao criar turma: {str(e)}')
+    
+    return redirect('gestao_turmas', curso_id=curso_id)
+
+def editar_turma(request, turma_id):
+    """View para editar uma turma existente"""
+    centro_id = request.session.get('centro_id')
+    if not centro_id:
+        messages.error(request, "Sessão expirada.")
+        return redirect('login_gestor')
+    
+    if request.method == 'POST':
+        try:
+            turma = get_object_or_404(Turma, id=turma_id, curso__centro_id=centro_id)
+            
+            # Processar dias da semana
+            dias_semana = request.POST.getlist('dias_semana')
+            dias_semana_str = ','.join(dias_semana)
+            
+            turma.nome = request.POST.get('nome', turma.nome)
+            turma.data_inicio = request.POST.get('data_inicio', turma.data_inicio)
+            turma.data_fim = request.POST.get('data_fim', turma.data_fim)
+            turma.turno = request.POST.get('turno', turma.turno)
+            turma.horario_inicio = request.POST.get('horario_inicio', turma.horario_inicio)
+            turma.horario_fim = request.POST.get('horario_fim', turma.horario_fim)
+            turma.dias_semana = dias_semana_str
+            turma.vagas_totais = int(request.POST.get('vagas_totais', turma.vagas_totais))
+            turma.local = request.POST.get('local', turma.local)
+            turma.sala = request.POST.get('sala', turma.sala)
+            turma.observacoes = request.POST.get('observacoes', turma.observacoes)
+            turma.status = request.POST.get('status', turma.status)
+            
+            # Atualizar instrutor
+            instrutor_id = request.POST.get('instrutor_principal')
+            if instrutor_id:
+                instrutor = get_object_or_404(Instrutor, id=instrutor_id, centro=turma.curso.centro)
+                turma.instrutor_principal = instrutor
+            else:
+                turma.instrutor_principal = None
+            
+            turma.save()
+            messages.success(request, 'Turma atualizada com sucesso!')
+            
+        except Exception as e:
+            messages.error(request, f'Erro ao atualizar turma: {str(e)}')
+    
+    return redirect('gestao_turmas', curso_id=turma.curso.id)
+
+def excluir_turma(request, turma_id):
+    """View para excluir uma turma"""
+    centro_id = request.session.get('centro_id')
+    if not centro_id:
+        messages.error(request, "Sessão expirada.")
+        return redirect('login_gestor')
+    
+    if request.method == 'POST':
+        try:
+            turma = get_object_or_404(Turma, id=turma_id, curso__centro_id=centro_id)
+            
+            # Verificar se há inscrições na turma
+            if turma.vagas_ocupadas > 0:
+                messages.error(request, 'Não é possível excluir uma turma com alunos inscritos.')
+                return redirect('gestao_turmas', curso_id=turma.curso.id)
+            
+            curso_id = turma.curso.id
+            turma.delete()
+            messages.success(request, 'Turma excluída com sucesso!')
+            
+            return redirect('gestao_turmas', curso_id=curso_id)
+            
+        except Exception as e:
+            messages.error(request, f'Erro ao excluir turma: {str(e)}')
+    
     return redirect('painel_centro')
 
+def gestao_inscricoes(request, curso_id):
+    """View para gerenciar inscrições de um curso"""
+    centro_id = request.session.get('centro_id')
+    if not centro_id:
+        messages.error(request, "Sessão expirada.")
+        return redirect('login_gestor')
+    
+    try:
+        curso = get_object_or_404(Curso, id=curso_id, centro_id=centro_id)
+        inscricoes = curso.inscricoes.select_related('aluno').all().order_by('-data_inscricao')
+        
+        # Filtros
+        status_filter = request.GET.get('status')
+        if status_filter:
+            inscricoes = inscricoes.filter(status=status_filter)
+        
+        tipo_filter = request.GET.get('tipo')
+        if tipo_filter:
+            inscricoes = inscricoes.filter(tipo_inscricao=tipo_filter)
+        
+        # Estatísticas
+        total_inscricoes = inscricoes.count()
+        inscricoes_aceitas = inscricoes.filter(status='A').count()
+        inscricoes_pendentes = inscricoes.filter(status='P').count()
+        inscricoes_negadas = inscricoes.filter(status='N').count()
+        inscricoes_canceladas = inscricoes.filter(status='C').count()
+        
+        context = {
+            'centro': curso.centro,
+            'curso': curso,
+            'inscricoes': inscricoes,
+            'total_inscricoes': total_inscricoes,
+            'inscricoes_aceitas': inscricoes_aceitas,
+            'inscricoes_pendentes': inscricoes_pendentes,
+            'inscricoes_negadas': inscricoes_negadas,
+            'inscricoes_canceladas': inscricoes_canceladas,
+            'status_filter': status_filter,
+            'tipo_filter': tipo_filter,
+            'active_tab': 'enrollments'
+        }
+        return render(request, 'gestor/turmas/gestao_inscricoes.html', context)
+        
+    except Exception as e:
+        messages.error(request, f"Erro ao carregar gestão de inscrições: {str(e)}")
+        return redirect('painel_centro')
+
+def inscrever_aluno_presencial(request, curso_id):
+    """View para o gestor inscrever um aluno presencialmente"""
+    centro_id = request.session.get('centro_id')
+    if not centro_id:
+        messages.error(request, "Sessão expirada.")
+        return redirect('login_gestor')
+    
+    if request.method == 'POST':
+        try:
+            curso = get_object_or_404(Curso, id=curso_id, centro_id=centro_id)
+            
+            # Verificar se o curso está lotado
+            if curso.lotado:
+                messages.error(request, "Este curso está lotado. Não há vagas disponíveis.")
+                return redirect('gestao_inscricoes', curso_id=curso_id)
+            
+            aluno_email = request.POST.get('aluno_email')
+            aluno = get_object_or_404(Aluno, email=aluno_email)
+            
+            # Verificar se o aluno já está inscrito
+            if Inscricao.objects.filter(aluno=aluno, curso=curso).exists():
+                messages.warning(request, f"O aluno {aluno.nome} já está inscrito neste curso.")
+                return redirect('gestao_inscricoes', curso_id=curso_id)
+            
+            # Criar inscrição presencial
+            inscricao = Inscricao.objects.create(
+                aluno=aluno,
+                curso=curso,
+                tipo_inscricao='PRESENCIAL',
+                status='A',  # Aceita automaticamente
+                forma_pagamento=request.POST.get('forma_pagamento', ''),
+                valor_pago=request.POST.get('valor_pago') or 0,
+                observacoes='Inscrição presencial realizada pelo gestor'
+            )
+            
+            # Atualizar data de pagamento se valor foi pago
+            if inscricao.valor_pago and inscricao.valor_pago > 0:
+                inscricao.data_pagamento = timezone.now()
+                inscricao.save()
+            
+            # Atualizar vagas do curso
+            curso.atualizar_vagas_globais()
+            
+            # Tentar enviar e-mail
+            try:
+                link_curso = request.build_absolute_uri(
+                    reverse('curso_detalhe', kwargs={'id': curso.id})
+                )
+                inscricao.enviar_email_status(link_curso=link_curso)
+            except Exception as e:
+                messages.warning(request, f"Inscrição realizada, mas houve problema ao enviar o e-mail: {e}")
+            
+            messages.success(request, f"Aluno {aluno.nome} inscrito presencialmente com sucesso!")
+            
+        except Aluno.DoesNotExist:
+            messages.error(request, "Aluno não encontrado com este e-mail.")
+        except Exception as e:
+            messages.error(request, f"Erro ao inscrever aluno: {str(e)}")
+    
+    return redirect('gestao_inscricoes', curso_id=curso_id)
 
 
 @require_POST
@@ -209,7 +521,7 @@ def cursos_por_centro(request, centro_id):
         cursos = centro.cursos.filter(
             categoria=categoria,
             publicado=True
-        ).order_by('-destaque', 'data_inicio')
+        ).order_by('-destaque', 'data_inicio_inscricoes')  # CORREÇÃO AQUI
 
         cursos_por_categoria.append({
             'categoria': categoria,
@@ -230,7 +542,7 @@ def cursos_por_centro(request, centro_id):
     })
 
     return render(request, 'cursos_por_centro.html', context)
-
+    
 def instrutores_do_centro(request, centro_id):
     context = {
         'aluno_logado': False,

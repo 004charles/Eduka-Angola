@@ -17,6 +17,18 @@ from django.db import models
 from usuarios.models import Aluno
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from django.core.mail import send_mail
+from django.conf import settings
+from django.db import models
+from django.utils.translation import gettext_lazy as _
+from django.core.validators import MinLengthValidator, MinValueValidator
+from django.utils import timezone
+from django.contrib.auth.hashers import make_password, check_password
+from django.core.exceptions import ValidationError
+from django.utils.text import slugify
+from django.db.models import Sum
+import uuid
+from datetime import timedelta
 
 
 
@@ -95,6 +107,7 @@ class Categoria(models.Model):
     def __str__(self):
         return self.nome
         
+
 class Curso(models.Model):
     NIVEL_CHOICES = [
         ('B', 'Básico'),
@@ -110,48 +123,94 @@ class Curso(models.Model):
         ('OUTRO', 'Outro'),
     ]
 
-    TURNO_CHOICES = [
-        ('M', 'Manhã'),
-        ('T', 'Tarde'),
-        ('N', 'Noite'),
-        ('I', 'Integral'),
+    MODALIDADE_CHOICES = [
+        ('PRESENCIAL', 'Presencial'),
+        ('ONLINE', 'Online'),
+        ('HIBRIDO', 'Híbrido'),
     ]
 
-    centro = models.ForeignKey(CentroDeFormacao, on_delete=models.CASCADE, verbose_name=_('Centro de Formação'), related_name='cursos')
+    centro = models.ForeignKey('gestoreduka.CentroDeFormacao', on_delete=models.CASCADE, verbose_name=_('Centro de Formação'), related_name='cursos')
     titulo = models.CharField(_('Título do Curso'), max_length=200, validators=[MinLengthValidator(3)])
     descricao = models.TextField(_('Descrição Completa'))
+    descricao_curta = models.CharField(_('Descrição Curta'), max_length=300, blank=True, help_text="Descrição resumida para cards e listagens")
     nivel = models.CharField(_('Nível'), max_length=1, choices=NIVEL_CHOICES, default='B')
     idioma = models.CharField(_('Idioma do Curso'), max_length=5, choices=IDIOMA_CHOICES, default='PT')
-    categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True, related_name='curso')
+    categoria = models.ForeignKey('Categoria', on_delete=models.SET_NULL, null=True, related_name='curso')
     certificado = models.BooleanField(_('Fornece Certificado'), default=True)
-    instrutores = models.ManyToManyField(Instrutor, related_name='cursos', verbose_name=_('Instrutores'))
+    instrutores = models.ManyToManyField('Instrutor', related_name='cursos', verbose_name=_('Instrutores'))
     carga_horaria = models.PositiveIntegerField(_('Carga Horária (horas)'))
+    
     preco = models.DecimalField(
-        _('Valor do Curso'),
+        _('Preço do Curso'),
         max_digits=10,
         decimal_places=3,
-        validators=[MinValueValidator(0)]
+        validators=[MinValueValidator(0)],
+        default=0
     )
-    vagas = models.PositiveIntegerField(_('Número de Vagas'))
-    data_inicio = models.DateTimeField(default=timezone.now)
-    data_termino = models.DateField(_('Data de Término'))
-    turno = models.CharField(_('Turno'), max_length=1, choices=TURNO_CHOICES, default='M')
+    preco_inscricao = models.DecimalField(
+        _('Taxa de Inscrição'),
+        max_digits=10,
+        decimal_places=3,
+        validators=[MinValueValidator(0)],
+        default=0,
+        help_text="Valor da taxa de inscrição (pode ser diferente do preço do curso)"
+    )
+    preco_promocional = models.DecimalField(
+        _('Preço Promocional'),
+        max_digits=10,
+        decimal_places=3,
+        validators=[MinValueValidator(0)],
+        null=True,
+        blank=True,
+        help_text="Preço com desconto (opcional)"
+    )
+    data_inicio_promocao = models.DateTimeField(_('Início da Promoção'), null=True, blank=True)
+    data_fim_promocao = models.DateTimeField(_('Fim da Promoção'), null=True, blank=True)
+    
+    vagas_minimas = models.PositiveIntegerField(_('Vagas Mínimas por Turma'), default=1, help_text="Número mínimo de alunos para uma turma acontecer")
+    
+    data_inicio_inscricoes = models.DateTimeField(_('Início das Inscrições'), default=timezone.now)
+    data_fim_inscricoes = models.DateTimeField(_('Fim das Inscrições'), null=True, blank=True)
+    
+    modalidade = models.CharField(_('Modalidade'), max_length=10, choices=MODALIDADE_CHOICES, default='PRESENCIAL')
     ativo = models.BooleanField(_('Curso Ativo'), default=True)
     publicado = models.BooleanField(_('Publicado'), default=False)
     imagem = models.ImageField(_('Imagem do Curso'), upload_to='cursos/', null=True, blank=True)
     requisitos = models.TextField(_('Pré-requisitos'), blank=True, null=True)
-    video_apresentacao = models.URLField(_('Vídeo de Apresentação'), blank=True, null=True)
+    objetivo_geral = models.TextField(_('Objetivo Geral'), blank=True)
+    publico_alvo = models.TextField(_('Público-Alvo'), blank=True)
+    
     destaque = models.BooleanField(_('Curso em Destaque'), default=False)
+    permite_parcelamento = models.BooleanField(_('Permite Parcelamento'), default=False)
+    max_parcelas = models.PositiveIntegerField(_('Máximo de Parcelas'), default=1)
+    slug = models.SlugField(_('Slug'), unique=True, blank=True, help_text="URL amigável (preenchido automaticamente)")
+    tags = models.CharField(_('Tags'), max_length=500, blank=True, help_text="Palavras-chave separadas por vírgula")
+    
+    visualizacoes = models.PositiveIntegerField(_('Visualizações'), default=0)
+    data_criacao = models.DateTimeField(_('Data de Criação'), auto_now_add=True)
+    data_atualizacao = models.DateTimeField(_('Data de Atualização'), auto_now=True)
 
     def clean(self):
-        if self.data_inicio and self.data_termino:
-            if self.data_inicio.date() > self.data_termino:
-                raise ValidationError(_('A data de início deve ser anterior à data de término'))
+        if self.data_inicio_inscricoes and self.data_fim_inscricoes:
+            if self.data_inicio_inscricoes > self.data_fim_inscricoes:
+                raise ValidationError(_('A data de início das inscrições deve ser anterior à data de fim'))
+        
+        if self.preco_promocional and self.preco_promocional >= self.preco:
+            raise ValidationError(_('O preço promocional deve ser menor que o preço normal'))
 
     def __str__(self):
         return f"{self.titulo} - {self.centro.nome}"
 
     def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(f"{self.titulo}-{self.centro.nome}")
+        
+        original_slug = self.slug
+        counter = 1
+        while Curso.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
+            self.slug = f"{original_slug}-{counter}"
+            counter += 1
+        
         novo = self.pk is None  
         curso_antigo = None
         if not novo:
@@ -164,36 +223,387 @@ class Curso(models.Model):
 
         if self.publicado and (novo or (curso_antigo and not curso_antigo.publicado)):
             from .utils import notificar_seguidores  
-            notificar_seguidores(self)    
+            notificar_seguidores(self)
+
+    def atualizar_vagas_globais(self):
+        self.vagas_ocupadas = self.inscricoes.filter(status='A').count()
+        self.vagas_disponiveis = self.total_vagas_totais - self.vagas_ocupadas
+        self.save(update_fields=['vagas_ocupadas', 'vagas_disponiveis'])
+        
+        for turma in self.turmas.all():
+            turma.atualizar_vagas_turma()
+
+    def redistribuir_alunos_turmas(self):
+        if not self.turmas_abertas.exists():
+            return False
+        
+        alunos_sem_turma = self.inscricoes.filter(
+            status='A',
+            turma_escolhida__isnull=True
+        )
+        
+        for inscricao in alunos_sem_turma:
+            turma_disponivel = self.turmas_abertas.filter(
+                vagas_disponiveis__gt=0
+            ).first()
+            
+            if turma_disponivel:
+                inscricao.turma_escolhida = turma_disponivel
+                inscricao.save()
+                turma_disponivel.atualizar_vagas_turma()
+        
+        return True
+
+    def verificar_viabilidade_turmas(self):
+        turmas_abaixo_minimo = []
+        
+        for turma in self.turmas_abertas:
+            if turma.vagas_ocupadas < self.vagas_minimas:
+                turmas_abaixo_minimo.append(turma)
+        
+        return turmas_abaixo_minimo
+
+    def fechar_turmas_insuficientes(self):
+        turmas_insuficientes = self.verificar_viabilidade_turmas()
+        
+        for turma in turmas_insuficientes:
+            turma.status = 'CANCELADA'
+            turma.save()
+            
+            for inscricao in turma.inscricoes_turma.filter(inscricao__status='A'):
+                try:
+                    inscricao.inscricao.enviar_email_status(
+                        f"Turma {turma.nome} foi cancelada por não atingir o número mínimo de alunos."
+                    )
+                except Exception:
+                    pass
+        
+        return len(turmas_insuficientes)
+
+    @property
+    def preco_atual(self):
+        agora = timezone.now()
+        if (self.preco_promocional and 
+            self.data_inicio_promocao and 
+            self.data_fim_promocao and
+            self.data_inicio_promocao <= agora <= self.data_fim_promocao):
+            return self.preco_promocional
+        return self.preco
+
+    @property
+    def em_promocao(self):
+        agora = timezone.now()
+        return (self.preco_promocional and 
+                self.data_inicio_promocao and 
+                self.data_fim_promocao and
+                self.data_inicio_promocao <= agora <= self.data_fim_promocao)
+
+    @property
+    def percentual_desconto(self):
+        if self.em_promocao and self.preco > 0:
+            return ((self.preco - self.preco_promocional) / self.preco) * 100
+        return 0
+
+    @property
+    def inscricoes_abertas(self):
+        agora = timezone.now()
+        if self.data_fim_inscricoes:
+            return self.data_inicio_inscricoes <= agora <= self.data_fim_inscricoes
+        return agora >= self.data_inicio_inscricoes
+
+    @property
+    def turmas_ativas(self):
+        return self.turmas.filter(status__in=['ABERTA', 'EM_ANDAMENTO'])
+
+    @property
+    def turmas_abertas(self):
+        return self.turmas.filter(status='ABERTA', vagas_disponiveis__gt=0)
+
+    @property
+    def total_vagas_totais(self):
+        return self.turmas_ativas.aggregate(
+            total=models.Sum('vagas_totais')
+        )['total'] or 0
+
+    @property
+    def total_vagas_disponiveis(self):
+        return self.total_vagas_totais - self.vagas_ocupadas
+
+    @property
+    def lotado(self):
+        return self.total_vagas_disponiveis <= 0
+
+    @property
+    def possui_turmas_ativas(self):
+        return self.turmas_ativas.exists()
+
+    @property
+    def turnos_disponiveis(self):
+        return self.turmas_ativas.values_list('turno', flat=True).distinct()
+
+    def get_turmas_por_turno(self, turno):
+        return self.turmas_ativas.filter(turno=turno)
+
+    def get_proxima_turma(self):
+        return self.turmas_ativas.order_by('data_inicio').first()
+
+    def get_turma_menos_lotada(self):
+        return self.turmas_abertas.order_by('-vagas_disponiveis').first()
+
+    def incrementar_visualizacao(self):
+        self.visualizacoes += 1
+        self.save(update_fields=['visualizacoes'])
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('curso_detalhe', kwargs={'slug': self.slug})
+
+
+
+class Turma(models.Model):
+    STATUS_CHOICES = [
+        ('ABERTA', 'Aberta'),
+        ('EM_ANDAMENTO', 'Em Andamento'),
+        ('CONCLUIDA', 'Concluída'),
+        ('CANCELADA', 'Cancelada'),
+    ]
+
+    TURNO_CHOICES = [
+        ('MANHA', 'Manhã'),
+        ('TARDE', 'Tarde'),
+        ('NOITE', 'Noite'),
+        ('INTEGRAL', 'Integral'),
+        ('SABADO', 'Sábado'),
+        ('DOMINGO', 'Domingo'),
+    ]
+
+    DIAS_SEMANA_CHOICES = [
+        ('SEG', 'Segunda'),
+        ('TER', 'Terça'),
+        ('QUA', 'Quarta'),
+        ('QUI', 'Quinta'),
+        ('SEX', 'Sexta'),
+        ('SAB', 'Sábado'),
+        ('DOM', 'Domingo'),
+    ]
+    
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='turmas')
+    nome = models.CharField(_('Nome da Turma'), max_length=100)
+    codigo = models.CharField(_('Código da Turma'), max_length=20, unique=True)
+    
+    data_inicio = models.DateField(_('Data de Início'))
+    data_fim = models.DateField(_('Data de Término'))
+    
+    turno = models.CharField(_('Turno'), max_length=10, choices=TURNO_CHOICES, default='MANHA')
+    horario_inicio = models.TimeField(_('Horário de Início'))
+    horario_fim = models.TimeField(_('Horário de Término'))
+    dias_semana = models.CharField(_('Dias da Semana'), max_length=100, help_text="Ex: SEG,QUA,SEX ou TER,QUI")
+    
+    vagas_totais = models.PositiveIntegerField(_('Vagas Totais'))
+    vagas_ocupadas = models.PositiveIntegerField(_('Vagas Ocupadas'), default=0)
+    vagas_disponiveis = models.PositiveIntegerField(_('Vagas Disponíveis'), default=0)
+    
+    local = models.CharField(_('Local das Aulas'), max_length=200, blank=True)
+    sala = models.CharField(_('Sala'), max_length=50, blank=True)
+    
+    status = models.CharField(_('Status'), max_length=20, choices=STATUS_CHOICES, default='ABERTA')
+    observacoes = models.TextField(_('Observações'), blank=True)
+    
+    instrutor_principal = models.ForeignKey(
+        'Instrutor',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_('Instrutor Principal')
+    )
+    
+    data_criacao = models.DateTimeField(auto_now_add=True)
+    data_atualizacao = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = _('Curso')
-        verbose_name_plural = _('Cursos')
-        db_table = 'cursos'
-        ordering = ['data_inicio']
-        indexes = [models.Index(fields=['titulo', 'centro'])]
+        verbose_name = _('Turma')
+        verbose_name_plural = _('Turmas')
+        ordering = ['data_inicio', 'turno']
+        unique_together = ['curso', 'codigo']
 
+    def __str__(self):
+        return f"{self.nome} - {self.curso.titulo} ({self.get_turno_display()})"
 
+    def save(self, *args, **kwargs):
+        self.vagas_disponiveis = self.vagas_totais - self.vagas_ocupadas
+        
+        if not self.codigo:
+            base_codigo = f"T{self.curso.id}_{self.turno[:3]}_{timezone.now().strftime('%H%M%S')}"
+            self.codigo = base_codigo.upper()
+        
+        super().save(*args, **kwargs)
 
-from django.core.mail import send_mail
-from django.conf import settings
+    def atualizar_vagas_turma(self):
+        self.vagas_ocupadas = self.inscricoes_turma.filter(inscricao__status='A').count()
+        self.vagas_disponiveis = self.vagas_totais - self.vagas_ocupadas
+        self.save(update_fields=['vagas_ocupadas', 'vagas_disponiveis'])
+
+    @property
+    def inscricoes_turma(self):
+        return self.curso.inscricoes.filter(turma_escolhida=self)
+
+    @property
+    def alunos_confirmados(self):
+        from usuarios.models import Aluno
+        return Aluno.objects.filter(
+            inscricoes__turma_escolhida=self,
+            inscricoes__status='A'
+        ).distinct()
+
+    @property
+    def percentual_ocupacao(self):
+        if self.vagas_totais == 0:
+            return 0
+        return (self.vagas_ocupadas / self.vagas_totais) * 100
+
+    @property
+    def atingiu_minimo(self):
+        return self.vagas_ocupadas >= self.curso.vagas_minimas
+
+    @property
+    def dias_semana_list(self):
+        return self.dias_semana.split(',')
+
+    @property
+    def horario_formatado(self):
+        return f"{self.horario_inicio.strftime('%H:%M')} - {self.horario_fim.strftime('%H:%M')}"
+
+    @property
+    def duracao_semanas(self):
+        if self.data_inicio and self.data_fim:
+            dias = (self.data_fim - self.data_inicio).days
+            return max(1, dias // 7)
+        return 0
+
+    def pode_ser_excluida(self):
+        return self.vagas_ocupadas == 0 and self.status == 'ABERTA'
+
+    def fechar_inscricoes(self):
+        if self.status == 'ABERTA':
+            self.status = 'EM_ANDAMENTO'
+            self.save()
+
+    def reabrir_inscricoes(self):
+        if self.status == 'EM_ANDAMENTO' and self.vagas_disponiveis > 0:
+            self.status = 'ABERTA'
+            self.save()
 
 class Inscricao(models.Model):
     STATUS_CHOICES = [
         ('P', 'Pendente'),
         ('A', 'Aceita'),
         ('N', 'Negada'),
+        ('C', 'Cancelada'),
+    ]
+
+    TIPO_INSCRICAO_CHOICES = [
+        ('ONLINE', 'Online'),
+        ('PRESENCIAL', 'Presencial'),
+    ]
+
+    FORMA_PAGAMENTO_CHOICES = [
+        ('DINHEIRO', 'Dinheiro'),
+        ('TRANSFERENCIA', 'Transferência'),
+        ('CARTAO_CREDITO', 'Cartão de Crédito'),
+        ('CARTAO_DEBITO', 'Cartão de Débito'),
+        ('DEPOSITO', 'Depósito'),
+        ('OUTRO', 'Outro'),
     ]
 
     aluno = models.ForeignKey('usuarios.Aluno', on_delete=models.CASCADE, related_name='inscricoes')
-    curso = models.ForeignKey('Curso', on_delete=models.CASCADE, related_name='inscricoes')
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='inscricoes')
+    turma_escolhida = models.ForeignKey(
+        Turma,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_('Turma Escolhida'),
+        related_name='inscricoes_turma'
+    )
+    
     data_inscricao = models.DateTimeField(_('Data de Inscrição'), default=timezone.now)
     status = models.CharField(_('Status'), max_length=1, choices=STATUS_CHOICES, default='P')
+    tipo_inscricao = models.CharField(_('Tipo de Inscrição'), max_length=10, choices=TIPO_INSCRICAO_CHOICES, default='ONLINE')
+    
+    forma_pagamento = models.CharField(_('Forma de Pagamento'), max_length=20, choices=FORMA_PAGAMENTO_CHOICES, blank=True)
+    valor_pago = models.DecimalField(_('Valor Pago'), max_digits=10, decimal_places=3, validators=[MinValueValidator(0)], null=True, blank=True)
+    data_pagamento = models.DateTimeField(_('Data de Pagamento'), null=True, blank=True)
+    comprovante_pagamento = models.FileField(_('Comprovante de Pagamento'), upload_to='comprovantes/', null=True, blank=True)
+    
+    observacoes = models.TextField(_('Observações'), blank=True)
+    data_confirmacao = models.DateTimeField(_('Data de Confirmação'), null=True, blank=True)
+    data_cancelamento = models.DateTimeField(_('Data de Cancelamento'), null=True, blank=True)
 
     def __str__(self):
         return f"{self.aluno.nome} → {self.curso.titulo} ({self.get_status_display()})"
 
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        old_status = None
+        
+        if not is_new:
+            try:
+                old_instance = Inscricao.objects.get(pk=self.pk)
+                old_status = old_instance.status
+            except Inscricao.DoesNotExist:
+                pass
+        
+        super().save(*args, **kwargs)
+        
+        if (self.status == 'A' and (is_new or old_status != 'A')) or \
+           (old_status == 'A' and self.status != 'A'):
+            self.curso.atualizar_vagas_globais()
+            
+            if self.turma_escolhida:
+                self.turma_escolhida.atualizar_vagas_turma()
+        
+        if self.status == 'A' and not self.data_confirmacao:
+            self.data_confirmacao = timezone.now()
+            self.save(update_fields=['data_confirmacao'])
+        elif self.status == 'C' and not self.data_cancelamento:
+            self.data_cancelamento = timezone.now()
+            self.save(update_fields=['data_cancelamento'])
+
+    def atribuir_turma_automaticamente(self):
+        if self.turma_escolhida or self.status != 'A':
+            return False
+        
+        turma_disponivel = self.curso.get_turma_menos_lotada()
+        if turma_disponivel:
+            self.turma_escolhida = turma_disponivel
+            self.save()
+            return True
+        return False
+
+    @property
+    def em_turma_especifica(self):
+        return self.turma_escolhida is not None
+
+    @property
+    def turma_atual(self):
+        return self.turma_escolhida or self.curso.get_proxima_turma()
+
+    @property
+    def valor_devido(self):
+        if self.valor_pago:
+            return self.curso.preco_atual - self.valor_pago
+        return self.curso.preco_atual
+
+    @property
+    def pagamento_completo(self):
+        return self.valor_pago and self.valor_pago >= self.curso.preco_atual
+
     def enviar_email_confirmacao(self, link_curso=None):
+        from django.core.mail import EmailMultiAlternatives
+        from django.template.loader import render_to_string
+        from django.utils.html import strip_tags
+        from django.conf import settings
+        
         contexto = {
             'aluno': self.aluno,
             'curso': self.curso,
@@ -214,6 +624,11 @@ class Inscricao(models.Model):
         msg.send()
 
     def enviar_email_status(self, link_curso=None):
+        from django.core.mail import EmailMultiAlternatives
+        from django.template.loader import render_to_string
+        from django.utils.html import strip_tags
+        from django.conf import settings
+        
         contexto = {
             'aluno': self.aluno,
             'curso': self.curso,
@@ -235,13 +650,10 @@ class Inscricao(models.Model):
         msg.attach_alternative(html, "text/html")
         msg.send()
 
-
     class Meta:
         verbose_name = _('Inscrição')
         verbose_name_plural = _('Inscrições')
         unique_together = ('aluno', 'curso')
-
-
 
 class Favorito(models.Model):
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, related_name='favoritos')

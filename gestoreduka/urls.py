@@ -19,5 +19,20 @@ urlpatterns = [
     path('cursos/publicar/<int:curso_id>/', views.publicar_curso, name='publicar_curso'),
     path('cursos/despublicar/<int:curso_id>/', views.despublicar_curso, name='despublicar_curso'),
     path('cursos/excluir/<int:curso_id>/', views.excluir_curso, name='excluir_curso'),
+    path('cursos/<int:curso_id>/overview/', views.curso_overview, name='curso_overview'),
+    path('cursos/<int:curso_id>/publicar-final/', views.publicar_curso_final, name='publicar_curso_final'),
+    #--------------------------------url chat-------------------------------
+    path('chat/', views.chat_centro, name='chat_centro'),
+    path('chat/enviar-mensagem/', views.enviar_mensagem_centro, name='enviar_mensagem_centro'),
+    path('chat/digitando/', views.atualizar_status_digitando, name='atualizar_status_digitando'),
+    path('chat/mensagens/<int:conversa_id>/', views.buscar_mensagens, name='buscar_mensagens'),
+
+
+
+
+    path('centro/<int:centro_id>/chat/modal/', views.centro_chat_modal, name='centro_chat_modal'),
+    path('chat/modal/enviar-mensagem/', views.enviar_mensagem_centro_modal, name='enviar_mensagem_centro_modal'),
+    path('chat/modal/atualizar-digitando/', views.atualizar_digitando_modal, name='atualizar_digitando_modal'),
+    path('chat/modal/buscar-mensagens/<int:conversa_id>/', views.buscar_mensagens_modal, name='buscar_mensagens_modal'),
 
 ]
