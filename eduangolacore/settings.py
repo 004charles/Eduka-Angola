@@ -22,6 +22,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+
+    'ckeditor',     
+    'ckeditor_uploader',
+
     'usuarios',
     'core',
     'cursos_app',
@@ -36,8 +41,7 @@ INSTALLED_APPS = [
 
 
 
-# Configuração do ASGI
-ASGI_APPLICATION = 'seu_projeto.asgi.application'
+ASGI_APPLICATION = 'eduangolacore.asgi.application'
 
 # Configuração do Channel Layer (para produção use Redis)
 CHANNEL_LAYERS = {
@@ -184,6 +188,9 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),  
 ]
+
+CKEDITOR_UPLOAD_PATH = 'ckeditor/uploads/'
+
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
