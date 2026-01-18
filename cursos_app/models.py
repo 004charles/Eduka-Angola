@@ -139,6 +139,13 @@ class Curso(models.Model):
     certificado = models.BooleanField(_('Fornece Certificado'), default=True)
     instrutores = models.ManyToManyField('Instrutor', related_name='cursos', verbose_name=_('Instrutores'))
     carga_horaria = models.PositiveIntegerField(_('Carga Horária (horas)'))
+
+
+    is_gratuito = models.BooleanField(
+        _('Curso Gratuito'),
+        default=False,
+        help_text='Define se o curso é gratuito ou pago'
+    )
     
     preco = models.DecimalField(
         _('Preço do Curso'),
@@ -189,6 +196,8 @@ class Curso(models.Model):
     visualizacoes = models.PositiveIntegerField(_('Visualizações'), default=0)
     data_criacao = models.DateTimeField(_('Data de Criação'), auto_now_add=True)
     data_atualizacao = models.DateTimeField(_('Data de Atualização'), auto_now=True)
+    data_inicio = models.DateField(null=True, blank=True)
+
 
     def clean(self):
         if self.data_inicio_inscricoes and self.data_fim_inscricoes:
@@ -224,6 +233,9 @@ class Curso(models.Model):
         if self.publicado and (novo or (curso_antigo and not curso_antigo.publicado)):
             from .utils import notificar_seguidores  
             notificar_seguidores(self)
+
+
+            
 
     def atualizar_vagas_globais(self):
         self.vagas_ocupadas = self.inscricoes.filter(status='A').count()

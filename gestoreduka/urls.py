@@ -6,6 +6,7 @@ urlpatterns = [
     path('dashboard/centro/', views.centro_dashboard, name='centro_dashboard'),
     path("cadastro/confirmar/<uuid:token>/", views.confirmar_cadastro, name="confirmar_cadastro"),
     path('login_gestor/', views.login_gestor, name='login_gestor'),
+    path('centros/buscar/', views.buscar_centros, name='buscar_centros'),
     path('logout_gestor/', views.logout_gestor, name = 'logout_gestor'),
     path('configuracoes/', views.configuracao_gestor, name='configuracao_gestor'),
     path('configuracoes/dados/', views.atualizar_dados_pessoais, name='atualizar_dados_pessoais'),

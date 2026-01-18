@@ -23,6 +23,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'pwa',
+
 
     'ckeditor',     
     'ckeditor_uploader',
@@ -184,7 +186,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATIC_URL = '/static/'
-#STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),  
 ]
@@ -242,3 +244,87 @@ JAZZMIN_UI_TWEAKS = {
     "sidebar_nav_flat_style": False,
     "theme": "darkly", 
 }
+
+
+PWA_APP_NAME = 'EdukaAngola'
+PWA_APP_SHORT_NAME = 'Eduka'
+PWA_APP_DESCRIPTION = "Plataforma de cursos online em Angola"
+PWA_APP_THEME_COLOR = '#007bff'
+PWA_APP_BACKGROUND_COLOR = '#ffffff'
+PWA_APP_DISPLAY = 'standalone'
+PWA_APP_SCOPE = '/'
+PWA_APP_START_URL = '/'
+PWA_APP_ICONS = [
+    {
+        "src": "/static/assets/images/Logo1.png",
+        "sizes": "192x192"
+    },
+    {
+        "src": "/static/assets/images/Logo1.png",
+        "sizes": "512x512"
+    }
+]
+
+
+
+# Configurações do PWA
+PWA_APP_NAME = 'EdukaAngola'
+PWA_APP_DESCRIPTION = "Plataforma de Educação Online"
+PWA_APP_THEME_COLOR = '#007bff'
+PWA_APP_BACKGROUND_COLOR = '#ffffff'
+PWA_APP_DISPLAY = 'standalone'
+PWA_APP_SCOPE = '/'
+PWA_APP_ORIENTATION = 'portrait'
+PWA_APP_START_URL = '/'
+PWA_APP_STATUS_BAR_COLOR = 'default'
+PWA_APP_ICONS = [
+    {
+        'src': '/static/assets/images/Logo1.png',
+        'sizes': '72x72'
+    },
+    {
+        'src': '/static/assets/images/Logo1.png',
+        'sizes': '96x96'
+    },
+    {
+        'src': '/static/assets/images/Logo1.png',
+        'sizes': '128x128'
+    },
+    {
+        'src': '/static/assets/images/icons/icon-144x144.png',
+        'sizes': '144x144'
+    },
+    {
+        'src': '/static/assets/images/Logo1.png',
+        'sizes': '152x152'
+    },
+    {
+        'src': '/static/assets/images/Logo1.png',
+        'sizes': '192x192'
+    },
+    {
+        'src': '/static/assets/images/Logo1.png',
+        'sizes': '384x384'
+    },
+    {
+        'src': '/static/assets/images/Logo1.png',
+        'sizes': '512x512'
+    }
+]
+PWA_APP_ICONS_APPLE = [
+    {
+        'src': '/static/assets/images/Logo1.png',
+        'sizes': '180x180'
+    }
+]
+PWA_APP_SPLASH_SCREEN = [
+    {
+        'src': '/static/assets/images/Logo1.png',
+        'media': '(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)'
+    }
+]
+PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'static', 'js', 'serviceworker.js')
+
+PWA_APP_DIR = 'ltr'
+PWA_APP_LANG = 'pt-BR'
+

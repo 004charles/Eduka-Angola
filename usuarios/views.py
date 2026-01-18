@@ -24,6 +24,8 @@ from django.shortcuts import redirect
 from hashlib import sha256
 from django.db import IntegrityError
 from .models import Biblioteca
+from .decorators import aluno_logado_e_centros
+
 
 
 def conta_aluno(request):
@@ -66,23 +68,43 @@ def Login_aluno(request):
 
     return render(request, 'login_aluno.html', {'status':status, 'cursos_destaque':cursos_destaque})
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.gis.geos import Point
+from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.measure import D
+from gestoreduka.models import CentroDeFormacao
+from usuarios.models import Aluno, PerfilAluno
+
+@aluno_logado_e_centros
 def aluno(request):
-    if 'aluno' not in request.session:
-        return redirect('/auth/Login_aluno?status=4')  
-    
-    try:
-        aluno = Aluno.objects.get(id=request.session['aluno'])
-        aluno = get_object_or_404(Aluno, id=request.session['aluno'])
+    # Aqui você deve ter acesso aos atributos adicionados pelo decorator
+    return render(request, 'aluno.html', {
+        'aluno_logado': True,
+        'aluno_nome': request.aluno_obj.nome,
+        'perfil': request.perfil,
+        'centros': request.centros,
+    })
 
-        cursos_destaque = Curso.objects.filter(
-        destaque=True, publicado=True, ativo=True
-    ).select_related('centro').prefetch_related('instrutores')
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import json
+from django.contrib.gis.geos import Point
 
-        
-        perfil, created = PerfilAluno.objects.get_or_create(aluno=aluno)
-        return render(request, 'aluno.html', {'aluno_logado': True, 'aluno_nome': aluno.nome, 'perfil': perfil})
-    except Aluno.DoesNotExist:
-        return redirect('/auth/Login_aluno?status=4')
+@csrf_exempt
+def atualizar_localizacao(request):
+    if request.method == "POST" and request.session.get('aluno'):
+        data = json.loads(request.body)
+        lat = data.get("lat")
+        lng = data.get("lng")
+
+        if lat and lng:
+            aluno = get_object_or_404(Aluno, id=request.session['aluno'])
+            perfil, created = PerfilAluno.objects.get_or_create(aluno=aluno)
+            perfil.localizacao = Point(float(lng), float(lat), srid=4326)
+            perfil.save()
+            return JsonResponse({"status": "sucesso"})
+    return JsonResponse({"status": "erro"}, status=400)
+
         
 def Logout(request):
     print(">>> Logout view executada")

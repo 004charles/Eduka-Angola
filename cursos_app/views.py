@@ -9,6 +9,52 @@ from cursos_app.models import Favorito, CentroDeFormacao
 from usuarios.models import Comentario, CentroSeguimento
 from core.models import Galeria
 from cursovideoapp.models import Curso_video
+from usuarios.decorators import aluno_logado_e_centros
+from django.utils import timezone
+
+
+from django.db.models import Count, Q, Prefetch
+
+def home_cursos(request):
+    agora = timezone.now()
+    
+    cursos_destaque = Curso.objects.filter(
+        destaque=True, 
+        publicado=True, 
+        ativo=True
+    ).select_related('centro').prefetch_related('instrutores')
+
+    categorias = Categoria.objects.prefetch_related(
+        Prefetch(
+            'curso',
+            queryset=Curso.objects.filter(publicado=True, ativo=True),
+            to_attr='cursos_ativos'
+        )
+    ).annotate(
+        num_cursos=Count('curso', filter=Q(curso__publicado=True, curso__ativo=True))
+    ).filter(num_cursos__gt=0)
+
+    
+    
+    context = {
+        'cursos_destaque': cursos_destaque,
+        'categorias': categorias,  # <-- importante passar para o template
+    }
+    
+    if 'aluno' in request.session:
+        try:
+            aluno = Aluno.objects.get(id=request.session['aluno'])
+            favoritos = Favorito.objects.filter(aluno=aluno).values_list('curso_id', flat=True)
+            context.update({
+                'aluno_logado': True,
+                'favoritos': list(favoritos),
+            })
+        except Aluno.DoesNotExist:
+            pass
+    
+    return render(request, 'home_cursos.html', context)
+
+
 
 def inscrever_curso(request, curso_id):
     aluno_id = request.session.get('aluno')
@@ -409,8 +455,6 @@ def adicionar_favorito(request, curso_id):
 
 
 
-def home_cursos(request):
-    return render(request, 'home_cursos.html')
 
 def curso_detalhe(request, id):
     if 'aluno' not in request.session:
@@ -477,7 +521,7 @@ def curso_detalhe(request, id):
     return render(request, 'curso_detalhe.html', context)
 
 
-
+@aluno_logado_e_centros
 def instrutor_detalhes(request, id):
     instrutor = get_object_or_404(Instrutor, id=id)
     
@@ -490,7 +534,7 @@ def instrutor_detalhes(request, id):
     
     return render(request, 'curso_detalhe.html', context)
 
-
+@aluno_logado_e_centros
 def cursos_por_centro(request, centro_id):
     context = {
         'aluno_logado': False,
@@ -521,7 +565,7 @@ def cursos_por_centro(request, centro_id):
         cursos = centro.cursos.filter(
             categoria=categoria,
             publicado=True
-        ).order_by('-destaque', 'data_inicio_inscricoes')  # CORREÇÃO AQUI
+        ).order_by('-destaque', 'data_inicio_curso') 
 
         cursos_por_categoria.append({
             'categoria': categoria,
@@ -542,7 +586,8 @@ def cursos_por_centro(request, centro_id):
     })
 
     return render(request, 'cursos_por_centro.html', context)
-    
+
+@aluno_logado_e_centros   
 def instrutores_do_centro(request, centro_id):
     context = {
         'aluno_logado': False,
@@ -571,6 +616,7 @@ def instrutores_do_centro(request, centro_id):
 
     return render(request, 'cursos_porcentro.html', context)
 
+@aluno_logado_e_centros
 def cursos_por_categoria(request, slug):
     context = {
         'aluno_logado': False,
@@ -608,6 +654,7 @@ def cursos_por_categoria(request, slug):
 
     return render(request, 'curso_categoria.html', context)
 
+@aluno_logado_e_centros
 def pagina_categoria(request):
     imagens = Galeria.objects.all()[:6]
     context = {
@@ -640,7 +687,7 @@ def pagina_categoria(request):
 
     return render(request, 'core/categoria.html', context)
 
-
+@aluno_logado_e_centros
 def todo_curso(request):
     context = {
         'aluno_logado': False,
@@ -663,7 +710,7 @@ def todo_curso(request):
         cursos = Curso.objects.filter(
             categoria=categoria,
             publicado=True
-        ).order_by('-destaque', 'data_inicio')
+        ).order_by('-destaque', 'data_inicio_curso')
 
         if cursos.exists():
             categorias_com_cursos.append({
@@ -709,7 +756,7 @@ def lista_centros(request):
     centros = CentroDeFormacao.objects.filter(ativo=True)
     return render(request, 'core/index.html', {'centros': centros})
 
-
+@aluno_logado_e_centros
 def buscar_cursos(request):
     termo = request.GET.get('q', '').strip()
     centro_id = request.GET.get('centro')

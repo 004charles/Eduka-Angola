@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">edukangola</string>
+    <string name="title_activity_main">edukangola</string>
+    <string name="package_name">com.edukangola.app</string>
+    <string name="custom_url_scheme">com.edukangola.app</string>
+</resources>

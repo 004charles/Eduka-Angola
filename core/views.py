@@ -25,6 +25,8 @@ from datetime import timedelta
 from cursovideoapp.models import Curso_video
 from .models import SobreNos
 from estagio.models import Estagio
+from usuarios.decorators import aluno_logado_e_centros
+
 
 
 def index(request):
@@ -138,6 +140,12 @@ def index(request):
             pass
 
     return render(request, 'core/index.html', context)
+
+
+
+
+#-------------------------fim homes-----------------------------------------
+
 
 def erro_404_view(request, exception):
     context = {

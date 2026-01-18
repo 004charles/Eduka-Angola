@@ -7,14 +7,14 @@
                     <div class="footer-widget">
                         <div style="width: 100px; height: auto;" class="logo logo-dark">
                             <a href="{% url 'index' %}">
-                                <img src="{% static 'assets/images/Logo1.png' %}" alt="EduAngola"
-                                    style="filter: brightness(0); width: 100%; height: auto;">
+                                <img src="{% static 'assets/images/logo/logo1-removebg-preview.png' %}" alt="EduAngola"
+                                    >
                             </a>
                         </div>
                         <div style="width: 100px; height: auto;" class="logo d-none logo-light">
                             <a href="{% url 'index' %}">
-                                <img src="{% static 'assets/images/Logo1.png' %}" alt="EduAngola"
-                                    style="filter: brightness(0); width: 100%; height: auto;">
+                                <img style="width: 500px;" src="{% static 'assets/images/logo/logo1-removebg-preview.png' %}" alt="EduAngola"
+                                    >
                             </a>
                         </div>
 
@@ -144,3 +144,21 @@
         <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" />
     </svg>
 </div>
+
+
+<script>
+navigator.geolocation.getCurrentPosition(function(position) {
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+
+    fetch("{% url 'atualizar_localizacao' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}",
+        },
+        body: JSON.stringify({ lat: latitude, lng: longitude })
+    });
+});
+</script>
+

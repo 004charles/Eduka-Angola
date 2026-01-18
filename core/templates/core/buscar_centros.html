@@ -1,0 +1,355 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Mapa de Centros | EduKangola</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- CSS do Leaflet -->
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+        }
+        
+        #map {
+            height: 100vh;
+            width: 100%;
+            background-color: #f0f0f0;
+        }
+        
+        .header-info {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #d32f2f;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .centro-link {
+            display: inline-block;
+            background: #d32f2f;
+            color: white;
+            padding: 8px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 10px;
+            text-align: center;
+            transition: background 0.3s;
+        }
+        
+        .centro-link:hover {
+            background: #b71c1c;
+        }
+    </style>
+</head>
+<body>
+    
+
+<!-- Tela de carregamento -->
+<div class="loading" id="loading">
+    <div class="spinner"></div>
+    <h3>Carregando mapa...</h3>
+</div>
+
+<!-- Mapa -->
+<div id="map"></div>
+
+<div class="header-info">
+    <h3 style="color: #d32f2f; margin: 0 0 10px 0;">Centros de Formação</h3>
+    <p style="margin: 0; font-size: 14px;">Total: <span id="total-centros">0</span> centros</p>
+</div>
+
+<script>
+// Carregar Leaflet
+document.addEventListener('DOMContentLoaded', function() {
+    // Carregar CSS do Leaflet
+    var leafletCSS = document.createElement('link');
+    leafletCSS.rel = 'stylesheet';
+    leafletCSS.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    document.head.appendChild(leafletCSS);
+    
+    // Carregar JS do Leaflet
+    var leafletJS = document.createElement('script');
+    leafletJS.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    leafletJS.onload = initMap;
+    leafletJS.onerror = function() {
+        console.error('Erro ao carregar Leaflet');
+        alert('Erro ao carregar o mapa. Verifique sua conexão com a internet.');
+    };
+    document.head.appendChild(leafletJS);
+});
+
+function initMap() {
+    try {
+        // Cria o mapa
+        const map = L.map('map', {
+            center: [-8.839, 13.289],
+            zoom: 12,
+            zoomControl: true
+        });
+        
+        // Adiciona camada do mapa
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+        
+        // Array para armazenar os centros
+        const centros = [];
+        // Dicionário para armazenar URLs
+        const centroUrls = {};
+        
+        // Verificar se há dados do Django
+        {% if centros %}
+            console.log('Encontrados {{ centros|length }} centros no Django');
+            
+            {% for centro in centros %}
+                {% if centro.localizacao %}
+                    try {
+                        // Criar objeto centro com os dados
+                        const centroObj = {
+                            id: {{ centro.id|default:"0" }},
+                            nome: "{{ centro.nome|escapejs }}",
+                            lat: parseFloat("{{ centro.localizacao.y|floatformat:'6' }}"),
+                            lng: parseFloat("{{ centro.localizacao.x|floatformat:'6' }}"),
+                            endereco: "{{ centro.get_endereco_completo|default:'Endereço não disponível'|escapejs }}",
+                            telefone: "{{ centro.telefone|default:''|escapejs }}",
+                            email: "{{ centro.email|default:''|escapejs }}",
+                            // URL para o perfil do centro
+                            url: "{% url 'cursos_por_centro' centro.id %}"
+                        };
+                        
+                        console.log('Centro adicionado:', centroObj.nome, 'URL:', centroObj.url);
+                        centros.push(centroObj);
+                        
+                        // Armazenar URL no dicionário
+                        centroUrls[centroObj.id] = centroObj.url;
+                    } catch (e) {
+                        console.error('Erro ao processar centro:', e);
+                    }
+                {% else %}
+                    console.log('Centro sem localização: {{ centro.nome|escapejs }}');
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            console.log('Nenhum centro encontrado no Django, usando exemplo');
+            // Dados de exemplo se não houver centros no Django
+            centros.push({
+                id: 1,
+                nome: "Centro Principal EduKangola",
+                lat: -8.839,
+                lng: 13.289,
+                endereco: "Luanda, Angola",
+                telefone: "+244 222 123 456",
+                email: "info@edukangola.ao",
+                url: "#" // URL de exemplo
+            });
+        {% endif %}
+        
+        // Atualiza contador
+        document.getElementById('total-centros').textContent = centros.length;
+        console.log('Total de centros no mapa:', centros.length);
+        
+        // Adiciona marcadores
+        if (centros.length === 0) {
+            console.log('Nenhum centro encontrado');
+            
+            // Mostra marcador padrão
+            L.marker([-8.839, 13.289])
+                .addTo(map)
+                .bindPopup('<b>EduKangola</b><br>Sede Principal')
+                .openPopup();
+        } else {
+            // Adiciona cada centro
+            centros.forEach((centro, index) => {
+                try {
+                    // Cria marcador
+                    const marker = L.marker([centro.lat, centro.lng]).addTo(map);
+                    
+                    // Cria conteúdo do popup COM LINK
+                    let popupContent = `
+                        <div style="min-width: 250px; padding: 5px;">
+                            <h4 style="color: #d32f2f; margin: 0 0 10px 0; border-bottom: 2px solid #d32f2f; padding-bottom: 5px;">
+                                ${centro.nome}
+                            </h4>
+                            <div style="margin-bottom: 8px;">
+                                <strong>📍 Endereço:</strong><br>
+                                ${centro.endereco}
+                            </div>`;
+                    
+                    if (centro.telefone && centro.telefone.trim() !== '') {
+                        popupContent += `
+                            <div style="margin-bottom: 8px;">
+                                <strong>📞 Telefone:</strong><br>
+                                ${centro.telefone}
+                            </div>`;
+                    }
+                    
+                    if (centro.email && centro.email.trim() !== '') {
+                        popupContent += `
+                            <div style="margin-bottom: 8px;">
+                                <strong>✉️ Email:</strong><br>
+                                ${centro.email}
+                            </div>`;
+                    }
+                    
+                    // Adiciona link para o perfil do centro
+                    if (centro.url && centro.url !== '#') {
+                        popupContent += `
+                            <div style="text-align: center; margin-top: 15px;">
+                                <a href="${centro.url}" class="centro-link" target="_blank">
+                                    Ver Perfil do Centro
+                                </a>
+                            </div>`;
+                    }
+                    
+                    popupContent += `</div>`;
+                    
+                    // Adiciona popup ao marcador
+                    marker.bindPopup(popupContent);
+                    
+                    // Adiciona evento de clique que redireciona para o perfil
+                    marker.on('click', function(e) {
+                        // Abre o popup
+                        marker.openPopup();
+                        
+                        // Se o centro tiver URL válida, também podemos fazer o clique redirecionar
+                        // (opcional, já que tem o link no popup)
+                        if (centro.url && centro.url !== '#') {
+                            // Opcional: redirecionar automaticamente ao clicar
+                            // window.open(centro.url, '_blank');
+                        }
+                    });
+                    
+                    // Adiciona tooltip com o nome
+                    marker.bindTooltip(centro.nome, {
+                        permanent: false,
+                        direction: 'top',
+                        offset: [0, -10],
+                        className: 'centro-tooltip'
+                    });
+                    
+                    // Abre o primeiro marcador
+                    if (index === 0) {
+                        marker.openPopup();
+                    }
+                    
+                } catch (error) {
+                    console.error('Erro ao criar marcador para', centro.nome, ':', error);
+                }
+            });
+            
+            // Ajusta o zoom para mostrar todos os marcadores
+            if (centros.length > 1) {
+                const bounds = L.latLngBounds([]);
+                centros.forEach(centro => {
+                    bounds.extend([centro.lat, centro.lng]);
+                });
+                map.fitBounds(bounds, { padding: [50, 50] });
+            } else if (centros.length === 1) {
+                // Se tiver apenas um centro, centraliza nele com zoom adequado
+                map.setView([centros[0].lat, centros[0].lng], 14);
+            }
+        }
+        
+        // Adiciona estilo para tooltips e links
+        const style = document.createElement('style');
+        style.textContent = `
+            .centro-tooltip {
+                background: white;
+                border: 1px solid #d32f2f;
+                border-radius: 4px;
+                padding: 4px 8px;
+                font-weight: bold;
+                color: #d32f2f;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            }
+            
+            .leaflet-popup-content a.centro-link {
+                display: inline-block;
+                background: #d32f2f;
+                color: white;
+                padding: 8px 15px;
+                text-decoration: none;
+                border-radius: 5px;
+                font-weight: bold;
+                margin-top: 10px;
+                text-align: center;
+                transition: background 0.3s;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            
+            .leaflet-popup-content a.centro-link:hover {
+                background: #b71c1c;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Esconde loading
+        setTimeout(function() {
+            document.getElementById('loading').style.display = 'none';
+        }, 500);
+        
+    } catch (error) {
+        console.error('ERRO ao inicializar mapa:', error);
+        document.getElementById('loading').innerHTML = `
+            <div style="text-align: center; padding: 20px;">
+                <h3 style="color: #d32f2f;">⚠️ Erro ao carregar mapa</h3>
+                <p>${error.message}</p>
+                <button onclick="window.location.reload()" 
+                        style="background: #d32f2f; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+                    Tentar Novamente
+                </button>
+            </div>
+        `;
+    }
+}
+
+// Fallback se algo der errado
+setTimeout(function() {
+    if (document.getElementById('loading').style.display !== 'none') {
+        console.log('Tentando carregar fallback...');
+        initMap();
+    }
+}, 5000);
+</script>
+
+</body>
+</html>

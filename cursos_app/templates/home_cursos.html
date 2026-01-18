@@ -20,12 +20,14 @@
         <ul>
             <li>
                 <a href="javascript: void(0);" data-theme="light" class="setColor light">
-                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode"> Light</span>
+                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode">
+                        Light</span>
                 </a>
             </li>
             <li>
                 <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
-                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span title="Dark Mode"> Dark</span>
+                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span
+                        title="Dark Mode"> Dark</span>
                 </a>
             </li>
         </ul>
@@ -35,9 +37,9 @@
     {% include 'include/header.html' %}
 
     <!-- Mobile Menu Section -->
-    
+
     <!-- Start Side Vav -->
-    
+
     <!-- End Side Vav -->
     <a class="close_side_menu" href="javascript:void(0);"></a>
 
@@ -49,14 +51,24 @@
                     <div class="content">
                         <div class="inner">
                             <div class="rbt-new-badge rbt-new-badge-one">
-                                <span class="rbt-new-badge-icon">🏆</span> Líder em Educação Online
+                                <span class="rbt-new-badge-icon">🏆</span> Cursos Certificados e Atualizados
                             </div>
-                            <h1 class="title">A Maior Plataforma de <span class="color-primary">Aprendizado Online</span> para Impulsionar Sua Carreira.</h1>
-                            <p class="description">A EducAngola oferece acesso a cursos, escolas e bibliotecas, conectando você ao futuro da educação. Construa sua <strong>jornada de aprendizado com facilidade</strong>.</p>
+
+                            <h1 class="title">
+                                Encontre os <span class="color-primary">Melhores Cursos</span>
+                                para Desenvolver as Suas Competências
+                            </h1>
+
+                            <p class="description">
+                                Explore uma ampla variedade de cursos técnicos, profissionais e académicos,
+                                ministrados por centros de formação e especialistas qualificados em Angola.
+                                Aprenda no seu ritmo e avance na sua carreira.
+                            </p>
+
                             <div class="slider-btn">
-                                <a class="rbt-btn btn-gradient hover-icon-reverse" href="05-classic-lms.html#">
+                                <a class="rbt-btn btn-gradient hover-icon-reverse" href="#">
                                     <span class="icon-reverse-wrapper">
-                                        <span class="btn-text">Ver Cursos</span>
+                                        <span class="btn-text">Explorar Cursos</span>
                                         <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                         <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                     </span>
@@ -64,137 +76,88 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
                 <div class="col-lg-4">
                     <div class="content">
                         <div class="banner-card pb--60 swiper rbt-dot-bottom-center banner-swiper-active">
                             <div class="swiper-wrapper">
-                                <!-- Start Single Card  -->
+                                {% for curso in cursos_destaque %}
                                 <div class="swiper-slide">
                                     <div class="rbt-card variation-01 rbt-hover">
+
+                                        <!-- IMAGEM -->
                                         <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/classic-lms-01.jpg' %}" alt="Imagem do card">
+                                            <a href="{% url 'curso_detalhe' id=curso.id %}">
+                                                {% if curso.imagem %}
+                                                <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}">
+                                                {% else %}
+                                                <img src="{% static 'assets/images/course/classic-lms-01.jpg' %}"
+                                                    alt="{{ curso.titulo }}">
+                                                {% endif %}
+
+                                                {% if curso.em_promocao %}
                                                 <div class="rbt-badge-3 bg-white">
-                                                    <span>-40%</span>
+                                                    <span>-{{ curso.percentual_desconto|floatformat:0 }}%</span>
                                                     <span>Off</span>
                                                 </div>
+                                                {% endif %}
                                             </a>
                                         </div>
+
+                                        <!-- CONTEÚDO -->
                                         <div class="rbt-card-body">
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>12 Aulas</li>
-                                                <li><i class="feather-users"></i>50 Alunos</li>
-                                            </ul>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">React</a>
+
+                                            <!-- TÍTULO -->
+                                            <h4 class="rbt-card-title">
+                                                <a href="{% url 'curso_detalhe' id=curso.id %}">
+                                                    {{ curso.titulo }}
+                                                </a>
                                             </h4>
-                                            <p class="rbt-card-text">É um fato há muito estabelecido que um leitor se distrairá.</p>
-                                            <div class="rbt-review">
-                                                <div class="rating">
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                </div>
-                                                <span class="rating-count"> (15 Avaliações)</span>
-                                            </div>
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz70</span>
-                                                    <span class="off-price">kz120</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Saiba Mais<i
-                                                        class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Card  -->
 
-                                <!-- Start Single Card  -->
-                                <div class="swiper-slide">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-01.jpg' %}" alt="Imagem do Curso">
-                                                <div class="rbt-badge-3 bg-white">
-                                                    <span>-40%</span>
-                                                    <span>Desconto</span>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>12 Aulas</li>
-                                                <li><i class="feather-users"></i>50 Alunos</li>
-                                            </ul>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">React</a></h4>
-                                            <p class="rbt-card-text">É um fato conhecido que distrairá o leitor.</p>
-                                            <div class="rbt-review">
-                                                <div class="rating">
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                </div>
-                                                <span class="rating-count"> (15 Avaliações)</span>
-                                            </div>
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    <span class="current-price">kz70</span>
-                                                    <span class="off-price">kz120</span>
-                                                </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Saiba Mais<i
-                                                        class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Card  -->
+                                            <!-- DESCRIÇÃO CURTA -->
+                                            <p class="rbt-card-text">
+                                                {% if curso.descricao_curta %}
+                                                {{ curso.descricao_curta|truncatechars:80 }}
+                                                {% else %}
+                                                {{ curso.descricao|truncatechars:80 }}
+                                                {% endif %}
+                                            </p>
 
-                                <!-- Start Single Card  -->
-                                <div class="swiper-slide">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="course-details.html">
-                                                <img src="{% static 'assets/images/course/course-online-01.jpg' %}" alt="Imagem do Curso">
-                                                <div class="rbt-badge-3 bg-white">
-                                                    <span>-40%</span>
-                                                    <span>Desconto</span>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body">
-                                            <ul class="rbt-meta">
-                                                <li><i class="feather-book"></i>12 Aulas</li>
-                                                <li><i class="feather-users"></i>50 Alunos</li>
-                                            </ul>
-                                            <h4 class="rbt-card-title"><a href="course-details.html">React</a></h4>
-                                            <p class="rbt-card-text">É um fato consolidado que o leitor se distrairá com o conteúdo.</p>
-                                            <div class="rbt-review">
-                                                <div class="rating">
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                </div>
-                                                <span class="rating-count"> (15 Avaliações)</span>
-                                            </div>
+                                            <!-- MODALIDADE -->
+                                            <span class="rbt-meta">
+                                                {{ curso.get_modalidade_display }}
+                                            </span>
+
+                                            <!-- PREÇO -->
                                             <div class="rbt-card-bottom">
                                                 <div class="rbt-price">
-                                                    <span class="current-price">kz70</span>
-                                                    <span class="off-price">kz120</span>
+                                                    {% if curso.is_gratuito %}
+                                                    <span class="current-price">Gratuito</span>
+                                                    {% else %}
+                                                    <span class="current-price">
+                                                        Kz {{ curso.preco_atual }}
+                                                    </span>
+
+                                                    {% if curso.em_promocao %}
+                                                    <span class="off-price">
+                                                        Kz {{ curso.preco }}
+                                                    </span>
+                                                    {% endif %}
+                                                    {% endif %}
                                                 </div>
-                                                <a class="rbt-btn-link" href="course-details.html">Ver Detalhes<i
-                                                        class="feather-arrow-right"></i></a>
+
+                                                <a class="rbt-btn-link" href="{% url 'curso_detalhe' id=curso.id %}">
+                                                    Saiba Mais
+                                                    <i class="feather-arrow-right"></i>
+                                                </a>
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>
-                                <!-- End Single Card  -->
+                                {% endfor %}
+
                             </div>
                             <div class="rbt-swiper-pagination"></div>
                         </div>
@@ -217,827 +180,51 @@
                 </div>
                 <div class="col-lg-6 col-md-6 col-12">
                     <div class="read-more-btn text-start text-md-end">
-                        <a class="rbt-btn rbt-switch-btn bg-primary-opacity btn-sm" href="https://histudy.pixcelsthemes.com/histudy/archive.html">
+                        <a class="rbt-btn rbt-switch-btn bg-primary-opacity btn-sm"
+                            href="https://histudy.pixcelsthemes.com/histudy/archive.html">
                             <span data-text="Ver Todos">Ver Todos</span>
                         </a>
                     </div>
                 </div>
             </div>
             <div class="row g-5">
-                <!-- Início do Layout da Caixa de Categoria -->
+                {% for categoria in categorias %}
                 <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                    <a class="rbt-cat-box rbt-cat-box-1 list-style" href="course-filter-one-toggle.html">
+                    <a class="rbt-cat-box rbt-cat-box-1 list-style"
+                        href="{% url 'cursos_por_categoria' categoria.slug %}">
                         <div class="inner">
                             <div class="thumbnail">
-                                <img src="{% static 'assets/images/category/image/web-design.jpg' %}" alt="Ícone de Web Design">
+                                {% if categoria.imagem %}
+                                <img src="{{ categoria.imagem.url }}" alt="Ícone de {{ categoria.nome }}">
+                                {% else %}
+                                <img src="{% static 'assets/images/category/default.jpg' %}"
+                                    alt="Ícone de {{ categoria.nome }}">
+                                {% endif %}
                             </div>
                             <div class="content">
-                                <h5 class="title">Design Web</h5>
+                                <h5 class="title">{{ categoria.nome }}</h5>
                                 <div class="read-more-btn">
-                                    <span class="rbt-btn-link">15 Cursos<i class="feather-arrow-right"></i></span>
+                                    <span class="rbt-btn-link">{{ categoria.num_cursos }} Cursos <i
+                                            class="feather-arrow-right"></i></span>
                                 </div>
                             </div>
                         </div>
                     </a>
                 </div>
-                <!-- Fim do Layout da Caixa de Categoria -->
-
-                <!-- Início do Layout da Caixa de Categoria -->
-                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                    <a class="rbt-cat-box rbt-cat-box-1 list-style" href="course-filter-one-toggle.html">
-                        <div class="inner">
-                            <div class="thumbnail">
-                                <img src="{% static 'assets/images/category/image/graphic-design.jpg' %}" alt="Ícone de Design Gráfico">
-                            </div>
-                            <div class="content">
-                                <h5 class="title">Design Gráfico</h5>
-                                <div class="read-more-btn">
-                                    <span class="rbt-btn-link">25 Cursos<i class="feather-arrow-right"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <!-- Fim do Layout da Caixa de Categoria -->
-
-                <!-- Início do Layout da Caixa de Categoria -->
-                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                    <div class="rbt-cat-box rbt-cat-box-1 list-style">
-                        <div class="inner">
-                            <div class="thumbnail">
-                                <img src="{% static 'assets/images/category/image/personal-development.jpg' %}" alt="Ícone de Desenvolvimento Pessoal">
-                            </div>
-                            <div class="content">
-                                <h5 class="title">Desenvolvimento Pessoal</h5>
-                                <div class="read-more-btn">
-                                    <span class="rbt-btn-link">14 Cursos<i class="feather-arrow-right"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Fim do Layout da Caixa de Categoria -->
-
-                <!-- Início do Layout da Caixa de Categoria -->
-                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                    <a class="rbt-cat-box rbt-cat-box-1 list-style" href="course-filter-one-toggle.html">
-                        <div class="inner">
-                            <div class="thumbnail">
-                                <img src="{% static 'assets/images/category/image/software.jpg' %}" alt="Ícone de TI e Software">
-                            </div>
-                            <div class="content">
-                                <h5 class="title">TI e Software</h5>
-                                <div class="read-more-btn">
-                                    <span class="rbt-btn-link">12 Cursos<i class="feather-arrow-right"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <!-- Fim do Layout da Caixa de Categoria -->
-
-                <!-- Início do Layout da Caixa de Categoria -->
-                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                    <a class="rbt-cat-box rbt-cat-box-1 list-style" href="course-filter-one-toggle.html">
-                        <div class="inner">
-                            <div class="thumbnail">
-                                <img src="{% static 'assets/images/category/image/sales.jpg' %}" alt="Ícone de Vendas e Marketing">
-                            </div>
-                            <div class="content">
-                                <h5 class="title">Vendas e Marketing</h5>
-                                <div class="read-more-btn">
-                                    <span class="rbt-btn-link">30 Cursos<i class="feather-arrow-right"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <!-- Fim do Layout da Caixa de Categoria -->
-
-                <!-- Início do Layout da Caixa de Categoria -->
-                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                    <a class="rbt-cat-box rbt-cat-box-1 list-style" href="course-filter-one-toggle.html">
-                        <div class="inner">
-                            <div class="thumbnail">
-                                <img src="{% static 'assets/images/category/image/arts.jpg' %}" alt="Ícone de Artes e Humanidades">
-                            </div>
-                            <div class="content">
-                                <h5 class="title">Artes e Humanidades</h5>
-                                <div class="read-more-btn">
-                                    <span class="rbt-btn-link">15 Cursos<i class="feather-arrow-right"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <!-- Fim do Layout da Caixa de Categoria -->
-
-                <!-- Início do Layout da Caixa de Categoria -->
-                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                    <a class="rbt-cat-box rbt-cat-box-1 list-style" href="course-filter-one-toggle.html">
-                        <div class="inner">
-                            <div class="thumbnail">
-                                <img src="{% static 'assets/images/category/image/mobile.jpg' %}" alt="Ícone de Aplicativos Móveis">
-                            </div>
-                            <div class="content">
-                                <h5 class="title">Aplicativos Móveis</h5>
-                                <div class="read-more-btn">
-                                    <span class="rbt-btn-link">40 Cursos<i class="feather-arrow-right"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <!-- Fim do Layout da Caixa de Categoria -->
-
-                <!-- Início do Layout da Caixa de Categoria -->
-                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                    <a class="rbt-cat-box rbt-cat-box-1 list-style" href="course-filter-one-toggle.html">
-                        <div class="inner">
-                            <div class="thumbnail">
-                                <img src="{% static 'assets/images/category/image/finance.jpg' %}" alt="Ícone de Finanças e Contabilidade">
-                            </div>
-                            <div class="content">
-                                <h5 class="title">Finanças e Contabilidade</h5>
-                                <div class="read-more-btn">
-                                    <span class="rbt-btn-link">20 Cursos<i class="feather-arrow-right"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <!-- Fim do Layout da Caixa de Categoria -->
+                {% endfor %}
             </div>
+
         </div>
     </div>
     <!-- End Service Area -->
 
-    <div class="rbt-callto-action-area bg-color-extra2 rbt-section-gap">
-        <div class="wrapper">
-            <div class="container">
-                <div class="row mb--60">
-                    <div class="col-lg-12">
-                        <div class="section-title text-center">
-                            <span class="subtitle bg-violet-opacity">CERTIFICAÇÃO DIGITAL</span>
-                            <h2 class="title">Valorize seu Conhecimento</h2>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="rbt-callto-action rbt-cta-default style-2">
-            <div class="container content-wrapper overflow-hidden">
-                <div class="row gy-5 align-items-center">
-                    <div class="col-lg-8">
-                        <div class="inner">
-                            <div class="content text-left">
-                                <h3 class="title" data-sal="slide-up" data-sal-duration="400" data-sal-delay="200">
-                                    Obtenha um Certificado de Habilidade Reconhecido
-                                </h3>
-                                <h6 class="subtitle" data-sal="slide-up" data-sal-duration="400" data-sal-delay="300">
-                                    Comprove suas competências com certificados válidos em todo território angolano
-                                </h6>
-                                <ul class="rbt-list-wrapper mt--20">
-                                    <li><i class="feather-check"></i> Certificado digital com QR Code de validação</li>
-                                    <li><i class="feather-check"></i> Vinculado ao Ministério da Educação</li>
-                                    <li><i class="feather-check"></i> Aumente suas oportunidades profissionais</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="call-to-btn text-start text-lg-end position-relative" data-sal="slide-up" data-sal-duration="400" data-sal-delay="400">
-                            <a class="rbt-btn rbt-switch-btn rbt-switch-y" href="#solicitar-certificado">
-                                <span data-text="Testar minha habilidade">Testar minha habilidade</span>
-                            </a>
-                            <div class="shape-text-image">
-                                <img class="rbt-rotatation-round" src="assets/images/shape/certificado-icon.png" alt="Certificação EducAngola">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     
+
 
     <!-- Start Course Area -->
-    <div class="rbt-course-area bg-color-white rbt-section-gap">
-        <div class="container">
-            <div class="row mb--55 g-5 align-items-end">
-                <div class="col-lg-6 col-md-6 col-12">
-                    <div class="section-title text-start">
-                        <span class="subtitle bg-pink-opacity">Cursos Mais Populares</span>
-                        <h2 class="title">Cursos <span class="color-primary">Mais Procurados</span></h2>
-                    </div>
-                </div>
-                <div class="col-lg-6 col-md-6 col-12">
-                    <div class="load-more-btn text-start text-md-end">
-                        <a class="rbt-btn rbt-switch-btn bg-primary-opacity" href="https://histudy.pixcelsthemes.com/histudy/course.html">
-                            <span data-text="Ver Todos os Cursos">Ver Todos os Cursos</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <!-- Início da Área de Cards -->
-            <div class="row g-5">
-                <!-- Início Curso Individual -->
-                <div class="col-lg-4 col-md-6 col-sm-12 col-12" data-sal-delay="150" data-sal="slide-up" data-sal-duration="800">
-                    <div class="rbt-card variation-01 rbt-hover">
-                        <div class="rbt-card-img">
-                            <a href="course-details.html">
-                                <img src="{% static 'assets/images/course/classic-lms-01.jpg' %}" alt="Imagem do Curso">
-                                <div class="rbt-badge-3 bg-white">
-                                    <span>-40%</span>
-                                    <span>Desconto</span>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="rbt-card-body">
-                            <div class="rbt-card-top">
-                                <div class="rbt-review">
-                                    <div class="rating">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <span class="rating-count"> (15 Avaliações)</span>
-                                </div>
-                                <div class="rbt-bookmark-btn">
-                                    <a class="rbt-round-btn" title="Favoritos" href="05-classic-lms.html#"><i
-                                            class="feather-bookmark"></i></a>
-                                </div>
-                            </div>
 
-                            <h4 class="rbt-card-title"><a href="course-details.html">React do Básico ao Avançado</a>
-                            </h4>
-
-                            <ul class="rbt-meta">
-                                <li><i class="feather-book"></i>12 Aulas</li>
-                                <li><i class="feather-users"></i>50 Alunos</li>
-                            </ul>
-
-                            <p class="rbt-card-text">É um fato conhecido que o leitor se distrairá com o conteúdo.</p>
-                            <div class="rbt-author-meta mb--10">
-                                <div class="rbt-avater">
-                                    <a href="05-classic-lms.html#">
-                                        <img src="{% static 'assets/images/client/avatar-02.png' %}" alt="Angela">
-                                    </a>
-                                </div>
-                                <div class="rbt-author-info">
-                                    Por <a href="profile.html">Angela</a> Em <a href="05-classic-lms.html#">Desenvolvimento</a>
-                                </div>
-                            </div>
-                            <div class="rbt-card-bottom">
-                                <div class="rbt-price">
-                                    <span class="current-price">kz60</span>
-                                    <span class="off-price">kz120</span>
-                                </div>
-                                <a class="rbt-btn-link" href="course-details.html">Saiba Mais<i class="feather-arrow-right"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Fim Curso Individual -->
-
-                <!-- Início Curso Individual -->
-                <div class="col-lg-4 col-md-6 col-sm-12 col-12" data-sal-delay="200" data-sal="slide-up" data-sal-duration="800">
-                    <div class="rbt-card variation-01 rbt-hover">
-                        <div class="rbt-card-img">
-                            <a href="course-details.html">
-                                <img src="{% static 'assets/images/course/classic-lms-02.jpg' %}" alt="Imagem do Curso">
-                                <div class="rbt-badge-3 bg-white">
-                                    <span>-40%</span>
-                                    <span>Desconto</span>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="rbt-card-body">
-                            <div class="rbt-card-top">
-                                <div class="rbt-review">
-                                    <div class="rating">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <span class="rating-count"> (15 Avaliações)</span>
-                                </div>
-                                <div class="rbt-bookmark-btn">
-                                    <a class="rbt-round-btn" title="Favoritos" href="05-classic-lms.html#"><i
-                                            class="feather-bookmark"></i></a>
-                                </div>
-                            </div>
-                            <h4 class="rbt-card-title"><a href="course-details.html">PHP do Iniciante ao Avançado</a>
-                            </h4>
-                            <ul class="rbt-meta">
-                                <li><i class="feather-book"></i>12 Aulas</li>
-                                <li><i class="feather-users"></i>50 Alunos</li>
-                            </ul>
-
-                            <p class="rbt-card-text">É um fato conhecido que o leitor se distrairá com o conteúdo.</p>
-                            <div class="rbt-author-meta mb--10">
-                                <div class="rbt-avater">
-                                    <a href="05-classic-lms.html#">
-                                        <img src="{% static 'assets/images/client/avatar-02.png' %}" alt="Angela">
-                                    </a>
-                                </div>
-                                <div class="rbt-author-info">
-                                    Por <a href="profile.html">Angela</a> Em <a href="05-classic-lms.html#">Desenvolvimento</a>
-                                </div>
-                            </div>
-                            <div class="rbt-card-bottom">
-                                <div class="rbt-price">
-                                    <span class="current-price">kz60</span>
-                                    <span class="off-price">kz120</span>
-                                </div>
-                                <a class="rbt-btn-link left-icon" href="course-details.html"><i
-                                        class="feather-shopping-cart"></i> Adicionar ao Carrinho</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Fim Curso Individual -->
-
-                <!-- Início Curso Individual -->
-                <div class="col-lg-4 col-md-6 col-sm-12 col-12" data-sal-delay="250" data-sal="slide-up" data-sal-duration="800">
-                    <div class="rbt-card variation-01 rbt-hover">
-                        <div class="rbt-card-img">
-                            <a href="course-details.html">
-                                <img src="{% static 'assets/images/course/classic-lms-03.jpg' %}" alt="Imagem do Curso">
-                                <div class="rbt-badge-3 bg-white">
-                                    <span>-40%</span>
-                                    <span>Desconto</span>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="rbt-card-body">
-                            <div class="rbt-card-top">
-                                <div class="rbt-review">
-                                    <div class="rating">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <span class="rating-count"> (5 Avaliações)</span>
-                                </div>
-                                <div class="rbt-bookmark-btn">
-                                    <a class="rbt-round-btn" title="Favoritos" href="05-classic-lms.html#"><i
-                                            class="feather-bookmark"></i></a>
-                                </div>
-                            </div>
-                            <h4 class="rbt-card-title"><a href="course-details.html">Angular do Zero ao Profissional</a>
-                            </h4>
-                            <ul class="rbt-meta">
-                                <li><i class="feather-book"></i>8 Aulas</li>
-                                <li><i class="feather-users"></i>30 Alunos</li>
-                            </ul>
-                            <p class="rbt-card-text">Angular Js: fato conhecido que distrairá o leitor com conteúdo legível.</p>
-
-                            <div class="rbt-author-meta mb--20">
-                                <div class="rbt-avater">
-                                    <a href="05-classic-lms.html#">
-                                        <img src="{% static 'assets/images/client/avatar-03.png' %}" alt="Slaughter">
-                                    </a>
-                                </div>
-                                <div class="rbt-author-info">
-                                    Por <a href="profile.html">Slaughter</a> Em <a href="05-classic-lms.html#">Linguagens</a>
-                                </div>
-                            </div>
-                            <div class="rbt-card-bottom">
-                                <div class="rbt-price">
-                                    <span class="current-price">kz80</span>
-                                    <span class="off-price">kz100</span>
-                                </div>
-                                <a class="rbt-btn-link" href="course-details.html">Saiba Mais<i class="feather-arrow-right"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Fim Curso Individual -->
-
-                <!-- Início Card Individual -->
-                <div class="col-lg-4 col-md-6 col-sm-12 col-12" data-sal-delay="150" data-sal="slide-up" data-sal-duration="800">
-                    <div class="rbt-card variation-01 rbt-hover">
-                        <div class="rbt-card-img">
-                            <a href="course-details.html">
-                                <img src="{% static 'assets/images/course/classic-lms-04.jpg' %}" alt="Imagem do Curso">
-                                <div class="rbt-badge-3 bg-white">
-                                    <span>-40%</span>
-                                    <span>Desconto</span>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="rbt-card-body">
-                            <div class="rbt-card-top">
-                                <div class="rbt-review">
-                                    <div class="rating">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <span class="rating-count"> (15 Avaliações)</span>
-                                </div>
-                                <div class="rbt-bookmark-btn">
-                                    <a class="rbt-round-btn" title="Favoritos" href="05-classic-lms.html#"><i
-                                            class="feather-bookmark"></i></a>
-                                </div>
-                            </div>
-
-                            <h4 class="rbt-card-title"><a href="course-details.html">Web do Básico ao Avançado</a>
-                            </h4>
-                            <ul class="rbt-meta">
-                                <li><i class="feather-book"></i>20 Aulas</li>
-                                <li><i class="feather-users"></i>40 Alunos</li>
-                            </ul>
-                            <p class="rbt-card-text">Web Js: fato conhecido que distrairá o leitor com conteúdo legível.</p>
-                            <div class="rbt-author-meta mb--20">
-                                <div class="rbt-avater">
-                                    <a href="05-classic-lms.html#">
-                                        <img src="{% static 'assets/images/client/avater-01.png' %}" alt="Patrick">
-                                    </a>
-                                </div>
-                                <div class="rbt-author-info">
-                                    Por <a href="profile.html">Patrick</a> Em <a href="05-classic-lms.html#">Linguagens</a>
-                                </div>
-                            </div>
-
-                            <div class="rbt-card-bottom">
-                                <div class="rbt-price">
-                                    <span class="current-price">kz60</span>
-                                    <span class="off-price">kz120</span>
-                                </div>
-                                <a class="rbt-btn-link" href="course-details.html">Saiba Mais<i class="feather-arrow-right"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Fim Card Individual -->
-
-                <!-- Início Card Individual -->
-                <div class="col-lg-4 col-md-6 col-sm-12 col-12" data-sal-delay="200" data-sal="slide-up" data-sal-duration="800">
-                    <div class="rbt-card variation-01 rbt-hover">
-                        <div class="rbt-card-img">
-                            <a href="course-details.html">
-                                <img src="{% static 'assets/images/course/classic-lms-05.jpg' %}" alt="Imagem do Curso">
-                                <div class="rbt-badge-3 bg-white">
-                                    <span>-40%</span>
-                                    <span>Desconto</span>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="rbt-card-body">
-                            <div class="rbt-card-top">
-                                <div class="rbt-review">
-                                    <div class="rating">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <span class="rating-count"> (15 Avaliações)</span>
-                                </div>
-                                <div class="rbt-bookmark-btn">
-                                    <a class="rbt-round-btn" title="Favoritos" href="05-classic-lms.html#"><i
-                                            class="feather-bookmark"></i></a>
-                                </div>
-                            </div>
-                            <h4 class="rbt-card-title"><a href="course-details.html">SQL do Iniciante ao Avançado</a>
-                            </h4>
-                            <ul class="rbt-meta">
-                                <li><i class="feather-book"></i>12 Aulas</li>
-                                <li><i class="feather-users"></i>50 Alunos</li>
-                            </ul>
-                            <p class="rbt-card-text">É um fato conhecido que o leitor se distrairá com conteúdo legível.</p>
-                            <div class="rbt-author-meta mb--20">
-                                <div class="rbt-avater">
-                                    <a href="05-classic-lms.html#">
-                                        <img src="{% static 'assets/images/client/avatar-02.png' %}" alt="Angela">
-                                    </a>
-                                </div>
-                                <div class="rbt-author-info">
-                                    Por <a href="profile.html">Angela</a> Em <a href="05-classic-lms.html#">Desenvolvimento</a>
-                                </div>
-                            </div>
-                            <div class="rbt-card-bottom">
-                                <div class="rbt-price">
-                                    <span class="current-price">kz60</span>
-                                    <span class="off-price">kz120</span>
-                                </div>
-                                <a class="rbt-btn-link left-icon" href="course-details.html"><i
-                                        class="feather-shopping-cart"></i> Adicionar ao Carrinho</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Fim Card Individual -->
-
-                <!-- Início Card Individual -->
-                <div class="col-lg-4 col-md-6 col-sm-12 col-12" data-sal-delay="250" data-sal="slide-up" data-sal-duration="800">
-                    <div class="rbt-card variation-01 rbt-hover">
-                        <div class="rbt-card-img">
-                            <a href="course-details.html">
-                                <img src="{% static 'assets/images/course/classic-lms-06.jpg' %}" alt="Imagem do Curso">
-                                <div class="rbt-badge-3 bg-white">
-                                    <span>-40%</span>
-                                    <span>Desconto</span>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="rbt-card-body">
-                            <div class="rbt-card-top">
-                                <div class="rbt-review">
-                                    <div class="rating">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <span class="rating-count"> (5 Avaliações)</span>
-                                </div>
-                                <div class="rbt-bookmark-btn">
-                                    <a class="rbt-round-btn" title="Favoritos" href="05-classic-lms.html#"><i
-                                            class="feather-bookmark"></i></a>
-                                </div>
-                            </div>
-                            <h4 class="rbt-card-title"><a href="course-details.html">JavaScript do Zero ao Profissional</a>
-                            </h4>
-                            <ul class="rbt-meta">
-                                <li><i class="feather-book"></i>8 Aulas</li>
-                                <li><i class="feather-users"></i>30 Alunos</li>
-                            </ul>
-                            <p class="rbt-card-text">JavaScript: fato conhecido que distrairá o leitor com conteúdo legível.</p>
-
-                            <div class="rbt-author-meta mb--20">
-                                <div class="rbt-avater">
-                                    <a href="05-classic-lms.html#">
-                                        <img src="{% static 'assets/images/client/avatar-03.png' %}" alt="Slaughter">
-                                    </a>
-                                </div>
-                                <div class="rbt-author-info">
-                                    Por <a href="profile.html">Slaughter</a> Em <a href="05-classic-lms.html#">Linguagens</a>
-                                </div>
-                            </div>
-                            <div class="rbt-card-bottom">
-                                <div class="rbt-price">
-                                    <span class="current-price">kz80</span>
-                                    <span class="off-price">kz100</span>
-                                </div>
-                                <a class="rbt-btn-link" href="course-details.html">Saiba Mais<i class="feather-arrow-right"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Fim Card Individual -->
-            </div>
-            <!-- Fim da Área de Cards -->
-        </div>
-    </div>
     <!-- End Course Area -->
 
-    <div class="rbt-callto-action-area bg-color-white rbt-section-gap">
-        <div class="container">
-            <div class="row g-5">
-                <!-- Primeiro Card -->
-                <div class="col-lg-6">
-                    <div class="rbt-callto-action callto-action-default bg-color-white rbt-radius shadow-1">
-                        <div class="row align-items-center">
-                            <div class="col-lg-12 col-xl-5">
-                                <div class="inner">
-                                    <div class="rbt-category mb--20">
-                                        <a href="call-to-action.html#">Novo Lançamento</a>
-                                    </div>
-                                    <h4 class="title mb--15">Cursos Online da Educangola</h4>
-                                    <p class="mb--15">Professores renomados de todo o pais</p>
-                                </div>
-                            </div>
-                            <div class="col-lg-12 col-xl-7">
-                                <div class="video-popup-wrapper mt_lg--10 mt_md--20 mt_sm--20">
-                                    <img class="w-100 rbt-radius" src="{% static 'assets/images/others/video-01.jpg' %}" alt="Vídeo Demonstrativo">
-                                    <a class="rbt-btn rounded-player-2 sm-size popup-video position-to-top with-animation" href="https://www.youtube.com/watch?v=nA1Aqp0sPQo">
-                                        <span class="play-icon"></span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-    
-                <!-- Segundo Card -->
-                <div class="col-lg-6">
-                    <div class="rbt-callto-action callto-action-default bg-color-white rbt-radius shadow-1">
-                        <div class="row align-items-center">
-                            <div class="col-lg-12">
-                                <div class="inner">
-                                    <div class="rbt-category mb--20">
-                                        <a href="call-to-action.html#">Professores Top</a>
-                                    </div>
-                                    <h4 class="title mb--10">Cursos Gratuitos da Educangola</h4>
-                                    <p class="mb--15">Instrutores especialistas do mundo todo</p>
-                                    <div class="read-more-btn">
-                                        <a class="rbt-btn rbt-switch-btn btn-gradient btn-sm" href="call-to-action.html#">
-                                            <span data-text="Inscreva-se Agora">Inscreva-se Agora</span>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="rbt-testimonial-area bg-color-extra2 rbt-section-gap">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12 mb--60">
-                    <div class="section-title text-center">
-                        <span class="subtitle bg-primary-opacity">EDUCAÇÃO PARA TODOS</span>
-                        <h2 class="title">Feedback dos <span class="color-primary">Alunos</span></h2>
-                    </div>
-                </div>
-            </div>
-            <div class="row g-5">
-                <!-- Início Depoimento Individual -->
-                <div class="col-lg-4 col-md-6 col-12">
-                    <div class="rbt-testimonial-box">
-                        <div class="inner">
-                            <div class="clint-info-wrapper">
-                                <div class="thumb">
-                                    <img src="{% static 'assets/images/testimonial/client-01.png' %}" alt="Imagem do Cliente">
-                                </div>
-                                <div class="client-info">
-                                    <h5 class="title">Martha Maldonado</h5>
-                                    <span>Presidente Executiva <i>@ Google</i></span>
-                                </div>
-                            </div>
-                            <div class="description">
-                                <p class="subtitle-3">Após o lançamento, selecionamos cuidadosamente o conteúdo,
-                                    com curadoria especializada. O resultado foi um material de excelência.</p>
-                                <div class="rating mt--20">
-                                    <a href="05-classic-lms.html#"><i class="fa fa-star"></i></a>
-                                    <a href="05-classic-lms.html#"><i class="fa fa-star"></i></a>
-                                    <a href="05-classic-lms.html#"><i class="fa fa-star"></i></a>
-                                    <a href="05-classic-lms.html#"><i class="fa fa-star"></i></a>
-                                    <a href="05-classic-lms.html#"><i class="fa fa-star"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Fim Depoimento Individual -->
-
-                <!-- Início Depoimento Individual -->
-                <div class="col-lg-4 col-md-6 col-12">
-                    <div class="rbt-testimonial-box">
-                        <div class="inner">
-                            <div class="clint-info-wrapper">
-                                <div class="thumb">
-                                    <img src="{% static 'assets/images/testimonial/client-02.png' %}" alt="Imagem do Cliente">
-                                </div>
-                                <div class="client-info">
-                                    <h5 class="title">Michael D. Lovelady</h5>
-                                    <span>CEO <i>@ Google</i></span>
-                                </div>
-                            </div>
-                            <div class="description">
-                                <p class="subtitle-3">A educação oferecida aqui é excepcional, com conteúdo
-                                    cuidadosamente selecionado e apresentado de forma clara e acessível.</p>
-                                <div class="rating mt--20">
-                                    <a href="05-classic-lms.html#"><i class="fa fa-star"></i></a>
-                                    <a href="05-classic-lms.html#"><i class="fa fa-star"></i></a>
-                                    <a href="05-classic-lms.html#"><i class="fa fa-star"></i></a>
-                                    <a href="05-classic-lms.html#"><i class="fa fa-star"></i></a>
-                                    <a href="05-classic-lms.html#"><i class="fa fa-star"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Fim Depoimento Individual -->
-
-                <!-- Início Depoimento Individual -->
-                <div class="col-lg-4 col-md-6 col-12">
-                    <div class="rbt-testimonial-box">
-                        <div class="inner">
-                            <div class="clint-info-wrapper">
-                                <div class="thumb">
-                                    <img src="{% static 'assets/images/testimonial/client-03.png' %}" alt="Imagem do Cliente">
-                                </div>
-                                <div class="client-info">
-                                    <h5 class="title">Valerie J. Creasman</h5>
-                                    <span>Designer Executiva <i>@ Google</i></span>
-                                </div>
-                            </div>
-                            <div class="description">
-                                <p class="subtitle-3">Nossa experiência educacional foi transformadora,
-                                    com materiais didáticos de alta qualidade e suporte especializado.</p>
-                                <div class="rating mt--20">
-                                    <a href="05-classic-lms.html#"><i class="fa fa-star"></i></a>
-                                    <a href="05-classic-lms.html#"><i class="fa fa-star"></i></a>
-                                    <a href="05-classic-lms.html#"><i class="fa fa-star"></i></a>
-                                    <a href="05-classic-lms.html#"><i class="fa fa-star"></i></a>
-                                    <a href="05-classic-lms.html#"><i class="fa fa-star"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Fim Depoimento Individual -->
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Start Blog Style -->
-    <div class="rbt-rbt-blog-area rbt-section-gapTop bg-color-white">
-        <div class="container">
-            <div class="row mb--55 g-5 align-items-end">
-                <div class="col-lg-6 col-md-6 col-12">
-                    <div class="section-title text-start">
-                        <span class="subtitle bg-pink-opacity">Notícias em Destaque</span>
-                        <h2 class="title">Confira as <span class="color-primary">nossas notícias</span></h2>
-                    </div>
-                </div>
-                <div class="col-lg-6 col-md-6 col-12">
-                    <div class="load-more-btn text-start text-md-end">
-                        <a class="rbt-btn rbt-switch-btn bg-primary-opacity" href="blog.html">
-                            <span data-text="Ver Todas as Notícias">Ver Todas as Notícias</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <!-- Início da Área de Cards -->
-            <div class="row g-5">
-                <!-- Início Card Individual -->
-                <div class="col-lg-4 col-md-6 col-sm-12 col-12">
-                    <div class="rbt-card variation-02 rbt-hover">
-                        <div class="rbt-card-img">
-                            <a href="course-details.html">
-                                <img src="{% static 'assets/images/blog/blog-grid-01.jpg' %}" alt="Imagem do Blog"> </a>
-                        </div>
-                        <div class="rbt-card-body">
-                            <h5 class="rbt-card-title"><a href="course-details.html">LMS é a tendência do momento?</a></h5>
-                            <p class="rbt-card-text">É um fato conhecido que o leitor se distrairá.</p>
-                            <div class="rbt-card-bottom">
-                                <a class="transparent-button" href="course-details.html">Saiba Mais<i><svg width="17" height="12" xmlns="http://www.w3.org/2000/svg"><g stroke="#27374D" fill="none" fill-rule="evenodd"><path d="M10.614 0l5.629 5.629-5.63 5.629"/><path stroke-linecap="square" d="M.663 5.572h14.594"/></g></svg></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Fim Card Individual -->
-
-                <!-- Início Card Individual -->
-                <div class="col-lg-4 col-md-6 col-sm-12 col-12">
-                    <div class="rbt-card variation-02 rbt-hover">
-                        <div class="rbt-card-img">
-                            <a href="course-details.html">
-                                <img src="{% static 'assets/images/blog/blog-grid-02.jpg' %}" alt="Imagem do Blog"> </a>
-                        </div>
-                        <div class="rbt-card-body">
-                            <h5 class="rbt-card-title"><a href="course-details.html">Aprenda a ganhar mais com LMS</a></h5>
-                            <p class="rbt-card-text">É um fato conhecido que o leitor se distrairá.</p>
-                            <div class="rbt-card-bottom">
-                                <a class="transparent-button" href="course-details.html">Saiba Mais<i><svg width="17" height="12" xmlns="http://www.w3.org/2000/svg"><g stroke="#27374D" fill="none" fill-rule="evenodd"><path d="M10.614 0l5.629 5.629-5.63 5.629"/><path stroke-linecap="square" d="M.663 5.572h14.594"/></g></svg></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Fim Card Individual -->
-
-                <!-- Início Card Individual -->
-                <div class="col-lg-4 col-md-6 col-sm-12 col-12">
-                    <div class="rbt-card variation-02 rbt-hover">
-                        <div class="rbt-card-img">
-                            <a href="course-details.html">
-                                <img src="{% static 'assets/images/blog/blog-grid-03.jpg' %}" alt="Imagem do Blog"> </a>
-                        </div>
-                        <div class="rbt-card-body">
-                            <h5 class="rbt-card-title"><a href="course-details.html">Entenda a origem dos sistemas LMS</a></h5>
-                            <p class="rbt-card-text">É um fato conhecido que o leitor se distrairá.</p>
-                            <div class="rbt-card-bottom">
-                                <a class="transparent-button" href="course-details.html">Saiba Mais<i><svg width="17" height="12" xmlns="http://www.w3.org/2000/svg"><g stroke="#27374D" fill="none" fill-rule="evenodd"><path d="M10.614 0l5.629 5.629-5.63 5.629"/><path stroke-linecap="square" d="M.663 5.572h14.594"/></g></svg></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Fim Card Individual -->
-            </div>
-            <!-- Fim da Área de Cards -->
-        </div>
-    </div>
     <!-- End Blog Style -->
 
     <div class="rbt-instagram-area bg-color-white rbt-section-gapTop">
@@ -1129,7 +316,8 @@
                 <div class="col-lg-5 col-md-12 col-12">
                     <div class="inner">
                         <div class="section-title text-center text-lg-start">
-                            <h4 class="title"><strong>Assine</strong> <br /> <span class="w-400">Nossa Newsletter</span></h4>
+                            <h4 class="title"><strong>Assine</strong> <br /> <span class="w-400">Nossa Newsletter</span>
+                            </h4>
                         </div>
                     </div>
                 </div>

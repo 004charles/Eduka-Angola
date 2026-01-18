@@ -1,12 +1,11 @@
 from django.contrib import admin
 from .models import *
 
-
 @admin.register(Categoria)
 class CategoriaAdmin(admin.ModelAdmin):
     list_display = ('nome', 'slug')
     search_fields = ('nome',)
-    prepopulated_fields = {'slug': ('nome',)}  # Isso preenche o slug automaticamente com base no nome
+    prepopulated_fields = {'slug': ('nome',)}
 
 class InstrutorAdmin(admin.ModelAdmin):
     list_display = ('nome', 'email', 'area_especializacao', 'ativo')
@@ -29,7 +28,7 @@ class MaterialApoioInline(admin.TabularInline):
     extra = 1
     fields = ('titulo', 'arquivo', 'tipo', 'disponivel')
 
-
+@admin.register(Curso)
 class CursoAdmin(admin.ModelAdmin):
     list_display = [
         'titulo', 
@@ -42,9 +41,9 @@ class CursoAdmin(admin.ModelAdmin):
         'destaque'
     ]
     list_filter = ['centro', 'categoria', 'nivel', 'publicado', 'ativo', 'destaque']
-    search_fields = ['titulo', 'descricao']
+    search_fields = ['titulo', 'descricao', 'descricao_curta']
     filter_horizontal = ['instrutores']
-    
+
     fieldsets = (
         ('Informações Básicas', {
             'fields': ('centro', 'titulo', 'descricao', 'descricao_curta', 'categoria', 'imagem')
@@ -56,19 +55,13 @@ class CursoAdmin(admin.ModelAdmin):
             'fields': ('preco', 'preco_inscricao', 'preco_promocional')
         }),
         ('Datas', {
-            'fields': ('data_inicio_inscricoes', 'data_fim_inscricoes', 'data_inicio_promocao', 'data_fim_promocao')
-        }),
-        ('Vagas', {
-            'fields': ('vagas_minimas',)
-        }),
-        ('Conteúdo', {
-            'fields': ('requisitos', 'objetivo_geral', 'publico_alvo')  # Removidos: metodologia, avaliacao, material_incluso, bibliografia
-        }),
-        ('Configurações Avançadas', {
-            'fields': ('instrutores', 'tags', 'permite_parcelamento', 'max_parcelas')
+            'fields': ('data_inicio', 'data_inicio_promocao', 'data_fim_promocao')
         }),
         ('Status', {
             'fields': ('publicado', 'ativo', 'destaque')
+        }),
+        ('Instrutores', {
+            'fields': ('instrutores',)
         }),
     )
 
@@ -90,18 +83,12 @@ class MaterialApoioAdmin(admin.ModelAdmin):
     search_fields = ('titulo',)
     readonly_fields = ('data_adicao',)
 
-    
-
 class PerfilInstrutorInline(admin.StackedInline):
     model = PerfilInstrutor
     can_delete = False
     verbose_name_plural = 'Perfil do Instrutor'
-    
-
-
 
 admin.site.register(Instrutor, InstrutorAdmin)
-admin.site.register(Curso, CursoAdmin)
 admin.site.register(Modulo, ModuloAdmin)
 admin.site.register(Video, VideoAdmin)
 admin.site.register(MaterialApoio, MaterialApoioAdmin)

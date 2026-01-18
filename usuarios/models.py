@@ -5,6 +5,8 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinLengthValidator
 from django.utils import timezone
 from gestoreduka.models import CentroDeFormacao
+from django.contrib.gis.db import models as gis_models
+
 
 
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
@@ -17,7 +19,7 @@ class UsuarioManager(BaseUserManager):
             raise ValueError('O email é obrigatório')
         email = self.normalize_email(email)
         user = self.model(email=email, nome=nome, **extra_fields)
-        user.set_password(password)  # usa o campo password do AbstractBaseUser
+        user.set_password(password)  
         user.save(using=self._db)
         return user
 
@@ -128,6 +130,14 @@ class PerfilAluno(models.Model):
     linkedin = models.URLField(_('LinkedIn'), blank=True, null=True)
     github = models.URLField(_('GitHub'), blank=True, null=True)
     criado_em = models.DateTimeField(default=timezone.now)
+
+    localizacao = gis_models.PointField(
+        _('Localização Geográfica'),
+        geography=True,
+        blank=True,
+        null=True,
+        srid=4326
+    )
 
     def __str__(self):
         return f"Perfil de {self.aluno.nome}"

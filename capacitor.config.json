@@ -1,0 +1,6 @@
+{
+  "appId": "com.edukangola.app",
+  "appName": "edukangola",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}

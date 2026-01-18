@@ -93,13 +93,13 @@
                         <div class="logo logo-dark" style="width: 100px; height: auto;">
                             <!-- Ajuste o tamanho conforme necessário -->
                             <a href="{% url 'index' %}">
-                                <img src="{% static 'assets/images/Logo1.png' %}" alt="EdukAngola Logo"
-                                    style="filter: brightness(0); width: 100%; height: auto;">
+                                <img style="width: 320px;" src="{% static 'assets/images/logo/Eduka-removebg-preview.png' %}" alt="EdukAngola Logo"
+                                    >
                             </a>
                         </div>
                         <div class="logo d-none logo-light" style="width: 100px; height: auto;">
                             <a href="{% url 'index' %}">
-                                <img src="{% static 'assets/images/Logo1.png' %}" alt="EdukAngola Logo"
+                                <img src="{% static 'assets/images/logo/Eduka-removebg-preview.png' %}" alt="EdukAngola Logo"
                                     style="width: 100%; height: auto;">
                             </a>
                         </div>
@@ -238,7 +238,152 @@
                 <div class="rbt-main-navigation d-none d-xl-block">
                     <nav class="mainmenu-nav">
                         <ul class="mainmenu">
-                            <li><a href="{% url 'index' %}">Início</a></li>
+                            <li class="with-megamenu has-menu-child-item position-static">
+                                <a href="{% url 'index' %}">Home <i class="feather-chevron-down"></i></a>
+                                <!-- Start Mega Menu  -->
+                                <div class="rbt-megamenu menu-skin-dark">
+                                    <div class="wrapper">
+                                        <div
+                                            class="row row--15 home-plesentation-wrapper single-dropdown-menu-presentation">
+
+                                            <!-- Start Single Demo  -->
+                                            <div
+                                                class="col-lg-12 col-xl-2 col-xxl-2 col-md-12 col-sm-12 col-12 single-mega-item">
+                                                <div class="demo-single">
+                                                    <div class="inner">
+                                                        <div class="thumbnail">
+                                                            <a href="01-main-demo.html"><img
+                                                                    src="{% static 'assets/images/home.png' %}"
+                                                                    alt="Demo Images"></a>
+                                                        </div>
+                                                        <div class="content">
+                                                            <h4 class="title"><a href="01-main-demo.html">Home demo
+                                                                    <span class="btn-icon"><i
+                                                                            class="feather-arrow-right"></i></span></a>
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- End Single Demo  -->
+
+                                            <!-- Start Single Demo  -->
+                                            <div
+                                                class="col-lg-12 col-xl-2 col-xxl-2 col-md-12 col-sm-12 col-12 single-mega-item">
+                                                <div class="demo-single">
+                                                    <div class="inner">
+                                                        <div class="thumbnail">
+                                                            <a href="{% url 'home_cursos' %}"><img
+                                                                    src="{% static 'assets/images/splash/demo/h12.jpg' %}"
+                                                                    alt="Demo Images"></a>
+                                                        </div>
+                                                        <div class="content">
+                                                            <h4 class="title"><a href="{% url 'home_cursos' %}"> cursos
+                                                                    <span class="btn-icon"><i
+                                                                            class="feather-arrow-right"></i></span></a>
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div
+                                                class="col-lg-12 col-xl-2 col-xxl-2 col-md-12 col-sm-12 col-12 single-mega-item">
+                                                <div class="demo-single">
+                                                    <div class="inner">
+                                                        <div class="thumbnail">
+                                                            <a href="12-marketplace.html"><img
+                                                                    src="{% static 'assets/images/splash/demo/h12.jpg' %}"
+                                                                    alt="Demo Images"></a>
+                                                        </div>
+                                                        <div class="content">
+                                                            <h4 class="title"><a href="12-marketplace.html">Centros de
+                                                                    formacao <span class="btn-icon"><i
+                                                                            class="feather-arrow-right"></i></span></a>
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- End Single Demo  -->
+
+                                            <!-- Start Single Demo  -->
+                                            <div
+                                                class="col-lg-12 col-xl-2 col-xxl-2 col-md-12 col-sm-12 col-12 single-mega-item">
+                                                <div class="demo-single">
+                                                    <div class="inner">
+                                                        <div class="thumbnail">
+                                                            <a href="{% url 'biblioteca' %}"><img
+                                                                    src="{% static 'assets/images/splash/demo/h4.jpg' %}"
+                                                                    alt="Demo Images"></a>
+                                                        </div>
+                                                        <div class="content">
+                                                            <h4 class="title"><a href="04-kindergarten.html">biblioteca
+                                                                    <span class="btn-icon"><i
+                                                                            class="feather-arrow-right"></i></span></a>
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div
+                                                class="col-lg-12 col-xl-2 col-xxl-2 col-md-12 col-sm-12 col-12 single-mega-item">
+                                                <div class="demo-single">
+                                                    <div class="inner">
+                                                        <div class="thumbnail">
+                                                            <a href="04-kindergarten.html"><img
+                                                                    src="{% static 'assets/images/splash/demo/h4.jpg' %}"
+                                                                    alt="Demo Images"></a>
+                                                        </div>
+                                                        <div class="content">
+                                                            <h4 class="title"><a href="04-kindergarten.html">Guias de
+                                                                    estudo <span class="btn-icon"><i
+                                                                            class="feather-arrow-right"></i></span></a>
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div
+                                                class="col-lg-12 col-xl-2 col-xxl-2 col-md-12 col-sm-12 col-12 single-mega-item">
+                                                <div class="demo-single">
+                                                    <div class="inner">
+                                                        <div class="thumbnail">
+                                                            <a href="04-kindergarten.html"><img
+                                                                    src="{% static 'assets/images/splash/demo/h4.jpg' %}"
+                                                                    alt="Demo Images"></a>
+                                                        </div>
+                                                        <div class="content">
+                                                            <h4 class="title"><a
+                                                                    href="04-kindergarten.html">kindergarten <span
+                                                                        class="btn-icon"><i
+                                                                            class="feather-arrow-right"></i></span></a>
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+                                            <!-- End Single Demo  -->
+
+                                            <!-- Start Single Demo  -->
+
+                                            <!-- End Single Demo  -->
+
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                                <!-- End Mega Menu  -->
+                            </li>
 
                             <li class="with-megamenu has-menu-child-item">
                                 <a href="#">Cursos <i class="feather-chevron-down"></i></a>
@@ -280,20 +425,10 @@
                                 </div>
                             </li>
 
-                            <li class="has-dropdown has-menu-child-item">
-                                <a href="#">Centros de Formação <i class="feather-chevron-down"></i></a>
-                                <ul class="submenu">
-                                    <li><a href="#">Centro de Formação em Línguas</a></li>
-                                    <li><a href="#">Centro de Formação em TI</a></li>
-                                    <li><a href="#">Centro de Formação em Saúde</a></li>
-                                    <li><a href="#">Centro de Formação em Engenharia</a></li>
-                                    <li><a href="#">Centro de Formação em Artes</a></li>
-                                    <li><a href="#">Centro de Formação Empresarial</a></li>
-                                </ul>
-                            </li>
 
 
-                            <li><a href="#">Estágios</a></li>
+
+                            <li><a href="#">Parceiros</a></li>
 
                             <li class="has-dropdown has-menu-child-item">
                                 <a href="#">Recursos <i class="feather-chevron-down"></i></a>
@@ -542,7 +677,112 @@
 
         <nav class="mainmenu-nav">
             <ul class="mainmenu">
-                <li><a href="">Início</a></li>
+                <li class="with-megamenu has-menu-child-item position-static">
+                    <a href="26-islamic-center.html#">Home <i class="feather-chevron-down"></i></a>
+                    <!-- Start Mega Menu  -->
+                    <div class="rbt-megamenu menu-skin-dark">
+                        <div class="wrapper">
+                            <div class="row row--15 home-plesentation-wrapper single-dropdown-menu-presentation">
+
+                                <!-- Start Single Demo  -->
+                                <div class="col-lg-12 col-xl-2 col-xxl-2 col-md-12 col-sm-12 col-12 single-mega-item">
+                                    <div class="demo-single">
+                                        <div class="inner">
+                                            <div class="thumbnail">
+                                                <a href="01-main-demo.html"><img src="{% static 'assets/images/splash/demo/h1.jpg' %}"
+                                                        alt="Demo Images"></a>
+                                            </div>
+                                            <div class="content">
+                                                <h4 class="title"><a href="01-main-demo.html">Home Demo <span
+                                                            class="btn-icon"><i
+                                                                class="feather-arrow-right"></i></span></a></h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-12 col-xl-2 col-xxl-2 col-md-12 col-sm-12 col-12 single-mega-item">
+                                    <div class="demo-single">
+                                        <div class="inner">
+                                            <div class="thumbnail">
+                                                <a href="01-main-demo.html"><img src="{% static 'assets/images/splash/demo/h1.jpg' %}"
+                                                        alt="Demo Images"></a>
+                                            </div>
+                                            <div class="content">
+                                                <h4 class="title"><a href="{% url 'home_cursos' %}">Cursos <span
+                                                            class="btn-icon"><i
+                                                                class="feather-arrow-right"></i></span></a></h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- End Single Demo  -->
+
+                                <!-- Start Single Demo  -->
+                                <div class="col-lg-12 col-xl-2 col-xxl-2 col-md-12 col-sm-12 col-12 single-mega-item">
+                                    <div class="demo-single">
+                                        <div class="inner">
+                                            <div class="thumbnail">
+                                                <a href="12-marketplace.html"><img
+                                                        src="{% static 'assets/images/splash/demo/h12.jpg' %}" alt="Demo Images"></a>
+                                            </div>
+                                            <div class="content">
+                                                <h4 class="title"><a href="12-marketplace.html">Centro de formacao <span
+                                                            class="btn-icon"><i
+                                                                class="feather-arrow-right"></i></span></a></h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- End Single Demo  -->
+
+                                <!-- Start Single Demo  -->
+                                <div class="col-lg-12 col-xl-2 col-xxl-2 col-md-12 col-sm-12 col-12 single-mega-item">
+                                    <div class="demo-single">
+                                        <div class="inner">
+                                            <div class="thumbnail">
+                                                <a href="04-kindergarten.html"><img
+                                                        src="{% static 'assets/images/splash/demo/h4.jpg' %}" alt="Demo Images"></a>
+                                            </div>
+                                            <div class="content">
+                                                <h4 class="title"><a href="04-kindergarten.html">biblioteca <span
+                                                            class="btn-icon"><i
+                                                                class="feather-arrow-right"></i></span></a></h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- End Single Demo  -->
+
+                                <!-- Start Single Demo  -->
+                                <div class="col-lg-12 col-xl-2 col-xxl-2 col-md-12 col-sm-12 col-12 single-mega-item">
+                                    <div class="demo-single">
+                                        <div class="inner">
+                                            <div class="thumbnail">
+                                                <a href="13-university-classic.html"><img
+                                                        src="{% static 'assets/images/splash/demo/h13.jpg' %}" alt="Demo Images"></a>
+                                            </div>
+                                            <div class="content">
+                                                <h4 class="title"><a href="13-university-classic.html">Guia de estudo
+                                                        Classic <span class="btn-icon"><i
+                                                                class="feather-arrow-right"></i></span></a></h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- End Single Demo  -->
+
+                                <!-- Start Single Demo  -->
+                                
+                                <!-- End Single Demo  -->
+
+                            </div>
+
+                            
+                        </div>
+                    </div>
+                    <!-- End Mega Menu  -->
+                </li>
 
                 <li class="with-megamenu has-menu-child-item">
                     <a href="#">Cursos <i class="feather-chevron-down"></i></a>

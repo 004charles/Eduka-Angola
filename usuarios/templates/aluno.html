@@ -51,6 +51,24 @@
             <hr class="rbt-separator m-0">
         </div>
     </div>
+
+
+    <script>
+navigator.geolocation.getCurrentPosition(function(position) {
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+
+    fetch("{% url 'atualizar_localizacao' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}",
+        },
+        body: JSON.stringify({ lat: latitude, lng: longitude })
+    });
+});
+</script>
+
     
     {% include 'include/footer.html' %}
     {% include 'include/java.html' %}

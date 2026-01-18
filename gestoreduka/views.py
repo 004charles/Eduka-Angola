@@ -38,6 +38,24 @@ from .models import (
     Filial
 )
 
+
+from usuarios.decorators import aluno_logado_e_centros
+from django.shortcuts import render
+from django.contrib.gis.geos import Point
+from django.contrib.gis.measure import D
+from django.contrib.gis.db.models.functions import Distance
+
+from gestoreduka.models import CentroDeFormacao
+
+@aluno_logado_e_centros
+def buscar_centros(request):
+    return render(request, 'core/buscar_centros.html', {
+        'centros': request.centros,
+        'latitude': request.GET.get('lat'),
+        'longitude': request.GET.get('lng'),
+    })
+
+
 def centro_dashboard(request):
     centro_id = request.session.get('centro_id')
     if not centro_id:
