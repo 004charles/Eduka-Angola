@@ -58,7 +58,9 @@
             </div>
             <div class="rbt-card-bottom">
                 <div class="rbt-price">
-                    {% if curso.preco_promocional %}
+                    {% if curso.preco_atual == 0 %}
+                    <span class="current-price text-success">Grátis</span>
+                    {% elif curso.em_promocao %}
                     <span class="current-price">{{ curso.preco_promocional|intcomma }} Kz</span>
                     <span class="off-price">{{ curso.preco|intcomma }} Kz</span>
                     {% else %}

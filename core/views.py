@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.shortcuts import render, redirect
-from django.db.models import Count, Q, Prefetch, Value
+from django.db.models import Count, Q, Prefetch, Value, F
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
@@ -60,6 +60,24 @@ def index(request):
         preco=0, publicado=True, ativo=True
     ).order_by('-data_inicio_inscricoes')[:10]
 
+    # Cursos pagos
+    cursos_pagos = Curso.objects.filter(
+        preco__gt=0, publicado=True, ativo=True
+    ).order_by('-data_inicio_inscricoes')[:10]
+
+    # Cursos em promoção
+    cursos_promocao = Curso.objects.filter(
+        publicado=True, ativo=True,
+        preco_promocional__isnull=False
+    ).order_by('-data_inicio_inscricoes')[:10]
+
+    # Cursos mais inscritos
+    cursos_mais_inscritos = Curso.objects.filter(
+        publicado=True, ativo=True
+    ).annotate(
+        num_inscricoes=Count('inscricoes')
+    ).order_by('-num_inscricoes')[:10]
+
     # Galeria de imagens
     imagens = Galeria.objects.all()[:6]
 
@@ -116,6 +134,9 @@ def index(request):
         'cursos_destaque': cursos_destaque,
         'cursos_recentes': cursos_recentes,
         'cursos_gratuitos': cursos_gratuitos,
+        'cursos_pagos': cursos_pagos,
+        'cursos_promocao': cursos_promocao,
+        'cursos_mais_inscritos': cursos_mais_inscritos,
         'cursos_proximos': cursos_proximos,
         'cursos_zigue1': cursos_zigue1,
         'cursos_destaque_video': cursos_destaque_video,
