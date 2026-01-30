@@ -1,4 +1,4 @@
-{% load static  %}
+{% load static %}
 <aside class="sidebar">
     <!-- sidebar close btn -->
     <button type="button"
@@ -18,8 +18,8 @@
     <div class="sidebar-menu-wrapper overflow-y-auto scroll-sm">
         <div class="p-20 pt-10">
             <ul class="sidebar-menu">
-                <li class="sidebar-menu__item has-dropdown">
-                    <a href="javascript:void(0)" class="sidebar-menu__link">
+                <li class="sidebar-menu__item">
+                    <a href="{% url 'centro_dashboard' %}" class="sidebar-menu__link">
                         <span><i class="ph ph-squares-four"></i></span>
                         <span class="text">Painel de Controle</span>
                     </a>
@@ -32,42 +32,27 @@
                     <!-- Submenu start -->
                     <ul class="sidebar-submenu">
                         <li class="sidebar-submenu__item">
-                            <a href="student-courses.html" class="sidebar-submenu__link"> Cursos do Estudante </a>
+                            <a href="{% url 'listar_cursos' %}" class="sidebar-submenu__link">Nossos Cursos</a>
                         </li>
                         <li class="sidebar-submenu__item">
-                            <a href="mentor-courses.html" class="sidebar-submenu__link"> Cursos do Mentor </a>
+                            <a href="{% url 'criar_curso' %}" class="sidebar-submenu__link">Criar Curso</a>
                         </li>
                         <li class="sidebar-submenu__item">
-                            <a href="{% url 'listar_cursos' %}" class="sidebar-submenu__link"> Nossos cursos </a>
-                        </li>
-                        <li class="sidebar-submenu__item">
-                            <a href="{% url 'criar_curso' %}" class="sidebar-submenu__link"> Criar Curso </a>
+                            <a href="{% url 'gerenciar_turmas' %}" class="sidebar-submenu__link">Turmas</a>
                         </li>
                     </ul>
                     <!-- Submenu End -->
                 </li>
                 <li class="sidebar-menu__item">
-                    <a href="students.html" class="sidebar-menu__link">
+                    <a href="{% url 'gerenciar_inscricoes' %}" class="sidebar-menu__link">
                         <span class="icon"><i class="ph ph-users-three"></i></span>
-                        <span class="text">Estudantes</span>
+                        <span class="text">Inscrições/Estudantes</span>
                     </a>
                 </li>
                 <li class="sidebar-menu__item">
-                    <a href="assignment.html" class="sidebar-menu__link">
-                        <span class="icon"><i class="ph ph-clipboard-text"></i></span>
-                        <span class="text">Tarefas</span>
-                    </a>
-                </li>
-                <li class="sidebar-menu__item">
-                    <a href="mentors.html" class="sidebar-menu__link">
+                    <a href="{% url 'gerenciar_instrutores' %}" class="sidebar-menu__link">
                         <span class="icon"><i class="ph ph-users"></i></span>
-                        <span class="text">Mentores</span>
-                    </a>
-                </li>
-                <li class="sidebar-menu__item">
-                    <a href="resources.html" class="sidebar-menu__link">
-                        <span class="icon"><i class="ph ph-bookmarks"></i></span>
-                        <span class="text">Recursos</span>
+                        <span class="text">Instrutores</span>
                     </a>
                 </li>
                 <li class="sidebar-menu__item">
@@ -77,27 +62,21 @@
                     </a>
                 </li>
                 <li class="sidebar-menu__item">
-                    <a href="analytics.html" class="sidebar-menu__link">
+                    <a href="{% url 'analytics_centro' %}" class="sidebar-menu__link">
                         <span class="icon"><i class="ph ph-chart-bar"></i></span>
                         <span class="text">Análises</span>
                     </a>
                 </li>
                 <li class="sidebar-menu__item">
-                    <a href="event.html" class="sidebar-menu__link">
+                    <a href="{% url 'gerenciar_eventos' %}" class="sidebar-menu__link">
                         <span class="icon"><i class="ph ph-calendar-dots"></i></span>
                         <span class="text">Eventos</span>
                     </a>
                 </li>
                 <li class="sidebar-menu__item">
-                    <a href="library.html" class="sidebar-menu__link">
-                        <span class="icon"><i class="ph ph-books"></i></span>
-                        <span class="text">Biblioteca</span>
-                    </a>
-                </li>
-                <li class="sidebar-menu__item">
-                    <a href="pricing-plan.html" class="sidebar-menu__link">
+                    <a href="{% url 'gerenciar_assinatura' %}" class="sidebar-menu__link">
                         <span class="icon"><i class="ph ph-coins"></i></span>
-                        <span class="text">Planos</span>
+                        <span class="text">Planos e Assinatura</span>
                     </a>
                 </li>
 

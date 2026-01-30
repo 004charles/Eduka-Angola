@@ -1,0 +1,245 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Não Encontrada - EdukaAngola</title>
+    <link rel="stylesheet" href="{% static 'assets/css/vendor/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/vendor/fontawesome.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/plugins/feature.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <style>
+        .error-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .error-page::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: moveBackground 20s linear infinite;
+        }
+
+        @keyframes moveBackground {
+            0% {
+                transform: translate(0, 0);
+            }
+
+            100% {
+                transform: translate(50px, 50px);
+            }
+        }
+
+        .error-content {
+            text-align: center;
+            color: white;
+            position: relative;
+            z-index: 1;
+            padding: 40px;
+        }
+
+        .error-code {
+            font-size: 180px;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 20px;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .error-title {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .error-description {
+            font-size: 18px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .error-actions {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-404 {
+            padding: 15px 40px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary-404 {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary-404:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            color: #667eea;
+        }
+
+        .btn-secondary-404 {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary-404:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+            color: white;
+        }
+
+        .floating-icons {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .floating-icon {
+            position: absolute;
+            opacity: 0.1;
+            animation: floatIcon 15s ease-in-out infinite;
+        }
+
+        .floating-icon:nth-child(1) {
+            left: 10%;
+            top: 20%;
+            animation-delay: 0s;
+        }
+
+        .floating-icon:nth-child(2) {
+            left: 80%;
+            top: 30%;
+            animation-delay: 2s;
+        }
+
+        .floating-icon:nth-child(3) {
+            left: 20%;
+            top: 70%;
+            animation-delay: 4s;
+        }
+
+        .floating-icon:nth-child(4) {
+            left: 70%;
+            top: 60%;
+            animation-delay: 6s;
+        }
+
+        @keyframes floatIcon {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-30px) rotate(180deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .error-code {
+                font-size: 120px;
+            }
+
+            .error-title {
+                font-size: 32px;
+            }
+
+            .error-description {
+                font-size: 16px;
+            }
+
+            .error-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn-404 {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="error-page">
+        <div class="floating-icons">
+            <i class="fas fa-book floating-icon" style="font-size: 80px;"></i>
+            <i class="fas fa-graduation-cap floating-icon" style="font-size: 100px;"></i>
+            <i class="fas fa-user-graduate floating-icon" style="font-size: 90px;"></i>
+            <i class="fas fa-certificate floating-icon" style="font-size: 70px;"></i>
+        </div>
+
+        <div class="error-content">
+            <div class="error-code">404</div>
+            <h1 class="error-title">Página Não Encontrada</h1>
+            <p class="error-description">
+                Ops! Parece que você se perdeu no caminho do conhecimento.
+                A página que você está procurando não existe ou foi movida.
+            </p>
+
+            <div class="error-actions">
+                <a href="/" class="btn-404 btn-primary-404">
+                    <i class="feather-home"></i>
+                    Voltar para Início
+                </a>
+                <a href="/cursos/home_cursos/" class="btn-404 btn-secondary-404">
+                    <i class="feather-book-open"></i>
+                    Ver Cursos
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'assets/js/vendor/modernizr.min.js' %}"></script>
+    <script src="{% static 'assets/js/vendor/jquery.js' %}"></script>
+</body>
+
+</html>

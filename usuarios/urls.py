@@ -65,10 +65,11 @@ urlpatterns = [
     path('configuracao_user/', views.configuracao_user, name = 'configuracao_user'),
 
     
-    #----------------redefinir senha--------------------
-    path('redefinir_senha/', views.Redefinir_senha, name='redefinir_senha'),
-    path('redefinir_senha/solicitacao_enviada/', views.Solicitacao_enviada, name='redefinir_senha/solicitacao_enviada'),
-    
+    #----------------redefinir senha e verificacao--------------------
+    path('esqueci_senha/', views.esqueci_senha, name='esqueci_senha'),
+    path('redefinir_senha/', views.redefinir_senha, name='redefinir_senha'),
+    path('verificar_email/', views.verificar_email, name='verificar_email'),
+
     #-----------------------------aluno validacoes-----------------------
     path('valida_cadastro_aluno/', views.valida_cadastro_aluno, name = 'valida_cadastro_aluno'),
     path('valida_login_aluno/', views.valida_login_aluno, name = 'valida_login_aluno'),

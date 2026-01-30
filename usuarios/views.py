@@ -1,30 +1,20 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-from .models import Usuario, Aluno, Empresa, Biblioteca, PerfilAluno
-from django.shortcuts import redirect
-from hashlib import sha256
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
+from .models import Usuario, Aluno, Empresa, Biblioteca, PerfilAluno, CentroSeguimento, CodigoVerificacao
+from gestoreduka.models import CentroDeFormacao
 from cursos_app.models import Curso
 from django.contrib import messages
-from django.shortcuts import get_object_or_404, redirect
-from .models import CentroDeFormacao, Aluno, CentroSeguimento
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from .models import Aluno, CentroDeFormacao, CentroSeguimento
+from django.contrib.auth import logout as auth_logout
 from django.views.decorators.http import require_POST
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from django.contrib.auth import logout as auth_logout
-from django.db import IntegrityError  
-from django.http import HttpResponseRedirect
-from django.contrib.auth import logout as auth_logout
-from django.shortcuts import get_object_or_404
-from django.core.exceptions import ValidationError
-from django.shortcuts import redirect
-from hashlib import sha256
 from django.db import IntegrityError
-from .models import Biblioteca
+from django.core.exceptions import ValidationError
+from hashlib import sha256
 from .decorators import aluno_logado_e_centros
+import random
+import json
 
 
 
@@ -33,12 +23,12 @@ def conta_aluno(request):
 
 @require_POST
 def adicionar_favorito(request, curso_id):
-    if 'aluno' not in request.session:
+    if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
         return JsonResponse({'status': 'error', 'message': 'Não autenticado'}, status=403)
     
     try:
         curso = Curso.objects.get(id=curso_id)
-        aluno = Aluno.objects.get(id=request.session['aluno'])
+        aluno = request.user.aluno_profile
         
         favorito, created = Favorito.objects.get_or_create(
             aluno=aluno,
@@ -92,13 +82,13 @@ from django.contrib.gis.geos import Point
 
 @csrf_exempt
 def atualizar_localizacao(request):
-    if request.method == "POST" and request.session.get('aluno'):
+    if request.method == "POST" and request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
         data = json.loads(request.body)
         lat = data.get("lat")
         lng = data.get("lng")
 
         if lat and lng:
-            aluno = get_object_or_404(Aluno, id=request.session['aluno'])
+            aluno = request.user.aluno_profile
             perfil, created = PerfilAluno.objects.get_or_create(aluno=aluno)
             perfil.localizacao = Point(float(lng), float(lat), srid=4326)
             perfil.save()
@@ -106,20 +96,6 @@ def atualizar_localizacao(request):
     return JsonResponse({"status": "erro"}, status=400)
 
         
-def Logout(request):
-    print(">>> Logout view executada")
-
-    try:
-        if 'aluno' in request.session:
-            del request.session['aluno']
-
-        auth_logout(request)
-
-        return HttpResponseRedirect('/auth/Login_aluno/?status=5')
-    
-    except Exception as e:
-        print("Erro no logout:", e)
-        return HttpResponseRedirect('/auth/Login_aluno/?status=erro')
 
 
 def valida_cadastro_aluno(request):
@@ -127,8 +103,6 @@ def valida_cadastro_aluno(request):
     email = request.POST.get('email')  
     senha = request.POST.get('senha')
     confirmar_senha = request.POST.get('confirmar_senha')
-    
-    aluno = Aluno.objects.filter(email=email)
     
     if len(nome.strip()) == 0 or len(senha.strip()) == 0:
         return redirect('/auth/registro_aluno?status=1')
@@ -139,19 +113,32 @@ def valida_cadastro_aluno(request):
     if senha != confirmar_senha: 
         return redirect('/auth/registro_aluno?status=5')
     
-    if len(aluno) > 0:
+    if Usuario.objects.filter(email=email).exists():
         return redirect('/auth/registro_aluno?status=3')
     
     try:
-        senha_hash = sha256(senha.encode()).hexdigest()
-        aluno = Aluno(nome=nome, email=email, senha=senha_hash)
-        aluno.save()
+        # Create Usuario
+        usuario = Usuario.objects.create_user(
+            email=email,
+            nome=nome,
+            password=senha,
+            tipo_usuario='ALUNO'
+        )
+        usuario.is_active = False # Deactivate until email verification
+        usuario.save()
+
+        # Create Aluno profile
+        aluno = Aluno.objects.create(
+            usuario=usuario,
+            nome=nome,
+            ativo=False
+        )
         
-        # Enviar e-mail de boas-vindas
-        enviar_email_boas_vindas(nome, email)
+        # Enviar código de verificação
+        enviar_codigo_verificacao(email, 'CADASTRO')
+        request.session['email_verificacao'] = email
         
-        # REDIRECIONAR PARA LOGIN COM STATUS DE SUCESSO
-        return redirect('/auth/Login_aluno?status=0')
+        return redirect('verificar_email')
     
     except Exception as e:
         print(f"Erro ao cadastrar aluno: {e}")
@@ -181,39 +168,138 @@ def enviar_email_boas_vindas(nome, email):
     )
     email_msg.attach_alternative(html_content, "text/html")
     
+
     try:
         email_msg.send()
     except Exception as e:
         print(f"Erro ao enviar e-mail: {e}")
 
+def enviar_codigo_verificacao(email, tipo):
+    codigo = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+    CodigoVerificacao.objects.create(email=email, codigo=codigo, tipo=tipo)
+    
+    assunto = "Código de Verificação - Edukangola"
+    mensagem = f"Seu código de verificação é: {codigo}"
+    
+    email_msg = EmailMultiAlternatives(
+        subject=assunto,
+        body=mensagem,
+        from_email='nao-responda@educangola.com',
+        to=[email],
+    )
+    try:
+        email_msg.send()
+    except Exception as e:
+        print(f"Erro ao enviar código: {e}")
+
+def verificar_email(request):
+    if request.method == 'POST':
+        codigo = request.POST.get('codigo')
+        email = request.session.get('email_verificacao')
+        
+        if not email:
+            return redirect('/auth/Login_aluno')
+            
+        try:
+            verificacao = CodigoVerificacao.objects.filter(email=email, codigo=codigo, tipo='CADASTRO').latest('criado_em')
+            usuario = Usuario.objects.get(email=email)
+            usuario.is_active = True
+            usuario.save()
+            
+            # Update Aluno profile as well if it exists
+            try:
+                aluno = Aluno.objects.get(usuario=usuario)
+                aluno.ativo = True
+                aluno.save()
+            except Aluno.DoesNotExist:
+                pass
+            
+            # Limpar códigos
+            CodigoVerificacao.objects.filter(email=email).delete()
+            del request.session['email_verificacao']
+            
+            # Enviar boas vindas agora que ativou
+            enviar_email_boas_vindas(usuario.nome, usuario.email)
+            
+            return redirect('/auth/Login_aluno?status=0')
+        except (CodigoVerificacao.DoesNotExist, Usuario.DoesNotExist):
+            return render(request, 'verificar_codigo.html', {'error': 'Código inválido ou expirado'})
+            
+    return render(request, 'verificar_codigo.html')
+
+def esqueci_senha(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        if Aluno.objects.filter(email=email).exists():
+            enviar_codigo_verificacao(email, 'RECUPERACAO')
+            request.session['email_recuperacao'] = email
+            return redirect('redefinir_senha')
+        else:
+             # Por segurança, não informamos se o email existe ou não, ou informamos msg generica
+             return render(request, 'esqueci_senha.html', {'message': 'Se o email existir, um código foi enviado.'})
+             
+    return render(request, 'esqueci_senha.html')
+
+def redefinir_senha(request):
+    if request.method == 'POST':
+        codigo = request.POST.get('codigo')
+        nova_senha = request.POST.get('senha')
+        confirmar_senha = request.POST.get('confirmar_senha')
+        email = request.session.get('email_recuperacao')
+        
+        if not email:
+            return redirect('esqueci_senha')
+            
+        if nova_senha != confirmar_senha:
+            return render(request, 'redefinir_senha.html', {'error': 'Senhas não conferem'})
+            
+        try:
+            verificacao = CodigoVerificacao.objects.filter(email=email, codigo=codigo, tipo='RECUPERACAO').latest('criado_em')
+            
+            # Atualizar senha
+            usuario = Usuario.objects.get(email=email)
+            usuario.set_password(nova_senha)
+            usuario.save()
+            
+            # Limpar
+            CodigoVerificacao.objects.filter(email=email).delete()
+            if 'email_recuperacao' in request.session:
+                del request.session['email_recuperacao']
+                
+            return redirect('/auth/Login_aluno?status=senha_redefinida')
+            
+        except CodigoVerificacao.DoesNotExist:
+            return render(request, 'redefinir_senha.html', {'error': 'Código inválido'})
+            
+    return render(request, 'redefinir_senha.html')
+
+from django.contrib.auth import authenticate, login
+
 def valida_login_aluno(request):
     email = request.POST.get('email')
     senha = request.POST.get('senha')
     
-    # Verifica se os campos estão vazios
     if not email or not senha:
         return redirect('/auth/Login_aluno?status=1')
     
     try:
-        senha_hash = sha256(senha.encode()).hexdigest()
-        aluno = Aluno.objects.get(email=email)
+        user = authenticate(request, username=email, password=senha)
         
-        # Verifica se a conta está ativa
-        if not aluno.ativo:
-            return redirect('/auth/Login_aluno?status=2')
+        if user is not None:
+            if user.tipo_usuario != 'ALUNO':
+                return redirect('/auth/Login_aluno?status=1') # Or specific error for wrong account type
             
-        # Verifica a senha
-        if aluno.senha != senha_hash:
+            if not user.is_active:
+                return redirect('/auth/Login_aluno?status=2')
+                
+            login(request, user)
+            return redirect('/auth/aluno?status=0')
+        else:
             return redirect('/auth/Login_aluno?status=1')
             
-        # Login bem-sucedido
-        request.session['aluno'] = aluno.id
-        return redirect('/auth/aluno?status=0')  # Status 0 para sucesso
-        
-    except Aluno.DoesNotExist:
-        return redirect('/auth/Login_aluno?status=1')  # Email não existe
     except Exception as e:
-        return redirect('/auth/Login_aluno?status=3')  # Erro interno
+        print(f"Erro no login: {e}")
+        return redirect('/auth/Login_aluno?status=3')
         
 #-----------------------------fim validacao aluno----------------------------------
 
@@ -236,7 +322,6 @@ def valida_cadastro_empresa(request):
         ramo_atuacao = request.POST.get('ramo_atuacao')
         numero_funcionarios = request.POST.get('numero_funcionarios')
 
-        # Validações básicas
         if not all([nome, email, senha, confirmar_senha, nif, ramo_atuacao, numero_funcionarios]):
             return redirect('/auth/registro_empresa?status=1')
 
@@ -246,15 +331,19 @@ def valida_cadastro_empresa(request):
         if senha != confirmar_senha:
             return redirect('/auth/registro_empresa?status=5')
 
-        # Verifica se email ou NIF já existem
-        if Empresa.objects.filter(email=email).exists():
+        if Usuario.objects.filter(email=email).exists():
             return redirect('/auth/registro_empresa?status=3')
 
         if Empresa.objects.filter(nif=nif).exists():
             return redirect('/auth/registro_empresa?status=6')
 
-        # Cria a empresa
-        senha_hash = sha256(senha.encode()).hexdigest()
+        # Create Usuario
+        usuario = Usuario.objects.create_user(
+            email=email,
+            nome=nome,
+            password=senha,
+            tipo_usuario='EMPRESA'
+        )
         
         # Converter valores numéricos
         try:
@@ -264,19 +353,17 @@ def valida_cadastro_empresa(request):
             experiencia = 0
             funcionarios = 1
 
-        empresa = Empresa(
+        # Create Empresa profile
+        empresa = Empresa.objects.create(
+            usuario=usuario,
             nome=nome,
-            email=email,
-            senha=senha_hash,
             telefone=telefone,
             experiencia_anos=experiencia,
             nif=nif,
             ramo_atuacao=ramo_atuacao,
             numero_funcionarios=funcionarios
         )
-        empresa.save()
         
-        # Enviar e-mail de boas-vindas para empresa
         enviar_email_boas_vindas_empresa(nome, email, ramo_atuacao)
         
         return redirect('/auth/registro_empresa?status=0')
@@ -323,20 +410,20 @@ def valida_login_empresa(request):
         return redirect('/auth/login_empresa?status=1')
     
     try:
-        senha_hash = sha256(senha.encode()).hexdigest()
-        empresa = Empresa.objects.get(email=email)
+        user = authenticate(request, username=email, password=senha)
         
-        if hasattr(empresa, 'ativo') and not empresa.ativo:
-            return redirect('/auth/login_empresa?status=2')
+        if user is not None:
+            if user.tipo_usuario != 'EMPRESA':
+                return redirect('/auth/login_empresa?status=1')
             
-        if empresa.senha != senha_hash:
+            if not user.is_active:
+                return redirect('/auth/login_empresa?status=2')
+                
+            login(request, user)
+            return redirect('/auth/conta_empresa?status=0')
+        else:
             return redirect('/auth/login_empresa?status=1')
             
-        request.session['empresa'] = empresa.id
-        return redirect('/auth/conta_empresa?status=0')
-        
-    except Empresa.DoesNotExist:
-        return redirect('/auth/login_empresa?status=1')
     except Exception as e:
         print(f"Erro no login da empresa: {e}")
         return redirect('/auth/login_empresa?status=3')
@@ -362,7 +449,6 @@ def valida_cadastro_biblioteca(request):
         codigo_registro = request.POST.get('codigo_registro', '').strip()
         tipo = request.POST.get('tipo')
 
-        # Validações básicas
         if not all([nome, email, senha, confirmar_senha, tipo]):
             return redirect('/auth/Login_biblioteca?status=1')
 
@@ -372,34 +458,33 @@ def valida_cadastro_biblioteca(request):
         if senha != confirmar_senha:
             return redirect('/auth/Login_biblioteca?status=5')
 
-        if Biblioteca.objects.filter(email=email).exists():
+        if Usuario.objects.filter(email=email).exists():
             return redirect('/auth/Login_biblioteca?status=3')
 
         if codigo_registro and Biblioteca.objects.filter(codigo_registro=codigo_registro).exists():
             return redirect('/auth/Login_biblioteca?status=7')
 
-        senha_hash = sha256(senha.encode()).hexdigest()
-
-        biblioteca = Biblioteca(
-            nome=nome,
+        # Create Usuario
+        usuario = Usuario.objects.create_user(
             email=email,
-            senha=senha_hash,
+            nome=nome,
+            password=senha,
+            tipo_usuario='BIBLIOTECA'
+        )
+
+        # Create Biblioteca profile
+        biblioteca = Biblioteca.objects.create(
+            usuario=usuario,
+            nome=nome,
             telefone=telefone,
             codigo_registro=codigo_registro if codigo_registro else None,
             tipo=tipo
         )
-        biblioteca.save()
 
         enviar_email_boas_vindas_biblioteca(nome, email, tipo)
 
         return redirect('/auth/Login_biblioteca?status=0')
     
-    except IntegrityError as e:
-        print(f"Erro de integridade no cadastro: {e}")
-        return redirect('/auth/Login_biblioteca?status=4')
-    except ValueError as e:
-        print(f"Erro de valor: {e}")
-        return redirect('/auth/Login_biblioteca?status=4')
     except Exception as e:
         print(f"Erro inesperado no cadastro: {e}")
         return redirect('/auth/Login_biblioteca?status=4')
@@ -454,33 +539,27 @@ def valida_login_biblioteca(request):
     email = request.POST.get('email')
     senha = request.POST.get('senha')
     
-    # Verifica se os campos estão vazios
     if not email or not senha:
         return redirect('/auth/login_biblioteca?status=1')
     
     try:
-        senha_hash = sha256(senha.encode()).hexdigest()
-        biblioteca = Biblioteca.objects.get(email=email)
+        user = authenticate(request, username=email, password=senha)
         
-        # Verifica se a conta está ativa (adicionar campo 'ativo' no modelo se necessário)
-        # if not biblioteca.ativo:
-        #     return redirect('/auth/login_biblioteca?status=2')
+        if user is not None:
+            if user.tipo_usuario != 'BIBLIOTECA':
+                return redirect('/auth/login_biblioteca?status=1')
             
-        if biblioteca.senha != senha_hash:
+            if not user.is_active:
+                return redirect('/auth/login_biblioteca?status=2')
+                
+            login(request, user)
+            return redirect('/auth/conta_biblioteca?status=10')
+        else:
             return redirect('/auth/login_biblioteca?status=1')
             
-        request.session['biblioteca'] = biblioteca.id
-        request.session['tipo_usuario'] = 'biblioteca'  
-        return redirect('/auth/conta_biblioteca?status=10') 
-    
-    except Biblioteca.DoesNotExist:
-        return redirect('/auth/login_biblioteca?status=1')  # Email não existe
     except Exception as e:
         print(f"Erro no login da biblioteca: {e}")
         return redirect('/auth/login_biblioteca?status=3')
-        
-def valida_login_biblioteca(request):
-    pass
 
     
 def Login_instrutor(request):
@@ -492,8 +571,7 @@ def Login_escola(request):
 from django.shortcuts import redirect
 
 def Logout(request):
-    if 'aluno' in request.session:
-        del request.session['aluno']
+    auth_logout(request)
     return redirect('/')
   
 
@@ -533,14 +611,14 @@ def cadastro_view(request):
 
 
 def seguir_centro(request, centro_id):
-    # Verifica se o aluno está logado na sessão
-    if 'aluno' not in request.session:
+    # Verifica se o aluno está logado
+    if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
         return JsonResponse({'status': 'erro', 'mensagem': 'É necessário estar logado para seguir um centro.'}, status=401)
 
     centro = get_object_or_404(CentroDeFormacao, id=centro_id)
 
     try:
-        aluno = Aluno.objects.get(id=request.session['aluno'])
+        aluno = request.user.aluno_profile
     except Aluno.DoesNotExist:
         return JsonResponse({'status': 'erro', 'mensagem': 'Aluno não encontrado.'}, status=404)
 
@@ -559,9 +637,9 @@ def seguir_centro(request, centro_id):
 
 
 def user_profile(request):
-    if 'aluno' not in request.session:
+    if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
         return redirect('/auth/Login_aluno?status=4')  
-    aluno = get_object_or_404(Aluno, id=request.session['aluno'])
+    aluno = request.user.aluno_profile
     
     return render(request, 'user_profile.html', {'aluno': aluno})
 
@@ -570,10 +648,10 @@ from django.shortcuts import redirect
 from django.contrib import messages
 
 def editar_perfil(request):
-    if 'aluno' not in request.session:
+    if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
         return redirect('/auth/Login_aluno?status=4')
     
-    aluno = Aluno.objects.get(id=request.session['aluno'])
+    aluno = request.user.aluno_profile
     perfil, created = PerfilAluno.objects.get_or_create(aluno=aluno)
 
     if request.method == 'POST':

@@ -97,6 +97,12 @@
                                 <i class="feather-alert-triangle me-2"></i> Ocorreu um erro inesperado. Por favor, tente
                                 novamente mais tarde.
                             </div>
+                            <!-- Status 4 - Senha redefinida -->
+                            <div class="alert alert-success {% if request.GET.status != 'senha_redefinida' %}d-none{% endif %}"
+                                id="status-senha_redefinida" role="alert">
+                                <i class="feather-check-circle me-2"></i> Senha redefinida com sucesso! Faça login com a
+                                nova senha.
+                            </div>
                         </div>
 
                         <form method="POST" action="{% url 'valida_login_aluno' %}">
@@ -121,7 +127,7 @@
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="rbt-lost-password text-end">
-                                        <a class="rbt-btn-link" href="#">Esqueceu a senha?</a>
+                                        <a class="rbt-btn-link" href="{% url 'esqueci_senha' %}">Esqueceu a senha?</a>
                                     </div>
                                 </div>
                             </div>

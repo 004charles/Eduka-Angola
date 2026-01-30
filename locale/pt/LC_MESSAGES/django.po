@@ -1,3 +1,4 @@
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: Eduka Angola\n"
@@ -13,9 +14,9 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.0\n"
 
-
 #: blog/forms.py:10 blog/models.py:8 blog/models.py:23 blog/models.py:92
-#: gestoreduka/models.py:82 gestoreduka/models.py:106 gestoreduka/models.py:123
+#: gestoreduka/models.py:82 gestoreduka/models.py:106
+#: gestoreduka/models.py:123
 msgid "Nome"
 msgstr ""
 
@@ -130,7 +131,7 @@ msgstr ""
 
 #: cursos_app/models.py:103
 msgid "Nível"
-msgstr ""
+msgstr "Nível"
 
 #: cursos_app/models.py:104
 msgid "Idioma do Curso"
@@ -198,7 +199,7 @@ msgstr ""
 
 #: cursos_app/models.py:152
 msgid "Cursos"
-msgstr ""
+msgstr "Cursos"
 
 #: cursos_app/models.py:174
 msgid "Imagem"
@@ -206,7 +207,7 @@ msgstr ""
 
 #: cursos_app/models.py:176
 msgid "Categoria"
-msgstr ""
+msgstr "Categoria"
 
 #: cursos_app/models.py:263 usuarios/models.py:105
 msgid "Aluno"
@@ -226,7 +227,7 @@ msgstr ""
 
 #: eduangolacore/settings.py:41
 msgid "Português"
-msgstr ""
+msgstr "Português"
 
 #: eduangolacore/settings.py:42
 msgid "Inglês"
@@ -374,7 +375,7 @@ msgstr ""
 
 #: gestoreduka/models.py:112
 msgid "Recursos"
-msgstr ""
+msgstr "Recursos"
 
 #: gestoreduka/models.py:125
 msgid "Cargo/Curso"
@@ -422,7 +423,7 @@ msgstr ""
 
 #: gestoreduka/models.py:165
 msgid "Modalidade"
-msgstr ""
+msgstr "Modalidade"
 
 #: gestoreduka/models.py:166
 msgid "Facebook"
@@ -613,8 +614,8 @@ msgstr ""
 
 #: venv/lib/python3.12/site-packages/django/core/validators.py:297
 msgid ""
-"Enter a valid “slug” consisting of Unicode letters, numbers, underscores, or "
-"hyphens."
+"Enter a valid “slug” consisting of Unicode letters, numbers, underscores, or"
+" hyphens."
 msgstr ""
 
 #: venv/lib/python3.12/site-packages/django/core/validators.py:309
@@ -826,15 +827,15 @@ msgstr ""
 #: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1562
 #, python-format
 msgid ""
-"“%(value)s” value has an invalid format. It must be in YYYY-MM-DD HH:MM[:ss[."
-"uuuuuu]][TZ] format."
+"“%(value)s” value has an invalid format. It must be in YYYY-MM-DD "
+"HH:MM[:ss[.uuuuuu]][TZ] format."
 msgstr ""
 
 #: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1570
 #, python-format
 msgid ""
-"“%(value)s” value has the correct format (YYYY-MM-DD HH:MM[:ss[.uuuuuu]]"
-"[TZ]) but it is an invalid date/time."
+"“%(value)s” value has the correct format (YYYY-MM-DD "
+"HH:MM[:ss[.uuuuuu]][TZ]) but it is an invalid date/time."
 msgstr ""
 
 #: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1575
@@ -853,8 +854,8 @@ msgstr ""
 #: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1864
 #, python-format
 msgid ""
-"“%(value)s” value has an invalid format. It must be in [DD] [[HH:]MM:]ss[."
-"uuuuuu] format."
+"“%(value)s” value has an invalid format. It must be in [DD] "
+"[[HH:]MM:]ss[.uuuuuu] format."
 msgstr ""
 
 #: venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1868
@@ -1013,7 +1014,8 @@ msgid "Many-to-many relationship"
 msgstr ""
 
 #. Translators: If found as last label character, these punctuation
-#. characters will prevent the default label_suffix to be appended to the label
+#. characters will prevent the default label_suffix to be appended to the
+#. label
 #: venv/lib/python3.12/site-packages/django/forms/boundfield.py:185
 msgid ":?.!"
 msgstr ""
@@ -1063,7 +1065,8 @@ msgstr ""
 
 #: venv/lib/python3.12/site-packages/django/forms/fields.py:644
 #, python-format
-msgid "Ensure this filename has at most %(max)d character (it has %(length)d)."
+msgid ""
+"Ensure this filename has at most %(max)d character (it has %(length)d)."
 msgid_plural ""
 "Ensure this filename has at most %(max)d characters (it has %(length)d)."
 msgstr[0] ""
@@ -1170,7 +1173,8 @@ msgid "The inline value did not match the parent instance."
 msgstr ""
 
 #: venv/lib/python3.12/site-packages/django/forms/models.py:1450
-msgid "Select a valid choice. That choice is not one of the available choices."
+msgid ""
+"Select a valid choice. That choice is not one of the available choices."
 msgstr ""
 
 #: venv/lib/python3.12/site-packages/django/forms/models.py:1594
@@ -1630,10 +1634,10 @@ msgstr ""
 
 #: venv/lib/python3.12/site-packages/django/views/csrf.py:45
 msgid ""
-"If you are using the <meta name=\"referrer\" content=\"no-referrer\"> tag or "
-"including the “Referrer-Policy: no-referrer” header, please remove them. The "
-"CSRF protection requires the “Referer” header to do strict referer checking. "
-"If you’re concerned about privacy, use alternatives like <a "
+"If you are using the <meta name=\"referrer\" content=\"no-referrer\"> tag or"
+" including the “Referrer-Policy: no-referrer” header, please remove them. "
+"The CSRF protection requires the “Referer” header to do strict referer "
+"checking. If you’re concerned about privacy, use alternatives like <a "
 "rel=\"noreferrer\" …> for links to third-party sites."
 msgstr ""
 
@@ -1685,8 +1689,8 @@ msgstr ""
 #: venv/lib/python3.12/site-packages/django/views/generic/dates.py:680
 #, python-format
 msgid ""
-"Future %(verbose_name_plural)s not available because %(class_name)s."
-"allow_future is False."
+"Future %(verbose_name_plural)s not available because "
+"%(class_name)s.allow_future is False."
 msgstr ""
 
 #: venv/lib/python3.12/site-packages/django/views/generic/dates.py:720
@@ -1744,10 +1748,10 @@ msgstr ""
 #: venv/lib/python3.12/site-packages/django/views/templates/default_urlconf.html:208
 #, python-format
 msgid ""
-"You are seeing this page because <a href=\"https://docs.djangoproject.com/en/"
-"%(version)s/ref/settings/#debug\" target=\"_blank\" "
-"rel=\"noopener\">DEBUG=True</a> is in your settings file and you have not "
-"configured any URLs."
+"You are seeing this page because <a "
+"href=\"https://docs.djangoproject.com/en/%(version)s/ref/settings/#debug\" "
+"target=\"_blank\" rel=\"noopener\">DEBUG=True</a> is in your settings file "
+"and you have not configured any URLs."
 msgstr ""
 
 #: venv/lib/python3.12/site-packages/django/views/templates/default_urlconf.html:217
@@ -1773,3 +1777,293 @@ msgstr ""
 #: venv/lib/python3.12/site-packages/django/views/templates/default_urlconf.html:236
 msgid "Connect, get help, or contribute"
 msgstr ""
+
+msgid "Categorias"
+msgstr "Categorias"
+
+msgid "Cursos Acadêmicos"
+msgstr "Cursos Acadêmicos"
+
+msgid "Formação Profissional"
+msgstr "Formação Profissional"
+
+msgid "Escolas"
+msgstr "Escolas"
+
+msgid "Estágios"
+msgstr "Estágios"
+
+msgid "Parceiros"
+msgstr "Parceiros"
+
+msgid "Biblioteca Digital"
+msgstr "Biblioteca Digital"
+
+msgid "Guias de Estudo"
+msgstr "Guias de Estudo"
+
+msgid "Bolsa de Emprego"
+msgstr "Bolsa de Emprego"
+
+msgid "Blog"
+msgstr "Blog"
+
+msgid "Sobre"
+msgstr "Sobre"
+
+msgid "Instalar App"
+msgstr "Instalar App"
+
+msgid "Ver Perfil"
+msgstr "Ver Perfil"
+
+msgid "Minha Dashboard"
+msgstr "Minha Dashboard"
+
+msgid "Sair"
+msgstr "Sair"
+
+msgid "Entrar"
+msgstr "Entrar"
+
+msgid "Pesquisar"
+msgstr "Pesquisar"
+
+msgid "O que você está procurando?"
+msgstr "O que você está procurando?"
+
+msgid "Cursos em Destaque"
+msgstr "Cursos em Destaque"
+
+msgid "Recentes"
+msgstr "Recentes"
+
+msgid "Gratuitos"
+msgstr "Gratuitos"
+
+msgid "Mais Inscritos"
+msgstr "Mais Inscritos"
+
+msgid "Para Você"
+msgstr "Para Você"
+
+msgid "Promoção"
+msgstr "Promoção"
+
+msgid "Próximos"
+msgstr "Próximos"
+
+msgid "Vagas"
+msgstr "Vagas"
+
+msgid "Ensino Médio"
+msgstr "Ensino Médio"
+
+msgid "Ciências Exatas"
+msgstr "Ciências Exatas"
+
+msgid "Humanidades"
+msgstr "Humanidades"
+
+msgid "Artes"
+msgstr "Artes"
+
+msgid "Programação"
+msgstr "Programação"
+
+msgid "Design Gráfico"
+msgstr "Design Gráfico"
+
+msgid "Redes de Computadores"
+msgstr "Redes de Computadores"
+
+msgid "Gestão Empresarial"
+msgstr "Gestão Empresarial"
+
+msgid "Marketing Digital"
+msgstr "Marketing Digital"
+
+msgid "Contabilidade"
+msgstr "Contabilidade"
+
+msgid "Instituições"
+msgstr "Instituições"
+
+msgid "Universidades"
+msgstr "Universidades"
+
+msgid "Escolas Técnicas"
+msgstr "Escolas Técnicas"
+
+msgid "Oportunidades"
+msgstr "Oportunidades"
+
+msgid "Estágios em TI"
+msgstr "Estágios em TI"
+
+msgid "Estágios em Engenharia"
+msgstr "Estágios em Engenharia"
+
+msgid "Estágios em Administração"
+msgstr "Estágios em Administração"
+
+msgid "Home demo"
+msgstr "Home demo"
+
+msgid "cursos"
+msgstr "cursos"
+
+msgid "biblioteca"
+msgstr "biblioteca"
+
+msgid "Guias de estudo"
+msgstr "Guias de estudo"
+
+msgid "Educação Infantil"
+msgstr "Educação Infantil"
+
+msgid "Idioma"
+msgstr "Idioma"
+
+msgid "Junte-se a Mais de 3000 Alunos"
+msgstr "Junte-se a Mais de 3000 Alunos"
+
+msgid "Transformando vidas através da educação."
+msgstr "Transformando vidas através da educação."
+
+msgid "Buscar centros de formação"
+msgstr "Buscar centros de formação"
+
+msgid "Ver Cursos"
+msgstr "Ver Cursos"
+
+msgid "Sobre a EdukaAngola"
+msgstr "Sobre a EdukaAngola"
+
+msgid "O que é a EdukaAngola?"
+msgstr "O que é a EdukaAngola?"
+
+msgid ""
+"EdukaAngola é uma plataforma educacional angolana criada para conectar "
+"estudantes, profissionais e instituições de ensino a cursos práticos, "
+"acessíveis e de qualidade. O nosso objetivo é facilitar o aprendizado, "
+"promover o desenvolvimento profissional e contribuir para o crescimento "
+"educacional e tecnológico de Angola."
+msgstr ""
+"EdukaAngola é uma plataforma educacional angolana criada para conectar "
+"estudantes, profissionais e instituições de ensino a cursos práticos, "
+"acessíveis e de qualidade. O nosso objetivo é facilitar o aprendizado, "
+"promover o desenvolvimento profissional e contribuir para o crescimento "
+"educacional e tecnológico de Angola."
+
+msgid "Saiba Mais Sobre Nós"
+msgstr "Saiba Mais Sobre Nós"
+
+msgid "Seu navegador não suporta a tag de vídeo."
+msgstr "Seu navegador não suporta a tag de vídeo."
+
+msgid "Vídeo ainda não disponível."
+msgstr "Vídeo ainda não disponível."
+
+msgid "Catálogo de Cursos - Edukangola"
+msgstr "Catálogo de Cursos - Edukangola"
+
+msgid "Catálogo de Cursos"
+msgstr "Catálogo de Cursos"
+
+msgid "Encontre o curso perfeito para alavancar sua carreira."
+msgstr "Encontre o curso perfeito para alavancar sua carreira."
+
+msgid "Filtrar Resultados"
+msgstr "Filtrar Resultados"
+
+msgid "Palavra-chave"
+msgstr "Palavra-chave"
+
+msgid "Todas as categorias"
+msgstr "Todas as categorias"
+
+msgid "Todos os níveis"
+msgstr "Todos os níveis"
+
+msgid "Básico"
+msgstr "Básico"
+
+msgid "Intermediário"
+msgstr "Intermediário"
+
+msgid "Avançado"
+msgstr "Avançado"
+
+msgid "Todas as modalidades"
+msgstr "Todas as modalidades"
+
+msgid "Presencial"
+msgstr "Presencial"
+
+msgid "Híbrido"
+msgstr "Híbrido"
+
+msgid "Todos os idiomas"
+msgstr "Todos os idiomas"
+
+msgid "Preço"
+msgstr "Preço"
+
+msgid "Todos os preços"
+msgstr "Todos os preços"
+
+msgid "Até 100 KZ"
+msgstr "Até 100 KZ"
+
+msgid "100 - 500 KZ"
+msgstr "100 - 500 KZ"
+
+msgid "Acima de 500 KZ"
+msgstr "Acima de 500 KZ"
+
+msgid "Aplicar Filtros"
+msgstr "Aplicar Filtros"
+
+msgid "Limpar Filtros"
+msgstr "Limpar Filtros"
+
+msgid "Por que Edukangola?"
+msgstr "Por que Edukangola?"
+
+msgid "Instrutores Verificados"
+msgstr "Instrutores Verificados"
+
+msgid "Certificados Válidos"
+msgstr "Certificados Válidos"
+
+msgid "Suporte Dedicado"
+msgstr "Suporte Dedicado"
+
+msgid "Cursos Disponíveis"
+msgstr "Cursos Disponíveis"
+
+msgid "Ordenar por:"
+msgstr "Ordenar por:"
+
+msgid "Mais Recentes"
+msgstr "Mais Recentes"
+
+msgid "Mais Populares"
+msgstr "Mais Populares"
+
+msgid "Menor Preço"
+msgstr "Menor Preço"
+
+msgid "Nenhum curso encontrado"
+msgstr "Nenhum curso encontrado"
+
+msgid "Tente usar outros termos ou limpe os filtros para ver mais resultados."
+msgstr ""
+"Tente usar outros termos ou limpe os filtros para ver mais resultados."
+
+msgid "Edukangola"
+msgstr "Edukangola"
+
+msgid "Okulonga wosuka okuno"
+msgstr "Okulonga wosuka okuno"

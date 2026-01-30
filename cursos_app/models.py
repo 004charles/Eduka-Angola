@@ -14,6 +14,7 @@ from django.core.validators import MinValueValidator
 from gestoreduka.models import CentroDeFormacao
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Avg, Count, Sum  # Adicione esta linha
 from usuarios.models import Aluno
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
@@ -234,6 +235,16 @@ class Curso(models.Model):
             from .utils import notificar_seguidores  
             notificar_seguidores(self)
 
+    def get_imagem_url(self):
+        """Retorna a URL da imagem do curso ou um placeholder se não existir"""
+        if self.imagem and hasattr(self.imagem, 'url'):
+            try:
+                # Verifica se o arquivo existe
+                return self.imagem.url
+            except (ValueError, AttributeError):
+                pass
+        # Retorna uma imagem placeholder usando um serviço de placeholder
+        return f"https://via.placeholder.com/400x300/4A90E2/FFFFFF?text={self.titulo[:20]}"
 
             
 
@@ -369,6 +380,37 @@ class Curso(models.Model):
     def get_absolute_url(self):
         from django.urls import reverse
         return reverse('curso_detalhe', kwargs={'slug': self.slug})
+
+    @property
+    def get_media_avaliacoes(self):
+        """Retorna a média das avaliações do curso"""
+        avg = self.comentarios.aggregate(media=Avg('avaliacao'))['media']
+        return round(avg, 1) if avg else 0.0
+    
+    @property
+    def total_inscritos(self):
+        """Retorna o total de alunos inscritos no curso"""
+        return self.inscricoes.filter(status='A').count()
+    
+    @property
+    def inscricoes_abertas(self):
+        """Verifica se as inscrições estão abertas"""
+        agora = timezone.now()
+        if self.data_fim_inscricoes:
+            return self.data_inicio_inscricoes <= agora <= self.data_fim_inscricoes
+        return agora >= self.data_inicio_inscricoes
+    
+    @property
+    def lotado(self):
+        """Verifica se o curso está lotado"""
+        return self.total_vagas_disponiveis <= 0
+    
+    @property
+    def percentual_desconto(self):
+        """Calcula o percentual de desconto"""
+        if self.em_promocao and self.preco > 0:
+            return ((self.preco - self.preco_promocional) / self.preco) * 100
+        return 0
 
 
 
@@ -524,6 +566,7 @@ class Inscricao(models.Model):
         ('CARTAO_CREDITO', 'Cartão de Crédito'),
         ('CARTAO_DEBITO', 'Cartão de Débito'),
         ('DEPOSITO', 'Depósito'),
+        ('SIMULADO', 'Pagamento Simulado'),  # Adicionado para simulação
         ('OUTRO', 'Outro'),
     ]
 
@@ -547,6 +590,11 @@ class Inscricao(models.Model):
     data_pagamento = models.DateTimeField(_('Data de Pagamento'), null=True, blank=True)
     comprovante_pagamento = models.FileField(_('Comprovante de Pagamento'), upload_to='comprovantes/', null=True, blank=True)
     
+    # Campos para simulação de pagamento
+    pagamento_simulado = models.BooleanField(_('Pagamento Simulado'), default=False)
+    codigo_simulacao = models.CharField(_('Código da Simulação'), max_length=50, blank=True, null=True)
+    data_simulacao = models.DateTimeField(_('Data da Simulação'), null=True, blank=True)
+    
     observacoes = models.TextField(_('Observações'), blank=True)
     data_confirmacao = models.DateTimeField(_('Data de Confirmação'), null=True, blank=True)
     data_cancelamento = models.DateTimeField(_('Data de Cancelamento'), null=True, blank=True)
@@ -565,6 +613,14 @@ class Inscricao(models.Model):
             except Inscricao.DoesNotExist:
                 pass
         
+        # Se for um pagamento simulado, atualizar automaticamente
+        if self.pagamento_simulado and not self.data_pagamento:
+            self.data_pagamento = timezone.now()
+            self.forma_pagamento = 'SIMULADO'
+            self.valor_pago = self.curso.preco_atual
+            self.codigo_simulacao = f"SIM_{self.curso.id}_{self.aluno.id}_{timezone.now().strftime('%Y%m%d%H%M%S')}"
+            self.data_simulacao = timezone.now()
+        
         super().save(*args, **kwargs)
         
         if (self.status == 'A' and (is_new or old_status != 'A')) or \
@@ -580,6 +636,30 @@ class Inscricao(models.Model):
         elif self.status == 'C' and not self.data_cancelamento:
             self.data_cancelamento = timezone.now()
             self.save(update_fields=['data_cancelamento'])
+
+    def simular_pagamento(self):
+        """Simula um pagamento bem-sucedido"""
+        if self.status != 'P':
+            return False, "Esta inscrição já foi processada."
+        
+        self.pagamento_simulado = True
+        self.forma_pagamento = 'SIMULADO'
+        self.valor_pago = self.curso.preco_atual
+        self.data_pagamento = timezone.now()
+        self.status = 'A'
+        self.codigo_simulacao = f"SIM_{self.curso.id}_{self.aluno.id}_{timezone.now().strftime('%Y%m%d%H%M%S')}"
+        self.data_simulacao = timezone.now()
+        self.data_confirmacao = timezone.now()
+        
+        self.save()
+        
+        # Enviar email de confirmação
+        try:
+            self.enviar_email_status()
+        except:
+            pass
+        
+        return True, "Pagamento simulado com sucesso! Inscrição confirmada."
 
     def atribuir_turma_automaticamente(self):
         if self.turma_escolhida or self.status != 'A':
@@ -610,6 +690,18 @@ class Inscricao(models.Model):
     def pagamento_completo(self):
         return self.valor_pago and self.valor_pago >= self.curso.preco_atual
 
+    @property
+    def pagamento_simulado_info(self):
+        """Retorna informações sobre o pagamento simulado"""
+        if self.pagamento_simulado:
+            return {
+                'simulado': True,
+                'codigo': self.codigo_simulacao,
+                'data': self.data_simulacao,
+                'valor': self.valor_pago,
+            }
+        return {'simulado': False}
+
     def enviar_email_confirmacao(self, link_curso=None):
         from django.core.mail import EmailMultiAlternatives
         from django.template.loader import render_to_string
@@ -620,7 +712,8 @@ class Inscricao(models.Model):
             'aluno': self.aluno,
             'curso': self.curso,
             'suporte_email': getattr(settings, 'SUPORTE_EMAIL', settings.DEFAULT_FROM_EMAIL),
-            'link_curso': link_curso,  
+            'link_curso': link_curso,
+            'inscricao': self,
         }
         assunto = f"Inscrição recebida: {self.curso.titulo}"
         html = render_to_string('emails/inscricao_pendente.html', contexto)
@@ -645,9 +738,11 @@ class Inscricao(models.Model):
             'aluno': self.aluno,
             'curso': self.curso,
             'status_legivel': self.get_status_display(),
-            'status_codigo': self.status,  
+            'status_codigo': self.status,
             'suporte_email': getattr(settings, 'SUPORTE_EMAIL', settings.DEFAULT_FROM_EMAIL),
-            'link_curso': link_curso,  
+            'link_curso': link_curso,
+            'inscricao': self,
+            'pagamento_simulado': self.pagamento_simulado,
         }
         assunto = f"Status da inscrição: {self.curso.titulo} — {self.get_status_display()}"
         html = render_to_string('emails/inscricao_status.html', contexto)
@@ -666,7 +761,7 @@ class Inscricao(models.Model):
         verbose_name = _('Inscrição')
         verbose_name_plural = _('Inscrições')
         unique_together = ('aluno', 'curso')
-
+        
 class Favorito(models.Model):
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, related_name='favoritos')
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='favoritado_por')

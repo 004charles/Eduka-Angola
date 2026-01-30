@@ -18,6 +18,11 @@ urlpatterns = [
     path('ficha_inscricao/<int:curso_id>/', views.ficha_inscricao, name='ficha_inscricao'),
     path('favorito/<int:curso_id>/', views.adicionar_favorito, name='adicionar_favorito'),
     path('centro/<int:centro_id>/instrutores/', views.instrutores_do_centro, name='instrutores_centro'),
+    path('curso/<int:id>/', views.curso_detalhe, name='curso_detalhe'),
+    path('curso/<int:curso_id>/avaliar/', views.adicionar_comentario, name='adicionar_comentario'),
+    path('comentarios/<int:comentario_id>/excluir/', views.excluir_comentario, name='excluir_comentario'),
+    path('comentarios/<int:comentario_id>/denunciar/', views.denunciar_comentario, name='denunciar_comentario'),
+    path('', views.catalogo_cursos, name='catalogo_cursos'),
 
     
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -81,8 +81,14 @@
                                 <label>Senha *</label>
                                 <span class="focus-border"></span>
                             </div>
-                            
 
+                            {% load socialaccount %}
+                            <div class="form-group mt-4">
+                                <a href="{% provider_login_url 'google' %}" class="rbt-btn btn-md btn-white hover-icon-reverse w-100 text-center" style="border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo" style="width: 20px;">
+                                    <span>Entrar com Google</span>
+                                </a>
+                            </div>
                             <div class="row mb--30">
                                 <div class="col-md-6">
                                     <div class="rbt-checkbox">

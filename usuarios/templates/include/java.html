@@ -1,32 +1,75 @@
- {% load static %}
- <script src="{% static 'assets/js/vendor/modernizr.min.js' %}"></script>
- <script src="{% static 'assets/js/vendor/jquery.js' %}"></script>
- <script src="{% static 'assets/js/vendor/bootstrap.min.js' %}"></script>
- <script src="{% static 'assets/js/vendor/sal.js' %}"></script>
- <script src="{% static 'assets/js/vendor/js.cookie.js' %}"></script>
- <script src="{% static 'assets/js/vendor/jquery.style.switcher.js' %}"></script>
- <script src="{% static 'assets/js/vendor/swiper.js' %}"></script>
- <script src="{% static 'assets/js/vendor/jquery-appear.js' %}"></script>
- <script src="{% static 'assets/js/vendor/odometer.js' %}"></script>
- <script src="{% static 'assets/js/vendor/backtotop.js' %}"></script>
- <script src="{% static 'assets/js/vendor/isotop.js' %}"></script>
- <script src="{% static 'assets/js/vendor/imageloaded.js' %}"></script>
- <script src="{% static 'assets/js/vendor/wow.js' %}"></script>
- <script src="{% static 'assets/js/vendor/waypoint.min.js' %}"></script>
- <script src="{% static 'assets/js/vendor/easypie.js' %}"></script>
- <script src="{% static 'assets/js/vendor/text-type.js' %}"></script>
- <script src="{% static 'assets/js/vendor/jquery-one-page-nav.js' %}"></script>
- <script src="{% static 'assets/js/vendor/bootstrap-select.min.js' %}"></script>
- <script src="{% static 'assets/js/vendor/jquery-ui.js' %}"></script>
- <script src="{% static 'assets/js/vendor/magnify-popup.min.js' %}"></script>
- <script src="{% static 'assets/js/vendor/paralax-scroll.js' %}"></script>
- <script src="{% static 'assets/js/vendor/paralax.min.js' %}"></script>
- <script src="{% static 'assets/js/vendor/countdown.js' %}"></script>
- <script src="{% static 'assets/js/vendor/plyr.js' %}"></script>
- <script src="{% static 'assets/js/vendor/jodit.min.js' %}"></script>
- <script src="{% static 'assets/js/vendor/Sortable.min.js' %}"></script>
- <script src="{% static 'assets/js/main.js' %}"></script>
- <script src="{% static 'assets/js/java_scroll.js' %}" ></script>
+{% load static %}
+<script src="{% static 'assets/js/vendor/modernizr.min.js' %}"></script>
+<script src="{% static 'assets/js/vendor/jquery.js' %}"></script>
+<script src="{% static 'assets/js/vendor/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets/js/vendor/sal.js' %}"></script>
+<script src="{% static 'assets/js/vendor/js.cookie.js' %}"></script>
+<script src="{% static 'assets/js/vendor/jquery.style.switcher.js' %}"></script>
+<script src="{% static 'assets/js/vendor/swiper.js' %}"></script>
+<script src="{% static 'assets/js/vendor/jquery-appear.js' %}"></script>
+<script src="{% static 'assets/js/vendor/odometer.js' %}"></script>
+<script src="{% static 'assets/js/vendor/backtotop.js' %}"></script>
+<script src="{% static 'assets/js/vendor/isotop.js' %}"></script>
+<script src="{% static 'assets/js/vendor/imageloaded.js' %}"></script>
+<script src="{% static 'assets/js/vendor/wow.js' %}"></script>
+<script src="{% static 'assets/js/vendor/waypoint.min.js' %}"></script>
+<script src="{% static 'assets/js/vendor/easypie.js' %}"></script>
+<script src="{% static 'assets/js/vendor/text-type.js' %}"></script>
+<script src="{% static 'assets/js/vendor/jquery-one-page-nav.js' %}"></script>
+<script src="{% static 'assets/js/vendor/bootstrap-select.min.js' %}"></script>
+<script src="{% static 'assets/js/vendor/jquery-ui.js' %}"></script>
+<script src="{% static 'assets/js/vendor/magnify-popup.min.js' %}"></script>
+<script src="{% static 'assets/js/vendor/paralax-scroll.js' %}"></script>
+<script src="{% static 'assets/js/vendor/paralax.min.js' %}"></script>
+<script src="{% static 'assets/js/vendor/countdown.js' %}"></script>
+<script src="{% static 'assets/js/vendor/plyr.js' %}"></script>
+<script src="{% static 'assets/js/vendor/jodit.min.js' %}"></script>
+<script src="{% static 'assets/js/vendor/Sortable.min.js' %}"></script>
+<script src="{% static 'assets/js/main.js' %}"></script>
+<script src="{% static 'assets/js/java_scroll.js' %}"></script>
 
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+            navigator.serviceWorker.register('/serviceworker.js').then(function (registration) {
+                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            }, function (err) {
+                console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+    }
 
- 
+    // PWA Install Prompt Logic
+    let deferredPrompt;
+    const installBtnContainer = document.getElementById('installAppContainer');
+    const installBtn = document.getElementById('installAppBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevent Chrome 67 and earlier from automatically showing the prompt
+        e.preventDefault();
+        // Stash the event so it can be triggered later.
+        deferredPrompt = e;
+        // Update UI to notify the user they can add to home screen
+        if (installBtnContainer) {
+            installBtnContainer.style.display = 'block';
+        }
+
+        if (installBtn) {
+            installBtn.addEventListener('click', (e) => {
+                // hide our user interface that shows our A2HS button
+                installBtnContainer.style.display = 'none';
+                // Show the prompt
+                deferredPrompt.prompt();
+                // Wait for the user to respond to the prompt
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the A2HS prompt');
+                    } else {
+                        console.log('User dismissed the A2HS prompt');
+                    }
+                    deferredPrompt = null;
+                });
+            });
+        }
+    });
+</script>

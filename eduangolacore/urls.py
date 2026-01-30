@@ -13,8 +13,11 @@ urlpatterns = [
     path('', include('pwa.urls')),
 
     path('', views.index, name = 'index'),
+    path('test-404/', views.erro_404_view, kwargs={'exception': Exception("Teste 404")}),
+    path('test-500/', views.erro_500_view),
     path('i18n/', include('django.conf.urls.i18n')),
     path('auth/', include('usuarios.urls')), 
+    path('accounts/', include('allauth.urls')), 
     path('curso_video/', include('cursovideoapp.urls')),
     path('sobre/', views.sobre, name = 'sobre'),
     path('cursos/', include('cursos_app.urls')),
@@ -26,3 +29,4 @@ urlpatterns = [
 
 
 handler404 = 'core.views.erro_404_view'
+handler500 = 'core.views.erro_500_view'

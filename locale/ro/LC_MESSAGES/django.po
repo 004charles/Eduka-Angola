@@ -1,0 +1,309 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Eduka Angola\n"
+"Language: ro\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Categorias"
+msgstr "Categorii"
+
+msgid "Categoria"
+msgstr "Categorie"
+
+msgid "Cursos Acadêmicos"
+msgstr "Cursuri Academice"
+
+msgid "Formação Profissional"
+msgstr "Formare Profesională"
+
+msgid "Escolas"
+msgstr "Şcoli"
+
+msgid "Estágios"
+msgstr "Stagii"
+
+msgid "Cursos"
+msgstr "Cursuri"
+
+msgid "Parceiros"
+msgstr "Parteneri"
+
+msgid "Recursos"
+msgstr "Resurse"
+
+msgid "Biblioteca Digital"
+msgstr "Bibliotecă Digitală"
+
+msgid "Guias de Estudo"
+msgstr "Ghiduri de Studiu"
+
+msgid "Bolsa de Emprego"
+msgstr "Bursă de Locuri de Muncă"
+
+msgid "Blog"
+msgstr "Blog"
+
+msgid "Sobre"
+msgstr "Despre"
+
+msgid "Instalar App"
+msgstr "Instalează Aplicația"
+
+msgid "Ver Perfil"
+msgstr "Vezi Profilul"
+
+msgid "Minha Dashboard"
+msgstr "Panoul Meu"
+
+msgid "Sair"
+msgstr "Deconectare"
+
+msgid "Entrar"
+msgstr "Autentificare"
+
+msgid "Pesquisar"
+msgstr "Caută"
+
+msgid "O que você está procurando?"
+msgstr "Ce cauţi?"
+
+msgid "Cursos em Destaque"
+msgstr "Cursuri Recomandate"
+
+msgid "Recentes"
+msgstr "Recente"
+
+msgid "Gratuitos"
+msgstr "Gratuite"
+
+msgid "Mais Inscritos"
+msgstr "Cei Mai Înscrişi"
+
+msgid "Para Você"
+msgstr "Pentru Tine"
+
+msgid "Promoção"
+msgstr "Promoţie"
+
+msgid "Próximos"
+msgstr "Viitoare"
+
+msgid "Vagas"
+msgstr "Locuri"
+
+msgid "Ensino Médio"
+msgstr "Liceu"
+
+msgid "Ciências Exatas"
+msgstr "Ştiinţe Exacte"
+
+msgid "Humanidades"
+msgstr "Umanistice"
+
+msgid "Artes"
+msgstr "Arte"
+
+msgid "Programação"
+msgstr "Programare"
+
+msgid "Design Gráfico"
+msgstr "Design Grafic"
+
+msgid "Redes de Computadores"
+msgstr "Reţele de Calculatoare"
+
+msgid "Gestão Empresarial"
+msgstr "Managementul Afacerilor"
+
+msgid "Marketing Digital"
+msgstr "Marketing Digital"
+
+msgid "Contabilidade"
+msgstr "Contabilitate"
+
+msgid "Instituições"
+msgstr "Instituţii"
+
+msgid "Universidades"
+msgstr "Universităţi"
+
+msgid "Escolas Técnicas"
+msgstr "Şcoli Tehnice"
+
+msgid "Oportunidades"
+msgstr "Oportunităţi"
+
+msgid "Estágios em TI"
+msgstr "Stagii în IT"
+
+msgid "Estágios em Engenharia"
+msgstr "Stagii în Inginerie"
+
+msgid "Estágios em Administração"
+msgstr "Stagii în Administraţie"
+
+msgid "Home demo"
+msgstr "Demo Acasă"
+
+msgid "cursos"
+msgstr "cursuri"
+
+msgid "biblioteca"
+msgstr "bibliotecă"
+
+msgid "Guias de estudo"
+msgstr "Ghiduri de studiu"
+
+msgid "Educação Infantil"
+msgstr "Educaţie Preşcolară"
+
+msgid "Idioma"
+msgstr "Limbă"
+
+msgid "Junte-se a Mais de 3000 Alunos"
+msgstr ""
+
+msgid "Transformando vidas através da educação."
+msgstr ""
+
+msgid "Buscar centros de formação"
+msgstr ""
+
+msgid "Ver Cursos"
+msgstr ""
+
+msgid "Sobre a EdukaAngola"
+msgstr ""
+
+msgid "O que é a EdukaAngola?"
+msgstr ""
+
+msgid ""
+"EdukaAngola é uma plataforma educacional angolana criada para conectar "
+"estudantes, profissionais e instituições de ensino a cursos práticos, "
+"acessíveis e de qualidade. O nosso objetivo é facilitar o aprendizado, "
+"promover o desenvolvimento profissional e contribuir para o crescimento "
+"educacional e tecnológico de Angola."
+msgstr ""
+
+msgid "Saiba Mais Sobre Nós"
+msgstr ""
+
+msgid "Seu navegador não suporta a tag de vídeo."
+msgstr ""
+
+msgid "Vídeo ainda não disponível."
+msgstr ""
+
+msgid "Catálogo de Cursos - Edukangola"
+msgstr ""
+
+msgid "Catálogo de Cursos"
+msgstr ""
+
+msgid "Encontre o curso perfeito para alavancar sua carreira."
+msgstr ""
+
+msgid "Filtrar Resultados"
+msgstr ""
+
+msgid "Palavra-chave"
+msgstr ""
+
+msgid "Todas as categorias"
+msgstr ""
+
+msgid "Nível"
+msgstr ""
+
+msgid "Todos os níveis"
+msgstr ""
+
+msgid "Básico"
+msgstr ""
+
+msgid "Intermediário"
+msgstr ""
+
+msgid "Avançado"
+msgstr ""
+
+msgid "Modalidade"
+msgstr ""
+
+msgid "Todas as modalidades"
+msgstr ""
+
+msgid "Presencial"
+msgstr ""
+
+msgid "Híbrido"
+msgstr ""
+
+msgid "Todos os idiomas"
+msgstr ""
+
+msgid "Português"
+msgstr ""
+
+msgid "Preço"
+msgstr ""
+
+msgid "Todos os preços"
+msgstr ""
+
+msgid "Até 100 KZ"
+msgstr ""
+
+msgid "100 - 500 KZ"
+msgstr ""
+
+msgid "Acima de 500 KZ"
+msgstr ""
+
+msgid "Aplicar Filtros"
+msgstr ""
+
+msgid "Limpar Filtros"
+msgstr ""
+
+msgid "Por que Edukangola?"
+msgstr ""
+
+msgid "Instrutores Verificados"
+msgstr ""
+
+msgid "Certificados Válidos"
+msgstr ""
+
+msgid "Suporte Dedicado"
+msgstr ""
+
+msgid "Cursos Disponíveis"
+msgstr ""
+
+msgid "Ordenar por:"
+msgstr ""
+
+msgid "Mais Recentes"
+msgstr ""
+
+msgid "Mais Populares"
+msgstr ""
+
+msgid "Menor Preço"
+msgstr ""
+
+msgid "Nenhum curso encontrado"
+msgstr ""
+
+msgid "Tente usar outros termos ou limpe os filtros para ver mais resultados."
+msgstr ""
+
+msgid "Edukangola"
+msgstr ""
+
+msgid "Okulonga wosuka okuno"
+msgstr ""

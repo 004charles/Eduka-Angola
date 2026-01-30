@@ -1,0 +1,72 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Edukangola | Verificar Email</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% include 'include/css.html' %}
+</head>
+
+<body class="rbt-header-sticky">
+    {% include 'include/header.html' %}
+
+    <div class="rbt-breadcrumb-default ptb--100 ptb_md--50 ptb_sm--30 bg-gradient-1">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="breadcrumb-inner text-center">
+                        <h2 class="title">Verificação de Email</h2>
+                        <p class="welcome-message">Digite o código enviado para o seu email.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="rbt-elements-area bg-color-white rbt-section-gap"
+        style="display: flex; align-items: center; min-height: 50vh;">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="rbt-contact-form contact-form-style-1 mx-auto">
+                        <h3 class="title text-center mb-4">Verificação</h3>
+
+                        {% if error %}
+                        <div class="alert alert-danger" role="alert">
+                            <i class="feather-alert-circle me-2"></i> {{ error }}
+                        </div>
+                        {% endif %}
+
+                        <form method="POST" action="{% url 'verificar_email' %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <input name="codigo" type="text" maxlength="6" required
+                                    placeholder="Digite o código de 6 dígitos" />
+                                <label>Código de Verificação *</label>
+                                <span class="focus-border"></span>
+                            </div>
+
+                            <div class="form-submit-group">
+                                <button type="submit" class="rbt-btn btn-md btn-gradient hover-icon-reverse w-100">
+                                    <span class="icon-reverse-wrapper">
+                                        <span class="btn-text">Verificar</span>
+                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                    </span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'include/footer.html' %}
+    {% include 'include/java.html' %}
+</body>
+
+</html>

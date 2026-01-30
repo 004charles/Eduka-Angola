@@ -11,10 +11,14 @@ from usuarios.models import Aluno, PerfilAluno
 
 def aluno_logado_e_centros(view_func):
     def _wrapped_view(request, *args, **kwargs):
-        if 'aluno' not in request.session:
+        if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
             return redirect('/auth/Login_aluno?status=4')
 
-        aluno = get_object_or_404(Aluno, id=request.session['aluno'])
+        try:
+            aluno = request.user.aluno_profile
+        except AttributeError:
+            return redirect('/auth/Login_aluno?status=4')
+
         perfil, created = PerfilAluno.objects.get_or_create(aluno=aluno)
 
         latitude = request.GET.get('lat')
@@ -31,15 +35,23 @@ def aluno_logado_e_centros(view_func):
 
         centros = []
         if perfil.localizacao:
-            centros = (
-                CentroDeFormacao.objects
-                .filter(
-                    ativo=True,
-                    localizacao__distance_lte=(perfil.localizacao, D(km=10))
-                )
-                .annotate(distancia=Distance('localizacao', perfil.localizacao))
-                .order_by('distancia')
-            )
+            from django.conf import settings
+            if not getattr(settings, 'USE_SQLITE', False):
+                try:
+                    centros = (
+                        CentroDeFormacao.objects
+                        .filter(
+                            ativo=True,
+                            localizacao__distance_lte=(perfil.localizacao, D(km=10))
+                        )
+                        .annotate(distancia=Distance('localizacao', perfil.localizacao))
+                        .order_by('distancia')
+                    )
+                except Exception:
+                    centros = CentroDeFormacao.objects.filter(ativo=True).order_by('nome')
+            else:
+                # Fallback para SQLite
+                centros = CentroDeFormacao.objects.filter(ativo=True).order_by('nome')
 
         request.aluno_obj = aluno
         request.perfil = perfil

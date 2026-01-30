@@ -1,9 +1,9 @@
 {% load static %}
 {% load i18n %}
+{% load language_tags %}
 <header class="rbt-header rbt-header-10">
     <div class="rbt-sticky-placeholder"></div>
 
-    <!-- Top Bar -->
     <div
         class="rbt-header-top rbt-header-top-1 header-space-betwween bg-not-transparent bg-color-darker top-expended-activation">
         <div class="container-fluid">
@@ -43,7 +43,7 @@
                                     <li class="has-child-menu">
                                         <a href="#">
                                             <img class="left-image"
-                                                src="https://flagcdn.com/w20/{{ CURRENT_LANGUAGE }}.png"
+                                                src="https://flagcdn.com/w20/{{ CURRENT_LANGUAGE|get_flag_code }}.png"
                                                 alt="{% trans 'Idioma atual' %}">
                                             <span class="menu-item">
                                                 {% for code, name in LANGUAGES %}
@@ -54,22 +54,21 @@
                                         </a>
                                         <ul class="sub-menu">
                                             {% for code, name in LANGUAGES %}
-                                            {% if code != CURRENT_LANGUAGE %}
                                             <li>
                                                 <form action="{% url 'set_language' %}" method="post"
                                                     class="language-form">
                                                     {% csrf_token %}
                                                     <input name="next" type="hidden" value="{{ request.path }}">
                                                     <input name="language" type="hidden" value="{{ code }}">
-                                                    <button type="submit" class="language-button">
+                                                    <button type="submit"
+                                                        class="language-button {% if code == CURRENT_LANGUAGE %}active{% endif %}">
                                                         <img class="left-image"
-                                                            src="https://flagcdn.com/w20/{{ code }}.png"
+                                                            src="https://flagcdn.com/w20/{{ code|get_flag_code }}.png"
                                                             alt="{{ name }}">
                                                         <span class="menu-item">{{ name }}</span>
                                                     </button>
                                                 </form>
                                             </li>
-                                            {% endif %}
                                             {% endfor %}
                                         </ul>
                                     </li>
@@ -93,14 +92,15 @@
                         <div class="logo logo-dark" style="width: 100px; height: auto;">
                             <!-- Ajuste o tamanho conforme necessário -->
                             <a href="{% url 'index' %}">
-                                <img style="width: 320px;" src="{% static 'assets/images/logo/Eduka-removebg-preview.png' %}" alt="EdukAngola Logo"
-                                    >
+                                <img style="width: 320px;"
+                                    src="{% static 'assets/images/logo/Eduka-removebg-preview.png' %}"
+                                    alt="EdukAngola Logo">
                             </a>
                         </div>
                         <div class="logo d-none logo-light" style="width: 100px; height: auto;">
                             <a href="{% url 'index' %}">
-                                <img src="{% static 'assets/images/logo/Eduka-removebg-preview.png' %}" alt="EdukAngola Logo"
-                                    style="width: 100%; height: auto;">
+                                <img src="{% static 'assets/images/logo/Eduka-removebg-preview.png' %}"
+                                    alt="EdukAngola Logo" style="width: 100%; height: auto;">
                             </a>
                         </div>
                     </div>
@@ -111,9 +111,9 @@
                             <div class="rbt-category-btn">
                                 <div class="rbt-offcanvas-trigger md-size icon">
                                     <span class="d-none d-xl-block"><i class="feather-grid"></i></span>
-                                    <i title="Categoria" class="feather-grid d-block d-xl-none"></i>
+                                    <i title="{% trans 'Categoria' %}" class="feather-grid d-block d-xl-none"></i>
                                 </div>
-                                <span class="category-text d-none d-xl-block">Categorias</span>
+                                <span class="category-text d-none d-xl-block">{% trans 'Categorias' %}</span>
                             </div>
 
                             <div class="category-dropdown-menu d-none d-xl-block">
@@ -121,16 +121,16 @@
                                     <div class="rbt-vertical-nav">
                                         <ul class="rbt-vertical-nav-list-wrapper vertical-nav-menu">
                                             <li class="vertical-nav-item active">
-                                                <a href="#tab1">Cursos Acadêmicos</a>
+                                                <a href="#tab1">{% trans 'Cursos Acadêmicos' %}</a>
                                             </li>
                                             <li class="vertical-nav-item">
-                                                <a href="#tab2">Formação Profissional</a>
+                                                <a href="#tab2">{% trans 'Formação Profissional' %}</a>
                                             </li>
                                             <li class="vertical-nav-item">
-                                                <a href="#tab3">Escolas</a>
+                                                <a href="#tab3">{% trans 'Escolas' %}</a>
                                             </li>
                                             <li class="vertical-nav-item">
-                                                <a href="#tab4">Estágios</a>
+                                                <a href="#tab4">{% trans 'Estágios' %}</a>
                                             </li>
                                         </ul>
                                     </div>
@@ -152,11 +152,11 @@
                                                     </div>
                                                     <div class="col-lg-6 col-sm-6 col-6">
                                                         <div class="vartical-nav-content-menu">
-                                                            <h3 class="rbt-short-title">Ensino Médio</h3>
+                                                            <h3 class="rbt-short-title">{% trans 'Ensino Médio' %}</h3>
                                                             <ul class="rbt-vertical-nav-list-wrapper">
-                                                                <li><a href="#">Ciências Exatas</a></li>
-                                                                <li><a href="#">Humanidades</a></li>
-                                                                <li><a href="#">Artes</a></li>
+                                                                <li><a href="#">{% trans 'Ciências Exatas' %}</a></li>
+                                                                <li><a href="#">{% trans 'Humanidades' %}</a></li>
+                                                                <li><a href="#">{% trans 'Artes' %}</a></li>
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -170,21 +170,23 @@
                                                 <div class="row">
                                                     <div class="col-lg-6">
                                                         <div class="vartical-nav-content-menu">
-                                                            <h3 class="rbt-short-title">Tecnologia</h3>
+                                                            <h3 class="rbt-short-title">{% trans 'Tecnologia' %}</h3>
                                                             <ul class="rbt-vertical-nav-list-wrapper">
-                                                                <li><a href="#">Programação</a></li>
-                                                                <li><a href="#">Design Gráfico</a></li>
-                                                                <li><a href="#">Redes de Computadores</a></li>
+                                                                <li><a href="#">{% trans 'Programação' %}</a></li>
+                                                                <li><a href="#">{% trans 'Design Gráfico' %}</a></li>
+                                                                <li><a href="#">{% trans 'Redes de Computadores' %}</a>
+                                                                </li>
                                                             </ul>
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-6">
                                                         <div class="vartical-nav-content-menu">
-                                                            <h3 class="rbt-short-title">Negócios</h3>
+                                                            <h3 class="rbt-short-title">{% trans 'Negócios' %}</h3>
                                                             <ul class="rbt-vertical-nav-list-wrapper">
-                                                                <li><a href="#">Gestão Empresarial</a></li>
-                                                                <li><a href="#">Marketing Digital</a></li>
-                                                                <li><a href="#">Contabilidade</a></li>
+                                                                <li><a href="#">{% trans 'Gestão Empresarial' %}</a>
+                                                                </li>
+                                                                <li><a href="#">{% trans 'Marketing Digital' %}</a></li>
+                                                                <li><a href="#">{% trans 'Contabilidade' %}</a></li>
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -198,11 +200,12 @@
                                                 <div class="row">
                                                     <div class="col-lg-12">
                                                         <div class="vartical-nav-content-menu">
-                                                            <h3 class="rbt-short-title">Instituições</h3>
+                                                            <h3 class="rbt-short-title">{% trans 'Instituições' %}</h3>
                                                             <ul class="rbt-vertical-nav-list-wrapper">
-                                                                <li><a href="#">Universidades</a></li>
-                                                                <li><a href="#">Escolas Técnicas</a></li>
-                                                                <li><a href="#">Centros de Formação</a></li>
+                                                                <li><a href="#">{% trans 'Universidades' %}</a></li>
+                                                                <li><a href="#">{% trans 'Escolas Técnicas' %}</a></li>
+                                                                <li><a href="#">{% trans 'Centros de Formação' %}</a>
+                                                                </li>
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -216,11 +219,13 @@
                                                 <div class="row">
                                                     <div class="col-lg-12">
                                                         <div class="vartical-nav-content-menu">
-                                                            <h3 class="rbt-short-title">Oportunidades</h3>
+                                                            <h3 class="rbt-short-title">{% trans 'Oportunidades' %}</h3>
                                                             <ul class="rbt-vertical-nav-list-wrapper">
-                                                                <li><a href="#">Estágios em TI</a></li>
-                                                                <li><a href="#">Estágios em Engenharia</a></li>
-                                                                <li><a href="#">Estágios em Administração</a></li>
+                                                                <li><a href="#">{% trans 'Estágios em TI' %}</a></li>
+                                                                <li><a href="#">{% trans 'Estágios em Engenharia' %}</a>
+                                                                </li>
+                                                                <li><a href="#">{% trans 'Estágios em Administração'
+                                                                        %}</a></li>
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -257,7 +262,8 @@
                                                                     alt="Demo Images"></a>
                                                         </div>
                                                         <div class="content">
-                                                            <h4 class="title"><a href="01-main-demo.html">Home demo
+                                                            <h4 class="title"><a href="01-main-demo.html">{% trans 'Home
+                                                                    demo' %}
                                                                     <span class="btn-icon"><i
                                                                             class="feather-arrow-right"></i></span></a>
                                                             </h4>
@@ -278,7 +284,8 @@
                                                                     alt="Demo Images"></a>
                                                         </div>
                                                         <div class="content">
-                                                            <h4 class="title"><a href="{% url 'home_cursos' %}"> cursos
+                                                            <h4 class="title"><a href="{% url 'home_cursos' %}"> {%
+                                                                    trans 'cursos' %}
                                                                     <span class="btn-icon"><i
                                                                             class="feather-arrow-right"></i></span></a>
                                                             </h4>
@@ -298,17 +305,17 @@
                                                                     alt="Demo Images"></a>
                                                         </div>
                                                         <div class="content">
-                                                            <h4 class="title"><a href="12-marketplace.html">Centros de
-                                                                    formacao <span class="btn-icon"><i
+                                                            <h4 class="title"><a href="12-marketplace.html">{% trans
+                                                                    'Centros de formacao' %} <span class="btn-icon"><i
                                                                             class="feather-arrow-right"></i></span></a>
                                                             </h4>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <!-- End Single Demo  -->
 
-                                            <!-- Start Single Demo  -->
+
+
                                             <div
                                                 class="col-lg-12 col-xl-2 col-xxl-2 col-md-12 col-sm-12 col-12 single-mega-item">
                                                 <div class="demo-single">
@@ -319,7 +326,8 @@
                                                                     alt="Demo Images"></a>
                                                         </div>
                                                         <div class="content">
-                                                            <h4 class="title"><a href="04-kindergarten.html">biblioteca
+                                                            <h4 class="title"><a href="04-kindergarten.html">{% trans
+                                                                    'biblioteca' %}
                                                                     <span class="btn-icon"><i
                                                                             class="feather-arrow-right"></i></span></a>
                                                             </h4>
@@ -339,8 +347,8 @@
                                                                     alt="Demo Images"></a>
                                                         </div>
                                                         <div class="content">
-                                                            <h4 class="title"><a href="04-kindergarten.html">Guias de
-                                                                    estudo <span class="btn-icon"><i
+                                                            <h4 class="title"><a href="04-kindergarten.html">{% trans
+                                                                    'Guias de estudo' %} <span class="btn-icon"><i
                                                                             class="feather-arrow-right"></i></span></a>
                                                             </h4>
                                                         </div>
@@ -359,9 +367,8 @@
                                                                     alt="Demo Images"></a>
                                                         </div>
                                                         <div class="content">
-                                                            <h4 class="title"><a
-                                                                    href="04-kindergarten.html">kindergarten <span
-                                                                        class="btn-icon"><i
+                                                            <h4 class="title"><a href="04-kindergarten.html">{% trans
+                                                                    'Educação Infantil' %} <span class="btn-icon"><i
                                                                             class="feather-arrow-right"></i></span></a>
                                                             </h4>
                                                         </div>
@@ -386,38 +393,38 @@
                             </li>
 
                             <li class="with-megamenu has-menu-child-item">
-                                <a href="#">Cursos <i class="feather-chevron-down"></i></a>
+                                <a href="#">{% trans 'Cursos' %} <i class="feather-chevron-down"></i></a>
                                 <div class="rbt-megamenu grid-item-2">
                                     <div class="wrapper">
                                         <div class="row">
                                             <div class="col-lg-12">
                                                 <div class="mega-top-banner">
                                                     <div class="content">
-                                                        <h4 class="title">Encontre o Curso Perfeito</h4>
-                                                        <p class="description">Descubra oportunidades de aprendizagem em
-                                                            Angola</p>
+                                                        <h4 class="title">{% trans 'Encontre o Curso Perfeito' %}</h4>
+                                                        <p class="description">{% trans 'Descubra oportunidades de
+                                                            aprendizagem em Angola' %}</p>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="row row--15">
                                             <div class="col-lg-12 col-xl-6 col-xxl-6 single-mega-item">
-                                                <h3 class="rbt-short-title">Por Área</h3>
+                                                <h3 class="rbt-short-title">{% trans 'Por Área' %}</h3>
                                                 <ul class="mega-menu-item">
-                                                    <li><a href="#">Tecnologia</a></li>
-                                                    <li><a href="#">Negócios</a></li>
-                                                    <li><a href="#">Saúde</a></li>
-                                                    <li><a href="#">Engenharia</a></li>
-                                                    <li><a href="#">Artes</a></li>
+                                                    <li><a href="#">{% trans 'Tecnologia' %}</a></li>
+                                                    <li><a href="#">{% trans 'Negócios' %}</a></li>
+                                                    <li><a href="#">{% trans 'Saúde' %}</a></li>
+                                                    <li><a href="#">{% trans 'Engenharia' %}</a></li>
+                                                    <li><a href="#">{% trans 'Artes' %}</a></li>
                                                 </ul>
                                             </div>
                                             <div class="col-lg-12 col-xl-6 col-xxl-6 single-mega-item">
-                                                <h3 class="rbt-short-title">Por Tipo</h3>
+                                                <h3 class="rbt-short-title">{% trans 'Por Tipo' %}</h3>
                                                 <ul class="mega-menu-item">
-                                                    <li><a href="#">Online</a></li>
-                                                    <li><a href="#">Presencial</a></li>
-                                                    <li><a href="#">Intensivos</a></li>
-                                                    <li><a href="#">Certificados</a></li>
+                                                    <li><a href="#">{% trans 'Online' %}</a></li>
+                                                    <li><a href="#">{% trans 'Presencial' %}</a></li>
+                                                    <li><a href="#">{% trans 'Intensivos' %}</a></li>
+                                                    <li><a href="#">{% trans 'Certificados' %}</a></li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -428,20 +435,18 @@
 
 
 
-                            <li><a href="#">Parceiros</a></li>
+                            <li><a href="#">{% trans 'Parceiros' %}</a></li>
 
                             <li class="has-dropdown has-menu-child-item">
-                                <a href="#">Recursos <i class="feather-chevron-down"></i></a>
+                                <a href="#">{% trans 'Recursos' %} <i class="feather-chevron-down"></i></a>
                                 <ul class="submenu">
-                                    <li><a href="{% url 'biblioteca' %}">Biblioteca Digital</a></li>
-                                    <li><a href="#">Guias de Estudo</a></li>
-                                    <li><a href="#">Bolsa de Emprego</a></li>
+                                    <li><a href="{% url 'biblioteca' %}">{% trans 'Biblioteca Digital' %}</a></li>
+                                    <li><a href="#">{% trans 'Guias de Estudo' %}</a></li>
+                                    <li><a href="#">{% trans 'Bolsa de Emprego' %}</a></li>
                                 </ul>
                             </li>
-                            <li><a href="{% url 'blog:lista_posts' %}">
-                            <li><a href="{% url 'blog:lista_posts' %}">Blog</a></li>
-                            </a></li>
-                            <li><a href="{% url 'sobre' %}">Sobre</a></li>
+                            <li><a href="{% url 'blog:lista_posts' %}">{% trans 'Blog' %}</a></li>
+                            <li><a href="{% url 'sobre' %}">{% trans 'Sobre' %}</a></li>
                         </ul>
                     </nav>
                 </div>
@@ -449,13 +454,23 @@
                 <!-- Right Side Icons -->
                 <div class="header-right">
                     <ul style="margin-right: 140px;" class="quick-access">
+
+                        <li class="access-icon" id="installAppContainer" style="display: none;">
+                            <a class="rbt-round-btn" href="javascript:void(0);" id="installAppBtn"
+                                title="{% trans 'Instalar App' %}">
+                                <i class="feather-download"></i>
+                            </a>
+                        </li>
+
                         <li class="access-icon">
                             <a class="search-trigger-active rbt-round-btn" href="#">
                                 <i class="feather-search"></i>
                             </a>
                         </li>
 
-                        {% if request.session.aluno %}
+
+
+                        {% if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO' %}
                         <!-- Menu quando o aluno está logado -->
                         <li class="account-access rbt-user-wrapper d-none d-xl-block">
                             <a href="#" class="user-initials">
@@ -479,14 +494,15 @@
                                         </div>
                                         <div class="admin-info">
                                             <span class="name">{{ aluno_nome }}</span>
-                                            <a class="rbt-btn-link color-primary" href="/perfil">Ver Perfil</a>
+                                            <a class="rbt-btn-link color-primary" href="/perfil">{% trans 'Ver Perfil'
+                                                %}</a>
                                         </div>
                                     </div>
                                     <ul class="user-list-wrapper">
                                         <li>
                                             <a href="{% url 'aluno' %}">
                                                 <i class="feather-home"></i>
-                                                <span>Minha Dashboard</span>
+                                                <span>{% trans 'Minha Dashboard' %}</span>
                                             </a>
                                         </li>
                                         <li>
@@ -535,8 +551,8 @@
 
                                     <hr class="mt--10 mb--10">
                                     <ul class="user-list-wrapper">
-                                        <li><a href="{% url 'Logout' %}"><i
-                                                    class="feather-log-out"></i><span>Sair</span></a></li>
+                                        <li><a href="{% url 'Logout' %}"><i class="feather-log-out"></i><span>{% trans
+                                                    'Sair' %}</span></a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -545,7 +561,7 @@
                         <!-- Botão de login quando não está logado -->
                         <li class="account-access rbt-user-wrapper d-none d-xl-block">
                             <a class="rbt-btn btn-border-gradient radius-round btn-sm" href="{% url 'Login_aluno' %}">
-                                <span>Entrar</span>
+                                <span>{% trans 'Entrar' %}</span>
                             </a>
                         </li>
                         {% endif %}
@@ -570,11 +586,11 @@
                     <div class="col-lg-12">
                         <form action="{% url 'buscar_cursos' %}" method="get" class="search-form">
                             {% csrf_token %}
-                            <input type="text" name="q" placeholder="O que você está procurando?"
+                            <input type="text" name="q" placeholder="{% trans 'O que você está procurando?' %}"
                                 value="{{ request.GET.q }}">
                             <div class="submit-btn">
                                 <button class="rbt-btn btn-gradient btn-md" type="submit">
-                                    <i class="feather-search"></i> Pesquisar
+                                    <i class="feather-search"></i> {% trans 'Pesquisar' %}
                                 </button>
                             </div>
                         </form>
@@ -588,7 +604,7 @@
                 <div class="row g-4 pt--30 pb--60">
                     <div class="col-lg-12">
                         <div class="section-title">
-                            <h5 class="rbt-title-style-2">Cursos em Destaque</h5>
+                            <h5 class="rbt-title-style-2">{% trans "Cursos em Destaque" %}</h5>
                         </div>
                     </div>
 
@@ -633,16 +649,16 @@
             </div>
             <nav class="side-nav w-100">
                 <ul class="rbt-vertical-nav-list-wrapper vertical-nav-menu">
-                    <li><a href="#">Início</a></li>
-                    <li><a href="#">Cursos</a></li>
-                    <li><a href="#">Escolas</a></li>
-                    <li><a href="#">Estágios</a></li>
-                    <li><a href="#">Recursos</a></li>
-                    <li><a href="#">Sobre Nós</a></li>
-                    <li><a href="#">Meu Painel</a></li>
-                    <li><a href="#">Sair</a></li>
-                    <li><a href="#">Entrar</a></li>
-                    <li><a href="#">Registrar</a></li>
+                    <li><a href="#">{% trans "Início" %}</a></li>
+                    <li><a href="#">{% trans "Cursos" %}</a></li>
+                    <li><a href="#">{% trans "Escolas" %}</a></li>
+                    <li><a href="#">{% trans "Estágios" %}</a></li>
+                    <li><a href="#">{% trans "Recursos" %}</a></li>
+                    <li><a href="#">{% trans "Sobre Nós" %}</a></li>
+                    <li><a href="#">{% trans "Meu Painel" %}</a></li>
+                    <li><a href="#">{% trans "Sair" %}</a></li>
+                    <li><a href="#">{% trans "Entrar" %}</a></li>
+                    <li><a href="#">{% trans "Registrar" %}</a></li>
                 </ul>
             </nav>
         </div>
@@ -671,7 +687,7 @@
                     <button class="close-button rbt-round-btn"><i class="feather-x"></i></button>
                 </div>
             </div>
-            <p class="description">A plataforma de educação!</p>
+            <p class="description">{% trans "A plataforma de educação!" %}</p>
 
         </div>
 
@@ -689,7 +705,8 @@
                                     <div class="demo-single">
                                         <div class="inner">
                                             <div class="thumbnail">
-                                                <a href="01-main-demo.html"><img src="{% static 'assets/images/splash/demo/h1.jpg' %}"
+                                                <a href="01-main-demo.html"><img
+                                                        src="{% static 'assets/images/splash/demo/h1.jpg' %}"
                                                         alt="Demo Images"></a>
                                             </div>
                                             <div class="content">
@@ -705,7 +722,8 @@
                                     <div class="demo-single">
                                         <div class="inner">
                                             <div class="thumbnail">
-                                                <a href="01-main-demo.html"><img src="{% static 'assets/images/splash/demo/h1.jpg' %}"
+                                                <a href="01-main-demo.html"><img
+                                                        src="{% static 'assets/images/splash/demo/h1.jpg' %}"
                                                         alt="Demo Images"></a>
                                             </div>
                                             <div class="content">
@@ -724,7 +742,8 @@
                                         <div class="inner">
                                             <div class="thumbnail">
                                                 <a href="12-marketplace.html"><img
-                                                        src="{% static 'assets/images/splash/demo/h12.jpg' %}" alt="Demo Images"></a>
+                                                        src="{% static 'assets/images/splash/demo/h12.jpg' %}"
+                                                        alt="Demo Images"></a>
                                             </div>
                                             <div class="content">
                                                 <h4 class="title"><a href="12-marketplace.html">Centro de formacao <span
@@ -742,7 +761,8 @@
                                         <div class="inner">
                                             <div class="thumbnail">
                                                 <a href="04-kindergarten.html"><img
-                                                        src="{% static 'assets/images/splash/demo/h4.jpg' %}" alt="Demo Images"></a>
+                                                        src="{% static 'assets/images/splash/demo/h4.jpg' %}"
+                                                        alt="Demo Images"></a>
                                             </div>
                                             <div class="content">
                                                 <h4 class="title"><a href="04-kindergarten.html">biblioteca <span
@@ -760,7 +780,8 @@
                                         <div class="inner">
                                             <div class="thumbnail">
                                                 <a href="13-university-classic.html"><img
-                                                        src="{% static 'assets/images/splash/demo/h13.jpg' %}" alt="Demo Images"></a>
+                                                        src="{% static 'assets/images/splash/demo/h13.jpg' %}"
+                                                        alt="Demo Images"></a>
                                             </div>
                                             <div class="content">
                                                 <h4 class="title"><a href="13-university-classic.html">Guia de estudo
@@ -773,12 +794,12 @@
                                 <!-- End Single Demo  -->
 
                                 <!-- Start Single Demo  -->
-                                
+
                                 <!-- End Single Demo  -->
 
                             </div>
 
-                            
+
                         </div>
                     </div>
                     <!-- End Mega Menu  -->
@@ -885,8 +906,62 @@
                 </li>
                 <li><a href="{% url 'blog:lista_posts' %}">Blog & Noticias</a></li>
                 <li><a href="{% url 'sobre' %}">Sobre Nós</a></li>
+                <li id="mobileInstallAppContainer" style="display: none;">
+                    <a href="javascript:void(0);" id="mobileInstallAppBtn">
+                        Instalar App <i class="feather-download ms-2"></i>
+                    </a>
+                </li>
             </ul>
         </nav>
+
+        <script>
+            let deferredPrompt;
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                // Previne o Chrome de mostrar o prompt nativo imediatamente
+                e.preventDefault();
+                // Guarda o evento para ser disparado depois
+                deferredPrompt = e;
+
+                // Mostra os botões de instalação
+                const desktopBtn = document.getElementById('installAppContainer');
+                const mobileBtn = document.getElementById('mobileInstallAppContainer');
+
+                if (desktopBtn) desktopBtn.style.display = 'block';
+                if (mobileBtn) mobileBtn.style.display = 'block';
+            });
+
+            function installPWA() {
+                if (!deferredPrompt) return;
+
+                // Mostra o prompt
+                deferredPrompt.prompt();
+
+                // Espera o usuário responder
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('Usuário aceitou a instalação');
+                    } else {
+                        console.log('Usuário recusou a instalação');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+
+            // Listeners para os botões
+            document.addEventListener('DOMContentLoaded', () => {
+                const desktopTrigger = document.getElementById('installAppBtn');
+                const mobileTrigger = document.getElementById('mobileInstallAppBtn');
+
+                if (desktopTrigger) {
+                    desktopTrigger.addEventListener('click', installPWA);
+                }
+
+                if (mobileTrigger) {
+                    mobileTrigger.addEventListener('click', installPWA);
+                }
+            });
+        </script>
 
         <div class="mobile-menu-bottom">
 
@@ -915,124 +990,136 @@
             </div>
 
             <div class="language-selector mt--20">
-                <span class="rbt-short-title d-block">Idioma</span>
-                <ul class="language-list">
-                    <li class="active"><a href="#"><img src="{% static 'assets/images/icons/pt-pt.png' %}"
-                                alt="Português"> Português</a></li>
-                    <li><a href="#"><img src="{% static 'assets/images/icons/en-us.png' %}" alt="Inglês"> Inglês</a>
+                <span class="rbt-short-title d-block">{% trans 'Idioma' %}</span>
+                <ul class="language-list-mobile">
+                    {% for code, name in LANGUAGES %}
+                    <li class="{% if code == CURRENT_LANGUAGE %}active{% endif %}">
+                        <form action="{% url 'set_language' %}" method="post">
+                            {% csrf_token %}
+                            <input name="next" type="hidden" value="{{ request.path }}">
+                            <input name="language" type="hidden" value="{{ code }}">
+                            <button type="submit">
+                                <img src="https://flagcdn.com/w20/{{ code|get_flag_code }}.png" alt="{{ name }}">
+                                <span>{{ name }}</span>
+                            </button>
+                        </form>
                     </li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>
     </div>
 </div>
 
-<div class="rbt-cart-side-menu">
-    <div class="inner-wrapper">
-        <div class="inner-top">
-            <div class="content">
-                <div class="title">
-                    <h4 class="title mb--0">Your shopping cart</h4>
-                </div>
-                <div class="rbt-btn-close" id="btn_sideNavClose">
-                    <button class="minicart-close-button rbt-round-btn"><i class="feather-x"></i></button>
-                </div>
-            </div>
-        </div>
-        <nav class="side-nav w-100">
-            <ul class="rbt-minicart-wrapper">
-                <li class="minicart-item">
-                    <div class="thumbnail">
-                        <a href="05-classic-lms.html#">
-                            <img src="{% static 'assets/images/product/1.jpg' %}" alt="Product Images">
-                        </a>
-                    </div>
-                    <div class="product-content">
-                        <h6 class="title"><a href="single-product.html">Miracle Morning</a></h6>
+</header>
 
-                        <span class="quantity">1 * <span class="price">kz 22</span></span>
-                    </div>
-                    <div class="close-btn">
-                        <button class="rbt-round-btn"><i class="feather-x"></i></button>
-                    </div>
-                </li>
+<style>
+    /* Premium Header Enhancements */
+    .switcher-language {
+        padding: 0;
+        margin: 0;
+    }
 
-                <li class="minicart-item">
-                    <div class="thumbnail">
-                        <a href="05-classic-lms.html#">
-                            <img src="assets/images/product/7.jpg" alt="Product Images">
-                        </a>
-                    </div>
-                    <div class="product-content">
-                        <h6 class="title"><a href="single-product.html">Happy Strong</a></h6>
+    .has-child-menu {
+        position: relative;
+    }
 
-                        <span class="quantity">1 * <span class="price">kz 30</span></span>
-                    </div>
-                    <div class="close-btn">
-                        <button class="rbt-round-btn"><i class="feather-x"></i></button>
-                    </div>
-                </li>
+    .switcher-language .sub-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        left: auto;
+        background: #ffffff;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        padding: 10px 0;
+        min-width: 180px;
+        z-index: 1000;
+        display: none;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
 
-                <li class="minicart-item">
-                    <div class="thumbnail">
-                        <a href="05-classic-lms.html#">
-                            <img src="assets/images/product/3.jpg" alt="Product Images">
-                        </a>
-                    </div>
-                    <div class="product-content">
-                        <h6 class="title"><a href="single-product.html">Rich Dad Poor Dad</a></h6>
+    .has-child-menu:hover>.sub-menu {
+        display: block;
+        animation: slideUp 0.3s ease;
+    }
 
-                        <span class="quantity">1 * <span class="price">kz 50</span></span>
-                    </div>
-                    <div class="close-btn">
-                        <button class="rbt-round-btn"><i class="feather-x"></i></button>
-                    </div>
-                </li>
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
 
-                <li class="minicart-item">
-                    <div class="thumbnail">
-                        <a href="05-classic-lms.html#">
-                            <img src="{% static 'assets/images/product/4.jpg' %}" alt="Product Images">
-                        </a>
-                    </div>
-                    <div class="product-content">
-                        <h6 class="title"><a href="single-product.html">Momentum Theorem</a></h6>
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 
-                        <span class="quantity">1 * <span class="price">kz 50</span></span>
-                    </div>
-                    <div class="close-btn">
-                        <button class="rbt-round-btn"><i class="feather-x"></i></button>
-                    </div>
-                </li>
-            </ul>
-        </nav>
+    .language-button {
+        background: none;
+        border: none;
+        width: 100%;
+        text-align: left;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        transition: all 0.2s;
+        color: #666;
+        font-size: 14px;
+    }
 
-        <div class="rbt-minicart-footer">
-            <hr class="mb--0">
-            <div class="rbt-cart-subttotal">
-                <p class="subtotal"><strong>Subtotal:</strong></p>
-                <p class="price">kz 121</p>
-            </div>
-            <hr class="mb--0">
-            <div class="rbt-minicart-bottom mt--20">
-                <div class="view-cart-btn">
-                    <a class="rbt-btn btn-border icon-hover w-100 text-center" href="05-classic-lms.html#">
-                        <span class="btn-text">View Cart</span>
-                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                    </a>
-                </div>
-                <div class="checkout-btn mt--20">
-                    <a class="rbt-btn btn-gradient icon-hover w-100 text-center" href="05-classic-lms.html#">
-                        <span class="btn-text">Checkout</span>
-                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                    </a>
-                </div>
-            </div>
-        </div>
+    .language-button:hover,
+    .language-button.active {
+        background-color: var(--color-primary-opacity);
+        color: var(--color-primary);
+    }
 
-    </div>
-</div>
-<a class="close_side_menu" href="javascript:void(0);"></a>
+    .language-button img,
+    .language-list-mobile img {
+        margin-right: 12px;
+        border-radius: 2px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Mobile Language Selector styling */
+    .language-list-mobile {
+        list-style: none;
+        padding: 0;
+        margin: 15px 0 0 0;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .language-list-mobile li form button {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 10px;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        color: #fff;
+        font-size: 13px;
+        transition: all 0.3s;
+    }
+
+    .language-list-mobile li.active form button {
+        background: var(--color-primary);
+        border-color: var(--color-primary);
+    }
+
+    .language-list-mobile li form button:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Social icons fix */
+    .social-share-transparent li a i {
+        font-size: 14px;
+        color: #fff;
+    }
+</style>
 
 {% if post %}
 <meta property="og:type" content="article">
@@ -1052,120 +1139,3 @@
 <meta name="twitter:image" content="{{ request.build_absolute_uri }}{{ post.imagem_capa.url }}">
 {% endif %}
 {% endif %}
-
-
-<style>
-    .sub-menu {
-        left: 0;
-        /* Garante que o submenu alinhe com o item pai */
-        right: auto;
-    }
-
-    .user-initials {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background-color: #6c5ce7;
-        /* Cor de fundo das iniciais */
-        color: white;
-        font-weight: bold;
-        margin-right: 10px;
-    }
-
-    .initials-avatar {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        background-color: #6c5ce7;
-        /* Cor de fundo do avatar */
-        color: white;
-        font-weight: bold;
-        font-size: 1.2rem;
-    }
-
-    /* Adicione ao seu arquivo CSS principal */
-    .switcher-language {
-        position: relative;
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .has-child-menu {
-        position: relative;
-    }
-
-    .sub-menu {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        background: white;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        border-radius: 4px;
-        padding: 10px 0;
-        min-width: 160px;
-        z-index: 1000;
-        display: none;
-    }
-
-    .has-child-menu:hover .sub-menu {
-        display: block;
-    }
-
-    .language-button {
-        background: none;
-        border: none;
-        width: 100%;
-        text-align: left;
-        padding: 8px 15px;
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-    }
-
-    .language-button:hover {
-        background-color: #f5f5f5;
-    }
-
-    .left-image {
-        margin-right: 10px;
-        width: 20px;
-        height: auto;
-    }
-</style>
-
-<script>
-    // static/js/language.js
-    document.addEventListener('DOMContentLoaded', function () {
-        // Fechar menu ao clicar fora
-        document.addEventListener('click', function (e) {
-            if (!e.target.closest('.has-child-menu')) {
-                document.querySelectorAll('.sub-menu').forEach(menu => {
-                    menu.style.display = 'none';
-                });
-            }
-        });
-
-        // Alternar menu ao clicar no botão principal
-        const mainButton = document.querySelector('.has-child-menu > a');
-        if (mainButton) {
-            mainButton.addEventListener('click', function (e) {
-                e.preventDefault();
-                const subMenu = this.nextElementSibling;
-                const isOpen = subMenu.style.display === 'block';
-
-                document.querySelectorAll('.sub-menu').forEach(menu => {
-                    menu.style.display = 'none';
-                });
-
-                subMenu.style.display = isOpen ? 'none' : 'block';
-            });
-        }
-    });
-</script>

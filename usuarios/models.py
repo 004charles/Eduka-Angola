@@ -2,16 +2,11 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import MinLengthValidator
-from django.utils import timezone
-from gestoreduka.models import CentroDeFormacao
+from django.core.validators import MinLengthValidator, MinValueValidator, MaxValueValidator
 from django.contrib.gis.db import models as gis_models
-
-
-
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
-from django.db import models
-from django.utils.translation import gettext_lazy as _
+from django.utils.safestring import mark_safe
+# Note: CentroDeFormacao will be imported where used to avoid circular imports if needed
+# or we can rely on string references.
 
 class UsuarioManager(BaseUserManager):
     def create_user(self, email, nome, password=None, **extra_fields):
@@ -35,8 +30,18 @@ class UsuarioManager(BaseUserManager):
 
 
 class Usuario(AbstractBaseUser, PermissionsMixin):
+    TIPO_USUARIO_CHOICES = [
+        ('ADMIN', 'Administrador'),
+        ('ALUNO', 'Aluno'),
+        ('GESTOR', 'Gestor de Centro'),
+        ('BIBLIOTECA', 'Bibliotecário'),
+        ('ESCOLA', 'Escola'),
+        ('EMPRESA', 'Empresa'),
+    ]
+
     nome = models.CharField(_('Nome Completo'), max_length=100, blank=True, null=True)
     email = models.EmailField(_('E-mail'), unique=True)
+    tipo_usuario = models.CharField(_('Tipo de Usuário'), max_length=20, choices=TIPO_USUARIO_CHOICES, default='ALUNO')
     is_active = models.BooleanField(_('Ativo'), default=True)
     is_staff = models.BooleanField(_('Equipe'), default=False)
     data_criacao = models.DateTimeField(_('Data de Criação'), auto_now_add=True)
@@ -70,12 +75,13 @@ class Escola(models.Model):
         ('COMUNITARIA', 'Comunitária'),
     ]
     
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='escola_profile', null=True, blank=True)
     nome = models.CharField(_('Nome da Escola'), max_length=100)
     codigo_escola = models.CharField(_('Código INEP'), max_length=8, unique=True, blank=True, null=True)
     tipo = models.CharField(_('Tipo de Escola'), max_length=20, choices=TIPO_ESCOLA_CHOICES)
     endereco = models.CharField(_('Endereço'), max_length=255)
     telefone = models.CharField(_('Telefone'), max_length=20)
-    email = models.EmailField(_('E-mail'), unique=True)
+    # email is now in usuario
     site = models.URLField(_('Site'), blank=True, null=True)
     data_criacao = models.DateTimeField(_('Data de Criação'), auto_now_add=True)
     ativo = models.BooleanField(_('Ativo'), default=True)
@@ -91,9 +97,9 @@ class Escola(models.Model):
 
 
 class Aluno(models.Model):
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='aluno_profile', null=True, blank=True)
     nome = models.CharField(_('Nome Completo'), max_length=100)
-    email = models.EmailField(_('E-mail'), unique=True)
-    senha = models.CharField(_('Senha'), max_length=128)
+    # email and senha are now in usuario
     data_cadastro = models.DateTimeField(_('Data de Cadastro'), default=timezone.now)
     ativo = models.BooleanField(_('Ativo'), default=True)
     
@@ -107,7 +113,7 @@ class Aluno(models.Model):
 
 class CentroSeguimento(models.Model):
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, related_name='centros_seguidos', verbose_name=_('Aluno'))
-    centro = models.ForeignKey(CentroDeFormacao, on_delete=models.CASCADE, related_name='seguidores', verbose_name=_('Centro de Formação'))
+    centro = models.ForeignKey('gestoreduka.CentroDeFormacao', on_delete=models.CASCADE, related_name='seguidores', verbose_name=_('Centro de Formação'))
     data_seguimento = models.DateTimeField(_('Data do Seguimento'), default=timezone.now)
 
     class Meta:
@@ -131,13 +137,22 @@ class PerfilAluno(models.Model):
     github = models.URLField(_('GitHub'), blank=True, null=True)
     criado_em = models.DateTimeField(default=timezone.now)
 
-    localizacao = gis_models.PointField(
-        _('Localização Geográfica'),
-        geography=True,
-        blank=True,
-        null=True,
-        srid=4326
-    )
+    from django.conf import settings
+    if 'django.contrib.gis' in settings.INSTALLED_APPS and not settings.DATABASES['default']['ENGINE'].endswith('sqlite3'):
+        localizacao = gis_models.PointField(
+            _('Localização Geográfica'),
+            geography=True,
+            blank=True,
+            null=True,
+            srid=4326
+        )
+    else:
+        localizacao = models.CharField(
+            _('Localização (Fallback)'),
+            max_length=100,
+            blank=True,
+            null=True
+        )
 
     def __str__(self):
         return f"Perfil de {self.aluno.nome}"
@@ -176,22 +191,97 @@ class PerfilAluno(models.Model):
         verbose_name = 'Perfil do Aluno'
         verbose_name_plural = 'Perfis dos Alunos'
                 
+# models.py (adicione ou atualize esta classe)
+
+# usuarios/models.py
 class Comentario(models.Model):
+    ALUNO_STATUS_CHOICES = [
+        ('INS', 'Inscrito'),
+        ('COM', 'Concluído'),
+        ('AND', 'Em Andamento'),
+    ]
+    
     aluno = models.ForeignKey('Aluno', on_delete=models.CASCADE, related_name='comentarios')
     curso = models.ForeignKey('cursos_app.Curso', on_delete=models.CASCADE, related_name='comentarios')
-
-    comentario = models.TextField(_('Comentário'))
+    
+    comentario = models.TextField(_('Comentário'), max_length=1000)
+    avaliacao = models.IntegerField(
+        _('Avaliação'),
+        choices=[(1, '1 Estrela'), (2, '2 Estrelas'), (3, '3 Estrelas'), 
+                (4, '4 Estrelas'), (5, '5 Estrelas')],
+        default=5,
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    
+    status_aluno = models.CharField(
+        _('Status do Aluno'),
+        max_length=3,
+        choices=ALUNO_STATUS_CHOICES,
+        default='AND'
+    )
+    
     data_comentario = models.DateTimeField(_('Data de Comentário'), default=timezone.now)
-    avaliacao = models.IntegerField(_('Avaliação'), choices=[(i, i) for i in range(1, 6)], default=5)
-
-    def __str__(self):
-        return f"Comentário de {self.aluno.nome} no curso {self.curso.titulo}"
-
+    atualizado_em = models.DateTimeField(_('Atualizado em'), auto_now=True)
+    aprovado = models.BooleanField(_('Aprovado'), default=True)
+    resposta = models.TextField(_('Resposta'), blank=True, null=True, max_length=1000)
+    resposta_data = models.DateTimeField(_('Data da Resposta'), blank=True, null=True)
+    
+    # Campos para moderar o conteúdo
+    denuncias = models.PositiveIntegerField(_('Denúncias'), default=0)
+    editado = models.BooleanField(_('Editado'), default=False)
+    
     class Meta:
         verbose_name = 'Comentário'
         verbose_name_plural = 'Comentários'
         ordering = ['-data_comentario']
-
+        unique_together = ['aluno', 'curso']  # Um aluno só pode comentar uma vez por curso
+    
+    def __str__(self):
+        return f"Avaliação de {self.aluno.nome} para {self.curso.titulo}"
+    
+    def save(self, *args, **kwargs):
+        # Verificar se é um update
+        if self.pk:
+            original = Comentario.objects.get(pk=self.pk)
+            if original.comentario != self.comentario or original.avaliacao != self.avaliacao:
+                self.editado = True
+        
+        # Definir status do aluno automaticamente
+        if hasattr(self.aluno, 'inscricoes'):
+            inscricao = self.aluno.inscricoes.filter(curso=self.curso).first()
+            if inscricao:
+                if hasattr(inscricao, 'status'):
+                    if inscricao.status == 'C':
+                        self.status_aluno = 'COM'
+                    elif inscricao.status == 'A':
+                        self.status_aluno = 'AND'
+        
+        super().save(*args, **kwargs)
+    
+    @property
+    def get_estrelas(self):
+        """Retorna HTML das estrelas"""
+        estrelas = ''
+        for i in range(1, 6):
+            if i <= self.avaliacao:
+                estrelas += '<i class="fa fa-star text-warning"></i>'
+            else:
+                estrelas += '<i class="fa fa-star-o text-muted"></i>'
+        return mark_safe(estrelas)
+    
+    def denunciar(self):
+        """Incrementa o contador de denúncias"""
+        self.denuncias += 1
+        if self.denuncias >= 3:
+            self.aprovado = False
+        self.save()
+    
+    def responder(self, resposta_texto):
+        """Adiciona uma resposta ao comentário"""
+        self.resposta = resposta_texto
+        self.resposta_data = timezone.now()
+        self.save()
+        
 class Biblioteca(models.Model):
     TIPO_BIBLIOTECA_CHOICES = [
         ('PUBLICA', 'Pública'),
@@ -200,9 +290,9 @@ class Biblioteca(models.Model):
         ('ESPECIALIZADA', 'especializada'),
         ('COMUNITARIA', 'comunitaria'),
     ]
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='biblioteca_profile', null=True, blank=True)
     nome = models.CharField(_('Nome Completo'), max_length=100)
-    email = models.EmailField(_('E-mail'), unique=True)
-    senha = models.CharField(_('Senha'), max_length=100)
+    # email and senha are now in usuario
     telefone = models.CharField(_('Telefone'), max_length=20, blank=True, null=True)
     codigo_registro = models.CharField(_('Codigo de registro'), max_length=100, blank=True, null=True)
     ativo = models.BooleanField(default=True)
@@ -223,9 +313,9 @@ class Empresa(models.Model):
         ('SAUDE', 'saude'),
         ('OUTRO', 'outro'),
     ]
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='empresa_profile', null=True, blank=True)
     nome = models.CharField(_('Nome Completo'), max_length=100)
-    email = models.EmailField(_('E-mail'), unique=True)
-    senha = models.CharField(_('Senha'), max_length=100)
+    # email and senha are now in usuario
     telefone = models.CharField(_('Telefone'), max_length=20, blank=True, null=True)
     experiencia_anos = models.IntegerField(_('Anos de Experiência'), default=0)
     nif = models.CharField(_('NIF'), max_length=18, unique=True)
@@ -235,9 +325,22 @@ class Empresa(models.Model):
     def __str__(self):
         return f"Empresa: {self.nome}"
 
+
     class Meta:
         verbose_name = 'Empresa'
         verbose_name_plural = 'Empresas'
         db_table = 'empresas'
-        
-        
+
+class CodigoVerificacao(models.Model):
+    TIPO_CHOICES = [
+        ('CADASTRO', 'Cadastro'),
+        ('RECUPERACAO', 'Recuperação de Senha'),
+    ]
+    
+    email = models.EmailField(_('E-mail'))
+    codigo = models.CharField(_('Código'), max_length=6)
+    tipo = models.CharField(_('Tipo'), max_length=20, choices=TIPO_CHOICES)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Código para {self.email} ({self.tipo})"

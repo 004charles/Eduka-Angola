@@ -24,9 +24,9 @@ def detalhe_curso(request, slug):
     aluno_inscrito = False
     progresso_geral = 0
     
-    if 'aluno' in request.session:
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
         try:
-            aluno = Aluno.objects.get(id=request.session['aluno'])
+            aluno = request.user.aluno_profile
             aluno_logado = True
             
             aluno_inscrito = curso.inscritos.filter(id=aluno.id).exists()
@@ -40,7 +40,7 @@ def detalhe_curso(request, slug):
                 ).count()
                 progresso_geral = int((aulas_concluidas / aulas.count()) * 100) if aulas.count() > 0 else 0
                 
-        except Aluno.DoesNotExist:
+        except AttributeError:
             pass
     
     total_visualizacoes = sum(aula.visualizacoes for aula in aulas) if aulas.exists() else 0
@@ -58,12 +58,12 @@ def detalhe_curso(request, slug):
     
 @require_POST
 def toggle_inscricao(request, slug):
-    if 'aluno' not in request.session:
+    if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
         return JsonResponse({'error': 'Usuário não autenticado'}, status=401)
     
     try:
-        aluno = Aluno.objects.get(id=request.session['aluno'])
-    except Aluno.DoesNotExist:
+        aluno = request.user.aluno_profile
+    except AttributeError:
         return JsonResponse({'error': 'Usuário não encontrado'}, status=401)
     
     curso = get_object_or_404(Curso_video, slug=slug)
@@ -102,9 +102,9 @@ def ver_aula(request, curso_slug, pk):
     progresso = None
     aulas_info = []
     
-    if 'aluno' in request.session:
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
         try:
-            aluno = Aluno.objects.get(id=request.session['aluno'])
+            aluno = request.user.aluno_profile
             progresso, created = ProgressoAula.objects.get_or_create(
                 aluno=aluno,
                 aula=aula
@@ -125,7 +125,7 @@ def ver_aula(request, curso_slug, pk):
                     'progresso': progresso_aula.progresso_percentual() if progresso_aula else 0
                 })
                 
-        except Aluno.DoesNotExist:
+        except AttributeError:
             # Se não encontrar o aluno, criar informações básicas
             for aula_item in aulas:
                 aulas_info.append({
@@ -157,13 +157,13 @@ def verificar_acesso_aula(request, aula):
     if not aula.requer_conclusao_anterior:
         return True
     
-    # Se o usuário não está logado, não pode acessar aulas que requerem progresso
-    if 'aluno' not in request.session:
+    # Se o usuário não está logado como ALUNO, não pode acessar aulas que requerem progresso
+    if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
         return False
     
     try:
-        aluno = Aluno.objects.get(id=request.session['aluno'])
-    except Aluno.DoesNotExist:
+        aluno = request.user.aluno_profile
+    except AttributeError:
         return False
     
     # Se é a primeira aula, liberar acesso
@@ -191,12 +191,12 @@ def verificar_acesso_aula(request, aula):
 @require_POST
 def atualizar_progresso(request, aula_id):
     # Verificar se o aluno está logado
-    if 'aluno' not in request.session:
+    if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
         return JsonResponse({'error': 'Usuário não autenticado'}, status=401)
     
     try:
-        aluno = Aluno.objects.get(id=request.session['aluno'])
-    except Aluno.DoesNotExist:
+        aluno = request.user.aluno_profile
+    except AttributeError:
         return JsonResponse({'error': 'Usuário não encontrado'}, status=401)
     
     aula = get_object_or_404(Aula, pk=aula_id)

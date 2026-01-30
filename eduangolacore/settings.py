@@ -1,15 +1,14 @@
 from pathlib import Path
+from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 import os
 from django.utils.translation import gettext_lazy as _
 
+SECRET_KEY = config("SECRET_KEY", default="django-insecure-default")
+DEBUG = config("DEBUG", default=False, cast=bool)
 
-
-
-DEBUG = False
-
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
 
 
 
@@ -22,12 +21,21 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
+
 
     'pwa',
 
 
     'ckeditor',     
     'ckeditor_uploader',
+
+    # Allauth
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 
     'usuarios',
     'core',
@@ -37,7 +45,9 @@ INSTALLED_APPS = [
     'cursovideoapp',
     'estagio',
     'biblioteca',
-    
+    'planos',
+    'inteligencia',
+    'avaliacoes',
 
 ]
 
@@ -74,6 +84,9 @@ LANGUAGES = [
     ('en', _('Inglês')),
     ('fr', _('Francês')),
     ('es', _('Espanhol')),
+    ('it', _('Italiano')),
+    ('ro', _('Romeno')),
+    ('ar', _('Árabe')),
     ('umb', _('Umbundo')),
     ('kik', _('Kikongo')),
     ('kmb', _('Kimbundu')),
@@ -99,10 +112,42 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "allauth.account.middleware.AccountMiddleware",
+    'inteligencia.middleware.InteligenciaMiddleware',
 ]
 
-AUTH_USER_MODEL = 'gestoreduka.CustomUser'
+AUTH_USER_MODEL = 'usuarios.Usuario'
 ROOT_URLCONF = 'eduangolacore.urls'
+
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = [
+    'usuarios.backends.EmailBackend',  # Custom email-based authentication
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+# Provider specific settings
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        }
+    }
+}
+
+# Allauth Configuration
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 TEMPLATES = [
     {
@@ -125,23 +170,37 @@ TEMPLATES = [
 WSGI_APPLICATION = 'eduangolacore.wsgi.application'
 
 
-from decouple import config
 
-SECRET_KEY = config("SECRET_KEY")
-DEBUG = config("DEBUG", default=False, cast=bool)
 
-from decouple import config
+# Database Configuration
+USE_SQLITE = config('USE_SQLITE', default=False, cast=bool)
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',        
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5432'),
+if USE_SQLITE:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',        
+            'NAME': config('DB_NAME', default='eduka_db'),
+            'USER': config('DB_USER', default='db_user'),
+            'PASSWORD': config('DB_PASSWORD', default='db_password'),
+            'HOST': config('DB_HOST', default='localhost'),
+            'PORT': config('DB_PORT', default='5432'),
+        }
+    }
+
+# Override for testing to use SQLite if PostGIS is not available or we are running tests
+import sys
+if 'test' in sys.argv:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 
 
 
@@ -209,9 +268,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'muquissicarlos@gmail.com'  
-EMAIL_HOST_PASSWORD = 'uruj ywep dyee sfmg'  
-DEFAULT_FROM_EMAIL = 'muquissicarlos@gmail.com'
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='muquissicarlos@gmail.com')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=EMAIL_HOST_USER)
 
 
 JAZZMIN_SETTINGS = {
@@ -246,24 +305,6 @@ JAZZMIN_UI_TWEAKS = {
 }
 
 
-PWA_APP_NAME = 'EdukaAngola'
-PWA_APP_SHORT_NAME = 'Eduka'
-PWA_APP_DESCRIPTION = "Plataforma de cursos online em Angola"
-PWA_APP_THEME_COLOR = '#007bff'
-PWA_APP_BACKGROUND_COLOR = '#ffffff'
-PWA_APP_DISPLAY = 'standalone'
-PWA_APP_SCOPE = '/'
-PWA_APP_START_URL = '/'
-PWA_APP_ICONS = [
-    {
-        "src": "/static/assets/images/Logo1.png",
-        "sizes": "192x192"
-    },
-    {
-        "src": "/static/assets/images/Logo1.png",
-        "sizes": "512x512"
-    }
-]
 
 
 
@@ -279,47 +320,47 @@ PWA_APP_START_URL = '/'
 PWA_APP_STATUS_BAR_COLOR = 'default'
 PWA_APP_ICONS = [
     {
-        'src': '/static/assets/images/Logo1.png',
+        'src': '/static/assets/images/logo/Eduka-removebg-preview.png',
         'sizes': '72x72'
     },
     {
-        'src': '/static/assets/images/Logo1.png',
+        'src': '/static/assets/images/logo/Eduka-removebg-preview.png',
         'sizes': '96x96'
     },
     {
-        'src': '/static/assets/images/Logo1.png',
+        'src': '/static/assets/images/logo/Eduka-removebg-preview.png',
         'sizes': '128x128'
     },
     {
-        'src': '/static/assets/images/icons/icon-144x144.png',
+        'src': '/static/assets/images/logo/Eduka-removebg-preview.png',
         'sizes': '144x144'
     },
     {
-        'src': '/static/assets/images/Logo1.png',
+        'src': '/static/assets/images/logo/Eduka-removebg-preview.png',
         'sizes': '152x152'
     },
     {
-        'src': '/static/assets/images/Logo1.png',
+        'src': '/static/assets/images/logo/Eduka-removebg-preview.png',
         'sizes': '192x192'
     },
     {
-        'src': '/static/assets/images/Logo1.png',
+        'src': '/static/assets/images/logo/Eduka-removebg-preview.png',
         'sizes': '384x384'
     },
     {
-        'src': '/static/assets/images/Logo1.png',
+        'src': '/static/assets/images/logo/Eduka-removebg-preview.png',
         'sizes': '512x512'
     }
 ]
 PWA_APP_ICONS_APPLE = [
     {
-        'src': '/static/assets/images/Logo1.png',
+        'src': '/static/assets/images/logo/Eduka-removebg-preview.png',
         'sizes': '180x180'
     }
 ]
 PWA_APP_SPLASH_SCREEN = [
     {
-        'src': '/static/assets/images/Logo1.png',
+        'src': '/static/assets/images/logo/Eduka-removebg-preview.png',
         'media': '(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)'
     }
 ]

@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ centro.nome }}{% endblock %}</title>
+    {% include 'include/css_gestor.html' %}
+</head>
+
+<body>
+    <!--==================== Preloader Start ====================-->
+    <div class="preloader">
+        <div class="loader"></div>
+    </div>
+
+    <div class="side-overlay"></div>
+    {% include 'include/header_gestor.html' %}
+
+    <div class="dashboard-main-wrapper">
+        {% include 'include/menu.html' %}
+
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    {% include 'include/footer_gestor.html' %}
+    {% include 'include/java_gestor.html' %}
+</body>
+
+</html>

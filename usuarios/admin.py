@@ -4,46 +4,63 @@ from .models import *
 
 # Configuração customizada para o modelo Usuario
 class UsuarioAdmin(UserAdmin):
-    list_display = ('email', 'nome', 'is_staff', 'is_active')
-    list_filter = ('is_staff', 'is_active')
+    list_display = ('email', 'nome', 'tipo_usuario', 'is_staff', 'is_active')
+    list_filter = ('tipo_usuario', 'is_staff', 'is_active')
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        ('Informações Pessoais', {'fields': ('nome',)}),
+        ('Informações Pessoais', {'fields': ('nome', 'tipo_usuario')}),
         ('Permissões', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         ('Datas Importantes', {'fields': ('last_login', 'data_criacao', 'data_atualizacao')}),
     )
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'nome', 'password1', 'password2', 'is_staff', 'is_active')}
+            'fields': ('email', 'nome', 'tipo_usuario', 'password1', 'password2', 'is_staff', 'is_active')}
         ),
     )
     search_fields = ('email', 'nome')
     ordering = ('email',)
     readonly_fields = ('data_criacao', 'data_atualizacao')
+    filter_horizontal = ('groups', 'user_permissions',)
 
 
 class EscolaAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'tipo', 'email', 'ativo')
-    search_fields = ('nome', 'codigo_escola', 'email')
+    list_display = ('nome', 'tipo', 'get_email', 'ativo')
+    search_fields = ('nome', 'codigo_escola', 'usuario__email')
     list_filter = ('tipo', 'ativo')
     readonly_fields = ('data_criacao',)
 
+    def get_email(self, obj):
+        return obj.usuario.email if obj.usuario else "N/A"
+    get_email.short_description = 'E-mail'
+
 class AlunoAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'email', 'data_cadastro', 'ativo')
-    search_fields = ('nome', 'email')
+    list_display = ('nome', 'get_email', 'data_cadastro', 'ativo')
+    search_fields = ('nome', 'usuario__email')
     list_filter = ('ativo',)
     readonly_fields = ('data_cadastro',)
 
+    def get_email(self, obj):
+        return obj.usuario.email if obj.usuario else "N/A"
+    get_email.short_description = 'E-mail'
+
 class BibliotecaAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'tipo', 'email', 'ativo')
-    search_fields = ('nome', 'email', 'codigo_registro')
+    list_display = ('nome', 'tipo', 'get_email', 'ativo')
+    search_fields = ('nome', 'usuario__email', 'codigo_registro')
     list_filter = ('tipo', 'ativo')
 
+    def get_email(self, obj):
+        return obj.usuario.email if obj.usuario else "N/A"
+    get_email.short_description = 'E-mail'
+
 class EmpresaAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'ramo_atuacao', 'email', 'numero_funcionarios')
-    search_fields = ('nome', 'nif', 'email')
+    list_display = ('nome', 'ramo_atuacao', 'get_email', 'numero_funcionarios')
+    search_fields = ('nome', 'nif', 'usuario__email')
     list_filter = ('ramo_atuacao',)
+
+    def get_email(self, obj):
+        return obj.usuario.email if obj.usuario else "N/A"
+    get_email.short_description = 'E-mail'
     
 
 

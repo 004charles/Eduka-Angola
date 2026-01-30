@@ -1,32 +1,23 @@
+from datetime import timedelta
+
+from django.conf import settings
 from django.shortcuts import render, redirect
+from django.db.models import Count, Q, Prefetch, Value
+from django.db.models.functions import Coalesce
+from django.utils import timezone
+
 from cursos_app.models import Curso, Categoria, Aluno, Favorito
-from django.conf import settings
-from django.shortcuts import redirect
-from django.db.models import Count, Q
-from django.db.models import Prefetch, Q, Count
-from django.utils import timezone
-from .models import Galeria
-from blog.models import Post
-from gestoreduka.models import CentroDeFormacao
-from datetime import timedelta
-from datetime import timedelta
-from django.utils import timezone
-from django.db.models import Count, Q
-from django.shortcuts import render
-from django.utils import timezone
-from datetime import timedelta
-from django.utils import timezone
-from datetime import timedelta
-from django.db.models import Count, Q
-from django.conf import settings
 from usuarios.models import CentroSeguimento, PerfilAluno
-from django.utils import timezone
-from datetime import timedelta
-from cursovideoapp.models import Curso_video
-from .models import SobreNos
-from estagio.models import Estagio
 from usuarios.decorators import aluno_logado_e_centros
 
+from blog.models import Post
+from gestoreduka.models import CentroDeFormacao
+from cursovideoapp.models import Curso_video
+from estagio.models import Estagio
+
+from .models import Galeria, SobreNos
+from inteligencia.utils import recomendar_cursos
+from avaliacoes.utils import get_centro_da_semana
 
 
 def index(request):
@@ -57,7 +48,7 @@ def index(request):
     estagios = Estagio.objects.filter(ativo=True).select_related('area', 'centro_formacao')
 
     # Sobre nós
-    sobre = SobreNos.objects.last()  
+    sobre_nos = SobreNos.objects.last()  
 
     # Todos os cursos publicados e ativos, ordenados
     todos_cursos = Curso.objects.filter(publicado=True, ativo=True).order_by('-data_inicio_inscricoes')
@@ -80,6 +71,13 @@ def index(request):
         data_inicio_inscricoes__lte=proximos_dias
     ).order_by('data_inicio_inscricoes')
 
+    # Cursos para iniciantes (Nível Básico)
+    cursos_iniciante = Curso.objects.filter(
+        publicado=True,
+        ativo=True,
+        nivel='B'
+    ).select_related('centro').order_by('-visualizacoes')[:10]
+
     # Categorias com cursos publicados e ativos
     categorias = Categoria.objects.prefetch_related(
         Prefetch(
@@ -96,8 +94,22 @@ def index(request):
         foto_de_perfil__isnull=False
     ).exclude(foto_de_perfil='').order_by('aluno__data_cadastro')[:3]
 
-    # Centros ativos
-    centros = CentroDeFormacao.objects.filter(ativo=True)
+    # Centros ativos, priorizando os com destaque na home via plano
+    centros = CentroDeFormacao.objects.filter(ativo=True).annotate(
+        priority_home=Coalesce('assinatura__plano__destaque_home', Value(False))
+    ).order_by('-priority_home', 'nome')
+    
+    # Centro da Semana (IA + Plano)
+    centro_semana = get_centro_da_semana()
+
+    # Recomendações de IA
+    cursos_recomendados = []
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
+        try:
+            aluno = request.user.aluno_profile
+            cursos_recomendados = recomendar_cursos(aluno, limite=8)
+        except AttributeError:
+            pass
 
     # Montagem do contexto
     context = {
@@ -107,6 +119,7 @@ def index(request):
         'cursos_proximos': cursos_proximos,
         'cursos_zigue1': cursos_zigue1,
         'cursos_destaque_video': cursos_destaque_video,
+        'cursos_iniciante': cursos_iniciante,
         'cursos_zigue2': cursos_zigue2,
         'categorias': categorias,
         'cursos': cursos,
@@ -118,14 +131,16 @@ def index(request):
         'aluno_logado': False,
         'favoritos': [],
         'centros_seguidos': [],
-        'sobre': sobre,
-        'estagios': estagios
+        'sobre': sobre_nos,
+        'estagios': estagios,
+        'centro_semana': centro_semana,
+        'cursos_recomendados': cursos_recomendados
     }
 
-    # Se houver aluno logado na sessão
-    if 'aluno' in request.session:
+    # Se houver aluno logado
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
         try:
-            aluno = Aluno.objects.get(id=request.session['aluno'])
+            aluno = request.user.aluno_profile
             favoritos = Favorito.objects.filter(aluno=aluno).values_list('curso_id', flat=True)
             centros_seguidos = list(
                 CentroSeguimento.objects.filter(aluno=aluno).values_list('centro_id', flat=True)
@@ -136,7 +151,7 @@ def index(request):
                 'favoritos': list(favoritos),
                 'centros_seguidos': centros_seguidos,
             })
-        except Aluno.DoesNotExist:
+        except AttributeError:
             pass
 
     return render(request, 'core/index.html', context)
@@ -152,17 +167,24 @@ def erro_404_view(request, exception):
         'aluno_logado': False,
     }
 
-    if 'aluno' in request.session:
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
         try:
-            aluno = Aluno.objects.get(id=request.session['aluno'])
+            aluno = request.user.aluno_profile
             context.update({
                 'aluno_logado': True,
                 'aluno_nome': aluno.nome,
             })
-        except Aluno.DoesNotExist:
+        except AttributeError:
             pass
 
     return render(request, '404.html', context, status=404)
+
+def erro_500_view(request):
+    """
+    Custom 500 error handler.
+    """
+    context = {}
+    return render(request, '500.html', context, status=500)
 
 
 def sobre(request):
@@ -173,14 +195,14 @@ def sobre(request):
         'imagens': imagens,
     }
 
-    if 'aluno' in request.session:
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
         try:
-            aluno = Aluno.objects.get(id=request.session['aluno'])
+            aluno = request.user.aluno_profile
             context.update({
                 'aluno_logado': True,
                 'aluno_nome': aluno.nome,
             })
-        except Aluno.DoesNotExist:
+        except AttributeError:
             pass
 
     return render(request, 'core/sobre.html', context)
@@ -194,14 +216,14 @@ def privacidade(request):
         'imagens': imagens,
 
     }
-    if 'aluno' in request.session:
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
         try:
-            aluno = Aluno.objects.get(id=request.session['aluno'])
+            aluno = request.user.aluno_profile
             context.update({
                 'aluno_logado': True,
                 'aluno_nome': aluno.nome,
             })
-        except Aluno.DoesNotExist:
+        except AttributeError:
             pass
 
     return render(request, 'core/privacidade.html', context)

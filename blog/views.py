@@ -1,27 +1,17 @@
-from django.shortcuts import render
-from django.shortcuts import render, get_object_or_404
-from .models import Post, Categoria, Tag
-from django.db.models import Q
+from django.shortcuts import render, redirect, get_object_or_404
+from django.db.models import Q, Count, F
 from django.core.paginator import Paginator
-from django.db import models
-from core.models import Galeria
-from usuarios.models import Aluno
-from cursos_app.models import Favorito
-from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
-from django.contrib import messages
-from .forms import ComentarioForm
-from usuarios.models import CentroSeguimento
-from django.shortcuts import render, redirect
-from django.shortcuts import redirect, get_object_or_404
-from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
-from .models import Post, Comentario, ReacaoComentario
+from django.contrib import messages
+
+from .models import Post, Categoria, Tag, Comentario, ReacaoComentario
 from .forms import ComentarioForm
-from cursos_app.models import Curso
-from django.shortcuts import render
-from django.db.models import Q, Count
-from django.core.paginator import Paginator
+
+from core.models import Galeria
+from usuarios.models import Aluno, CentroSeguimento
+from cursos_app.models import Favorito, Curso
+
 
 def lista_posts(request):
     query = request.GET.get('q')
@@ -64,9 +54,9 @@ def lista_posts(request):
         'centros_seguidos': []
     }
 
-    if 'aluno' in request.session:
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
         try:
-            aluno = Aluno.objects.get(id=request.session['aluno'])
+            aluno = request.user.aluno_profile
             favoritos = Favorito.objects.filter(aluno=aluno).values_list('curso_id', flat=True)
             centros_seguidos = CentroSeguimento.objects.filter(aluno=aluno).values_list('centro_id', flat=True)
 
@@ -76,14 +66,11 @@ def lista_posts(request):
                 'favoritos': list(favoritos),
                 'centros_seguidos': list(centros_seguidos),
             })
-        except Aluno.DoesNotExist:
+        except AttributeError:
             pass
 
     return render(request, 'lista_posts.html', context)
 
-from django.shortcuts import render, get_object_or_404
-from django.db.models import F
-from django.utils import timezone
 
 def detalhe_post(request, slug):
     post = get_object_or_404(Post, slug=slug, status='publicado')
@@ -95,15 +82,14 @@ def detalhe_post(request, slug):
     imagens = Galeria.objects.all()[:6]
 
 
-    aluno_logado = False
+    aluno_logado = request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO'
     aluno = None
 
-    if 'aluno' in request.session:
+    if aluno_logado:
         try:
-            aluno = Aluno.objects.get(id=request.session['aluno'])
-            aluno_logado = True
-        except Aluno.DoesNotExist:
-            pass
+            aluno = request.user.aluno_profile
+        except AttributeError:
+            aluno_logado = False
 
     # PROCESSA ENVIO DE COMENTÁRIO
     if request.method == 'POST':
@@ -196,12 +182,12 @@ def comentar_post(request, slug):
                 except Comentario.DoesNotExist:
                     comentario.parent = None
 
-            if 'aluno' in request.session:
+            if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
                 try:
-                    aluno = Aluno.objects.get(id=request.session['aluno'])
+                    aluno = request.user.aluno_profile
                     comentario.nome = aluno.nome
-                    comentario.email = aluno.email
-                except Aluno.DoesNotExist:
+                    comentario.email = request.user.email
+                except AttributeError:
                     pass
 
             comentario.save()
@@ -216,13 +202,16 @@ from django.http import JsonResponse
 def reagir_comentario(request, comentario_id, tipo):
     comentario = get_object_or_404(Comentario, id=comentario_id)
 
-    if 'aluno' not in request.session:
+    if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({'error': 'Você precisa estar logado para reagir.'}, status=403)
         messages.error(request, _('Você precisa estar logado para reagir.'))
         return redirect('blog:detalhe_post', slug=comentario.post.slug)
 
-    aluno = get_object_or_404(Aluno, id=request.session['aluno'])
+    try:
+        aluno = request.user.aluno_profile
+    except AttributeError:
+        return redirect('blog:detalhe_post', slug=comentario.post.slug)
 
     reacao, created = ReacaoComentario.objects.get_or_create(
         comentario=comentario,
@@ -279,14 +268,14 @@ def privacidade(request):
     context = {
         'aluno_logado': False,
     }
-    if 'aluno' in request.session:
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
         try:
-            aluno = Aluno.objects.get(id=request.session['aluno'])
+            aluno = request.user.aluno_profile
             context.update({
                 'aluno_logado': True,
                 'aluno_nome': aluno.nome,
             })
-        except Aluno.DoesNotExist:
+        except AttributeError:
             pass
 
     return render(request, 'core/privacidade.html', context)

@@ -1,0 +1,113 @@
+{% extends 'base_gestor.html' %}
+{% load static %}
+
+{% block title %}Turmas - {{ centro.nome }}{% endblock %}
+
+{% block content %}
+<div class="dashboard-body">
+    <div class="breadcrumb mb-24 flex-between flex-wrap">
+        <div>
+            <ul class="flex-align gap-4">
+                <li><a href="{% url 'centro_dashboard' %}"
+                        class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
+                <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
+                <li><span class="text-main-600 fw-normal text-15">Turmas</span></li>
+            </ul>
+        </div>
+        <a href="{% url 'criar_turma' %}" class="btn btn-main px-24 py-12">
+            <i class="ph ph-plus me-8"></i> Nova Turma
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Todas as Turmas</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table style-two mb-0">
+                    <thead>
+                        <tr>
+                            <th>Turma</th>
+                            <th>Curso</th>
+                            <th>Turno</th>
+                            <th>Data Início</th>
+                            <th>Vagas</th>
+                            <th>Status</th>
+                            <th class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for turma in turmas %}
+                        <tr>
+                            <td>
+                                <div>
+                                    <h6 class="mb-0 text-15">{{ turma.nome }}</h6>
+                                    <span class="text-13 text-gray-600">{{ turma.codigo }}</span>
+                                </div>
+                            </td>
+                            <td><span class="text-15">{{ turma.curso.titulo }}</span></td>
+                            <td><span class="text-13">{{ turma.get_turno_display }}</span></td>
+                            <td><span class="text-13">{{ turma.data_inicio|date:"d/m/Y" }}</span></td>
+                            <td>
+                                <span class="text-13">{{ turma.vagas_ocupadas }}/{{ turma.vagas_totais }}</span>
+                                <div class="progress h-4 bg-gray-100 rounded-pill mt-4" style="width: 80px;">
+                                    <div class="progress-bar bg-main-600"
+                                        style="width: {{ turma.percentual_ocupacao }}%"></div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if turma.status == 'ABERTA' %}
+                                <span
+                                    class="text-13 py-2 px-8 bg-success-50 text-success-600 rounded-pill">Aberta</span>
+                                {% elif turma.status == 'EM_ANDAMENTO' %}
+                                <span class="text-13 py-2 px-8 bg-warning-50 text-warning-600 rounded-pill">Em
+                                    Andamento</span>
+                                {% elif turma.status == 'CONCLUIDA' %}
+                                <span class="text-13 py-2 px-8 bg-gray-50 text-gray-600 rounded-pill">Concluída</span>
+                                {% else %}
+                                <span
+                                    class="text-13 py-2 px-8 bg-danger-50 text-danger-600 rounded-pill">Cancelada</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'editar_turma' turma.id %}" class="text-main-600 hover-text-main-700">
+                                    <i class="ph ph-pencil-simple text-xl"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-gray-400 p-24">
+                                Nenhuma turma cadastrada. <a href="{% url 'criar_turma' %}" class="text-main-600">Criar
+                                    primeira turma</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% if turmas.has_other_pages %}
+    <div class="flex-between flex-wrap gap-8 mt-20">
+        <span class="text-gray-600 text-13">Mostrando {{ turmas.start_index }} a {{ turmas.end_index }} de {{
+            turmas.paginator.count }} turmas</span>
+        <ul class="pagination flex-align flex-wrap">
+            {% if turmas.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ turmas.previous_page_number }}">Anterior</a></li>
+            {% endif %}
+            {% for num in turmas.paginator.page_range %}
+            <li class="page-item {% if turmas.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+            {% if turmas.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ turmas.next_page_number }}">Próximo</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

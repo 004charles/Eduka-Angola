@@ -1,0 +1,72 @@
+{% load static %}
+
+{% block title %}{{ action }} Evento - {{ centro.nome }}{% endblock %}
+    {% include 'include/css_gestor.html' %}
+
+
+{% block content %}
+<div class="dashboard-body">
+    <div class="breadcrumb mb-24">
+        <ul class="flex-align gap-4">
+            <li><a href="{% url 'centro_dashboard' %}"
+                    class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
+            <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
+            <li><a href="{% url 'gerenciar_eventos' %}"
+                    class="text-gray-200 fw-normal text-15 hover-text-main-600">Eventos</a></li>
+            <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
+            <li><span class="text-main-600 fw-normal text-15">{{ action }}</span></li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">{{ action }} Evento</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row gy-20">
+                    <div class="col-md-8">
+                        <label class="form-label">Título do Evento *</label>
+                        <input type="text" name="titulo" class="form-control" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Tipo *</label>
+                        <select name="tipo" class="form-select" required>
+                            <option value="">Selecione</option>
+                            {% for value, label in tipos %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Descrição *</label>
+                        <textarea name="descricao" class="form-control" rows="5" required></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Data e Hora de Início *</label>
+                        <input type="datetime-local" name="data_inicio" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Data e Hora de Término</label>
+                        <input type="datetime-local" name="data_fim" class="form-control">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Local *</label>
+                        <input type="text" name="local" class="form-control" placeholder="Ex: Auditório Principal"
+                            required>
+                    </div>
+                </div>
+                <div class="flex-align gap-8 mt-24">
+                    <button type="submit" class="btn btn-main px-24 py-12">
+                        <i class="ph ph-floppy-disk me-8"></i> Salvar
+                    </button>
+                    <a href="{% url 'gerenciar_eventos' %}" class="btn btn-outline-gray px-24 py-12">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+    {% include 'include/java_gestor.html' %}

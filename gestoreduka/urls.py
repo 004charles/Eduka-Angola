@@ -22,6 +22,26 @@ urlpatterns = [
     path('cursos/excluir/<int:curso_id>/', views.excluir_curso, name='excluir_curso'),
     path('cursos/<int:curso_id>/overview/', views.curso_overview, name='curso_overview'),
     path('cursos/<int:curso_id>/publicar-final/', views.publicar_curso_final, name='publicar_curso_final'),
+    path('inscricoes/', views.gerenciar_inscricoes, name='gerenciar_inscricoes'),
+    path('assinatura/', views.gerenciar_assinatura, name='gerenciar_assinatura'),
+    
+    # Analytics
+    path('analytics/', views.analytics_centro, name='analytics_centro'),
+    
+    # Turmas
+    path('turmas/', views.gerenciar_turmas, name='gerenciar_turmas'),
+    path('turmas/criar/', views.criar_turma, name='criar_turma'),
+    path('turmas/editar/<int:turma_id>/', views.editar_turma, name='editar_turma'),
+    
+    # Instrutores
+    path('instrutores/', views.gerenciar_instrutores, name='gerenciar_instrutores'),
+    path('instrutores/criar/', views.criar_instrutor, name='criar_instrutor'),
+    path('instrutores/editar/<int:instrutor_id>/', views.editar_instrutor, name='editar_instrutor'),
+    
+    # Eventos
+    path('eventos/', views.gerenciar_eventos, name='gerenciar_eventos'),
+    path('eventos/criar/', views.criar_evento, name='criar_evento'),
+    
     #--------------------------------url chat-------------------------------
     path('chat/', views.chat_centro, name='chat_centro'),
     path('chat/enviar-mensagem/', views.enviar_mensagem_centro, name='enviar_mensagem_centro'),

@@ -1,0 +1,152 @@
+{% load static %}
+
+{% block title %}Assinatura - {{ centro.nome }}{% endblock %}
+
+{% block content %}
+<div class="dashboard-body">
+    <div class="breadcrumb mb-24">
+        <ul class="flex-align gap-4">
+            <li><a href="{% url 'centro_dashboard' %}"
+                    class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
+            <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
+            <li><span class="text-main-600 fw-normal text-15">Planos e Assinatura</span></li>
+        </ul>
+    </div>
+
+    <!-- Current Plan -->
+    {% if assinatura %}
+    <div class="card mb-24">
+        <div class="card-header bg-main-600">
+            <h5 class="mb-0 text-white">Seu Plano Atual</h5>
+        </div>
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="mb-8">{{ assinatura.plano.nome }}</h4>
+                    <p class="text-gray-600 mb-16">{{ assinatura.plano.descricao }}</p>
+                    <div class="flex-align gap-16 flex-wrap">
+                        <div class="flex-align gap-8">
+                            <i class="ph ph-check-circle text-success-600 text-xl"></i>
+                            <span class="text-15">{{ assinatura.plano.limite_cursos }} cursos</span>
+                        </div>
+                        <div class="flex-align gap-8">
+                            <i class="ph ph-map-pin text-success-600 text-xl"></i>
+                            <span class="text-15">Alcance de {{ assinatura.plano.alcance_km }}km</span>
+                        </div>
+                        {% if assinatura.plano.selo_verificacao %}
+                        <div class="flex-align gap-8">
+                            <i class="ph ph-seal-check text-success-600 text-xl"></i>
+                            <span class="text-15">Selo de Verificação</span>
+                        </div>
+                        {% endif %}
+                        {% if assinatura.plano.acesso_relatorios %}
+                        <div class="flex-align gap-8">
+                            <i class="ph ph-chart-bar text-success-600 text-xl"></i>
+                            <span class="text-15">Relatórios Avançados</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end mt-md-0 mt-16">
+                    <div class="mb-12">
+                        <span class="text-gray-600 text-13 d-block mb-4">Valor Mensal</span>
+                        <h3 class="mb-0">{{ assinatura.plano.preco|floatformat:2 }} KZ</h3>
+                    </div>
+                    {% if assinatura.esta_ativa %}
+                    <span class="text-13 py-2 px-12 bg-success-50 text-success-600 rounded-pill">
+                        <i class="ph ph-check-circle me-4"></i>Ativo
+                    </span>
+                    {% else %}
+                    <span class="text-13 py-2 px-12 bg-danger-50 text-danger-600 rounded-pill">
+                        <i class="ph ph-x-circle me-4"></i>{{ assinatura.get_status_display }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="card mb-24 border-warning">
+        <div class="card-body text-center p-40">
+            <i class="ph ph-warning text-warning-600" style="font-size: 64px;"></i>
+            <h5 class="mt-16 mb-8">Nenhum Plano Ativo</h5>
+            <p class="text-gray-600 mb-16">Escolha um plano abaixo para começar a aproveitar todos os benefícios</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Available Plans -->
+    <h5 class="mb-20">
+        {% if assinatura %}Upgrade de Plano{% else %}Planos Disponíveis{% endif %}
+    </h5>
+
+    <div class="row gy-4">
+        {% for plano in planos_disponiveis %}
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 {% if plano.destaque_home %}border-main-600{% endif %}">
+                {% if plano.destaque_home %}
+                <div class="bg-main-600 text-white text-center py-8">
+                    <small class="fw-semibold"><i class="ph ph-star me-4"></i>Mais Popular</small>
+                </div>
+                {% endif %}
+                <div class="card-body text-center">
+                    <h5 class="mb-8">{{ plano.nome }}</h5>
+                    <div class="mb-20">
+                        <h2 class="mb-0">{{ plano.preco|floatformat:2 }} <small
+                                class="text-gray-600 text-15">KZ/mês</small></h2>
+                    </div>
+                    <p class="text-gray-600 text-15 mb-20">{{ plano.descricao }}</p>
+                    <ul class="text-start mb-24" style="list-style: none; padding: 0;">
+                        <li class="mb-12 flex-align gap-8">
+                            <i class="ph ph-check-circle text-success-600"></i>
+                            <span class="text-15">{{ plano.limite_cursos }} cursos</span>
+                        </li>
+                        <li class="mb-12 flex-align gap-8">
+                            <i class="ph ph-check-circle text-success-600"></i>
+                            <span class="text-15">Alcance de {{ plano.alcance_km }}km</span>
+                        </li>
+                        <li class="mb-12 flex-align gap-8">
+                            <i class="ph ph-check-circle text-success-600"></i>
+                            <span class="text-15">Prioridade {{ plano.prioridade_busca }}</span>
+                        </li>
+                        {% if plano.selo_verificacao %}
+                        <li class="mb-12 flex-align gap-8">
+                            <i class="ph ph-check-circle text-success-600"></i>
+                            <span class="text-15">Selo de Verificação</span>
+                        </li>
+                        {% endif %}
+                        {% if plano.destaque_home %}
+                        <li class="mb-12 flex-align gap-8">
+                            <i class="ph ph-check-circle text-success-600"></i>
+                            <span class="text-15">Destaque na Home</span>
+                        </li>
+                        {% endif %}
+                        {% if plano.acesso_relatorios %}
+                        <li class="mb-12 flex-align gap-8">
+                            <i class="ph ph-check-circle text-success-600"></i>
+                            <span class="text-15">Relatórios Avançados</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                    <button
+                        class="btn btn-{% if plano.destaque_home %}main{% else %}outline-main{% endif %} w-100 py-12"
+                        onclick="alert('Sistema de pagamento em desenvolvimento.\nEm breve você poderá assinar este plano!')">
+                        {% if assinatura %}Fazer Upgrade{% else %}Assinar Agora{% endif %}
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center p-40">
+                    <i class="ph ph-info text-gray-300" style="font-size: 64px;"></i>
+                    <h5 class="mt-16 mb-8">Nenhum plano disponível no momento</h5>
+                    <p class="text-gray-600">Entre em contato com o suporte para mais informações</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

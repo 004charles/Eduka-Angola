@@ -1,0 +1,136 @@
+{% load static %}
+    {% include 'include/css_gestor.html' %}
+
+
+{% block title %}Analytics - {{ centro.nome }}{% endblock %}
+
+{% block content %}
+<div class="dashboard-body">
+    <div class="breadcrumb mb-24">
+        <ul class="flex-align gap-4">
+            <li><a href="{% url 'centro_dashboard' %}"
+                    class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
+            <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
+            <li><span class="text-main-600 fw-normal text-15">Análises</span></li>
+        </ul>
+    </div>
+
+    <h4 class="mb-24">Análises e Métricas</h4>
+
+    <!-- Stats Cards -->
+    <div class="row gy-4 mb-24">
+        <div class="col-xxl-3 col-sm-6">
+            <div class="card p-20 bg-main-50 border-main-100">
+                <div class="flex-between align-items-start">
+                    <div>
+                        <span class="text-gray-600 text-sm">Receita (30 dias)</span>
+                        <h4 class="mb-0 mt-8">{{ receita_mes|floatformat:2 }} KZ</h4>
+                    </div>
+                    <div class="w-44 h-44 rounded-circle bg-main-600 flex-center text-white text-2xl">
+                        <i class="ph ph-currency-circle-dollar"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-3 col-sm-6">
+            <div class="card p-20 bg-purple-50 border-purple-100">
+                <div class="flex-between align-items-start">
+                    <div>
+                        <span class="text-gray-600 text-sm">Inscrições (30 dias)</span>
+                        <h4 class="mb-0 mt-8">{{ inscricoes_mes }}</h4>
+                    </div>
+                    <div class="w-44 h-44 rounded-circle bg-purple-600 flex-center text-white text-2xl">
+                        <i class="ph ph-users"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-3 col-sm-6">
+            <div class="card p-20 bg-warning-50 border-warning-100">
+                <div class="flex-between align-items-start">
+                    <div>
+                        <span class="text-gray-600 text-sm">Total Alunos</span>
+                        <h4 class="mb-0 mt-8">{{ total_inscricoes }}</h4>
+                    </div>
+                    <div class="w-44 h-44 rounded-circle bg-warning-600 flex-center text-white text-2xl">
+                        <i class="ph ph-student"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-3 col-sm-6">
+            <div class="card p-20 bg-success-50 border-success-100">
+                <div class="flex-between align-items-start">
+                    <div>
+                        <span class="text-gray-600 text-sm">Cursos Ativos</span>
+                        <h4 class="mb-0 mt-8">{{ centro.cursos.count }}</h4>
+                    </div>
+                    <div class="w-44 h-44 rounded-circle bg-success-600 flex-center text-white text-2xl">
+                        <i class="ph ph-graduation-cap"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Cursos -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Top 5 Cursos Mais Populares</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table style-two">
+                    <thead>
+                        <tr>
+                            <th>Curso</th>
+                            <th>Alunos Ativos</th>
+                            <th>Modalidade</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for curso in top_cursos %}
+                        <tr>
+                            <td>
+                                <div class="flex-align gap-8">
+                                    {% if curso.imagem %}
+                                    <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}"
+                                        class="w-40 h-40 rounded-8 object-fit-cover">
+                                    {% else %}
+                                    <div class="w-40 h-40 rounded-8 bg-main-50 flex-center">
+                                        <i class="ph ph-book text-main-600"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <h6 class="mb-0 text-15">{{ curso.titulo }}</h6>
+                                        <span class="text-13 text-gray-600">{{ curso.categoria.nome }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="fw-medium">{{ curso.num_alunos }}</span></td>
+                            <td><span class="text-13">{{ curso.get_modalidade_display }}</span></td>
+                            <td>
+                                {% if curso.publicado %}
+                                <span
+                                    class="text-13 py-2 px-8 bg-success-50 text-success-600 rounded-pill">Publicado</span>
+                                {% else %}
+                                <span
+                                    class="text-13 py-2 px-8 bg-warning-50 text-warning-600 rounded-pill">Rascunho</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-gray-400 p-24">Nenhum curso encontrado</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+    {% include 'include/java_gestor.html' %}

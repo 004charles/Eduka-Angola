@@ -1,0 +1,130 @@
+{% extends 'base_gestor.html' %}
+{% load static %}
+
+{% block title %}{{ action }} Turma - {{ centro.nome }}{% endblock %}
+
+{% block content %}
+<div class="dashboard-body">
+    <div class="breadcrumb mb-24">
+        <ul class="flex-align gap-4">
+            <li><a href="{% url 'centro_dashboard' %}"
+                    class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
+            <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
+            <li><a href="{% url 'gerenciar_turmas' %}"
+                    class="text-gray-200 fw-normal text-15 hover-text-main-600">Turmas</a></li>
+            <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
+            <li><span class="text-main-600 fw-normal text-15">{{ action }}</span></li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">{{ action }} Turma</h5>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row gy-20">
+                    <div class="col-md-6">
+                        <label class="form-label">Curso *</label>
+                        <select name="curso" class="form-select" required {% if turma %}disabled{% endif %}>
+                            <option value="">Selecione um curso</option>
+                            {% for curso in cursos %}
+                            <option value="{{ curso.id }}" {% if turma and turma.curso.id==curso.id %}selected{% endif
+                                %}>
+                                {{ curso.titulo }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Nome da Turma *</label>
+                        <input type="text" name="nome" class="form-control" value="{{ turma.nome|default:'' }}"
+                            required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Código *</label>
+                        <input type="text" name="codigo" class="form-control" value="{{ turma.codigo|default:'' }}" {%
+                            if turma %}readonly{% endif %} required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Turno *</label>
+                        <select name="turno" class="form-select" required>
+                            <option value="">Selecione</option>
+                            <option value="MANHA" {% if turma.turno=='MANHA' %}selected{% endif %}>Manhã</option>
+                            <option value="TARDE" {% if turma.turno=='TARDE' %}selected{% endif %}>Tarde</option>
+                            <option value="NOITE" {% if turma.turno=='NOITE' %}selected{% endif %}>Noite</option>
+                            <option value="INTEGRAL" {% if turma.turno=='INTEGRAL' %}selected{% endif %}>Integral
+                            </option>
+                            <option value="SABADO" {% if turma.turno=='SABADO' %}selected{% endif %}>Sábado</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Data de Início *</label>
+                        <input type="date" name="data_inicio" class="form-control"
+                            value="{{ turma.data_inicio|date:'Y-m-d'|default:'' }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Data de Término *</label>
+                        <input type="date" name="data_fim" class="form-control"
+                            value="{{ turma.data_fim|date:'Y-m-d'|default:'' }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Horário de Início *</label>
+                        <input type="time" name="horario_inicio" class="form-control"
+                            value="{{ turma.horario_inicio|default:'' }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Horário de Término *</label>
+                        <input type="time" name="horario_fim" class="form-control"
+                            value="{{ turma.horario_fim|default:'' }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Dias da Semana *</label>
+                        <input type="text" name="dias_semana" class="form-control"
+                            value="{{ turma.dias_semana|default:'' }}" placeholder="Ex: SEG,QUA,SEX" required>
+                        <small class="text-gray-600">Use: SEG, TER, QUA, QUI, SEX, SAB, DOM</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Vagas Totais *</label>
+                        <input type="number" name="vagas_totais" class="form-control"
+                            value="{{ turma.vagas_totais|default:'20' }}" min="1" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Instrutor Principal</label>
+                        <select name="instrutor_principal" class="form-select">
+                            <option value="">Nenhum</option>
+                            {% for instrutor in instrutores %}
+                            <option value="{{ instrutor.id }}" {% if turma and
+                                turma.instrutor_principal.id==instrutor.id %}selected{% endif %}>
+                                {{ instrutor.nome }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% if turma %}
+                    <div class="col-md-6">
+                        <label class="form-label">Status *</label>
+                        <select name="status" class="form-select" required>
+                            <option value="ABERTA" {% if turma.status=='ABERTA' %}selected{% endif %}>Aberta</option>
+                            <option value="EM_ANDAMENTO" {% if turma.status=='EM_ANDAMENTO' %}selected{% endif %}>Em
+                                Andamento</option>
+                            <option value="CONCLUIDA" {% if turma.status=='CONCLUIDA' %}selected{% endif %}>Concluída
+                            </option>
+                            <option value="CANCELADA" {% if turma.status=='CANCELADA' %}selected{% endif %}>Cancelada
+                            </option>
+                        </select>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="flex-align gap-8 mt-24">
+                    <button type="submit" class="btn btn-main px-24 py-12">
+                        <i class="ph ph-floppy-disk me-8"></i> Salvar
+                    </button>
+                    <a href="{% url 'gerenciar_turmas' %}" class="btn btn-outline-gray px-24 py-12">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -30,26 +30,37 @@ from django.contrib.gis.geos import Point
 from django.utils.translation import gettext_lazy as _
 
 class CentroDeFormacao(gis_models.Model):
+    usuario = models.OneToOneField('usuarios.Usuario', on_delete=models.CASCADE, related_name='centro_profile', null=True, blank=True)
     nome = models.CharField(_('Nome do Centro'), max_length=100, blank=True, null=True)
     nif = models.CharField(_('NIF'), max_length=18, unique=True, blank=True, null=True)
     endereco = models.CharField(_('Endereço'), max_length=255, blank=True, null=True)
     cidade = models.CharField(_('Cidade'), max_length=100, blank=True, null=True)
     provincia = models.CharField(_('Província'), max_length=100, blank=True, null=True)
     
-    localizacao = gis_models.PointField(
-        _('Localização Geográfica'),
-        geography=True,
-        blank=True,
-        null=True,
-        srid=4326
-    )
+    if HAS_GEODJANGO and not settings.DATABASES['default']['ENGINE'].endswith('sqlite3'):
+        localizacao = gis_models.PointField(
+            _('Localização Geográfica'),
+            geography=True,
+            blank=True,
+            null=True,
+            srid=4326
+        )
+    else:
+        # Fallback para SQLite/Não-GIS: Armazena como string ou ignora funcionalidade espacial
+        localizacao = models.CharField(
+            _('Localização (Fallback)'),
+            max_length=100,
+            blank=True,
+            null=True,
+            help_text="Usado como fallback quando PostGIS não está disponível"
+        )
     
     telefone = models.CharField(_('Telefone'), max_length=20, blank=True, null=True)
     email = models.EmailField(_('E-mail'), unique=True)
     site = models.URLField(_('Site'), blank=True, null=True)
     data_criacao = models.DateTimeField(_('Data de Criação'), auto_now_add=True)
     ativo = models.BooleanField(_('Ativo'), default=True)
-    senha_hash = models.CharField(_('Senha Hash'), max_length=255, blank=True, null=True)
+    # senha_hash is removed in favor of centralized auth
 
     def __str__(self):
         return self.nome or self.email
@@ -69,13 +80,7 @@ class CentroDeFormacao(gis_models.Model):
         parts = [part for part in [self.endereco, self.cidade, self.provincia] if part]
         return ", ".join(parts) if parts else "Endereço não informado"
 
-    def set_senha(self, senha):
-        self.senha_hash = make_password(senha)
-    
-    def verificar_senha(self, senha):
-        if not self.senha_hash:
-            return False
-        return check_password(senha, self.senha_hash)
+    # set_senha and verificar_senha are removed as they are now handled by Usuario
 
     class Meta:
         verbose_name = _('Centro de Formação')

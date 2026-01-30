@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Edukangola | Recuperar Senha</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% include 'include/css.html' %}
+</head>
+
+<body class="rbt-header-sticky">
+    {% include 'include/header.html' %}
+
+    <div class="rbt-breadcrumb-default ptb--100 ptb_md--50 ptb_sm--30 bg-gradient-1">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="breadcrumb-inner text-center">
+                        <h2 class="title">Recuperar Senha</h2>
+                        <p class="welcome-message">Digite seu email para receber um código de recuperação.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="rbt-elements-area bg-color-white rbt-section-gap"
+        style="display: flex; align-items: center; min-height: 50vh;">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="rbt-contact-form contact-form-style-1 mx-auto">
+                        <h3 class="title text-center mb-4">Esqueci Minha Senha</h3>
+
+                        {% if message %}
+                        <div class="alert alert-info" role="alert">
+                            <i class="feather-info me-2"></i> {{ message }}
+                        </div>
+                        {% endif %}
+
+                        <form method="POST" action="{% url 'esqueci_senha' %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <input name="email" type="email" required placeholder="Digite seu e-mail cadastrado" />
+                                <label>E-mail *</label>
+                                <span class="focus-border"></span>
+                            </div>
+
+                            <div class="form-submit-group">
+                                <button type="submit" class="rbt-btn btn-md btn-gradient hover-icon-reverse w-100">
+                                    <span class="icon-reverse-wrapper">
+                                        <span class="btn-text">Enviar Código</span>
+                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                    </span>
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="text-center mt-3">
+                            <a href="{% url 'Login_aluno' %}" class="rbt-btn-link">Voltar para o Login</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'include/footer.html' %}
+    {% include 'include/java.html' %}
+</body>
+
+</html>

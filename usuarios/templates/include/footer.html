@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 <footer class="rbt-footer footer-style-1">
     <div class="footer-top">
         <div class="container">
@@ -7,25 +8,24 @@
                     <div class="footer-widget">
                         <div style="width: 100px; height: auto;" class="logo logo-dark">
                             <a href="{% url 'index' %}">
-                                <img src="{% static 'assets/images/logo/logo1-removebg-preview.png' %}" alt="EduAngola"
-                                    >
+                                <img src="{% static 'assets/images/logo/logo1-removebg-preview.png' %}" alt="EduAngola">
                             </a>
                         </div>
                         <div style="width: 100px; height: auto;" class="logo d-none logo-light">
                             <a href="{% url 'index' %}">
-                                <img style="width: 500px;" src="{% static 'assets/images/logo/logo1-removebg-preview.png' %}" alt="EduAngola"
-                                    >
+                                <img style="width: 500px;"
+                                    src="{% static 'assets/images/logo/logo1-removebg-preview.png' %}" alt="EduAngola">
                             </a>
                         </div>
 
-                        <p class="description mt--20">Estamos sempre em busca de talentos e pessoas motivadas. Não seja
-                            tímido, apresente-se!
+                        <p class="description mt--20">{% trans 'Estamos sempre em busca de talentos e pessoas motivadas.
+                            Não seja tímido, apresente-se!' %}
                         </p>
 
                         <div class="contact-btn mt--30">
                             <a class="rbt-btn hover-icon-reverse btn-border-gradient radius-round" href="login.html#">
                                 <div class="icon-reverse-wrapper">
-                                    <span class="btn-text">Fale Conosco</span>
+                                    <span class="btn-text">{% trans 'Fale Conosco' %}</span>
                                     <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                     <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                 </div>
@@ -36,22 +36,22 @@
 
                 <div class="offset-lg-1 col-lg-2 col-md-6 col-sm-6 col-12 mt--30">
                     <div class="footer-widget">
-                        <h5 class="ft-title">Links Úteis</h5>
+                        <h5 class="ft-title">{% trans 'Links Úteis' %}</h5>
                         <ul class="ft-link">
                             <li>
-                                <a href="12-marketplace.html">Mercado</a>
+                                <a href="12-marketplace.html">{% trans 'Mercado' %}</a>
                             </li>
                             <li>
-                                <a href="04-kindergarten.html">Educação Infantil</a>
+                                <a href="04-kindergarten.html">{% trans 'Educação Infantil' %}</a>
                             </li>
                             <li>
-                                <a href="13-university-classic.html">Universidade</a>
+                                <a href="13-university-classic.html">{% trans 'Universidade' %}</a>
                             </li>
                             <li>
-                                <a href="09-gym-coaching.html">Treinamento</a>
+                                <a href="09-gym-coaching.html">{% trans 'Treinamento' %}</a>
                             </li>
                             <li>
-                                <a href="faqs.html">Perguntas Frequentes</a>
+                                <a href="faqs.html">{% trans 'Perguntas Frequentes' %}</a>
                             </li>
                         </ul>
                     </div>
@@ -59,22 +59,22 @@
 
                 <div class="col-lg-2 col-md-6 col-sm-6 col-12 mt--30">
                     <div class="footer-widget">
-                        <h5 class="ft-title">Nossa Empresa</h5>
+                        <h5 class="ft-title">{% trans 'Nossa Empresa' %}</h5>
                         <ul class="ft-link">
                             <li>
-                                <a href="contact.html">Contato</a>
+                                <a href="contact.html">{% trans 'Contato' %}</a>
                             </li>
                             <li>
-                                <a href="become-a-teacher.html">Seja um Professor</a>
+                                <a href="become-a-teacher.html">{% trans 'Seja um Professor' %}</a>
                             </li>
                             <li>
-                                <a href="blog.html">Blog</a>
+                                <a href="blog.html">{% trans 'Blog' %}</a>
                             </li>
                             <li>
-                                <a href="instructor.html">Instrutores</a>
+                                <a href="instructor.html">{% trans 'Instrutores' %}</a>
                             </li>
                             <li>
-                                <a href="event-list.html">Eventos</a>
+                                <a href="event-list.html">{% trans 'Eventos' %}</a>
                             </li>
                         </ul>
                     </div>
@@ -82,11 +82,12 @@
 
                 <div class="col-lg-3 col-md-6 col-sm-6 col-12 mt--30">
                     <div class="footer-widget">
-                        <h5 class="ft-title">Contato</h5>
+                        <h5 class="ft-title">{% trans 'Contato' %}</h5>
                         <ul class="ft-link">
-                            <li><span>Telefone:</span> <a href="login.html#">+244 923 456 789</a></li>
-                            <li><span>E-mail:</span> <a href="mailto:hr@example.com">contacto@eduangola.com</a></li>
-                            <li><span>Localização:</span> Luanda, Angola</li>
+                            <li><span>{% trans 'Telefone:' %}</span> <a href="login.html#">+244 923 456 789</a></li>
+                            <li><span>{% trans 'E-mail:' %}</span> <a
+                                    href="mailto:hr@example.com">contacto@eduangola.com</a></li>
+                            <li><span>{% trans 'Localização:' %}</span> {% trans 'Luanda, Angola' %}</li>
                         </ul>
                         <ul class="social-icon social-default icon-naked justify-content-start mt--20">
                             <li><a href="https://www.facebook.com/">
@@ -123,16 +124,16 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-12">
-                <p class="rbt-link-hover text-center text-lg-start">Copyright © 2025 <a href="#">Makinu</a> Todos os
-                    Direitos Reservados</p>
+                <p class="rbt-link-hover text-center text-lg-start">{% trans 'Copyright © 2025' %} <a
+                        href="#">Makinu</a> {% trans 'Todos os Direitos Reservados' %}</p>
             </div>
             <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-12">
                 <ul
                     class="copyright-link rbt-link-hover justify-content-center justify-content-lg-end mt_sm--10 mt_md--10">
-                    <li><a href="login.html#">Termos de serviço</a></li>
-                    <li><a href="{% url 'blog:privacidade' %}">Política de privacidade</a></li>
-                    <li><a href="subscription.html">Assinatura</a></li>
-                    <li><a href="{% url 'Login_aluno' %}">Login & Registro</a></li>
+                    <li><a href="login.html#">{% trans 'Termos de serviço' %}</a></li>
+                    <li><a href="{% url 'blog:privacidade' %}">{% trans 'Política de privacidade' %}</a></li>
+                    <li><a href="subscription.html">{% trans 'Assinatura' %}</a></li>
+                    <li><a href="{% url 'Login_aluno' %}">{% trans 'Login & Registro' %}</a></li>
                 </ul>
             </div>
         </div>
@@ -147,18 +148,17 @@
 
 
 <script>
-navigator.geolocation.getCurrentPosition(function(position) {
-    const latitude = position.coords.latitude;
-    const longitude = position.coords.longitude;
+    navigator.geolocation.getCurrentPosition(function (position) {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
 
-    fetch("{% url 'atualizar_localizacao' %}", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": "{{ csrf_token }}",
-        },
-        body: JSON.stringify({ lat: latitude, lng: longitude })
+        fetch("{% url 'atualizar_localizacao' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+            body: JSON.stringify({ lat: latitude, lng: longitude })
+        });
     });
-});
 </script>
-
