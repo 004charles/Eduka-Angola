@@ -1,0 +1,82 @@
+{% load static %}
+<div class="swiper-slide">
+    <div class="rbt-card variation-01 rbt-hover">
+
+        <!-- IMAGEM -->
+        <div class="rbt-card-img">
+            <a href="{% url 'curso_detalhe' id=curso.id %}">
+                {% if curso.imagem %}
+                <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}">
+                {% else %}
+                <img src="{% static 'assets/images/course/classic-lms-01.jpg' %}" alt="{{ curso.titulo }}">
+                {% endif %}
+
+                {% if curso.em_promocao %}
+                <div class="rbt-badge-3 bg-white">
+                    <span>-{{ curso.percentual_desconto|floatformat:0 }}%</span>
+                    <span>Off</span>
+                </div>
+                {% endif %}
+            </a>
+        </div>
+
+        <!-- CONTEÚDO -->
+        <div class="rbt-card-body">
+
+            <!-- TÍTULO -->
+            <h4 class="rbt-card-title">
+                <a href="{% url 'curso_detalhe' id=curso.id %}">
+                    {{ curso.titulo }}
+                </a>
+            </h4>
+
+            <!-- DESCRIÇÃO CURTA -->
+            <p class="rbt-card-text">
+                {% if curso.descricao_curta %}
+                {{ curso.descricao_curta|truncatechars:80 }}
+                {% else %}
+                {{ curso.descricao|truncatechars:80 }}
+                {% endif %}
+            </p>
+
+            <!-- MODALIDADE -->
+            <span class="rbt-meta">
+                {{ curso.get_modalidade_display }}
+            </span>
+
+            <!-- PREÇO -->
+            <div class="rbt-card-bottom">
+                <div class="rbt-price">
+                    {% if curso.is_gratuito %}
+                    <span class="current-price">Gratuito</span>
+                    {% else %}
+                    <span class="current-price">
+                        Kz {{ curso.preco_atual }}
+                    </span>
+
+                    {% if curso.em_promocao %}
+                    <span class="off-price">
+                        Kz {{ curso.preco }}
+                    </span>
+                    {% endif %}
+                    {% endif %}
+                </div>
+
+                <a class="rbt-btn-link" href="{% url 'curso_detalhe' id=curso.id %}">
+                    Saiba Mais
+                    <i class="feather-arrow-right"></i>
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .rbt-card-img {
+    width: 100%;
+    height: 220px; /* ajusta como quiseres */
+    overflow: hidden;
+}
+
+</style>

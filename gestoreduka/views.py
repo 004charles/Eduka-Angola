@@ -533,9 +533,27 @@ def confirmar_cadastro(request, token):
                 messages.error(request, "Centro não encontrado.")
                 return render(request, "confirmar_cadastro.html", {"convite": convite})
 
-            # Atualizar o centro
+            # Criar ou atualizar o usuário
+            from usuarios.models import Usuario
+            
+            # Verificar se já existe um usuário com este email
+            usuario, created = Usuario.objects.get_or_create(
+                email=centro.email,
+                defaults={
+                    'nome': nome,
+                    'tipo_usuario': 'GESTOR',
+                    'is_active': True,
+                }
+            )
+            
+            # Definir a senha
+            usuario.set_password(senha)
+            usuario.nome = nome  # Atualizar nome caso já exista
+            usuario.save()
+            
+            # Associar o usuário ao centro
+            centro.usuario = usuario
             centro.nome = nome
-            centro.senha_hash = make_password(senha)
             centro.ativo = True
             centro.save()
 
@@ -585,6 +603,12 @@ def login_gestor(request):
             user = authenticate(request, email=email, password=senha)
             
             if user is not None:
+                # Check if user is staff/superuser (should use Django admin instead)
+                if user.is_staff or user.is_superuser:
+                    messages.error(request, "Usuários administradores devem usar o painel admin do Django em /admin/")
+                    return render(request, "login_gestor.html")
+                
+                # Check if user is a GESTOR
                 if user.tipo_usuario == 'GESTOR':
                     login(request, user)
                     messages.success(request, f"Bem-vindo, {user.nome}!")
@@ -2438,3 +2462,63 @@ def buscar_mensagens_modal(request, conversa_id):
         })
     
     return JsonResponse({'mensagens': mensagens_data})
+
+
+# --- New Home Views ---
+
+def home_centros(request):
+    """
+    Home page for Training Centers (Parceiros).
+    """
+    # 1. Featured Centers (Destaques/Mais Populares)
+    centros_destaque = CentroDeFormacao.objects.filter(
+        ativo=True
+    ).annotate(
+        num_cursos=Count('cursos', filter=Q(cursos__ativo=True)),
+        num_seguidores=Count('seguidores')
+    ).order_by('-num_seguidores')[:4]
+    
+    # 2. Newest Partners
+    centros_novos = CentroDeFormacao.objects.filter(
+        ativo=True
+    ).order_by('-data_criacao')[:4]
+    
+    # 3. All Centers (for grid)
+    centros_todos = CentroDeFormacao.objects.filter(ativo=True).order_by('nome')[:8]
+    
+    context = {
+        'centros_destaque': centros_destaque,
+        'centros_novos': centros_novos,
+        'centros_todos': centros_todos,
+        'active_menu': 'centros',
+    }
+    
+    return render(request, 'gestoreduka/home_centros.html', context)
+
+def api_load_more_centros(request):
+    try:
+        offset = int(request.GET.get('offset', 0))
+        limit = int(request.GET.get('limit', 8))
+        
+        qs = CentroDeFormacao.objects.filter(ativo=True).order_by('nome')
+        centros = qs[offset:offset+limit]
+        
+        data = []
+        for centro in centros:
+            # Safe layout access
+            banner = centro.perfil.banner.url if hasattr(centro, 'perfil') and centro.perfil.banner else '/static/assets/images/bg/bg-image-10.jpg'
+            logo = centro.perfil.imagem.url if hasattr(centro, 'perfil') and centro.perfil.imagem else '/static/assets/images/team/team-01.jpg'
+            
+            data.append({
+                'id': centro.id,
+                'nome': centro.nome,
+                'endereco': centro.endereco,
+                'banner_url': banner,
+                'logo_url': logo,
+                'num_cursos': centro.cursos.filter(ativo=True).count(),
+                'url_detalhe': reverse('cursos_por_centro', args=[centro.id]) # Assuming this view exists or similar
+            })
+            
+        return JsonResponse({'centros': data, 'has_more': qs.count() > offset + limit})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

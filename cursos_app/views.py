@@ -1,5 +1,6 @@
 import random
 import string
+from datetime import timedelta
 
 from django.conf import settings
 from django.contrib import messages
@@ -31,32 +32,64 @@ from cursovideoapp.models import Curso_video
 
 
 
+@login_required(login_url='Login_aluno')
 def home_cursos(request):
+    """
+    Home page for Presential/Online Courses with rich sections.
+    """
     agora = timezone.now()
     
-    cursos_destaque = Curso.objects.filter(
-        destaque=True, 
+    # 1. Newest Courses (Recém Chegados)
+    cursos_recentes = Curso.objects.filter(
+        publicado=True, ativo=True
+    ).order_by('-data_criacao')[:4]
+    
+    # 2. Most Popular (Mais Populares - based on views/enrollments)
+    cursos_populares = Curso.objects.filter(
+        publicado=True, ativo=True
+    ).order_by('-visualizacoes')[:4]
+    
+    # 3. Top Rated (Melhor Avaliados)
+    # Optimizing: prefetch comments or use annotation if available
+    cursos_avaliados = Curso.objects.filter(
+        publicado=True, ativo=True
+    ).annotate(
+        media_notas=Avg('comentarios__avaliacao')
+    ).order_by('-media_notas')[:4]
+    
+    # 4. Starting Soon (Começam em Breve)
+    proximos_dias = agora + timedelta(days=30)
+    cursos_proximos = Curso.objects.filter(
         publicado=True, 
-        ativo=True
+        ativo=True,
+        data_inicio__gte=agora.date(),
+        data_inicio__lte=proximos_dias.date()
+    ).order_by('data_inicio')[:4]
+
+    cursos_destaque = Curso.objects.filter(
+        destaque=True, publicado=True, ativo=True
     ).select_related('centro').prefetch_related('instrutores')
 
-    categorias = Categoria.objects.prefetch_related(
-        Prefetch(
-            'curso',
-            queryset=Curso.objects.filter(publicado=True, ativo=True),
-            to_attr='cursos_ativos'
-        )
-    ).annotate(
-        num_cursos=Count('curso', filter=Q(curso__publicado=True, curso__ativo=True))
-    ).filter(num_cursos__gt=0)
 
+    # Categories for sidebar
+    categorias = Categoria.objects.annotate(
+        num_cursos=Count('curso', filter=Q(curso__publicado=True, curso__ativo=True))
+    ).filter(num_cursos__gt=0).order_by('nome')
     
-    
+    # Context
     context = {
         'cursos_destaque': cursos_destaque,
-        'categorias': categorias,  # <-- importante passar para o template
+        'cursos_recentes': cursos_recentes,
+        'cursos_populares': cursos_populares,
+        'cursos_avaliados': cursos_avaliados,
+        'cursos_proximos': cursos_proximos,
+        'categorias': categorias,
+        'aluno_logado': False,
+        'favoritos': [],
+        'active_menu': 'cursos_presenciais',
     }
     
+    # User Context (Favorites)
     if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
         try:
             aluno = request.user.aluno_profile
@@ -1249,3 +1282,81 @@ def buscar_cursos(request):
 
 
 
+
+@require_POST
+def toggle_favorito(request):
+    """API to toggle favorite status for a course"""
+    if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
+        return JsonResponse({'status': 'error', 'message': 'Não autorizado'}, status=403)
+    
+    import json
+    try:
+        data = json.loads(request.body)
+        curso_id = data.get('curso_id')
+        curso = Curso.objects.get(id=curso_id)
+        aluno = request.user.aluno_profile
+        
+        favorito, created = Favorito.objects.get_or_create(aluno=aluno, curso=curso)
+        
+        if not created:
+            favorito.delete()
+            return JsonResponse({'status': 'removed'})
+        
+        return JsonResponse({'status': 'added'})
+        
+    except Curso.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Curso não encontrado'}, status=404)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
+def api_load_more_cursos(request):
+    """
+    API to load more courses for infinite scroll/pagination.
+    Supports filtering.
+    """
+    try:
+        offset = int(request.GET.get('offset', 0))
+        limit = int(request.GET.get('limit', 4))
+        tipo_filtro = request.GET.get('tipo', 'recentes') # recentes, populares, avaliados, categoria
+        categoria_slug = request.GET.get('categoria', None)
+        
+        qs = Curso.objects.filter(publicado=True, ativo=True)
+        
+        if categoria_slug:
+            qs = qs.filter(categoria__slug=categoria_slug)
+            
+        if tipo_filtro == 'populares':
+            qs = qs.order_by('-visualizacoes')
+        elif tipo_filtro == 'avaliados':
+            qs = qs.annotate(media=Avg('comentarios__avaliacao')).order_by('-media')
+        else: # recentes default
+            qs = qs.order_by('-data_criacao')
+            
+        cursos = qs[offset:offset+limit]
+        
+        data = []
+        # Check favorites if logged in
+        favoritos = []
+        if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
+             favoritos = list(Favorito.objects.filter(
+                 aluno=request.user.aluno_profile, 
+                 curso__in=cursos
+             ).values_list('curso_id', flat=True))
+
+        for curso in cursos:
+            data.append({
+                'id': curso.id,
+                'titulo': curso.titulo,
+                'imagem_url': curso.imagem.url if curso.imagem else '/static/assets/images/course/default-course.jpg', # Fallback needed
+                'preco': float(curso.preco),
+                'centro_nome': curso.centro.nome,
+                'visualizacoes': curso.visualizacoes,
+                'is_favorito': curso.id in favoritos,
+                'url_detalhe': reverse('curso_detalhe', args=[curso.id])
+            })
+            
+        return JsonResponse({'cursos': data, 'has_more': qs.count() > offset + limit})
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

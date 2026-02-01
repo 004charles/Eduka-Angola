@@ -12,7 +12,7 @@ from usuarios.decorators import aluno_logado_e_centros
 
 from blog.models import Post
 from gestoreduka.models import CentroDeFormacao
-from cursovideoapp.models import Curso_video
+from cursovideoapp.models import Curso_video, FavoritoCursoVideo
 from estagio.models import Estagio
 
 from .models import Galeria, SobreNos
@@ -163,6 +163,9 @@ def index(request):
         try:
             aluno = request.user.aluno_profile
             favoritos = Favorito.objects.filter(aluno=aluno).values_list('curso_id', flat=True)
+            # Add video favorites
+            favoritos_video = FavoritoCursoVideo.objects.filter(aluno=aluno).values_list('curso_id', flat=True)
+            
             centros_seguidos = list(
                 CentroSeguimento.objects.filter(aluno=aluno).values_list('centro_id', flat=True)
             )
@@ -170,6 +173,7 @@ def index(request):
                 'aluno_logado': True,
                 'aluno_nome': aluno.nome,
                 'favoritos': list(favoritos),
+                'favoritos_video': list(favoritos_video),
                 'centros_seguidos': centros_seguidos,
             })
         except AttributeError:

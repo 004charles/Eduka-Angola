@@ -338,7 +338,7 @@
                                                 </p>
                                                 <div class="bottom-content d-flex align-items-center gap-5 flex-wrap">
                                                     <a class="rbt-btn btn-gradient hover-icon-reverse"
-                                                        href="19-modern-university.html#">
+                                                        href="{% url 'home_cursos' %}">
                                                         <span class="icon-reverse-wrapper">
                                                             <span class="btn-text">Ver Centros</span>
                                                             <span class="btn-icon"><i
@@ -549,14 +549,183 @@
 
 
 
+        <div class="rbt-banner-area rbt-banner-8 variation-01 bg_image bg_image--9">
+            <div class="wrapper w-100">
+                <div class="container">
+                    <div class="row g-5 align-items-center">
+                        <div class="col-lg-6 order-2 order-lg-1">
+                            <div class="content">
+                                <div class="inner">
+                                    <div class="rbt-badge-group justify-content-start">
+                                        <span class="meta-text d-flex align-items-center"><span class="icon">🎬</span>
+                                            Video
+                                            Online Course</span>
+                                        <a href="10-online-course.html#" class="rbt-badge-2">
+                                            <div class="image"><img
+                                                    src="{% static 'assets/images/testimonial/client-02.png' %}"
+                                                    alt="Education Images"></div> Learn with <strong>Fatima
+                                                Asrafy</strong>
+                                        </a>
+                                    </div>
+                                    <h1 style="font-size: 35px;" class="title">Os melhores cursos para impulsionar sua
+                                        carreira</h1>
+                                    <p class="description has-medium-font-size mt--20">
+                                        Cursos práticos e atualizados para você se destacar no mercado de trabalho.
+                                    </p>
+
+                                    <div class="slider-btn rbt-button-group justify-content-start">
+                                        <a class="rbt-btn btn-gradient radius-round hover-icon-reverse"
+                                            href="10-online-course.html#">
+                                            <span class="icon-reverse-wrapper">
+                                                <span class="btn-text">Veja como funciona</span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            </span>
+                                        </a>
+                                        <a class="rbt-btn radius-round hover-icon-reverse btn-white"
+                                            href="10-online-course.html#">
+                                            <span class="icon-reverse-wrapper">
+                                                <span class="btn-text">Inscreva-se</span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            </span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 offset-xl-1 order-1 order-lg-2">
+                            <div class="video-popup-wrapper">
+                                <img class="w-100 rbt-radius" src="{% static 'assets/images/others/video-02.jpg' %}"
+                                    alt="Video Images">
+                                <a class="rbt-btn rounded-player-2 popup-video position-to-top with-animation"
+                                    href="https://www.youtube.com/watch?v=nA1Aqp0sPQo">
+                                    <span class="play-icon"></span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="rbt-service-area bg-color-white rbt-section-gapBottom">
+            <div class="container">
+                <div class="row row--15 mt_dec--30">
+                    <div class="col-lg-4 col-xl-4 col-md-6 col-sm-6 col-12 mt--30">
+                        <div class="section-title text-start">
+                            <h2 class="title">O que você vai encontrar</h2>
+                            <p class="description mt--20">
+                                Cursos de centros de formação, conteúdos em vídeo da plataforma e livros para
+                                impulsionar o seu aprendizado.
+                            </p>
+                            <div class="read-more-btn">
+                                <a class="rbt-btn btn-gradient radius rbt-marquee-btn marquee-text-y" href="#">
+                                    <span data-text="Saiba Mais">
+                                        Saiba Mais
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Start Service Grid -->
+                    <div class="col-lg-4 col-xl-4 col-md-6 col-sm-6 col-12 mt--30">
+                        <div class="service-card service-card-6 bg-color bg-card-color-1">
+                            <div class="inner">
+                                <div class="icon">
+                                    <img src="{% static 'assets/images/shape/service-01.png' %}" alt="Shape Images">
+                                    <img class="opacity_image" src="{% static 'assets/images/shape/service-01.png' %}"
+                                        alt="Shape Images">
+                                </div>
+                                <div class="content">
+                                    <h6 class="title"><a href="#">Cursos de Centros</a></h6>
+                                    <p class="description">
+                                        Cursos oferecidos por centros de formação reconhecidos, com foco prático e
+                                        certificação.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Service Grid -->
+
+                    <!-- Start Service Grid -->
+                    <div class="col-lg-4 col-xl-4 col-md-6 col-sm-6 col-12 mt--30">
+                        <div class="service-card service-card-6 bg-color bg-card-color-2">
+                            <div class="inner">
+                                <div class="icon">
+                                    <img src="{% static 'assets/images/shape/service-04.png' %}" alt="Shape Images">
+                                    <img class="opacity_image" src="{% static 'assets/images/shape/service-04.png' %}"
+                                        alt="Shape Images">
+                                </div>
+                                <div class="content">
+                                    <h6 class="title"><a href="#">Centros de Formação</a></h6>
+                                    <p class="description">
+                                        Instituições especializadas que oferecem formação de qualidade para diversas
+                                        áreas profissionais.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Service Grid -->
+
+                    <!-- Start Service Grid -->
+                    <div class="col-lg-4 col-xl-4 col-md-6 col-sm-6 col-12 mt--30">
+                        <div class="service-card service-card-6 bg-color bg-card-color-3">
+                            <div class="inner">
+                                <div class="icon">
+                                    <img src="{% static 'assets/images/shape/service-03.png' %}" alt="Shape Images">
+                                    <img class="opacity_image" src="{% static 'assets/images/shape/service-03.png' %}"
+                                        alt="Shape Images">
+                                </div>
+                                <div class="content">
+                                    <h6 class="title"><a href="#">Cursos em Vídeo</a></h6>
+                                    <p class="description">
+                                        Conteúdos em vídeo disponíveis na plataforma para você aprender no seu ritmo.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-xl-4 col-md-6 col-sm-6 col-12 mt--30">
+                        <div class="service-card service-card-6 bg-color bg-card-color-4">
+                            <div class="inner">
+                                <div class="icon">
+                                    <img src="{% static 'assets/images/shape/service-02.png' %}" alt="Shape Images">
+                                    <img class="opacity_image" src="{% static 'assets/images/shape/service-02.png' %}"
+                                        alt="Shape Images">
+                                </div>
+                                <div class="content">
+                                    <h6 class="title"><a href="#">Livros</a></h6>
+                                    <p class="description">
+                                        Livros e materiais de apoio para aprofundar conhecimentos e complementar os
+                                        estudos.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Service Grid -->
+                </div>
+            </div>
+        </div>
+
+
+
+
         <div class="rbt-categories-area rbt-section-gap bg-color-white">
             <div class="container">
                 <div class="row g-5 align-items-center mb--50">
                     <div class="col-lg-8 col-md-7 col-12">
                         <div class="section-title">
-                            <h2 class="title">O que você quer <span><img
+                            <h2 class="title">Em qual area você<span><img
                                         src="{% static 'assets/images/shape/o-icon-2.png' %}" alt="Cap Icon"></span>
-                                aprender hoje?</h2>
+                                quer mergulhar?</h2>
                             <p class="description">Explore nossas principais áreas de conhecimento</p>
 
                         </div>
@@ -614,836 +783,6 @@
 
 
 
-        <div class="rbt-course-area bg-color-white rbt-section-gap">
-            <div class="container">
-                <div class="row mb--30">
-                    <div style="margin-bottom: 10px;" class="mt--80">
-                        <div class="rbt-brand-title-wrap">
-                            <h5 class="rbt-brand-title w-600 text-center mb-0">
-                                Descubra <span class="theme-gradient">cursos para você</span>
-                            </h5>
-                        </div>
-
-                    </div>
-                </div>
-
-                <div class="row mb--40">
-                    <div class="col-lg-12">
-                        <ul class="rbt-course-tab-button nav nav-tabs" id="cursos-especiais-tab" role="tablist">
-                            {% if cursos_destaque %}<li class="nav-item" role="presentation"><button class="active"
-                                    id="destaque-tab" data-bs-toggle="tab" data-bs-target="#destaque" type="button"
-                                    role="tab" aria-controls="destaque" aria-selected="true"><span
-                                        class="filter-text">Recomendados</span></button></li>{% endif %}
-                            {% if cursos_recentes %}<li class="nav-item" role="presentation"><button class=""
-                                    id="recentes-tab" data-bs-toggle="tab" data-bs-target="#recentes" type="button"
-                                    role="tab" aria-controls="recentes" aria-selected="false"><span
-                                        class="filter-text">{% trans 'Recentes' %}</span></button></li>{% endif %}
-
-                            {% if cursos_gratuitos %}<li class="nav-item" role="presentation"><button class=""
-                                    id="gratuitos-tab" data-bs-toggle="tab" data-bs-target="#gratuitos" type="button"
-                                    role="tab" aria-controls="gratuitos" aria-selected="false"><span
-                                        class="filter-text">{% trans 'Gratuitos' %}</span></button></li>{% endif %}
-                            {% if cursos_pagos %}<li class="nav-item" role="presentation"><button class=""
-                                    id="pagos-tab" data-bs-toggle="tab" data-bs-target="#pagos" type="button" role="tab"
-                                    aria-controls="pagos" aria-selected="false"><span class="filter-text">{% trans
-                                        'Pagos' %}</span></button></li>{% endif %}
-                            {% if cursos_mais_inscritos %}<li class="nav-item" role="presentation"><button class=""
-                                    id="inscritos-tab" data-bs-toggle="tab" data-bs-target="#inscritos" type="button"
-                                    role="tab" aria-controls="inscritos" aria-selected="false"><span
-                                        class="filter-text">{% trans 'Mais Inscritos' %}</span></button></li>{% endif %}
-
-                            {% if cursos_recomendados %}<li class="nav-item" role="presentation"><button class=""
-                                    id="recomendados-tab" data-bs-toggle="tab" data-bs-target="#recomendados"
-                                    type="button" role="tab" aria-controls="recomendados" aria-selected="false"><span
-                                        class="filter-text">{% trans 'Para Você' %}</span></button></li>{% endif %}
-                            {% if cursos_promocao %}<li class="nav-item" role="presentation"><button class=""
-                                    id="promocao-tab" data-bs-toggle="tab" data-bs-target="#promocao" type="button"
-                                    role="tab" aria-controls="promocao" aria-selected="false"><span
-                                        class="filter-text">{% trans 'Promoção' %}</span></button></li>{% endif %}
-                            {% if cursos_proximos %}<li class="nav-item" role="presentation"><button class=""
-                                    id="proximos-tab" data-bs-toggle="tab" data-bs-target="#proximos" type="button"
-                                    role="tab" aria-controls="proximos" aria-selected="false"><span
-                                        class="filter-text">{% trans 'Próximos' %}</span></button></li>{% endif %}
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="tab-content" id="cursos-especiais-content">
-                            <!-- Tab Destaque/Recomendados -->
-                            {% if cursos_destaque %}
-                            <div class="tab-pane fade active show" id="destaque" role="tabpanel"
-                                aria-labelledby="destaque-tab">
-                                <div class="row g-4">
-                                    {% for curso in cursos_destaque|slice:":8" %}
-                                    <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-                                        <div class="rbt-card variation-04 rbt-hover">
-                                            <div class="rbt-card-img">
-                                                <a href="{% url 'curso_detalhe' id=curso.id %}">
-                                                    {% if curso.imagem %}
-                                                    <img src="{{ curso.imagem.url }}" alt="{{curso.titulo}}"
-                                                        style="height: 180px; object-fit: cover;">
-                                                    {% else %}
-                                                    <img src="{% static 'assets/images/course/default-course.jpg' %}"
-                                                        alt="{{curso.titulo}}"
-                                                        style="height: 180px; object-fit: cover;">
-                                                    {% endif %}
-                                                </a>
-                                                <div class="rbt-badge-3 bg-white text-primary"
-                                                    style="position: absolute; top: 10px; left: 10px; z-index: 2; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 10px;">
-                                                    <i class="feather-map-pin"></i> Centro Parceiro
-                                                </div>
-                                            </div>
-                                            <div class="rbt-card-body">
-                                                <ul class="rbt-meta">
-                                                    <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
-                                                    <li><i class="feather-users"></i>{{ curso.vagas }} {% trans 'Vagas'
-                                                        %}</li>
-                                                </ul>
-                                                <h4 class="rbt-card-title"><a
-                                                        href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a>
-                                                </h4>
-                                                <p class="rbt-card-text">{{curso.descricao|truncatechars:100}}</p>
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count">({{ curso.vagas }} {% trans 'Vagas'
-                                                        %})</span>
-                                                </div>
-                                                <div class="rbt-card-bottom">
-                                                    <div class="rbt-price">
-                                                        <h6 class="current-price mb-0">
-                                                            {% if curso.preco == 0 %}
-                                                            <span class="text-success">Grátis</span>
-                                                            {% else %}
-                                                            kz {{curso.preco}}
-                                                            {% endif %}
-                                                        </h6>
-                                                        {% if curso.preco_original and curso.preco != 0 %}
-                                                        <span class="off-price version-02">kz
-                                                            {{curso.preco_original}}</span>
-                                                        {% endif %}
-                                                    </div>
-                                                    <a class="rbt-btn-link color-primary"
-                                                        href="{% url 'curso_detalhe' id=curso.id %}">Ver Curso<i
-                                                            class="feather-arrow-right"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% endif %}
-
-                            <!-- Tab Recentes -->
-                            {% if cursos_recentes %}
-                            <div class="tab-pane fade" id="recentes" role="tabpanel" aria-labelledby="recentes-tab">
-                                <div class="row g-4">
-                                    {% for curso in cursos_recentes|slice:":8" %}
-                                    <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-                                        <div class="rbt-card variation-04 rbt-hover">
-                                            <div class="rbt-card-img">
-                                                <a href="{% url 'curso_detalhe' id=curso.id %}">
-                                                    {% if curso.imagem %}
-                                                    <img src="{{ curso.imagem.url }}" alt="{{curso.titulo}}"
-                                                        style="height: 180px; object-fit: cover;">
-                                                    {% else %}
-                                                    <img src="{% static 'assets/images/course/default-course.jpg' %}"
-                                                        alt="{{curso.titulo}}"
-                                                        style="height: 180px; object-fit: cover;">
-                                                    {% endif %}
-                                                </a>
-                                                <div class="rbt-badge-3 bg-white text-primary"
-                                                    style="position: absolute; top: 10px; left: 10px; z-index: 2; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 10px;">
-                                                    <i class="feather-map-pin"></i> Centro Parceiro
-                                                </div>
-                                            </div>
-                                            <div class="rbt-card-body">
-                                                <ul class="rbt-meta">
-                                                    <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
-                                                    <li><i class="feather-users"></i>{{ curso.vagas }} {% trans 'Vagas'
-                                                        %}</li>
-                                                </ul>
-                                                <h4 class="rbt-card-title"><a
-                                                        href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a>
-                                                </h4>
-                                                <p class="rbt-card-text">{{curso.descricao|truncatechars:100}}</p>
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count">({{ curso.vagas }} {% trans 'Vagas'
-                                                        %})</span>
-                                                </div>
-                                                <div class="rbt-card-bottom">
-                                                    <div class="rbt-price">
-                                                        <h6 class="current-price mb-0">
-                                                            {% if curso.preco_atual == 0 %}
-                                                            <span class="text-success">Grátis</span>
-                                                            {% else %}
-                                                            kz {{curso.preco_atual}}
-                                                            {% endif %}
-                                                        </h6>
-                                                        {% if curso.em_promocao and curso.preco > 0 %}
-                                                        <span class="off-price version-02">kz {{curso.preco}}</span>
-                                                        {% endif %}
-                                                    </div>
-                                                    <a class="rbt-btn-link color-primary"
-                                                        href="{% url 'curso_detalhe' id=curso.id %}">Ver Curso<i
-                                                            class="feather-arrow-right"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% endif %}
-
-                            <!-- Tab Gratuitos -->
-                            {% if cursos_gratuitos %}
-                            <div class="tab-pane fade" id="gratuitos" role="tabpanel" aria-labelledby="gratuitos-tab">
-                                <div class="row g-4">
-                                    {% for curso in cursos_gratuitos|slice:":8" %}
-                                    <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-                                        <div class="rbt-card variation-04 rbt-hover">
-                                            <div class="rbt-card-img">
-                                                <a href="{% url 'curso_detalhe' id=curso.id %}">
-                                                    {% if curso.imagem %}
-                                                    <img src="{{ curso.imagem.url }}" alt="{{curso.titulo}}"
-                                                        style="height: 180px; object-fit: cover;">
-                                                    {% else %}
-                                                    <img src="{% static 'assets/images/course/default-course.jpg' %}"
-                                                        alt="{{curso.titulo}}"
-                                                        style="height: 180px; object-fit: cover;">
-                                                    {% endif %}
-                                                </a>
-                                                <div class="rbt-badge-3 bg-white text-primary"
-                                                    style="position: absolute; top: 10px; left: 10px; z-index: 2; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 10px;">
-                                                    <i class="feather-map-pin"></i> Centro Parceiro
-                                                </div>
-                                            </div>
-                                            <div class="rbt-card-body">
-                                                <ul class="rbt-meta">
-                                                    <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
-                                                    <li><i class="feather-users"></i>{{ curso.vagas }} {% trans 'Vagas'
-                                                        %}</li>
-                                                </ul>
-                                                <h4 class="rbt-card-title"><a
-                                                        href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a>
-                                                </h4>
-                                                <p class="rbt-card-text">{{curso.descricao|truncatechars:100}}</p>
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count">({{ curso.vagas }} {% trans 'Vagas'
-                                                        %})</span>
-                                                </div>
-                                                <div class="rbt-card-bottom">
-                                                    <div class="rbt-price">
-                                                        <h6 class="current-price mb-0">
-                                                            <span class="text-success">Grátis</span>
-                                                        </h6>
-                                                    </div>
-                                                    <a class="rbt-btn-link color-primary"
-                                                        href="{% url 'curso_detalhe' id=curso.id %}">Ver Curso<i
-                                                            class="feather-arrow-right"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% endif %}
-
-                            {% if cursos_pagos %}
-                            <div class="tab-pane fade" id="pagos" role="tabpanel" aria-labelledby="pagos-tab">
-                                <div class="row g-4">
-                                    {% for curso in cursos_pagos|slice:":8" %}
-                                    <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-                                        <div class="rbt-card variation-04 rbt-hover">
-                                            <div class="rbt-card-img">
-                                                <a href="{% url 'curso_detalhe' id=curso.id %}">
-                                                    {% if curso.imagem %}
-                                                    <img src="{{ curso.imagem.url }}" alt="{{curso.titulo}}"
-                                                        style="height: 180px; object-fit: cover;">
-                                                    {% else %}
-                                                    <img src="{% static 'assets/images/course/default-course.jpg' %}"
-                                                        alt="{{curso.titulo}}"
-                                                        style="height: 180px; object-fit: cover;">
-                                                    {% endif %}
-                                                </a>
-                                                <div class="rbt-badge-3 bg-white text-primary"
-                                                    style="position: absolute; top: 10px; left: 10px; z-index: 2; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 10px;">
-                                                    <i class="feather-map-pin"></i> Centro Parceiro
-                                                </div>
-                                            </div>
-                                            <div class="rbt-card-body">
-                                                <ul class="rbt-meta">
-                                                    <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
-                                                    <li><i class="feather-users"></i>{{ curso.vagas }} {% trans 'Vagas'
-                                                        %}</li>
-                                                </ul>
-                                                <h4 class="rbt-card-title"><a
-                                                        href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a>
-                                                </h4>
-                                                <p class="rbt-card-text">{{curso.descricao|truncatechars:100}}</p>
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count">({{ curso.vagas }} {% trans 'Vagas'
-                                                        %})</span>
-                                                </div>
-                                                <div class="rbt-card-bottom">
-                                                    <div class="rbt-price">
-                                                        <h6 class="current-price mb-0">kz {{curso.preco}}</h6>
-                                                        {% if curso.preco_original %}
-                                                        <span class="off-price version-02">kz
-                                                            {{curso.preco_original}}</span>
-                                                        {% endif %}
-                                                    </div>
-                                                    <a class="rbt-btn-link color-primary"
-                                                        href="{% url 'curso_detalhe' id=curso.id %}">Ver Curso<i
-                                                            class="feather-arrow-right"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% endif %}
-
-                            <!-- Tab Mais Inscritos -->
-                            {% if cursos_mais_inscritos %}
-                            <div class="tab-pane fade" id="inscritos" role="tabpanel" aria-labelledby="inscritos-tab">
-                                <div class="row g-4">
-                                    {% for curso in cursos_mais_inscritos|slice:":8" %}
-                                    <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-                                        <div class="rbt-card variation-04 rbt-hover">
-                                            <div class="rbt-card-img">
-                                                <a href="{% url 'curso_detalhe' id=curso.id %}">
-                                                    {% if curso.imagem %}
-                                                    <img src="{{ curso.imagem.url }}" alt="{{curso.titulo}}"
-                                                        style="height: 180px; object-fit: cover;">
-                                                    {% else %}
-                                                    <img src="{% static 'assets/images/course/default-course.jpg' %}"
-                                                        alt="{{curso.titulo}}"
-                                                        style="height: 180px; object-fit: cover;">
-                                                    {% endif %}
-                                                </a>
-                                                <div class="rbt-badge-3 bg-white text-primary"
-                                                    style="position: absolute; top: 10px; left: 10px; z-index: 2; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 10px;">
-                                                    <i class="feather-map-pin"></i> Centro Parceiro
-                                                </div>
-                                            </div>
-                                            <div class="rbt-card-body">
-                                                <ul class="rbt-meta">
-                                                    <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
-                                                    <li><i class="feather-users"></i>{{ curso.vagas }} {% trans 'Vagas'
-                                                        %}</li>
-                                                </ul>
-                                                <h4 class="rbt-card-title"><a
-                                                        href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a>
-                                                </h4>
-                                                <p class="rbt-card-text">{{curso.descricao|truncatechars:100}}</p>
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count">({{ curso.vagas }} {% trans 'Vagas'
-                                                        %})</span>
-                                                </div>
-                                                <div class="rbt-card-bottom">
-                                                    <div class="rbt-price">
-                                                        <h6 class="current-price mb-0">
-                                                            {% if curso.preco_atual == 0 %}
-                                                            <span class="text-success">Grátis</span>
-                                                            {% else %}
-                                                            kz {{curso.preco_atual}}
-                                                            {% endif %}
-                                                        </h6>
-                                                        {% if curso.em_promocao and curso.preco > 0 %}
-                                                        <span class="off-price version-02">kz {{curso.preco}}</span>
-                                                        {% endif %}
-                                                    </div>
-                                                    <a class="rbt-btn-link color-primary"
-                                                        href="{% url 'curso_detalhe' id=curso.id %}">Ver Curso<i
-                                                            class="feather-arrow-right"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% endif %}
-
-                            <!-- Tab Recomendados (Para Você) -->
-                            {% if cursos_recomendados %}
-                            <div class="tab-pane fade" id="recomendados" role="tabpanel"
-                                aria-labelledby="recomendados-tab">
-                                <div class="row g-4">
-                                    {% for curso in cursos_recomendados|slice:":8" %}
-                                    <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-                                        <div class="rbt-card variation-04 rbt-hover">
-                                            <div class="rbt-card-img">
-                                                <a href="{% url 'curso_detalhe' id=curso.id %}">
-                                                    {% if curso.imagem %}
-                                                    <img src="{{ curso.imagem.url }}" alt="{{curso.titulo}}"
-                                                        style="height: 180px; object-fit: cover;">
-                                                    {% else %}
-                                                    <img src="{% static 'assets/images/course/default-course.jpg' %}"
-                                                        alt="{{curso.titulo}}"
-                                                        style="height: 180px; object-fit: cover;">
-                                                    {% endif %}
-                                                </a>
-                                                <div class="rbt-badge-3 bg-white text-primary"
-                                                    style="position: absolute; top: 10px; left: 10px; z-index: 2; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 10px;">
-                                                    <i class="feather-map-pin"></i> Centro Parceiro
-                                                </div>
-                                            </div>
-                                            <div class="rbt-card-body">
-                                                <ul class="rbt-meta">
-                                                    <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
-                                                    <li><i class="feather-users"></i>{{ curso.vagas }} {% trans 'Vagas'
-                                                        %}</li>
-                                                </ul>
-                                                <h4 class="rbt-card-title"><a
-                                                        href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a>
-                                                </h4>
-                                                <p class="rbt-card-text">{{curso.descricao|truncatechars:100}}</p>
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count">({{ curso.vagas }} {% trans 'Vagas'
-                                                        %})</span>
-                                                </div>
-                                                <div class="rbt-card-bottom">
-                                                    <div class="rbt-price">
-                                                        <h6 class="current-price mb-0">
-                                                            {% if curso.preco_atual == 0 %}
-                                                            <span class="text-success">Grátis</span>
-                                                            {% else %}
-                                                            kz {{curso.preco_atual}}
-                                                            {% endif %}
-                                                        </h6>
-                                                        {% if curso.em_promocao and curso.preco > 0 %}
-                                                        <span class="off-price version-02">kz {{curso.preco}}</span>
-                                                        {% endif %}
-                                                    </div>
-                                                    <a class="rbt-btn-link color-primary"
-                                                        href="{% url 'curso_detalhe' id=curso.id %}">Ver Curso<i
-                                                            class="feather-arrow-right"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% endif %}
-
-                            <!-- Tab Promoção -->
-                            {% if cursos_promocao %}
-                            <div class="tab-pane fade" id="promocao" role="tabpanel" aria-labelledby="promocao-tab">
-                                <div class="row g-4">
-                                    {% for curso in cursos_promocao|slice:":8" %}
-                                    <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-                                        <div class="rbt-card variation-04 rbt-hover">
-                                            <div class="rbt-card-img">
-                                                <a href="{% url 'curso_detalhe' id=curso.id %}">
-                                                    {% if curso.imagem %}
-                                                    <img src="{{ curso.imagem.url }}" alt="{{curso.titulo}}"
-                                                        style="height: 180px; object-fit: cover;">
-                                                    {% else %}
-                                                    <img src="{% static 'assets/images/course/default-course.jpg' %}"
-                                                        alt="{{curso.titulo}}"
-                                                        style="height: 180px; object-fit: cover;">
-                                                    {% endif %}
-                                                </a>
-                                                <div class="rbt-badge-3 bg-white text-primary"
-                                                    style="position: absolute; top: 10px; left: 10px; z-index: 2; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 10px;">
-                                                    <i class="feather-map-pin"></i> Centro Parceiro
-                                                </div>
-                                            </div>
-                                            <div class="rbt-card-body">
-                                                <ul class="rbt-meta">
-                                                    <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
-                                                    <li><i class="feather-users"></i>{{ curso.vagas }} {% trans 'Vagas'
-                                                        %}</li>
-                                                </ul>
-                                                <h4 class="rbt-card-title"><a
-                                                        href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a>
-                                                </h4>
-                                                <p class="rbt-card-text">{{curso.descricao|truncatechars:100}}</p>
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count">({{ curso.vagas }} {% trans 'Vagas'
-                                                        %})</span>
-                                                </div>
-                                                <div class="rbt-card-bottom">
-                                                    <div class="rbt-price">
-                                                        <h6 class="current-price mb-0">
-                                                            {% if curso.preco_atual == 0 %}
-                                                            <span class="text-success">Grátis</span>
-                                                            {% else %}
-                                                            kz {{curso.preco_atual}}
-                                                            {% endif %}
-                                                        </h6>
-                                                        {% if curso.em_promocao and curso.preco > 0 %}
-                                                        <span class="off-price version-02">kz {{curso.preco}}</span>
-                                                        {% endif %}
-                                                    </div>
-                                                    <a class="rbt-btn-link color-primary"
-                                                        href="{% url 'curso_detalhe' id=curso.id %}">Ver Curso<i
-                                                            class="feather-arrow-right"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% endif %}
-
-                            <!-- Tab Próximos -->
-                            {% if cursos_proximos %}
-                            <div class="tab-pane fade" id="proximos" role="tabpanel" aria-labelledby="proximos-tab">
-                                <div class="row g-4">
-                                    {% for curso in cursos_proximos|slice:":8" %}
-                                    <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-                                        <div class="rbt-card variation-04 rbt-hover">
-                                            <div class="rbt-card-img">
-                                                <a href="{% url 'curso_detalhe' id=curso.id %}">
-                                                    {% if curso.imagem %}
-                                                    <img src="{{ curso.imagem.url }}" alt="{{curso.titulo}}"
-                                                        style="height: 180px; object-fit: cover;">
-                                                    {% else %}
-                                                    <img src="{% static 'assets/images/course/default-course.jpg' %}"
-                                                        alt="{{curso.titulo}}"
-                                                        style="height: 180px; object-fit: cover;">
-                                                    {% endif %}
-                                                </a>
-                                                <div class="rbt-badge-3 bg-white text-primary"
-                                                    style="position: absolute; top: 10px; left: 10px; z-index: 2; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 10px;">
-                                                    <i class="feather-map-pin"></i> Centro Parceiro
-                                                </div>
-                                            </div>
-                                            <div class="rbt-card-body">
-                                                <ul class="rbt-meta">
-                                                    <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
-                                                    <li><i class="feather-users"></i>{{ curso.vagas }} {% trans 'Vagas'
-                                                        %}</li>
-                                                </ul>
-                                                <h4 class="rbt-card-title"><a
-                                                        href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a>
-                                                </h4>
-                                                <p class="rbt-card-text">{{curso.descricao|truncatechars:100}}</p>
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count">({{ curso.vagas }} {% trans 'Vagas'
-                                                        %})</span>
-                                                </div>
-                                                <div class="rbt-card-bottom">
-                                                    <div class="rbt-price">
-                                                        <h6 class="current-price mb-0">
-                                                            {% if curso.preco == 0 %}
-                                                            <span class="text-success">Grátis</span>
-                                                            {% else %}
-                                                            kz {{curso.preco}}
-                                                            {% endif %}
-                                                        </h6>
-                                                        {% if curso.preco_original and curso.preco != 0 %}
-                                                        <span class="off-price version-02">kz
-                                                            {{curso.preco_original}}</span>
-                                                        {% endif %}
-                                                    </div>
-                                                    <a class="rbt-btn-link color-primary"
-                                                        href="{% url 'curso_detalhe' id=curso.id %}">Ver Curso<i
-                                                            class="feather-arrow-right"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Botão Ver Todos SIMPLIFICADO -->
-                {% with mostrar_botao=False %}
-                {% if cursos_destaque and cursos_destaque|length > 8 %}
-                {% with mostrar_botao=True %}{% endwith %}
-                {% endif %}
-                {% if cursos_recentes and cursos_recentes|length > 8 %}
-                {% with mostrar_botao=True %}{% endwith %}
-                {% endif %}
-                {% if cursos_gratuitos and cursos_gratuitos|length > 8 %}
-                {% with mostrar_botao=True %}{% endwith %}
-                {% endif %}
-                {% if cursos_mais_inscritos and cursos_mais_inscritos|length > 8 %}
-                {% with mostrar_botao=True %}{% endwith %}
-                {% endif %}
-                {% if cursos_recomendados and cursos_recomendados|length > 8 %}
-                {% with mostrar_botao=True %}{% endwith %}
-                {% endif %}
-                {% if cursos_promocao and cursos_promocao|length > 8 %}
-                {% with mostrar_botao=True %}{% endwith %}
-                {% endif %}
-                {% if cursos_proximos and cursos_proximos|length > 8 %}
-                {% with mostrar_botao=True %}{% endwith %}
-                {% endif %}
-
-                {% if mostrar_botao %}
-                <div class="row mt--55">
-                    <div class="col-lg-12">
-                        <div class="load-more-btn text-center">
-                            <a class="rbt-btn btn-gradient btn-lg hover-icon-reverse" href="#">
-                                <span class="icon-reverse-wrapper">
-                                    <span class="btn-text">Ver Todos os Cursos</span>
-                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                </span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-                {% endwith %}
-            </div>
-        </div>
-
-
-
-
-
-        <style>
-            .banner-padrao {
-                width: 100%;
-                height: 330px;
-                object-fit: cover;
-                display: block;
-            }
-        </style>
-
-
-
-
-        <style>
-            .rbt-card.variation-04 {
-                padding: 15px;
-            }
-
-            .rbt-card-body {
-                padding: 15px 10px;
-            }
-
-            .rbt-card-img img {
-                height: 180px;
-                object-fit: cover;
-            }
-
-            .rbt-card-title {
-                font-size: 16px;
-                line-height: 1.3;
-            }
-
-            .rbt-card-text {
-                font-size: 13px;
-                line-height: 1.4;
-            }
-
-            .rbt-meta {
-                font-size: 12px;
-            }
-        </style>
-
-
-
-
-
-        <!-- Start Beginner Courses Area -->
-        <div class="rbt-course-area bg-color-white rbt-section-gap">
-            <div class="container">
-                <div class="row mb--30">
-                    <div class="mt--80">
-                        <div class="rbt-brand-title-wrap">
-                            <h5 class="rbt-brand-title w-600 text-center mb-0">
-                                Verifique esses <span class="theme-gradient">cursos para você</span>
-                            </h5>
-                        </div>
-
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="owl-carousel owl-theme rbt-arrow-between" id="beginnerCoursesCarousel">
-                            {% for curso in cursos_iniciante %}
-                            <div class="item">
-                                {% include 'curso_card.html' with curso=curso %}
-                            </div>
-                            {% empty %}
-                            <div class="col-12 text-center">
-                                <p>Nenhum curso para iniciantes encontrado no momento.</p>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- End Beginner Courses Area -->
-        <div class="rbt-service-area bg-color-white rbt-section-gapBottom">
-            <div class="container">
-                <div class="row mb--60">
-                    <div class="col-lg-12">
-                        <div class="section-title text-center">
-                            <h2 class="title">Por que escolher a EdukaAngola?</h2>
-                            <p class="description mt--20">Diferenciais que impulsionam o seu aprendizado e carreira.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="row row--15 mt_dec--30">
-                    <!-- Card 1 -->
-                    <div class="col-lg-4 col-md-6 col-12 mt--30">
-                        <div class="service-card service-card-6 bg-color bg-card-color-1">
-                            <div class="inner">
-                                <div class="icon">
-                                    <img src="{% static 'assets/images/icons/card-icon-1.png' %}" alt="Certificação">
-                                </div>
-                                <div class="content">
-                                    <h6 class="title"><a href="#">Certificação Comprovada</a></h6>
-                                    <p class="description">Certificados reconhecidos por instituições de topo em Angola.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="col-lg-4 col-md-6 col-12 mt--30">
-                        <div class="service-card service-card-6 bg-color bg-card-color-2">
-                            <div class="inner">
-                                <div class="icon">
-                                    <img src="{% static 'assets/images/icons/card-icon-2.png' %}" alt="Instrutores">
-                                </div>
-                                <div class="content">
-                                    <h6 class="title"><a href="#">Instrutores de Elite</a></h6>
-                                    <p class="description">Aprenda com especialistas renomados do mercado nacional.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Card 3 -->
-                    <div class="col-lg-4 col-md-6 col-12 mt--30">
-                        <div class="service-card service-card-6 bg-color bg-card-color-3">
-                            <div class="inner">
-                                <div class="icon">
-                                    <img src="{% static 'assets/images/icons/card-icon-3.png' %}" alt="Acesso">
-                                </div>
-                                <div class="content">
-                                    <h6 class="title"><a href="#">Acesso Vitalício</a></h6>
-                                    <p class="description">Estude no seu ritmo com acesso ilimitado aos conteúdos.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Start Call To Action Area -->
-        <div class="rbt-callto-action-area bg-color-extra2 rbt-section-gap">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-lg-12">
-                        <div class="section-title text-center mb--40">
-                            <h2 class="title">Quer ensinar na EdukaAngola?</h2>
-                            <p class="description mt--20">Junte-se à maior comunidade de instrutores de Angola.</p>
-                            <div class="read-more-btn mt--40">
-                                <a class="rbt-btn btn-gradient hover-icon-reverse" href="#">
-                                    <span class="icon-reverse-wrapper">
-                                        <span class="btn-text">Torne-se Instrutor</span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                    </span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- End Call To Action Area -->
-        </div>
-
-        <!-- Start Course Area -->
-
-        <!-- Initialize Owl Carousel -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                $('#beginnerCoursesCarousel').owlCarousel({
-                    loop: false,
-                    margin: 30,
-                    nav: true,
-                    dots: true,
-                    responsive: {
-                        0: { items: 1 },
-                        768: { items: 2 },
-                        992: { items: 3 }
-                    },
-                    navText: ['<i class="feather-arrow-left"></i>', '<i class="feather-arrow-right"></i>']
-                });
-            });
-        </script>
-
-
 
 
         <div class="rbt-course-area rbt-section-gapBottom bg-color-white">
@@ -1483,6 +822,14 @@
                                             style="height: 200px; object-fit: cover; width: 100%;">
                                         {% endif %}
                                     </a>
+                                    {% if aluno_logado %}
+                                    <div class="rbt-badge-3 hover-icon-badge">
+                                        <label class="heart-icon-label">
+                                            <input type="checkbox" class="favorite-checkbox" data-id="{{ curso.id }}"  {% if curso.id in favoritos %}checked{% endif %}>
+                                            <i class="feather-heart"></i>
+                                        </label>
+                                    </div>
+                                    {% endif %}
                                 </div>
                                 <div class="rbt-card-body">
                                     <h4 class="rbt-card-title"><a style="font-size: 19px;"
@@ -1514,7 +861,17 @@
                                             alt="{{ curso.titulo }}"
                                             style="height: 200px; object-fit: cover; width: 100%;">
                                         {% endif %}
+                                        
                                     </a>
+                                    {% if aluno_logado %}
+                                    <div class="rbt-badge-3 hover-icon-badge"
+                                        style="top: 10px; right: 10px; left: auto;">
+                                        <label class="heart-icon-label">
+                                            <input type="checkbox" class="favorite-checkbox" data-id="{{ curso.id }}"  {% if curso.id in favoritos %}checked{% endif %}>
+                                            <i class="feather-heart"></i>
+                                        </label>
+                                    </div>
+                                    {% endif %}
                                 </div>
                                 <div class="rbt-card-body">
                                     <h4 class="rbt-card-title"><a style="font-size: 19px;"
@@ -1533,625 +890,664 @@
         </div>
 
 
-        <div style="margin-bottom: 10px;" class="mt--80">
-            <div class="rbt-brand-title-wrap">
-                <h5 class="rbt-brand-title w-600 text-center mb-0">
-                    Centros de Formação <span class="theme-gradient">Parceiros</span> da EdukaAngola
-                </h5>
-
-            </div>
-        </div>
-
-        <!-- Start Call To Action  -->
-        <div class="rbt-callto-action-area mt_dec--half">
+        <div class="rbt-course-area rbt-sec-cir-shadow-1 bg-color-extra2 rbt-section-gap rbt-section-box">
+            <div class="gradient-shape-top"></div>
+            <div class="gradient-shape-bottom"></div>
             <div class="container">
-                <div class="row g-5">
-                    <!-- Primeiro Card - Destaque para Centros Parceiros -->
-                    <div class="col-lg-6">
-                        <div class="rbt-callto-action callto-action-default bg-color-white rbt-radius shadow-1">
-                            <div class="row align-items-center">
-                                <div class="col-lg-12 col-xl-5">
-                                    <div class="inner">
-                                        <div class="rbt-category mb--20">
-                                            <a href="#">Parcerias</a>
-                                        </div>
-                                        <h4 class="title mb--15">Cursos Certificados</h4>
-                                        <p class="mb--15">Conheça os cursos oferecidos por nossas instituições parceiras
-                                        </p>
-                                        <div class="badge bg-primary-soft mt--10">
-                                            <span>Parcerias de Qualidade</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-12 col-xl-7">
-                                    <div class="video-popup-wrapper mt_lg--10 mt_md--20 mt_sm--20">
-                                        <img class="w-100 rbt-radius"
-                                            src="{% static 'assets/images/others/video-01.jpg' %}"
-                                            alt="Centros Parceiros">
-                                        <a class="rbt-btn rounded-player-2 sm-size popup-video position-to-top with-animation"
-                                            href="#centros-parceiros">
-                                            <span class="play-icon"></span>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Segundo Card - Seja um Centro Parceiro -->
-                    <div class="col-lg-6">
-                        <div class="rbt-callto-action callto-action-default bg-color-white rbt-radius shadow-1">
-                            <div class="row align-items-center">
-                                <div class="col-lg-12">
-                                    <div class="inner">
-                                        <div class="rbt-category mb--20">
-                                            <a href="#">Para Instituições</a>
-                                        </div>
-                                        <h4 class="title mb--10">Torne-se um Centro Parceiro</h4>
-                                        <p class="mb--15">Divulgue seus cursos para milhares de estudantes</p>
-                                        <ul class="rbt-list-style-1 mb--15">
-                                            <li><i class="feather-check"></i>Maior visibilidade para seus cursos</li>
-                                            <li><i class="feather-check"></i>Plataforma de gestão integrada</li>
-                                            <li><i class="feather-check"></i>Relatórios de desempenho</li>
-                                        </ul>
-                                        <div class="read-more-btn">
-                                            <a class="rbt-btn rbt-switch-btn btn-gradient btn-sm" href="#seja-parceiro">
-                                                <span data-text="Quero ser Parceiro">Quero ser Parceiro</span>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                <div class="row mb--30">
+                    <div class="col-lg-12">
+                        <div class="section-title text-center">
+                            <h6 class="b2 mb--15"><span class="theme-gradient">Admission</span></h6>
+                            <h2 class="title w-600">Descubra cursos incríveis nas <br> <span class="theme-gradient">categorias mais procuradas.</span></h2>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-
-        <section class="mt-4">
-            <div style="margin-top: 100px;" class="banner-overlay-section">
-                <div class="container">
-                    <div class="row row--15">
-                        <div class="col-lg-12">
-
-                            <!-- TÍTULO DA SEÇÃO -->
-                            {% if centro_semana %}
-                            <div class="col-lg-12 mb--60">
-                                <div
-                                    class="rbt-callto-action callto-action-default bg-color-primary-opacity rbt-radius shadow-1">
-                                    <div class="row align-items-center">
-                                        <div class="col-lg-7">
-                                            <div class="inner p-5">
-                                                <div class="rbt-badge bg-primary-opacity mb--20">⭐ {% trans 'Ranking
-                                                    Semanal' %}</div>
-                                                <h3 class="title">{% trans 'Centro da Semana' %}: {{ centro_semana.nome
-                                                    }}</h3>
-                                                <p class="description">{% trans 'Destaque pelo alto índice de conclusão
-                                                    e feedback positivo dos alunos no ecossistema EdukaAngola.' %}</p>
-                                                <div class="rbt-button-group justify-content-start mt--30">
-                                                    <a class="rbt-btn btn-gradient btn-sm"
-                                                        href="{% url 'cursos_por_centro' centro_semana.id %}">
-                                                        {% trans 'Ver Cursos' %}
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-5">
-                                            <div class="thumbnail text-end pr--50">
-                                                {% if centro_semana.perfil.imagem %}
-                                                <img class="rbt-radius" src="{{ centro_semana.perfil.imagem.url }}"
-                                                    alt="{{ centro_semana.nome }}"
-                                                    style="max-height: 200px; width: auto; object-fit: contain;">
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endif %}
-
-                            <!-- TÍTULO DA SEÇÃO ORIGIN -->
-                            <div class="col-lg-12 text-center">
-                                <div style="margin-bottom: 20px;" class="mt--80">
-                                    <h5 class="rbt-brand-title w-600 mb-0">
-                                        Centros em <span class="theme-gradient">Destaque</span>
-                                    </h5>
-
-                                    <p class="mt-2" style="max-width: 720px; margin: 0 auto; font-size: 15px;">
-                                        Instituições de ensino que se destacam pela qualidade da formação,
-                                        reconhecimento no mercado e elevada procura por parte dos estudantes.
-                                    </p>
-
-
-                                </div>
-                            </div>
-
-                            <!-- SLIDER -->
-                            <div class="swiper team-slide-activation-4 rbt-arrow-between rbt-dot-bottom-center">
-                                <div class="swiper-wrapper">
-
-                                    {% for centro in centros %}
-                                    <div class="swiper-slide">
-                                        <div class="team team-style--bottom variation-2">
-
-                                            <!-- IMAGEM / BANNER -->
-                                            <div class="thumbnail" style="position: relative;">
-
-                                                <!-- LOGO DO CENTRO -->
-                                                <div style="position: absolute; top: 10px; right: 10px; z-index: 2;">
-                                                    <img src="{{ centro.perfil.imagem.url }}"
-                                                        alt="Logo {{ centro.nome }}" style="width: 90px; height: auto;">
-                                                </div>
-
-                                                <a href="{% url 'cursos_por_centro' centro.id %}">
-                                                    <img src="{{ centro.perfil.banner.url }}"
-                                                        alt="Banner {{ centro.nome }}" class="banner-padrao">
-                                                </a>
-                                            </div>
-
-                                            <!-- CONTEÚDO -->
-                                            <div class="content">
-                                                <div class="inner">
-
-                                                    <!-- NOME DO CENTRO -->
-                                                    <h4 class="title">
-                                                        <a href="{% url 'cursos_por_centro' centro.id %}">
-                                                            {{ centro.nome }}
-                                                        </a>
-                                                    </h4>
-
-                                                    <!-- LOCALIZAÇÃO -->
-                                                    <p class="designation">
-                                                        {{ centro.endereco }}
-                                                    </p>
-
-                                                    <!-- MÉTRICAS -->
-                                                    <p class="designation"
-                                                        style="margin-top: 5px; font-size: 14px; color: #111;">
-                                                        {{ centro.cursos.count }} cursos disponíveis ·
-                                                        {{ centro.seguidores.count }} seguidores
-                                                    </p>
-
-                                                    <!-- BOTÃO SEGUIR -->
-                                                    {% if aluno_logado %}
-                                                    {% if centro.id in centros_seguidos %}
-                                                    <a href="javascript:void(0);" class="seguir-centro-btn seguindo"
-                                                        style="padding: 6px 14px;
-                                                              background-color: #38a169;
-                                                              color: #fff;
-                                                              border-radius: 4px;
-                                                              font-size: 14px;
-                                                              text-decoration: none;
-                                                              display: inline-block;">
-                                                        Centro seguido
-                                                    </a>
-                                                    {% else %}
-                                                    <a href="javascript:void(0);" class="seguir-centro-btn"
-                                                        data-centro-id="{{ centro.id }}" style="padding: 6px 14px;
-                                                              background-color: #4f46e5;
-                                                              color: #fff;
-                                                              border-radius: 4px;
-                                                              font-size: 14px;
-                                                              text-decoration: none;
-                                                              display: inline-block;">
-                                                        Seguir centro
-                                                    </a>
-                                                    {% endif %}
-                                                    {% endif %}
-
-                                                </div>
-
-                                                <!-- ÍCONE -->
-                                                <div class="icon-right">
-                                                    <a href="{% url 'cursos_por_centro' centro.id %}">
-                                                        <i class="feather-arrow-right"></i>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% empty %}
-                                    <p style="text-align: center; font-size: 15px;">
-                                        Ainda não existem centros de formação cadastrados nesta categoria.
-                                    </p>
-                                    {% endfor %}
-
-                                </div>
-
-                                <!-- SETAS -->
-                                <div class="rbt-swiper-arrow rbt-arrow-left">
-                                    <div class="custom-overfolow">
-                                        <i class="rbt-icon feather-arrow-left"></i>
-                                        <i class="rbt-icon-top feather-arrow-left"></i>
-                                    </div>
-                                </div>
-
-                                <div class="rbt-swiper-arrow rbt-arrow-right">
-                                    <div class="custom-overfolow">
-                                        <i class="rbt-icon feather-arrow-right"></i>
-                                        <i class="rbt-icon-top feather-arrow-right"></i>
-                                    </div>
-                                </div>
-
-                                <div class="rbt-swiper-pagination"></div>
-                            </div>
-
-                        </div>
+                <div class="row mb--40">
+                    <div class="col-lg-12">
+                        <ul class="rbt-course-tab-button nav nav-tabs" id="rbt-myTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="active" id="development-tab" data-bs-toggle="tab" data-bs-target="#development" type="button" role="tab" aria-controls="development" aria-selected="true"><span class="filter-text">Programacao</span></button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button id="ui_ux-tab" data-bs-toggle="tab" data-bs-target="#ui-ux" type="button" role="tab" aria-controls="ui-ux" aria-selected="false"><span class="filter-text">Contablidade e ficalizacao</span></button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button id="marketing-tab" data-bs-toggle="tab" data-bs-target="#marketing" type="button" role="tab" aria-controls="marketing" aria-selected="false"><span class="filter-text">Linguas</span></button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button id="business-tab" data-bs-toggle="tab" data-bs-target="#business" type="button" role="tab" aria-controls="business" aria-selected="false"><span class="filter-text">Soldadura industrial</span></button>
+                            </li>
+                        </ul>
                     </div>
                 </div>
-            </div>
-        </section>
 
-
-        <section class="mt-4">
-            <div style="margin-top: 20px;" class="banner-overlay-section">
-                <div class="container">
-                    <div class="row row--15">
-                        <div class="col-lg-12">
-
-                            <!-- TÍTULO DA SEÇÃO -->
-                            <div class="col-lg-12 text-center">
-                                <div style="margin-bottom: 20px;" class="mt--80">
-                                    <h5 class="rbt-brand-title w-600 mb-0">
-                                        Centros de formação <span class="theme-gradient">Recomendados</span>
-                                    </h5>
-
-                                    <p class="mt-2" style="max-width: 720px; margin: 0 auto; font-size: 15px;">
-                                        Centros indicados com base na qualidade do ensino, avaliações positivas
-                                        e relevância dos cursos oferecidos.
-                                    </p>
-
-
-                                </div>
-                            </div>
-
-                            <!-- SLIDER -->
-                            <div class="swiper team-slide-activation-4 rbt-arrow-between rbt-dot-bottom-center">
-                                <div class="swiper-wrapper">
-
-                                    {% for centro in centros %}
-                                    <div class="swiper-slide">
-                                        <div class="team team-style--bottom variation-2">
-
-                                            <!-- IMAGEM / BANNER -->
-                                            <div class="thumbnail" style="position: relative;">
-
-                                                <!-- LOGO DO CENTRO -->
-                                                <div style="position: absolute; top: 10px; right: 10px; z-index: 2;">
-                                                    <img src="{{ centro.perfil.imagem.url }}"
-                                                        alt="Logo {{ centro.nome }}" style="width: 90px; height: auto;">
-                                                </div>
-
-                                                <a href="{% url 'cursos_por_centro' centro.id %}">
-                                                    <img src="{{ centro.perfil.banner.url }}"
-                                                        alt="Banner {{ centro.nome }}" class="banner-padrao">
-                                                </a>
-                                            </div>
-
-                                            <!-- CONTEÚDO -->
-                                            <div class="content">
-                                                <div class="inner">
-
-                                                    <!-- NOME DO CENTRO -->
-                                                    <h4 class="title">
-                                                        <a href="{% url 'cursos_por_centro' centro.id %}">
-                                                            {{ centro.nome }}
-                                                        </a>
-                                                    </h4>
-
-                                                    <!-- LOCALIZAÇÃO -->
-                                                    <p class="designation">
-                                                        {{ centro.endereco }}
-                                                    </p>
-
-                                                    <!-- MÉTRICAS -->
-                                                    <p class="designation"
-                                                        style="margin-top: 5px; font-size: 14px; color: #111;">
-                                                        {{ centro.cursos.count }} cursos disponíveis ·
-                                                        {{ centro.seguidores.count }} seguidores
-                                                    </p>
-
-                                                    <!-- BOTÃO SEGUIR -->
-                                                    {% if aluno_logado %}
-                                                    {% if centro.id in centros_seguidos %}
-                                                    <a href="javascript:void(0);" class="seguir-centro-btn seguindo"
-                                                        style="padding: 6px 14px;
-                                                              background-color: #38a169;
-                                                              color: #fff;
-                                                              border-radius: 4px;
-                                                              font-size: 14px;
-                                                              text-decoration: none;
-                                                              display: inline-block;">
-                                                        Centro seguido
-                                                    </a>
-                                                    {% else %}
-                                                    <a href="javascript:void(0);" class="seguir-centro-btn"
-                                                        data-centro-id="{{ centro.id }}" style="padding: 6px 14px;
-                                                              background-color: #4f46e5;
-                                                              color: #fff;
-                                                              border-radius: 4px;
-                                                              font-size: 14px;
-                                                              text-decoration: none;
-                                                              display: inline-block;">
-                                                        Seguir centro
-                                                    </a>
-                                                    {% endif %}
-                                                    {% endif %}
-
-                                                </div>
-
-                                                <!-- ÍCONE -->
-                                                <div class="icon-right">
-                                                    <a href="{% url 'cursos_por_centro' centro.id %}">
-                                                        <i class="feather-arrow-right"></i>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% empty %}
-                                    <p style="text-align: center; font-size: 15px;">
-                                        Ainda não existem centros de formação cadastrados nesta categoria.
-                                    </p>
-                                    {% endfor %}
-
-                                </div>
-
-                                <!-- SETAS -->
-                                <div class="rbt-swiper-arrow rbt-arrow-left">
-                                    <div class="custom-overfolow">
-                                        <i class="rbt-icon feather-arrow-left"></i>
-                                        <i class="rbt-icon-top feather-arrow-left"></i>
-                                    </div>
-                                </div>
-
-                                <div class="rbt-swiper-arrow rbt-arrow-right">
-                                    <div class="custom-overfolow">
-                                        <i class="rbt-icon feather-arrow-right"></i>
-                                        <i class="rbt-icon-top feather-arrow-right"></i>
-                                    </div>
-                                </div>
-
-                                <div class="rbt-swiper-pagination"></div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
-
-        <section class="mt-4">
-            <div style="margin-top: 20px;" class="banner-overlay-section">
-                <div class="container">
-                    <div class="row row--15">
-                        <div class="col-lg-12">
-
-                            <!-- TÍTULO DA SEÇÃO -->
-                            <div class="col-lg-12 text-center">
-                                <div style="margin-bottom: 20px;" class="mt--80">
-                                    <h5 class="rbt-brand-title w-600 mb-0">
-                                        Centros de formação <span class="theme-gradient">perto de ti</span>
-                                    </h5>
-
-                                    <p class="mt-2" style="max-width: 720px; margin: 0 auto; font-size: 15px;">
-                                        Instituições localizadas próximas à sua região,
-                                        facilitando o acesso à formação presencial.
-                                    </p>
-
-
-                                </div>
-                            </div>
-
-                            <!-- SLIDER -->
-                            <div class="swiper team-slide-activation-4 rbt-arrow-between rbt-dot-bottom-center">
-                                <div class="swiper-wrapper">
-
-                                    {% for centro in centros %}
-                                    <div class="swiper-slide">
-                                        <div class="team team-style--bottom variation-2">
-
-                                            <!-- IMAGEM / BANNER -->
-                                            <div class="thumbnail" style="position: relative;">
-
-                                                <!-- LOGO DO CENTRO -->
-                                                <div style="position: absolute; top: 10px; right: 10px; z-index: 2;">
-                                                    <img src="{{ centro.perfil.imagem.url }}"
-                                                        alt="Logo {{ centro.nome }}" style="width: 90px; height: auto;">
-                                                </div>
-
-                                                <a href="{% url 'cursos_por_centro' centro.id %}">
-                                                    <img src="{{ centro.perfil.banner.url }}"
-                                                        alt="Banner {{ centro.nome }}" class="banner-padrao">
-                                                </a>
-                                            </div>
-
-                                            <!-- CONTEÚDO -->
-                                            <div class="content">
-                                                <div class="inner">
-
-                                                    <!-- NOME DO CENTRO -->
-                                                    <h4 class="title">
-                                                        <a href="{% url 'cursos_por_centro' centro.id %}">
-                                                            {{ centro.nome }}
-                                                        </a>
-                                                    </h4>
-
-                                                    <!-- LOCALIZAÇÃO -->
-                                                    <p class="designation">
-                                                        {{ centro.endereco }}
-                                                    </p>
-
-                                                    <!-- MÉTRICAS -->
-                                                    <p class="designation"
-                                                        style="margin-top: 5px; font-size: 14px; color: #111;">
-                                                        {{ centro.cursos.count }} cursos disponíveis ·
-                                                        {{ centro.seguidores.count }} seguidores
-                                                    </p>
-
-                                                    <!-- BOTÃO SEGUIR -->
-                                                    {% if aluno_logado %}
-                                                    {% if centro.id in centros_seguidos %}
-                                                    <a href="javascript:void(0);" class="seguir-centro-btn seguindo"
-                                                        style="padding: 6px 14px;
-                                                              background-color: #38a169;
-                                                              color: #fff;
-                                                              border-radius: 4px;
-                                                              font-size: 14px;
-                                                              text-decoration: none;
-                                                              display: inline-block;">
-                                                        Centro seguido
-                                                    </a>
-                                                    {% else %}
-                                                    <a href="javascript:void(0);" class="seguir-centro-btn"
-                                                        data-centro-id="{{ centro.id }}" style="padding: 6px 14px;
-                                                              background-color: #4f46e5;
-                                                              color: #fff;
-                                                              border-radius: 4px;
-                                                              font-size: 14px;
-                                                              text-decoration: none;
-                                                              display: inline-block;">
-                                                        Seguir centro
-                                                    </a>
-                                                    {% endif %}
-                                                    {% endif %}
-
-                                                </div>
-
-                                                <!-- ÍCONE -->
-                                                <div class="icon-right">
-                                                    <a href="{% url 'cursos_por_centro' centro.id %}">
-                                                        <i class="feather-arrow-right"></i>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% empty %}
-                                    <p style="text-align: center; font-size: 15px;">
-                                        Ainda não existem centros de formação cadastrados nesta categoria.
-                                    </p>
-                                    {% endfor %}
-
-                                </div>
-
-                                <!-- SETAS -->
-                                <div class="rbt-swiper-arrow rbt-arrow-left">
-                                    <div class="custom-overfolow">
-                                        <i class="rbt-icon feather-arrow-left"></i>
-                                        <i class="rbt-icon-top feather-arrow-left"></i>
-                                    </div>
-                                </div>
-
-                                <div class="rbt-swiper-arrow rbt-arrow-right">
-                                    <div class="custom-overfolow">
-                                        <i class="rbt-icon feather-arrow-right"></i>
-                                        <i class="rbt-icon-top feather-arrow-right"></i>
-                                    </div>
-                                </div>
-
-                                <div class="rbt-swiper-pagination"></div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
-
-
-
-        <div class="rbt-course-banner-area rbt-section-gap bg-color-white">
-            <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
-                        <div class="inner text-center">
-                            <!-- TÍTULO -->
-                            <div class="section-title mb--60">
-                                <h2 class="title color-white">
-                                    <span class="theme-gradient">Cursos em Vídeo</span> exclusivos da plataforma <br />
-                                    e obtenha seu certificado
-                                </h2>
+                        <div class="tab-content" id="rbt-myTabContent">
+                            <div class="tab-pane fade active show" id="development" role="tabpanel" aria-labelledby="development-tab">
+                                <div class="row g-5">
 
-                                <!-- BOTÕES -->
-                                <div class="rbt-button-group mt--30">
-                                    <a class="rbt-btn btn-gradient hover-icon-reverse" href="11-single-course.html#">
-                                        <span class="icon-reverse-wrapper">
-                                            <span class="btn-text">Explorar Cursos</span>
-                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        </span>
-                                    </a>
-
-                                    <a class="rbt-btn hover-icon-reverse btn-border color-white-off"
-                                        href="11-single-course.html#">
-                                        <span class="icon-reverse-wrapper">
-                                            <span class="btn-text">Lista de Contratados</span>
-                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        </span>
-                                    </a>
-                                </div>
-                            </div>
-
-                            <!-- CARDS DE RECURSOS -->
-                            <div class="row g-5 justify-content-center">
-
-                                <!-- Feature Box Único -->
-                                <div class="col-lg-6">
-                                    <div class="modern-course-features-box one-colume-grid h-100">
-                                        <div class="inner">
-                                            <div class="thumbnail">
-                                                <img src="{% static 'assets/images/Gemini_Generated_Image_ox1mvox1mvox1mvo.png' %}"
-                                                    alt="Imagem do Curso">
+                                    <!-- Start Single Course  -->
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <div class="rbt-card variation-04 rbt-hover">
+                                            <div class="rbt-card-img">
+                                                <a href="course-details.html">
+                                                    <img src="{% static 'assets/images/course/university-01.jpg' %}" alt="Card image">
+                                                </a>
                                             </div>
-                                            <div class="content">
-                                                <h2 class="title">Obtenha um Certificado</h2>
-                                                <p>Realize nossos cursos exclusivos em vídeo, aprenda na prática e
-                                                    receba um certificado reconhecido. Prazo de inscrição: 26 de
-                                                    setembro.</p>
-                                                <ul class="course-feature-list">
-                                                    <li>
-                                                        <div class="icon">
-                                                            <img src="{% static 'assets/images/icons/card-icon-11.png' %}"
-                                                                alt="Ícone">
-                                                        </div>
-                                                        <div class="feature-content">
-                                                            <h4 class="featute-title">5000+ <span>Certificados
-                                                                    Emitidos</span></h4>
-                                                        </div>
-                                                    </li>
-                                                    <li>
-                                                        <div class="icon">
-                                                            <img src="{% static 'assets/images/icons/card-icon-12.png' %}"
-                                                                alt="Ícone">
-                                                        </div>
-                                                        <div class="feature-content">
-                                                            <h4 class="featute-title">10K+ <span>Alunos do Zero à
-                                                                    Carreira</span></h4>
-                                                        </div>
-                                                    </li>
+                                            <div class="rbt-card-body">
+                                                <ul class="rbt-meta">
+                                                    <li><i class="feather-book"></i>07 Lessons</li>
+                                                    <li><i class="feather-users"></i>01 Students</li>
                                                 </ul>
+                                                <h4 class="rbt-card-title"><a href="course-details.html">Data Science & ML</a>
+                                                </h4>
+                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
+                                                <div class="rbt-review">
+                                                    <div class="rating">
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                    </div>
+                                                    <span class="rating-count"> (1 Reviews)</span>
+                                                </div>
+                                                <div class="rbt-card-bottom">
+                                                    <div class="rbt-price">
+                                                        <h6 class="current-price mb-0">$199</h6>
+                                                        <span class="off-price version-02">$590</span>
+                                                    </div>
+                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+                                    <!-- End Single Course  -->
+
+                                    <!-- Start Single Course  -->
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <div class="rbt-card variation-04 rbt-hover">
+                                            <div class="rbt-card-img">
+                                                <a href="course-details.html">
+                                                    <img src="{% static 'assets/images/course/university-02.jpg' %}" alt="Card image">
+                                                </a>
+                                            </div>
+                                            <div class="rbt-card-body">
+                                                <ul class="rbt-meta">
+                                                    <li><i class="feather-book"></i>07 Lessons</li>
+                                                    <li><i class="feather-users"></i>01 Students</li>
+                                                </ul>
+                                                <h4 class="rbt-card-title"><a href="course-details.html">English Course</a>
+                                                </h4>
+                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
+                                                <div class="rbt-review">
+                                                    <div class="rating">
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                    </div>
+                                                    <span class="rating-count"> (1 Reviews)</span>
+                                                </div>
+                                                <div class="rbt-card-bottom">
+                                                    <div class="rbt-price">
+                                                        <h6 class="current-price mb-0">$159</h6>
+                                                        <span class="off-price version-02">$490</span>
+                                                    </div>
+                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- End Single Course  -->
+
+                                    <!-- Start Single Course  -->
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <div class="rbt-card variation-04 rbt-hover">
+                                            <div class="rbt-card-img">
+                                                <a href="course-details.html">
+                                                    <img src="{% static 'assets/images/course/university-03.jpg' %}" alt="Card image">
+                                                </a>
+                                            </div>
+                                            <div class="rbt-card-body">
+                                                <ul class="rbt-meta">
+                                                    <li><i class="feather-book"></i>07 Lessons</li>
+                                                    <li><i class="feather-users"></i>01 Students</li>
+                                                </ul>
+                                                <h4 class="rbt-card-title"><a href="course-details.html">Graphic Design</a>
+                                                </h4>
+                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
+                                                <div class="rbt-review">
+                                                    <div class="rating">
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                    </div>
+                                                    <span class="rating-count"> (1 Reviews)</span>
+                                                </div>
+                                                <div class="rbt-card-bottom">
+                                                    <div class="rbt-price">
+                                                        <h6 class="current-price mb-0">$145</h6>
+                                                        <span class="off-price version-02">$308</span>
+                                                    </div>
+                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- End Single Course  -->
+
                                 </div>
-                                <!-- Fim Feature Box -->
-
                             </div>
-                            <!-- Fim Row de Cards -->
+                            <div class="tab-pane fade" id="ui-ux" role="tabpanel" aria-labelledby="ui_ux-tab">
+                                <div class="row g-5">
 
+                                    <!-- Start Single Course  -->
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <div class="rbt-card variation-04 rbt-hover">
+                                            <div class="rbt-card-img">
+                                                <a href="course-details.html">
+                                                    <img src="{% static 'assets/images/course/university-02.jpg' %}" alt="Card image">
+                                                </a>
+                                            </div>
+                                            <div class="rbt-card-body">
+                                                <ul class="rbt-meta">
+                                                    <li><i class="feather-book"></i>07 Lessons</li>
+                                                    <li><i class="feather-users"></i>01 Students</li>
+                                                </ul>
+                                                <h4 class="rbt-card-title"><a href="course-details.html">English Course</a>
+                                                </h4>
+                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
+                                                <div class="rbt-review">
+                                                    <div class="rating">
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                    </div>
+                                                    <span class="rating-count"> (1 Reviews)</span>
+                                                </div>
+                                                <div class="rbt-card-bottom">
+                                                    <div class="rbt-price">
+                                                        <h6 class="current-price mb-0">$159</h6>
+                                                        <span class="off-price version-02">$490</span>
+                                                    </div>
+                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- End Single Course  -->
+
+                                    <!-- Start Single Course  -->
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <div class="rbt-card variation-04 rbt-hover">
+                                            <div class="rbt-card-img">
+                                                <a href="course-details.html">
+                                                    <img src="{% static 'assets/images/course/university-01.jpg' %}" alt="Card image">
+                                                </a>
+                                            </div>
+                                            <div class="rbt-card-body">
+                                                <ul class="rbt-meta">
+                                                    <li><i class="feather-book"></i>07 Lessons</li>
+                                                    <li><i class="feather-users"></i>01 Students</li>
+                                                </ul>
+                                                <h4 class="rbt-card-title"><a href="course-details.html">Data Science & ML</a>
+                                                </h4>
+                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
+                                                <div class="rbt-review">
+                                                    <div class="rating">
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                    </div>
+                                                    <span class="rating-count"> (1 Reviews)</span>
+                                                </div>
+                                                <div class="rbt-card-bottom">
+                                                    <div class="rbt-price">
+                                                        <h6 class="current-price mb-0">$199</h6>
+                                                        <span class="off-price version-02">$590</span>
+                                                    </div>
+                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- End Single Course  -->
+
+                                    <!-- Start Single Course  -->
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <div class="rbt-card variation-04 rbt-hover">
+                                            <div class="rbt-card-img">
+                                                <a href="course-details.html">
+                                                    <img src="{% static 'assets/images/course/university-03.jpg' %}" alt="Card image">
+                                                </a>
+                                            </div>
+                                            <div class="rbt-card-body">
+                                                <ul class="rbt-meta">
+                                                    <li><i class="feather-book"></i>07 Lessons</li>
+                                                    <li><i class="feather-users"></i>01 Students</li>
+                                                </ul>
+                                                <h4 class="rbt-card-title"><a href="course-details.html">Graphic Design</a>
+                                                </h4>
+                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
+                                                <div class="rbt-review">
+                                                    <div class="rating">
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                    </div>
+                                                    <span class="rating-count"> (1 Reviews)</span>
+                                                </div>
+                                                <div class="rbt-card-bottom">
+                                                    <div class="rbt-price">
+                                                        <h6 class="current-price mb-0">$145</h6>
+                                                        <span class="off-price version-02">$308</span>
+                                                    </div>
+                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- End Single Course  -->
+
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="marketing" role="tabpanel" aria-labelledby="marketing-tab">
+                                <div class="row g-5">
+
+                                    <!-- Start Single Course  -->
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <div class="rbt-card variation-04 rbt-hover">
+                                            <div class="rbt-card-img">
+                                                <a href="course-details.html">
+                                                    <img src="{% static 'assets/images/course/university-02.jpg' %}" alt="Card image">
+                                                </a>
+                                            </div>
+                                            <div class="rbt-card-body">
+                                                <ul class="rbt-meta">
+                                                    <li><i class="feather-book"></i>07 Lessons</li>
+                                                    <li><i class="feather-users"></i>01 Students</li>
+                                                </ul>
+                                                <h4 class="rbt-card-title"><a href="course-details.html">English Course</a>
+                                                </h4>
+                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
+                                                <div class="rbt-review">
+                                                    <div class="rating">
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                    </div>
+                                                    <span class="rating-count"> (1 Reviews)</span>
+                                                </div>
+                                                <div class="rbt-card-bottom">
+                                                    <div class="rbt-price">
+                                                        <h6 class="current-price mb-0">$159</h6>
+                                                        <span class="off-price version-02">$490</span>
+                                                    </div>
+                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- End Single Course  -->
+
+                                    <!-- Start Single Course  -->
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <div class="rbt-card variation-04 rbt-hover">
+                                            <div class="rbt-card-img">
+                                                <a href="course-details.html">
+                                                    <img src="{% static 'assets/images/course/university-03.jpg' %}" alt="Card image">
+                                                </a>
+                                            </div>
+                                            <div class="rbt-card-body">
+                                                <ul class="rbt-meta">
+                                                    <li><i class="feather-book"></i>07 Lessons</li>
+                                                    <li><i class="feather-users"></i>01 Students</li>
+                                                </ul>
+                                                <h4 class="rbt-card-title"><a href="course-details.html">Graphic Design</a>
+                                                </h4>
+                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
+                                                <div class="rbt-review">
+                                                    <div class="rating">
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                    </div>
+                                                    <span class="rating-count"> (1 Reviews)</span>
+                                                </div>
+                                                <div class="rbt-card-bottom">
+                                                    <div class="rbt-price">
+                                                        <h6 class="current-price mb-0">$145</h6>
+                                                        <span class="off-price version-02">$308</span>
+                                                    </div>
+                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- End Single Course  -->
+
+                                    <!-- Start Single Course  -->
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <div class="rbt-card variation-04 rbt-hover">
+                                            <div class="rbt-card-img">
+                                                <a href="course-details.html">
+                                                    <img src="{% static 'assets/images/course/university-01.jpg' %}" alt="Card image">
+                                                </a>
+                                            </div>
+                                            <div class="rbt-card-body">
+                                                <ul class="rbt-meta">
+                                                    <li><i class="feather-book"></i>07 Lessons</li>
+                                                    <li><i class="feather-users"></i>01 Students</li>
+                                                </ul>
+                                                <h4 class="rbt-card-title"><a href="course-details.html">Data Science & ML</a>
+                                                </h4>
+                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
+                                                <div class="rbt-review">
+                                                    <div class="rating">
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                    </div>
+                                                    <span class="rating-count"> (1 Reviews)</span>
+                                                </div>
+                                                <div class="rbt-card-bottom">
+                                                    <div class="rbt-price">
+                                                        <h6 class="current-price mb-0">$199</h6>
+                                                        <span class="off-price version-02">$590</span>
+                                                    </div>
+                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- End Single Course  -->
+
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="business" role="tabpanel" aria-labelledby="business-tab">
+                                <div class="row g-5">
+
+                                    <!-- Start Single Course  -->
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <div class="rbt-card variation-04 rbt-hover">
+                                            <div class="rbt-card-img">
+                                                <a href="course-details.html">
+                                                    <img src="{% static 'assets/images/course/university-01.jpg' %}" alt="Card image">
+                                                </a>
+                                            </div>
+                                            <div class="rbt-card-body">
+                                                <ul class="rbt-meta">
+                                                    <li><i class="feather-book"></i>07 Lessons</li>
+                                                    <li><i class="feather-users"></i>01 Students</li>
+                                                </ul>
+                                                <h4 class="rbt-card-title"><a href="course-details.html">Data Science & ML</a>
+                                                </h4>
+                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
+                                                <div class="rbt-review">
+                                                    <div class="rating">
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                    </div>
+                                                    <span class="rating-count"> (1 Reviews)</span>
+                                                </div>
+                                                <div class="rbt-card-bottom">
+                                                    <div class="rbt-price">
+                                                        <h6 class="current-price mb-0">$199</h6>
+                                                        <span class="off-price version-02">$590</span>
+                                                    </div>
+                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- End Single Course  -->
+
+                                    <!-- Start Single Course  -->
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <div class="rbt-card variation-04 rbt-hover">
+                                            <div class="rbt-card-img">
+                                                <a href="course-details.html">
+                                                    <img src="{% static 'assets/images/course/university-03.jpg' %}" alt="Card image">
+                                                </a>
+                                            </div>
+                                            <div class="rbt-card-body">
+                                                <ul class="rbt-meta">
+                                                    <li><i class="feather-book"></i>07 Lessons</li>
+                                                    <li><i class="feather-users"></i>01 Students</li>
+                                                </ul>
+                                                <h4 class="rbt-card-title"><a href="course-details.html">Graphic Design</a>
+                                                </h4>
+                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
+                                                <div class="rbt-review">
+                                                    <div class="rating">
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                    </div>
+                                                    <span class="rating-count"> (1 Reviews)</span>
+                                                </div>
+                                                <div class="rbt-card-bottom">
+                                                    <div class="rbt-price">
+                                                        <h6 class="current-price mb-0">$145</h6>
+                                                        <span class="off-price version-02">$308</span>
+                                                    </div>
+                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- End Single Course  -->
+
+                                    <!-- Start Single Course  -->
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        <div class="rbt-card variation-04 rbt-hover">
+                                            <div class="rbt-card-img">
+                                                <a href="course-details.html">
+                                                    <img src="{% static 'assets/images/course/university-02.jpg' %}" alt="Card image">
+                                                </a>
+                                            </div>
+                                            <div class="rbt-card-body">
+                                                <ul class="rbt-meta">
+                                                    <li><i class="feather-book"></i>07 Lessons</li>
+                                                    <li><i class="feather-users"></i>01 Students</li>
+                                                </ul>
+                                                <h4 class="rbt-card-title"><a href="course-details.html">English Course</a>
+                                                </h4>
+                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
+                                                <div class="rbt-review">
+                                                    <div class="rating">
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                    </div>
+                                                    <span class="rating-count"> (1 Reviews)</span>
+                                                </div>
+                                                <div class="rbt-card-bottom">
+                                                    <div class="rbt-price">
+                                                        <h6 class="current-price mb-0">$159</h6>
+                                                        <span class="off-price version-02">$490</span>
+                                                    </div>
+                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- End Single Course  -->
+
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
+
+
+        <div style="margin-top: 30px;" class="banner-overlay-section">
+            <div class="container">
+                <div class="row mb--30">
+                    <div class="col-lg-12">
+                        <div class="section-title text-center">
+                        <h2 class="title w-600">
+                            Encontre os melhores <br>
+                    <span class="theme-gradient">centros de formação para o seu futuro.</span>
+                    </h2>
+                    </div>
+
+                    </div>
+                </div>
+                <div class="row row--15">
+                    <div class="col-lg-12">
+                        <div class="swiper team-slide-activation-4 rbt-arrow-between rbt-dot-bottom-center">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-04.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">Aaron Griffe</a></h4>
+                                                <p class="designation">Depertment Head</p>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-05.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">Aaron Griffe</a></h4>
+                                                <p class="designation">Teacher</p>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-06.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">Joe Bidden</a></h4>
+                                                <p class="designation">Depertment Head</p>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-03.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">John Due</a></h4>
+                                                <p class="designation">Marketing SR</p>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-02.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">Joe Bidden</a></h4>
+                                                <p class="designation">Depertment Head</p>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-01.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">Jannen</a></h4>
+                                                <p class="designation">App Developer</p>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rbt-swiper-arrow rbt-arrow-left">
+                                <div class="custom-overfolow">
+                                    <i class="rbt-icon feather-arrow-left"></i>
+                                    <i class="rbt-icon-top feather-arrow-left"></i>
+                                </div>
+                            </div>
+
+                            <div class="rbt-swiper-arrow rbt-arrow-right">
+                                <div class="custom-overfolow">
+                                    <i class="rbt-icon feather-arrow-right"></i>
+                                    <i class="rbt-icon-top feather-arrow-right"></i>
+                                </div>
+                            </div>
+
+
+                            <div class="rbt-swiper-pagination"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        
 
         <div class="rbt-team-area bg-color-white rbt-section-gap">
             <div class="container">
@@ -2243,9 +1639,7 @@
                 </div>
             </div>
         </div>
-
-
-
+        
 
 
 
@@ -2597,107 +1991,8 @@
 
 
 
-        <div class="rbt-about-area about-style-1 bg-color-white rbt-section-gap">
-            <div class="container">
-                <div class="row g-5 align-items-center">
-                    <div class="col-lg-6">
-                        <div class="content">
-                            <img src="{% static 'assets/images/logo/Eduka-removebg-preview.png' %}" alt="EdukaAngola">
-                        </div>
-                    </div>
-                    <div class="col-lg-6" data-sal="slide-up" data-sal-duration="700">
-                        <div class="inner pl--50 pl_sm--5">
-                            <div class="section-title text-start">
-                                <span class="subtitle bg-primary-opacity">{% trans 'Sobre a EdukaAngola' %}</span>
-                                <h2 class="title">{% trans 'O que é a EdukaAngola?' %}</h2>
-                                <p class="description mt--20">
-                                    {% trans 'EdukaAngola é uma plataforma educacional angolana criada para conectar
-                                    estudantes, profissionais e instituições de ensino a cursos práticos, acessíveis e
-                                    de qualidade. O nosso objetivo é facilitar o aprendizado, promover o desenvolvimento
-                                    profissional e contribuir para o crescimento educacional e tecnológico de Angola.'
-                                    %}
-                                </p>
-                                <div class="read-more-btn mt--40">
-                                    <a class="rbt-btn btn-gradient radius-round rbt-marquee-btn marquee-text-y"
-                                        href="#">
-                                        <span data-text="{% trans 'Saiba Mais Sobre Nós' %}">
-                                            {% trans 'Saiba Mais Sobre Nós' %}
-                                        </span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
 
-
-        <div class="rbt-about-area bg-color-white rbt-section-gap">
-            <div class="container">
-                {% if sobre and sobre.video_explicacao %}
-                <div class="content radius-6 overflow-hidden video-sobre-container">
-                    <video class="video-sobre" controls autoplay muted loop>
-                        <source src="{{ sobre.video_explicacao.url }}" type="video/mp4">
-                        {% trans 'Seu navegador não suporta a tag de vídeo.' %}
-                    </video>
-                </div>
-                {% else %}
-                <p style="color: white;">{% trans 'Vídeo ainda não disponível.' %}</p>
-                {% endif %}
-            </div>
-        </div>
-
-        <style>
-            .video-sobre-container {
-                margin: 0 auto;
-                max-width: 800px;
-                padding: 0 20px;
-            }
-
-            .video-sobre {
-                width: 100%;
-                aspect-ratio: 16 / 9;
-                height: auto;
-                border-radius: 12px;
-                object-fit: cover;
-            }
-
-            /* Estilos para garantir que todos os cards tenham altura uniforme */
-            .rbt-card.variation-04 {
-                transition: transform 0.3s ease;
-            }
-
-            .rbt-card.variation-04:hover {
-                transform: translateY(-5px);
-            }
-
-            .rbt-card-img {
-                overflow: hidden;
-            }
-
-            .rbt-card-img img {
-                transition: transform 0.3s ease;
-            }
-
-            .rbt-card.variation-04:hover .rbt-card-img img {
-                transform: scale(1.05);
-            }
-
-            /* Ajusta a seção do vídeo para diminuir o espaçamento superior e inferior */
-            .rbt-about-area.bg-color-darker {
-                padding-top: 32px;
-                /* antes era maior, ex: 80px */
-                padding-bottom: 40px;
-                /* ajusta o espaçamento inferior */
-            }
-
-            /* Ajusta o container do vídeo para aproximar ainda mais do conteúdo acima */
-            .video-sobre-container {
-                margin-top: 10px;
-                /* diminui o espaço acima do vídeo */
-            }
-        </style>
         {% include 'include/footer.html' %}
 
         {% include 'include/java.html' %}
@@ -2871,9 +2166,9 @@
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const swiper = new Swiper('.cursos-destaque', {
-                    slidesPerView: 2,           // padrão
+                    slidesPerView: 2,
                     spaceBetween: 20,
-                    loop: {{ cursos| length }} > 2 ? true : false, // evita travar quando há poucos cursos
+                    loop: {{ cursos| length }} > 2, // evita travar quando há poucos cursos
                 autoplay: {
                 delay: 4000,
                 disableOnInteraction: false,
@@ -2882,15 +2177,14 @@
                 nextEl: '.btn-next-destaque',
                 prevEl: '.btn-prev-destaque',
             },
-                // 1 card no celular, 2 no tablet/desktop
                 breakpoints: {
-                320: { slidesPerView: 1 },  // celulares
-                768: { slidesPerView: 2 },  // tablets
-                1024: { slidesPerView: 2 }   // desktop
+                320: { slidesPerView: 1 },
+                768: { slidesPerView: 2 },
+                1024: { slidesPerView: 2 }
             },
-                watchOverflow: true           // desativa controles se não houver slides suficientes
-  });
-});
+                watchOverflow: true
+                });
+            });
         </script>
 
 

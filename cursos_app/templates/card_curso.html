@@ -1,351 +1,150 @@
-{% load static %}
-<!-- Na seção de Cursos Especiais, substitua as linhas que usam include pelo código inline: -->
+<div style="margin-bottom: 10px;" class="mt--80">
+            <div class="rbt-brand-title-wrap">
+                <h5 class="rbt-brand-title w-600 text-center mb-0">
+                    Centros de Formação <span class="theme-gradient">Parceiros</span> da EdukaAngola
+                </h5>
 
-{% if cursos_destaque %}
-<div class="tab-pane fade active show" id="destaque" role="tabpanel" aria-labelledby="destaque-tab">
-    <div class="row g-4">
-        {% for curso in cursos_destaque|slice:":8" %}
-        <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-            <div class="rbt-card variation-04 rbt-hover">
-                <div class="rbt-card-img">
-                    <a href="{% url 'curso_detalhe' id=curso.id %}">
-                        {% if curso.imagem %}
-                        <img src="{{ curso.imagem.url }}" alt="{{curso.titulo}}" style="height: 180px; object-fit: cover;">
-                        {% else %}
-                        <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{curso.titulo}}" style="height: 180px; object-fit: cover;">
-                        {% endif %}
-                    </a>
-                </div>
-                <div class="rbt-card-body">
-                    <ul class="rbt-meta">
-                        <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
-                        <li><i class="feather-users"></i>{{ curso.vagas }} Vagas</li>
-                    </ul>
-                    <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a></h4>
-                    <p class="rbt-card-text">{{curso.descricao|truncatechars:100}}</p>
-                    <div class="rbt-review">
-                        <div class="rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
+            </div>
+        </div>
+
+
+
+        <section class="mt-4">
+            <div style="margin-top: 100px;" class="banner-overlay-section">
+                <div class="container">
+                    <div class="row row--15">
+                        <div class="col-lg-12">
+
+                            <!-- TÍTULO DA SEÇÃO -->
+
+                            <!-- TÍTULO DA SEÇÃO ORIGIN -->
+                            <div class="col-lg-12 text-center">
+                                <div style="margin-bottom: 20px;" class="mt--80">
+                                    <h5 class="rbt-brand-title w-600 mb-0">
+                                        Centros em <span class="theme-gradient">Destaque</span>
+                                    </h5>
+
+                                    <p class="mt-2" style="max-width: 720px; margin: 0 auto; font-size: 15px;">
+                                        Instituições de ensino que se destacam pela qualidade da formação,
+                                        reconhecimento no mercado e elevada procura por parte dos estudantes.
+                                    </p>
+
+
+                                </div>
+                            </div>
+
+                            <!-- SLIDER -->
+                            <div class="swiper team-slide-activation-4 rbt-arrow-between rbt-dot-bottom-center">
+                                <div class="swiper-wrapper">
+
+                                    {% for centro in centros %}
+                                    <div class="swiper-slide">
+                                        <div class="team team-style--bottom variation-2">
+
+                                            <!-- IMAGEM / BANNER -->
+                                            <div class="thumbnail" style="position: relative;">
+
+                                                <!-- LOGO DO CENTRO -->
+                                                <div style="position: absolute; top: 10px; right: 10px; z-index: 2;">
+                                                    <img src="{{ centro.perfil.imagem.url }}"
+                                                        alt="Logo {{ centro.nome }}" style="width: 90px; height: auto;">
+                                                </div>
+
+                                                <a href="{% url 'cursos_por_centro' centro.id %}">
+                                                    <img src="{{ centro.perfil.banner.url }}"
+                                                        alt="Banner {{ centro.nome }}" class="banner-padrao">
+                                                </a>
+                                            </div>
+
+                                            <!-- CONTEÚDO -->
+                                            <div class="content">
+                                                <div class="inner">
+
+                                                    <!-- NOME DO CENTRO -->
+                                                    <h4 class="title">
+                                                        <a href="{% url 'cursos_por_centro' centro.id %}">
+                                                            {{ centro.nome }}
+                                                        </a>
+                                                    </h4>
+
+                                                    <!-- LOCALIZAÇÃO -->
+                                                    <p class="designation">
+                                                        {{ centro.endereco }}
+                                                    </p>
+
+                                                    <!-- MÉTRICAS -->
+                                                    <p class="designation"
+                                                        style="margin-top: 5px; font-size: 14px; color: #111;">
+                                                        {{ centro.cursos.count }} cursos disponíveis ·
+                                                        {{ centro.seguidores.count }} seguidores
+                                                    </p>
+
+                                                    <!-- BOTÃO SEGUIR -->
+                                                    {% if aluno_logado %}
+                                                    {% if centro.id in centros_seguidos %}
+                                                    <a href="javascript:void(0);" class="seguir-centro-btn seguindo"
+                                                        style="padding: 6px 14px;
+                                                              background-color: #38a169;
+                                                              color: #fff;
+                                                              border-radius: 4px;
+                                                              font-size: 14px;
+                                                              text-decoration: none;
+                                                              display: inline-block;">
+                                                        Centro seguido
+                                                    </a>
+                                                    {% else %}
+                                                    <a href="javascript:void(0);" class="seguir-centro-btn"
+                                                        data-centro-id="{{ centro.id }}" style="padding: 6px 14px;
+                                                              background-color: #4f46e5;
+                                                              color: #fff;
+                                                              border-radius: 4px;
+                                                              font-size: 14px;
+                                                              text-decoration: none;
+                                                              display: inline-block;">
+                                                        Seguir centro
+                                                    </a>
+                                                    {% endif %}
+                                                    {% endif %}
+
+                                                </div>
+
+                                                <!-- ÍCONE -->
+                                                <div class="icon-right">
+                                                    <a href="{% url 'cursos_por_centro' centro.id %}">
+                                                        <i class="feather-arrow-right"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <p style="text-align: center; font-size: 15px;">
+                                        Ainda não existem centros de formação cadastrados nesta categoria.
+                                    </p>
+                                    {% endfor %}
+
+                                </div>
+
+                                <!-- SETAS -->
+                                <div class="rbt-swiper-arrow rbt-arrow-left">
+                                    <div class="custom-overfolow">
+                                        <i class="rbt-icon feather-arrow-left"></i>
+                                        <i class="rbt-icon-top feather-arrow-left"></i>
+                                    </div>
+                                </div>
+
+                                <div class="rbt-swiper-arrow rbt-arrow-right">
+                                    <div class="custom-overfolow">
+                                        <i class="rbt-icon feather-arrow-right"></i>
+                                        <i class="rbt-icon-top feather-arrow-right"></i>
+                                    </div>
+                                </div>
+
+                                <div class="rbt-swiper-pagination"></div>
+                            </div>
+
                         </div>
-                        <span class="rating-count">({{ curso.vagas }} Vagas)</span>
-                    </div>
-                    <div class="rbt-card-bottom">
-                        <div class="rbt-price">
-                            <h6 class="current-price mb-0">kz {{curso.preco}}</h6>
-                            {% if curso.preco_original %}
-                            <span class="off-price version-02">kz {{curso.preco_original}}</span>
-                            {% endif %}
-                        </div>
-                        <a class="rbt-btn-link color-primary" href="{% url 'curso_detalhe' id=curso.id %}">Ver Curso<i class="feather-arrow-right"></i></a>
                     </div>
                 </div>
             </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
-
-{% if cursos_recentes %}
-<div class="tab-pane fade" id="recentes" role="tabpanel" aria-labelledby="recentes-tab">
-    <div class="row g-4">
-        {% for curso in cursos_recentes|slice:":8" %}
-        <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-            <div class="rbt-card variation-04 rbt-hover">
-                <div class="rbt-card-img">
-                    <a href="{% url 'curso_detalhe' id=curso.id %}">
-                        {% if curso.imagem %}
-                        <img src="{{ curso.imagem.url }}" alt="{{curso.titulo}}" style="height: 180px; object-fit: cover;">
-                        {% else %}
-                        <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{curso.titulo}}" style="height: 180px; object-fit: cover;">
-                        {% endif %}
-                    </a>
-                </div>
-                <div class="rbt-card-body">
-                    <ul class="rbt-meta">
-                        <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
-                        <li><i class="feather-users"></i>{{ curso.vagas }} Vagas</li>
-                    </ul>
-                    <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a></h4>
-                    <p class="rbt-card-text">{{curso.descricao|truncatechars:100}}</p>
-                    <div class="rbt-review">
-                        <div class="rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <span class="rating-count">({{ curso.vagas }} Vagas)</span>
-                    </div>
-                    <div class="rbt-card-bottom">
-                        <div class="rbt-price">
-                            <h6 class="current-price mb-0">kz {{curso.preco}}</h6>
-                            {% if curso.preco_original %}
-                            <span class="off-price version-02">kz {{curso.preco_original}}</span>
-                            {% endif %}
-                        </div>
-                        <a class="rbt-btn-link color-primary" href="{% url 'curso_detalhe' id=curso.id %}">Ver Curso<i class="feather-arrow-right"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
-
-{% if cursos_gratuitos %}
-<div class="tab-pane fade" id="gratuitos" role="tabpanel" aria-labelledby="gratuitos-tab">
-    <div class="row g-4">
-        {% for curso in cursos_gratuitos|slice:":8" %}
-        <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-            <div class="rbt-card variation-04 rbt-hover">
-                <div class="rbt-card-img">
-                    <a href="{% url 'curso_detalhe' id=curso.id %}">
-                        {% if curso.imagem %}
-                        <img src="{{ curso.imagem.url }}" alt="{{curso.titulo}}" style="height: 180px; object-fit: cover;">
-                        {% else %}
-                        <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{curso.titulo}}" style="height: 180px; object-fit: cover;">
-                        {% endif %}
-                    </a>
-                </div>
-                <div class="rbt-card-body">
-                    <ul class="rbt-meta">
-                        <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
-                        <li><i class="feather-users"></i>{{ curso.vagas }} Vagas</li>
-                    </ul>
-                    <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a></h4>
-                    <p class="rbt-card-text">{{curso.descricao|truncatechars:100}}</p>
-                    <div class="rbt-review">
-                        <div class="rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <span class="rating-count">({{ curso.vagas }} Vagas)</span>
-                    </div>
-                    <div class="rbt-card-bottom">
-                        <div class="rbt-price">
-                            <h6 class="current-price mb-0">
-                                {% if curso.preco == 0 %}
-                                <span class="text-success">Grátis</span>
-                                {% else %}
-                                kz {{curso.preco}}
-                                {% endif %}
-                            </h6>
-                            {% if curso.preco_original and curso.preco != 0 %}
-                            <span class="off-price version-02">kz {{curso.preco_original}}</span>
-                            {% endif %}
-                        </div>
-                        <a class="rbt-btn-link color-primary" href="{% url 'curso_detalhe' id=curso.id %}">Ver Curso<i class="feather-arrow-right"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
-
-{% if cursos_mais_inscritos %}
-<div class="tab-pane fade" id="inscritos" role="tabpanel" aria-labelledby="inscritos-tab">
-    <div class="row g-4">
-        {% for curso in cursos_mais_inscritos|slice:":8" %}
-        <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-            <div class="rbt-card variation-04 rbt-hover">
-                <div class="rbt-card-img">
-                    <a href="{% url 'curso_detalhe' id=curso.id %}">
-                        {% if curso.imagem %}
-                        <img src="{{ curso.imagem.url }}" alt="{{curso.titulo}}" style="height: 180px; object-fit: cover;">
-                        {% else %}
-                        <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{curso.titulo}}" style="height: 180px; object-fit: cover;">
-                        {% endif %}
-                    </a>
-                </div>
-                <div class="rbt-card-body">
-                    <ul class="rbt-meta">
-                        <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
-                        <li><i class="feather-users"></i>{{ curso.vagas }} Vagas</li>
-                    </ul>
-                    <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a></h4>
-                    <p class="rbt-card-text">{{curso.descricao|truncatechars:100}}</p>
-                    <div class="rbt-review">
-                        <div class="rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <span class="rating-count">({{ curso.vagas }} Vagas)</span>
-                    </div>
-                    <div class="rbt-card-bottom">
-                        <div class="rbt-price">
-                            <h6 class="current-price mb-0">kz {{curso.preco}}</h6>
-                            {% if curso.preco_original %}
-                            <span class="off-price version-02">kz {{curso.preco_original}}</span>
-                            {% endif %}
-                        </div>
-                        <a class="rbt-btn-link color-primary" href="{% url 'curso_detalhe' id=curso.id %}">Ver Curso<i class="feather-arrow-right"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
-
-{% if cursos_recomendados %}
-<div class="tab-pane fade" id="recomendados" role="tabpanel" aria-labelledby="recomendados-tab">
-    <div class="row g-4">
-        {% for curso in cursos_recomendados|slice:":8" %}
-        <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-            <div class="rbt-card variation-04 rbt-hover">
-                <div class="rbt-card-img">
-                    <a href="{% url 'curso_detalhe' id=curso.id %}">
-                        {% if curso.imagem %}
-                        <img src="{{ curso.imagem.url }}" alt="{{curso.titulo}}" style="height: 180px; object-fit: cover;">
-                        {% else %}
-                        <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{curso.titulo}}" style="height: 180px; object-fit: cover;">
-                        {% endif %}
-                    </a>
-                </div>
-                <div class="rbt-card-body">
-                    <ul class="rbt-meta">
-                        <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
-                        <li><i class="feather-users"></i>{{ curso.vagas }} Vagas</li>
-                    </ul>
-                    <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a></h4>
-                    <p class="rbt-card-text">{{curso.descricao|truncatechars:100}}</p>
-                    <div class="rbt-review">
-                        <div class="rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <span class="rating-count">({{ curso.vagas }} Vagas)</span>
-                    </div>
-                    <div class="rbt-card-bottom">
-                        <div class="rbt-price">
-                            <h6 class="current-price mb-0">kz {{curso.preco}}</h6>
-                            {% if curso.preco_original %}
-                            <span class="off-price version-02">kz {{curso.preco_original}}</span>
-                            {% endif %}
-                        </div>
-                        <a class="rbt-btn-link color-primary" href="{% url 'curso_detalhe' id=curso.id %}">Ver Curso<i class="feather-arrow-right"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
-
-{% if cursos_promocao %}
-<div class="tab-pane fade" id="promocao" role="tabpanel" aria-labelledby="promocao-tab">
-    <div class="row g-4">
-        {% for curso in cursos_promocao|slice:":8" %}
-        <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-            <div class="rbt-card variation-04 rbt-hover">
-                <div class="rbt-card-img">
-                    <a href="{% url 'curso_detalhe' id=curso.id %}">
-                        {% if curso.imagem %}
-                        <img src="{{ curso.imagem.url }}" alt="{{curso.titulo}}" style="height: 180px; object-fit: cover;">
-                        {% else %}
-                        <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{curso.titulo}}" style="height: 180px; object-fit: cover;">
-                        {% endif %}
-                    </a>
-                </div>
-                <div class="rbt-card-body">
-                    <ul class="rbt-meta">
-                        <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
-                        <li><i class="feather-users"></i>{{ curso.vagas }} Vagas</li>
-                    </ul>
-                    <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a></h4>
-                    <p class="rbt-card-text">{{curso.descricao|truncatechars:100}}</p>
-                    <div class="rbt-review">
-                        <div class="rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <span class="rating-count">({{ curso.vagas }} Vagas)</span>
-                    </div>
-                    <div class="rbt-card-bottom">
-                        <div class="rbt-price">
-                            <h6 class="current-price mb-0">kz {{curso.preco}}</h6>
-                            {% if curso.preco_original %}
-                            <span class="off-price version-02">kz {{curso.preco_original}}</span>
-                            {% endif %}
-                        </div>
-                        <a class="rbt-btn-link color-primary" href="{% url 'curso_detalhe' id=curso.id %}">Ver Curso<i class="feather-arrow-right"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
-
-{% if cursos_proximos %}
-<div class="tab-pane fade" id="proximos" role="tabpanel" aria-labelledby="proximos-tab">
-    <div class="row g-4">
-        {% for curso in cursos_proximos|slice:":8" %}
-        <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-            <div class="rbt-card variation-04 rbt-hover">
-                <div class="rbt-card-img">
-                    <a href="{% url 'curso_detalhe' id=curso.id %}">
-                        {% if curso.imagem %}
-                        <img src="{{ curso.imagem.url }}" alt="{{curso.titulo}}" style="height: 180px; object-fit: cover;">
-                        {% else %}
-                        <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{curso.titulo}}" style="height: 180px; object-fit: cover;">
-                        {% endif %}
-                    </a>
-                </div>
-                <div class="rbt-card-body">
-                    <ul class="rbt-meta">
-                        <li><i class="feather-book"></i>{{ curso.carga_horaria }}h</li>
-                        <li><i class="feather-users"></i>{{ curso.vagas }} Vagas</li>
-                    </ul>
-                    <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a></h4>
-                    <p class="rbt-card-text">{{curso.descricao|truncatechars:100}}</p>
-                    <div class="rbt-review">
-                        <div class="rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <span class="rating-count">({{ curso.vagas }} Vagas)</span>
-                    </div>
-                    <div class="rbt-card-bottom">
-                        <div class="rbt-price">
-                            <h6 class="current-price mb-0">kz {{curso.preco}}</h6>
-                            {% if curso.preco_original %}
-                            <span class="off-price version-02">kz {{curso.preco_original}}</span>
-                            {% endif %}
-                        </div>
-                        <a class="rbt-btn-link color-primary" href="{% url 'curso_detalhe' id=curso.id %}">Ver Curso<i class="feather-arrow-right"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
+        </section>

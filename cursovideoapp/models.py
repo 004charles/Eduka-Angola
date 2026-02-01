@@ -57,7 +57,7 @@ class Curso_video(models.Model):
         return self.titulo
 
 class Aula(models.Model):
-    curso = models.ForeignKey(Curso_video, on_delete=models.CASCADE, related_name="aulas")
+    curso = models.ForeignKey(Curso_video, on_delete=models.CASCADE, related_name="aulas", null=True)
     titulo = models.CharField(max_length=200)
     video = models.FileField(
         upload_to="cursos/aulas/", 
@@ -85,8 +85,8 @@ class Aula(models.Model):
         return f"{self.ordem} - {self.titulo}"
 
 class ProgressoAula(models.Model):
-    aluno = models.ForeignKey('usuarios.Aluno', on_delete=models.CASCADE)
-    aula = models.ForeignKey(Aula, on_delete=models.CASCADE)
+    aluno = models.ForeignKey('usuarios.Aluno', on_delete=models.CASCADE, null=True)
+    aula = models.ForeignKey(Aula, on_delete=models.CASCADE, null=True)
     concluida = models.BooleanField(default=False)
     tempo_assistido = models.PositiveIntegerField(default=0, help_text="Tempo assistido em segundos")
     data_ultimo_acesso = models.DateTimeField(auto_now=True)
@@ -100,3 +100,17 @@ class ProgressoAula(models.Model):
         return 0
 
 
+
+class FavoritoCursoVideo(models.Model):
+    aluno = models.ForeignKey('usuarios.Aluno', on_delete=models.CASCADE, related_name='favoritos_video')
+    curso = models.ForeignKey(Curso_video, on_delete=models.CASCADE, related_name='favoritado_por')
+    data_adicao = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Favorito Curso Vídeo'
+        verbose_name_plural = 'Favoritos Cursos Vídeo'
+        unique_together = ('aluno', 'curso')
+        ordering = ['-data_adicao']
+
+    def __str__(self):
+        return f"{self.aluno.nome} - {self.curso.titulo}"

@@ -36,149 +36,63 @@
     <!-- Start Header Area -->
     {% include 'include/header.html' %}
 
-    <!-- Mobile Menu Section -->
-
-    <!-- Start Side Vav -->
-
-    <!-- End Side Vav -->
-    <a class="close_side_menu" href="javascript:void(0);"></a>
-
-    <!-- Start Banner Area -->
-    <div class="rbt-banner-area rbt-banner-1 variation-2 height-750">
-        <div class="container">
-            <div class="row justify-content-between align-items-center">
-                <div class="col-lg-8">
-                    <div class="content">
-                        <div class="inner">
-                            <div class="rbt-new-badge rbt-new-badge-one">
-                                <span class="rbt-new-badge-icon">🏆</span> Cursos Certificados e Atualizados
-                            </div>
-
-                            <h1 class="title">
-                                Encontre os <span class="color-primary">Melhores Cursos</span>
-                                para Desenvolver as Suas Competências
-                            </h1>
-
-                            <p class="description">
-                                Explore uma ampla variedade de cursos técnicos, profissionais e académicos,
-                                ministrados por centros de formação e especialistas qualificados em Angola.
-                                Aprenda no seu ritmo e avance na sua carreira.
-                            </p>
-
-                            <div class="slider-btn">
-                                <a class="rbt-btn btn-gradient hover-icon-reverse" href="#">
-                                    <span class="icon-reverse-wrapper">
-                                        <span class="btn-text">Explorar Cursos</span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                    </span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-                <div class="col-lg-4">
-                    <div class="content">
-                        <div class="banner-card pb--60 swiper rbt-dot-bottom-center banner-swiper-active">
-                            <div class="swiper-wrapper">
-                                {% for curso in cursos_destaque %}
-                                <div class="swiper-slide">
-                                    <div class="rbt-card variation-01 rbt-hover">
-
-                                        <!-- IMAGEM -->
-                                        <div class="rbt-card-img">
-                                            <a href="{% url 'curso_detalhe' id=curso.id %}">
-                                                {% if curso.imagem %}
-                                                <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}">
-                                                {% else %}
-                                                <img src="{% static 'assets/images/course/classic-lms-01.jpg' %}"
-                                                    alt="{{ curso.titulo }}">
-                                                {% endif %}
-
-                                                {% if curso.em_promocao %}
-                                                <div class="rbt-badge-3 bg-white">
-                                                    <span>-{{ curso.percentual_desconto|floatformat:0 }}%</span>
-                                                    <span>Off</span>
-                                                </div>
-                                                {% endif %}
-                                            </a>
-                                        </div>
-
-                                        <!-- CONTEÚDO -->
-                                        <div class="rbt-card-body">
-
-                                            <!-- TÍTULO -->
-                                            <h4 class="rbt-card-title">
-                                                <a href="{% url 'curso_detalhe' id=curso.id %}">
-                                                    {{ curso.titulo }}
-                                                </a>
-                                            </h4>
-
-                                            <!-- DESCRIÇÃO CURTA -->
-                                            <p class="rbt-card-text">
-                                                {% if curso.descricao_curta %}
-                                                {{ curso.descricao_curta|truncatechars:80 }}
-                                                {% else %}
-                                                {{ curso.descricao|truncatechars:80 }}
-                                                {% endif %}
-                                            </p>
-
-                                            <!-- MODALIDADE -->
-                                            <span class="rbt-meta">
-                                                {{ curso.get_modalidade_display }}
-                                            </span>
-
-                                            <!-- PREÇO -->
-                                            <div class="rbt-card-bottom">
-                                                <div class="rbt-price">
-                                                    {% if curso.is_gratuito %}
-                                                    <span class="current-price">Gratuito</span>
-                                                    {% else %}
-                                                    <span class="current-price">
-                                                        Kz {{ curso.preco_atual }}
-                                                    </span>
-
-                                                    {% if curso.em_promocao %}
-                                                    <span class="off-price">
-                                                        Kz {{ curso.preco }}
-                                                    </span>
-                                                    {% endif %}
-                                                    {% endif %}
-                                                </div>
-
-                                                <a class="rbt-btn-link" href="{% url 'curso_detalhe' id=curso.id %}">
-                                                    Saiba Mais
-                                                    <i class="feather-arrow-right"></i>
-                                                </a>
-                                            </div>
-
-                                        </div>
-                                    </div>
+    <main>
+        <div class="rbt-banner-area rbt-banner-1">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12 pb--120 pt--70">
+                        <div class="content">
+                            <div class="inner">
+                                <div class="rbt-new-badge rbt-new-badge-one">
+                                    <span class="rbt-new-badge-icon">🏆</span> Cursos Certificados e Atualizados
                                 </div>
-                                {% endfor %}
 
+                                <h1 class="title">
+                                    Encontre os <span class="color-primary">Melhores Cursos</span>
+                                    para Desenvolver as Suas Competências
+                                </h1>
+
+                                <p class="description">
+                                    Explore uma ampla variedade de cursos técnicos, profissionais e académicos,
+                                    ministrados por centros de formação e especialistas qualificados em Angola.
+                                    Aprenda no seu ritmo e avance na sua carreira.
+                                </p>
+
+                                <div class="slider-btn">
+                                    <a class="rbt-btn btn-gradient hover-icon-reverse" href="#">
+                                        <span class="icon-reverse-wrapper">
+                                            <span class="btn-text">Explorar Cursos</span>
+                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                        </span>
+                                    </a>
+                                </div>
                             </div>
-                            <div class="rbt-swiper-pagination"></div>
+
+                            <div class="banner-card pb--60 mb--50 swiper rbt-dot-bottom-center banner-swiper-active">
+                                <div class="swiper-wrapper">
+                                    {% for curso in cursos_proximos %}
+                                    {% include 'cursos/card_home_cursos.html' %}
+                                    {% endfor %}
+                                </div>
+                                <div class="rbt-swiper-pagination"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- End Banner Area -->
 
-
-
+    </main>
 
     <div class="rbt-categories-area rbt-section-gap">
         <div class="container">
             <div class="row g-5 align-items-center mb--50">
                 <div class="col-lg-8 col-md-7 col-12">
                     <div class="section-title">
-                        <h2 class="title">Best Platform To <span><img
-                                    src="{% static 'assets/images/shape/o-icon-2.png' %}" alt="Cap Icon"></span> Learn
-                            Everything</h2>
+                        <h2 class="title">Explorar <span><img src="{% static 'assets/images/shape/o-icon-2.png' %}"
+                                    alt="Cap Icon"></span>
+                            categoria</h2>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-5 col-12">
@@ -214,14 +128,15 @@
                                             alt="Ícone de {{ categoria.nome }}">
                                         {% endif %}
                                         <div class="read-more-btn">
-                                            <span class="rbt-btn btn-sm btn-white radius-round">{{ categoria.num_cursos
-                                                }} Cursos</span>
+                                            <span class="rbt-btn btn-sm btn-white radius-round">{{categoria.num_cursos}}
+                                                Cursos</span>
                                         </div>
                                     </a>
                                 </div>
                                 <div class="content">
-                                    <h5 class="title"><a href="course-filter-one-toggle.html">Categoria</a></h5>
-                                    <p class="description">{{ categoria.nome }}</p>
+                                    <h5 class="title"><a href="course-filter-one-toggle.html">{{categoria.nome}}</a>
+                                    </h5>
+                                    <p class="description">{{categoria.nome}}</p>
                                 </div>
                             </div>
                         </div>
@@ -233,453 +148,597 @@
     </div>
 
 
-    <div class="rbt-categories-area rbt-section-gap">
-    <div class="container">
-        <div class="row g-5 align-items-center mb--50">
-            <div class="col-lg-8 col-md-7 col-12">
-                <div class="section-title">
-                    <h2 class="title">Experimente estes <span><img src="{% static 'assets/images/shape/o-icon-2.png' %}" alt="Cap Icon"></span> cursos para iniciantes</h2>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-5 col-12">
-                <div class="d-flex justify-content-end gap-3 rbt-arrow-between">
-                    <div class="rbt-swiper-arrow style_2 rbt-arrow-left">
-                        <div class="custom-overfolow">
-                            <i class="rbt-icon feather-arrow-left"></i>
-                            <i class="rbt-icon-top feather-arrow-left"></i>
-                        </div>
-                    </div>
 
-                    <div class="rbt-swiper-arrow style_2 rbt-arrow-right">
-                        <div class="custom-overfolow">
-                            <i class="rbt-icon feather-arrow-right"></i>
-                            <i class="rbt-icon-top feather-arrow-right"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="category-activation-four swiper">
-            <div class="swiper-wrapper">
-                <!-- Start Single Item -->
-                <div class="swiper-slide">
-                    <div class="rbt-cat-box rbt-cat-box-1 variation-3 text-center">
-                        <div class="inner">
-                            <div class="thumbnail">
-                                <a href="course-filter-one-toggle.html">
-                                    <img src="{% static 'assets/images/category/image/web-design.jpg' %}" alt="Category Images">
-                                    <div class="read-more-btn">
-                                        <span class="rbt-btn btn-sm btn-white radius-round">20 Courses</span>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="content">
-                                <h5 class="title"><a href="course-filter-one-toggle.html">Web Design</a></h5>
-                                <p class="description">Web App Application</p>
-                                
-                                <!-- Informações adicionais para parecer card de curso -->
-                                <div class="course-meta-info">
-                                    <div class="rating mb-2">
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star-half-alt text-warning"></i>
-                                        <small class="text-muted ms-1">(4.5)</small>
-                                    </div>
-                                    <div class="d-flex justify-content-between small text-muted mb-2">
-                                        <span><i class="feather-users me-1"></i> 245 alunos</span>
-                                        <span><i class="feather-clock me-1"></i> 12h</span>
-                                    </div>
-                                    <div class="instructor mb-2">
-                                        <small>Prof. Maria Silva</small>
-                                    </div>
-                                    <div class="price-tag">
-                                        <span class="text-primary fw-bold">$49.99</span>
-                                        <del class="text-muted small ms-2">$89.99</del>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- End Single Item -->
+    {% load static %}
 
-                <!-- Start Single Item -->
-                <div class="swiper-slide">
-                    <div class="rbt-cat-box rbt-cat-box-1 variation-3 text-center">
-                        <div class="inner">
-                            <div class="thumbnail">
-                                <a href="course-filter-one-toggle.html">
-                                    <img src="{% static 'assets/images/category/image/graphic-design.jpg' %}" alt="Category Images">
-                                    <div class="read-more-btn">
-                                        <span class="rbt-btn btn-sm btn-white radius-round">15 Courses</span>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="content">
-                                <h5 class="title"><a href="course-filter-one-toggle.html">Graphic Design</a></h5>
-                                <p class="description">Design is Art</p>
-                                
-                                <!-- Informações adicionais para parecer card de curso -->
-                                <div class="course-meta-info">
-                                    <div class="rating mb-2">
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="far fa-star text-warning"></i>
-                                        <small class="text-muted ms-1">(4.0)</small>
-                                    </div>
-                                    <div class="d-flex justify-content-between small text-muted mb-2">
-                                        <span><i class="feather-users me-1"></i> 189 alunos</span>
-                                        <span><i class="feather-clock me-1"></i> 18h</span>
-                                    </div>
-                                    <div class="instructor mb-2">
-                                        <small>Prof. João Santos</small>
-                                    </div>
-                                    <div class="price-tag">
-                                        <span class="text-primary fw-bold">$59.99</span>
-                                        <del class="text-muted small ms-2">$99.99</del>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- End Single Item -->
+    <div class="rbt-course-area rbt-sec-cir-shadow-1 bg-color-extra2 rbt-section-gap rbt-section-box">
+        <div class="gradient-shape-top"></div>
+        <div class="gradient-shape-bottom"></div>
 
-                <!-- Start Single Item -->
-                <div class="swiper-slide">
-                    <div class="rbt-cat-box rbt-cat-box-1 variation-3 text-center">
-                        <div class="inner">
-                            <div class="thumbnail">
-                                <a href="course-filter-one-toggle.html">
-                                    <img src="{% static 'assets/images/category/image/personal-development.jpg' %}" alt="Category Images">
-                                    <div class="read-more-btn">
-                                        <span class="rbt-btn btn-sm btn-white radius-round">9 Courses</span>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="content">
-                                <h5 class="title"><a href="course-filter-one-toggle.html">Personal Development</a></h5>
-                                <p class="description">Web App Application</p>
-                                
-                                <!-- Informações adicionais para parecer card de curso -->
-                                <div class="course-meta-info">
-                                    <div class="rating mb-2">
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <small class="text-muted ms-1">(5.0)</small>
-                                    </div>
-                                    <div class="d-flex justify-content-between small text-muted mb-2">
-                                        <span><i class="feather-users me-1"></i> 312 alunos</span>
-                                        <span><i class="feather-clock me-1"></i> 8h</span>
-                                    </div>
-                                    <div class="instructor mb-2">
-                                        <small>Prof. Ana Costa</small>
-                                    </div>
-                                    <div class="price-tag">
-                                        <span class="text-success fw-bold">Gratuito</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- End Single Item -->
-
-                <!-- Start Single Item -->
-                <div class="swiper-slide">
-                    <div class="rbt-cat-box rbt-cat-box-1 variation-3 text-center">
-                        <div class="inner">
-                            <div class="thumbnail">
-                                <a href="course-filter-one-toggle.html">
-                                    <img src="{% static 'assets/images/category/image/software.jpg' %}" alt="Category Images">
-                                    <div class="read-more-btn">
-                                        <span class="rbt-btn btn-sm btn-white radius-round">15 Courses</span>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="content">
-                                <h5 class="title"><a href="{% static 'course-filter-one-toggle.html' %}">IT and Software</a></h5>
-                                <p class="description">Web App Application</p>
-                                
-                                <!-- Informações adicionais para parecer card de curso -->
-                                <div class="course-meta-info">
-                                    <div class="rating mb-2">
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star-half-alt text-warning"></i>
-                                        <small class="text-muted ms-1">(4.7)</small>
-                                    </div>
-                                    <div class="d-flex justify-content-between small text-muted mb-2">
-                                        <span><i class="feather-users me-1"></i> 421 alunos</span>
-                                        <span><i class="feather-clock me-1"></i> 25h</span>
-                                    </div>
-                                    <div class="instructor mb-2">
-                                        <small>Prof. Pedro Alves</small>
-                                    </div>
-                                    <div class="price-tag">
-                                        <span class="text-primary fw-bold">$79.99</span>
-                                        <del class="text-muted small ms-2">$129.99</del>
-                                        <span class="badge bg-danger ms-2">-40%</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- End Single Item -->
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-
-
-
-    <div class="rbt-course-area bg-color-extra2 rbt-section-gap">
         <div class="container">
-            <div class="row mb--60 g-5 align-items-end">
-                <div class="col-lg-6 col-md-6 col-12">
+
+            <!-- TÍTULO -->
+            <div class="row mb--30">
+                <div class="col-lg-12">
                     <div class="section-title text-start">
-                        <span class="subtitle bg-primary-opacity">Edukangola</span>
-                        <h2 class="title">Experimente estes cursos para iniciantes</h2>
-                    </div>
-                </div>
-                <div class="col-lg-6 col-md-6 col-12">
-                    <div class="read-more-btn text-start text-md-end">
-                        <div class="col-lg-4 col-md-5 col-12">
-                            <div class="d-flex justify-content-end gap-3 rbt-arrow-between">
-                                <div class="rbt-swiper-arrow style_2 rbt-arrow-left">
-                                    <div class="custom-overfolow">
-                                        <i class="rbt-icon feather-arrow-left"></i>
-                                        <i class="rbt-icon-top feather-arrow-left"></i>
-                                    </div>
-                                </div>
-
-                                <div class="rbt-swiper-arrow style_2 rbt-arrow-right">
-                                    <div class="custom-overfolow">
-                                        <i class="rbt-icon feather-arrow-right"></i>
-                                        <i class="rbt-icon-top feather-arrow-right"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <h6 class="b2 mb--15">
+                            <span class="theme-gradient">Centros de formacao</span>
+                        </h6>
+                        <h2 class="title w-600">
+                            Explore os
+                            <span class="theme-gradient">cursos em Destaque.</span>
+                        </h2>
                     </div>
                 </div>
             </div>
-            <!-- Start Card Area -->
+
+            <!-- CARDS -->
             <div class="row g-5">
-                <!-- Start Single Card  -->
-                <div class="col-lg-4 col-md-6 col-sm-12 col-12" data-sal-delay="150" data-sal="slide-up"
-                    data-sal-duration="800">
-                    <div class="rbt-card variation-01 rbt-hover">
-                        <div class="rbt-card-img">
-                            <a href="course-details.html">
-                                <img src="assets/images/course/course-online-04.jpg" alt="Card image">
-                                <div class="rbt-badge-3 bg-white">
-                                    <span>-40%</span>
-                                    <span>Off</span>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="rbt-card-body">
-
-                            <div class="rbt-card-top">
-                                <div class="rbt-review">
-                                    <div class="rating">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <span class="rating-count"> (15 Reviews)</span>
-                                </div>
-                                <div class="rbt-bookmark-btn">
-                                    <a class="rbt-round-btn" title="Bookmark" href="03-online-school.html#"><i
-                                            class="feather-bookmark"></i></a>
-                                </div>
-                            </div>
-
-                            <h4 class="rbt-card-title"><a href="course-details.html">React Front To Back</a>
-                            </h4>
-                            <ul class="rbt-meta">
-                                <li><i class="feather-book"></i>20 Lessons</li>
-                                <li><i class="feather-users"></i>40 Students</li>
-                            </ul>
-                            <p class="rbt-card-text">React Js long fact that a reader will be distracted by
-                                the readable.</p>
-                            <div class="rbt-author-meta mb--20">
-                                <div class="rbt-avater">
-                                    <a href="03-online-school.html#">
-                                        <img src="assets/images/client/avater-01.png" alt="Sophia Jaymes">
-                                    </a>
-                                </div>
-                                <div class="rbt-author-info">
-                                    By <a href="profile.html">Patrick</a> In <a
-                                        href="03-online-school.html#">Languages</a>
-                                </div>
-                            </div>
-
-                            <div class="rbt-card-bottom">
-                                <div class="rbt-price">
-                                    <span class="current-price">$60</span>
-                                    <span class="off-price">$120</span>
-                                </div>
-                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                    More<i class="feather-arrow-right"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- End Single Card  -->
-
-                <!-- Start Single Card  -->
-                <div class="col-lg-4 col-md-6 col-sm-12 col-12" data-sal-delay="200" data-sal="slide-up"
-                    data-sal-duration="800">
-                    <div class="rbt-card variation-01 rbt-hover">
-                        <div class="rbt-card-img">
-                            <a href="course-details.html">
-                                <img src="assets/images/course/course-online-05.jpg" alt="Card image">
-                                <div class="rbt-badge-3 bg-white">
-                                    <span>-40%</span>
-                                    <span>Off</span>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="rbt-card-body">
-                            <div class="rbt-card-top">
-                                <div class="rbt-review">
-                                    <div class="rating">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <span class="rating-count"> (15 Reviews)</span>
-                                </div>
-                                <div class="rbt-bookmark-btn">
-                                    <a class="rbt-round-btn" title="Bookmark" href="03-online-school.html#"><i
-                                            class="feather-bookmark"></i></a>
-                                </div>
-                            </div>
-                            <h4 class="rbt-card-title"><a href="course-details.html">PHP Beginner + Advanced</a>
-                            </h4>
-                            <ul class="rbt-meta">
-                                <li><i class="feather-book"></i>12 Lessons</li>
-                                <li><i class="feather-users"></i>50 Students</li>
-                            </ul>
-                            <p class="rbt-card-text">It is a long established fact that a reader will be distracted
-                                by the readable.</p>
-                            <div class="rbt-author-meta mb--20">
-                                <div class="rbt-avater">
-                                    <a href="03-online-school.html#">
-                                        <img src="assets/images/client/avatar-02.png" alt="Sophia Jaymes">
-                                    </a>
-                                </div>
-                                <div class="rbt-author-info">
-                                    By <a href="profile.html">Angela</a> In <a
-                                        href="03-online-school.html#">Development</a>
-                                </div>
-                            </div>
-                            <div class="rbt-card-bottom">
-                                <div class="rbt-price">
-                                    <span class="current-price">$60</span>
-                                    <span class="off-price">$120</span>
-                                </div>
-                                <a class="rbt-btn-link left-icon" href="course-details.html"><i
-                                        class="feather-shopping-cart"></i> Add To Cart</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- End Single Card  -->
-
-                <!-- Start Single Card  -->
-                <div class="col-lg-4 col-md-6 col-sm-12 col-12" data-sal-delay="250" data-sal="slide-up"
-                    data-sal-duration="800">
-                    <div class="rbt-card variation-01 rbt-hover">
-                        <div class="rbt-card-img">
-                            <a href="course-details.html">
-                                <img src="assets/images/course/course-online-06.jpg" alt="Card image">
-                                <div class="rbt-badge-3 bg-white">
-                                    <span>-40%</span>
-                                    <span>Off</span>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="rbt-card-body">
-                            <div class="rbt-card-top">
-                                <div class="rbt-review">
-                                    <div class="rating">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <span class="rating-count"> (5 Reviews)</span>
-                                </div>
-                                <div class="rbt-bookmark-btn">
-                                    <a class="rbt-round-btn" title="Bookmark" href="03-online-school.html#"><i
-                                            class="feather-bookmark"></i></a>
-                                </div>
-                            </div>
-                            <h4 class="rbt-card-title"><a href="course-details.html">Angular Zero to Mastery</a>
-                            </h4>
-                            <ul class="rbt-meta">
-                                <li><i class="feather-book"></i>8 Lessons</li>
-                                <li><i class="feather-users"></i>30 Students</li>
-                            </ul>
-                            <p class="rbt-card-text">Angular Js long fact that a reader will be distracted by
-                                the readable.</p>
-
-                            <div class="rbt-author-meta mb--20">
-                                <div class="rbt-avater">
-                                    <a href="03-online-school.html#">
-                                        <img src="assets/images/client/avatar-03.png" alt="Sophia Jaymes">
-                                    </a>
-                                </div>
-                                <div class="rbt-author-info">
-                                    By <a href="profile.html">Slaughter</a> In <a
-                                        href="03-online-school.html#">Languages</a>
-                                </div>
-                            </div>
-                            <div class="rbt-card-bottom">
-                                <div class="rbt-price">
-                                    <span class="current-price">$80</span>
-                                    <span class="off-price">$100</span>
-                                </div>
-                                <a class="rbt-btn-link" href="course-details.html">Learn
-                                    More<i class="feather-arrow-right"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- End Single Card  -->
+                {% for curso in cursos_destaque|slice:":8" %}
+                {% include "cursos/card_geral.html" with curso=curso %}
+                {% empty %}
+                <p class="text-center">Nenhum curso disponível.</p>
+                {% endfor %}
             </div>
-            <!-- End Card Area -->
+
+            <!-- BOTÃO MOSTRAR MAIS -->
+            <div class="row mt--40">
+                <div class="col-lg-12 text-center">
+                    <button id="loadMore" class="rbt-btn btn-gradient hover-icon-reverse btn-load-more">
+                        <span class="icon-reverse-wrapper">
+                            <span class="btn-text">Mostrar +3</span>
+                            <span class="btn-icon"><i class="feather-arrow-down"></i></span>
+                            <span class="btn-icon"><i class="feather-arrow-down"></i></span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+
+
+        </div>
+    </div>
+
+
+    <div style="margin-top: 20px; margin-bottom: 10px;" class="banner-overlay-section">
+            <div class="container">
+                <div class="row mb--30">
+                <div class="col-lg-12">
+                    <div class="section-title text-start">
+                        <h6 class="b2 mb--15">
+                            <span class="theme-gradient">Centros de formacao</span>
+                        </h6>
+                        <h2 class="title w-600">
+                            Habilidades em 
+                            <span class="theme-gradient">IA sobe demanda.</span>
+                        </h2>
+                    </div>
+                </div>
+            </div>
+                <div class="row row--15">
+                    <div class="col-lg-12">
+                        <div class="swiper team-slide-activation-4 rbt-arrow-between rbt-dot-bottom-center">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-04.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">Aaron Griffe</a></h4>
+                                                <p class="designation">Depertment Head</p>
+                                            </div>
+                                            <div class="rbt-bookmark-btn">
+                                                <a class="rbt-round-btn" title="Bookmark" href="course-details.html#"><i
+                                                        class="feather-bookmark"></i></a>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-05.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">Aaron Griffe</a></h4>
+                                                <p class="designation">Teacher</p>
+                                            </div>
+                                            <div class="rbt-bookmark-btn">
+                                                <a class="rbt-round-btn" title="Bookmark" href="course-details.html#"><i
+                                                        class="feather-bookmark"></i></a>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-06.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">Joe Bidden</a></h4>
+                                                <p class="designation">Depertment Head</p>
+                                            </div>
+                                            <div class="rbt-bookmark-btn">
+                                                <a class="rbt-round-btn" title="Bookmark" href="course-details.html#"><i
+                                                        class="feather-bookmark"></i></a>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-03.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">John Due</a></h4>
+                                                <p class="designation">Marketing SR</p>
+                                            </div>
+                                            <div class="rbt-bookmark-btn">
+                                                <a class="rbt-round-btn" title="Bookmark" href="course-details.html#"><i
+                                                        class="feather-bookmark"></i></a>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-02.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">Joe Bidden</a></h4>
+                                                <p class="designation">Depertment Head</p>
+                                            </div>
+                                            <div class="rbt-bookmark-btn">
+                                                <a class="rbt-round-btn" title="Bookmark" href="course-details.html#"><i
+                                                        class="feather-bookmark"></i></a>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-01.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">Jannen</a></h4>
+                                                <p class="designation">App Developer</p>
+                                            </div>
+                                            <div class="rbt-bookmark-btn">
+                                                <a class="rbt-round-btn" title="Bookmark" href="course-details.html#"><i
+                                                        class="feather-bookmark"></i></a>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rbt-swiper-arrow rbt-arrow-left">
+                                <div class="custom-overfolow">
+                                    <i class="rbt-icon feather-arrow-left"></i>
+                                    <i class="rbt-icon-top feather-arrow-left"></i>
+                                </div>
+                            </div>
+
+                            <div class="rbt-swiper-arrow rbt-arrow-right">
+                                <div class="custom-overfolow">
+                                    <i class="rbt-icon feather-arrow-right"></i>
+                                    <i class="rbt-icon-top feather-arrow-right"></i>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
 
 
-    <!-- Start Course Area -->
 
-    <!-- End Course Area -->
+    <div class="rbt-course-area rbt-sec-cir-shadow-1 bg-color-extra2 rbt-section-gap rbt-section-box">
+        <div class="gradient-shape-top"></div>
+        <div class="gradient-shape-bottom"></div>
 
-    <!-- End Blog Style -->
+        <div class="container">
+
+            <!-- TÍTULO -->
+            <div class="row mb--30">
+                <div class="col-lg-12">
+                    <div class="section-title text-start">
+                        <h6 class="b2 mb--15">
+                            <span class="theme-gradient">Centros de formacao</span>
+                        </h6>
+                        <h2 class="title w-600">
+                            Descubra os
+                            <span class="theme-gradient">cursos mais inscritos.</span>
+                        </h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARDS -->
+            <div class="row g-5">
+                {% for curso in cursos_proximos|slice:":8" %}
+                {% include "cursos/card_geral.html" with curso=curso %}
+                {% empty %}
+                <p class="text-center">Nenhum curso disponível.</p>
+                {% endfor %}
+            </div>
+
+            <!-- BOTÃO MOSTRAR MAIS -->
+            <div class="row mt--40">
+                <div class="col-lg-12 text-center">
+                    <button id="loadMore" class="rbt-btn btn-gradient hover-icon-reverse btn-load-more">
+                        <span class="icon-reverse-wrapper">
+                            <span class="btn-text">Mostrar +3</span>
+                            <span class="btn-icon"><i class="feather-arrow-down"></i></span>
+                            <span class="btn-icon"><i class="feather-arrow-down"></i></span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div style="margin-top: 20px;" class="banner-overlay-section">
+            <div class="container">
+                <div class="row mb--30">
+                <div class="col-lg-12">
+                    <div class="section-title text-start">
+                        <h6 class="b2 mb--15">
+                            <span class="theme-gradient">Centros de formacao</span>
+                        </h6>
+                        <h2 class="title w-600">
+                            Mais populares 
+                            <span class="theme-gradient">por categoria.</span>
+                        </h2>
+                    </div>
+                </div>
+            </div>
+                <div class="row row--15">
+                    <div class="col-lg-12">
+                        <div class="swiper team-slide-activation-4 rbt-arrow-between rbt-dot-bottom-center">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-04.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">Aaron Griffe</a></h4>
+                                                <p class="designation">Depertment Head</p>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-05.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">Aaron Griffe</a></h4>
+                                                <p class="designation">Teacher</p>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-06.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">Joe Bidden</a></h4>
+                                                <p class="designation">Depertment Head</p>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-03.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">John Due</a></h4>
+                                                <p class="designation">Marketing SR</p>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-02.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">Joe Bidden</a></h4>
+                                                <p class="designation">Depertment Head</p>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-01.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">Jannen</a></h4>
+                                                <p class="designation">App Developer</p>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rbt-swiper-arrow rbt-arrow-left">
+                                <div class="custom-overfolow">
+                                    <i class="rbt-icon feather-arrow-left"></i>
+                                    <i class="rbt-icon-top feather-arrow-left"></i>
+                                </div>
+                            </div>
+
+                            <div class="rbt-swiper-arrow rbt-arrow-right">
+                                <div class="custom-overfolow">
+                                    <i class="rbt-icon feather-arrow-right"></i>
+                                    <i class="rbt-icon-top feather-arrow-right"></i>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="rbt-course-area rbt-sec-cir-shadow-1 bg-color-extra2 rbt-section-gap rbt-section-box">
+        <div class="gradient-shape-top"></div>
+        <div class="gradient-shape-bottom"></div>
+
+        <div class="container">
+
+            <!-- TÍTULO -->
+            <div class="row mb--30">
+                <div class="col-lg-12">
+                    <div class="section-title text-start">
+                        <h6 class="b2 mb--15">
+                            <span class="theme-gradient">Centros de formacao</span>
+                        </h6>
+                        <h2 class="title w-600">
+                            Novos
+                            <span class="theme-gradient">lançamentos</span>
+                        </h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARDS -->
+            <div class="row g-5">
+                {% for curso in cursos_destaque|slice:":8" %}
+                {% include "cursos/card_geral.html" with curso=curso %}
+                {% empty %}
+                <p class="text-center">Nenhum curso disponível.</p>
+                {% endfor %}
+            </div>
+
+            <!-- BOTÃO MOSTRAR MAIS -->
+            <div class="row mt--40">
+                <div class="col-lg-12 text-center">
+                    <button id="loadMore" class="rbt-btn btn-gradient hover-icon-reverse btn-load-more">
+                        <span class="icon-reverse-wrapper">
+                            <span class="btn-text">Mostrar +3</span>
+                            <span class="btn-icon"><i class="feather-arrow-down"></i></span>
+                            <span class="btn-icon"><i class="feather-arrow-down"></i></span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div style="margin-top: 20px;" class="banner-overlay-section">
+            <div class="container">
+                <div class="row mb--30">
+                <div class="col-lg-12">
+                    <div class="section-title text-start">
+                        <h6 class="b2 mb--15">
+                            <span class="theme-gradient">Centros de formacao</span>
+                        </h6>
+                        <h2 class="title w-600">
+                            Tendências atuais
+                            <span class="theme-gradient">atuais.</span>
+                        </h2>
+                    </div>
+                </div>
+            </div>
+                <div class="row row--15">
+                    <div class="col-lg-12">
+                        <div class="swiper team-slide-activation-4 rbt-arrow-between rbt-dot-bottom-center">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-04.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">Aaron Griffe</a></h4>
+                                                <p class="designation">Depertment Head</p>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-05.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">Aaron Griffe</a></h4>
+                                                <p class="designation">Teacher</p>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-06.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">Joe Bidden</a></h4>
+                                                <p class="designation">Depertment Head</p>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-03.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">John Due</a></h4>
+                                                <p class="designation">Marketing SR</p>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-02.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">Joe Bidden</a></h4>
+                                                <p class="designation">Depertment Head</p>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="team team-style--bottom variation-2">
+                                        <div class="thumbnail">
+                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-01.jpg' %}" alt="Blog Images"></a>
+                                        </div>
+                                        <div class="content">
+                                            <div class="inner">
+                                                <h4 class="title"><a href="15-home-technology.html#">Jannen</a></h4>
+                                                <p class="designation">App Developer</p>
+                                            </div>
+                                            <div class="icon-right">
+                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rbt-swiper-arrow rbt-arrow-left">
+                                <div class="custom-overfolow">
+                                    <i class="rbt-icon feather-arrow-left"></i>
+                                    <i class="rbt-icon-top feather-arrow-left"></i>
+                                </div>
+                            </div>
+
+                            <div class="rbt-swiper-arrow rbt-arrow-right">
+                                <div class="custom-overfolow">
+                                    <i class="rbt-icon feather-arrow-right"></i>
+                                    <i class="rbt-icon-top feather-arrow-right"></i>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 
     <div class="rbt-instagram-area bg-color-white rbt-section-gapTop">
         <div class="container">
@@ -790,6 +849,47 @@
             </div>
         </div>
     </div>
+
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+    const sections = document.querySelectorAll(".rbt-course-area");
+
+    sections.forEach(section => {
+        const cursos = section.querySelectorAll(".curso-item");
+        const btn = section.querySelector(".btn-load-more");
+        const texto = btn.querySelector(".btn-text");
+
+        const inicial = 3;
+        const incremento = 3;
+        let visiveis = inicial;
+        let expandido = false;
+
+        function atualizar() {
+            cursos.forEach((curso, index) => {
+                curso.style.display = index < visiveis ? "block" : "none";
+            });
+
+            if (visiveis >= cursos.length) {
+                texto.textContent = "Mostrar menos";
+                expandido = true;
+            } else {
+                texto.textContent = "Mostrar +3";
+                expandido = false;
+            }
+
+            if (cursos.length <= inicial) btn.style.display = "none";
+        }
+
+        btn.addEventListener("click", () => {
+            visiveis = expandido ? inicial : visiveis + incremento;
+            atualizar();
+        });
+
+        atualizar();
+    });
+});
+</script>
+
 
     <!-- Start Footer aera -->
     {% include 'include/footer.html' %}

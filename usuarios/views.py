@@ -99,9 +99,9 @@ def atualizar_localizacao(request):
 
 
 def valida_cadastro_aluno(request):
-    nome = request.POST.get('nome')
-    email = request.POST.get('email')  
-    senha = request.POST.get('senha')
+    nome = request.POST.get('nome', '').strip()
+    email = request.POST.get('email', '').strip()
+    senha = request.POST.get('senha', '').strip()
     confirmar_senha = request.POST.get('confirmar_senha')
     
     if len(nome.strip()) == 0 or len(senha.strip()) == 0:
@@ -230,7 +230,7 @@ def verificar_email(request):
 def esqueci_senha(request):
     if request.method == 'POST':
         email = request.POST.get('email')
-        if Aluno.objects.filter(email=email).exists():
+        if Aluno.objects.filter(usuario__email=email).exists():
             enviar_codigo_verificacao(email, 'RECUPERACAO')
             request.session['email_recuperacao'] = email
             return redirect('redefinir_senha')
@@ -276,8 +276,8 @@ def redefinir_senha(request):
 from django.contrib.auth import authenticate, login
 
 def valida_login_aluno(request):
-    email = request.POST.get('email')
-    senha = request.POST.get('senha')
+    email = request.POST.get('email', '').strip()
+    senha = request.POST.get('senha', '').strip()
     
     if not email or not senha:
         return redirect('/auth/Login_aluno?status=1')

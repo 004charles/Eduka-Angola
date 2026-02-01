@@ -1,75 +1,60 @@
 {% load static %}
 {% load humanize %}
 
-<div class="col-lg-4 col-md-6 col-sm-12 col-12">
-    <div class="rbt-card variation-01 rbt-hover">
+
+<div class="col-lg-4 col-md-6 col-12">
+    <div class="rbt-card variation-04 rbt-hover">
         <div class="rbt-card-img">
             <a href="{% url 'curso_detalhe' curso.id %}">
                 {% if curso.imagem %}
-                <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}">
+                <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}"
+                    style="width: 100%; height: 100%; object-fit: cover;">
                 {% else %}
-                <img src="{% static 'assets/images/course/course-01.jpg' %}" alt="{{ curso.titulo }}">
+                <img src="{% static 'assets/images/course/course-01.jpg' %}" alt="{{ curso.titulo }}"
+                    style="width: 100%; height: 100%; object-fit: cover;">
                 {% endif %}
             </a>
-            <div class="rbt-badge-3 bg-white text-primary"
-                style="position: absolute; top: 10px; left: 10px; z-index: 2; padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                <i class="feather-map-pin"></i> Centro Parceiro
-            </div>
         </div>
         <div class="rbt-card-body">
-            <div class="rbt-card-top">
-                <div class="rbt-review">
-                    <div class="rating">
-                        {% for i in "12345" %}
-                        {% if forloop.counter <= curso.media_avaliacoes %} <i class="fas fa-star"></i>
-                            {% else %}
-                            <i class="far fa-star"></i>
-                            {% endif %}
-                            {% endfor %}
-                    </div>
-                    <span class="rating-count">({{ curso.total_avaliacoes }} Reviews)</span>
-                </div>
-                <div class="rbt-bookmark-btn">
-                    <a class="rbt-round-btn" title="Bookmark" href="#"><i class="feather-bookmark"></i></a>
-                </div>
-            </div>
-
-            <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' curso.id %}">{{ curso.titulo }}</a></h4>
-
             <ul class="rbt-meta">
-                <li><i class="feather-book"></i>{{ curso.total_aulas }} Aulas</li>
-                <li><i class="feather-users"></i>{{ curso.total_inscritos }} Alunos</li>
+                <li><i class="feather-book"></i>20 Lessons</li>
+                <li><i class="feather-users"></i>40 Students</li>
             </ul>
-
-            <p class="rbt-card-text">{{ curso.descricao_curta|truncatechars:100 }}</p>
-            <div class="rbt-author-meta mb--10">
-                <div class="rbt-avater">
-                    <a href="#">
-                        {% if curso.centro.perfil.imagem %}
-                        <img src="{{ curso.centro.perfil.imagem.url }}" alt="{{ curso.centro.nome }}">
-                        {% else %}
-                        <img src="{% static 'assets/images/client/avatar-02.png' %}" alt="{{ curso.centro.nome }}">
-                        {% endif %}
-                    </a>
+            <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' curso.id %}">{{ curso.titulo|truncatechars:60 }}</a>
+            </h4>
+            <p class="rbt-card-text">{{ curso.descricao_curta|truncatechars:120 }}</p>
+            <div class="rbt-review">
+                <div class="rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
                 </div>
-                <div class="rbt-author-info">
-                    Por <a href="#">{{ curso.centro.nome }}</a> em <a href="#">{{ curso.categoria.nome }}</a>
-                </div>
+                <span class="rating-count"> (15 Reviews)</span>
             </div>
-            <div class="rbt-card-bottom">
-                <div class="rbt-price">
+            <div class="rbt-card-bottom" style="flex-shrink: 0;">
+                <div class="rbt-price" style="font-size: 15px; font-weight: 600;">
                     {% if curso.preco_atual == 0 %}
                     <span class="current-price text-success">Grátis</span>
                     {% elif curso.em_promocao %}
                     <span class="current-price">{{ curso.preco_promocional|intcomma }} Kz</span>
-                    <span class="off-price">{{ curso.preco|intcomma }} Kz</span>
+                    <span class="off-price"
+                        style="font-size: 13px; text-decoration: line-through; color: #999; margin-left: 5px;">{{
+                        curso.preco|intcomma }} Kz</span>
                     {% else %}
                     <span class="current-price">{{ curso.preco|intcomma }} Kz</span>
                     {% endif %}
                 </div>
-                <a class="rbt-btn-link" href="{% url 'curso_detalhe' curso.id %}">Saber mais<i
-                        class="feather-arrow-right"></i></a>
+                <a class="rbt-btn-link" href="{% url 'curso_detalhe' curso.id %}"
+                    style="font-size: 14px; padding: 6px 12px; border-radius: 4px;">
+                    Saber mais <i class="feather-arrow-right" style="font-size: 13px; margin-left: 5px;"></i>
+                </a>
             </div>
         </div>
     </div>
 </div>
+
+
+
+

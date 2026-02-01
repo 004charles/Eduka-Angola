@@ -939,8 +939,7 @@
                                                 <!-- Ações -->
                                                 <div class="comentario-acoes mt--10">
                                                     <div class="btn-group btn-group-sm" role="group">
-                                                        {% if user.is_authenticated and user.tipo_usuario == 'ALUNO' and
-                                                        user.aluno_profile.id == comentario.aluno.id %}
+                                                        {% if user.is_authenticated and user.tipo_usuario == 'ALUNO' and user.aluno_profile.id == comentario.aluno.id %}
                                                         <button type="button" class="btn btn-outline-primary btn-sm"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#editarAvaliacaoModal">
@@ -953,8 +952,7 @@
                                                         </a>
                                                         {% endif %}
 
-                                                        {% if user.is_authenticated and user.tipo_usuario == 'ALUNO' and
-                                                        user.aluno_profile.id != comentario.aluno.id %}
+                                                        {% if user.is_authenticated and user.tipo_usuario == 'ALUNO' and user.aluno_profile.id != comentario.aluno.id %}
                                                         <button type="button"
                                                             class="btn btn-outline-secondary btn-sm denunciar-btn"
                                                             data-comentario-id="{{ comentario.id }}">
