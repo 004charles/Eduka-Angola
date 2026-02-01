@@ -37,116 +37,254 @@
     {% include 'include/header.html' %}
 
     <main>
-        <div class="rbt-banner-area rbt-banner-1">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-12 pb--120 pt--70">
-                        <div class="content">
-                            <div class="inner">
-                                <div class="rbt-new-badge rbt-new-badge-one">
-                                    <span class="rbt-new-badge-icon">🏆</span> Cursos Certificados e Atualizados
-                                </div>
+        <div class="rbt-banner-area rbt-banner-18">
+            <div class="wrapper">
+                <div class="shape-wrap">
+                    <div class="shadow-1">
+                    </div>
+                    <div class="shadow-2">
+                    </div>
+                    <div class="shadow-3">
+                    </div>
+                    <div class="shadow-4">
+                    </div>
+                    <div class="glass">
+                        <img src="{% static 'assets/images/shape/i-glass.png' %}" alt="Banner Shape">
+                    </div>
+                    <div class="union">
+                        <img src="{% static 'assets/images/shape/o-union.png' %}" alt="Banner Shape">
+                    </div>
+                    <div class="dot-shape-1 scene">
+                        <span data-depth="1">
+                            <img src="{% static 'assets/images/shape/ic-dots.png' %}" alt="Banner Shape">
+                        </span>
+                    </div>
+                </div>
 
-                                <h1 class="title">
-                                    Encontre os <span class="color-primary">Melhores Cursos</span>
-                                    para Desenvolver as Suas Competências
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-7">
+                            <div class="inner position-relative">
+                                <h6 class="subtitle">
+                                    <span class="theme-gradient">Aprendizagem Profissional e Contínua</span>
+                                </h6>
+
+                                <h1 class="sec-title">
+                                    Cursos de centros Agora na Palma dos Seus
+                                    <span class="theme-gradient">Dedos</span>
                                 </h1>
 
                                 <p class="description">
-                                    Explore uma ampla variedade de cursos técnicos, profissionais e académicos,
-                                    ministrados por centros de formação e especialistas qualificados em Angola.
-                                    Aprenda no seu ritmo e avance na sua carreira.
+                                    Aprenda novas competências com cursos práticos e atualizados,
+                                    desenvolvidos para impulsionar a sua carreira e crescimento profissional.
+                                    <span class="w-500"> Estude no seu ritmo, onde e quando quiser.</span>
                                 </p>
 
-                                <div class="slider-btn">
+                                <div class="button-group">
                                     <a class="rbt-btn btn-gradient hover-icon-reverse" href="#">
                                         <span class="icon-reverse-wrapper">
-                                            <span class="btn-text">Explorar Cursos</span>
+                                            <span class="btn-text">Começar Agora</span>
                                             <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                             <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                         </span>
                                     </a>
                                 </div>
-                            </div>
 
-                            <div class="banner-card pb--60 mb--50 swiper rbt-dot-bottom-center banner-swiper-active">
-                                <div class="swiper-wrapper">
-                                    {% for curso in cursos_proximos %}
-                                    {% include 'cursos/card_home_cursos.html' %}
-                                    {% endfor %}
+                                <div class="line-arrow scene">
+                                    <span data-depth="1">
+                                        <img src="{% static 'assets/images/shape/i-line-arrow.png' %}"
+                                            alt="Forma do Banner">
+                                    </span>
                                 </div>
-                                <div class="rbt-swiper-pagination"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="content">
+                                <div class="banner-card pb--60 swiper rbt-dot-bottom-center banner-swiper-active">
+                                    <div class="swiper-wrapper">
+                                        {% for curso in cursos_destaque %}
+                                        {% include 'cursos/card_home_cursos.html' %}
+                                        {% endfor %}
+                                    </div>
+                                    <div class="rbt-swiper-pagination"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-5">
+                            <div class="banner-wrap">
+                                <div class="banner" data-parallax='{"x": 0, "y": 60}'>
+                                    <img src="{% static 'assets/images/banner/i-banner.pn' %}" alt="Banner">
+                                </div>
+
+                                <div class="enrolled">
+                                    <div class="enrolled-cont">
+                                        <span>
+                                            <img src="{% static 'assets/images/shape/o-icon-2.png' %}" alt="">
+                                        </span>
+                                        <div>
+                                            <h6 class="feature-title">36k+</h6>
+                                            <p class="feature-description">Estudantes satisfeito</p>
+                                        </div>
+                                    </div>
+                                    <div class="profile-share">
+                                        <a href="18-instructors-coaches.html#" class="avatar" data-tooltip="Ava Miller"
+                                            tabindex="0">
+                                            <img src="{% static 'assets/images/shape/art-stu-2.png' %}" alt="education">
+                                        </a>
+                                        <a href="18-instructors-coaches.html#" class="avatar" data-tooltip="Mark Jordan"
+                                            tabindex="0">
+                                            <img src="{% static 'assets/images/shape/art-stu-1.png' %}" alt="education">
+                                        </a>
+                                        <a href="18-instructors-coaches.html#" class="avatar" data-tooltip="Jordan"
+                                            tabindex="0">
+                                            <img src="{% static 'assets/images/shape/art-stu-3.png' %}" alt="education">
+                                        </a>
+                                        <a href="18-instructors-coaches.html#" class="avatar" data-tooltip="Ava Miller"
+                                            tabindex="0">
+                                            <img src="{% static 'assets/images/shape/i-team.png' %}" alt="education">
+                                        </a>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
+
+                    <!-- Start Brand -->
+                    <div class="brand-box-wrap">
+                        <div class="uion">
+                            <img src="{% static 'assets/images/shape/i-uion-big.png' %}" alt="Forma do Banner">
+                        </div>
+
+                        <div class="leaf" data-parallax='{"x": 0, "y": -30}'>
+                            <img src="{% static 'assets/images/shape/i-leaf.png' %}" alt="Forma Decorativa">
+                        </div>
+
+                        <div class="brand-box text-center bg-white">
+                            <span class="b1 w-600 mb-0">
+                                Centros de Formação Parceiros que Confiam na Nossa Plataforma
+                            </span>
+
+                            <ul
+                                class="brand-list brand-style-3 justify-content-start justify-content-lg-between mt--30">
+                                <li>
+                                    <a href="#">
+                                        <img src="{% static 'assets/images/brand/partner-sm-1.png' %}"
+                                            alt="Centro Parceiro">
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        <img src="{% static 'assets/images/brand/partner-sm-2.png' %}"
+                                            alt="Centro Parceiro">
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        <img src="{% static 'assets/images/brand/partner-sm-3.png' %}"
+                                            alt="Centro Parceiro">
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        <img src="{% static 'assets/images/brand/partner-sm-4.png' %}"
+                                            alt="Centro Parceiro">
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        <img src="{% static 'assets/images/brand/partner-sm-1.png' %}"
+                                            alt="Centro Parceiro">
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        <img src="{% static 'assets/images/brand/partner-sm-2.png' %}"
+                                            alt="Centro Parceiro">
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        <img src="{% static 'assets/images/brand/partner-sm-3.png' %}"
+                                            alt="Centro Parceiro">
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- End Brand -->
                 </div>
             </div>
         </div>
 
     </main>
 
-    <div class="rbt-categories-area rbt-section-gap">
-        <div class="container">
-            <div class="row g-5 align-items-center mb--50">
-                <div class="col-lg-8 col-md-7 col-12">
-                    <div class="section-title">
-                        <h2 class="title">Explorar <span><img src="{% static 'assets/images/shape/o-icon-2.png' %}"
-                                    alt="Cap Icon"></span>
-                            categoria</h2>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-5 col-12">
-                    <div class="d-flex justify-content-end gap-3 rbt-arrow-between">
-                        <div class="rbt-swiper-arrow style_2 rbt-arrow-left">
-                            <div class="custom-overfolow">
-                                <i class="rbt-icon feather-arrow-left"></i>
-                                <i class="rbt-icon-top feather-arrow-left"></i>
-                            </div>
-                        </div>
 
-                        <div class="rbt-swiper-arrow style_2 rbt-arrow-right">
-                            <div class="custom-overfolow">
-                                <i class="rbt-icon feather-arrow-right"></i>
-                                <i class="rbt-icon-top feather-arrow-right"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div class="rbt-category-area rbt-section-gapBottom">
+        <div class="container">
+            <div class="section-title text-center mb--55">
+                <h6 class="b2 mb--15">
+                    <span class="theme-gradient">Categorias Populares</span>
+                </h6>
+
+                <h2 class="title w-600">
+                    Explore as Principais Categorias de Cursos <br>
+                    Que <span class="theme-gradient">Transformam o Seu Futuro</span>
+                </h2>
             </div>
-            <div class="category-activation-four swiper">
+
+            <div
+                class="swiper category-activation-one rbt-arrow-between icon-bg-gray rbt-dot-bottom-center gutter-swiper-30 pb--50">
                 <div class="swiper-wrapper">
                     {% for categoria in categorias %}
                     <div class="swiper-slide">
-                        <div class="rbt-cat-box rbt-cat-box-1 variation-3 text-center">
-                            <div class="inner">
-                                <div class="thumbnail">
-                                    <a href="{% url 'cursos_por_categoria' categoria.slug %}">
+                        <div class="single-slide">
+                            <a class="rbt-cat-box rbt-cat-box-1 text-center"
+                                href="{% url 'cursos_por_categoria' categoria.slug %}">
+                                <div class="inner">
+                                    <div class="icons">
                                         {% if categoria.imagem %}
-                                        <img src="{{ categoria.imagem.url }}" alt="Ícone de {{ categoria.nome }}">
+                                        <img src="{{categoria.imagem.url}}" alt="Icons Images">
                                         {% else %}
                                         <img src="{% static 'assets/images/category/default.jpg' %}"
                                             alt="Ícone de {{ categoria.nome }}">
                                         {% endif %}
+                                    </div>
+                                    <div class="content">
+                                        <h5 class="title">{{categoria.nome}}</h5>
                                         <div class="read-more-btn">
-                                            <span class="rbt-btn btn-sm btn-white radius-round">{{categoria.num_cursos}}
-                                                Cursos</span>
+                                            <span class="rbt-btn-link">{{categoria.num_cursos}} Cursos<i
+                                                    class="feather-arrow-right"></i></span>
                                         </div>
-                                    </a>
+                                    </div>
                                 </div>
-                                <div class="content">
-                                    <h5 class="title"><a href="course-filter-one-toggle.html">{{categoria.nome}}</a>
-                                    </h5>
-                                    <p class="description">{{categoria.nome}}</p>
-                                </div>
-                            </div>
+                            </a>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
+
+
+                <div class="rbt-swiper-arrow rbt-arrow-left">
+                    <div class="custom-overfolow">
+                        <i class="rbt-icon feather-arrow-left"></i>
+                        <i class="rbt-icon-top feather-arrow-left"></i>
+                    </div>
+                </div>
+
+                <div class="rbt-swiper-arrow rbt-arrow-right">
+                    <div class="custom-overfolow">
+                        <i class="rbt-icon feather-arrow-right"></i>
+                        <i class="rbt-icon-top feather-arrow-right"></i>
+                    </div>
+                </div>
+
+                <div class="rbt-swiper-pagination"></div>
             </div>
         </div>
     </div>
-
 
 
     {% load static %}
@@ -200,169 +338,253 @@
     </div>
 
 
+    <div class="rbt-video-area video-section-03 bg-color-white rbt-section-gap">
+    <div class="container">
+        <div class="row g-5 align-items-center position-relative">
+            <div class="union-shape">
+                <img src="{% static 'assets/images/shape/v-union.png' %}" alt="Forma Decorativa">
+            </div>
+            <div class="star-shape">
+                <img src="{% static 'assets/images/shape/v-star.png' %}" alt="Forma Decorativa">
+            </div>
+
+            <div class="col-lg-6">
+                <div class="video-popup-wrapper">
+                    <img class="w-100 rbt-radius"
+                         src="{% static 'img/banners/training_center_lab_1_1769959754699.png' %}"
+                         alt="Vídeo da Plataforma">
+                    <a class="rbt-btn rounded-player popup-video position-to-top rbtplayer border-rounded"
+                       href="https://www.youtube.com/watch?v=nA1Aqp0sPQo">
+                        <span><i class="feather-play"></i></span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="inner pl--50 pl_lg--0 pl_md--0 pl_sm--0">
+                    <div class="section-title text-start">
+                        <h6 class="b2 mb--15">
+                            <span class="theme-gradient">Como funciona?</span>
+                        </h6>
+
+                        <h2 class="title w-600">
+                            Cursos Focados na Construção de <br>
+                            Bases Sólidas para o
+                            <span class="theme-gradient">Crescimento Profissional</span>
+                        </h2>
+
+                        <div class="rbt-feature-wrapper mt--40">
+                            <div class="rbt-feature feature-style-1 align-items-center">
+                                <div class="icon bg-pink-opacity">
+                                    <i class="feather-heart"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h6 class="feature-title">Aulas Flexíveis</h6>
+                                </div>
+                            </div>
+
+                            <div class="rbt-feature feature-style-1 align-items-center">
+                                <div class="icon bg-primary-opacity">
+                                    <i class="feather-book"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h6 class="feature-title">Aprenda de Qualquer Lugar</h6>
+                                </div>
+                            </div>
+
+                            <div class="rbt-feature feature-style-1 align-items-center">
+                                <div class="icon bg-coral-opacity">
+                                    <i class="feather-monitor"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h6 class="feature-title">Aprendizagem Baseada em Competências</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
     <div style="margin-top: 20px; margin-bottom: 10px;" class="banner-overlay-section">
-            <div class="container">
-                <div class="row mb--30">
+        <div class="container">
+            <div class="row mb--30">
                 <div class="col-lg-12">
                     <div class="section-title text-start">
                         <h6 class="b2 mb--15">
                             <span class="theme-gradient">Centros de formacao</span>
                         </h6>
                         <h2 class="title w-600">
-                            Habilidades em 
+                            Habilidades em
                             <span class="theme-gradient">IA sobe demanda.</span>
                         </h2>
                     </div>
                 </div>
             </div>
-                <div class="row row--15">
-                    <div class="col-lg-12">
-                        <div class="swiper team-slide-activation-4 rbt-arrow-between rbt-dot-bottom-center">
-                            <div class="swiper-wrapper">
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-04.jpg' %}" alt="Blog Images"></a>
-                                        </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">Aaron Griffe</a></h4>
-                                                <p class="designation">Depertment Head</p>
-                                            </div>
-                                            <div class="rbt-bookmark-btn">
-                                                <a class="rbt-round-btn" title="Bookmark" href="course-details.html#"><i
-                                                        class="feather-bookmark"></i></a>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
-
-                                        </div>
+            <div class="row row--15">
+                <div class="col-lg-12">
+                    <div class="swiper team-slide-activation-4 rbt-arrow-between rbt-dot-bottom-center">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide">
+                                <div class="team team-style--bottom variation-2">
+                                    <div class="thumbnail">
+                                        <a href="15-home-technology.html#"><img
+                                                src="{% static 'assets/images/team/team-04.jpg' %}"
+                                                alt="Blog Images"></a>
                                     </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-05.jpg' %}" alt="Blog Images"></a>
+                                    <div class="content">
+                                        <div class="inner">
+                                            <h4 class="title"><a href="15-home-technology.html#">Aaron Griffe</a></h4>
+                                            <p class="designation">Depertment Head</p>
                                         </div>
-                                        
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">Aaron Griffe</a></h4>
-                                                <p class="designation">Teacher</p>
-                                            </div>
-                                            <div class="rbt-bookmark-btn">
-                                                <a class="rbt-round-btn" title="Bookmark" href="course-details.html#"><i
-                                                        class="feather-bookmark"></i></a>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
+                                        <div class="rbt-bookmark-btn">
+                                            <a class="rbt-round-btn" title="Bookmark" href="course-details.html#"><i
+                                                    class="feather-bookmark"></i></a>
+                                        </div>
+                                        <div class="icon-right">
+                                            <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
                                         </div>
 
                                     </div>
                                 </div>
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-06.jpg' %}" alt="Blog Images"></a>
+                            </div>
+                            <div class="swiper-slide">
+                                <div class="team team-style--bottom variation-2">
+                                    <div class="thumbnail">
+                                        <a href="15-home-technology.html#"><img
+                                                src="{% static 'assets/images/team/team-05.jpg' %}"
+                                                alt="Blog Images"></a>
+                                    </div>
+
+                                    <div class="content">
+                                        <div class="inner">
+                                            <h4 class="title"><a href="15-home-technology.html#">Aaron Griffe</a></h4>
+                                            <p class="designation">Teacher</p>
                                         </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">Joe Bidden</a></h4>
-                                                <p class="designation">Depertment Head</p>
-                                            </div>
-                                            <div class="rbt-bookmark-btn">
-                                                <a class="rbt-round-btn" title="Bookmark" href="course-details.html#"><i
-                                                        class="feather-bookmark"></i></a>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
+                                        <div class="rbt-bookmark-btn">
+                                            <a class="rbt-round-btn" title="Bookmark" href="course-details.html#"><i
+                                                    class="feather-bookmark"></i></a>
+                                        </div>
+                                        <div class="icon-right">
+                                            <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
                                         </div>
                                     </div>
+
                                 </div>
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-03.jpg' %}" alt="Blog Images"></a>
-                                        </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">John Due</a></h4>
-                                                <p class="designation">Marketing SR</p>
-                                            </div>
-                                            <div class="rbt-bookmark-btn">
-                                                <a class="rbt-round-btn" title="Bookmark" href="course-details.html#"><i
-                                                        class="feather-bookmark"></i></a>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
+                            </div>
+                            <div class="swiper-slide">
+                                <div class="team team-style--bottom variation-2">
+                                    <div class="thumbnail">
+                                        <a href="15-home-technology.html#"><img
+                                                src="{% static 'assets/images/team/team-06.jpg' %}"
+                                                alt="Blog Images"></a>
                                     </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-02.jpg' %}" alt="Blog Images"></a>
+                                    <div class="content">
+                                        <div class="inner">
+                                            <h4 class="title"><a href="15-home-technology.html#">Joe Bidden</a></h4>
+                                            <p class="designation">Depertment Head</p>
                                         </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">Joe Bidden</a></h4>
-                                                <p class="designation">Depertment Head</p>
-                                            </div>
-                                            <div class="rbt-bookmark-btn">
-                                                <a class="rbt-round-btn" title="Bookmark" href="course-details.html#"><i
-                                                        class="feather-bookmark"></i></a>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
+                                        <div class="rbt-bookmark-btn">
+                                            <a class="rbt-round-btn" title="Bookmark" href="course-details.html#"><i
+                                                    class="feather-bookmark"></i></a>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-01.jpg' %}" alt="Blog Images"></a>
-                                        </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">Jannen</a></h4>
-                                                <p class="designation">App Developer</p>
-                                            </div>
-                                            <div class="rbt-bookmark-btn">
-                                                <a class="rbt-round-btn" title="Bookmark" href="course-details.html#"><i
-                                                        class="feather-bookmark"></i></a>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
+                                        <div class="icon-right">
+                                            <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="rbt-swiper-arrow rbt-arrow-left">
-                                <div class="custom-overfolow">
-                                    <i class="rbt-icon feather-arrow-left"></i>
-                                    <i class="rbt-icon-top feather-arrow-left"></i>
+                            <div class="swiper-slide">
+                                <div class="team team-style--bottom variation-2">
+                                    <div class="thumbnail">
+                                        <a href="15-home-technology.html#"><img
+                                                src="{% static 'assets/images/team/team-03.jpg' %}"
+                                                alt="Blog Images"></a>
+                                    </div>
+                                    <div class="content">
+                                        <div class="inner">
+                                            <h4 class="title"><a href="15-home-technology.html#">John Due</a></h4>
+                                            <p class="designation">Marketing SR</p>
+                                        </div>
+                                        <div class="rbt-bookmark-btn">
+                                            <a class="rbt-round-btn" title="Bookmark" href="course-details.html#"><i
+                                                    class="feather-bookmark"></i></a>
+                                        </div>
+                                        <div class="icon-right">
+                                            <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div class="rbt-swiper-arrow rbt-arrow-right">
-                                <div class="custom-overfolow">
-                                    <i class="rbt-icon feather-arrow-right"></i>
-                                    <i class="rbt-icon-top feather-arrow-right"></i>
+                            <div class="swiper-slide">
+                                <div class="team team-style--bottom variation-2">
+                                    <div class="thumbnail">
+                                        <a href="15-home-technology.html#"><img
+                                                src="{% static 'assets/images/team/team-02.jpg' %}"
+                                                alt="Blog Images"></a>
+                                    </div>
+                                    <div class="content">
+                                        <div class="inner">
+                                            <h4 class="title"><a href="15-home-technology.html#">Joe Bidden</a></h4>
+                                            <p class="designation">Depertment Head</p>
+                                        </div>
+                                        <div class="rbt-bookmark-btn">
+                                            <a class="rbt-round-btn" title="Bookmark" href="course-details.html#"><i
+                                                    class="feather-bookmark"></i></a>
+                                        </div>
+                                        <div class="icon-right">
+                                            <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-
+                            <div class="swiper-slide">
+                                <div class="team team-style--bottom variation-2">
+                                    <div class="thumbnail">
+                                        <a href="15-home-technology.html#"><img
+                                                src="{% static 'assets/images/team/team-01.jpg' %}"
+                                                alt="Blog Images"></a>
+                                    </div>
+                                    <div class="content">
+                                        <div class="inner">
+                                            <h4 class="title"><a href="15-home-technology.html#">Jannen</a></h4>
+                                            <p class="designation">App Developer</p>
+                                        </div>
+                                        <div class="rbt-bookmark-btn">
+                                            <a class="rbt-round-btn" title="Bookmark" href="course-details.html#"><i
+                                                    class="feather-bookmark"></i></a>
+                                        </div>
+                                        <div class="icon-right">
+                                            <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        <div class="rbt-swiper-arrow rbt-arrow-left">
+                            <div class="custom-overfolow">
+                                <i class="rbt-icon feather-arrow-left"></i>
+                                <i class="rbt-icon-top feather-arrow-left"></i>
+                            </div>
+                        </div>
+
+                        <div class="rbt-swiper-arrow rbt-arrow-right">
+                            <div class="custom-overfolow">
+                                <i class="rbt-icon feather-arrow-right"></i>
+                                <i class="rbt-icon-top feather-arrow-right"></i>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
 
@@ -415,141 +637,153 @@
 
 
     <div style="margin-top: 20px;" class="banner-overlay-section">
-            <div class="container">
-                <div class="row mb--30">
+        <div class="container">
+            <div class="row mb--30">
                 <div class="col-lg-12">
                     <div class="section-title text-start">
                         <h6 class="b2 mb--15">
                             <span class="theme-gradient">Centros de formacao</span>
                         </h6>
                         <h2 class="title w-600">
-                            Mais populares 
+                            Mais populares
                             <span class="theme-gradient">por categoria.</span>
                         </h2>
                     </div>
                 </div>
             </div>
-                <div class="row row--15">
-                    <div class="col-lg-12">
-                        <div class="swiper team-slide-activation-4 rbt-arrow-between rbt-dot-bottom-center">
-                            <div class="swiper-wrapper">
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-04.jpg' %}" alt="Blog Images"></a>
-                                        </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">Aaron Griffe</a></h4>
-                                                <p class="designation">Depertment Head</p>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
+            <div class="row row--15">
+                <div class="col-lg-12">
+                    <div class="swiper team-slide-activation-4 rbt-arrow-between rbt-dot-bottom-center">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide">
+                                <div class="team team-style--bottom variation-2">
+                                    <div class="thumbnail">
+                                        <a href="15-home-technology.html#"><img
+                                                src="{% static 'assets/images/team/team-04.jpg' %}"
+                                                alt="Blog Images"></a>
                                     </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-05.jpg' %}" alt="Blog Images"></a>
+                                    <div class="content">
+                                        <div class="inner">
+                                            <h4 class="title"><a href="15-home-technology.html#">Aaron Griffe</a></h4>
+                                            <p class="designation">Depertment Head</p>
                                         </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">Aaron Griffe</a></h4>
-                                                <p class="designation">Teacher</p>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-06.jpg' %}" alt="Blog Images"></a>
-                                        </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">Joe Bidden</a></h4>
-                                                <p class="designation">Depertment Head</p>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-03.jpg' %}" alt="Blog Images"></a>
-                                        </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">John Due</a></h4>
-                                                <p class="designation">Marketing SR</p>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-02.jpg' %}" alt="Blog Images"></a>
-                                        </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">Joe Bidden</a></h4>
-                                                <p class="designation">Depertment Head</p>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-01.jpg' %}" alt="Blog Images"></a>
-                                        </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">Jannen</a></h4>
-                                                <p class="designation">App Developer</p>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
+                                        <div class="icon-right">
+                                            <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="rbt-swiper-arrow rbt-arrow-left">
-                                <div class="custom-overfolow">
-                                    <i class="rbt-icon feather-arrow-left"></i>
-                                    <i class="rbt-icon-top feather-arrow-left"></i>
+                            <div class="swiper-slide">
+                                <div class="team team-style--bottom variation-2">
+                                    <div class="thumbnail">
+                                        <a href="15-home-technology.html#"><img
+                                                src="{% static 'assets/images/team/team-05.jpg' %}"
+                                                alt="Blog Images"></a>
+                                    </div>
+                                    <div class="content">
+                                        <div class="inner">
+                                            <h4 class="title"><a href="15-home-technology.html#">Aaron Griffe</a></h4>
+                                            <p class="designation">Teacher</p>
+                                        </div>
+                                        <div class="icon-right">
+                                            <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div class="rbt-swiper-arrow rbt-arrow-right">
-                                <div class="custom-overfolow">
-                                    <i class="rbt-icon feather-arrow-right"></i>
-                                    <i class="rbt-icon-top feather-arrow-right"></i>
+                            <div class="swiper-slide">
+                                <div class="team team-style--bottom variation-2">
+                                    <div class="thumbnail">
+                                        <a href="15-home-technology.html#"><img
+                                                src="{% static 'assets/images/team/team-06.jpg' %}"
+                                                alt="Blog Images"></a>
+                                    </div>
+                                    <div class="content">
+                                        <div class="inner">
+                                            <h4 class="title"><a href="15-home-technology.html#">Joe Bidden</a></h4>
+                                            <p class="designation">Depertment Head</p>
+                                        </div>
+                                        <div class="icon-right">
+                                            <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-
+                            <div class="swiper-slide">
+                                <div class="team team-style--bottom variation-2">
+                                    <div class="thumbnail">
+                                        <a href="15-home-technology.html#"><img
+                                                src="{% static 'assets/images/team/team-03.jpg' %}"
+                                                alt="Blog Images"></a>
+                                    </div>
+                                    <div class="content">
+                                        <div class="inner">
+                                            <h4 class="title"><a href="15-home-technology.html#">John Due</a></h4>
+                                            <p class="designation">Marketing SR</p>
+                                        </div>
+                                        <div class="icon-right">
+                                            <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="swiper-slide">
+                                <div class="team team-style--bottom variation-2">
+                                    <div class="thumbnail">
+                                        <a href="15-home-technology.html#"><img
+                                                src="{% static 'assets/images/team/team-02.jpg' %}"
+                                                alt="Blog Images"></a>
+                                    </div>
+                                    <div class="content">
+                                        <div class="inner">
+                                            <h4 class="title"><a href="15-home-technology.html#">Joe Bidden</a></h4>
+                                            <p class="designation">Depertment Head</p>
+                                        </div>
+                                        <div class="icon-right">
+                                            <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="swiper-slide">
+                                <div class="team team-style--bottom variation-2">
+                                    <div class="thumbnail">
+                                        <a href="15-home-technology.html#"><img
+                                                src="{% static 'assets/images/team/team-01.jpg' %}"
+                                                alt="Blog Images"></a>
+                                    </div>
+                                    <div class="content">
+                                        <div class="inner">
+                                            <h4 class="title"><a href="15-home-technology.html#">Jannen</a></h4>
+                                            <p class="designation">App Developer</p>
+                                        </div>
+                                        <div class="icon-right">
+                                            <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        <div class="rbt-swiper-arrow rbt-arrow-left">
+                            <div class="custom-overfolow">
+                                <i class="rbt-icon feather-arrow-left"></i>
+                                <i class="rbt-icon-top feather-arrow-left"></i>
+                            </div>
+                        </div>
+
+                        <div class="rbt-swiper-arrow rbt-arrow-right">
+                            <div class="custom-overfolow">
+                                <i class="rbt-icon feather-arrow-right"></i>
+                                <i class="rbt-icon-top feather-arrow-right"></i>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
 
@@ -601,8 +835,8 @@
 
 
     <div style="margin-top: 20px;" class="banner-overlay-section">
-            <div class="container">
-                <div class="row mb--30">
+        <div class="container">
+            <div class="row mb--30">
                 <div class="col-lg-12">
                     <div class="section-title text-start">
                         <h6 class="b2 mb--15">
@@ -615,127 +849,139 @@
                     </div>
                 </div>
             </div>
-                <div class="row row--15">
-                    <div class="col-lg-12">
-                        <div class="swiper team-slide-activation-4 rbt-arrow-between rbt-dot-bottom-center">
-                            <div class="swiper-wrapper">
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-04.jpg' %}" alt="Blog Images"></a>
-                                        </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">Aaron Griffe</a></h4>
-                                                <p class="designation">Depertment Head</p>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
+            <div class="row row--15">
+                <div class="col-lg-12">
+                    <div class="swiper team-slide-activation-4 rbt-arrow-between rbt-dot-bottom-center">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide">
+                                <div class="team team-style--bottom variation-2">
+                                    <div class="thumbnail">
+                                        <a href="15-home-technology.html#"><img
+                                                src="{% static 'assets/images/team/team-04.jpg' %}"
+                                                alt="Blog Images"></a>
                                     </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-05.jpg' %}" alt="Blog Images"></a>
+                                    <div class="content">
+                                        <div class="inner">
+                                            <h4 class="title"><a href="15-home-technology.html#">Aaron Griffe</a></h4>
+                                            <p class="designation">Depertment Head</p>
                                         </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">Aaron Griffe</a></h4>
-                                                <p class="designation">Teacher</p>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-06.jpg' %}" alt="Blog Images"></a>
-                                        </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">Joe Bidden</a></h4>
-                                                <p class="designation">Depertment Head</p>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-03.jpg' %}" alt="Blog Images"></a>
-                                        </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">John Due</a></h4>
-                                                <p class="designation">Marketing SR</p>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-02.jpg' %}" alt="Blog Images"></a>
-                                        </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">Joe Bidden</a></h4>
-                                                <p class="designation">Depertment Head</p>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-01.jpg' %}" alt="Blog Images"></a>
-                                        </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">Jannen</a></h4>
-                                                <p class="designation">App Developer</p>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
+                                        <div class="icon-right">
+                                            <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="rbt-swiper-arrow rbt-arrow-left">
-                                <div class="custom-overfolow">
-                                    <i class="rbt-icon feather-arrow-left"></i>
-                                    <i class="rbt-icon-top feather-arrow-left"></i>
+                            <div class="swiper-slide">
+                                <div class="team team-style--bottom variation-2">
+                                    <div class="thumbnail">
+                                        <a href="15-home-technology.html#"><img
+                                                src="{% static 'assets/images/team/team-05.jpg' %}"
+                                                alt="Blog Images"></a>
+                                    </div>
+                                    <div class="content">
+                                        <div class="inner">
+                                            <h4 class="title"><a href="15-home-technology.html#">Aaron Griffe</a></h4>
+                                            <p class="designation">Teacher</p>
+                                        </div>
+                                        <div class="icon-right">
+                                            <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div class="rbt-swiper-arrow rbt-arrow-right">
-                                <div class="custom-overfolow">
-                                    <i class="rbt-icon feather-arrow-right"></i>
-                                    <i class="rbt-icon-top feather-arrow-right"></i>
+                            <div class="swiper-slide">
+                                <div class="team team-style--bottom variation-2">
+                                    <div class="thumbnail">
+                                        <a href="15-home-technology.html#"><img
+                                                src="{% static 'assets/images/team/team-06.jpg' %}"
+                                                alt="Blog Images"></a>
+                                    </div>
+                                    <div class="content">
+                                        <div class="inner">
+                                            <h4 class="title"><a href="15-home-technology.html#">Joe Bidden</a></h4>
+                                            <p class="designation">Depertment Head</p>
+                                        </div>
+                                        <div class="icon-right">
+                                            <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-
+                            <div class="swiper-slide">
+                                <div class="team team-style--bottom variation-2">
+                                    <div class="thumbnail">
+                                        <a href="15-home-technology.html#"><img
+                                                src="{% static 'assets/images/team/team-03.jpg' %}"
+                                                alt="Blog Images"></a>
+                                    </div>
+                                    <div class="content">
+                                        <div class="inner">
+                                            <h4 class="title"><a href="15-home-technology.html#">John Due</a></h4>
+                                            <p class="designation">Marketing SR</p>
+                                        </div>
+                                        <div class="icon-right">
+                                            <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="swiper-slide">
+                                <div class="team team-style--bottom variation-2">
+                                    <div class="thumbnail">
+                                        <a href="15-home-technology.html#"><img
+                                                src="{% static 'assets/images/team/team-02.jpg' %}"
+                                                alt="Blog Images"></a>
+                                    </div>
+                                    <div class="content">
+                                        <div class="inner">
+                                            <h4 class="title"><a href="15-home-technology.html#">Joe Bidden</a></h4>
+                                            <p class="designation">Depertment Head</p>
+                                        </div>
+                                        <div class="icon-right">
+                                            <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="swiper-slide">
+                                <div class="team team-style--bottom variation-2">
+                                    <div class="thumbnail">
+                                        <a href="15-home-technology.html#"><img
+                                                src="{% static 'assets/images/team/team-01.jpg' %}"
+                                                alt="Blog Images"></a>
+                                    </div>
+                                    <div class="content">
+                                        <div class="inner">
+                                            <h4 class="title"><a href="15-home-technology.html#">Jannen</a></h4>
+                                            <p class="designation">App Developer</p>
+                                        </div>
+                                        <div class="icon-right">
+                                            <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        <div class="rbt-swiper-arrow rbt-arrow-left">
+                            <div class="custom-overfolow">
+                                <i class="rbt-icon feather-arrow-left"></i>
+                                <i class="rbt-icon-top feather-arrow-left"></i>
+                            </div>
+                        </div>
+
+                        <div class="rbt-swiper-arrow rbt-arrow-right">
+                            <div class="custom-overfolow">
+                                <i class="rbt-icon feather-arrow-right"></i>
+                                <i class="rbt-icon-top feather-arrow-right"></i>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
 
@@ -851,44 +1097,44 @@
     </div>
 
     <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const sections = document.querySelectorAll(".rbt-course-area");
+        document.addEventListener("DOMContentLoaded", function () {
+            const sections = document.querySelectorAll(".rbt-course-area");
 
-    sections.forEach(section => {
-        const cursos = section.querySelectorAll(".curso-item");
-        const btn = section.querySelector(".btn-load-more");
-        const texto = btn.querySelector(".btn-text");
+            sections.forEach(section => {
+                const cursos = section.querySelectorAll(".curso-item");
+                const btn = section.querySelector(".btn-load-more");
+                const texto = btn.querySelector(".btn-text");
 
-        const inicial = 3;
-        const incremento = 3;
-        let visiveis = inicial;
-        let expandido = false;
+                const inicial = 3;
+                const incremento = 3;
+                let visiveis = inicial;
+                let expandido = false;
 
-        function atualizar() {
-            cursos.forEach((curso, index) => {
-                curso.style.display = index < visiveis ? "block" : "none";
+                function atualizar() {
+                    cursos.forEach((curso, index) => {
+                        curso.style.display = index < visiveis ? "block" : "none";
+                    });
+
+                    if (visiveis >= cursos.length) {
+                        texto.textContent = "Mostrar menos";
+                        expandido = true;
+                    } else {
+                        texto.textContent = "Mostrar +3";
+                        expandido = false;
+                    }
+
+                    if (cursos.length <= inicial) btn.style.display = "none";
+                }
+
+                btn.addEventListener("click", () => {
+                    visiveis = expandido ? inicial : visiveis + incremento;
+                    atualizar();
+                });
+
+                atualizar();
             });
-
-            if (visiveis >= cursos.length) {
-                texto.textContent = "Mostrar menos";
-                expandido = true;
-            } else {
-                texto.textContent = "Mostrar +3";
-                expandido = false;
-            }
-
-            if (cursos.length <= inicial) btn.style.display = "none";
-        }
-
-        btn.addEventListener("click", () => {
-            visiveis = expandido ? inicial : visiveis + incremento;
-            atualizar();
         });
-
-        atualizar();
-    });
-});
-</script>
+    </script>
 
 
     <!-- Start Footer aera -->
