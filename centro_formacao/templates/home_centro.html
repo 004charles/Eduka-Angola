@@ -1,0 +1,276 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Edukangola | home</title>
+    <meta name="robots" content="noindex, follow">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+    <!-- Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+
+
+    {% include 'include/css.html' %}
+    
+
+</head>
+
+<body class="rbt-header-sticky">
+
+    <div id="my_switcher" class="my_switcher">
+        <ul>
+            <li>
+                <a href="javascript: void(0);" data-theme="light" class="setColor light">
+                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode">
+                        Light</span>
+                </a>
+            </li>
+            <li>
+                <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
+                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span
+                        title="{% trans 'Dark Mode' %}"> {% trans 'Dark' %}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    {% include 'include/header.html' %}
+    {% include 'include/loading.html' %}
+
+
+    <main style="margin-top: 13px;" class="rbt-main-wrapper ">
+        <!-- Start Banner Area  -->
+        <div class="rbt-banner-area rbt-banner-19">
+            <div class="wrapper">
+                <div class="swiper rbt-banner-activation-2 rbt-slider-animation rbt-arrow-between">
+                    <div class="swiper-wrapper">
+                        <!-- Start Single Banner  -->
+                        <div class="swiper-slide">
+                            <div class="rbt-banner-item bg_image bg_image--24">
+                                <div class="shape-1">
+                                    <img src="{% static 'assets/images/centro formacao.png' %}" alt="Shape">
+                                </div>
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="inner">
+                                                <h6 class="subtitle">
+                                                    <span>
+                                                        <img src="{% static 'assets/images/icons/trustpilot-white.png' %}"
+                                                            alt="trustpilot">
+                                                    </span>
+                                                    Centros verificados e avaliados
+                                                </h6>
+                                                <h1 class="title">Centros de Formação de Confiança</h1>
+                                                <p class="description">
+                                                    Conectamos estudantes aos melhores centros de formação,
+                                                    com qualidade reconhecida e ensino alinhado ao mercado de trabalho.
+                                                </p>
+                                                <div class="bottom-content d-flex align-items-center gap-5 flex-wrap">
+                                                    <a class="rbt-btn btn-gradient hover-icon-reverse"
+                                                        href="{% url 'home_cursos' %}">
+                                                        <span class="icon-reverse-wrapper">
+                                                            <span class="btn-text">Ver Centros</span>
+                                                            <span class="btn-icon"><i
+                                                                    class="feather-arrow-right"></i></span>
+                                                            <span class="btn-icon"><i
+                                                                    class="feather-arrow-right"></i></span>
+                                                        </span>
+                                                    </a>
+                                                    <div class="d-flex flex-wrap gap-4 align-items-center">
+                                                        <div class="profile-share">
+                                                            <a href="#" class="avatar" data-tooltip="Centro Parceiro">
+                                                                <img src="{% static 'assets/images/shape/art-stu-1.png' %}"
+                                                                    alt="education">
+                                                            </a>
+                                                            <a href="#" class="avatar" data-tooltip="Centro Parceiro">
+                                                                <img src="{% static 'assets/images/shape/art-stu-3.png' %}"
+                                                                    alt="education">
+                                                            </a>
+                                                            <a href="#" class="avatar" data-tooltip="Centro Parceiro">
+                                                                <img src="{% static 'assets/images/shape/art-stu-2.png' %}"
+                                                                    alt="education">
+                                                            </a>
+                                                        </div>
+                                                        <div>
+                                                            <h6 class="number mb-0">100+</h6>
+                                                            <p class="number-title">Centros Parceiros</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End Single Banner  -->
+
+                        <!-- Start Single Banner  -->
+                        <div class="swiper-slide">
+                            <div class="rbt-banner-item bg_image bg_image--25">
+                                <div class="shape-1">
+                                    <img src="{% static 'assets/images/sala.png' %}" alt="Shape">
+                                </div>
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="inner">
+                                                <h6 class="subtitle">
+                                                    <span>
+                                                        <img src="{% static 'assets/images/icons/trustpilot-white.png' %}"
+                                                            alt="trustpilot">
+                                                    </span>
+                                                    Formação prática e presencial
+                                                </h6>
+                                                <h1 class="title">Cursos Presenciais com Qualidade</h1>
+                                                <p class="description">
+                                                    Aprenda com instrutores qualificados em centros de formação,
+                                                    com aulas práticas, acompanhamento real e certificação reconhecida.
+                                                </p>
+                                                <div class="bottom-content d-flex align-items-center gap-5 flex-wrap">
+                                                    <a class="rbt-btn btn-gradient hover-icon-reverse"
+                                                        href="19-modern-university.html#">
+                                                        <span class="icon-reverse-wrapper">
+                                                            <span class="btn-text">Explorar Cursos</span>
+                                                            <span class="btn-icon"><i
+                                                                    class="feather-arrow-right"></i></span>
+                                                            <span class="btn-icon"><i
+                                                                    class="feather-arrow-right"></i></span>
+                                                        </span>
+                                                    </a>
+                                                    <div class="d-flex flex-wrap gap-4 align-items-center">
+                                                        <div class="profile-share">
+                                                            <a href="#" class="avatar" data-tooltip="Estudante">
+                                                                <img src="{% static 'assets/images/shape/art-stu-1.png' %}"
+                                                                    alt="education">
+                                                            </a>
+                                                            <a href="#" class="avatar" data-tooltip="Estudante">
+                                                                <img src="{% static 'assets/images/shape/art-stu-3.png' %}"
+                                                                    alt="education">
+                                                            </a>
+                                                            <a href="#" class="avatar" data-tooltip="Estudante">
+                                                                <img src="{% static 'assets/images/shape/art-stu-2.png' %}"
+                                                                    alt="education">
+                                                            </a>
+                                                        </div>
+                                                        <div>
+                                                            <h6 class="number mb-0">500+</h6>
+                                                            <p class="number-title">Cursos Disponíveis</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End Single Banner  -->
+
+                        <!-- Start Single Banner  -->
+                        <div class="swiper-slide">
+                            <div class="rbt-banner-item bg_image bg_image--26">
+                                <div class="shape-1">
+                                    <img src="{% static 'assets/images/video.png' %}" alt="Shape">
+                                </div>
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="inner">
+                                                <h6 class="subtitle">
+                                                    <span>
+                                                        <img src="{% static 'assets/images/icons/trustpilot-white.png' %}"
+                                                            alt="trustpilot">
+                                                    </span>
+                                                    Aprenda no seu ritmo
+                                                </h6>
+                                                <h1 class="title">Cursos em Vídeo da Plataforma</h1>
+                                                <p class="description">
+                                                    Tenha acesso a cursos em vídeo produzidos pelos centros de formação
+                                                    e especialistas, disponíveis a qualquer hora, em qualquer lugar.
+                                                </p>
+                                                <div class="bottom-content d-flex align-items-center gap-5 flex-wrap">
+                                                    <a class="rbt-btn btn-gradient hover-icon-reverse"
+                                                        href="19-modern-university.html#">
+                                                        <span class="icon-reverse-wrapper">
+                                                            <span class="btn-text">Assistir Aulas</span>
+                                                            <span class="btn-icon"><i
+                                                                    class="feather-arrow-right"></i></span>
+                                                            <span class="btn-icon"><i
+                                                                    class="feather-arrow-right"></i></span>
+                                                        </span>
+                                                    </a>
+                                                    <div class="d-flex flex-wrap gap-4 align-items-center">
+                                                        <div class="profile-share">
+                                                            <a href="#" class="avatar" data-tooltip="Curso em Vídeo">
+                                                                <img src="{% static 'assets/images/shape/art-stu-1.png' %}"
+                                                                    alt="education">
+                                                            </a>
+                                                            <a href="#" class="avatar" data-tooltip="Curso em Vídeo">
+                                                                <img src="{% static 'assets/images/shape/art-stu-3.png' %}"
+                                                                    alt="education">
+                                                            </a>
+                                                            <a href="#" class="avatar" data-tooltip="Curso em Vídeo">
+                                                                <img src="{% static 'assets/images/shape/art-stu-2.png' %}"
+                                                                    alt="education">
+                                                            </a>
+                                                        </div>
+                                                        <div>
+                                                            <h6 class="number mb-0">300+</h6>
+                                                            <p class="number-title">Cursos em Vídeo</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End Single Banner  -->
+                    </div>
+
+                    <div class="rbt-slider-control">
+                        <div class="rbt-swiper-arrow-2 rbt-arrow-left">
+                            <span class="icon">
+                                <i class="rbt-icon-top feather-arrow-left"></i>
+                            </span>
+                            <span class="text">Anterior</span>
+                        </div>
+
+                        <div class="rbt-swiper-arrow-2 rbt-arrow-right">
+                            <span class="text">Próximo</span>
+                            <span class="icon">
+                                <i class="rbt-icon feather-arrow-right"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        
+        {% include 'include/footer.html' %}
+
+        {% include 'include/java.html' %}
+
+    </main>   
+
+</body>
+
+
+
+
+
+
+</html>

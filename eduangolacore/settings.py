@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'planos',
     'inteligencia',
     'avaliacoes',
+    'centro_formacao',
 
 ]
 
@@ -55,7 +56,6 @@ INSTALLED_APPS = [
 
 ASGI_APPLICATION = 'eduangolacore.asgi.application'
 
-# Configuração do Channel Layer (para produção use Redis)
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',

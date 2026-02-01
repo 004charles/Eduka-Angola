@@ -33,7 +33,7 @@
             <!-- DESCRIÇÃO CURTA -->
             <p class="rbt-card-text">
                 {% if curso.descricao_curta %}
-                {{ curso.descricao_curta|truncatechars:80 }}
+                {{ curso.descricao_curta|truncatechars:50 }}
                 {% else %}
                 {{ curso.descricao|truncatechars:80 }}
                 {% endif %}

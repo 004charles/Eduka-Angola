@@ -1,3 +1,6 @@
 from django.shortcuts import render
 
-# Create your views here.
+
+
+def home_centro(request):
+    return render(request, 'home_centro.html')
