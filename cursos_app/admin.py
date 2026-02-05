@@ -12,6 +12,18 @@ class InstrutorAdmin(admin.ModelAdmin):
     search_fields = ('nome', 'email')
     list_filter = ('area_especializacao', 'ativo')
     readonly_fields = ('data_cadastro',)
+    fieldsets = (
+        (None, {
+            'fields': ('centro_de_formacao', 'nome', 'email', 'area_especializacao', 'biografia', 'foto', 'ativo')
+        }),
+        ('Informações Adicionais (Antigo Perfil)', {
+            'classes': ('collapse',),
+            'fields': ('foto_capa', 'facebook', 'twitter', 'instagram', 'linkedin', 'total_alunos', 'total_cursos', 'total_avaliacoes', 'nota_media')
+        }),
+        ('Datas', {
+            'fields': ('data_cadastro',),
+        }),
+    )
 
 class ModuloInline(admin.TabularInline):
     model = Modulo
@@ -28,8 +40,22 @@ class MaterialApoioInline(admin.TabularInline):
     extra = 1
     fields = ('titulo', 'arquivo', 'tipo', 'disponivel')
 
+class TopicoCursoInline(admin.TabularInline):
+    model = TopicoCurso
+    extra = 3
+
+class PreRequisitoCursoInline(admin.TabularInline):
+    model = PreRequisitoCurso
+    extra = 3
+
+class PublicoAlvoCursoInline(admin.TabularInline):
+    model = PublicoAlvoCurso
+    extra = 3
+
 @admin.register(Curso)
 class CursoAdmin(admin.ModelAdmin):
+    # ... (restante configurado abaixo)
+    inlines = [ModuloInline, TopicoCursoInline, PreRequisitoCursoInline, PublicoAlvoCursoInline, MaterialApoioInline]
     list_display = [
         'titulo', 
         'centro', 
@@ -83,14 +109,11 @@ class MaterialApoioAdmin(admin.ModelAdmin):
     search_fields = ('titulo',)
     readonly_fields = ('data_adicao',)
 
-class PerfilInstrutorInline(admin.StackedInline):
-    model = PerfilInstrutor
-    can_delete = False
-    verbose_name_plural = 'Perfil do Instrutor'
-
 admin.site.register(Instrutor, InstrutorAdmin)
 admin.site.register(Modulo, ModuloAdmin)
 admin.site.register(Video, VideoAdmin)
 admin.site.register(MaterialApoio, MaterialApoioAdmin)
 admin.site.register(Inscricao)
-admin.site.register(PerfilInstrutor)
+admin.site.register(TopicoCurso)
+admin.site.register(PreRequisitoCurso)
+admin.site.register(PublicoAlvoCurso)

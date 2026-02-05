@@ -202,7 +202,8 @@ class Comentario(models.Model):
     ]
     
     aluno = models.ForeignKey('Aluno', on_delete=models.CASCADE, related_name='comentarios')
-    curso = models.ForeignKey('cursos_app.Curso', on_delete=models.CASCADE, related_name='comentarios')
+    curso = models.ForeignKey('cursos_app.Curso', on_delete=models.CASCADE, related_name='comentarios', null=True, blank=True)
+    curso_video = models.ForeignKey('cursovideoapp.Curso_video', on_delete=models.CASCADE, related_name='comentarios', null=True, blank=True)
     
     comentario = models.TextField(_('Comentário'), max_length=1000)
     avaliacao = models.IntegerField(
@@ -234,10 +235,22 @@ class Comentario(models.Model):
         verbose_name = 'Comentário'
         verbose_name_plural = 'Comentários'
         ordering = ['-data_comentario']
-        unique_together = ['aluno', 'curso']  # Um aluno só pode comentar uma vez por curso
+        constraints = [
+            models.UniqueConstraint(
+                fields=['aluno', 'curso'], 
+                name='unique_aluno_curso_comentario',
+                condition=models.Q(curso__isnull=False)
+            ),
+            models.UniqueConstraint(
+                fields=['aluno', 'curso_video'], 
+                name='unique_aluno_curso_video_comentario',
+                condition=models.Q(curso_video__isnull=False)
+            )
+        ]
     
     def __str__(self):
-        return f"Avaliação de {self.aluno.nome} para {self.curso.titulo}"
+        obj_titulo = self.curso.titulo if self.curso else self.curso_video.titulo if self.curso_video else "N/A"
+        return f"Avaliação de {self.aluno.nome} para {obj_titulo}"
     
     def save(self, *args, **kwargs):
         # Verificar se é um update
@@ -248,12 +261,22 @@ class Comentario(models.Model):
         
         # Definir status do aluno automaticamente
         if hasattr(self.aluno, 'inscricoes'):
-            inscricao = self.aluno.inscricoes.filter(curso=self.curso).first()
-            if inscricao:
-                if hasattr(inscricao, 'status'):
-                    if inscricao.status == 'C':
-                        self.status_aluno = 'COM'
-                    elif inscricao.status == 'A':
+            curso_obj = self.curso or self.curso_video
+            if curso_obj:
+                # Lógica simplificada: se estiver no banco de inscritos (ou ManyToMany)
+                if self.curso:
+                    inscricao = self.aluno.inscricoes.filter(curso=self.curso).first()
+                else:
+                    inscricao = self.curso_video.inscritos.filter(id=self.aluno.id).exists()
+                
+                if inscricao:
+                    if self.curso and hasattr(inscricao, 'status'):
+                        if inscricao.status == 'C':
+                            self.status_aluno = 'COM'
+                        elif inscricao.status == 'A':
+                            self.status_aluno = 'AND'
+                    else:
+                        # Para curso video, por enquanto andamento se estiver inscrito
                         self.status_aluno = 'AND'
         
         super().save(*args, **kwargs)

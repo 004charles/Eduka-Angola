@@ -30,8 +30,7 @@
                         <select name="curso" class="form-select" required {% if turma %}disabled{% endif %}>
                             <option value="">Selecione um curso</option>
                             {% for curso in cursos %}
-                            <option value="{{ curso.id }}" {% if turma and turma.curso.id==curso.id %}selected{% endif
-                                %}>
+                            <option value="{{ curso.id }}" {% if turma and turma.curso.id == curso.id %}selected{% endif %}>
                                 {{ curso.titulo }}
                             </option>
                             {% endfor %}
@@ -44,19 +43,18 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Código *</label>
-                        <input type="text" name="codigo" class="form-control" value="{{ turma.codigo|default:'' }}" {%
-                            if turma %}readonly{% endif %} required>
+                        <input type="text" name="codigo" class="form-control" value="{{ turma.codigo|default:'' }}" {% if turma %}readonly{% endif %} required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Turno *</label>
                         <select name="turno" class="form-select" required>
                             <option value="">Selecione</option>
-                            <option value="MANHA" {% if turma.turno=='MANHA' %}selected{% endif %}>Manhã</option>
-                            <option value="TARDE" {% if turma.turno=='TARDE' %}selected{% endif %}>Tarde</option>
-                            <option value="NOITE" {% if turma.turno=='NOITE' %}selected{% endif %}>Noite</option>
-                            <option value="INTEGRAL" {% if turma.turno=='INTEGRAL' %}selected{% endif %}>Integral
+                            <option value="MANHA" {% if turma.turno == 'MANHA' %}selected{% endif %}>Manhã</option>
+                            <option value="TARDE" {% if turma.turno == 'TARDE' %}selected{% endif %}>Tarde</option>
+                            <option value="NOITE" {% if turma.turno == 'NOITE' %}selected{% endif %}>Noite</option>
+                            <option value="INTEGRAL" {% if turma.turno == 'INTEGRAL' %}selected{% endif %}>Integral
                             </option>
-                            <option value="SABADO" {% if turma.turno=='SABADO' %}selected{% endif %}>Sábado</option>
+                            <option value="SABADO" {% if turma.turno == 'SABADO' %}selected{% endif %}>Sábado</option>
                         </select>
                     </div>
                     <div class="col-md-6">
@@ -95,8 +93,7 @@
                         <select name="instrutor_principal" class="form-select">
                             <option value="">Nenhum</option>
                             {% for instrutor in instrutores %}
-                            <option value="{{ instrutor.id }}" {% if turma and
-                                turma.instrutor_principal.id==instrutor.id %}selected{% endif %}>
+                            <option value="{{ instrutor.id }}" {% if turma and turma.instrutor_principal.id == instrutor.id %}selected{% endif %}>
                                 {{ instrutor.nome }}
                             </option>
                             {% endfor %}
@@ -106,12 +103,12 @@
                     <div class="col-md-6">
                         <label class="form-label">Status *</label>
                         <select name="status" class="form-select" required>
-                            <option value="ABERTA" {% if turma.status=='ABERTA' %}selected{% endif %}>Aberta</option>
-                            <option value="EM_ANDAMENTO" {% if turma.status=='EM_ANDAMENTO' %}selected{% endif %}>Em
+                            <option value="ABERTA" {% if turma.status == 'ABERTA' %}selected{% endif %}>Aberta</option>
+                            <option value="EM_ANDAMENTO" {% if turma.status == 'EM_ANDAMENTO' %}selected{% endif %}>Em
                                 Andamento</option>
-                            <option value="CONCLUIDA" {% if turma.status=='CONCLUIDA' %}selected{% endif %}>Concluída
+                            <option value="CONCLUIDA" {% if turma.status == 'CONCLUIDA' %}selected{% endif %}>Concluída
                             </option>
-                            <option value="CANCELADA" {% if turma.status=='CANCELADA' %}selected{% endif %}>Cancelada
+                            <option value="CANCELADA" {% if turma.status == 'CANCELADA' %}selected{% endif %}>Cancelada
                             </option>
                         </select>
                     </div>

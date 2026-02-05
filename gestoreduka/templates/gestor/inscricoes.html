@@ -22,10 +22,10 @@
                     <select class="form-select form-control w-auto"
                         onchange="window.location.href='?status='+this.value">
                         <option value="">Todos os Status</option>
-                        <option value="P" {% if selected_status=="P" %}selected{% endif %}>Pendentes</option>
-                        <option value="A" {% if selected_status=="A" %}selected{% endif %}>Aceitas</option>
-                        <option value="N" {% if selected_status=="N" %}selected{% endif %}>Negadas</option>
-                        <option value="C" {% if selected_status=="C" %}selected{% endif %}>Canceladas</option>
+                        <option value="P" {% if selected_status == "P" %}selected{% endif %}>Pendentes</option>
+                        <option value="A" {% if selected_status == "A" %}selected{% endif %}>Aceitas</option>
+                        <option value="N" {% if selected_status == "N" %}selected{% endif %}>Negadas</option>
+                        <option value="C" {% if selected_status == "C" %}selected{% endif %}>Canceladas</option>
                     </select>
                 </div>
             </div>

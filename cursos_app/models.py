@@ -1,33 +1,12 @@
 from django.db import models
-from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-from django.utils.translation import gettext_lazy as _
-from django.core.validators import MinLengthValidator
-from django.utils import timezone
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
-from django.core.mail import EmailMultiAlternatives
-from usuarios.models import Aluno
-from django.core.mail import EmailMultiAlternatives
-from django.core.validators import MinValueValidator
-from gestoreduka.models import CentroDeFormacao
-from django.core.exceptions import ValidationError
-from django.db import models
-from django.db.models import Avg, Count, Sum  # Adicione esta linha
-from usuarios.models import Aluno
-from django.utils.translation import gettext_lazy as _
-from django.utils import timezone
-from django.core.mail import send_mail
-from django.conf import settings
-from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinLengthValidator, MinValueValidator
-from django.utils import timezone
-from django.contrib.auth.hashers import make_password, check_password
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
-from django.db.models import Sum
+from django.db.models import Avg, Count, Sum
+from django.conf import settings
+from django.urls import reverse
 import uuid
 from datetime import timedelta
 
@@ -47,7 +26,7 @@ class Instrutor(models.Model):
     ]
     
     centro_de_formacao = models.ForeignKey(
-        CentroDeFormacao, 
+        'gestoreduka.CentroDeFormacao', 
         on_delete=models.CASCADE, 
         related_name='instrutores',
         verbose_name='Centro de Formação'
@@ -60,6 +39,17 @@ class Instrutor(models.Model):
     data_cadastro = models.DateField(default=timezone.now)
     ativo = models.BooleanField(default=True)
 
+    # Campos consolidados do PerfilInstrutor
+    foto_capa = models.ImageField(upload_to='instrutores/capas/', null=True, blank=True)
+    facebook = models.URLField(blank=True, null=True)
+    twitter = models.URLField(blank=True, null=True)
+    instagram = models.URLField(blank=True, null=True)
+    linkedin = models.URLField(blank=True, null=True)
+    total_alunos = models.PositiveIntegerField(default=0)
+    total_cursos = models.PositiveIntegerField(default=0)
+    total_avaliacoes = models.PositiveIntegerField(default=0)
+    nota_media = models.DecimalField(max_digits=3, decimal_places=1, default=0.0)
+
     class Meta:
         verbose_name = 'Instrutor'
         verbose_name_plural = 'Instrutores'
@@ -70,23 +60,6 @@ class Instrutor(models.Model):
     
     def get_especializacao_display(self):
         return dict(self.TIPO_CHOICES_ESPECIALIZACAO).get(self.area_especializacao, self.area_especializacao)
-    
-    
-class PerfilInstrutor(models.Model):
-    instrutor = models.OneToOneField('Instrutor', on_delete=models.CASCADE, related_name='perfil')
-    foto_capa = models.ImageField(upload_to='instrutores/capas/', null=True, blank=True)
-    biografia_completa = models.TextField()
-    facebook = models.URLField(blank=True, null=True)
-    twitter = models.URLField(blank=True, null=True)
-    instagram = models.URLField(blank=True, null=True)
-    linkedin = models.URLField(blank=True, null=True)
-    total_alunos = models.PositiveIntegerField(default=0)
-    total_cursos = models.PositiveIntegerField(default=0)
-    total_avaliacoes = models.PositiveIntegerField(default=0)
-    nota_media = models.DecimalField(max_digits=3, decimal_places=1, default=0.0)
-
-    def __str__(self):
-        return f'Perfil de {self.instrutor.nome}'
         
             
 class Categoria(models.Model):
@@ -108,6 +81,10 @@ class Categoria(models.Model):
     def __str__(self):
         return self.nome
         
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.nome)
+        super().save(*args, **kwargs)
 
 class Curso(models.Model):
     NIVEL_CHOICES = [
@@ -171,7 +148,9 @@ class Curso(models.Model):
         null=True,
         blank=True,
         help_text="Preço com desconto (opcional)"
+    
     )
+
     data_inicio_promocao = models.DateTimeField(_('Início da Promoção'), null=True, blank=True)
     data_fim_promocao = models.DateTimeField(_('Fim da Promoção'), null=True, blank=True)
     
@@ -187,6 +166,14 @@ class Curso(models.Model):
     requisitos = models.TextField(_('Pré-requisitos'), blank=True, null=True)
     objetivo_geral = models.TextField(_('Objetivo Geral'), blank=True)
     publico_alvo = models.TextField(_('Público-Alvo'), blank=True)
+
+    video_previa_url = models.URLField(
+    _('Vídeo de Prévia do Curso'),
+    blank=True,
+    null=True,
+    help_text='Link do vídeo de apresentação (YouTube, Vimeo, etc.)'
+)
+
     
     destaque = models.BooleanField(_('Curso em Destaque'), default=False)
     permite_parcelamento = models.BooleanField(_('Permite Parcelamento'), default=False)
@@ -391,26 +378,33 @@ class Curso(models.Model):
     def total_inscritos(self):
         """Retorna o total de alunos inscritos no curso"""
         return self.inscricoes.filter(status='A').count()
-    
-    @property
-    def inscricoes_abertas(self):
-        """Verifica se as inscrições estão abertas"""
-        agora = timezone.now()
-        if self.data_fim_inscricoes:
-            return self.data_inicio_inscricoes <= agora <= self.data_fim_inscricoes
-        return agora >= self.data_inicio_inscricoes
-    
-    @property
-    def lotado(self):
-        """Verifica se o curso está lotado"""
-        return self.total_vagas_disponiveis <= 0
-    
-    @property
-    def percentual_desconto(self):
-        """Calcula o percentual de desconto"""
-        if self.em_promocao and self.preco > 0:
-            return ((self.preco - self.preco_promocional) / self.preco) * 100
-        return 0
+
+
+
+class TopicoCurso(models.Model):
+    curso = models.ForeignKey(
+        Curso,
+        on_delete=models.CASCADE,
+        related_name='topicos'
+    )
+    titulo = models.CharField(
+        _('Tópico / O que será aprendido'),
+        max_length=255
+    )
+    ordem = models.PositiveIntegerField(
+        _('Ordem'),
+        default=0
+    )
+
+    class Meta:
+        ordering = ['ordem']
+        verbose_name = 'Tópico do Curso'
+        verbose_name_plural = 'Tópicos do Curso'
+
+    def __str__(self):
+        return f"{self.ordem}. {self.titulo}"
+
+
 
 
 
@@ -613,16 +607,9 @@ class Inscricao(models.Model):
             except Inscricao.DoesNotExist:
                 pass
         
-        # Se for um pagamento simulado, atualizar automaticamente
-        if self.pagamento_simulado and not self.data_pagamento:
-            self.data_pagamento = timezone.now()
-            self.forma_pagamento = 'SIMULADO'
-            self.valor_pago = self.curso.preco_atual
-            self.codigo_simulacao = f"SIM_{self.curso.id}_{self.aluno.id}_{timezone.now().strftime('%Y%m%d%H%M%S')}"
-            self.data_simulacao = timezone.now()
-        
         super().save(*args, **kwargs)
         
+        # Sincronizar vagas se o status mudar para 'A' (Ativo) ou sair de 'A'
         if (self.status == 'A' and (is_new or old_status != 'A')) or \
            (old_status == 'A' and self.status != 'A'):
             self.curso.atualizar_vagas_globais()
@@ -630,47 +617,13 @@ class Inscricao(models.Model):
             if self.turma_escolhida:
                 self.turma_escolhida.atualizar_vagas_turma()
         
+        # Registrar datas de status automaticamente
         if self.status == 'A' and not self.data_confirmacao:
-            self.data_confirmacao = timezone.now()
-            self.save(update_fields=['data_confirmacao'])
+            # Usar update para evitar chamar save() e causar recursão ou loops
+            Inscricao.objects.filter(pk=self.pk).update(data_confirmacao=timezone.now())
         elif self.status == 'C' and not self.data_cancelamento:
-            self.data_cancelamento = timezone.now()
-            self.save(update_fields=['data_cancelamento'])
+            Inscricao.objects.filter(pk=self.pk).update(data_cancelamento=timezone.now())
 
-    def simular_pagamento(self):
-        """Simula um pagamento bem-sucedido"""
-        if self.status != 'P':
-            return False, "Esta inscrição já foi processada."
-        
-        self.pagamento_simulado = True
-        self.forma_pagamento = 'SIMULADO'
-        self.valor_pago = self.curso.preco_atual
-        self.data_pagamento = timezone.now()
-        self.status = 'A'
-        self.codigo_simulacao = f"SIM_{self.curso.id}_{self.aluno.id}_{timezone.now().strftime('%Y%m%d%H%M%S')}"
-        self.data_simulacao = timezone.now()
-        self.data_confirmacao = timezone.now()
-        
-        self.save()
-        
-        # Enviar email de confirmação
-        try:
-            self.enviar_email_status()
-        except:
-            pass
-        
-        return True, "Pagamento simulado com sucesso! Inscrição confirmada."
-
-    def atribuir_turma_automaticamente(self):
-        if self.turma_escolhida or self.status != 'A':
-            return False
-        
-        turma_disponivel = self.curso.get_turma_menos_lotada()
-        if turma_disponivel:
-            self.turma_escolhida = turma_disponivel
-            self.save()
-            return True
-        return False
 
     @property
     def em_turma_especifica(self):
@@ -703,59 +656,12 @@ class Inscricao(models.Model):
         return {'simulado': False}
 
     def enviar_email_confirmacao(self, link_curso=None):
-        from django.core.mail import EmailMultiAlternatives
-        from django.template.loader import render_to_string
-        from django.utils.html import strip_tags
-        from django.conf import settings
-        
-        contexto = {
-            'aluno': self.aluno,
-            'curso': self.curso,
-            'suporte_email': getattr(settings, 'SUPORTE_EMAIL', settings.DEFAULT_FROM_EMAIL),
-            'link_curso': link_curso,
-            'inscricao': self,
-        }
-        assunto = f"Inscrição recebida: {self.curso.titulo}"
-        html = render_to_string('emails/inscricao_pendente.html', contexto)
-        txt = strip_tags(html)
-
-        msg = EmailMultiAlternatives(
-            subject=assunto,
-            body=txt,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[self.aluno.email],
-        )
-        msg.attach_alternative(html, "text/html")
-        msg.send()
+        from .utils import enviar_email_inscricao
+        enviar_email_inscricao(self, tipo='pendente', link_curso=link_curso)
 
     def enviar_email_status(self, link_curso=None):
-        from django.core.mail import EmailMultiAlternatives
-        from django.template.loader import render_to_string
-        from django.utils.html import strip_tags
-        from django.conf import settings
-        
-        contexto = {
-            'aluno': self.aluno,
-            'curso': self.curso,
-            'status_legivel': self.get_status_display(),
-            'status_codigo': self.status,
-            'suporte_email': getattr(settings, 'SUPORTE_EMAIL', settings.DEFAULT_FROM_EMAIL),
-            'link_curso': link_curso,
-            'inscricao': self,
-            'pagamento_simulado': self.pagamento_simulado,
-        }
-        assunto = f"Status da inscrição: {self.curso.titulo} — {self.get_status_display()}"
-        html = render_to_string('emails/inscricao_status.html', contexto)
-        txt = strip_tags(html)
-
-        msg = EmailMultiAlternatives(
-            subject=assunto,
-            body=txt,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[self.aluno.email],
-        )
-        msg.attach_alternative(html, "text/html")
-        msg.send()
+        from .utils import enviar_email_inscricao
+        enviar_email_inscricao(self, tipo='status', link_curso=link_curso)
 
     class Meta:
         verbose_name = _('Inscrição')
@@ -763,7 +669,7 @@ class Inscricao(models.Model):
         unique_together = ('aluno', 'curso')
         
 class Favorito(models.Model):
-    aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, related_name='favoritos')
+    aluno = models.ForeignKey('usuarios.Aluno', on_delete=models.CASCADE, related_name='favoritos')
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='favoritado_por')
     data_adicao = models.DateTimeField(auto_now_add=True)
 
@@ -775,17 +681,6 @@ class Favorito(models.Model):
 
     def __str__(self):
         return f"{self.aluno.nome} - {self.curso.titulo}"
-
-
-class Galeria(models.Model):
-    centro = models.ForeignKey(CentroDeFormacao, on_delete=models.CASCADE, related_name='galeria')
-    imagem = models.ImageField(_('Imagem'), upload_to='galeria/')
-    descricao = models.CharField(_('Descrição'), max_length=200, blank=True)
-    categoria = models.CharField(_('Categoria'), max_length=50, choices=[
-        ('SALAS', 'Salas de Aula'),
-        ('LABS', 'Laboratórios'),
-        ('EVENTOS', 'Eventos')
-    ])
 
 
 
@@ -857,6 +752,42 @@ class MaterialApoio(models.Model):
 
     def __str__(self):
         return f"{self.titulo} ({self.get_tipo_display()})"
+
+
+class PreRequisitoCurso(models.Model):
+    curso = models.ForeignKey(
+        Curso, 
+        on_delete=models.CASCADE, 
+        related_name='pre_requisitos'
+    )
+    texto = models.CharField(_('Pré-requisito'), max_length=255)
+    ordem = models.PositiveIntegerField(_('Ordem'), default=0)
+
+    class Meta:
+        ordering = ['ordem']
+        verbose_name = 'Pré-requisito do Curso'
+        verbose_name_plural = 'Pré-requisitos do Curso'
+
+    def __str__(self):
+        return self.texto
+
+
+class PublicoAlvoCurso(models.Model):
+    curso = models.ForeignKey(
+        Curso, 
+        on_delete=models.CASCADE, 
+        related_name='publico_alvo_items'
+    )
+    texto = models.CharField(_('Público-Alvo'), max_length=255)
+    ordem = models.PositiveIntegerField(_('Ordem'), default=0)
+
+    class Meta:
+        ordering = ['ordem']
+        verbose_name = 'Público-Alvo do Curso'
+        verbose_name_plural = 'Públicos-Alvo do Curso'
+
+    def __str__(self):
+        return self.texto
 
 
 

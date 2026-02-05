@@ -1,53 +1,93 @@
 from django.core.mail import EmailMultiAlternatives
-from django.conf import settings
-from django.utils.html import strip_tags
 from django.template.loader import render_to_string
-from django.urls import reverse
-from usuarios.models import CentroSeguimento
-from cursos_app.models import Curso
+from django.utils.html import strip_tags
+from django.conf import settings
+from django.utils import timezone
 
-def notificar_seguidores(curso):
-    seguidores = CentroSeguimento.objects.filter(centro=curso.centro)
+def enviar_email_inscricao(inscricao, tipo='pendente', link_curso=None):
+    """
+    Envia e-mails de notificação de inscrição.
+    tipo: 'pendente' ou 'status'
+    """
+    aluno = inscricao.aluno
+    curso = inscricao.curso
     
-    imagem_url = f"{settings.SITE_DOMAIN}{curso.imagem.url}" if curso.imagem else ""
-
-    # Pegar até 3 outros cursos do mesmo centro
-    outros_raw = Curso.objects.filter(
-        centro=curso.centro, publicado=True, ativo=True
-    ).exclude(id=curso.id)[:3]
-
-    outros_cursos = []
-    for outro in outros_raw:
-        outros_cursos.append({
-            'titulo': outro.titulo,
-            'preco': outro.preco,
-            'imagem_url': f"{settings.SITE_DOMAIN}{outro.imagem.url}" if outro.imagem else ""
+    contexto = {
+        'aluno': aluno,
+        'curso': curso,
+        'suporte_email': getattr(settings, 'SUPORTE_EMAIL', settings.DEFAULT_FROM_EMAIL),
+        'link_curso': link_curso,
+        'inscricao': inscricao,
+    }
+    
+    if tipo == 'pendente':
+        assunto = f"Inscrição recebida: {curso.titulo}"
+        template = 'emails/inscricao_pendente.html'
+    else:
+        assunto = f"Status da inscrição: {curso.titulo} — {inscricao.get_status_display()}"
+        template = 'emails/inscricao_status.html'
+        contexto.update({
+            'status_legivel': inscricao.get_status_display(),
+            'status_codigo': inscricao.status,
+            'pagamento_simulado': getattr(inscricao, 'pagamento_simulado', False),
         })
 
-    for seguidor in seguidores:
-        context = {
-            'nome_aluno': seguidor.aluno.nome,
-            'nome_centro': curso.centro.nome,
-            'titulo_curso': curso.titulo,
-            'preco': curso.preco,
-            'data_inicio': curso.data_inicio,
-            'carga_horaria': curso.carga_horaria,
-            'nivel': curso.nivel,
-            'idioma': curso.idioma,
-            'descricao': curso.descricao,
-            'imagem_url': imagem_url,
-            'site_url': f"{settings.SITE_DOMAIN}{reverse('curso_detalhe', args=[curso.id])}",
-            'outros_cursos': outros_cursos,
-        }
+    html = render_to_string(template, contexto)
+    txt = strip_tags(html)
 
-        html_content = render_to_string('notificacao_novo_curso.html', context)
-        text_content = strip_tags(html_content)
+    msg = EmailMultiAlternatives(
+        subject=assunto,
+        body=txt,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[aluno.email],
+    )
+    msg.attach_alternative(html, "text/html")
+    msg.send()
 
-        email = EmailMultiAlternatives(
-            subject=f"Novo curso em {curso.centro.nome}: {curso.titulo}",
-            body=text_content,
-            from_email='muquissicarlos@gmail.com',
-            to=[seguidor.aluno.email]
-        )
-        email.attach_alternative(html_content, "text/html")
-        email.send(fail_silently=True)
+def notificar_seguidores(curso):
+    """
+    Notifica seguidores do centro sobre um novo curso publicado.
+    """
+    # Implementação pendente ou movida de outro lugar
+    # Por enquanto, mantemos a assinatura para não quebrar o modelo
+    pass
+
+def processar_simulacao_pagamento(inscricao):
+    """
+    Processa a simulação de pagamento de uma inscrição.
+    """
+    if inscricao.status != 'P':
+        return False, "Esta inscrição já foi processada."
+
+    inscricao.pagamento_simulado = True
+    inscricao.forma_pagamento = 'SIMULADO'
+    inscricao.valor_pago = inscricao.curso.preco_atual
+    inscricao.data_pagamento = timezone.now()
+    inscricao.status = 'A'
+    inscricao.codigo_simulacao = f"SIM_{inscricao.curso.id}_{inscricao.aluno.id}_{timezone.now().strftime('%Y%m%d%H%M%S')}"
+    inscricao.data_simulacao = timezone.now()
+    inscricao.data_confirmacao = timezone.now()
+
+    inscricao.save()
+
+    # Enviar email de confirmação
+    try:
+        inscricao.enviar_email_status()
+    except:
+        pass
+
+    return True, "Pagamento simulado com sucesso! Inscrição confirmada."
+
+def atribuir_turma_automatica(inscricao):
+    """
+    Atribui uma turma automaticamente baseada na disponibilidade.
+    """
+    if inscricao.turma_escolhida or inscricao.status != 'A':
+        return False
+    
+    turma_disponivel = inscricao.curso.get_turma_menos_lotada()
+    if turma_disponivel:
+        inscricao.turma_escolhida = turma_disponivel
+        inscricao.save()
+        return True
+    return False

@@ -434,7 +434,14 @@ class GaleriaImagem(models.Model):
         related_name='galeria_imagens'  # MUDADO: de 'galeria' para 'galeria_imagens'
     )
     titulo = models.CharField(_('Título'), max_length=100, blank=True)
+    descricao = models.TextField(_('Descrição'), blank=True, null=True)
     imagem = models.ImageField(_('Imagem'), upload_to='galeria/')
+    categoria = models.CharField(_('Categoria'), max_length=50, choices=[
+        ('SALAS', 'Salas de Aula'),
+        ('LABS', 'Laboratórios'),
+        ('EVENTOS', 'Eventos'),
+        ('OUTRO', 'Outro')
+    ], default='OUTRO')
     ordem = models.PositiveIntegerField(_('Ordem'), default=0)
     data_upload = models.DateTimeField(auto_now_add=True)
 

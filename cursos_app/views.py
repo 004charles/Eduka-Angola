@@ -14,25 +14,29 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from cursos_app.forms import AvaliacaoForm
+from .utils import (
+    enviar_email_inscricao, processar_simulacao_pagamento, atribuir_turma_automatica
+)
 from cursos_app.models import (
     Curso,
     Categoria,
     Instrutor,
     Inscricao,
     Favorito,
-    CentroDeFormacao,
     Turma,
+    Modulo,
+    Video,
+    MaterialApoio,
 )
 
 from usuarios.models import Aluno, Comentario, CentroSeguimento
 from usuarios.decorators import aluno_logado_e_centros
 
-from core.models import Galeria
+from gestoreduka.models import CentroDeFormacao, GaleriaImagem
 from cursovideoapp.models import Curso_video
 
 
 
-@login_required(login_url='Login_aluno')
 def home_cursos(request):
     """
     Home page for Presential/Online Courses with rich sections.
@@ -195,12 +199,12 @@ def simular_pagamento(request, inscricao_id):
         tipo_simulacao = request.POST.get('tipo_simulacao', 'sucesso')
         
         if tipo_simulacao == 'sucesso':
-            success, message = inscricao.simular_pagamento()
+            success, message = processar_simulacao_pagamento(inscricao)
             
             if success:
                 messages.success(request, "Pagamento simulado com sucesso! Inscrição confirmada.")
                 
-                inscricao.atribuir_turma_automaticamente()
+                atribuir_turma_automatica(inscricao)
                 
                 if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                     return JsonResponse({
@@ -631,18 +635,23 @@ def adicionar_favorito(request, curso_id):
 
 
 def curso_detalhe(request, id):
-    aluno_logado = request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO'
+    user_auth = request.user.is_authenticated
+    aluno_logado = user_auth # Se estiver logado, já não deve mostrar "faça login"
     aluno_nome = None
     aluno_inscricao = None
     aluno_obj = None
     
-    if aluno_logado:
-        try:
-            aluno_obj = request.user.aluno_profile
-            aluno_nome = aluno_obj.nome
-            aluno_inscricao = aluno_obj.inscricoes.filter(curso_id=id).first()
-        except AttributeError:
-            aluno_logado = False
+    if user_auth:
+        aluno_nome = request.user.nome
+        if request.user.tipo_usuario == 'ALUNO':
+            try:
+                aluno_obj = request.user.aluno_profile
+                aluno_inscricao = aluno_obj.inscricoes.filter(curso_id=id).first()
+            except AttributeError:
+                pass
+        elif request.user.is_staff:
+            # Staff/Admin can also see/test things
+            aluno_logado = True
     
     curso = get_object_or_404(
         Curso.objects.select_related('centro')
@@ -708,7 +717,7 @@ def curso_detalhe(request, id):
             ativo=True
         ).exclude(id=curso.id).select_related('centro')[:4]
     
-    imagem = Galeria.objects.all()[:6]
+    imagem = GaleriaImagem.objects.all()[:6]
     
     video_preview = None
     
@@ -793,13 +802,21 @@ def excluir_comentario(request, comentario_id):
     
     if request.user.aluno_profile.id != comentario.aluno.id:
         messages.error(request, "Você não tem permissão para excluir este comentário.")
-        return redirect('curso_detalhe', id=comentario.curso.id)
+        if comentario.curso:
+            return redirect('curso_detalhe', id=comentario.curso.id)
+        else:
+            return redirect('detalhe_curso', slug=comentario.curso_video.slug)
     
-    curso_id = comentario.curso.id
+    # Salvar referência para redirecionamento antes de excluir
+    if comentario.curso:
+        url_redirecionamento = redirect('curso_detalhe', id=comentario.curso.id)
+    else:
+        url_redirecionamento = redirect('detalhe_curso', slug=comentario.curso_video.slug)
+        
     comentario.delete()
     
     messages.success(request, "Comentário excluído com sucesso!")
-    return redirect('curso_detalhe', id=curso_id)
+    return url_redirecionamento
 
 @login_required
 def denunciar_comentario(request, comentario_id):
@@ -808,12 +825,19 @@ def denunciar_comentario(request, comentario_id):
     # Verificar se não é o próprio autor
     if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO' and request.user.aluno_profile.id == comentario.aluno.id:
         messages.warning(request, "Você não pode denunciar seu próprio comentário.")
-        return redirect('curso_detalhe', id=comentario.curso.id)
+        if comentario.curso:
+            return redirect('curso_detalhe', id=comentario.curso.id)
+        else:
+            return redirect('detalhe_curso', slug=comentario.curso_video.slug)
     
     comentario.denunciar()
     
     messages.info(request, "Obrigado por reportar. Nossa equipe irá analisar o comentário.")
-    return redirect('curso_detalhe', id=comentario.curso.id)
+    
+    if comentario.curso:
+        return redirect('curso_detalhe', id=comentario.curso.id)
+    else:
+        return redirect('detalhe_curso', slug=comentario.curso_video.slug)
 
 def catalogo_cursos(request):
     """
@@ -982,11 +1006,10 @@ def cursos_por_centro(request, centro_id):
             'total_cursos': categoria.num_cursos
         })
 
-    # Instrutores do centro
     instrutores = Instrutor.objects.filter(
         centro_de_formacao=centro, 
         ativo=True
-    ).select_related('perfil').order_by('nome')
+    ).order_by('nome')
 
     context.update({
         'centro': centro,
@@ -1016,7 +1039,7 @@ def instrutores_do_centro(request, centro_id):
     instrutores = Instrutor.objects.filter(
         centro_de_formacao=centro, 
         ativo=True
-    ).prefetch_related('perfil').order_by('nome')
+    ).order_by('nome')
 
     context.update({
         'centro': centro,
@@ -1042,7 +1065,7 @@ def cursos_por_categoria(request, slug):
             pass
 
     
-    imagens = Galeria.objects.all()[:6]
+    imagens = GaleriaImagem.objects.all()[:6]
     categoria = get_object_or_404(Categoria, slug=slug)
 
     cursos = Curso.objects.filter(
@@ -1065,7 +1088,7 @@ def cursos_por_categoria(request, slug):
 
 @aluno_logado_e_centros
 def pagina_categoria(request):
-    imagens = Galeria.objects.all()[:6]
+    imagens = GaleriaImagem.objects.all()[:6]
     context = {
         'aluno_logado': False,
         'imagens': imagens,

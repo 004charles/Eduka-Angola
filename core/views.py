@@ -6,8 +6,8 @@ from django.db.models import Count, Q, Prefetch, Value, F
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
-from cursos_app.models import Curso, Categoria, Aluno, Favorito
-from usuarios.models import CentroSeguimento, PerfilAluno
+from cursos_app.models import Curso, Categoria, Favorito
+from usuarios.models import Aluno, CentroSeguimento, PerfilAluno
 from usuarios.decorators import aluno_logado_e_centros
 
 from blog.models import Post

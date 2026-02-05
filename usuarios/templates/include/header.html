@@ -130,8 +130,7 @@
                                                 <div class="mega-top-banner">
                                                     <div class="content">
                                                         <h4 class="title">{% trans "Portal EdukAngola" %}</h4>
-                                                        <p class="description">{% trans "Cursos, bibliotecas e guias de
-                                                            estudo em um só lugar." %}</p>
+                                                        <p class="description">{% trans "Cursos, bibliotecas e guias de estudo em um só lugar." %}</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -140,10 +139,8 @@
                                             <div class="col-lg-12 col-xl-6 col-xxl-6 single-mega-item">
                                                 <h3 class="rbt-short-title">{% trans "Ensino" %}</h3>
                                                 <ul class="mega-menu-item">
-                                                    <li><a href="{% url 'home_cursos' %}">{% trans "Todos os Cursos"
-                                                            %}</a></li>
-                                                    <li><a href="{% url 'biblioteca' %}">{% trans "Biblioteca Digital"
-                                                            %}</a></li>
+                                                    <li><a href="{% url 'home_cursos' %}">{% trans "Todos os Cursos" %}</a></li>
+                                                    <li><a href="{% url 'biblioteca' %}">{% trans "Biblioteca Digital" %}</a></li>
                                                     <li><a href="#">{% trans "Ensino Médio" %}</a></li>
                                                     <li><a href="#">{% trans "Ensino Superior" %}</a></li>
                                                 </ul>
@@ -153,8 +150,7 @@
                                                 <ul class="mega-menu-item">
                                                     <li><a href="#">{% trans "Estágios" %}</a></li>
                                                     <li><a href="#">{% trans "Formação Profissional" %}</a></li>
-                                                    <li><a href="{% url 'blog:lista_posts' %}">{% trans "Notícias"
-                                                            %}</a></li>
+                                                    <li><a href="{% url 'blog:lista_posts' %}">{% trans "Notícias" %}</a></li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -206,8 +202,7 @@
                                         <div class="admin-info">
                                             <span class="name">{{
                                                 request.user.get_full_name|default:request.user.username }}</span>
-                                            <a class="rbt-btn-link color-primary" href="/perfil">{% trans "Ver Perfil"
-                                                %}</a>
+                                            <a class="rbt-btn-link color-primary" href="/perfil">{% trans "Ver Perfil" %}</a>
                                         </div>
                                     </div>
                                     <ul class="user-list-wrapper">
@@ -264,8 +259,7 @@
                         <form action="{% url 'buscar_cursos' %}" method="get">
                             <input type="text" name="q" placeholder="{% trans 'O que você está procurando?' %}">
                             <div class="submit-btn">
-                                <button type="submit" class="rbt-btn btn-gradient btn-md">{% trans "Pesquisar"
-                                    %}</button>
+                                <button type="submit" class="rbt-btn btn-gradient btn-md">{% trans "Pesquisar" %}</button>
                             </div>
                         </form>
                     </div>

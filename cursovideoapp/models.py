@@ -8,29 +8,17 @@ from django.utils.translation import gettext_lazy as _
 import os
 from datetime import timedelta
 from usuarios.models import Aluno
-
-class Categoria(models.Model):
-    nome = models.CharField(max_length=100)
-    slug = models.SlugField(unique=True, blank=True)
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.nome)
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return self.nome
-
+from cursos_app.models import Categoria, Instrutor
 
 class Curso_video(models.Model):
     titulo = models.CharField(max_length=200)
     descricao = models.TextField()
-    instrutor = models.CharField(max_length=100)
-    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, related_name="cursos")
+    instrutor = models.ForeignKey(Instrutor, on_delete=models.CASCADE, related_name="cursos_video")
+    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, related_name="cursos_video")
     data_publicacao = models.DateTimeField(auto_now_add=True)
     capa = models.ImageField(upload_to="cursos/capas/", blank=True, null=True)
     slug = models.SlugField(unique=True, blank=True)
-    inscritos = models.ManyToManyField('usuarios.Aluno', related_name='cursos_inscritos', blank=True)
+    inscritos = models.ManyToManyField('usuarios.Aluno', related_name='cursos_inscritos_video', blank=True)
     destaque = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
