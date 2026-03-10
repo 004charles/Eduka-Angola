@@ -1,12 +1,14 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EducAngola | Seleção de Perfil</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --primary: #2563eb;
@@ -251,15 +253,15 @@
             body {
                 padding: 30px 20px;
             }
-            
+
             .header h1 {
                 font-size: 1.8rem;
             }
-            
+
             .header p {
                 font-size: 1rem;
             }
-            
+
             .profile-grid {
                 grid-template-columns: 1fr;
             }
@@ -269,11 +271,11 @@
             .header h1 {
                 font-size: 1.6rem;
             }
-            
+
             .profile-card {
                 padding: 30px 20px;
             }
-            
+
             .select-btn {
                 padding: 10px 25px;
                 font-size: 0.9rem;
@@ -281,19 +283,20 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Efeitos de fundo circular -->
     <div class="bg-circles">
         <div class="circle circle-1"></div>
         <div class="circle circle-2"></div>
     </div>
-    
+
     <div class="profile-selector-container">
         <div class="header">
             <h1>Bem-vindo ao Edukangola</h1>
             <p>Selecione seu perfil para acessar o sistema educacional</p>
         </div>
-        
+
         <div class="profile-grid">
             <!-- Card Aluno -->
             <div class="profile-card">
@@ -307,69 +310,77 @@
                     <span class="tech-tag">Certificados</span>
                 </div>
                 <p>Acesse cursos personalizados, materiais de estudo interativos e acompanhe seu progresso.</p>
-                <a href="{% url 'Login_aluno' %}" class="select-btn">Acessar</a>
+                <a href="{% url 'login_aluno' %}" class="select-btn">Acessar</a>
             </div>
-            
+
             <!-- Card Instrutor -->
             <div class="profile-card">
                 <div class="icon-wrapper">
                     <i class="fas fa-chalkboard-teacher"></i>
                 </div>
-                <h2>Instrutor</h2>
+                <div class="content">
+                    <h2 class="title">Instrutor</h2>
+                </div>
                 <div class="tech-features">
                     <span class="tech-tag">Criação</span>
                     <span class="tech-tag">Gestão</span>
                     <span class="tech-tag">Avaliações</span>
                 </div>
                 <p>Crie e ministre cursos, avalie o desempenho dos alunos e utilize ferramentas pedagógicas.</p>
-                <a href="{% url 'Login_instrutor' %}" class="select-btn">Acessar</a>
+                <a href="{% url 'login_instrutor' %}" class="select-btn">Acessar</a>
             </div>
-            
+
             <!-- Card Escola -->
             <div class="profile-card">
                 <div class="icon-wrapper">
                     <i class="fas fa-school"></i>
                 </div>
-                <h2>Escola</h2>
+                <div class="content">
+                    <h2 class="title">Escola</h2>
+                </div>
                 <div class="tech-features">
                     <span class="tech-tag">Gestão</span>
                     <span class="tech-tag">Relatórios</span>
                     <span class="tech-tag">Comunicação</span>
                 </div>
                 <p>Gerencie sua instituição de ensino e acompanhe o desempenho de alunos e professores.</p>
-                <a href="{% url 'Login_escola' %}" class="select-btn">Acessar</a>
+                <a href="{% url 'login_escola' %}" class="select-btn">Acessar</a>
             </div>
-            
+
             <!-- Card Biblioteca -->
             <div class="profile-card">
                 <div class="icon-wrapper">
                     <i class="fas fa-book"></i>
                 </div>
-                <h2>Biblioteca</h2>
+                <div class="content">
+                    <h2 class="title">Biblioteca</h2>
+                </div>
                 <div class="tech-features">
                     <span class="tech-tag">Acervo</span>
                     <span class="tech-tag">Empréstimos</span>
                     <span class="tech-tag">Recursos</span>
                 </div>
                 <p>Disponibilize livros digitais e gerencie empréstimos para alunos e professores.</p>
-                <a href="{% url 'Login_biblioteca' %}" class="select-btn">Acessar</a>
+                <a href="{% url 'login_biblioteca' %}" class="select-btn">Acessar</a>
             </div>
-            
+
             <!-- Card Empresa -->
             <div class="profile-card">
                 <div class="icon-wrapper">
                     <i class="fas fa-briefcase"></i>
                 </div>
-                <h2>Empresa</h2>
+                <div class="content">
+                    <h2 class="title">Empresa</h2>
+                </div>
                 <div class="tech-features">
                     <span class="tech-tag">Oportunidades</span>
                     <span class="tech-tag">Estágios</span>
                     <span class="tech-tag">Recrutamento</span>
                 </div>
                 <p>Ofereça oportunidades de estágio e encontre talentos entre os alunos da plataforma.</p>
-                <a href="{% url 'Login_empresa' %}" class="select-btn">Acessar</a>
+                <a href="{% url 'login_empresa' %}" class="select-btn">Acessar</a>
             </div>
-            
+
             <!-- Card Administrador -->
             <div class="profile-card">
                 <div class="icon-wrapper">
@@ -398,7 +409,7 @@
                         icon.style.transform = 'scale(1.1)';
                     }
                 });
-                
+
                 card.addEventListener('mouseleave', () => {
                     const icon = card.querySelector('i');
                     if (icon) {
@@ -409,4 +420,5 @@
         });
     </script>
 </body>
+
 </html>

@@ -142,6 +142,9 @@ class FilialInline(admin.TabularInline):
 # ========== MODEL ADMINS ==========
 @admin.register(CentroDeFormacao)
 class CentroDeFormacaoAdmin(admin.ModelAdmin):
+    """
+    Configuração do painel administrativo para os Centros de Formação.
+    """
     list_display = [
         'nome', 
         'email', 
@@ -199,6 +202,9 @@ class CentroDeFormacaoAdmin(admin.ModelAdmin):
 
 @admin.register(PerfilCentroDeFormacao)
 class PerfilCentroDeFormacaoAdmin(admin.ModelAdmin):
+    """
+    Gerenciamento detalhado do perfil institucional e branding do Centro.
+    """
     list_display = [
         'centro_nome',
         'tipo',

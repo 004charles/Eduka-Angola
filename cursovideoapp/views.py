@@ -10,12 +10,12 @@ from django.urls import reverse
 
 from cursos_app.models import Categoria, Instrutor
 from cursovideoapp.models import Curso_video, FavoritoCursoVideo, Aula, ProgressoAula
-from usuarios.models import Comentario
+from avaliacoes.models import Comentario
 from cursos_app.forms import AvaliacaoForm
 
 def home_videos(request):
     """
-    Home page for Video Courses with rich sections.
+    Página inicial para cursos em vídeo com diversas seções.
     """
     agora = timezone.now()
     
@@ -57,7 +57,9 @@ def home_videos(request):
 
 @require_POST
 def toggle_favorito_video(request):
-    """API to toggle favorite status for a video course"""
+    """
+    API para alternar o status de favorito de um curso em vídeo.
+    """
     if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
         return JsonResponse({'status': 'error', 'message': 'Não autorizado'}, status=403)
     
@@ -83,7 +85,7 @@ def toggle_favorito_video(request):
 
 def api_load_more_videos(request):
     """
-    API to load more video courses.
+    API para carregar mais cursos em vídeo.
     """
     try:
         offset = int(request.GET.get('offset', 0))
@@ -133,16 +135,14 @@ def api_load_more_videos(request):
 # --- Restored Views ---
 
 def lista_cursos(request):
-    cursos = Curso_video.objects.filter(destaque=False)
-    destaques = Curso_video.objects.filter(destaque=True)
-    categorias = Categoria.objects.all()
-    return render(request, 'cursovideo/lista_cursos.html', {
-        'cursos': cursos, 
-        'destaques': destaques,
-        'categorias': categorias
-    })
+    """
+    Exibe a lista de todos os cursos em vídeo, incluindo destaques.
+    """
 
 def detalhe_curso(request, slug):
+    """
+    Exibe os detalhes de um curso em vídeo, incluindo aulas e avaliações.
+    """
     curso = get_object_or_404(Curso_video, slug=slug)
     
     # 1. Verificar se o aluno está inscrito e logado
@@ -215,6 +215,9 @@ def detalhe_curso(request, slug):
 
 @login_required
 def toggle_inscricao(request, slug):
+    """
+    Inscreve ou remove a inscrição de um aluno em um curso.
+    """
     curso = get_object_or_404(Curso_video, slug=slug)
     if request.user.tipo_usuario != 'ALUNO':
         # Handle non-student logic
@@ -229,6 +232,9 @@ def toggle_inscricao(request, slug):
 
 @login_required
 def ver_aula(request, curso_slug, pk):
+    """
+    Interface de visualização de uma aula específica do curso.
+    """
     curso = get_object_or_404(Curso_video, slug=curso_slug)
     aula_atual = get_object_or_404(Aula, pk=pk, curso=curso)
     
@@ -252,6 +258,9 @@ def ver_aula(request, curso_slug, pk):
 
 @login_required
 def salvar_comentario_video(request, slug):
+    """
+    Salva ou atualiza uma avaliação (comentário) do aluno para o curso.
+    """
     curso = get_object_or_404(Curso_video, slug=slug)
     
     # 1. Obter aluno
@@ -280,6 +289,9 @@ def salvar_comentario_video(request, slug):
 @require_POST
 @login_required
 def atualizar_progresso(request, aula_id):
+    """
+    Atualiza o tempo assistido e o status de conclusão de uma aula.
+    """
     aula = get_object_or_404(Aula, id=aula_id)
     
     if request.user.tipo_usuario != 'ALUNO':

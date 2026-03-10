@@ -2,22 +2,27 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from .models import *
+from usuarios.widgets import ColorPickerWidget
 
 @admin.register(Biblioteca)
 class BibliotecaAdmin(admin.ModelAdmin):
-    list_display = ['nome', 'email', 'data_cadastro', 'ativo', 'total_livros', 'total_emprestimos_ativos', 'total_vendas']
+    list_display = ['nome', 'get_email', 'data_cadastro', 'ativo', 'total_livros', 'total_emprestimos_ativos', 'total_vendas']
     list_filter = ['ativo', 'data_cadastro']
-    search_fields = ['nome', 'email']
+    search_fields = ['nome', 'usuario__email']
     readonly_fields = ['total_livros', 'total_emprestimos_ativos', 'total_vendas']
     fieldsets = (
         ('Informações Básicas', {
-            'fields': ('nome', 'email', 'senha', 'ativo')
+            'fields': ('usuario', 'nome', 'ativo')
         }),
         ('Estatísticas', {
             'fields': ('total_livros', 'total_emprestimos_ativos', 'total_vendas'),
             'classes': ('collapse',)
         }),
     )
+
+    def get_email(self, obj):
+        return obj.usuario.email if obj.usuario else "N/A"
+    get_email.short_description = 'E-mail'
 
 @admin.register(PerfilBiblioteca)
 class PerfilBibliotecaAdmin(admin.ModelAdmin):
@@ -127,6 +132,11 @@ class CategoriaLivroAdmin(admin.ModelAdmin):
             'fields': ('nome', 'descricao', 'icone', 'cor', 'imagem')
         }),
     )
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name == 'cor':
+            kwargs['widget'] = ColorPickerWidget
+        return super().formfield_for_dbfield(db_field, **kwargs)
     
     def imagem_preview(self, obj):
         if obj.imagem:

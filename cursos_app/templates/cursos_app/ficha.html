@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -159,13 +160,14 @@
             .card-img-top {
                 height: 200px;
             }
-            
+
             .card-body {
                 padding: 1.5rem;
             }
         }
     </style>
 </head>
+
 <body>
     {% include 'include/header.html' %}
 
@@ -179,36 +181,42 @@
                     {% endif %}
                     <div class="card-body">
                         <h1 class="card-title" style="color: black;">Curso de: {{ curso.titulo }}</h1>
-                        
+
                         <div class="info-item">
                             <i class="feather-home icon-info"></i>
-                            <div class="info-text"style="color: black;"><strong>Centro:</strong> {{ curso.centro.nome }}</div>
+                            <div class="info-text" style="color: black;"><strong>Centro:</strong> {{ curso.centro.nome
+                                }}</div>
                         </div>
-                    
-                        
+
+
                         <div class="info-item">
                             <i class="feather-award icon-info"></i>
-                            <div class="info-text" style="color: black;"><strong>Nível:</strong> {{ curso.get_nivel_display }}</div>
+                            <div class="info-text" style="color: black;"><strong>Nível:</strong> {{
+                                curso.get_nivel_display }}</div>
                         </div>
-                        
+
                         <div class="info-item">
                             <i class="feather-globe icon-info"></i>
-                            <div class="info-text" style="color: black;"><strong>Idioma:</strong> {{ curso.get_idioma_display }}</div>
+                            <div class="info-text" style="color: black;"><strong>Idioma:</strong> {{
+                                curso.get_idioma_display }}</div>
                         </div>
-                        
+
                         <div class="info-item">
                             <i class="feather-clock icon-info"></i>
-                            <div class="info-text" style="color: black;"><strong>Carga Horária:</strong> {{ curso.carga_horaria }} horas</div>
+                            <div class="info-text" style="color: black;"><strong>Carga Horária:</strong> {{
+                                curso.carga_horaria }} horas</div>
                         </div>
-                        
+
                         <div class="info-item">
                             <i class="feather-tag icon-info"></i>
-                            <div class="info-text" style="color: black;"><strong>Investimento:</strong> <span class="price-highlight">{{ curso.preco }} AKZ</span></div>
+                            <div class="info-text" style="color: black;"><strong>Investimento:</strong> <span
+                                    class="price-highlight">{{ curso.preco }} AKZ</span></div>
                         </div>
-                        
+
                         <div class="info-item">
                             <i class="feather-sun icon-info"></i>
-                            <div class="info-text" style="color: black;"><strong>Turno:</strong> {{ curso.get_turno_display }}</div>
+                            <div class="info-text" style="color: black;"><strong>Turno:</strong> {{
+                                curso.get_turno_display }}</div>
                         </div>
                     </div>
                 </div>
@@ -219,43 +227,46 @@
                 <div class="card h-100">
                     <div class="card-body d-flex flex-column">
                         <h2 class="section-title">Sua Inscrição</h2>
-                        
+
                         {% if aluno %}
-                            <div class="mb-3">
-                                <div class="info-item">
-                                    <i class="feather-user icon-info"></i>
-                                    <div class="info-text" style="color: black;" ><strong>Nome:</strong> {{ aluno.nome }}</div>
-                                </div>
-                                
-                                <div class="info-item">
-                                    <i class="feather-mail icon-info"></i>
-                                    <div class="info-text" style="color: black;" ><strong>E-mail:</strong   > {{ aluno.email }}</div>
+                        <div class="mb-3">
+                            <div class="info-item">
+                                <i class="feather-user icon-info"></i>
+                                <div class="info-text" style="color: black;"><strong>Nome:</strong> {{ aluno.nome }}
                                 </div>
                             </div>
-                            
-                            <div class="confirmation-message">
-                                <i class="feather-info icon-info"></i>
-                                Por favor, verifique seus dados antes de confirmar a inscrição. Você receberá um e-mail de confirmação.
+
+                            <div class="info-item">
+                                <i class="feather-mail icon-info"></i>
+                                <div class="info-text" style="color: black;"><strong>E-mail:</strong> {{ aluno.email }}
+                                </div>
                             </div>
-                            
-                            <div class="student-actions mt-auto">
-                                <form action="{% url 'inscrever_curso' curso.id %}" method="post">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-primary w-100 py-3">
-                                        Confirmar Inscrição
-                                    </button>
-                                </form>
-                            </div>
+                        </div>
+
+                        <div class="confirmation-message">
+                            <i class="feather-info icon-info"></i>
+                            Por favor, verifique seus dados antes de confirmar a inscrição. Você receberá um e-mail de
+                            confirmação.
+                        </div>
+
+                        <div class="student-actions mt-auto">
+                            <form action="{% url 'inscrever_curso' curso.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary w-100 py-3">
+                                    Confirmar Inscrição
+                                </button>
+                            </form>
+                        </div>
                         {% else %}
-                            <div class="alert-warning">
-                                <i class="feather-alert-circle icon-info"></i>
-                                Para se inscrever, faça login na sua conta.
-                            </div>
-                            <div class="student-actions mt-auto">
-                                <a href="/auth/Login_aluno" class="btn btn-primary w-100 py-3">
-                                    Acessar Minha Conta
-                                </a>
-                            </div>
+                        <div class="alert-warning">
+                            <i class="feather-alert-circle icon-info"></i>
+                            Para se inscrever, faça login na sua conta.
+                        </div>
+                        <div class="student-actions mt-auto">
+                            <a href="/auth/login_aluno/" class="btn btn-primary w-100 py-3">
+                                Acessar Minha Conta
+                            </a>
+                        </div>
                         {% endif %}
                     </div>
                 </div>
@@ -266,4 +277,5 @@
     {% include 'include/footer.html' %}
     {% include 'include/java.html' %}
 </body>
+
 </html>

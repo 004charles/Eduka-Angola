@@ -1,11 +1,9 @@
-# usuarios/templatetags/curso_filters.py
 from django import template
 
 register = template.Library()
 
 @register.filter(name='avaliacao_count')
 def avaliacao_count(comentarios, rating):
-    """Conta quantos comentários têm uma determinada avaliação"""
     try:
         rating_int = int(rating)
         count = 0

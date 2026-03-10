@@ -9,11 +9,15 @@ from .models import Post, Categoria, Tag, Comentario, ReacaoComentario
 from .forms import ComentarioForm
 
 from core.models import Galeria
-from usuarios.models import Aluno, CentroSeguimento
+from usuarios.models import Aluno
+from gestoreduka.models import CentroSeguimento
 from cursos_app.models import Favorito, Curso
 
 
 def lista_posts(request):
+    """
+    Lista todos os artigos do blog com suporte a pesquisa, filtragem e paginação.
+    """
     query = request.GET.get('q')
 
     # Lista de posts filtrados
@@ -73,6 +77,9 @@ def lista_posts(request):
 
 
 def detalhe_post(request, slug):
+    """
+    Exibe o conteúdo completo de um artigo, seus comentários e posts relacionados.
+    """
     post = get_object_or_404(Post, slug=slug, status='publicado')
 
     # Incrementa visualizações
@@ -166,6 +173,9 @@ def detalhe_post(request, slug):
 
 
 def comentar_post(request, slug):
+    """
+    Processa a submissão de um novo comentário em um artigo do blog.
+    """
     post = get_object_or_404(Post, slug=slug, status='publicado')
 
     if request.method == 'POST':
@@ -200,6 +210,9 @@ def comentar_post(request, slug):
 from django.http import JsonResponse
 
 def reagir_comentario(request, comentario_id, tipo):
+    """
+    Permite que usuários logados reajam (curtir, etc.) a comentários.
+    """
     comentario = get_object_or_404(Comentario, id=comentario_id)
 
     if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
@@ -242,18 +255,27 @@ def reagir_comentario(request, comentario_id, tipo):
 
 
 def posts_por_categoria(request, slug):
+    """
+    Filtra e exibe artigos pertencentes a uma categoria específica.
+    """
     categoria = get_object_or_404(Categoria, slug=slug)
     posts = categoria.posts.filter(status='publicado')
     return render(request, 'posts_por_categoria.html', {'categoria': categoria, 'posts': posts})
 
 
 def posts_por_tag(request, slug):
+    """
+    Filtra e exibe artigos que possuem uma tag específica.
+    """
     tag = get_object_or_404(Tag, slug=slug)
     posts = tag.posts.filter(status='publicado')
     return render(request, 'posts_por_tag.html', {'tag': tag, 'posts': posts})
 
 
 def buscar_posts(request):
+    """
+    Realiza a busca de artigos baseada em um termo fornecido pelo usuário.
+    """
     termo = request.GET.get('q', '')
     posts = []
     if termo:

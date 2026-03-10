@@ -578,7 +578,7 @@
             
             <!-- Conteúdo de Login -->
             <div class="tab-content active" id="login-content">
-                <form method="POST" action="{% url 'Login_instrutor' %}">
+                <form method="POST" action="{% url 'login_instrutor' %}">
                     {% csrf_token %}
                     <div class="form-group">
                         <label for="login-email">Email Profissional</label>
@@ -674,7 +674,7 @@
             </div>
             
             <div class="switch-access">
-                É um aluno? <a href="{% url 'Login_aluno' %}">Acesse como estudante</a>
+                É um aluno? <a href="{% url 'login_aluno' %}">Acesse como estudante</a>
             </div>
         </div>
     </div>

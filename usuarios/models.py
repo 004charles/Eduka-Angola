@@ -3,12 +3,16 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinLengthValidator, MinValueValidator, MaxValueValidator
-from django.contrib.gis.db import models as gis_models
+# from django.contrib.gis.db import models as gis_models
 from django.utils.safestring import mark_safe
 # Note: CentroDeFormacao will be imported where used to avoid circular imports if needed
 # or we can rely on string references.
 
 class UsuarioManager(BaseUserManager):
+    """
+    Gestor personalizado para o modelo Usuario.
+    Lida com o registro de usuários normais e administradores usando email como identificador.
+    """
     def create_user(self, email, nome, password=None, **extra_fields):
         if not email:
             raise ValueError('O email é obrigatório')
@@ -30,6 +34,11 @@ class UsuarioManager(BaseUserManager):
 
 
 class Usuario(AbstractBaseUser, PermissionsMixin):
+    """
+    Modelo de Usuário Centralizado para todo o projeto.
+    Suporta diferentes funções: ADMIN, ALUNO, GESTOR, BIBLIOTECA, ESCOLA.
+    Usa o email para autenticação em vez de nome de usuário.
+    """
     TIPO_USUARIO_CHOICES = [
         ('ADMIN', 'Administrador'),
         ('ALUNO', 'Aluno'),
@@ -69,6 +78,10 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
 
 class Escola(models.Model):
+    """
+    Representa uma Instituição de Ensino (Escola).
+    Vinculada a uma conta de Usuario com a função 'ESCOLA'.
+    """
     TIPO_ESCOLA_CHOICES = [
         ('PUBLICA', 'Pública'),
         ('PARTICULAR', 'Particular'),
@@ -97,6 +110,10 @@ class Escola(models.Model):
 
 
 class Aluno(models.Model):
+    """
+    Representa um perfil de aluno no sistema.
+    Vinculado a uma conta de Usuario com a função 'ALUNO'.
+    """
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='aluno_profile', null=True, blank=True)
     nome = models.CharField(_('Nome Completo'), max_length=100)
     # email and senha are now in usuario
@@ -111,18 +128,7 @@ class Aluno(models.Model):
         verbose_name_plural = 'Alunos'
 
 
-class CentroSeguimento(models.Model):
-    aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, related_name='centros_seguidos', verbose_name=_('Aluno'))
-    centro = models.ForeignKey('gestoreduka.CentroDeFormacao', on_delete=models.CASCADE, related_name='seguidores', verbose_name=_('Centro de Formação'))
-    data_seguimento = models.DateTimeField(_('Data do Seguimento'), default=timezone.now)
-
-    class Meta:
-        unique_together = ('aluno', 'centro')  # evita duplicações
-        verbose_name = _('Seguimento de Centro')
-        verbose_name_plural = _('Seguimentos de Centros')
-
-    def __str__(self):
-        return f"{self.aluno.nome} segue {self.centro.nome}"
+# CentroSeguimento moved to gestoreduka/models.py
 
 
         
@@ -139,6 +145,7 @@ class PerfilAluno(models.Model):
 
     from django.conf import settings
     if 'django.contrib.gis' in settings.INSTALLED_APPS and not settings.DATABASES['default']['ENGINE'].endswith('sqlite3'):
+        from django.contrib.gis.db import models as gis_models
         localizacao = gis_models.PointField(
             _('Localização Geográfica'),
             geography=True,
@@ -194,165 +201,12 @@ class PerfilAluno(models.Model):
 # models.py (adicione ou atualize esta classe)
 
 # usuarios/models.py
-class Comentario(models.Model):
-    ALUNO_STATUS_CHOICES = [
-        ('INS', 'Inscrito'),
-        ('COM', 'Concluído'),
-        ('AND', 'Em Andamento'),
-    ]
-    
-    aluno = models.ForeignKey('Aluno', on_delete=models.CASCADE, related_name='comentarios')
-    curso = models.ForeignKey('cursos_app.Curso', on_delete=models.CASCADE, related_name='comentarios', null=True, blank=True)
-    curso_video = models.ForeignKey('cursovideoapp.Curso_video', on_delete=models.CASCADE, related_name='comentarios', null=True, blank=True)
-    
-    comentario = models.TextField(_('Comentário'), max_length=1000)
-    avaliacao = models.IntegerField(
-        _('Avaliação'),
-        choices=[(1, '1 Estrela'), (2, '2 Estrelas'), (3, '3 Estrelas'), 
-                (4, '4 Estrelas'), (5, '5 Estrelas')],
-        default=5,
-        validators=[MinValueValidator(1), MaxValueValidator(5)]
-    )
-    
-    status_aluno = models.CharField(
-        _('Status do Aluno'),
-        max_length=3,
-        choices=ALUNO_STATUS_CHOICES,
-        default='AND'
-    )
-    
-    data_comentario = models.DateTimeField(_('Data de Comentário'), default=timezone.now)
-    atualizado_em = models.DateTimeField(_('Atualizado em'), auto_now=True)
-    aprovado = models.BooleanField(_('Aprovado'), default=True)
-    resposta = models.TextField(_('Resposta'), blank=True, null=True, max_length=1000)
-    resposta_data = models.DateTimeField(_('Data da Resposta'), blank=True, null=True)
-    
-    # Campos para moderar o conteúdo
-    denuncias = models.PositiveIntegerField(_('Denúncias'), default=0)
-    editado = models.BooleanField(_('Editado'), default=False)
-    
-    class Meta:
-        verbose_name = 'Comentário'
-        verbose_name_plural = 'Comentários'
-        ordering = ['-data_comentario']
-        constraints = [
-            models.UniqueConstraint(
-                fields=['aluno', 'curso'], 
-                name='unique_aluno_curso_comentario',
-                condition=models.Q(curso__isnull=False)
-            ),
-            models.UniqueConstraint(
-                fields=['aluno', 'curso_video'], 
-                name='unique_aluno_curso_video_comentario',
-                condition=models.Q(curso_video__isnull=False)
-            )
-        ]
-    
-    def __str__(self):
-        obj_titulo = self.curso.titulo if self.curso else self.curso_video.titulo if self.curso_video else "N/A"
-        return f"Avaliação de {self.aluno.nome} para {obj_titulo}"
-    
-    def save(self, *args, **kwargs):
-        # Verificar se é um update
-        if self.pk:
-            original = Comentario.objects.get(pk=self.pk)
-            if original.comentario != self.comentario or original.avaliacao != self.avaliacao:
-                self.editado = True
-        
-        # Definir status do aluno automaticamente
-        if hasattr(self.aluno, 'inscricoes'):
-            curso_obj = self.curso or self.curso_video
-            if curso_obj:
-                # Lógica simplificada: se estiver no banco de inscritos (ou ManyToMany)
-                if self.curso:
-                    inscricao = self.aluno.inscricoes.filter(curso=self.curso).first()
-                else:
-                    inscricao = self.curso_video.inscritos.filter(id=self.aluno.id).exists()
-                
-                if inscricao:
-                    if self.curso and hasattr(inscricao, 'status'):
-                        if inscricao.status == 'C':
-                            self.status_aluno = 'COM'
-                        elif inscricao.status == 'A':
-                            self.status_aluno = 'AND'
-                    else:
-                        # Para curso video, por enquanto andamento se estiver inscrito
-                        self.status_aluno = 'AND'
-        
-        super().save(*args, **kwargs)
-    
-    @property
-    def get_estrelas(self):
-        """Retorna HTML das estrelas"""
-        estrelas = ''
-        for i in range(1, 6):
-            if i <= self.avaliacao:
-                estrelas += '<i class="fa fa-star text-warning"></i>'
-            else:
-                estrelas += '<i class="fa fa-star-o text-muted"></i>'
-        return mark_safe(estrelas)
-    
-    def denunciar(self):
-        """Incrementa o contador de denúncias"""
-        self.denuncias += 1
-        if self.denuncias >= 3:
-            self.aprovado = False
-        self.save()
-    
-    def responder(self, resposta_texto):
-        """Adiciona uma resposta ao comentário"""
-        self.resposta = resposta_texto
-        self.resposta_data = timezone.now()
-        self.save()
-        
-class Biblioteca(models.Model):
-    TIPO_BIBLIOTECA_CHOICES = [
-        ('PUBLICA', 'Pública'),
-        ('ESCOLAR', 'escolar'),
-        ('UNVERSITARIA', 'universitaria'),
-        ('ESPECIALIZADA', 'especializada'),
-        ('COMUNITARIA', 'comunitaria'),
-    ]
-    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='biblioteca_profile', null=True, blank=True)
-    nome = models.CharField(_('Nome Completo'), max_length=100)
-    # email and senha are now in usuario
-    telefone = models.CharField(_('Telefone'), max_length=20, blank=True, null=True)
-    codigo_registro = models.CharField(_('Codigo de registro'), max_length=100, blank=True, null=True)
-    ativo = models.BooleanField(default=True)
-    tipo = models.CharField(_('Tipo de Biblioteca'), max_length=50, choices=TIPO_BIBLIOTECA_CHOICES)
-    
-    def __str__(self):
-        return f"Bibliotecário: {self.nome}"
+# Biblioteca, Empresa and Comentario models removed from here.
+# Empresa was deleted as requested.
+# Biblioteca moved to biblioteca/models.py
+# Comentario moved to avaliacoes/models.py
 
-class Empresa(models.Model):
-    TIPO_RAMO_ATUACAO = [
-        ('TECNOLOGIA_INFORMACAO', 'tecnologia de informacao'),
-        ('NEGOCIO', 'negocio'),
-        ('LINGUAS', 'linguas'),
-        ('ESPECIALIZADA', 'especializada'),
-        ('CIENCIAS', 'ciencias'),
-        ('ARTES', 'artes'),
-        ('ENGENHARIA', 'engenharia'),
-        ('SAUDE', 'saude'),
-        ('OUTRO', 'outro'),
-    ]
-    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='empresa_profile', null=True, blank=True)
-    nome = models.CharField(_('Nome Completo'), max_length=100)
-    # email and senha are now in usuario
-    telefone = models.CharField(_('Telefone'), max_length=20, blank=True, null=True)
-    experiencia_anos = models.IntegerField(_('Anos de Experiência'), default=0)
-    nif = models.CharField(_('NIF'), max_length=18, unique=True)
-    ramo_atuacao = models.CharField(_('Ramo de Atuação'), max_length=100, choices=TIPO_RAMO_ATUACAO)    
-    numero_funcionarios = models.IntegerField(_('Número de Funcionários'))
-    
-    def __str__(self):
-        return f"Empresa: {self.nome}"
-
-
-    class Meta:
-        verbose_name = 'Empresa'
-        verbose_name_plural = 'Empresas'
-        db_table = 'empresas'
+# Empresa model deleted as requested.
 
 class CodigoVerificacao(models.Model):
     TIPO_CHOICES = [

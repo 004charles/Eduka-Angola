@@ -84,7 +84,7 @@
                         <div class="rbt-separator"></div>
                         <div class="header-info">
                             <div class="header-right-btn d-flex">
-                                <a class="rbt-btn rbt-switch-btn btn-gradient btn-xs" href="{% url 'Login_aluno' %}">
+                                <a class="rbt-btn rbt-switch-btn btn-gradient btn-xs" href="{% url 'login_aluno' %}">
                                     <span data-text="{% trans 'Entrar' %}">{% trans "Entrar" %}</span>
                                 </a>
                             </div>
@@ -222,7 +222,7 @@
                                         </li>
                                         {% endif %}
                                         <li>
-                                            <a href="{% url 'Logout' %}">
+                                            <a href="{% url 'logout' %}">
                                                 <i class="feather-log-out"></i>
                                                 <span>{% trans "Sair" %}</span>
                                             </a>
@@ -233,7 +233,7 @@
                         </li>
                         {% else %}
                         <li class="access-icon d-none d-xl-block">
-                            <a class="rbt-btn btn-border-gradient radius-round btn-sm" href="{% url 'Login_aluno' %}">
+                            <a class="rbt-btn btn-border-gradient radius-round btn-sm" href="{% url 'login_aluno' %}">
                                 <span>{% trans 'Entrar' %}</span>
                             </a>
                         </li>
@@ -296,9 +296,9 @@
                 {% if request.user.tipo_usuario == 'ALUNO' %}
                 <li><a href="{% url 'aluno' %}">{% trans "Dashboard" %}</a></li>
                 {% endif %}
-                <li><a href="{% url 'Logout' %}">{% trans "Sair" %}</a></li>
+                <li><a href="{% url 'logout' %}">{% trans "Sair" %}</a></li>
                 {% else %}
-                <li><a href="{% url 'Login_aluno' %}">{% trans "Entrar" %}</a></li>
+                <li><a href="{% url 'login_aluno' %}">{% trans "Entrar" %}</a></li>
                 {% endif %}
             </ul>
         </nav>

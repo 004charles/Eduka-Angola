@@ -282,6 +282,153 @@
             overflow-x: hidden;
             width: 100%;
         }
+
+        /* Coursera Style Slider Overrides */
+        .rbt-banner-area.rbt-banner-19 {
+            padding: 20px 0;
+            background: #fff;
+        }
+
+        .rbt-banner-activation-2 {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        .coursera-slide {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 380px;
+            padding: 30px 40px;
+            position: relative;
+            background-color: #f5f7fa;
+            /* Default fallback */
+            border-radius: 12px;
+            margin: 10px 0;
+        }
+
+        .slide-content {
+            flex: 1;
+            max-width: 550px;
+            z-index: 2;
+        }
+
+        .slide-image-wrapper {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide-image-wrapper img {
+            max-height: 380px;
+            object-fit: contain;
+            border-radius: 8px;
+            /* Coursera style square format */
+        }
+
+        .slide-title {
+            font-size: 26px !important;
+            line-height: 1.2 !important;
+            font-weight: 700 !important;
+            color: #1f1f1f !important;
+            margin-bottom: 15px !important;
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .slide-description {
+            font-size: 15px !important;
+            color: #3d3d3d !important;
+            margin-bottom: 20px !important;
+            line-height: 1.5 !important;
+        }
+
+        .coursera-btn {
+            background-color: #0056d2 !important;
+            color: #fff !important;
+            padding: 14px 28px !important;
+            border-radius: 4px !important;
+            font-weight: 600 !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            border: none;
+            font-size: 16px;
+        }
+
+        .coursera-btn:hover {
+            background-color: #00419e !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 86, 210, 0.2);
+        }
+
+        /* Slide Specific Backgrounds */
+        .bg-slide-1 {
+            background: linear-gradient(135deg, #fffcf5 0%, #fff4e5 100%);
+        }
+
+        .bg-slide-2 {
+            background: linear-gradient(135deg, #f0f7ff 0%, #e1efff 100%);
+        }
+
+        .bg-slide-3 {
+            background: linear-gradient(135deg, #fdf4f8 0%, #f9e1ed 100%);
+        }
+
+        /* Custom Swiper Controls */
+        .rbt-slider-control .rbt-swiper-arrow-2 {
+            background: #fff !important;
+            color: #0056d2 !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+            width: 44px !important;
+            height: 44px !important;
+            border-radius: 50% !important;
+            border: 1px solid #eee !important;
+        }
+
+        .rbt-slider-control .rbt-swiper-arrow-2:hover {
+            background: #0056d2 !important;
+            color: #fff !important;
+        }
+
+        @media (max-width: 991px) {
+            .coursera-slide {
+                flex-direction: column;
+                padding: 40px 30px;
+                text-align: center;
+                min-height: auto;
+            }
+
+            .slide-content {
+                max-width: 100%;
+                margin-bottom: 30px;
+            }
+
+            .slide-image-wrapper {
+                justify-content: center;
+            }
+
+            .slide-title {
+                font-size: 32px !important;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 
 </head>
@@ -311,212 +458,71 @@
     <main style="margin-top: 13px;" class="rbt-main-wrapper ">
         <!-- Start Banner Area  -->
         <div class="rbt-banner-area rbt-banner-19">
-            <div class="wrapper">
-                <div class="swiper rbt-banner-activation-2 rbt-slider-animation rbt-arrow-between">
+            <div class="container">
+                <div class="swiper rbt-banner-activation-2">
                     <div class="swiper-wrapper">
-                        <!-- Start Single Banner  -->
+                        <!-- Slide 1: Centros de Formação -->
                         <div class="swiper-slide">
-                            <div class="rbt-banner-item bg_image bg_image--24">
-                                <div class="shape-1">
-                                    <img src="{% static 'assets/images/centro formacao.png' %}" alt="Shape">
+                            <div class="coursera-slide bg-slide-1">
+                                <div class="slide-content">
+                                    <h1 class="slide-title">Encontre os melhores Centros de Formação</h1>
+                                    <p class="slide-description">
+                                        Conectamos você a instituições avaliadas e verificadas em toda Angola.
+                                        Inicie ou avance na sua carreira hoje mesmo.
+                                    </p>
+                                    <a href="{% url 'home_centro' %}" class="coursera-btn">
+                                        Explorar Centros <i class="feather-arrow-right"></i>
+                                    </a>
                                 </div>
-                                <div class="container">
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="inner">
-                                                <h6 class="subtitle">
-                                                    <span>
-                                                        <img src="{% static 'assets/images/icons/trustpilot-white.png' %}"
-                                                            alt="trustpilot">
-                                                    </span>
-                                                    Centros verificados e avaliados
-                                                </h6>
-                                                <h1 class="title">Centros de Formação de Confiança</h1>
-                                                <p class="description">
-                                                    Conectamos estudantes aos melhores centros de formação,
-                                                    com qualidade reconhecida e ensino alinhado ao mercado de trabalho.
-                                                </p>
-                                                <div class="bottom-content d-flex align-items-center gap-5 flex-wrap">
-                                                    <a class="rbt-btn btn-gradient hover-icon-reverse"
-                                                        href="{% url 'home_centro' %}">
-                                                        <span class="icon-reverse-wrapper">
-                                                            <span class="btn-text">Ver Centros</span>
-                                                            <span class="btn-icon"><i
-                                                                    class="feather-arrow-right"></i></span>
-                                                            <span class="btn-icon"><i
-                                                                    class="feather-arrow-right"></i></span>
-                                                        </span>
-                                                    </a>
-                                                    <div class="d-flex flex-wrap gap-4 align-items-center">
-                                                        <div class="profile-share">
-                                                            <a href="#" class="avatar" data-tooltip="Centro Parceiro">
-                                                                <img src="{% static 'assets/images/shape/art-stu-1.png' %}"
-                                                                    alt="education">
-                                                            </a>
-                                                            <a href="#" class="avatar" data-tooltip="Centro Parceiro">
-                                                                <img src="{% static 'assets/images/shape/art-stu-3.png' %}"
-                                                                    alt="education">
-                                                            </a>
-                                                            <a href="#" class="avatar" data-tooltip="Centro Parceiro">
-                                                                <img src="{% static 'assets/images/shape/art-stu-2.png' %}"
-                                                                    alt="education">
-                                                            </a>
-                                                        </div>
-                                                        <div>
-                                                            <h6 class="number mb-0">100+</h6>
-                                                            <p class="number-title">Centros Parceiros</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="slide-image-wrapper">
+                                    <img src="{% static 'assets/images/centro formacao.png' %}"
+                                        alt="Centros de Formação">
                                 </div>
                             </div>
                         </div>
-                        <!-- End Single Banner  -->
 
-                        <!-- Start Single Banner  -->
+                        <!-- Slide 2: Cursos Presenciais -->
                         <div class="swiper-slide">
-                            <div class="rbt-banner-item bg_image bg_image--25">
-                                <div class="shape-1">
-                                    <img src="{% static 'assets/images/sala.png' %}" alt="Shape">
+                            <div class="coursera-slide bg-slide-2">
+                                <div class="slide-content">
+                                    <h1 class="slide-title">Domine novas habilidades com cursos práticos</h1>
+                                    <p class="slide-description">
+                                        Aprenda com especialistas em ambientes reais de sala de aula.
+                                        Formação presencial com certificação reconhecida.
+                                    </p>
+                                    <a href="{% url 'home_cursos' %}" class="coursera-btn">
+                                        Ver Cursos <i class="feather-arrow-right"></i>
+                                    </a>
                                 </div>
-                                <div class="container">
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="inner">
-                                                <h6 class="subtitle">
-                                                    <span>
-                                                        <img src="{% static 'assets/images/icons/trustpilot-white.png' %}"
-                                                            alt="trustpilot">
-                                                    </span>
-                                                    Formação prática e presencial
-                                                </h6>
-                                                <h1 class="title">Cursos Presenciais com Qualidade</h1>
-                                                <p class="description">
-                                                    Aprenda com instrutores qualificados em centros de formação,
-                                                    com aulas práticas, acompanhamento real e certificação reconhecida.
-                                                </p>
-                                                <div class="bottom-content d-flex align-items-center gap-5 flex-wrap">
-                                                    <a class="rbt-btn btn-gradient hover-icon-reverse"
-                                                        href="{% url 'home_cursos' %}">
-                                                        <span class="icon-reverse-wrapper">
-                                                            <span class="btn-text">Explorar Cursos</span>
-                                                            <span class="btn-icon"><i
-                                                                    class="feather-arrow-right"></i></span>
-                                                            <span class="btn-icon"><i
-                                                                    class="feather-arrow-right"></i></span>
-                                                        </span>
-                                                    </a>
-                                                    <div class="d-flex flex-wrap gap-4 align-items-center">
-                                                        <div class="profile-share">
-                                                            <a href="#" class="avatar" data-tooltip="Estudante">
-                                                                <img src="{% static 'assets/images/shape/art-stu-1.png' %}"
-                                                                    alt="education">
-                                                            </a>
-                                                            <a href="#" class="avatar" data-tooltip="Estudante">
-                                                                <img src="{% static 'assets/images/shape/art-stu-3.png' %}"
-                                                                    alt="education">
-                                                            </a>
-                                                            <a href="#" class="avatar" data-tooltip="Estudante">
-                                                                <img src="{% static 'assets/images/shape/art-stu-2.png' %}"
-                                                                    alt="education">
-                                                            </a>
-                                                        </div>
-                                                        <div>
-                                                            <h6 class="number mb-0">500+</h6>
-                                                            <p class="number-title">Cursos Disponíveis</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="slide-image-wrapper">
+                                    <img src="{% static 'assets/images/sala.png' %}" alt="Cursos Presenciais">
                                 </div>
                             </div>
                         </div>
-                        <!-- End Single Banner  -->
 
-                        <!-- Start Single Banner  -->
+                        <!-- Slide 3: Cursos em Vídeo -->
                         <div class="swiper-slide">
-                            <div class="rbt-banner-item bg_image bg_image--26">
-                                <div class="shape-1">
-                                    <img src="{% static 'assets/images/video.png' %}" alt="Shape">
+                            <div class="coursera-slide bg-slide-3">
+                                <div class="slide-content">
+                                    <h1 class="slide-title">Aprenda no seu ritmo com cursos em vídeo</h1>
+                                    <p class="slide-description">
+                                        Acesse centenas de aulas online e estude onde e quando quiser.
+                                        O conhecimento dos melhores especialistas a um clique.
+                                    </p>
+                                    <a href="{% url 'home_cursos' %}" class="coursera-btn">
+                                        Começar Agora <i class="feather-arrow-right"></i>
+                                    </a>
                                 </div>
-                                <div class="container">
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="inner">
-                                                <h6 class="subtitle">
-                                                    <span>
-                                                        <img src="{% static 'assets/images/icons/trustpilot-white.png' %}"
-                                                            alt="trustpilot">
-                                                    </span>
-                                                    Aprenda no seu ritmo
-                                                </h6>
-                                                <h1 class="title">Cursos em Vídeo da Plataforma</h1>
-                                                <p class="description">
-                                                    Tenha acesso a cursos em vídeo produzidos pelos centros de formação
-                                                    e especialistas, disponíveis a qualquer hora, em qualquer lugar.
-                                                </p>
-                                                <div class="bottom-content d-flex align-items-center gap-5 flex-wrap">
-                                                    <a class="rbt-btn btn-gradient hover-icon-reverse"
-                                                        href="19-modern-university.html#">
-                                                        <span class="icon-reverse-wrapper">
-                                                            <span class="btn-text">Assistir Aulas</span>
-                                                            <span class="btn-icon"><i
-                                                                    class="feather-arrow-right"></i></span>
-                                                            <span class="btn-icon"><i
-                                                                    class="feather-arrow-right"></i></span>
-                                                        </span>
-                                                    </a>
-                                                    <div class="d-flex flex-wrap gap-4 align-items-center">
-                                                        <div class="profile-share">
-                                                            <a href="#" class="avatar" data-tooltip="Curso em Vídeo">
-                                                                <img src="{% static 'assets/images/shape/art-stu-1.png' %}"
-                                                                    alt="education">
-                                                            </a>
-                                                            <a href="#" class="avatar" data-tooltip="Curso em Vídeo">
-                                                                <img src="{% static 'assets/images/shape/art-stu-3.png' %}"
-                                                                    alt="education">
-                                                            </a>
-                                                            <a href="#" class="avatar" data-tooltip="Curso em Vídeo">
-                                                                <img src="{% static 'assets/images/shape/art-stu-2.png' %}"
-                                                                    alt="education">
-                                                            </a>
-                                                        </div>
-                                                        <div>
-                                                            <h6 class="number mb-0">300+</h6>
-                                                            <p class="number-title">Cursos em Vídeo</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="slide-image-wrapper">
+                                    <img src="{% static 'assets/images/video.png' %}" alt="Cursos Online">
                                 </div>
                             </div>
-                        </div>
-                        <!-- End Single Banner  -->
-                    </div>
-
-                    <div class="rbt-slider-control">
-                        <div class="rbt-swiper-arrow-2 rbt-arrow-left">
-                            <span class="icon">
-                                <i class="rbt-icon-top feather-arrow-left"></i>
-                            </span>
-                            <span class="text">Anterior</span>
-                        </div>
-
-                        <div class="rbt-swiper-arrow-2 rbt-arrow-right">
-                            <span class="text">Próximo</span>
-                            <span class="icon">
-                                <i class="rbt-icon feather-arrow-right"></i>
-                            </span>
                         </div>
                     </div>
 
+                    <!-- Slider Nav -->
+                    
+                    <div class="rbt-swiper-pagination" style="bottom: 20px !important;"></div>
                 </div>
             </div>
         </div>
@@ -546,68 +552,6 @@
             </div>
         </div>
         <!-- End Brand Area -->
-
-
-
-        <div class="rbt-banner-area rbt-banner-8 variation-01 bg_image bg_image--9">
-            <div class="wrapper w-100">
-                <div class="container">
-                    <div class="row g-5 align-items-center">
-                        <div class="col-lg-6 order-2 order-lg-1">
-                            <div class="content">
-                                <div class="inner">
-                                    <div class="rbt-badge-group justify-content-start">
-                                        <span class="meta-text d-flex align-items-center"><span class="icon">🎬</span>
-                                            Video
-                                            Online Course</span>
-                                        <a href="10-online-course.html#" class="rbt-badge-2">
-                                            <div class="image"><img
-                                                    src="{% static 'assets/images/testimonial/client-02.png' %}"
-                                                    alt="Education Images"></div> Learn with <strong>Fatima
-                                                Asrafy</strong>
-                                        </a>
-                                    </div>
-                                    <h1 style="font-size: 35px;" class="title">Os melhores cursos para impulsionar sua
-                                        carreira</h1>
-                                    <p class="description has-medium-font-size mt--20">
-                                        Cursos práticos e atualizados para você se destacar no mercado de trabalho.
-                                    </p>
-
-                                    <div class="slider-btn rbt-button-group justify-content-start">
-                                        <a class="rbt-btn btn-gradient radius-round hover-icon-reverse"
-                                            href="10-online-course.html#">
-                                            <span class="icon-reverse-wrapper">
-                                                <span class="btn-text">Veja como funciona</span>
-                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                            </span>
-                                        </a>
-                                        <a class="rbt-btn radius-round hover-icon-reverse btn-white"
-                                            href="10-online-course.html#">
-                                            <span class="icon-reverse-wrapper">
-                                                <span class="btn-text">Inscreva-se</span>
-                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                            </span>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-5 offset-xl-1 order-1 order-lg-2">
-                            <div class="video-popup-wrapper">
-                                <img class="w-100 rbt-radius" src="{% static 'assets/images/others/video-02.jpg' %}"
-                                    alt="Video Images">
-                                <a class="rbt-btn rounded-player-2 popup-video position-to-top with-animation"
-                                    href="https://www.youtube.com/watch?v=nA1Aqp0sPQo">
-                                    <span class="play-icon"></span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
 
 
@@ -718,6 +662,68 @@
 
 
 
+        <div class="rbt-banner-area rbt-banner-8 variation-01 bg_image bg_image--9">
+            <div class="wrapper w-100">
+                <div class="container">
+                    <div class="row g-5 align-items-center">
+                        <div class="col-lg-6 order-2 order-lg-1">
+                            <div class="content">
+                                <div class="inner">
+                                    <div class="rbt-badge-group justify-content-start">
+                                        <span class="meta-text d-flex align-items-center"><span class="icon">🎬</span>
+                                            Video
+                                            Online Course</span>
+                                        <a href="10-online-course.html#" class="rbt-badge-2">
+                                            <div class="image"><img
+                                                    src="{% static 'assets/images/testimonial/client-02.png' %}"
+                                                    alt="Education Images"></div> Learn with <strong>Fatima
+                                                Asrafy</strong>
+                                        </a>
+                                    </div>
+                                    <h1 style="font-size: 35px;" class="title">Os melhores cursos para impulsionar sua
+                                        carreira</h1>
+                                    <p class="description has-medium-font-size mt--20">
+                                        Cursos práticos e atualizados para você se destacar no mercado de trabalho.
+                                    </p>
+
+                                    <div class="slider-btn rbt-button-group justify-content-start">
+                                        <a class="rbt-btn btn-gradient radius-round hover-icon-reverse"
+                                            href="10-online-course.html#">
+                                            <span class="icon-reverse-wrapper">
+                                                <span class="btn-text">Veja como funciona</span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            </span>
+                                        </a>
+                                        <a class="rbt-btn radius-round hover-icon-reverse btn-white"
+                                            href="10-online-course.html#">
+                                            <span class="icon-reverse-wrapper">
+                                                <span class="btn-text">Inscreva-se</span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            </span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 offset-xl-1 order-1 order-lg-2">
+                            <div class="video-popup-wrapper">
+                                <img class="w-100 rbt-radius" src="{% static 'assets/images/others/video-02.jpg' %}"
+                                    alt="Video Images">
+                                <a class="rbt-btn rounded-player-2 popup-video position-to-top with-animation"
+                                    href="https://www.youtube.com/watch?v=nA1Aqp0sPQo">
+                                    <span class="play-icon"></span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
         <div class="rbt-categories-area rbt-section-gap bg-color-white">
             <div class="container">
                 <div class="row g-5 align-items-center mb--50">
@@ -785,58 +791,132 @@
 
 
 
+        <!-- Seção de Cursos Temáticos Style Coursera -->
         <div class="rbt-course-area rbt-section-gapBottom bg-color-white">
             <div class="container">
-                <div class="row g-5 align-items-center mb--50">
-                    <div class="col-lg-6 col-md-6 col-12">
-                        <div class="section-title">
-                            <h5 class="rbt-brand-title w-600 text-center mb-0">
-                                Cursos <span class="theme-gradient">em</span> Destaque
-                            </h5>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-6 col-md-6 col-12">
-                        <div class="load-more-btn text-start text-md-end">
-                            <a class="rbt-btn btn-gradient rbt-marquee-btn radius-round" href="#">
-                                <span data-text="Ver todos cursos">Ver todos cursos</span>
-                            </a>
+                
+                <!-- 1. Cursos em Destaque -->
+                <div class="row g-5 align-items-center mb--30">
+                    <div class="col-lg-12">
+                        <div class="section-title text-start">
+                            <h2 class="title"><span class="theme-gradient">Destaques</span> do EdukAngola</h2>
                         </div>
                     </div>
                 </div>
-
-                <!-- Linha 1 (ZIGUE) -->
-                <div class="swiper zigueLinha1 mb-5">
+                <div class="swiper cursosDestaqueSwiper mb--60">
                     <div class="swiper-wrapper">
-                        {% for curso in cursos_zigue1 %}
+                        {% for curso in cursos_destaque %}
                         <div class="swiper-slide">
-                            <div class="rbt-card variation-01 rbt-hover card-list-2">
+                            <div class="rbt-card variation-01 rbt-hover">
                                 <div class="rbt-card-img">
                                     <a href="{% url 'curso_detalhe' id=curso.id %}">
                                         {% if curso.imagem %}
-                                        <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}"
-                                            style="height: 200px; object-fit: cover; width: 100%;">
+                                        <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}" style="height: 200px; object-fit: cover;">
                                         {% else %}
-                                        <img src="{% static 'assets/images/course/default-course.jpg' %}"
-                                            alt="{{ curso.titulo }}"
-                                            style="height: 200px; object-fit: cover; width: 100%;">
+                                        <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{ curso.titulo }}" style="height: 200px; object-fit: cover;">
                                         {% endif %}
                                     </a>
-                                    {% if aluno_logado %}
-                                    <div class="rbt-badge-3 hover-icon-badge">
-                                        <label class="heart-icon-label">
-                                            <input type="checkbox" class="favorite-checkbox" data-id="{{ curso.id }}"  {% if curso.id in favoritos %}checked{% endif %}>
-                                            <i class="feather-heart"></i>
-                                        </label>
-                                    </div>
-                                    {% endif %}
                                 </div>
                                 <div class="rbt-card-body">
-                                    <h4 class="rbt-card-title"><a style="font-size: 19px;"
-                                            href="{% url 'curso_detalhe' id=curso.id %}">{{ curso.titulo }}</a></h4>
-                                    <p class="rbt-card-text">{{ curso.descricao|truncatechars:50 }}</p>
-                                    <div class="rbt-price">
-                                        <span class="current-price">kz {{ curso.preco }}</span>
+                                    <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}" style="font-size: 18px;">{{ curso.titulo }}</a></h4>
+                                    <div class="rbt-card-bottom">
+                                        <div class="rbt-price"><span class="current-price">kz {{ curso.preco }}</span></div>
+                                        <span class="rbt-badge-card">Destaque</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="rbt-swiper-pagination"></div>
+                </div>
+
+                <!-- 2. Novidades da Semana -->
+                <div class="row g-5 align-items-center mb--30">
+                    <div class="col-lg-12">
+                        <div class="section-title text-start">
+                            <h2 class="title">Novidades da <span class="theme-gradient">Semana</span></h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper cursosSemanaSwiper mb--60">
+                    <div class="swiper-wrapper">
+                        {% for curso in cursos_recentes|slice:":10" %}
+                        <div class="swiper-slide">
+                            <div class="rbt-card variation-01 rbt-hover shadow-sm">
+                                <div class="rbt-card-img">
+                                    <a href="{% url 'curso_detalhe' id=curso.id %}">
+                                        <img src="{{ curso.imagem.url|default:'/static/assets/images/course/default-course.jpg' }}" alt="{{ curso.titulo }}" style="height: 180px; object-fit: cover;">
+                                    </a>
+                                </div>
+                                <div class="rbt-card-body">
+                                    <h5 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}" style="font-size: 16px;">{{ curso.titulo }}</a></h5>
+                                    <div class="rbt-price"><span class="current-price">kz {{ curso.preco }}</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- 3. Especial Para Você (IA) - Apenas se logado -->
+                {% if aluno_logado and cursos_recomendados %}
+                <div class="row g-5 align-items-center mb--30">
+                    <div class="col-lg-12">
+                        <div class="section-title text-start">
+                            <h2 class="title">✨ Especial <span class="theme-gradient">Para Você</span></h2>
+                            <p class="description">Recomendações baseadas no seu perfil e interesses.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper cursosIASwiper mb--60">
+                    <div class="swiper-wrapper">
+                        {% for curso in cursos_recomendados %}
+                        <div class="swiper-slide">
+                            <div class="rbt-card variation-01 rbt-hover border-primary">
+                                <div class="rbt-card-img">
+                                    <a href="{% url 'curso_detalhe' id=curso.id %}">
+                                        <img src="{{ curso.imagem.url|default:'/static/assets/images/course/default-course.jpg' }}" alt="{{ curso.titulo }}" style="height: 200px; object-fit: cover;">
+                                    </a>
+                                </div>
+                                <div class="rbt-card-body">
+                                    <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}" style="font-size: 18px;">{{ curso.titulo }}</a></h4>
+                                    <div class="rbt-card-bottom">
+                                        <div class="rbt-price"><span class="current-price">kz {{ curso.preco }}</span></div>
+                                        <span class="badge bg-primary">IA Pick</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- 4. Início Próximo -->
+                <div class="row g-5 align-items-center mb--30">
+                    <div class="col-lg-12">
+                        <div class="section-title text-start">
+                            <h2 class="title">⏰ Início <span class="theme-gradient">Próximo</span></h2>
+                            <p class="description">Cursos com aulas começando nos próximos dias. Não perca a vaga!</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper cursosProximosSwiper mb--60">
+                    <div class="swiper-wrapper">
+                        {% for curso in cursos_proximos %}
+                        <div class="swiper-slide">
+                            <div class="rbt-card variation-01 rbt-hover">
+                                <div class="rbt-card-img">
+                                    <a href="{% url 'curso_detalhe' id=curso.id %}">
+                                        <img src="{{ curso.imagem.url|default:'/static/assets/images/course/default-course.jpg' }}" alt="{{ curso.titulo }}" style="height: 180px; object-fit: cover;">
+                                    </a>
+                                </div>
+                                <div class="rbt-card-body">
+                                    <h5 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}" style="font-size: 16px;">{{ curso.titulo }}</a></h5>
+                                    <div class="rbt-card-bottom">
+                                        <div class="rbt-price"><span class="current-price">kz {{ curso.preco }}</span></div>
+                                        <span class="text-danger small fw-bold"><i class="feather-clock"></i> {{ curso.data_inicio|date:"d/m" }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -845,803 +925,11 @@
                     </div>
                 </div>
 
-                <!-- Linha 2 (ZAGUE - reversa) -->
-                <div class="swiper zigueLinha2">
-                    <div class="swiper-wrapper">
-                        {% for curso in cursos_zigue2 %}
-                        <div class="swiper-slide">
-                            <div class="rbt-card variation-01 rbt-hover card-list-2">
-                                <div class="rbt-card-img">
-                                    <a href="{% url 'curso_detalhe' id=curso.id %}">
-                                        {% if curso.imagem %}
-                                        <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}"
-                                            style="height: 200px; object-fit: cover; width: 100%;">
-                                        {% else %}
-                                        <img src="{% static 'assets/images/course/default-course.jpg' %}"
-                                            alt="{{ curso.titulo }}"
-                                            style="height: 200px; object-fit: cover; width: 100%;">
-                                        {% endif %}
-                                        
-                                    </a>
-                                    {% if aluno_logado %}
-                                    <div class="rbt-badge-3 hover-icon-badge"
-                                        style="top: 10px; right: 10px; left: auto;">
-                                        <label class="heart-icon-label">
-                                            <input type="checkbox" class="favorite-checkbox" data-id="{{ curso.id }}"  {% if curso.id in favoritos %}checked{% endif %}>
-                                            <i class="feather-heart"></i>
-                                        </label>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                                <div class="rbt-card-body">
-                                    <h4 class="rbt-card-title"><a style="font-size: 19px;"
-                                            href="{% url 'curso_detalhe' id=curso.id %}">{{ curso.titulo }}</a></h4>
-                                    <p class="rbt-card-text">{{ curso.descricao|truncatechars:50 }}</p>
-                                    <div class="rbt-price">
-                                        <span class="current-price">kz {{ curso.preco }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
             </div>
         </div>
 
-
-        <div class="rbt-course-area rbt-sec-cir-shadow-1 bg-color-extra2 rbt-section-gap rbt-section-box">
-            <div class="gradient-shape-top"></div>
-            <div class="gradient-shape-bottom"></div>
-            <div class="container">
-                <div class="row mb--30">
-                    <div class="col-lg-12">
-                        <div class="section-title text-center">
-                            <h6 class="b2 mb--15"><span class="theme-gradient">Admission</span></h6>
-                            <h2 class="title w-600">Descubra cursos incríveis nas <br> <span class="theme-gradient">categorias mais procuradas.</span></h2>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mb--40">
-                    <div class="col-lg-12">
-                        <ul class="rbt-course-tab-button nav nav-tabs" id="rbt-myTab" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="active" id="development-tab" data-bs-toggle="tab" data-bs-target="#development" type="button" role="tab" aria-controls="development" aria-selected="true"><span class="filter-text">Programacao</span></button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button id="ui_ux-tab" data-bs-toggle="tab" data-bs-target="#ui-ux" type="button" role="tab" aria-controls="ui-ux" aria-selected="false"><span class="filter-text">Contablidade e ficalizacao</span></button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button id="marketing-tab" data-bs-toggle="tab" data-bs-target="#marketing" type="button" role="tab" aria-controls="marketing" aria-selected="false"><span class="filter-text">Linguas</span></button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button id="business-tab" data-bs-toggle="tab" data-bs-target="#business" type="button" role="tab" aria-controls="business" aria-selected="false"><span class="filter-text">Soldadura industrial</span></button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="tab-content" id="rbt-myTabContent">
-                            <div class="tab-pane fade active show" id="development" role="tabpanel" aria-labelledby="development-tab">
-                                <div class="row g-5">
-
-                                    <!-- Start Single Course  -->
-                                    <div class="col-lg-4 col-md-6 col-12">
-                                        <div class="rbt-card variation-04 rbt-hover">
-                                            <div class="rbt-card-img">
-                                                <a href="course-details.html">
-                                                    <img src="{% static 'assets/images/course/university-01.jpg' %}" alt="Card image">
-                                                </a>
-                                            </div>
-                                            <div class="rbt-card-body">
-                                                <ul class="rbt-meta">
-                                                    <li><i class="feather-book"></i>07 Lessons</li>
-                                                    <li><i class="feather-users"></i>01 Students</li>
-                                                </ul>
-                                                <h4 class="rbt-card-title"><a href="course-details.html">Data Science & ML</a>
-                                                </h4>
-                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (1 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-card-bottom">
-                                                    <div class="rbt-price">
-                                                        <h6 class="current-price mb-0">$199</h6>
-                                                        <span class="off-price version-02">$590</span>
-                                                    </div>
-                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- End Single Course  -->
-
-                                    <!-- Start Single Course  -->
-                                    <div class="col-lg-4 col-md-6 col-12">
-                                        <div class="rbt-card variation-04 rbt-hover">
-                                            <div class="rbt-card-img">
-                                                <a href="course-details.html">
-                                                    <img src="{% static 'assets/images/course/university-02.jpg' %}" alt="Card image">
-                                                </a>
-                                            </div>
-                                            <div class="rbt-card-body">
-                                                <ul class="rbt-meta">
-                                                    <li><i class="feather-book"></i>07 Lessons</li>
-                                                    <li><i class="feather-users"></i>01 Students</li>
-                                                </ul>
-                                                <h4 class="rbt-card-title"><a href="course-details.html">English Course</a>
-                                                </h4>
-                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (1 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-card-bottom">
-                                                    <div class="rbt-price">
-                                                        <h6 class="current-price mb-0">$159</h6>
-                                                        <span class="off-price version-02">$490</span>
-                                                    </div>
-                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- End Single Course  -->
-
-                                    <!-- Start Single Course  -->
-                                    <div class="col-lg-4 col-md-6 col-12">
-                                        <div class="rbt-card variation-04 rbt-hover">
-                                            <div class="rbt-card-img">
-                                                <a href="course-details.html">
-                                                    <img src="{% static 'assets/images/course/university-03.jpg' %}" alt="Card image">
-                                                </a>
-                                            </div>
-                                            <div class="rbt-card-body">
-                                                <ul class="rbt-meta">
-                                                    <li><i class="feather-book"></i>07 Lessons</li>
-                                                    <li><i class="feather-users"></i>01 Students</li>
-                                                </ul>
-                                                <h4 class="rbt-card-title"><a href="course-details.html">Graphic Design</a>
-                                                </h4>
-                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (1 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-card-bottom">
-                                                    <div class="rbt-price">
-                                                        <h6 class="current-price mb-0">$145</h6>
-                                                        <span class="off-price version-02">$308</span>
-                                                    </div>
-                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- End Single Course  -->
-
-                                </div>
-                            </div>
-                            <div class="tab-pane fade" id="ui-ux" role="tabpanel" aria-labelledby="ui_ux-tab">
-                                <div class="row g-5">
-
-                                    <!-- Start Single Course  -->
-                                    <div class="col-lg-4 col-md-6 col-12">
-                                        <div class="rbt-card variation-04 rbt-hover">
-                                            <div class="rbt-card-img">
-                                                <a href="course-details.html">
-                                                    <img src="{% static 'assets/images/course/university-02.jpg' %}" alt="Card image">
-                                                </a>
-                                            </div>
-                                            <div class="rbt-card-body">
-                                                <ul class="rbt-meta">
-                                                    <li><i class="feather-book"></i>07 Lessons</li>
-                                                    <li><i class="feather-users"></i>01 Students</li>
-                                                </ul>
-                                                <h4 class="rbt-card-title"><a href="course-details.html">English Course</a>
-                                                </h4>
-                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (1 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-card-bottom">
-                                                    <div class="rbt-price">
-                                                        <h6 class="current-price mb-0">$159</h6>
-                                                        <span class="off-price version-02">$490</span>
-                                                    </div>
-                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- End Single Course  -->
-
-                                    <!-- Start Single Course  -->
-                                    <div class="col-lg-4 col-md-6 col-12">
-                                        <div class="rbt-card variation-04 rbt-hover">
-                                            <div class="rbt-card-img">
-                                                <a href="course-details.html">
-                                                    <img src="{% static 'assets/images/course/university-01.jpg' %}" alt="Card image">
-                                                </a>
-                                            </div>
-                                            <div class="rbt-card-body">
-                                                <ul class="rbt-meta">
-                                                    <li><i class="feather-book"></i>07 Lessons</li>
-                                                    <li><i class="feather-users"></i>01 Students</li>
-                                                </ul>
-                                                <h4 class="rbt-card-title"><a href="course-details.html">Data Science & ML</a>
-                                                </h4>
-                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (1 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-card-bottom">
-                                                    <div class="rbt-price">
-                                                        <h6 class="current-price mb-0">$199</h6>
-                                                        <span class="off-price version-02">$590</span>
-                                                    </div>
-                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- End Single Course  -->
-
-                                    <!-- Start Single Course  -->
-                                    <div class="col-lg-4 col-md-6 col-12">
-                                        <div class="rbt-card variation-04 rbt-hover">
-                                            <div class="rbt-card-img">
-                                                <a href="course-details.html">
-                                                    <img src="{% static 'assets/images/course/university-03.jpg' %}" alt="Card image">
-                                                </a>
-                                            </div>
-                                            <div class="rbt-card-body">
-                                                <ul class="rbt-meta">
-                                                    <li><i class="feather-book"></i>07 Lessons</li>
-                                                    <li><i class="feather-users"></i>01 Students</li>
-                                                </ul>
-                                                <h4 class="rbt-card-title"><a href="course-details.html">Graphic Design</a>
-                                                </h4>
-                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (1 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-card-bottom">
-                                                    <div class="rbt-price">
-                                                        <h6 class="current-price mb-0">$145</h6>
-                                                        <span class="off-price version-02">$308</span>
-                                                    </div>
-                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- End Single Course  -->
-
-                                </div>
-                            </div>
-                            <div class="tab-pane fade" id="marketing" role="tabpanel" aria-labelledby="marketing-tab">
-                                <div class="row g-5">
-
-                                    <!-- Start Single Course  -->
-                                    <div class="col-lg-4 col-md-6 col-12">
-                                        <div class="rbt-card variation-04 rbt-hover">
-                                            <div class="rbt-card-img">
-                                                <a href="course-details.html">
-                                                    <img src="{% static 'assets/images/course/university-02.jpg' %}" alt="Card image">
-                                                </a>
-                                            </div>
-                                            <div class="rbt-card-body">
-                                                <ul class="rbt-meta">
-                                                    <li><i class="feather-book"></i>07 Lessons</li>
-                                                    <li><i class="feather-users"></i>01 Students</li>
-                                                </ul>
-                                                <h4 class="rbt-card-title"><a href="course-details.html">English Course</a>
-                                                </h4>
-                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (1 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-card-bottom">
-                                                    <div class="rbt-price">
-                                                        <h6 class="current-price mb-0">$159</h6>
-                                                        <span class="off-price version-02">$490</span>
-                                                    </div>
-                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- End Single Course  -->
-
-                                    <!-- Start Single Course  -->
-                                    <div class="col-lg-4 col-md-6 col-12">
-                                        <div class="rbt-card variation-04 rbt-hover">
-                                            <div class="rbt-card-img">
-                                                <a href="course-details.html">
-                                                    <img src="{% static 'assets/images/course/university-03.jpg' %}" alt="Card image">
-                                                </a>
-                                            </div>
-                                            <div class="rbt-card-body">
-                                                <ul class="rbt-meta">
-                                                    <li><i class="feather-book"></i>07 Lessons</li>
-                                                    <li><i class="feather-users"></i>01 Students</li>
-                                                </ul>
-                                                <h4 class="rbt-card-title"><a href="course-details.html">Graphic Design</a>
-                                                </h4>
-                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (1 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-card-bottom">
-                                                    <div class="rbt-price">
-                                                        <h6 class="current-price mb-0">$145</h6>
-                                                        <span class="off-price version-02">$308</span>
-                                                    </div>
-                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- End Single Course  -->
-
-                                    <!-- Start Single Course  -->
-                                    <div class="col-lg-4 col-md-6 col-12">
-                                        <div class="rbt-card variation-04 rbt-hover">
-                                            <div class="rbt-card-img">
-                                                <a href="course-details.html">
-                                                    <img src="{% static 'assets/images/course/university-01.jpg' %}" alt="Card image">
-                                                </a>
-                                            </div>
-                                            <div class="rbt-card-body">
-                                                <ul class="rbt-meta">
-                                                    <li><i class="feather-book"></i>07 Lessons</li>
-                                                    <li><i class="feather-users"></i>01 Students</li>
-                                                </ul>
-                                                <h4 class="rbt-card-title"><a href="course-details.html">Data Science & ML</a>
-                                                </h4>
-                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (1 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-card-bottom">
-                                                    <div class="rbt-price">
-                                                        <h6 class="current-price mb-0">$199</h6>
-                                                        <span class="off-price version-02">$590</span>
-                                                    </div>
-                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- End Single Course  -->
-
-                                </div>
-                            </div>
-                            <div class="tab-pane fade" id="business" role="tabpanel" aria-labelledby="business-tab">
-                                <div class="row g-5">
-
-                                    <!-- Start Single Course  -->
-                                    <div class="col-lg-4 col-md-6 col-12">
-                                        <div class="rbt-card variation-04 rbt-hover">
-                                            <div class="rbt-card-img">
-                                                <a href="course-details.html">
-                                                    <img src="{% static 'assets/images/course/university-01.jpg' %}" alt="Card image">
-                                                </a>
-                                            </div>
-                                            <div class="rbt-card-body">
-                                                <ul class="rbt-meta">
-                                                    <li><i class="feather-book"></i>07 Lessons</li>
-                                                    <li><i class="feather-users"></i>01 Students</li>
-                                                </ul>
-                                                <h4 class="rbt-card-title"><a href="course-details.html">Data Science & ML</a>
-                                                </h4>
-                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (1 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-card-bottom">
-                                                    <div class="rbt-price">
-                                                        <h6 class="current-price mb-0">$199</h6>
-                                                        <span class="off-price version-02">$590</span>
-                                                    </div>
-                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- End Single Course  -->
-
-                                    <!-- Start Single Course  -->
-                                    <div class="col-lg-4 col-md-6 col-12">
-                                        <div class="rbt-card variation-04 rbt-hover">
-                                            <div class="rbt-card-img">
-                                                <a href="course-details.html">
-                                                    <img src="{% static 'assets/images/course/university-03.jpg' %}" alt="Card image">
-                                                </a>
-                                            </div>
-                                            <div class="rbt-card-body">
-                                                <ul class="rbt-meta">
-                                                    <li><i class="feather-book"></i>07 Lessons</li>
-                                                    <li><i class="feather-users"></i>01 Students</li>
-                                                </ul>
-                                                <h4 class="rbt-card-title"><a href="course-details.html">Graphic Design</a>
-                                                </h4>
-                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (1 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-card-bottom">
-                                                    <div class="rbt-price">
-                                                        <h6 class="current-price mb-0">$145</h6>
-                                                        <span class="off-price version-02">$308</span>
-                                                    </div>
-                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- End Single Course  -->
-
-                                    <!-- Start Single Course  -->
-                                    <div class="col-lg-4 col-md-6 col-12">
-                                        <div class="rbt-card variation-04 rbt-hover">
-                                            <div class="rbt-card-img">
-                                                <a href="course-details.html">
-                                                    <img src="{% static 'assets/images/course/university-02.jpg' %}" alt="Card image">
-                                                </a>
-                                            </div>
-                                            <div class="rbt-card-body">
-                                                <ul class="rbt-meta">
-                                                    <li><i class="feather-book"></i>07 Lessons</li>
-                                                    <li><i class="feather-users"></i>01 Students</li>
-                                                </ul>
-                                                <h4 class="rbt-card-title"><a href="course-details.html">English Course</a>
-                                                </h4>
-                                                <p class="rbt-card-text">Orem Ipsum is that it has a more-or-less normal distribution of letters.</p>
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                    <span class="rating-count"> (1 Reviews)</span>
-                                                </div>
-                                                <div class="rbt-card-bottom">
-                                                    <div class="rbt-price">
-                                                        <h6 class="current-price mb-0">$159</h6>
-                                                        <span class="off-price version-02">$490</span>
-                                                    </div>
-                                                    <a class="rbt-btn-link color-primary" href="course-details.html">Enroll Course<i class="feather-arrow-right"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- End Single Course  -->
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-
-        <div style="margin-top: 30px;" class="banner-overlay-section">
-            <div class="container">
-                <div class="row mb--30">
-                    <div class="col-lg-12">
-                        <div class="section-title text-center">
-                        <h2 class="title w-600">
-                            Encontre os melhores <br>
-                    <span class="theme-gradient">centros de formação para o seu futuro.</span>
-                    </h2>
-                    </div>
-
-                    </div>
-                </div>
-                <div class="row row--15">
-                    <div class="col-lg-12">
-                        <div class="swiper team-slide-activation-4 rbt-arrow-between rbt-dot-bottom-center">
-                            <div class="swiper-wrapper">
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-04.jpg' %}" alt="Blog Images"></a>
-                                        </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">Aaron Griffe</a></h4>
-                                                <p class="designation">Depertment Head</p>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-05.jpg' %}" alt="Blog Images"></a>
-                                        </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">Aaron Griffe</a></h4>
-                                                <p class="designation">Teacher</p>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-06.jpg' %}" alt="Blog Images"></a>
-                                        </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">Joe Bidden</a></h4>
-                                                <p class="designation">Depertment Head</p>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-03.jpg' %}" alt="Blog Images"></a>
-                                        </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">John Due</a></h4>
-                                                <p class="designation">Marketing SR</p>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-02.jpg' %}" alt="Blog Images"></a>
-                                        </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">Joe Bidden</a></h4>
-                                                <p class="designation">Depertment Head</p>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="team team-style--bottom variation-2">
-                                        <div class="thumbnail">
-                                            <a href="15-home-technology.html#"><img src="{% static 'assets/images/team/team-01.jpg' %}" alt="Blog Images"></a>
-                                        </div>
-                                        <div class="content">
-                                            <div class="inner">
-                                                <h4 class="title"><a href="15-home-technology.html#">Jannen</a></h4>
-                                                <p class="designation">App Developer</p>
-                                            </div>
-                                            <div class="icon-right">
-                                                <a href="15-home-technology.html#"><i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="rbt-swiper-arrow rbt-arrow-left">
-                                <div class="custom-overfolow">
-                                    <i class="rbt-icon feather-arrow-left"></i>
-                                    <i class="rbt-icon-top feather-arrow-left"></i>
-                                </div>
-                            </div>
-
-                            <div class="rbt-swiper-arrow rbt-arrow-right">
-                                <div class="custom-overfolow">
-                                    <i class="rbt-icon feather-arrow-right"></i>
-                                    <i class="rbt-icon-top feather-arrow-right"></i>
-                                </div>
-                            </div>
-
-
-                            <div class="rbt-swiper-pagination"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
         
-
-        <div class="rbt-team-area bg-color-white rbt-section-gap">
-            <div class="container">
-                <div class="row mb--60">
-                    <div class="col-lg-12">
-                        <div class="section-title text-center">
-                            <span class="subtitle bg-pink-opacity">Instrutores da Semana</span>
-                            <h2 class="title">Conheça os Instrutores em Destaque</h2>
-                            <p class="description has-medium-font-size mt--20">
-                                Profissionais selecionados pela sua dedicação, qualidade de ensino e impacto positivo
-                                na formação dos nossos estudantes.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row row--15 mt_dec--30">
-                    <!-- Instrutor -->
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12 mt--30">
-                        <div class="team">
-                            <div class="thumbnail">
-                                <img src="{% static 'assets/images/team/team-05.jpg' %}" alt="Instrutor">
-                            </div>
-                            <div class="content">
-                                <h4 class="title">Aaron Griffin</h4>
-                                <p class="designation">Instrutor Principal</p>
-                            </div>
-                            <ul class="social-icon">
-                                <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-                                <li><a href="#"><i class="fab fa-linkedin-in"></i></a></li>
-                                <li><a href="#"><i class="fab fa-twitter"></i></a></li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Instrutor -->
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12 mt--30">
-                        <div class="team">
-                            <div class="thumbnail">
-                                <img src="{% static 'assets/images/team/team-09.jpg' %}" alt="Instrutor">
-                            </div>
-                            <div class="content">
-                                <h4 class="title">Rafiq Bali</h4>
-                                <p class="designation">Instrutor Especialista</p>
-                            </div>
-                            <ul class="social-icon">
-                                <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-                                <li><a href="#"><i class="fab fa-linkedin-in"></i></a></li>
-                                <li><a href="#"><i class="fab fa-twitter"></i></a></li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Instrutor -->
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12 mt--30">
-                        <div class="team">
-                            <div class="thumbnail">
-                                <img src="{% static 'assets/images/team/team-03.jpg' %}" alt="Instrutor">
-                            </div>
-                            <div class="content">
-                                <h4 class="title">Fatima Usa</h4>
-                                <p class="designation">Instrutora Técnica</p>
-                            </div>
-                            <ul class="social-icon">
-                                <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-                                <li><a href="#"><i class="fab fa-linkedin-in"></i></a></li>
-                                <li><a href="#"><i class="fab fa-twitter"></i></a></li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Instrutor -->
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12 mt--30">
-                        <div class="team">
-                            <div class="thumbnail">
-                                <img src="{% static 'assets/images/team/team-07.jpg' %}" alt="Instrutor">
-                            </div>
-                            <div class="content">
-                                <h4 class="title">John Due</h4>
-                                <p class="designation">Instrutor Convidado</p>
-                            </div>
-                            <ul class="social-icon">
-                                <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-                                <li><a href="#"><i class="fab fa-linkedin-in"></i></a></li>
-                                <li><a href="#"><i class="fab fa-twitter"></i></a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-
-
 
         <!-- Start Testimonial Area -->
         <div class="rbt-testimonial-area testimonial-section-02 bg-color-white rbt-section-gap overflow-hidden">
@@ -1991,376 +1279,421 @@
     </main>
 
 
-        
 
-        {% include 'include/footer.html' %}
 
-        {% include 'include/java.html' %}
+    {% include 'include/footer.html' %}
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
-        <script>
-            $('.owl-carousel').owlCarousel({
-                loop: true,
-                margin: 20,
-                nav: true,
-                dots: false,
-                navText: [
-                    '<i class="feather-arrow-left"></i>',
-                    '<i class="feather-arrow-right"></i>'
-                ],
-                responsive: {
-                    0: { items: 1 },
-                    768: { items: 2 },
-                    992: { items: 3 }
-                }
-            });
-        </script>
+    {% include 'include/java.html' %}
 
-        <script>
-            const swiper = new Swiper('.mySwiper', {
-                slidesPerView: 1,
-                spaceBetween: 20,
-                loop: true,
-                pagination: {
-                    el: '.swiper-pagination',
-                    clickable: true,
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+    <script>
+        $('.owl-carousel').owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: true,
+            dots: false,
+            navText: [
+                '<i class="feather-arrow-left"></i>',
+                '<i class="feather-arrow-right"></i>'
+            ],
+            responsive: {
+                0: { items: 1 },
+                768: { items: 2 },
+                992: { items: 3 }
+            }
+        });
+    </script>
+
+    <script>
+        const swiper = new Swiper('.mySwiper', {
+            slidesPerView: 1,
+            spaceBetween: 20,
+            loop: true,
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+            breakpoints: {
+                576: {
+                    slidesPerView: 1,
                 },
-                navigation: {
-                    nextEl: '.swiper-button-next',
-                    prevEl: '.swiper-button-prev',
-                },
-                breakpoints: {
-                    576: {
-                        slidesPerView: 1,
-                    },
-                    768: {
-                        slidesPerView: 2,
-                    },
-                    992: {
-                        slidesPerView: 3,
-                    },
-                    1200: {
-                        slidesPerView: 4,
-                    }
-                }
-            });
-        </script>
-        <!-- Swiper JS -->
-        <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-        <script>
-            new Swiper(".zigueLinha1", {
-                slidesPerView: 2,
-                spaceBetween: 30,
-                loop: true,
-                autoplay: {
-                    delay: 3000,
-                    disableOnInteraction: false,
-                },
-                breakpoints: {
-                    0: { slidesPerView: 1 },   // 📱 celular: 1 card
-                    768: { slidesPerView: 2 }, // tablet
-                    992: { slidesPerView: 3 }, // desktop
-                }
-            });
-
-            new Swiper(".zigueLinha2", {
-                slidesPerView: 2,
-                spaceBetween: 30,
-                loop: true,
-                autoplay: {
-                    delay: 3000,
-                    reverseDirection: true,  // Zig-ZAG efeito
-                    disableOnInteraction: false,
-                },
-                breakpoints: {
-                    0: { slidesPerView: 1 },   // 📱 celular: 1 card
-                    768: { slidesPerView: 2 }, // tablet
-                    992: { slidesPerView: 3 }, // desktop
-                }
-            });
-        </script>
-
-        <script>
-            const csrftoken = '{{ csrf_token }}';
-            document.addEventListener('DOMContentLoaded', function () {
-                const botoes = document.querySelectorAll('.favorito-btn');
-
-                botoes.forEach(botao => {
-                    botao.addEventListener('click', function () {
-                        const cursoId = this.getAttribute('data-curso-id');
-
-                        fetch(`/favorito/${cursoId}/`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRFToken': '{{ csrf_token }}',
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({})
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.status === 'added') {
-                                    this.classList.add('favorito-ativo');
-                                } else if (data.status === 'removed') {
-                                    this.classList.remove('favorito-ativo');
-                                } else {
-                                    alert(data.message);
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Erro:', error);
-                                alert('Erro ao atualizar favorito.');
-                            });
-                    });
-                });
-            });
-        </script>
-
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                const botoes = document.querySelectorAll(".seguir-centro-btn");
-                const som = document.getElementById("som-seguir");
-
-                botoes.forEach(botao => {
-                    botao.addEventListener("click", function () {
-                        const centroId = botao.getAttribute("data-centro-id");
-
-                        fetch(`/auth/seguir-centro/${centroId}/`, {
-                            method: "GET",
-                            headers: {
-                                "X-Requested-With": "XMLHttpRequest"
-                            }
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                alert(data.mensagem);  // ou criar uma caixinha estilizada na página
-
-                                if (data.status === "sucesso") {
-                                    botao.textContent = "Seguindo";
-                                    botao.style.backgroundColor = "#10b981"; // verde
-                                    botao.disabled = true;
-                                    if (som) {
-                                        som.play();
-                                    }
-                                }
-
-                                if (data.status === "info") {
-                                    botao.textContent = "Já seguindo";
-                                    botao.disabled = true;
-                                }
-                            })
-                            .catch(error => {
-                                alert("Erro ao seguir o centro.");
-                                console.error(error);
-                            });
-                    });
-                });
-            });
-        </script>
-
-
-        <!-- JS do Swiper -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const swiper = new Swiper('.cursos-destaque', {
+                768: {
                     slidesPerView: 2,
-                    spaceBetween: 20,
-                    loop: {{ cursos| length }} > 2, // evita travar quando há poucos cursos
-                autoplay: {
-                delay: 4000,
+                },
+                992: {
+                    slidesPerView: 3,
+                },
+                1200: {
+                    slidesPerView: 4,
+                }
+            }
+        });
+    </script>
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+        // 1. Swiper Destaques
+        new Swiper(".cursosDestaqueSwiper", {
+            slidesPerView: 4,
+            spaceBetween: 25,
+            loop: true,
+            autoplay: { delay: 4000, disableOnInteraction: false },
+            pagination: { el: '.rbt-swiper-pagination', clickable: true },
+            breakpoints: {
+                0: { slidesPerView: 1.2, spaceBetween: 15 },
+                576: { slidesPerView: 2, spaceBetween: 20 },
+                992: { slidesPerView: 3, spaceBetween: 25 },
+                1200: { slidesPerView: 4, spaceBetween: 25 }
+            }
+        });
+
+        // 2. Swiper Novidades da Semana
+        new Swiper(".cursosSemanaSwiper", {
+            slidesPerView: 5,
+            spaceBetween: 20,
+            autoplay: { delay: 3500, disableOnInteraction: false },
+            breakpoints: {
+                0: { slidesPerView: 1.5, spaceBetween: 10 },
+                768: { slidesPerView: 3, spaceBetween: 15 },
+                1200: { slidesPerView: 5, spaceBetween: 20 }
+            }
+        });
+
+        // 3. Swiper IA (Especial Para Você)
+        new Swiper(".cursosIASwiper", {
+            slidesPerView: 4,
+            spaceBetween: 25,
+            loop: true,
+            autoplay: { delay: 5000, disableOnInteraction: false },
+            breakpoints: {
+                0: { slidesPerView: 1.2 },
+                768: { slidesPerView: 2.5 },
+                1200: { slidesPerView: 4 }
+            }
+        });
+
+        // 4. Swiper Início Próximo
+        new Swiper(".cursosProximosSwiper", {
+            slidesPerView: 5,
+            spaceBetween: 20,
+            autoplay: { delay: 4500, disableOnInteraction: false },
+            breakpoints: {
+                0: { slidesPerView: 1.5 },
+                768: { slidesPerView: 3 },
+                1200: { slidesPerView: 5 }
+            }
+        });
+
+        // Banner Principal - Estilo Coursera (2.2 slides)
+        new Swiper(".rbt-banner-activation-2", {
+            slidesPerView: 2.2,
+            spaceBetween: 20,
+            loop: true,
+            autoplay: {
+                delay: 5000,
                 disableOnInteraction: false,
             },
-                navigation: {
-                nextEl: '.btn-next-destaque',
-                prevEl: '.btn-prev-destaque',
+            pagination: {
+                el: '.rbt-swiper-pagination',
+                clickable: true,
             },
-                breakpoints: {
-                320: { slidesPerView: 1 },
-                768: { slidesPerView: 2 },
-                1024: { slidesPerView: 2 }
+            navigation: {
+                nextEl: ".rbt-arrow-right",
+                prevEl: ".rbt-arrow-left",
             },
-                watchOverflow: true
+            breakpoints: {
+                0: { slidesPerView: 1.1, spaceBetween: 10 },
+                768: { slidesPerView: 1.5, spaceBetween: 15 },
+                1200: { slidesPerView: 2.2, spaceBetween: 20 }
+            }
+        });
+    </script>
+
+    <script>
+        const csrftoken = '{{ csrf_token }}';
+        document.addEventListener('DOMContentLoaded', function () {
+            const botoes = document.querySelectorAll('.favorito-btn');
+
+            botoes.forEach(botao => {
+                botao.addEventListener('click', function () {
+                    const cursoId = this.getAttribute('data-curso-id');
+
+                    fetch(`/favorito/${cursoId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({})
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'added') {
+                                this.classList.add('favorito-ativo');
+                            } else if (data.status === 'removed') {
+                                this.classList.remove('favorito-ativo');
+                            } else {
+                                alert(data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erro:', error);
+                            alert('Erro ao atualizar favorito.');
+                        });
                 });
             });
-        </script>
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const botoes = document.querySelectorAll(".seguir-centro-btn");
+            const som = document.getElementById("som-seguir");
+
+            botoes.forEach(botao => {
+                botao.addEventListener("click", function () {
+                    const centroId = botao.getAttribute("data-centro-id");
+
+                    fetch(`/auth/seguir-centro/${centroId}/`, {
+                        method: "GET",
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest"
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            alert(data.mensagem);  // ou criar uma caixinha estilizada na página
+
+                            if (data.status === "sucesso") {
+                                botao.textContent = "Seguindo";
+                                botao.style.backgroundColor = "#10b981"; // verde
+                                botao.disabled = true;
+                                if (som) {
+                                    som.play();
+                                }
+                            }
+
+                            if (data.status === "info") {
+                                botao.textContent = "Já seguindo";
+                                botao.disabled = true;
+                            }
+                        })
+                        .catch(error => {
+                            alert("Erro ao seguir o centro.");
+                            console.error(error);
+                        });
+                });
+            });
+        });
+    </script>
 
 
-        <script>
-            // JavaScript para melhor controle da animação
-            document.addEventListener('DOMContentLoaded', function () {
-                const track = document.querySelector('.categories-track');
-                const items = document.querySelectorAll('.category-item');
+    <!-- JS do Swiper -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const swiper = new Swiper('.cursos-destaque', {
+                slidesPerView: 2,
+                spaceBetween: 20,
+                loop: {% if cursos|length > 2 %}true{% else %}false{% endif %},
+            autoplay: {
+            delay: 4000,
+            disableOnInteraction: false,
+        },
+            navigation: {
+            nextEl: '.btn-next-destaque',
+            prevEl: '.btn-prev-destaque',
+        },
+            breakpoints: {
+            320: { slidesPerView: 1 },
+            768: { slidesPerView: 2 },
+            1024: { slidesPerView: 2 }
+        },
+            watchOverflow: true
+            });
+            });
+    </script>
 
-                // Pausa a animação quando o mouse está sobre qualquer categoria
-                items.forEach(item => {
-                    item.addEventListener('mouseenter', () => {
-                        track.style.animationPlayState = 'paused';
-                    });
 
-                    item.addEventListener('mouseleave', () => {
-                        track.style.animationPlayState = 'running';
-                    });
+    <script>
+        // JavaScript para melhor controle da animação
+        document.addEventListener('DOMContentLoaded', function () {
+            const track = document.querySelector('.categories-track');
+            const items = document.querySelectorAll('.category-item');
+
+            // Pausa a animação quando o mouse está sobre qualquer categoria
+            items.forEach(item => {
+                item.addEventListener('mouseenter', () => {
+                    track.style.animationPlayState = 'paused';
                 });
 
-                // Ajusta a velocidade baseada na preferência de redução de movimento
-                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                    track.style.animationDuration = '60s';
-                }
+                item.addEventListener('mouseleave', () => {
+                    track.style.animationPlayState = 'running';
+                });
             });
-        </script>
+
+            // Ajusta a velocidade baseada na preferência de redução de movimento
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                track.style.animationDuration = '60s';
+            }
+        });
+    </script>
 
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const animatedText = document.getElementById('animatedText');
-                const cursor = document.querySelector('.cursor-pulse');
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const animatedText = document.getElementById('animatedText');
+            const cursor = document.querySelector('.cursor-pulse');
 
-                // Texto especial da solução (aparece primeiro por 5 minutos)
-                const solutionText = "Formação prática para entrar no mercado de trabalho";
+            // Texto especial da solução (aparece primeiro por 5 minutos)
+            const solutionText = "Formação prática para entrar no mercado de trabalho";
 
 
-                // Textos normais (começam após 5 minutos)
-                const normalTexts = [
-                    "Aprenda uma profissão que o mercado precisa",
-                    "Conhecimento que vira oportunidade",
-                    "Conhecimento que vira oportunidade",
-                    "Formamos profissionais, não apenas alunos",
-                    "Estude com propósito. Trabalhe com confiança.",
-                    "Estude com propósito. Trabalhe com confiança."
-                ];
+            // Textos normais (começam após 5 minutos)
+            const normalTexts = [
+                "Aprenda uma profissão que o mercado precisa",
+                "Conhecimento que vira oportunidade",
+                "Conhecimento que vira oportunidade",
+                "Formamos profissionais, não apenas alunos",
+                "Estude com propósito. Trabalhe com confiança.",
+                "Estude com propósito. Trabalhe com confiança."
+            ];
 
-                let isShowingSolution = true;
-                let textIndex = 0;
-                let charIndex = 0;
-                let isDeleting = false;
-                let typingSpeed = 60;
-                let deletingSpeed = 30;
-                let pauseBetween = 3000;
+            let isShowingSolution = true;
+            let textIndex = 0;
+            let charIndex = 0;
+            let isDeleting = false;
+            let typingSpeed = 60;
+            let deletingSpeed = 30;
+            let pauseBetween = 3000;
 
-                function createParticles(element, count = 8) {
-                    const rect = element.getBoundingClientRect();
-                    for (let i = 0; i < count; i++) {
-                        const particle = document.createElement('div');
-                        particle.className = 'text-particle';
-                        particle.style.setProperty('--tx', `${(Math.random() - 0.5) * 100}px`);
-                        particle.style.setProperty('--ty', `${-Math.random() * 80 - 20}px`);
-                        particle.style.left = `${Math.random() * rect.width}px`;
-                        particle.style.top = `${Math.random() * rect.height}px`;
-                        element.appendChild(particle);
+            function createParticles(element, count = 8) {
+                const rect = element.getBoundingClientRect();
+                for (let i = 0; i < count; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'text-particle';
+                    particle.style.setProperty('--tx', `${(Math.random() - 0.5) * 100}px`);
+                    particle.style.setProperty('--ty', `${-Math.random() * 80 - 20}px`);
+                    particle.style.left = `${Math.random() * rect.width}px`;
+                    particle.style.top = `${Math.random() * rect.height}px`;
+                    element.appendChild(particle);
 
-                        setTimeout(() => particle.remove(), 2000);
-                    }
+                    setTimeout(() => particle.remove(), 2000);
                 }
+            }
 
-                function showSolutionText() {
-                    animatedText.textContent = solutionText;
-                    animatedText.classList.add('solution-text-effect', 'solution-glow');
+            function showSolutionText() {
+                animatedText.textContent = solutionText;
+                animatedText.classList.add('solution-text-effect', 'solution-glow');
 
-                    // Efeito especial de partículas para a solução
-                    createParticles(animatedText, 25);
+                // Efeito especial de partículas para a solução
+                createParticles(animatedText, 25);
 
-                    // Manter o texto da solução por 5 minutos (300.000ms)
-                    setTimeout(() => {
-                        animatedText.classList.remove('solution-text-effect', 'solution-glow');
-                        isShowingSolution = false;
-                        // Iniciar o ciclo normal após 5 minutos
-                        startNormalCycle();
-                    }, 300000); // 5 minutos = 300.000 milissegundos
-                }
-
-                function startNormalCycle() {
-                    // Iniciar o ciclo normal de animação
-                    typeWriter();
-                }
-
-                function typeWriter() {
-                    if (isShowingSolution) return;
-
-                    const currentText = normalTexts[textIndex];
-
-                    if (!isDeleting && charIndex < currentText.length) {
-                        // Digitando - com efeito de partículas
-                        if (charIndex % 3 === 0) {
-                            createParticles(animatedText, 3);
-                        }
-
-                        animatedText.textContent = currentText.substring(0, charIndex + 1);
-                        animatedText.classList.add('typing-effect');
-                        setTimeout(() => animatedText.classList.remove('typing-effect'), 300);
-
-                        charIndex++;
-                        setTimeout(typeWriter, typingSpeed);
-
-                    } else if (isDeleting && charIndex > 0) {
-                        // Apagando
-                        animatedText.textContent = currentText.substring(0, charIndex - 1);
-                        charIndex--;
-                        setTimeout(typeWriter, deletingSpeed);
-
-                    } else {
-                        // Troca de texto - efeito especial
-                        if (!isDeleting) {
-                            createParticles(animatedText, 15);
-                            animatedText.classList.add('text-change-effect');
-                            setTimeout(() => animatedText.classList.remove('text-change-effect'), 1200);
-                        }
-
-                        isDeleting = !isDeleting;
-
-                        if (!isDeleting) {
-                            textIndex = (textIndex + 1) % normalTexts.length;
-                        }
-
-                        setTimeout(typeWriter, isDeleting ? pauseBetween / 2 : pauseBetween);
-                    }
-                }
-
-                // Efeito de brilho intermitente no cursor
-                function cursorGlow() {
-                    cursor.style.animation = 'none';
-                    setTimeout(() => {
-                        cursor.style.animation = '';
-                    }, 100);
-                }
-
-                // Iniciar animações
-                showSolutionText(); // Começa com o texto da solução
-                setInterval(cursorGlow, 4000);
-
-                // Efeito de interação com o botão
-                const sparkleBtn = document.querySelector('.btn-sparkle');
-                if (sparkleBtn) {
-                    sparkleBtn.addEventListener('mouseenter', function () {
-                        createParticles(this, 20);
-                    });
-                }
-
-                // Mostrar contador no console (para debug)
-                console.log('🚀 Texto da solução aparecerá por 5 minutos...');
+                // Manter o texto da solução por 5 minutos (300.000ms)
                 setTimeout(() => {
-                    console.log('🔄 Iniciando ciclo normal de textos...');
-                }, 300000);
-            });
-        </script>
+                    animatedText.classList.remove('solution-text-effect', 'solution-glow');
+                    isShowingSolution = false;
+                    // Iniciar o ciclo normal após 5 minutos
+                    startNormalCycle();
+                }, 300000); // 5 minutos = 300.000 milissegundos
+            }
 
-        <script>
-            // Adicione este script no final da página
-            document.addEventListener('DOMContentLoaded', function () {
-                const track = document.querySelector('.categories-track');
-                const categories = document.querySelectorAll('.category-item');
-                const categoryCount = categories.length / 2; // Porque duplicamos
+            function startNormalCycle() {
+                // Iniciar o ciclo normal de animação
+                typeWriter();
+            }
 
-                // Calcular a distância total baseada no número real de categorias
-                const itemWidth = 280; // Largura do item
-                const gap = 20; // Gap entre itens
-                const totalWidth = (itemWidth * categoryCount) + (gap * categoryCount);
+            function typeWriter() {
+                if (isShowingSolution) return;
 
-                // Aplicar a animação dinamicamente
-                const style = document.createElement('style');
-                style.textContent = `
+                const currentText = normalTexts[textIndex];
+
+                if (!isDeleting && charIndex < currentText.length) {
+                    // Digitando - com efeito de partículas
+                    if (charIndex % 3 === 0) {
+                        createParticles(animatedText, 3);
+                    }
+
+                    animatedText.textContent = currentText.substring(0, charIndex + 1);
+                    animatedText.classList.add('typing-effect');
+                    setTimeout(() => animatedText.classList.remove('typing-effect'), 300);
+
+                    charIndex++;
+                    setTimeout(typeWriter, typingSpeed);
+
+                } else if (isDeleting && charIndex > 0) {
+                    // Apagando
+                    animatedText.textContent = currentText.substring(0, charIndex - 1);
+                    charIndex--;
+                    setTimeout(typeWriter, deletingSpeed);
+
+                } else {
+                    // Troca de texto - efeito especial
+                    if (!isDeleting) {
+                        createParticles(animatedText, 15);
+                        animatedText.classList.add('text-change-effect');
+                        setTimeout(() => animatedText.classList.remove('text-change-effect'), 1200);
+                    }
+
+                    isDeleting = !isDeleting;
+
+                    if (!isDeleting) {
+                        textIndex = (textIndex + 1) % normalTexts.length;
+                    }
+
+                    setTimeout(typeWriter, isDeleting ? pauseBetween / 2 : pauseBetween);
+                }
+            }
+
+            // Efeito de brilho intermitente no cursor
+            function cursorGlow() {
+                cursor.style.animation = 'none';
+                setTimeout(() => {
+                    cursor.style.animation = '';
+                }, 100);
+            }
+
+            // Iniciar animações
+            showSolutionText(); // Começa com o texto da solução
+            setInterval(cursorGlow, 4000);
+
+            // Efeito de interação com o botão
+            const sparkleBtn = document.querySelector('.btn-sparkle');
+            if (sparkleBtn) {
+                sparkleBtn.addEventListener('mouseenter', function () {
+                    createParticles(this, 20);
+                });
+            }
+
+            // Mostrar contador no console (para debug)
+            console.log('🚀 Texto da solução aparecerá por 5 minutos...');
+            setTimeout(() => {
+                console.log('🔄 Iniciando ciclo normal de textos...');
+            }, 300000);
+        });
+    </script>
+
+    <script>
+        // Adicione este script no final da página
+        document.addEventListener('DOMContentLoaded', function () {
+            const track = document.querySelector('.categories-track');
+            const categories = document.querySelectorAll('.category-item');
+            const categoryCount = categories.length / 2; // Porque duplicamos
+
+            // Calcular a distância total baseada no número real de categorias
+            const itemWidth = 280; // Largura do item
+            const gap = 20; // Gap entre itens
+            const totalWidth = (itemWidth * categoryCount) + (gap * categoryCount);
+
+            // Aplicar a animação dinamicamente
+            const style = document.createElement('style');
+            style.textContent = `
         @keyframes scroll-categories {
             0% { transform: translateX(0); }
             100% { transform: translateX(-${totalWidth}px); }
@@ -2380,9 +1713,9 @@
             }
         }
     `;
-                document.head.appendChild(style);
-            });
-        </script>
+            document.head.appendChild(style);
+        });
+    </script>
 
 
 

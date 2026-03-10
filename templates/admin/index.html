@@ -1,0 +1,219 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static jazzmin %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block content_title %} {% trans 'Dashboard Administrativo' %} {% endblock %}
+
+{% block breadcrumbs %}
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
+    <li class="breadcrumb-item">{% trans 'Dashboard' %}</li>
+</ol>
+{% endblock %}
+
+{% block content %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+{% get_side_menu using="app_list" as dashboard_list %}
+
+{% if dashboard_list %}
+{% widthratio dashboard_list|length 2 1 as middle %}
+{% endif %}
+
+<!-- Seção de Gráficos Customizados -->
+<div class="row mb-4">
+    <div class="col-lg-6 col-12">
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-chart-pie mr-1"></i>
+                    Distribuição de Usuários
+                </h3>
+            </div>
+            <div class="card-body">
+                <canvas id="userStatsChart"
+                    style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 col-12">
+        <div class="card card-success card-outline">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-chart-line mr-1"></i>
+                    Crescimento Mensal
+                </h3>
+            </div>
+            <div class="card-body">
+                <canvas id="enrollmentChart"
+                    style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lista de Apps do Jazzmin -->
+<div class="row">
+    <div class="col-lg-9 col-12">
+        <div class="row">
+            <div class="col-md-6 col-sm-12">
+                {% for app in dashboard_list %}
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="m-0">{{ app.name }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <tbody>
+                                {% for model in app.models %}
+                                <tr>
+                                    <td>
+                                        {% if model.url %}
+                                        <a href="{{ model.url }}">{{ model.name }}</a>
+                                        {% else %}
+                                        {{ model.name }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group float-right">
+                                            {% if model.add_url %}
+                                            <a href="{{ model.add_url }}"
+                                                class="btn btn-xs {{ jazzmin_ui.button_classes.success }} addlink">{%
+                                                trans 'Add' %}</a>
+                                            {% endif %}
+                                            {% if model.url %}
+                                            {% if model.view_only %}
+                                            <a href="{{ model.url }}"
+                                                class="btn btn-xs {{ jazzmin_ui.button_classes.info }} viewlink">{%
+                                                trans 'View' %}</a>
+                                            {% else %}
+                                            <a href="{{ model.url }}"
+                                                class="btn btn-xs {{ jazzmin_ui.button_classes.info }} changelink">
+                                                {% if model.custom %}
+                                                {% trans 'Go' %}
+                                                {% else %}
+                                                {% trans 'Change' %}
+                                                {% endif %}
+                                            </a>
+                                            {% endif %}
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {% if forloop.counter == middle|add:"0" %}
+            </div>
+            <div class="col-md-6 col-sm-12">
+                {% endif %}
+
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-12">
+        <div id="content-related">
+            <div class="module" id="recent-actions-module">
+                <h4 class="mb-3">{% trans 'Ações Recentes' %}</h4>
+                {% load log %}
+                {% get_admin_log 10 as admin_log for_user user %}
+                {% if not admin_log %}
+                <p>{% trans 'Nenhuma disponível' %}</p>
+                {% else %}
+                <div class="timeline">
+                    {% for entry in admin_log %}
+                    <div>
+                        {% if entry.is_change %}
+                        <i class="fas fa-edit bg-gray text-xs"></i>
+                        {% elif entry.is_deletion %}
+                        <i class="fas fa-trash bg-danger text-xs"></i>
+                        {% elif entry.is_addition %}
+                        <i class="fas fa-plus-circle bg-success text-xs"></i>
+                        {% endif %}
+
+                        <div class="timeline-item">
+                            <span class="time"><i class="fas fa-clock"></i> {{ entry.action_time|timesince }} ago</span>
+                            <h3 class="timeline-header no-border text-sm">
+                                {% if entry.is_deletion or not entry.get_admin_url %}
+                                {{ entry.object_repr }}
+                                {% else %}
+                                <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                                {% endif %}
+                                {% if entry.model %}
+                                <span class="mini quiet">({{ entry.model }})</span>
+                                {% endif %}
+                            </h3>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <div>
+                        <i class="fa fa-clock bg-gray"></i>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Gráfico de Pizza - Distribuição de Usuários
+        const ctxUsers = document.getElementById('userStatsChart').getContext('2d');
+        new Chart(ctxUsers, {
+            type: 'pie',
+            data: {
+                labels: ['Alunos', 'Instrutores', 'Escolas', 'Bibliotecas'],
+                datasets: [{
+                    data: [65, 15, 10, 10],
+                    backgroundColor: ['#007bff', '#28a745', '#ffc107', '#17a2b8'],
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+
+        // Gráfico de Linha - Matrículas
+        const ctxEnroll = document.getElementById('enrollmentChart').getContext('2d');
+        new Chart(ctxEnroll, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                datasets: [{
+                    label: 'Novas Matrículas',
+                    data: [100, 120, 150, 140, 180, 200],
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.2)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

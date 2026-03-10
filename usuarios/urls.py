@@ -7,18 +7,15 @@ urlpatterns = [
     path('conta_aluno/', views.conta_aluno, name = 'conta_aluno'),
     path('aluno/', views.aluno, name = 'aluno'),
     path('editar_perfil/', views.editar_perfil, name='editar_perfil'),
-    path('seguir-centro/<int:centro_id>/', views.seguir_centro, name='seguir_centro'),
     path('atualizar_localizacao/', views.atualizar_localizacao, name='atualizar_localizacao'),
 
 
     #------------------login---------------------------------
-    path('Login_aluno/', views.Login_aluno, name = 'Login_aluno'), 
-    path('Login_empresa/', views.Login_empresa, name = 'Login_empresa'), 
+    path('login_aluno/', views.login_aluno, name = 'login_aluno'), 
     path('user_profile/', views.user_profile, name='user_profile'),
-    path('Login_instrutor/', views.Login_instrutor, name = 'Login_instrutor'), 
-    path('Login_biblioteca/', views.Login_biblioteca, name = 'Login_biblioteca'),
-    path('Login_escola/', views.Login_escola, name = 'Login_escola'), 
-    path('logout/', views.Logout, name='Logout'),
+    path('login_instrutor/', views.login_instrutor, name = 'login_instrutor'), 
+    path('login_escola/', views.login_escola, name = 'login_escola'), 
+    path('logout/', views.logout_usuario, name='logout'),
     path('tipo_user/', views.tipo_user, name = 'tipo_user'),
     path(
         'admin/password_reset/',
@@ -56,10 +53,8 @@ urlpatterns = [
     
     
     #------------------Registro-------------------------
-    path('registro_aluno/', views.Registro_aluno, name='Registro_aluno'),
-    path('registro_empresa/', views.Registro_empresa, name='registro_empresa'),
-    path('registro_instrutor/', views.Registro_instrutor, name='registro_instrutor'),
-    path('registro_biblioteca/', views.registro_biblioteca, name = 'registro_biblioteca'),
+    path('registro_aluno/', views.registro_aluno, name='registro_aluno'),
+    path('registro_instrutor/', views.registro_instrutor, name='registro_instrutor'),
     
     #----------------perfil de usuarios--------------------
     path('configuracao_user/', views.configuracao_user, name = 'configuracao_user'),
@@ -72,12 +67,6 @@ urlpatterns = [
 
     #-----------------------------aluno validacoes-----------------------
     path('valida_cadastro_aluno/', views.valida_cadastro_aluno, name = 'valida_cadastro_aluno'),
-    path('valida_login_aluno/', views.valida_login_aluno, name = 'valida_login_aluno'),
+    path('valida_login_aluno/', views.valida_login, name = 'valida_login_aluno'),
     #----------------------------fim validacoes aluno------------------------------
-    
-    #---------------------------empresa validacoes--------------------------------
-    path('valida_cadastro_empresa/', views.valida_cadastro_empresa, name = 'valida_cadastro_empresa'),
-    path('valida_login_empresa/', views.valida_login_empresa, name = 'valida_login_empresa'),
-    path('valida_cadastro_biblioteca/', views.valida_cadastro_biblioteca, name = 'valida_cadastro_biblioteca'),
-    path('valida_login_biblioteca/', views.valida_login_biblioteca, name = 'valida_login_biblioteca'),
 ]

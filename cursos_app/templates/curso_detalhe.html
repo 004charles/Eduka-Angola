@@ -276,7 +276,8 @@
 
                             <!-- Avaliação Média -->
                             <div class="feature-sin rating">
-                                <span class="rating-value">{{ curso.get_media_avaliacoes|floatformat:1|default:"0.0" }}</span>
+                                <span class="rating-value">{{ curso.get_media_avaliacoes|floatformat:1|default:"0.0"
+                                    }}</span>
                                 {% for i in "12345" %}
                                 {% if forloop.counter <= curso.get_media_avaliacoes|default:0 %} <i
                                     class="fa fa-star text-warning"></i>
@@ -342,7 +343,8 @@
 
                         <!-- Meta Informações -->
                         <ul class="rbt-meta">
-                            <li><i class="feather-calendar"></i>Última atualização {{ curso.data_atualizacao|date:"d/m/Y" }}</li>
+                            <li><i class="feather-calendar"></i>Última atualização {{
+                                curso.data_atualizacao|date:"d/m/Y" }}</li>
                             <li><i class="feather-globe"></i>{{ curso.get_idioma_display }}</li>
                             <li><i class="feather-award"></i>{{ curso.get_nivel_display }}</li>
                             <li><i class="feather-clock"></i>{{ curso.carga_horaria }} horas</li>
@@ -389,7 +391,8 @@
                                     <li class="current"><a href="#overview">Visão Geral</a></li>
                                     {% if modulos %}<li><a href="#coursecontent">Conteúdo</a></li>{% endif %}
                                     <li><a href="#details">Detalhes</a></li>
-                                    {% if curso.instrutores.exists %}<li><a href="#instructor">Instrutor</a></li>{% endif %}
+                                    {% if curso.instrutores.exists %}<li><a href="#instructor">Instrutor</a></li>{%
+                                    endif %}
                                     {% if comentarios %}<li><a href="#review">Avaliação</a></li>{% endif %}
                                     {% if cursos_relacionados or cursos_relacionados_lista %}<li><a
                                             href="#related">Cursos Relacionados</a></li>{% endif %}
@@ -611,7 +614,8 @@
                                             <ul class="rbt-list-style-2">
                                                 <li><i
                                                         class="feather-calendar text-primary"></i><strong>Início:</strong>
-                                                    {% if curso.data_inicio %}{{ curso.data_inicio|date:"d/m/Y" }}{% else %}A definir{% endif %}</li>
+                                                    {% if curso.data_inicio %}{{ curso.data_inicio|date:"d/m/Y" }}{%
+                                                    else %}A definir{% endif %}</li>
                                                 <li><i
                                                         class="feather-award text-primary"></i><strong>Certificado:</strong>
                                                     {% if curso.certificado %}Sim{% else %}Não{% endif %}</li>
@@ -630,7 +634,8 @@
                         <div class="rbt-instructor rbt-shadow-box intructor-wrapper mt--30" id="instructor">
                             <div class="about-author border-0 pb--0 pt--0">
                                 <div class="section-title mb--30">
-                                    <h4 class="rbt-title-style-3">Instrutor{% if curso.instrutores.count > 1 %}es{% endif %}</h4>
+                                    <h4 class="rbt-title-style-3">Instrutor{% if curso.instrutores.count > 1 %}es{%
+                                        endif %}</h4>
                                 </div>
 
                                 {% for instrutor in curso.instrutores.all %}
@@ -658,7 +663,8 @@
                                             </h5>
                                             <span class="b3 subtitle">
                                                 {% if instrutor.titulo %}{{ instrutor.titulo }}{% endif %}
-                                                {% if instrutor.area_especializacao %} • {{ instrutor.get_area_especializacao_display }}{% endif %}
+                                                {% if instrutor.area_especializacao %} • {{
+                                                instrutor.get_area_especializacao_display }}{% endif %}
                                             </span>
                                         </div>
 
@@ -726,8 +732,8 @@
                                                         aria-valuenow="{{ rating_percent.5|default:0|floatformat:1 }}"
                                                         aria-valuemin="0" aria-valuemax="100">
                                                     </div>
-                                                    <span
-                                                        class="value-text">{{ rating_percent.5|default:0|floatformat:0 }}%</span>
+                                                    <span class="value-text">{{ rating_percent.5|default:0|floatformat:0
+                                                        }}%</span>
                                                 </div>
                                             </div>
 
@@ -743,7 +749,8 @@
                                                         aria-valuenow="{{ rating_percent.4|default:0|floatformat:1 }}"
                                                         aria-valuemin="0" aria-valuemax="100">
                                                     </div>
-                                                    <span class="value-text">{{ rating_percent.4|default:0|floatformat:0 }}%</span>
+                                                    <span class="value-text">{{ rating_percent.4|default:0|floatformat:0
+                                                        }}%</span>
                                                 </div>
                                             </div>
 
@@ -759,7 +766,8 @@
                                                         aria-valuenow="{{ rating_percent.3|default:0|floatformat:1 }}"
                                                         aria-valuemin="0" aria-valuemax="100">
                                                     </div>
-                                                    <span class="value-text">{{ rating_percent.3|default:0|floatformat:0 }}%</span>
+                                                    <span class="value-text">{{ rating_percent.3|default:0|floatformat:0
+                                                        }}%</span>
                                                 </div>
                                             </div>
 
@@ -775,8 +783,8 @@
                                                         aria-valuenow="{{ rating_percent.2|default:0|floatformat:1 }}"
                                                         aria-valuemin="0" aria-valuemax="100">
                                                     </div>
-                                                    <span
-                                                        class="value-text">{{ rating_percent.2|default:0|floatformat:0 }}%</span>
+                                                    <span class="value-text">{{ rating_percent.2|default:0|floatformat:0
+                                                        }}%</span>
                                                 </div>
                                             </div>
 
@@ -792,8 +800,8 @@
                                                         aria-valuenow="{{ rating_percent.1|default:0|floatformat:1 }}"
                                                         aria-valuemin="0" aria-valuemax="100">
                                                     </div>
-                                                    <span
-                                                        class="value-text">{{ rating_percent.1|default:0|floatformat:0 }}%</span>
+                                                    <span class="value-text">{{ rating_percent.1|default:0|floatformat:0
+                                                        }}%</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -813,7 +821,8 @@
                         <div class="rbt-course-review about-author rbt-shadow-box mb--30" id="review-form">
                             <div class="section-title text-start mb--20">
                                 <h4 class="rbt-title-style-3">
-                                    {% if comentario_existente %}Editar sua Avaliação{% else %}Avalie este Curso{% endif %}
+                                    {% if comentario_existente %}Editar sua Avaliação{% else %}Avalie este Curso{% endif
+                                    %}
                                 </h4>
                             </div>
                             <form action="{% url 'adicionar_comentario' curso.id %}" method="POST">
@@ -823,7 +832,9 @@
                                     <label class="mb--10">Sua classificação:</label>
                                     <div class="rbt-rating">
                                         {% for i in "54321" %}
-                                        <input type="radio" name="avaliacao" id="star{{ i }}" value="{{ i }}" {% if comentario_existente and comentario_existente.avaliacao == i|add:0 %}checked{% endif %} required>
+                                        <input type="radio" name="avaliacao" id="star{{ i }}" value="{{ i }}" {% if
+                                            comentario_existente and comentario_existente.avaliacao==i|add:0 %}checked{%
+                                            endif %} required>
                                         <label for="star{{ i }}"><i class="fa fa-star"></i></label>
                                         {% endfor %}
                                     </div>
@@ -863,7 +874,8 @@
 
                                 <button type="submit" class="rbt-btn btn-md btn-gradient hover-icon-reverse w-100">
                                     <span class="icon-reverse-wrapper">
-                                        <span class="btn-text">{% if comentario_existente %}Atualizar Avaliação{% else %}Enviar Avaliação{% endif %}</span>
+                                        <span class="btn-text">{% if comentario_existente %}Atualizar Avaliação{% else
+                                            %}Enviar Avaliação{% endif %}</span>
                                         <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                         <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                     </span>
@@ -945,7 +957,8 @@
                                                 <!-- Ações -->
                                                 <div class="comentario-acoes mt--10">
                                                     <div class="btn-group btn-group-sm" role="group">
-                                                        {% if user.is_authenticated and user.tipo_usuario == 'ALUNO' and user.aluno_profile.id == comentario.aluno.id %}
+                                                        {% if user.is_authenticated and user.tipo_usuario == 'ALUNO' and
+                                                        user.aluno_profile.id == comentario.aluno.id %}
                                                         <button type="button" class="btn btn-outline-primary btn-sm"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#editarAvaliacaoModal">
@@ -958,7 +971,8 @@
                                                         </a>
                                                         {% endif %}
 
-                                                        {% if user.is_authenticated and user.tipo_usuario == 'ALUNO' and user.aluno_profile.id != comentario.aluno.id %}
+                                                        {% if user.is_authenticated and user.tipo_usuario == 'ALUNO' and
+                                                        user.aluno_profile.id != comentario.aluno.id %}
                                                         <button type="button"
                                                             class="btn btn-outline-secondary btn-sm denunciar-btn"
                                                             data-comentario-id="{{ comentario.id }}">
@@ -1023,7 +1037,7 @@
                                     <div>
                                         <h6 class="mb--5">Quer avaliar este curso?</h6>
                                         <p class="mb--0">
-                                            <a href="{% url 'Login_aluno' %}?next={{ request.path }}"
+                                            <a href="{% url 'login_aluno' %}?next={{ request.path }}"
                                                 class="text-primary">Faça login</a>
                                             para deixar sua avaliação.
                                         </p>
@@ -1189,12 +1203,12 @@
                                     {% if curso.inscricoes_abertas %}
                                     <div class="mb--15">
                                         <a class="rbt-btn btn-gradient w-100 d-block text-center"
-                                            href="{% url 'Login_aluno' %}?next={{ request.path }}">
+                                            href="{% url 'login_aluno' %}?next={{ request.path }}">
                                             <i class="feather-log-in"></i> Entrar para se Inscrever
                                         </a>
                                     </div>
                                     <div class="text-center">
-                                        <a href="{% url 'Registro_aluno' %}" class="rbt-btn-link">Criar conta
+                                        <a href="{% url 'registro_aluno' %}" class="rbt-btn-link">Criar conta
                                             gratuita</a>
                                     </div>
                                     {% else %}
@@ -1237,15 +1251,18 @@
                                         </li>
                                         <li>
                                             <span>Nível</span>
-                                            <span class="rbt-feature-value rbt-badge-5">{{ curso.get_nivel_display }}</span>
+                                            <span class="rbt-feature-value rbt-badge-5">{{ curso.get_nivel_display
+                                                }}</span>
                                         </li>
                                         <li>
                                             <span>Idioma</span>
-                                            <span class="rbt-feature-value rbt-badge-5">{{ curso.get_idioma_display }}</span>
+                                            <span class="rbt-feature-value rbt-badge-5">{{ curso.get_idioma_display
+                                                }}</span>
                                         </li>
                                         <li>
                                             <span>Modalidade</span>
-                                            <span class="rbt-feature-value rbt-badge-5">{{ curso.get_modalidade_display }}</span>
+                                            <span class="rbt-feature-value rbt-badge-5">{{ curso.get_modalidade_display
+                                                }}</span>
                                         </li>
                                         <li>
                                             <span>Certificado</span>
@@ -1295,13 +1312,15 @@
                                             <p class="rbt-badge-2 justify-content-center w-100 mb--10">
                                                 <i class="feather-phone mr--5"></i>
                                                 <a href="tel:+244{{ curso.centro.telefone|default:'900000000' }}">
-                                                    <strong>+244 {{ curso.centro.telefone|default:'900 000 000' }}</strong>
+                                                    <strong>+244 {{ curso.centro.telefone|default:'900 000 000'
+                                                        }}</strong>
                                                 </a>
                                             </p>
                                             <p class="rbt-badge-2 justify-content-center w-100">
                                                 <i class="feather-mail mr--5"></i>
                                                 <a href="mailto:{{ curso.centro.email|default:'contato@centro.com' }}">
-                                                    <strong>{{ curso.centro.email|default:'contato@centro.com' }}</strong>
+                                                    <strong>{{ curso.centro.email|default:'contato@centro.com'
+                                                        }}</strong>
                                                 </a>
                                             </p>
                                         </div>
@@ -1336,7 +1355,8 @@
                                 <div class="star-rating-wrapper">
                                     <div class="star-rating">
                                         {% for i in "54321" %}
-                                        <input type="radio" id="star{{ i }}" name="avaliacao" value="{{ i }}" {% if i == "5" %}checked{% endif %} required>
+                                        <input type="radio" id="star{{ i }}" name="avaliacao" value="{{ i }}" {% if
+                                            i=="5" %}checked{% endif %} required>
                                         <label for="star{{ i }}" title="{{ i }} estrela{{ i|pluralize:'s' }}">
                                             <i class="fa fa-star"></i>
                                         </label>
@@ -1405,14 +1425,16 @@
                                 <div class="star-rating-wrapper">
                                     <div class="star-rating">
                                         {% for i in "54321" %}
-                                        <input type="radio" id="editStar{{ i }}" name="avaliacao" value="{{ i }}" {% if comentario_existente.avaliacao == i|add:"0" %}checked{% endif %} required>
+                                        <input type="radio" id="editStar{{ i }}" name="avaliacao" value="{{ i }}" {% if
+                                            comentario_existente.avaliacao==i|add:0 %}checked{% endif %} required>
                                         <label for="editStar{{ i }}" title="{{ i }} estrela{{ i|pluralize:'s' }}">
                                             <i class="fa fa-star"></i>
                                         </label>
                                         {% endfor %}
                                     </div>
                                     <div class="rating-text ms--3">
-                                        <span id="editRatingValue">{{ comentario_existente.avaliacao }} estrela{{ comentario_existente.avaliacao|pluralize:'s' }}</span>
+                                        <span id="editRatingValue">{{ comentario_existente.avaliacao }} estrela{{
+                                            comentario_existente.avaliacao|pluralize:'s' }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -1633,7 +1655,8 @@
                                                     {% for i in "12345" %}
                                                     {% if forloop.counter <= curso_rel.get_media_avaliacoes|default:0 %}
                                                         <i class="fas fa-star text-warning"></i>
-                                                        {% elif forloop.counter <= curso_rel.get_media_avaliacoes|add:0.5|default:0 %} <i
+                                                        {% elif forloop.counter <=
+                                                            curso_rel.get_media_avaliacoes|add:0.5|default:0 %} <i
                                                             class="fas fa-star-half-alt text-warning"></i>
                                                             {% else %}
                                                             <i class="fas fa-star-o text-muted"></i>
@@ -1679,7 +1702,8 @@
                                                 {% if curso_rel.is_gratuito %}
                                                 <span class="current-price">Gratuito</span>
                                                 {% elif curso_rel.em_promocao %}
-                                                <span class="current-price">{{ curso_rel.preco_promocional|floatformat:0 }} KZ</span>
+                                                <span class="current-price">{{ curso_rel.preco_promocional|floatformat:0
+                                                    }} KZ</span>
                                                 {% if curso_rel.preco %}
                                                 <span class="off-price">{{ curso_rel.preco|floatformat:0 }} KZ</span>
                                                 {% endif %}
@@ -1753,13 +1777,24 @@
                         <div class="rbt-single-list action-btn">
                             {% if aluno_logado %}
                             {% if not aluno_inscricao and curso.inscricoes_abertas %}
-                            <a class="rbt-btn btn-gradient hover-icon-reverse btn-md" href="#">
-                                <span class="icon-reverse-wrapper">
-                                    <span class="btn-text">Inscreva-se</span>
-                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                </span>
-                            </a>
+                            <div class="d-flex gap-2">
+                                <a class="rbt-btn btn-gradient hover-icon-reverse btn-md"
+                                    href="{% url 'inscrever_curso' curso.id %}">
+                                    <span class="icon-reverse-wrapper">
+                                        <span class="btn-text">Inscreva-se</span>
+                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                    </span>
+                                </a>
+                                <a class="rbt-btn btn-border hover-icon-reverse btn-md"
+                                    href="{% url 'aluno_chat' %}?conversa_id={{ conversa_existente.id|default:'' }}">
+                                    <span class="icon-reverse-wrapper">
+                                        <span class="btn-text">Chat</span>
+                                        <span class="btn-icon"><i class="feather-message-circle"></i></span>
+                                        <span class="btn-icon"><i class="feather-message-circle"></i></span>
+                                    </span>
+                                </a>
+                            </div>
                             {% elif aluno_inscricao.status == 'A' %}
                             <a class="rbt-btn btn-success hover-icon-reverse btn-md"
                                 href="{% url 'painel_curso' curso.id %}">
@@ -1772,7 +1807,7 @@
                             {% endif %}
                             {% else %}
                             <a class="rbt-btn btn-gradient hover-icon-reverse btn-md"
-                                href="{% url 'Login_aluno' %}?next={{ request.path }}">
+                                href="{% url 'login_aluno' %}?next={{ request.path }}">
                                 <span class="icon-reverse-wrapper">
                                     <span class="btn-text">Entrar para Inscrever-se</span>
                                     <span class="btn-icon"><i class="feather-log-in"></i></span>

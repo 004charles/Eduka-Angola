@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="rbt-breadcrumb-default ptb--50 ptb_md--30 ptb_sm--30 bg_image bg_image--1">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb-inner text-center">
+                    <h2 class="title">{% trans 'Meu Chat' %}</h2>
+                    <ul class="page-list">
+                        <li class="rbt-breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                        <li>
+                            <div class="icon-right"><i class="feather-chevron-right"></i></div>
+                        </li>
+                        <li class="rbt-breadcrumb-item active">{% trans 'Mensagens' %}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="rbt-section-gap bg-color-white">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Sidebar de Conversas -->
+            <div class="col-lg-4">
+                <div class="rbt-sidebar-widget-wrapper rbt-gradient-border p--20">
+                    <div class="rbt-sidebar-widget">
+                        <h4 class="title mb--20">{% trans 'Centros de Formação' %}</h4>
+                        <div class="rbt-chat-list scroll-sm" style="max-height: 500px; overflow-y: auto;">
+                            {% for conversa in conversas %}
+                            <a href="?conversa_id={{ conversa.id }}"
+                                class="rbt-chat-item d-flex align-items-center p--15 mb--10 rounded-3 {% if conversa_atual and conversa_atual.id == conversa.id %}bg-primary-opacity text-primary{% else %}hover-bg-light{% endif %}">
+                                <div class="avatar me-3">
+                                    {% if conversa.centro.logo %}
+                                    <img src="{{ conversa.centro.logo.url }}" alt="{{ conversa.centro.nome }}"
+                                        class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+                                    {% else %}
+                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                                        style="width: 50px; height: 50px;">
+                                        {{ conversa.centro.nome|first }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="content">
+                                    <h6 class="mb-0">{{ conversa.centro.nome }}</h6>
+                                    <p class="mb-0 text-truncate small text-muted">
+                                        {% with ultima=conversa.mensagens.last %}
+                                        {% if ultima %}{{ ultima.mensagem|truncatechars:30 }}{% else %}{% trans 'Inicie
+                                        uma conversa' %}{% endif %}
+                                        {% endwith %}
+                                    </p>
+                                </div>
+                            </a>
+                            {% empty %}
+                            <div class="text-center py-4">
+                                <p class="text-muted">{% trans 'Nenhuma conversa iniciada.' %}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Janela de Chat -->
+            <div class="col-lg-8">
+                <div class="rbt-chat-window rbt-gradient-border d-flex flex-column" style="height: 600px;">
+                    {% if conversa_atual %}
+                    <!-- Header -->
+                    <div class="chat-header p--20 border-bottom d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar me-3">
+                                {% if conversa_atual.centro.logo %}
+                                <img src="{{ conversa_atual.centro.logo.url }}" alt="{{ conversa_atual.centro.nome }}"
+                                    class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                                {% else %}
+                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                                    style="width: 40px; height: 40px;">
+                                    {{ conversa_atual.centro.nome|first }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <h5 class="mb-0">{{ conversa_atual.centro.nome }}</h5>
+                        </div>
+                    </div>
+
+                    <!-- Mensagens -->
+                    <div id="messages-container" class="chat-messages p--20 flex-grow-1 scroll-sm"
+                        style="overflow-y: auto; background-color: #f9f9f9;">
+                        {% for msg in mensagens %}
+                        <div
+                            class="message-wrapper d-flex mb--15 {% if not msg.is_centro %}justify-content-end{% endif %}">
+                            <div class="message-content p--15 rounded-3 {% if not msg.is_centro %}bg-primary text-white{% else %}bg-white border{% endif %}"
+                                style="max-width: 70%;">
+                                <p class="mb-1">{{ msg.mensagem }}</p>
+                                <small class="{% if not msg.is_centro %}text-white-50{% else %}text-muted{% endif %}">{{
+                                    msg.data_envio|date:"H:i" }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Input -->
+                    <div class="chat-footer p--20 border-top">
+                        <form id="chat-form" class="d-flex gap-3">
+                            <input type="hidden" id="conversa_id" value="{{ conversa_atual.id }}">
+                            <input type="text" id="msg-input" class="form-control"
+                                placeholder="{% trans 'Digite sua mensagem...' %}" required>
+                            <button type="submit" class="rbt-btn btn-gradient btn-sm">
+                                <i class="feather-send"></i>
+                            </button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <div class="h-100 d-flex align-items-center justify-content-center flex-column text-center p--40">
+                        <i class="feather-message-square mb--20" style="font-size: 64px; color: #ddd;"></i>
+                        <h4>{% trans 'Selecione uma conversa' %}</h4>
+                        <p class="text-muted">{% trans 'Escolha um centro ao lado para ver suas mensagens.' %}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-primary-opacity {
+        background-color: rgba(107, 76, 230, 0.1);
+    }
+
+    .hover-bg-light:hover {
+        background-color: #f8f9fa;
+    }
+
+    .scroll-sm::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .scroll-sm::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 10px;
+    }
+
+    .rbt-chat-window {
+        border-radius: 10px;
+        overflow: hidden;
+        background: #fff;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const container = document.getElementById('messages-container');
+        if (container) container.scrollTop = container.scrollHeight;
+
+        const chatForm = document.getElementById('chat-form');
+        if (chatForm) {
+            chatForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const input = document.getElementById('msg-input');
+                const msg = input.value.trim();
+                const conversaId = document.getElementById('conversa_id').value;
+
+                if (!msg) return;
+
+                fetch('{% url "enviar_mensagem_centro_modal" %}', { // Reutilizando endpoint de modal
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        conversa_id: conversaId,
+                        mensagem: msg
+                    })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            input.value = '';
+                            location.reload(); // Simplificação por agora, ideal seria AJAX puro
+                        }
+                    });
+            });
+        }
+
+        // Polling básico para novas mensagens
+        {% if conversa_atual %}
+        setInterval(() => {
+            // Implementar atualização via AJAX se necessário
+        }, 5000);
+        {% endif %}
+    });
+</script>
+{% endblock %}

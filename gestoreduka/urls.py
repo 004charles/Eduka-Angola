@@ -9,6 +9,7 @@ urlpatterns = [
     path('home/', views.home_centros, name='home_centros'),
     path('api/load_more/', views.api_load_more_centros, name='api_load_more_centros'),
     path('centros/buscar/', views.buscar_centros, name='buscar_centros'),
+    path('centros/seguir/<int:centro_id>/', views.seguir_centro, name='seguir_centro'),
     path('logout_gestor/', views.logout_gestor, name = 'logout_gestor'),
     path('configuracoes/', views.configuracao_gestor, name='configuracao_gestor'),
     path('configuracoes/dados/', views.atualizar_dados_pessoais, name='atualizar_dados_pessoais'),

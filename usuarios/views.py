@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from .models import Usuario, Aluno, Empresa, Biblioteca, PerfilAluno, CentroSeguimento, CodigoVerificacao
-from gestoreduka.models import CentroDeFormacao
-from cursos_app.models import Curso
+from .models import Usuario, Aluno, Escola, PerfilAluno, CodigoVerificacao
+from gestoreduka.models import CentroDeFormacao, CentroSeguimento
+from cursos_app.models import Curso, Favorito
 from django.contrib import messages
 from django.contrib.auth import logout as auth_logout
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -19,10 +20,16 @@ import json
 
 
 def conta_aluno(request):
+    """
+    Renderiza o painel principal da conta do aluno.
+    """
     return render(request, 'conta_aluno.html')
 
 @require_POST
 def adicionar_favorito(request, curso_id):
+    """
+    View AJAX para alternar um curso na lista de favoritos do aluno.
+    """
     if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
         return JsonResponse({'status': 'error', 'message': 'Não autenticado'}, status=403)
     
@@ -50,7 +57,12 @@ def adicionar_favorito(request, curso_id):
 
 #-----------------------------validacao aluno----------------------------------
 
-def Login_aluno(request):
+
+
+def login_aluno(request):
+    """
+    Renderiza a página de login do aluno com cursos em destaque.
+    """
     status = request.GET.get('status')
     cursos_destaque = Curso.objects.filter(
         destaque=True, publicado=True, ativo=True
@@ -58,16 +70,13 @@ def Login_aluno(request):
 
     return render(request, 'login_aluno.html', {'status':status, 'cursos_destaque':cursos_destaque})
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.gis.geos import Point
-from django.contrib.gis.db.models.functions import Distance
-from django.contrib.gis.measure import D
-from gestoreduka.models import CentroDeFormacao
-from usuarios.models import Aluno, PerfilAluno
+
 
 @aluno_logado_e_centros
 def aluno(request):
-    # Aqui você deve ter acesso aos atributos adicionados pelo decorator
+    """
+    Área principal do perfil do aluno. Os dados são enriquecidos pelo decorador aluno_logado_e_centros.
+    """
     return render(request, 'aluno.html', {
         'aluno_logado': True,
         'aluno_nome': request.aluno_obj.nome,
@@ -75,13 +84,13 @@ def aluno(request):
         'centros': request.centros,
     })
 
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-import json
-from django.contrib.gis.geos import Point
+
 
 @csrf_exempt
 def atualizar_localizacao(request):
+    """
+    View AJAX para atualizar a localização geográfica do aluno para buscas espaciais.
+    """
     if request.method == "POST" and request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
         data = json.loads(request.body)
         lat = data.get("lat")
@@ -90,7 +99,13 @@ def atualizar_localizacao(request):
         if lat and lng:
             aluno = request.user.aluno_profile
             perfil, created = PerfilAluno.objects.get_or_create(aluno=aluno)
-            perfil.localizacao = Point(float(lng), float(lat), srid=4326)
+
+            try:
+                from django.contrib.gis.geos import Point
+                perfil.localizacao = Point(float(lng), float(lat), srid=4326)
+            except Exception:
+                pass # Ignorar se GIS não estiver disponível
+            
             perfil.save()
             return JsonResponse({"status": "sucesso"})
     return JsonResponse({"status": "erro"}, status=400)
@@ -99,6 +114,9 @@ def atualizar_localizacao(request):
 
 
 def valida_cadastro_aluno(request):
+    """
+    Processa o formulário de registro de aluno. Cria Usuario e perfil de Aluno. E inicia a verificação de e-mail.
+    """
     nome = request.POST.get('nome', '').strip()
     email = request.POST.get('email', '').strip()
     senha = request.POST.get('senha', '').strip()
@@ -117,17 +135,17 @@ def valida_cadastro_aluno(request):
         return redirect('/auth/registro_aluno?status=3')
     
     try:
-        # Create Usuario
+        # Criar Usuario
         usuario = Usuario.objects.create_user(
             email=email,
             nome=nome,
             password=senha,
             tipo_usuario='ALUNO'
         )
-        usuario.is_active = False # Deactivate until email verification
+        usuario.is_active = False # Desativar até verificação de email
         usuario.save()
 
-        # Create Aluno profile
+        # Criar perfil de Aluno
         aluno = Aluno.objects.create(
             usuario=usuario,
             nome=nome,
@@ -144,7 +162,10 @@ def valida_cadastro_aluno(request):
         print(f"Erro ao cadastrar aluno: {e}")
         return redirect('/auth/registro_aluno?status=4')
         
-def enviar_email_boas_vindas(nome, email):
+def enviar_email_confirmacao_aluno(nome, email):
+    """
+    Envia um email de boas-vindas após o registro bem-sucedido do aluno.
+    """
     assunto = "Bem-vindo à Plataforma Edukangola!"
     
     # Contexto para o template
@@ -159,11 +180,11 @@ def enviar_email_boas_vindas(nome, email):
     html_content = render_to_string('bem_vindo.html', contexto)
     text_content = strip_tags(html_content)  # Versão texto simples
     
-    # Criar o e-mail
+    from django.conf import settings
     email_msg = EmailMultiAlternatives(
         subject=assunto,
         body=text_content,
-        from_email='nao-responda@educangola.com',
+        from_email=settings.DEFAULT_FROM_EMAIL,
         to=[email],
     )
     email_msg.attach_alternative(html_content, "text/html")
@@ -175,16 +196,20 @@ def enviar_email_boas_vindas(nome, email):
         print(f"Erro ao enviar e-mail: {e}")
 
 def enviar_codigo_verificacao(email, tipo):
+    """
+    Função auxiliar para gerar e enviar códigos de verificação por e-mail.
+    """
     codigo = ''.join([str(random.randint(0, 9)) for _ in range(6)])
     CodigoVerificacao.objects.create(email=email, codigo=codigo, tipo=tipo)
     
     assunto = "Código de Verificação - Edukangola"
     mensagem = f"Seu código de verificação é: {codigo}"
     
+    from django.conf import settings
     email_msg = EmailMultiAlternatives(
         subject=assunto,
         body=mensagem,
-        from_email='nao-responda@educangola.com',
+        from_email=settings.DEFAULT_FROM_EMAIL,
         to=[email],
     )
     try:
@@ -193,12 +218,15 @@ def enviar_codigo_verificacao(email, tipo):
         print(f"Erro ao enviar código: {e}")
 
 def verificar_email(request):
+    """
+    View para a etapa de verificação de e-mail usando o código de 6 dígitos.
+    """
     if request.method == 'POST':
         codigo = request.POST.get('codigo')
         email = request.session.get('email_verificacao')
         
         if not email:
-            return redirect('/auth/Login_aluno')
+            return redirect('/auth/login_aluno')
             
         try:
             verificacao = CodigoVerificacao.objects.filter(email=email, codigo=codigo, tipo='CADASTRO').latest('criado_em')
@@ -219,15 +247,18 @@ def verificar_email(request):
             del request.session['email_verificacao']
             
             # Enviar boas vindas agora que ativou
-            enviar_email_boas_vindas(usuario.nome, usuario.email)
+            enviar_email_confirmacao_aluno(usuario.nome, usuario.email)
             
-            return redirect('/auth/Login_aluno?status=0')
+            return redirect('/auth/login_aluno?status=0')
         except (CodigoVerificacao.DoesNotExist, Usuario.DoesNotExist):
             return render(request, 'verificar_codigo.html', {'error': 'Código inválido ou expirado'})
             
     return render(request, 'verificar_codigo.html')
 
 def esqueci_senha(request):
+    """
+    Inicia o fluxo de 'Esqueci a Senha' enviando um código.
+    """
     if request.method == 'POST':
         email = request.POST.get('email')
         if Aluno.objects.filter(usuario__email=email).exists():
@@ -241,6 +272,9 @@ def esqueci_senha(request):
     return render(request, 'esqueci_senha.html')
 
 def redefinir_senha(request):
+    """
+    Valida o código de recuperação e permite definir uma nova senha.
+    """
     if request.method == 'POST':
         codigo = request.POST.get('codigo')
         nova_senha = request.POST.get('senha')
@@ -266,7 +300,7 @@ def redefinir_senha(request):
             if 'email_recuperacao' in request.session:
                 del request.session['email_recuperacao']
                 
-            return redirect('/auth/Login_aluno?status=senha_redefinida')
+            return redirect('/auth/login_aluno?status=senha_redefinida')
             
         except CodigoVerificacao.DoesNotExist:
             return render(request, 'redefinir_senha.html', {'error': 'Código inválido'})
@@ -275,381 +309,109 @@ def redefinir_senha(request):
 
 from django.contrib.auth import authenticate, login
 
-def valida_login_aluno(request):
+def valida_login(request):
+    """
+    Valida as credenciais do usuário usando o sistema de autenticação do Django.
+    """
     email = request.POST.get('email', '').strip()
     senha = request.POST.get('senha', '').strip()
     
     if not email or not senha:
-        return redirect('/auth/Login_aluno?status=1')
+        return redirect('/auth/login_aluno?status=1')
     
     try:
         user = authenticate(request, username=email, password=senha)
         
         if user is not None:
             if user.tipo_usuario != 'ALUNO':
-                return redirect('/auth/Login_aluno?status=1') # Or specific error for wrong account type
+                return redirect('/auth/login_aluno?status=1') # Or specific error for wrong account type
             
             if not user.is_active:
-                return redirect('/auth/Login_aluno?status=2')
+                return redirect('/auth/login_aluno?status=2')
                 
             login(request, user)
             return redirect('/auth/aluno?status=0')
         else:
-            return redirect('/auth/Login_aluno?status=1')
+            return redirect('/auth/login_aluno?status=1')
             
     except Exception as e:
         print(f"Erro no login: {e}")
-        return redirect('/auth/Login_aluno?status=3')
+        return redirect('/auth/login_aluno?status=3')
         
 #-----------------------------fim validacao aluno----------------------------------
 
-#-----------------------------validacao empresa----------------------------------
-def Login_empresa(request):
-    return render(request, 'login_empresa.html')
-
-def valida_cadastro_empresa(request):
-    if request.method != 'POST':
-        return redirect('/auth/registro_empresa?status=6') 
-    
-    try:
-        nome = request.POST.get('nome')
-        email = request.POST.get('email')
-        senha = request.POST.get('senha')
-        confirmar_senha = request.POST.get('confirmar_senha')
-        telefone = request.POST.get('telefone')
-        experiencia_anos = request.POST.get('experiencia_anos')
-        nif = request.POST.get('nif')
-        ramo_atuacao = request.POST.get('ramo_atuacao')
-        numero_funcionarios = request.POST.get('numero_funcionarios')
-
-        if not all([nome, email, senha, confirmar_senha, nif, ramo_atuacao, numero_funcionarios]):
-            return redirect('/auth/registro_empresa?status=1')
-
-        if len(senha) < 8:
-            return redirect('/auth/registro_empresa?status=2')
-
-        if senha != confirmar_senha:
-            return redirect('/auth/registro_empresa?status=5')
-
-        if Usuario.objects.filter(email=email).exists():
-            return redirect('/auth/registro_empresa?status=3')
-
-        if Empresa.objects.filter(nif=nif).exists():
-            return redirect('/auth/registro_empresa?status=6')
-
-        # Create Usuario
-        usuario = Usuario.objects.create_user(
-            email=email,
-            nome=nome,
-            password=senha,
-            tipo_usuario='EMPRESA'
-        )
-        
-        # Converter valores numéricos
-        try:
-            experiencia = int(experiencia_anos.split('-')[0]) if '-' in experiencia_anos else int(experiencia_anos)
-            funcionarios = int(numero_funcionarios.split('-')[0]) if '-' in numero_funcionarios else int(numero_funcionarios)
-        except (ValueError, AttributeError):
-            experiencia = 0
-            funcionarios = 1
-
-        # Create Empresa profile
-        empresa = Empresa.objects.create(
-            usuario=usuario,
-            nome=nome,
-            telefone=telefone,
-            experiencia_anos=experiencia,
-            nif=nif,
-            ramo_atuacao=ramo_atuacao,
-            numero_funcionarios=funcionarios
-        )
-        
-        enviar_email_boas_vindas_empresa(nome, email, ramo_atuacao)
-        
-        return redirect('/auth/registro_empresa?status=0')
-    
-    except Exception as e:
-        print(f"Erro no cadastro da empresa: {e}")
-        return redirect('/auth/registro_empresa?status=4')
-
-def enviar_email_boas_vindas_empresa(nome, email, ramo_atuacao):
-    assunto = f"Bem-vindo à EducAngola, {nome}!"
-    
-    # Contexto para o template
-    contexto = {
-        'nome': nome,
-        'ramo': ramo_atuacao,
-        'plataforma': 'EducAngola',
-        'cor_primaria': '#333333',  # Cinza escuro
-        'cor_secundaria': '#000000',  # Preto
-    }
-    
-    # Renderizar o template HTML
-    html_content = render_to_string('bem_vinda_empresa.html', contexto)
-    text_content = strip_tags(html_content)  # Versão texto simples
-    
-    # Criar o e-mail
-    email_msg = EmailMultiAlternatives(
-        subject=assunto,
-        body=text_content,
-        from_email='parcerias@educangola.com',
-        to=[email],
-    )
-    email_msg.attach_alternative(html_content, "text/html")
-    
-    try:
-        email_msg.send()
-    except Exception as e:
-        print(f"Erro ao enviar e-mail para empresa: {e}")
-
-def valida_login_empresa(request):
-    email = request.POST.get('email')
-    senha = request.POST.get('senha')
-    
-    if not email or not senha:
-        return redirect('/auth/login_empresa?status=1')
-    
-    try:
-        user = authenticate(request, username=email, password=senha)
-        
-        if user is not None:
-            if user.tipo_usuario != 'EMPRESA':
-                return redirect('/auth/login_empresa?status=1')
-            
-            if not user.is_active:
-                return redirect('/auth/login_empresa?status=2')
-                
-            login(request, user)
-            return redirect('/auth/conta_empresa?status=0')
-        else:
-            return redirect('/auth/login_empresa?status=1')
-            
-    except Exception as e:
-        print(f"Erro no login da empresa: {e}")
-        return redirect('/auth/login_empresa?status=3')
-    
-    
-def Login_biblioteca(request):
-    return render(request, 'login_biblioteca.html')
-
-def registro_biblioteca(request):
-    return render(request, 'cadastro_biblioteca.html')
-
-
-def valida_cadastro_biblioteca(request):
-    if request.method != 'POST':
-        return redirect('/auth/Login_biblioteca?status=6')
-    
-    try:
-        nome = request.POST.get('nome')
-        email = request.POST.get('email')
-        senha = request.POST.get('senha')
-        confirmar_senha = request.POST.get('confirmar_senha')
-        telefone = request.POST.get('telefone')
-        codigo_registro = request.POST.get('codigo_registro', '').strip()
-        tipo = request.POST.get('tipo')
-
-        if not all([nome, email, senha, confirmar_senha, tipo]):
-            return redirect('/auth/Login_biblioteca?status=1')
-
-        if len(senha) < 8:
-            return redirect('/auth/Login_biblioteca?status=2')
-
-        if senha != confirmar_senha:
-            return redirect('/auth/Login_biblioteca?status=5')
-
-        if Usuario.objects.filter(email=email).exists():
-            return redirect('/auth/Login_biblioteca?status=3')
-
-        if codigo_registro and Biblioteca.objects.filter(codigo_registro=codigo_registro).exists():
-            return redirect('/auth/Login_biblioteca?status=7')
-
-        # Create Usuario
-        usuario = Usuario.objects.create_user(
-            email=email,
-            nome=nome,
-            password=senha,
-            tipo_usuario='BIBLIOTECA'
-        )
-
-        # Create Biblioteca profile
-        biblioteca = Biblioteca.objects.create(
-            usuario=usuario,
-            nome=nome,
-            telefone=telefone,
-            codigo_registro=codigo_registro if codigo_registro else None,
-            tipo=tipo
-        )
-
-        enviar_email_boas_vindas_biblioteca(nome, email, tipo)
-
-        return redirect('/auth/Login_biblioteca?status=0')
-    
-    except Exception as e:
-        print(f"Erro inesperado no cadastro: {e}")
-        return redirect('/auth/Login_biblioteca?status=4')
-
-
-def enviar_email_boas_vindas_biblioteca(nome, email, tipo):
-    assunto = f"Bem-vindo à EducAngola, {nome}!"
-    
-    # Mapear tipos de biblioteca para nomes mais amigáveis
-    tipo_map = {
-        'PUBLICA': 'Pública',
-        'ESCOLAR': 'Escolar',
-        'UNVERSITARIA': 'Universitária',
-        'ESPECIALIZADA': 'Especializada',
-        'COMUNITARIA': 'Comunitária'
-    }
-    tipo_display = tipo_map.get(tipo, tipo)
-    
-    # Contexto para o template
-    contexto = {
-        'nome': nome,
-        'tipo': tipo_display,
-        'plataforma': 'EducAngola',
-        'cor_primaria': '#333333',
-        'cor_secundaria': '#000000',
-    }
-    
-    # Renderizar o template HTML
-    html_content = render_to_string('boas_vindas_biblioteca.html', contexto)
-    text_content = strip_tags(html_content)
-    
-    # Criar o e-mail
-    email_msg = EmailMultiAlternatives(
-        subject=assunto,
-        body=text_content,
-        from_email='bibliotecas@educangola.com',
-        to=[email],
-    )
-    email_msg.attach_alternative(html_content, "text/html")
-    
-    try:
-        email_msg.send()
-    except Exception as e:
-        print(f"Erro ao enviar e-mail para biblioteca: {e}")
-        
-        
-
-def valida_login_biblioteca(request):
-    if request.method != 'POST':
-        return redirect('/auth/login_biblioteca?status=6')
-    
-    email = request.POST.get('email')
-    senha = request.POST.get('senha')
-    
-    if not email or not senha:
-        return redirect('/auth/login_biblioteca?status=1')
-    
-    try:
-        user = authenticate(request, username=email, password=senha)
-        
-        if user is not None:
-            if user.tipo_usuario != 'BIBLIOTECA':
-                return redirect('/auth/login_biblioteca?status=1')
-            
-            if not user.is_active:
-                return redirect('/auth/login_biblioteca?status=2')
-                
-            login(request, user)
-            return redirect('/auth/conta_biblioteca?status=10')
-        else:
-            return redirect('/auth/login_biblioteca?status=1')
-            
-    except Exception as e:
-        print(f"Erro no login da biblioteca: {e}")
-        return redirect('/auth/login_biblioteca?status=3')
+# Empresa and Biblioteca views removed from here.
+# Empresa views deleted.
+# Biblioteca views moved to biblioteca/views.py
 
     
-def Login_instrutor(request):
+def login_instrutor(request):
+    """
+    Renderiza a página de login centralizada.
+    """
     return render(request, 'login_instrutor.html')
 
-def Login_escola(request):
+def login_escola(request):
+    """
+    Renderiza a página de login da escola.
+    """
     return render(request, 'login_escola.html')
 
-from django.shortcuts import redirect
-
-def Logout(request):
+def logout_usuario(request):
+    """
+    View de logout geral para todos os usuários.
+    """
     auth_logout(request)
     return redirect('/')
   
-
 def tipo_user(request):
+    """
+    Página de seleção do tipo de conta antes do registro.
+    """
     status = request.POST.get('status')
     return render(request, 'logon.html', {'status':status})
 
-def Registro_aluno(request):
+def registro_aluno(request):
+    """
+    Renderiza a página de registro para novos alunos.
+    """
     status = request.GET.get('status')
     return render(request, 'cadastro_aluno.html')
 
-def Registro_empresa(request):
-    return render(request, 'cadastro_empresa.html')
-
-def Registro_instrutor(request):
+def registro_instrutor(request):
+    """
+    Renderiza a página de registro de instrutores.
+    """
     return render(request, 'cadastro_instrutor.html')
 
-def Redefinir_senha(request):
-    pass 
-
-def Solicitacao_enviada(request):
+def solicitacao_enviada(request):
+    """
+    Página de confirmação de que uma solicitação foi enviada.
+    """
     pass 
 
 
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render
 
-def cadastro_view(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('admin:login')
-    else:
-        form = UserCreationForm()
-    return render(request, 'admin/cadastro.html', {'form': form})
-
-
-def seguir_centro(request, centro_id):
-    # Verifica se o aluno está logado
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
-        return JsonResponse({'status': 'erro', 'mensagem': 'É necessário estar logado para seguir um centro.'}, status=401)
-
-    centro = get_object_or_404(CentroDeFormacao, id=centro_id)
-
-    try:
-        aluno = request.user.aluno_profile
-    except Aluno.DoesNotExist:
-        return JsonResponse({'status': 'erro', 'mensagem': 'Aluno não encontrado.'}, status=404)
-
-    seguimento, criado = CentroSeguimento.objects.get_or_create(aluno=aluno, centro=centro)
-
-    if criado:
-        return JsonResponse({
-            'status': 'sucesso',
-            'mensagem': f"Agora você está seguindo o centro {centro.nome}."
-        })
-    else:
-        return JsonResponse({
-            'status': 'info',
-            'mensagem': f"Você já segue o centro {centro.nome}."
-        })
 
 
 def user_profile(request):
+    """
+    Exibe o perfil do aluno logado.
+    """
     if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
-        return redirect('/auth/Login_aluno?status=4')  
+        return redirect('/auth/login_aluno?status=4')  
     aluno = request.user.aluno_profile
     
     return render(request, 'user_profile.html', {'aluno': aluno})
 
-
-from django.shortcuts import redirect
-from django.contrib import messages
-
 def editar_perfil(request):
+    """
+    Lida com atualizações de perfil (nome, biografia, foto, etc.).
+    """
     if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
-        return redirect('/auth/Login_aluno?status=4')
+        return redirect('/auth/login_aluno?status=4')
     
     aluno = request.user.aluno_profile
     perfil, created = PerfilAluno.objects.get_or_create(aluno=aluno)
@@ -673,4 +435,7 @@ def editar_perfil(request):
     return redirect('/auth/aluno')
 
 def configuracao_user(request):
+    """
+    Página de configuração geral para o usuário.
+    """
     return render(request, 'configuracao_user.html')

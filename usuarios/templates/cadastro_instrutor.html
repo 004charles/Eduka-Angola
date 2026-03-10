@@ -1,12 +1,14 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EducAngola | Portal do Instrutor</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --primary: #2563eb;
@@ -265,7 +267,7 @@
             transition: var(--transition);
         }
 
-        .input-field input, 
+        .input-field input,
         .input-field select {
             width: 100%;
             padding: 14px 16px 14px 46px;
@@ -284,8 +286,8 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
 
-        .input-field input:focus + i,
-        .input-field select:focus + i {
+        .input-field input:focus+i,
+        .input-field select:focus+i {
             color: var(--primary);
         }
 
@@ -446,7 +448,7 @@
             .info-panel {
                 padding: 40px;
             }
-            
+
             .access-panel {
                 padding: 40px;
             }
@@ -456,7 +458,7 @@
             .welcome-title {
                 font-size: 2rem;
             }
-            
+
             .access-title {
                 font-size: 1.8rem;
             }
@@ -491,34 +493,36 @@
             .info-panel {
                 padding: 30px 20px;
             }
-            
+
             .welcome-title {
                 font-size: 1.8rem;
             }
-            
+
             .access-title {
                 font-size: 1.5rem;
             }
-            
+
             .access-container {
                 padding: 30px 20px;
             }
         }
     </style>
 </head>
+
 <body>
     <!-- Efeitos de fundo circular -->
     <div class="bg-circles">
         <div class="circle circle-1"></div>
         <div class="circle circle-2"></div>
     </div>
-    
+
     <!-- Painel de informações -->
     <div class="info-panel">
         <div class="info-content">
             <h1 class="welcome-title">PORTAL DO INSTRUTOR</h1>
-            <p class="welcome-subtitle">Acesse ferramentas profissionais para criar, gerenciar e ministrar cursos de alta qualidade.</p>
-            
+            <p class="welcome-subtitle">Acesse ferramentas profissionais para criar, gerenciar e ministrar cursos de
+                alta qualidade.</p>
+
             <div class="features-list">
                 <div class="feature-item">
                     <div class="feature-icon">
@@ -529,7 +533,7 @@
                         <p>Ferramentas completas para criação e gestão de conteúdos educacionais.</p>
                     </div>
                 </div>
-                
+
                 <div class="feature-item">
                     <div class="feature-icon">
                         <i class="fas fa-chart-line"></i>
@@ -539,7 +543,7 @@
                         <p>Acompanhe o progresso dos seus alunos com métricas detalhadas.</p>
                     </div>
                 </div>
-                
+
                 <div class="feature-item">
                     <div class="feature-icon">
                         <i class="fas fa-hand-holding-usd"></i>
@@ -550,7 +554,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Ícones de educação no fundo -->
             <i class="fas fa-book-open education-icons icon-book"></i>
             <i class="fas fa-graduation-cap education-icons icon-graduation"></i>
@@ -563,31 +567,32 @@
             <!-- Decoração circular -->
             <div class="circle-decoration circle-decoration-1"></div>
             <div class="circle-decoration circle-decoration-2"></div>
-            
+
             <div class="logo">
                 <img src="{% static 'assets/images/logo/logo.png' %}" alt="EducAngola Logo">
             </div>
-            
+
             <h1 class="access-title">Área do Instrutor</h1>
             <p class="access-subtitle">Gerencie seus cursos e alunos em nossa plataforma</p>
-            
+
             <div class="tabs">
                 <div class="tab active" data-tab="login">Login</div>
                 <div class="tab" data-tab="register">Cadastro</div>
             </div>
-            
+
             <!-- Conteúdo de Login -->
             <div class="tab-content active" id="login-content">
-                <form method="POST" action="{% url 'Login_instrutor' %}">
+                <form method="POST" action="{% url 'login_instrutor' %}">
                     {% csrf_token %}
                     <div class="form-group">
                         <label for="login-email">Email Profissional</label>
                         <div class="input-field">
                             <i class="fas fa-envelope"></i>
-                            <input type="email" id="login-email" name="email" placeholder="instrutor@email.com" required>
+                            <input type="email" id="login-email" name="email" placeholder="instrutor@email.com"
+                                required>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="login-password">Senha</label>
                         <div class="input-field">
@@ -595,7 +600,7 @@
                             <input type="password" id="login-password" name="password" placeholder="••••••••" required>
                         </div>
                     </div>
-                    
+
                     <div class="options">
                         <div class="remember-me">
                             <input type="checkbox" id="remember" name="remember">
@@ -605,11 +610,11 @@
                             <a href="#">Esqueceu a senha?</a>
                         </div>
                     </div>
-                    
+
                     <button type="submit" class="access-btn">Acessar Plataforma</button>
                 </form>
             </div>
-            
+
             <!-- Conteúdo de Cadastro -->
             <div class="tab-content" id="register-content">
                 <form method="POST" action="#">
@@ -621,15 +626,16 @@
                             <input type="text" id="register-name" name="name" placeholder="Seu nome completo" required>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="register-email">Email Profissional</label>
                         <div class="input-field">
                             <i class="fas fa-envelope"></i>
-                            <input type="email" id="register-email" name="email" placeholder="instrutor@email.com" required>
+                            <input type="email" id="register-email" name="email" placeholder="instrutor@email.com"
+                                required>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="register-specialty">Área de Especialização</label>
                         <div class="input-field">
@@ -647,34 +653,37 @@
                             </select>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="register-password">Senha</label>
                         <div class="input-field">
                             <i class="fas fa-lock"></i>
-                            <input type="password" id="register-password" name="password" placeholder="••••••••" required>
+                            <input type="password" id="register-password" name="password" placeholder="••••••••"
+                                required>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="register-confirm-password">Confirmar Senha</label>
                         <div class="input-field">
                             <i class="fas fa-lock"></i>
-                            <input type="password" id="register-confirm-password" name="confirm_password" placeholder="••••••••" required>
+                            <input type="password" id="register-confirm-password" name="confirm_password"
+                                placeholder="••••••••" required>
                         </div>
                     </div>
-                    
+
                     <button type="submit" class="access-btn">Solicitar Cadastro</button>
-                    
+
                     <div class="terms" style="margin-top: 20px;">
                         <input type="checkbox" id="terms" name="terms" required>
-                        <label for="terms">Declaro que sou profissional qualificado e aceito os <a href="#">Termos para Instrutores</a>.</label>
+                        <label for="terms">Declaro que sou profissional qualificado e aceito os <a href="#">Termos para
+                                Instrutores</a>.</label>
                     </div>
                 </form>
             </div>
-            
+
             <div class="switch-access">
-                É um aluno? <a href="{% url 'Login_aluno' %}">Acesse como estudante</a>
+                É um aluno? <a href="{% url 'login_aluno' %}">Acesse como estudante</a>
             </div>
         </div>
     </div>
@@ -688,22 +697,22 @@
                     // Remove classe active de todas as abas e conteúdos
                     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    
+
                     // Adiciona classe active à aba clicada
                     tab.classList.add('active');
-                    
+
                     // Mostra o conteúdo correspondente
                     const tabId = tab.getAttribute('data-tab');
                     document.getElementById(`${tabId}-content`).classList.add('active');
                 });
             });
-            
+
             // Validação de confirmação de senha
             const registerPassword = document.getElementById('register-password');
             const confirmPassword = document.getElementById('register-confirm-password');
-            
+
             if (registerPassword && confirmPassword) {
-                confirmPassword.addEventListener('input', function() {
+                confirmPassword.addEventListener('input', function () {
                     if (this.value !== registerPassword.value) {
                         this.setCustomValidity('As senhas não coincidem');
                     } else {
@@ -711,19 +720,19 @@
                     }
                 });
             }
-            
+
             // Efeito de clique nos botões
             const accessBtns = document.querySelectorAll('.access-btn');
             accessBtns.forEach(btn => {
                 btn.addEventListener('mousedown', () => {
                     btn.style.transform = 'translateY(1px)';
                 });
-                
+
                 btn.addEventListener('mouseup', () => {
                     btn.style.transform = 'translateY(-3px)';
                 });
             });
-            
+
             // Foco automático no primeiro campo
             const activeTabContent = document.querySelector('.tab-content.active');
             if (activeTabContent) {
@@ -735,4 +744,5 @@
         });
     </script>
 </body>
+
 </html>

@@ -12,9 +12,12 @@ def criar_convite(sender, instance, created, **kwargs):
 
         link = f"http://127.0.0.1:8000{reverse('confirmar_cadastro', args=[convite.token])}"
 
-        send_mail(
-            subject="Convite para completar cadastro no Edukangola",
-            message=f"Olá {instance.nome},\n\nClique no link para completar seu cadastro:\n{link}",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[instance.email],
-        )
+        try:
+            send_mail(
+                subject="Convite para completar cadastro no Edukangola",
+                message=f"Olá {instance.nome},\n\nClique no link para completar seu cadastro:\n{link}",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[instance.email],
+            )
+        except Exception as e:
+            print(f"Erro ao enviar e-mail de convite para {instance.email}: {e}")

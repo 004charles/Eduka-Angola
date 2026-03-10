@@ -18,12 +18,14 @@
         <ul>
             <li>
                 <a href="javascript: void(0);" data-theme="light" class="setColor light">
-                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode"> Light</span>
+                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode">
+                        Light</span>
                 </a>
             </li>
             <li>
                 <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
-                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span title="Dark Mode"> Dark</span>
+                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span
+                        title="Dark Mode"> Dark</span>
                 </a>
             </li>
         </ul>
@@ -56,18 +58,21 @@
                                 <li class="rbt-breadcrumb-item active">{{categoria.nome}}</li>
                             </ul>
                             <!-- Fim da Área de Navegação -->
-            
+
                             <div class="title-wrapper">
                                 <h1 class="title mb--0">{{categoria.nome}}</h1>
                                 <a href="#" class="rbt-badge-2">
                                     <div class="image">🎉</div>{{ categoria.num_cursos }}
                                 </a>
                             </div>
-            
+
                             <p class="description">
-                                Cursos especializados em {{categoria.nome|lower}} para transformar seu conhecimento em prática.
+                                Cursos especializados em {{categoria.nome|lower}} para transformar seu conhecimento em
+                                prática.
                             </p>
-                            <p><hr></p>
+                            <p>
+                                <hr>
+                            </p>
                             <br>
                             <p>{{categoria.descricao}}</p>
                         </div>
@@ -86,13 +91,13 @@
                                     <ul class="course-switch-layout">
                                         <li class="course-switch-item">
                                             <button class="rbt-grid-view active" title="Visualização em Grade">
-                                                <i class="feather-grid"></i> 
+                                                <i class="feather-grid"></i>
                                                 <span class="text">Grade</span>
                                             </button>
                                         </li>
                                         <li class="course-switch-item">
                                             <button class="rbt-list-view" title="Visualização em Lista">
-                                                <i class="feather-list"></i> 
+                                                <i class="feather-list"></i>
                                                 <span class="text">Lista</span>
                                             </button>
                                         </li>
@@ -105,7 +110,8 @@
                         </div>
 
                         <div class="col-lg-7 col-md-12">
-                            <div class="rbt-sorting-list d-flex flex-wrap align-items-center justify-content-start justify-content-lg-end">
+                            <div
+                                class="rbt-sorting-list d-flex flex-wrap align-items-center justify-content-start justify-content-lg-end">
                                 <div class="rbt-short-item">
                                     <form action="course-filter-one-toggle.html#" class="rbt-search-style me-0">
                                         <input type="text" placeholder="Pesquise seu curso...">
@@ -114,10 +120,11 @@
                                         </button>
                                     </form>
                                 </div>
-                        
+
                                 <div class="rbt-short-item">
                                     <div class="view-more-btn text-start text-sm-end">
-                                        <button class="discover-filter-button discover-filter-activation rbt-btn btn-white btn-md radius-round">
+                                        <button
+                                            class="discover-filter-button discover-filter-activation rbt-btn btn-white btn-md radius-round">
                                             Filtrar <i class="feather-filter"></i>
                                         </button>
                                     </div>
@@ -128,82 +135,72 @@
 
                     <!-- Start Filter Toggle  -->
                     <div class="default-exp-wrapper default-exp-expand">
-                        <div class="filter-inner">
-                            <div class="filter-select-option">
-                                <div class="filter-select rbt-modern-select">
-                                    <span class="select-label d-block">Ordenar por</span>
-                                    <select>
-                                        <option>Padrão</option>
-                                        <option>Mais recentes</option>
-                                        <option>Popularidade</option>
-                                        <option>Em alta</option>
-                                        <option>Preço: menor para maior</option>
-                                        <option>Preço: maior para menor</option>
-                                    </select>
+                        <form action="" method="GET" id="filter-form">
+                            <div class="filter-inner">
+                                <!-- Busca Integrada -->
+                                <div class="filter-select-option">
+                                    <div class="filter-select rbt-modern-select">
+                                        <span class="select-label d-block">Busca</span>
+                                        <input type="text" name="busca" value="{{ filtros.busca|default:'' }}"
+                                            class="form-control rounded-pill" placeholder="Título, descrição...">
+                                    </div>
                                 </div>
-                            </div>
-                    
-                            <div class="filter-select-option">
-                                <div class="filter-select rbt-modern-select">
-                                    <span class="select-label d-block">Filtrar por Autor</span>
-                                    <select data-live-search="true" title="Selecionar Autor" multiple data-size="7" data-actions-box="true" data-selected-text-format="count > 2">
-                                        <option data-subtext="Especialista">Janin Afsana</option>
-                                        <option data-subtext="Especialista">Joe Biden</option>
-                                        <option data-subtext="Especialista">Fatima Asrafy</option>
-                                        <option data-subtext="Especialista">Aysha Baby</option>
-                                        <option data-subtext="Especialista">Mohamad Ali</option>
-                                        <option data-subtext="Especialista">Jone Li</option>
-                                        <option data-subtext="Especialista">Alberd Roce</option>
-                                        <option data-subtext="Especialista">Zeliski Noor</option>
-                                    </select>
+
+                                <!-- Ordenação -->
+                                <div class="filter-select-option">
+                                    <div class="filter-select rbt-modern-select">
+                                        <span class="select-label d-block">Ordenar por</span>
+                                        <select name="ordenar" onchange="this.form.submit()">
+                                            <option value="">Padrão</option>
+                                            <option value="recentes" {% if filtros.ordenar=='recentes' %}selected{% endif %}>Mais recentes</option>
+                                            <option value="popularidade" {% if filtros.ordenar=='popularidade' %}selected{% endif %}>Popularidade</option>
+                                            <option value="mais_procurados" {% if filtros.ordenar=='mais_procurados' %}selected{% endif %}>Mais vistos</option>
+                                            <option value="preco_baixo" {% if filtros.ordenar=='preco_baixo' %}selected{% endif %}>Preço: menor para maior</option>
+                                            <option value="preco_alto" {% if filtros.ordenar=='preco_alto' %}selected{% endif %}>Preço: maior para menor</option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                    
-                            <div class="filter-select-option">
-                                <div class="filter-select rbt-modern-select">
-                                    <span class="select-label d-block">Filtrar por Oferta</span>
-                                    <select>
-                                        <option>Grátis</option>
-                                        <option>Pago</option>
-                                        <option>Premium</option>
-                                    </select>
-                                </div>
-                            </div>
-                    
-                            <div class="filter-select-option">
-                                <div class="filter-select rbt-modern-select">
-                                    <span class="select-label d-block">Filtrar por Categoria</span>
-                                    <select data-live-search="true">
-                                        <option>Design Web</option>
-                                        <option>Design Gráfico</option>
-                                        <option>Desenvolvimento de Apps</option>
-                                        <option>Design no Figma</option>
-                                    </select>
-                                </div>
-                            </div>
-                    
-                            <div class="filter-select-option">
-                                <div class="filter-select">
-                                    <span class="select-label d-block">Faixa de Preço</span>
-                    
-                                    <div class="price_filter s-filter clear">
-                                        <form action="course-filter-one-toggle.html#" method="GET">
-                                            <div id="slider-range"></div>
-                                            <div class="slider__range--output">
-                                                <div class="price__output--wrap">
-                                                    <div class="price--output">
-                                                        <span>Preço (Kz):</span><input type="text" id="amount" placeholder="Insira o valor em Kz">
-                                                    </div>
-                                                    <div class="price--filter">
-                                                        <a class="rbt-btn btn-gradient btn-sm" href="course-filter-one-toggle.html#">Filtrar</a>
-                                                    </div>
-                                                </div>
+
+                                <!-- Filtros Especiais -->
+                                <div class="filter-select-option">
+                                    <div class="filter-select">
+                                        <span class="select-label d-block">Filtros Avançados</span>
+                                        <div class="rbt-checkbox-group d-flex flex-column gap-2 mt--10">
+                                            <div class="rbt-form-check">
+                                                <input type="checkbox" name="em_destaque" id="f-destaque" {% if filtros.em_destaque %}checked{% endif %}>
+                                                <label for="f-destaque">Cursos em Destaque</label>
                                             </div>
-                                        </form>
+                                            <div class="rbt-form-check">
+                                                <input type="checkbox" name="esta_semana" id="f-semana" {% if filtros.esta_semana %}checked{% endif %}>
+                                                <label for="f-semana">Novidades da Semana</label>
+                                            </div>
+                                            <div class="rbt-form-check">
+                                                <input type="checkbox" name="proximos" id="f-proximos" {% if filtros.proximos %}checked{% endif %}>
+                                                <label for="f-proximos">Início Próximo (30 dias)</label>
+                                            </div>
+                                            <div class="rbt-form-check">
+                                                <input type="checkbox" name="para_voce" id="f-ia" {% if filtros.para_voce %}checked{% endif %}>
+                                                <label for="f-ia" class="text-primary fw-bold">✨ Especial Para Você
+                                                    (IA)</label>
+                                            </div>
+                                            <div class="rbt-form-check">
+                                                <input type="checkbox" name="tecnologia" id="f-tech" {% if filtros.tecnologia %}checked{% endif %}>
+                                                <label for="f-tech">Tecnologia & Inovação</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Botões de Ação -->
+                                <div class="filter-select-option">
+                                    <div class="filter-select d-flex gap-2 align-items-end h-100">
+                                        <button type="submit" class="rbt-btn btn-gradient btn-sm w-100">Aplicar
+                                            Filtros</button>
+                                        <a href="?" class="rbt-btn btn-border btn-sm w-100 text-center">Limpar</a>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </form>
                     </div>
                     <!-- End Filter Toggle  -->
                 </div>
@@ -214,105 +211,109 @@
 
 
     <div class="rbt-section-overlayping-top rbt-section-gapBottom">
-    <div class="inner">
-        <div class="container">
-            <div class="rbt-course-grid-column">
-                {% for curso in cursos %}
-                <div class="course-grid-3">
-                    <div class="rbt-card variation-01 rbt-hover">
-                        <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden">
-                            <a href="{% url 'curso_detalhe' id=curso.id %}">
-                                <img src="{{curso.imagem.url}}" alt="Card image">
-                                <div class="rbt-badge-3 bg-white">
-                                    <span>-40%</span>
-                                    <span>Off</span>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="rbt-card-body">
-                            <div class="rbt-card-top">
-                                <div class="rbt-review">
-                                    <div class="rating">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
+        <div class="inner">
+            <div class="container">
+                <div class="rbt-course-grid-column">
+                    {% for curso in cursos %}
+                    <div class="course-grid-3">
+                        <div class="rbt-card variation-01 rbt-hover">
+                            <div class="rbt-card-img ratio ratio-16x9 bg-light overflow-hidden">
+                                <a href="{% url 'curso_detalhe' id=curso.id %}">
+                                    <img src="{{curso.imagem.url}}" alt="Card image">
+                                    <div class="rbt-badge-3 bg-white">
+                                        <span>-40%</span>
+                                        <span>Off</span>
                                     </div>
-                                    <span class="rating-count"> (15 Reviews)</span>
-                                </div>
-                                <div class="rbt-bookmark-btn">
-                                    <a class="rbt-round-btn" title="Bookmark" href="course-filter-one-toggle.html#"><i
-                                            class="feather-bookmark"></i></a>
-                                </div>
-                            </div>
-
-                            <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a>
-                            </h4>
-
-                            <ul class="rbt-meta">
-                                <li><i class="feather-book"></i>{{ curso.modulos.count }} Módulos</li>
-                                <li><i class="feather-users"></i>{{ curso.inscricoes.count }} Inscritos</li>
-                            </ul>
-
-                            <p class="rbt-card-text">{{ curso.descricao|truncatechars:50 }}</p>
-                            <div class="rbt-author-meta mb--10">
-                                <div class="rbt-avater">
-                                    <a href="course-filter-one-toggle.html#">
-                                        <img src="{{ curso.centro.perfil.imagem.url }}" alt="Sophia Jaymes">
-                                    </a>
-                                </div>
-                                <div class="rbt-author-info">
-                                    por: 
-                                    {% if curso.centro %}
-                                        <a href="{% url 'cursos_por_centro' centro_id=curso.centro.id %}">{{ curso.centro.nome }}</a>
-                                    {% else %}
-                                        <span class="text-muted">Centro não especificado</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="rbt-card-bottom">
-                                <div class="rbt-price">
-                                    <span class="current-price">{{ curso.preco }} KZ</span>
-                                    {% if curso.preco_original %}
-                                    <span class="off-price">{{ curso.preco_original }} KZ</span>
-                                    {% endif %}
-                                </div>
-                                <a class="rbt-btn-link" href="{% url 'curso_detalhe' curso.id %}">
-                                    Ver Curso <i class="feather-arrow-right"></i>
                                 </a>
                             </div>
+                            <div class="rbt-card-body">
+                                <div class="rbt-card-top">
+                                    <div class="rbt-review">
+                                        <div class="rating">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                        <span class="rating-count"> (15 Reviews)</span>
+                                    </div>
+                                    <div class="rbt-bookmark-btn">
+                                        <a class="rbt-round-btn" title="Bookmark"
+                                            href="course-filter-one-toggle.html#"><i class="feather-bookmark"></i></a>
+                                    </div>
+                                </div>
+
+                                <h4 class="rbt-card-title"><a
+                                        href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a>
+                                </h4>
+
+                                <ul class="rbt-meta">
+                                    <li><i class="feather-book"></i>{{ curso.modulos.count }} Módulos</li>
+                                    <li><i class="feather-users"></i>{{ curso.inscricoes.count }} Inscritos</li>
+                                </ul>
+
+                                <p class="rbt-card-text">{{ curso.descricao|truncatechars:50 }}</p>
+                                <div class="rbt-author-meta mb--10">
+                                    <div class="rbt-avater">
+                                        <a href="course-filter-one-toggle.html#">
+                                            <img src="{{ curso.centro.perfil.imagem.url }}" alt="Sophia Jaymes">
+                                        </a>
+                                    </div>
+                                    <div class="rbt-author-info">
+                                        por:
+                                        {% if curso.centro %}
+                                        <a href="{% url 'cursos_por_centro' centro_id=curso.centro.id %}">{{
+                                            curso.centro.nome }}</a>
+                                        {% else %}
+                                        <span class="text-muted">Centro não especificado</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="rbt-card-bottom">
+                                    <div class="rbt-price">
+                                        <span class="current-price">{{ curso.preco }} KZ</span>
+                                        {% if curso.preco_original %}
+                                        <span class="off-price">{{ curso.preco_original }} KZ</span>
+                                        {% endif %}
+                                    </div>
+                                    <a class="rbt-btn-link" href="{% url 'curso_detalhe' curso.id %}">
+                                        Ver Curso <i class="feather-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                {% empty %}
-                <div class="course-grid-3" style="grid-column: 1/-1; text-align: center;">
-                    <div class="rbt-card variation-01">
-                        <div class="rbt-card-body">
-                            <i class="feather-book-open" style="font-size: 48px; color: #6f4ef6;"></i>
-                            <h4 class="rbt-card-title">Nenhum curso disponível</h4>
-                            <p class="rbt-card-text">Não encontramos cursos nesta categoria.</p>
+                    {% empty %}
+                    <div class="course-grid-3" style="grid-column: 1/-1; text-align: center;">
+                        <div class="rbt-card variation-01">
+                            <div class="rbt-card-body">
+                                <i class="feather-book-open" style="font-size: 48px; color: #6f4ef6;"></i>
+                                <h4 class="rbt-card-title">Nenhum curso disponível</h4>
+                                <p class="rbt-card-text">Não encontramos cursos nesta categoria.</p>
+                            </div>
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-            </div>
-            <div class="row">
-                <div class="col-lg-12 mt--60">
-                    <nav>
-                        <ul class="rbt-pagination">
-                            <li><a href="course-filter-one-toggle.html#" aria-label="Previous"><i class="feather-chevron-left"></i></a></li>
-                            <li><a href="course-filter-one-toggle.html#">1</a></li>
-                            <li class="active"><a href="course-filter-one-toggle.html#">2</a></li>
-                            <li><a href="course-filter-one-toggle.html#">3</a></li>
-                            <li><a href="course-filter-one-toggle.html#" aria-label="Next"><i class="feather-chevron-right"></i></a></li>
-                        </ul>
-                    </nav>
+                <div class="row">
+                    <div class="col-lg-12 mt--60">
+                        <nav>
+                            <ul class="rbt-pagination">
+                                <li><a href="course-filter-one-toggle.html#" aria-label="Previous"><i
+                                            class="feather-chevron-left"></i></a></li>
+                                <li><a href="course-filter-one-toggle.html#">1</a></li>
+                                <li class="active"><a href="course-filter-one-toggle.html#">2</a></li>
+                                <li><a href="course-filter-one-toggle.html#">3</a></li>
+                                <li><a href="course-filter-one-toggle.html#" aria-label="Next"><i
+                                            class="feather-chevron-right"></i></a></li>
+                            </ul>
+                        </nav>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
     <div class="rbt-separator-mid">
         <div class="container">

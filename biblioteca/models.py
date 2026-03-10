@@ -4,29 +4,34 @@ from decimal import Decimal
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.hashers import make_password, check_password
-from usuarios.models import Aluno
+from django.conf import settings
+from usuarios.models import Aluno, Usuario
 from cursos_app.models import Instrutor
 
 class Biblioteca(models.Model):
+    """
+    Modelo principal para uma entidade de Biblioteca.
+    Vinculada a um Usuario central para autenticação.
+    """
+    TIPO_BIBLIOTECA_CHOICES = [
+        ('PUBLICA', 'Pública'),
+        ('ESCOLAR', 'Escolar'),
+        ('UNIVERSITARIA', 'Universitária'),
+        ('ESPECIALIZADA', 'Especializada'),
+        ('COMUNITARIA', 'Comunitária'),
+    ]
+    
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='biblioteca_profile', null=True, blank=True)
     nome = models.CharField(_('Nome da Biblioteca'), max_length=200)
-    email = models.EmailField(_('E-mail'), unique=True)
-    senha = models.CharField(_('Senha'), max_length=128)
+    # email and senha are now in centralized Usuario
+    telefone = models.CharField(_('Telefone'), max_length=20, blank=True, null=True)
+    codigo_registro = models.CharField(_('Código de Registro'), max_length=100, blank=True, null=True)
+    tipo = models.CharField(_('Tipo de Biblioteca'), max_length=50, choices=TIPO_BIBLIOTECA_CHOICES, default='PUBLICA')
     data_cadastro = models.DateTimeField(_('Data de Cadastro'), default=timezone.now)
     ativo = models.BooleanField(_('Ativo'), default=True)
     
     def __str__(self):
         return f"Biblioteca: {self.nome}"
-
-    def set_password(self, raw_password):
-        self.senha = make_password(raw_password)
-    
-    def check_password(self, raw_password):
-        return check_password(raw_password, self.senha)
-    
-    def save(self, *args, **kwargs):
-        if not self.senha.startswith('pbkdf2_sha256$'):
-            self.set_password(self.senha)
-        super().save(*args, **kwargs)
     
     @property
     def total_livros(self):
@@ -46,6 +51,9 @@ class Biblioteca(models.Model):
         ordering = ['nome']
 
 class PerfilBiblioteca(models.Model):
+    """
+    Dados ricos de perfil para uma Biblioteca, incluindo informações de contato, legais e operacionais.
+    """
     TIPO_BIBLIOTECA = [
         ('publica', 'Pública'),
         ('universitaria', 'Universitária'),
@@ -141,6 +149,10 @@ class PerfilBiblioteca(models.Model):
         return "Não informado"
 
 class Autor(models.Model):
+    """
+    Representa um autor de livros no sistema da biblioteca.
+    Pode ser um aluno, instrutor ou pessoa externa.
+    """
     TIPO_AUTOR = [
         ('aluno', 'Aluno'),
         ('instrutor', 'Instrutor'),
@@ -302,6 +314,10 @@ class LivroManager(models.Manager):
         ).select_related('autor').order_by('-visualizacoes', '-avaliacao_media')[:limite]
 
 class Livro(models.Model):
+    """
+    Livro físico ou digital disponível na biblioteca.
+    Inclui gestão de estoque, preços e controlo de acesso.
+    """
     TIPO_LIVRO = [
         ('fisico', 'Físico'),
         ('digital', 'Digital'),

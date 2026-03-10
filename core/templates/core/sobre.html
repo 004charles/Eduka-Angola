@@ -41,7 +41,7 @@
                     <div class="content">
                         <div class="inner text-center">
                             <div class="rbt-new-badge rbt-new-badge-one">
-                                <span class="rbt-new-badge-icon">🏆</span> Líder em Aprendizagem Online
+                                <span class="rbt-new-badge-icon">🏆</span> Líder em Aprendizagem Online em Angola
                             </div>
 
                             <h1 class="title">Conheça a Nossa
@@ -55,20 +55,21 @@
                                     </span>
                                 </span>
                             </h1>
-                            <p class="description has-medium-font-size mt--20">Mergulhe e aprenda React.js desde o
-                                início! Aprenda Reactjs, Hooks, Redux, Rotas React, Animações, Next.js e muito mais!
+                            <p class="description has-medium-font-size mt--20">Potenciando o futuro de Angola através da
+                                educação digital acessível,
+                                inovadora e conectada com o mercado de trabalho global.
                             </p>
                             <div class="slider-btn rbt-button-group justify-content-center">
-                                <a class="rbt-btn btn-gradient hover-icon-reverse" href="{% url 'aluno' %}">
+                                <a class="rbt-btn btn-gradient hover-icon-reverse" href="{% url 'login_aluno' %}">
                                     <span class="icon-reverse-wrapper">
-                                        <span class="btn-text">Iniciar Sessão</span>
+                                        <span class="btn-text">Começar Agora</span>
                                         <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                         <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                     </span>
                                 </a>
-                                <a class="rbt-btn hover-icon-reverse btn-white" href="about-us-02.html#">
+                                <a class="rbt-btn hover-icon-reverse btn-white" href="mailto:contato@edukangola.com">
                                     <span class="icon-reverse-wrapper">
-                                        <span class="btn-text">Contacte-nos</span>
+                                        <span class="btn-text">Falar Conosco</span>
                                         <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                         <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                     </span>
@@ -84,52 +85,55 @@
 
     <!-- Start Video Area  -->
     <div class="rbt-video-area">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="video-popup-wrapper" style="position: relative;">
-                    <!-- Vídeo oculto inicialmente -->
-                    <video id="directVideo" class="w-100 rbt-radius" controls style="display: none;">
-                        <source src="https://assets.mixkit.co/videos/preview/mixkit-a-girl-blowing-a-bubble-gum-at-an-amusement-park-1226-large.mp4" type="video/mp4">
-                        Seu navegador não suporta vídeos HTML5.
-                    </video>
-                    
-                    <!-- Imagem de thumbnail -->
-                    <img id="videoThumbnail" class="w-100 rbt-radius" src="{% static 'assets/images/bg/bg-image-12.jpg' %}" alt="Thumbnail do Vídeo">
-                    
-                    <!-- Botão de play personalizado -->
-                    <a class="rbt-btn rounded-player-2 position-to-top with-animation btn-theme-color" 
-                       href="#" 
-                       onclick="playDirectVideo(); return false;"
-                       style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                        <span class="play-icon"></span>
-                    </a>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="video-popup-wrapper" style="position: relative;">
+                        <!-- Vídeo oculto inicialmente -->
+                        <video id="directVideo" class="w-100 rbt-radius" controls style="display: none;">
+                            <source
+                                src="https://assets.mixkit.co/videos/preview/mixkit-a-girl-blowing-a-bubble-gum-at-an-amusement-park-1226-large.mp4"
+                                type="video/mp4">
+                            Seu navegador não suporta vídeos HTML5.
+                        </video>
+
+                        <!-- Imagem de thumbnail -->
+                        <img id="videoThumbnail" class="w-100 rbt-radius"
+                            src="{% static 'assets/images/bg/bg-image-12.jpg' %}" alt="Thumbnail do Vídeo">
+
+                        <!-- Botão de play personalizado -->
+                        <a class="rbt-btn rounded-player-2 position-to-top with-animation btn-theme-color" href="#"
+                            onclick="playDirectVideo(); return false;"
+                            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                            <span class="play-icon"></span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-    function playDirectVideo() {
-        const video = document.getElementById('directVideo');
-        const thumbnail = document.getElementById('videoThumbnail');
-        
-        // Oculta a thumbnail e mostra o vídeo
-        thumbnail.style.display = 'none';
-        video.style.display = 'block';
-        
-        // Inicia a reprodução
-        video.play();
-    }
-</script>
+    <script>
+        function playDirectVideo() {
+            const video = document.getElementById('directVideo');
+            const thumbnail = document.getElementById('videoThumbnail');
+
+            // Oculta a thumbnail e mostra o vídeo
+            thumbnail.style.display = 'none';
+            video.style.display = 'block';
+
+            // Inicia a reprodução
+            video.play();
+        }
+    </script>
 
     <div class="rbt-about-area about-style-1 bg-color-white rbt-section-gap">
         <div class="container">
             <div class="row g-5 align-items-center">
                 <div class="col-lg-6">
                     <div class="content">
-                        <img src="{% static 'assets/images/2-removebg-preview.png' %}" alt="Imagens Sobre">
+                        <img src="{% static 'assets/images/custom/about_hero.png' %}" alt="Visão EdukAngola"
+                            class="rbt-radius shadow-lg">
                     </div>
                 </div>
                 <div class="col-lg-6" data-sal="slide-up" data-sal-duration="700">
@@ -144,9 +148,10 @@
                                 fuga dolore tenetur, beatae suscipit fugit est ea perspiciatis quo provident nisi dolor
                                 similique architecto nihil.</p>
                             <div class="read-more-btn mt--40">
-                                <a class="rbt-btn rbt-marquee-btn radius-round btn-gradient" href="about-us-02.html#">
-                                    <span data-text="Comece a Aprender de Graça">
-                                        Comece a Aprender de Graça
+                                <a class="rbt-btn rbt-marquee-btn radius-round btn-gradient"
+                                    href="{% url 'registro_aluno' %}">
+                                    <span data-text="Criar Conta Grátis">
+                                        Criar Conta Grátis
                                     </span>
                                 </a>
                             </div>
@@ -177,9 +182,9 @@
                     </div>
                     <div class="col-xxl-3 col-xl-3 col-lg-6">
                         <div class="call-to-btn text-start text-xl-end">
-                            <a class="rbt-btn btn-white hover-icon-reverse" href="#teste-habilidades">
+                            <a class="rbt-btn btn-white hover-icon-reverse" href="{% url 'catalogo_cursos' %}">
                                 <span class="icon-reverse-wrapper">
-                                    <span class="btn-text">Faça o Teste Agora</span>
+                                    <span class="btn-text">Explorar Cursos</span>
                                     <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                     <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                 </span>
@@ -295,7 +300,8 @@
                 </div>
                 <div class="col-lg-6 col-md-6 col-12">
                     <div class="read-more-btn text-start text-md-end">
-                        <a class="rbt-btn hover-icon-reverse radius-round btn-white" href="about-us-02.html#">
+                        <a class="rbt-btn hover-icon-reverse radius-round btn-white"
+                            href="{% url 'registro_instrutor' %}">
                             <div class="icon-reverse-wrapper">
                                 <span class="btn-text">TORNE-SE INSTRUTOR</span>
                                 <span class="btn-icon"><i class="feather-arrow-right"></i></span>
@@ -561,7 +567,7 @@
             {% endfor %}
 
         </div>
-        </div>
+    </div>
 
 
 

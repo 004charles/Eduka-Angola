@@ -8,11 +8,12 @@ from django.utils import timezone
 from django.conf import settings
 
 
+from django.core.exceptions import ImproperlyConfigured
 try:
     from django.contrib.gis.db import models as gis_models
     from django.contrib.gis.geos import Point
     HAS_GEODJANGO = True
-except (OSError, ImportError) as e:
+except (OSError, ImportError, ImproperlyConfigured) as e:
     print(f"GeoDjango não disponível, usando modelos regulares: {e}")
     from django.db import models as gis_models
     HAS_GEODJANGO = False
@@ -25,11 +26,16 @@ from django.utils.translation import gettext_lazy as _
 
 from django.contrib.auth.hashers import make_password, check_password
 
-from django.contrib.gis.db import models as gis_models
-from django.contrib.gis.geos import Point
-from django.utils.translation import gettext_lazy as _
+# from django.contrib.gis.db import models as gis_models
+# from django.contrib.gis.geos import Point
+# from django.utils.translation import gettext_lazy as _
 
 class CentroDeFormacao(gis_models.Model):
+    """
+    Modelo principal para um Centro de Formação Profissional.
+    Lida com endereço físico, coordenadas GIS e informações básicas de contato.
+    Integrado com a autenticação centralizada do Usuario.
+    """
     usuario = models.OneToOneField('usuarios.Usuario', on_delete=models.CASCADE, related_name='centro_profile', null=True, blank=True)
     nome = models.CharField(_('Nome do Centro'), max_length=100, blank=True, null=True)
     nif = models.CharField(_('NIF'), max_length=18, unique=True, blank=True, null=True)
@@ -87,7 +93,28 @@ class CentroDeFormacao(gis_models.Model):
         verbose_name_plural = _('Centros de Formação')
 
 
+class CentroSeguimento(models.Model):
+    """
+    Relational model to track students following specific training centers.
+    """
+    aluno = models.ForeignKey('usuarios.Aluno', on_delete=models.CASCADE, related_name='centros_seguidos', verbose_name=_('Aluno'))
+    centro = models.ForeignKey(CentroDeFormacao, on_delete=models.CASCADE, related_name='seguidores', verbose_name=_('Centro de Formação'))
+    data_seguimento = models.DateTimeField(_('Data do Seguimento'), default=timezone.now)
+
+    class Meta:
+        unique_together = ('aluno', 'centro')
+        verbose_name = _('Seguimento de Centro')
+        verbose_name_plural = _('Seguimentos de Centros')
+
+    def __str__(self):
+        return f"{self.aluno.nome} segue {self.centro.nome}"
+
+
 class ConviteCentro(models.Model):
+    """
+    Sistema de convites para registrar novos centros de formação.
+    Gera um token único para conclusão segura do cadastro pelo gestor.
+    """
     centro = models.OneToOneField(CentroDeFormacao, on_delete=models.CASCADE, related_name="convite")
     token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     criado_em = models.DateTimeField(default=timezone.now)
@@ -98,6 +125,9 @@ class ConviteCentro(models.Model):
 
 
 class Certificacao(models.Model):
+    """
+    Modelo para gerenciar certificações oferecidas por um centro de formação.
+    """
     centro = models.ForeignKey(
         CentroDeFormacao, 
         on_delete=models.CASCADE,
@@ -116,6 +146,9 @@ class Certificacao(models.Model):
         return f"{self.nome} ({self.orgao_emissor})"
 
 class Diferencial(models.Model):
+    """
+    Modelo para destacar diferenciais e pontos fortes de um centro de formação.
+    """
     centro = models.ForeignKey(
         CentroDeFormacao,
         on_delete=models.CASCADE,
@@ -133,6 +166,9 @@ class Diferencial(models.Model):
         return self.titulo
 
 class AreaFormacao(models.Model):
+    """
+    Modelo para categorizar as áreas de formação profissional oferecidas por um centro.
+    """
     centro = models.ForeignKey(
         CentroDeFormacao,
         on_delete=models.CASCADE,
@@ -152,6 +188,9 @@ class AreaFormacao(models.Model):
         return self.nome
 
 class Equipe(models.Model):
+    """
+    Modelo para gerenciar os membros da equipe de um centro de formação.
+    """
     centro = models.ForeignKey(
         CentroDeFormacao,
         on_delete=models.CASCADE,
@@ -176,6 +215,9 @@ class Equipe(models.Model):
         return f"{self.nome} ({self.cargo})"
 
 class Recurso(models.Model):
+    """
+    Modelo para listar recursos e infraestrutura disponíveis em um centro de formação.
+    """
     centro = models.ForeignKey(
         CentroDeFormacao,
         on_delete=models.CASCADE,
@@ -193,6 +235,9 @@ class Recurso(models.Model):
         return self.nome
 
 class Depoimento(models.Model):
+    """
+    Modelo para armazenar depoimentos de alunos sobre o centro de formação.
+    """
     centro = models.ForeignKey(
         CentroDeFormacao,
         on_delete=models.CASCADE,
@@ -214,6 +259,9 @@ class Depoimento(models.Model):
         return f"Depoimento de {self.nome}"
 
 class Estatistica(models.Model):
+    """
+    Modelo para exibir estatísticas e métricas importantes de um centro de formação.
+    """
     centro = models.ForeignKey(
         CentroDeFormacao,
         on_delete=models.CASCADE,
@@ -233,6 +281,10 @@ class Estatistica(models.Model):
         return f"{self.titulo}: {self.valor}"
     
 class PerfilCentroDeFormacao(models.Model):
+    """
+    Informações de perfil estendidas para um Centro de Formação.
+    Inclui branding, redes sociais, missão/visão e métricas.
+    """
     centro = models.OneToOneField(CentroDeFormacao, on_delete=models.CASCADE, related_name='perfil')
     dono = models.CharField(max_length=100, null=True, blank=True, verbose_name='Dono do Centro')
     imagem = models.ImageField(_('Imagem ou Logo'), upload_to='centros/', null=True, blank=True)
@@ -282,7 +334,7 @@ class PerfilCentroDeFormacao(models.Model):
 
     def get_absolute_url(self):
         from django.urls import reverse
-        return reverse('perfil_centro', kwargs={'slug': self.slug})
+        return reverse('cursos_por_centro', kwargs={'centro_id': self.centro.id})
 
 
 

@@ -1,5 +1,5 @@
-from django.contrib.gis.db.models.functions import Distance
-from django.contrib.gis.measure import D
+# from django.contrib.gis.db.models.functions import Distance
+# from django.contrib.gis.measure import D
 from cursos_app.models import Curso, Categoria
 from .models import PontuacaoInteresse
 from django.db.models import Q
@@ -24,6 +24,7 @@ def recomendar_cursos(aluno, limite=5):
     if hasattr(aluno, 'perfil') and aluno.perfil.localizacao and not getattr(settings, 'USE_SQLITE', False):
         user_loc = aluno.perfil.localizacao
         try:
+            from django.contrib.gis.db.models.functions import Distance
             cursos = cursos.annotate(
                 dist=Distance('centro__localizacao', user_loc)
             ).order_by('dist', '-visualizacoes')

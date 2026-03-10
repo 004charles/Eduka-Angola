@@ -35,8 +35,8 @@ def recalcular_metricas_centros():
         avaliacao, _ = AvaliacaoHibridaCentro.objects.get_or_create(centro=centro)
         
         # 1. Média de alunos (Ratings)
-        # Buscando de Comentario (usuarios/models.py)
-        from usuarios.models import Comentario
+        # Buscando de Comentario (avaliacoes/models.py)
+        from .models import Comentario
         media = Comentario.objects.filter(curso__centro=centro).aggregate(Avg('avaliacao'))['avaliacao__avg'] or 0.0
         avaliacao.media_alunos = media
         

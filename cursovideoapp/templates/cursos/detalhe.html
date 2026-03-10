@@ -689,7 +689,7 @@
                                     </span>
                                 </button>
                                 {% else %}
-                                <a href="{% url 'Login_aluno' %}?next={{ request.path }}" class="subscribe-btn">
+                                <a href="{% url 'login_aluno' %}?next={{ request.path }}" class="subscribe-btn">
                                     <i class="fas fa-bell"></i>
                                     Inscrever-se
                                 </a>
@@ -773,7 +773,9 @@
                                                             aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
                                                         </div>
                                                     </div>
-                                                    <span class="rating-value">{% for key, val in rating_percent.items %}{% if key == stars %}{{ val|floatformat:0 }}{% endif %}{% endfor %}%</span>
+                                                    <span class="rating-value">{% for key, val in rating_percent.items
+                                                        %}{% if key == stars %}{{ val|floatformat:0 }}{% endif %}{%
+                                                        endfor %}%</span>
                                                 </div>
                                                 {% endfor %}
                                             </div>
@@ -790,15 +792,20 @@
                                         {% csrf_token %}
                                         <div class="rating-box mb--20">
                                             <div class="rbt-rating-stars">
-                                                <input type="radio" name="avaliacao" id="star5" value="5" {% if comentario_existente.avaliacao == 5 %}checked{% endif %}
+                                                <input type="radio" name="avaliacao" id="star5" value="5" {% if
+                                                    comentario_existente.avaliacao==5 %}checked{% endif %}
                                                     required><label for="star5"><i class="fa fa-star"></i></label>
-                                                <input type="radio" name="avaliacao" id="star4" value="4" {% if comentario_existente.avaliacao == 4 %}checked{% endif %}><label
+                                                <input type="radio" name="avaliacao" id="star4" value="4" {% if
+                                                    comentario_existente.avaliacao==4 %}checked{% endif %}><label
                                                     for="star4"><i class="fa fa-star"></i></label>
-                                                <input type="radio" name="avaliacao" id="star3" value="3" {% if comentario_existente.avaliacao == 3 %}checked{% endif %}><label
+                                                <input type="radio" name="avaliacao" id="star3" value="3" {% if
+                                                    comentario_existente.avaliacao==3 %}checked{% endif %}><label
                                                     for="star3"><i class="fa fa-star"></i></label>
-                                                <input type="radio" name="avaliacao" id="star2" value="2" {% if comentario_existente.avaliacao == 2 %}checked{% endif %}><label
+                                                <input type="radio" name="avaliacao" id="star2" value="2" {% if
+                                                    comentario_existente.avaliacao==2 %}checked{% endif %}><label
                                                     for="star2"><i class="fa fa-star"></i></label>
-                                                <input type="radio" name="avaliacao" id="star1" value="1" {% if comentario_existente.avaliacao == 1 %}checked{% endif %}><label
+                                                <input type="radio" name="avaliacao" id="star1" value="1" {% if
+                                                    comentario_existente.avaliacao==1 %}checked{% endif %}><label
                                                     for="star1"><i class="fa fa-star"></i></label>
                                             </div>
                                         </div>
@@ -868,7 +875,8 @@
                                                             {% endwith %}
                                                         </div>
                                                         <div class="comment-actions ms-3">
-                                                            {% if request.user.is_authenticated and request.user.aluno_profile.id == comentario.aluno.id %}
+                                                            {% if request.user.is_authenticated and
+                                                            request.user.aluno_profile.id == comentario.aluno.id %}
                                                             <a href="{% url 'excluir_comentario' comentario.id %}"
                                                                 class="rbt-btn-link text-danger small"
                                                                 title="Excluir"><i class="feather-trash-2"></i></a>

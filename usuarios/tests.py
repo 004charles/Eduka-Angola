@@ -1,5 +1,5 @@
 from django.test import TestCase
-from .models import Usuario, Aluno, Escola, Biblioteca
+from .models import Usuario, Aluno, Escola
 from gestoreduka.models import CentroDeFormacao
 
 class UserUnificationTest(TestCase):

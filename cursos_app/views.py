@@ -29,17 +29,18 @@ from cursos_app.models import (
     MaterialApoio,
 )
 
-from usuarios.models import Aluno, Comentario, CentroSeguimento
+from usuarios.models import Aluno
 from usuarios.decorators import aluno_logado_e_centros
-
-from gestoreduka.models import CentroDeFormacao, GaleriaImagem
+from gestoreduka.models import CentroDeFormacao, GaleriaImagem, CentroSeguimento
+from avaliacoes.models import Comentario
 from cursovideoapp.models import Curso_video
 
 
 
 def home_cursos(request):
     """
-    Home page for Presential/Online Courses with rich sections.
+    Página inicial para cursos presenciais e online.
+    Exibe cursos em destaque, recém-chegados, populares e melhor avaliados.
     """
     agora = timezone.now()
     
@@ -109,7 +110,7 @@ def home_cursos(request):
 
 
 
-@login_required(login_url='Login_aluno')
+@login_required(login_url='login_aluno')
 def inscrever_curso(request, curso_id):
     """View para inscrição em curso com simulação de pagamento"""
     curso = get_object_or_404(Curso, id=curso_id, publicado=True, ativo=True)
@@ -117,13 +118,13 @@ def inscrever_curso(request, curso_id):
     # Verificar se aluno está logado e é ALUNO
     if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
         messages.error(request, "Você precisa estar logado como aluno.")
-        return redirect('Login_aluno')
+        return redirect('login_aluno')
     
     try:
         aluno = request.user.aluno_profile
     except AttributeError:
         messages.error(request, "Perfil de aluno não encontrado.")
-        return redirect('Login_aluno')
+        return redirect('login_aluno')
     
     # Verificar se já está inscrito
     inscricao_existente = Inscricao.objects.filter(aluno=aluno, curso=curso).first()
@@ -180,7 +181,7 @@ def inscrever_curso(request, curso_id):
     
     return render(request, 'cursos/confirmar_inscricao.html', context)
 
-@login_required(login_url='Login_aluno')
+@login_required(login_url='login_aluno')
 def simular_pagamento(request, inscricao_id):
     """View para simulação de pagamento"""
     inscricao = get_object_or_404(Inscricao, id=inscricao_id)
@@ -230,7 +231,7 @@ def simular_pagamento(request, inscricao_id):
     
     return render(request, 'cursos/simular_pagamento.html', context)
 
-@login_required(login_url='Login_aluno')
+@login_required(login_url='login_aluno')
 def cancelar_inscricao(request, inscricao_id):
     """View para cancelar inscrição"""
     inscricao = get_object_or_404(Inscricao, id=inscricao_id)
@@ -254,7 +255,7 @@ def cancelar_inscricao(request, inscricao_id):
     
     return redirect('meus_cursos')
 
-@login_required(login_url='Login_aluno')
+@login_required(login_url='login_aluno')
 def painel_curso(request, curso_id):
     """View para painel do curso (após inscrição)"""
     curso = get_object_or_404(Curso, id=curso_id, publicado=True)
@@ -262,13 +263,13 @@ def painel_curso(request, curso_id):
     # Verificar se aluno está logado e é ALUNO
     if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
         messages.error(request, "Você precisa estar logado como aluno.")
-        return redirect('Login_aluno')
+        return redirect('login_aluno')
     
     try:
         aluno = request.user.aluno_profile
     except AttributeError:
         messages.error(request, "Perfil de aluno não encontrado.")
-        return redirect('Login_aluno')
+        return redirect('login_aluno')
     
     # Verificar se está inscrito
     inscricao = Inscricao.objects.filter(aluno=aluno, curso=curso).first()
@@ -744,20 +745,20 @@ def curso_detalhe(request, id):
     
     return render(request, 'curso_detalhe.html', context)
 
-@login_required(login_url='Login_aluno')
+@login_required(login_url='login_aluno')
 def adicionar_comentario(request, curso_id):
     curso = get_object_or_404(Curso, id=curso_id, publicado=True)
     
     # Obter aluno
     if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
         messages.error(request, "Você precisa estar logado como aluno.")
-        return redirect('Login_aluno')
+        return redirect('login_aluno')
     
     try:
         aluno = request.user.aluno_profile
     except AttributeError:
         messages.error(request, "Perfil de aluno não encontrado.")
-        return redirect('Login_aluno')
+        return redirect('login_aluno')
     
     # Verificar se aluno está inscrito no curso
     inscricao = aluno.inscricoes.filter(curso=curso).first()
@@ -798,7 +799,7 @@ def excluir_comentario(request, comentario_id):
     # Verificar se o usuário tem permissão
     if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
         messages.error(request, "Você precisa estar logado.")
-        return redirect('Login_aluno')
+        return redirect('login_aluno')
     
     if request.user.aluno_profile.id != comentario.aluno.id:
         messages.error(request, "Você não tem permissão para excluir este comentário.")
@@ -858,6 +859,14 @@ def catalogo_cursos(request):
     busca = request.GET.get('q')
     origem = request.GET.get('origem')  # 'parceiro' ou 'original'
     
+    # Novos filtros solicitados
+    filtro_tempo = request.GET.get('tempo')  # 'semana'
+    destaque_filtro = request.GET.get('destaque')  # 'true'
+    inicio_proximo = request.GET.get('inicio_proximo')  # 'true'
+    mais_procurados = request.GET.get('mais_procurados')  # 'true'
+    para_voce = request.GET.get('para_voce')  # 'true'
+    categoria_slug = request.GET.get('cat_slug')
+    
     # Mapeamento de sinônimos (Smart Search Base)
     if busca:
         sinonimos = {
@@ -900,24 +909,44 @@ def catalogo_cursos(request):
         elif preco == '500_plus':
             cursos = cursos.filter(preco_atual__gt=500, is_gratuito=False)
     
-    # Filtro por busca
-    if busca:
-        cursos = cursos.filter(
-            Q(titulo__icontains=busca) |
-            Q(descricao__icontains=busca) |
-            Q(descricao_curta__icontains=busca) |
-            Q(tags__icontains=busca) |
-            Q(categoria__nome__icontains=busca) |
-            Q(centro__nome__icontains=busca)
-        )
+    # Filtro: Cursos da Semana
+    if filtro_tempo == 'semana':
+        uma_semana_atras = timezone.now() - timedelta(days=7)
+        cursos = cursos.filter(data_criacao__gte=uma_semana_atras)
     
-    # Priorização por Plano do Centro
-    from django.db.models.functions import Coalesce
-    from django.db.models import Value
+    # Filtro: Em Destaque
+    if destaque_filtro == 'true':
+        cursos = cursos.filter(destaque=True)
     
-    cursos = cursos.annotate(
-        center_priority=Coalesce('centro__assinatura__plano__prioridade_busca', Value(0))
-    ).order_by('-center_priority', '-data_criacao')
+    # Filtro: Cursos de Tecnologia (Informática)
+    if categoria_slug in ['tecnologia', 'informatica']:
+        cursos = cursos.filter(categoria__nome__icontains='Informática')
+    
+    # Lógica de Ordenação
+    if inicio_proximo == 'true':
+        cursos = cursos.filter(data_inicio__gte=timezone.now().date()).order_by('data_inicio')
+    elif mais_procurados == 'true':
+        cursos = cursos.order_by('-visualizacoes', '-total_inscritos')
+    else:
+        # Priorização por Plano do Centro (Padrão)
+        from django.db.models.functions import Coalesce
+        from django.db.models import Value
+        
+        cursos = cursos.annotate(
+            center_priority=Coalesce('centro__assinatura__plano__prioridade_busca', Value(0))
+        ).order_by('-center_priority', '-data_criacao')
+    
+    # Filtro: Para Você (IA Recomendações)
+    if para_voce == 'true' and request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
+        from inteligencia.utils import recomendar_cursos
+        try:
+            aluno = request.user.aluno_profile
+            cursos_recomendados_ids = recomendar_cursos(aluno, limite=20, ids_only=True)
+            if cursos_recomendados_ids:
+                # Mantém a ordem da recomendação usando Case/When ou filtrando apenas os IDs
+                cursos = cursos.filter(id__in=cursos_recomendados_ids)
+        except Exception:
+            pass
     
     # Filtro por Origem
     if origem == 'original':
@@ -1068,20 +1097,96 @@ def cursos_por_categoria(request, slug):
     imagens = GaleriaImagem.objects.all()[:6]
     categoria = get_object_or_404(Categoria, slug=slug)
 
-    cursos = Curso.objects.filter(
+    # Filtros e Ordenação
+    ordenar = request.GET.get('ordenar')
+    competencia = request.GET.get('competencia')
+    busca = request.GET.get('busca')
+    
+    # Filtros de destaque e novos
+    filtro_em_destaque = request.GET.get('em_destaque') == 'on'
+    filtro_esta_semana = request.GET.get('esta_semana') == 'on'
+    filtro_tecnologia = request.GET.get('tecnologia') == 'on'
+    filtro_para_voce = request.GET.get('para_voce') == 'on'
+    filtro_proximos = request.GET.get('proximos') == 'on'
+
+    queryset = Curso.objects.filter(
         categoria=categoria,
         publicado=True,
         ativo=True
-    ).select_related('centro').prefetch_related('instrutores')
+    ).select_related('centro').prefetch_related('instrutores', 'modulos', 'comentarios')
 
-    cursos_destaque = Curso.objects.filter(
-        destaque=True, publicado=True, ativo=True
-    ).select_related('centro').prefetch_related('instrutores')
+    # Aplicar busca se existir
+    if busca:
+        queryset = queryset.filter(
+            Q(titulo__icontains=busca) | 
+            Q(descricao__icontains=busca) |
+            Q(centro__nome__icontains=busca)
+        )
+
+    # Aplicar filtros específicos do usuário
+    if filtro_em_destaque:
+        queryset = queryset.filter(destaque=True)
+
+    if filtro_esta_semana:
+        uma_semana_atras = timezone.now() - timedelta(days=7)
+        queryset = queryset.filter(data_criacao__gte=uma_semana_atras)
+
+    if filtro_tecnologia:
+        queryset = queryset.filter(
+            Q(categoria__slug__icontains='tecnologia') | 
+            Q(categoria__slug__icontains='informatica')
+        )
+
+    if filtro_proximos:
+        hoje = timezone.now()
+        um_mes_depois = hoje + timedelta(days=30)
+        queryset = queryset.filter(data_inicio__gte=hoje, data_inicio__lte=um_mes_depois)
+
+    # Filtro "Para Você" (Recomendações de IA)
+    if filtro_para_voce and request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
+        try:
+            from inteligencia.utils import recomendar_cursos
+            cursos_recomendados_ids = recomendar_cursos(request.user.aluno_profile)
+            if cursos_recomendados_ids:
+                # Mantém os cursos da categoria atual que estão nas recomendações
+                queryset = queryset.filter(id__in=cursos_recomendados_ids)
+        except ImportError:
+            pass
+
+    # Aplicar Ordenação
+    if ordenar == 'recentes':
+        queryset = queryset.order_by('-data_criacao')
+    elif ordenar == 'popularidade':
+        queryset = queryset.annotate(
+            total_inscritos=Count('inscricoes')
+        ).order_by('-total_inscritos')
+    elif ordenar == 'preco_baixo':
+        queryset = queryset.order_by('preco')
+    elif ordenar == 'preco_alto':
+        queryset = queryset.order_by('-preco')
+    elif ordenar == 'mais_procurados':
+        queryset = queryset.annotate(
+            num_vviews=Coalesce('visualizacoes', Value(0))
+        ).order_by('-num_vviews')
+    else:
+        # Padrão: Destaque primeiro, depois data de início
+        queryset = queryset.order_by('-destaque', 'data_inicio')
+
+    cursos = queryset
 
     context.update({
         'categoria': categoria,
         'cursos': cursos,
         'imagens': imagens,
+        'filtros': {
+            'ordenar': ordenar,
+            'busca': busca,
+            'em_destaque': filtro_em_destaque,
+            'esta_semana': filtro_esta_semana,
+            'tecnologia': filtro_tecnologia,
+            'para_voce': filtro_para_voce,
+            'proximos': filtro_proximos,
+        }
     })
 
     return render(request, 'curso_categoria.html', context)

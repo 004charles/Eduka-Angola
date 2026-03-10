@@ -7,11 +7,11 @@ from django.db.models.functions import Coalesce
 from django.utils import timezone
 
 from cursos_app.models import Curso, Categoria, Favorito
-from usuarios.models import Aluno, CentroSeguimento, PerfilAluno
+from usuarios.models import Aluno, PerfilAluno
 from usuarios.decorators import aluno_logado_e_centros
 
 from blog.models import Post
-from gestoreduka.models import CentroDeFormacao
+from gestoreduka.models import CentroDeFormacao, CentroSeguimento
 from cursovideoapp.models import Curso_video, FavoritoCursoVideo
 from estagio.models import Estagio
 
@@ -21,8 +21,12 @@ from avaliacoes.utils import get_centro_da_semana
 
 
 def index(request):
+    """
+    Página inicial do portal Edukangola.
+    Exibe cursos em destaque, vídeos, posts do blog, estágios e recomendações personalizadas.
+    """
     agora = timezone.now()
-    proximos_dias = agora + timedelta(days=7)
+    proximos_dias = agora + timedelta(days=30)
 
     # Cursos em destaque
     cursos_destaque = Curso.objects.filter(
@@ -81,13 +85,13 @@ def index(request):
     # Galeria de imagens
     imagens = Galeria.objects.all()[:6]
 
-    # Cursos próximos (a começar nos próximos 7 dias)
+    # Cursos próximos (a começar nos próximos 30 dias)
     cursos_proximos = Curso.objects.filter(
         publicado=True,
         ativo=True,
-        data_inicio_inscricoes__gte=agora,
-        data_inicio_inscricoes__lte=proximos_dias
-    ).order_by('data_inicio_inscricoes')
+        data_inicio__gte=agora,
+        data_inicio__lte=proximos_dias
+    ).order_by('data_inicio')
 
     # Cursos para iniciantes (Nível Básico)
     cursos_iniciante = Curso.objects.filter(
@@ -149,7 +153,7 @@ def index(request):
         'imagens': imagens,
         'primeiros_alunos': primeiros_alunos,
         'DEBUG': settings.DEBUG,
-        'aluno_logado': False,
+        'aluno_logado': request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO',
         'favoritos': [],
         'centros_seguidos': [],
         'sobre': sobre_nos,
@@ -188,6 +192,9 @@ def index(request):
 
 
 def erro_404_view(request, exception):
+    """
+    Exibe uma página personalizada para erros 404 (Página não encontrada).
+    """
     context = {
         'aluno_logado': False,
     }
@@ -206,6 +213,9 @@ def erro_404_view(request, exception):
 
 def erro_500_view(request):
     """
+    Página de erro genérica para falhas internas do servidor (Erro 500).
+    """
+    """
     Custom 500 error handler.
     """
     context = {}
@@ -213,6 +223,9 @@ def erro_500_view(request):
 
 
 def sobre(request):
+    """
+    Apresenta informações sobre a plataforma Edukangola e sua missão.
+    """
     imagens = Galeria.objects.all()[:6]
 
     context = {
@@ -234,6 +247,9 @@ def sobre(request):
 
 
 def privacidade(request):
+    """
+    Página com os termos de privacidade e uso dos dados dos usuários.
+    """
     imagens = Galeria.objects.all()[:6]
 
     context = {

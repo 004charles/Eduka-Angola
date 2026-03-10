@@ -2,7 +2,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-from usuarios.models import Comentario
+from avaliacoes.models import Comentario
 
 class AvaliacaoForm(forms.ModelForm):
     class Meta:

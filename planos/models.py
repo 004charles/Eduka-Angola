@@ -7,11 +7,9 @@ class Plano(models.Model):
     descricao = models.TextField(_('Descrição'), blank=True)
     preco = models.DecimalField(_('Preço Mensal'), max_digits=10, decimal_places=2)
     
-    # Limites
     limite_cursos = models.PositiveIntegerField(_('Limite de Cursos'), default=5)
     alcance_km = models.PositiveIntegerField(_('Alcance Geográfico (km)'), default=10)
     
-    # Vantagens
     selo_verificacao = models.BooleanField(_('Selo de Verificação'), default=False)
     prioridade_busca = models.PositiveIntegerField(_('Prioridade na Busca'), default=0)
     destaque_home = models.BooleanField(_('Destaque na Página Principal'), default=False)
@@ -47,7 +45,6 @@ class AssinaturaMembro(models.Model):
     data_fim = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDENTE')
     
-    # Controle de renovação
     renovacao_automatica = models.BooleanField(default=True)
     
     def __str__(self):

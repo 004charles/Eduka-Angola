@@ -44,39 +44,12 @@ class AlunoAdmin(admin.ModelAdmin):
         return obj.usuario.email if obj.usuario else "N/A"
     get_email.short_description = 'E-mail'
 
-class BibliotecaAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'tipo', 'get_email', 'ativo')
-    search_fields = ('nome', 'usuario__email', 'codigo_registro')
-    list_filter = ('tipo', 'ativo')
-
-    def get_email(self, obj):
-        return obj.usuario.email if obj.usuario else "N/A"
-    get_email.short_description = 'E-mail'
-
-class EmpresaAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'ramo_atuacao', 'get_email', 'numero_funcionarios')
-    search_fields = ('nome', 'nif', 'usuario__email')
-    list_filter = ('ramo_atuacao',)
-
-    def get_email(self, obj):
-        return obj.usuario.email if obj.usuario else "N/A"
-    get_email.short_description = 'E-mail'
-    
-
-
-class ComentarioInline(admin.TabularInline):
-    model = Comentario
-    extra = 1  # Número de campos em branco para adicionar um novo comentário
-
 
 @admin.register(PerfilAluno)
 class PerfilAlunoAdmin(admin.ModelAdmin):
     list_display = ['aluno', 'biografia']
 
-admin.site.register(Comentario)
 # Registro dos modelos
 admin.site.register(Usuario, UsuarioAdmin)
 admin.site.register(Escola, EscolaAdmin)
 admin.site.register(Aluno, AlunoAdmin)
-admin.site.register(Biblioteca, BibliotecaAdmin)
-admin.site.register(Empresa, EmpresaAdmin)

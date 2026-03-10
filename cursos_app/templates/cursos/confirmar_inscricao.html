@@ -1,0 +1,265 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Confirmar Inscrição | EdukAngola</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    {% include 'include/css.html' %}
+    <style>
+        .checkout-box {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .order-summary {
+            background: #f9f9f9;
+            border-radius: 15px;
+            padding: 30px;
+            position: sticky;
+            top: 100px;
+        }
+
+        .course-mini-card {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .course-mini-card img {
+            width: 100px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .payment-option {
+            border: 2px solid #eee;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .payment-option:hover {
+            border-color: #6f4ef6;
+            background: #f8f6ff;
+        }
+
+        .payment-option.active {
+            border-color: #6f4ef6;
+            background: #f8f6ff;
+        }
+
+        .payment-option i {
+            font-size: 24px;
+            color: #6f4ef6;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 20px;
+            font-weight: 700;
+            color: #1c1d1f;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-bottom: 50px;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            opacity: 0.5;
+        }
+
+        .step.active {
+            opacity: 1;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #6f4ef6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .step-text {
+            font-size: 14px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body class="rbt-header-sticky">
+
+    {% include 'include/header.html' %}
+    {% include 'include/loading.html' %}
+
+    <main class="rbt-main-wrapper" style="background-color: #f5f8fa; padding: 80px 0;">
+        <div class="container">
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active">
+                    <div class="step-number">1</div>
+                    <span class="step-text">Confirmação</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <span class="step-text">Pagamento</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <span class="step-text">Acesso</span>
+                </div>
+            </div>
+
+            <div class="row g-5">
+                <!-- Detalhes da Inscrição -->
+                <div class="col-lg-8">
+                    <div class="checkout-box">
+                        <h3 class="title mb--30">Detalhes da Inscrição</h3>
+
+                        <div class="course-mini-card">
+                            {% if curso.imagem %}
+                            <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}">
+                            {% endif %}
+                            <div>
+                                <h4 class="mb--5">{{ curso.titulo }}</h4>
+                                <span class="rbt-badge-6">Por: {{ curso.centro.nome }}</span>
+                            </div>
+                        </div>
+
+                        <div class="row g-4 mb--30">
+                            <div class="col-md-6">
+                                <div class="rbt-form-group">
+                                    <label class="form-label fw-bold">Seu Nome</label>
+                                    <input type="text" value="{{ aluno.nome }}" disabled class="form-control bg-light">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="rbt-form-group">
+                                    <label class="form-label fw-bold">E-mail de Acesso</label>
+                                    <input type="email" value="{{ aluno.usuario.email }}" disabled
+                                        class="form-control bg-light">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info d-flex align-items-center gap-3 py-4 rounded-4">
+                            <i class="feather-info" style="font-size: 24px;"></i>
+                            <div>
+                                <p class="mb-0 fw-bold">Turma Selecionada: {{ turma_disponivel.nome|default:"Turma
+                                    Geral" }}</p>
+                                <small>As aulas iniciam em {{ curso.data_inicio|date:"d/m/Y" }}</small>
+                            </div>
+                        </div>
+
+                        <h4 class="title mt--40 mb--20">Escolha a Forma de Pagamento</h4>
+                        <div class="payment-methods">
+                            <div class="payment-option active" onclick="selectPayment(this)">
+                                <i class="feather-credit-card"></i>
+                                <div>
+                                    <h6 class="mb-0">Multicaixa Express</h6>
+                                    <small class="text-muted">Acesso imediato após confirmação</small>
+                                </div>
+                                <div class="ms-auto">
+                                    <i class="feather-check-circle text-primary"></i>
+                                </div>
+                            </div>
+
+                            <div class="payment-option" onclick="selectPayment(this)">
+                                <i class="feather-file-text"></i>
+                                <div>
+                                    <h6 class="mb-0">Transferência Bancária</h6>
+                                    <small class="text-muted">Acesso em até 24h úteis</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumo do Pedido -->
+                <div class="col-lg-4">
+                    <div class="order-summary rbt-shadow-box">
+                        <h4 class="title mb--20">Resumo do Pedido</h4>
+                        <div class="d-flex justify-content-between mb--15">
+                            <span class="text-muted">Preço do Curso</span>
+                            <span class="fw-bold">{{ curso.preco|default:"0" }} KZ</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb--15">
+                            <span class="text-muted">Taxas</span>
+                            <span class="text-success fw-bold">Grátis</span>
+                        </div>
+
+                        <div class="total-row">
+                            <span>Total</span>
+                            <span class="theme-gradient">{{ valor_total|default:"0" }} KZ</span>
+                        </div>
+
+                        <form action="{% url 'inscrever_curso' curso.id %}" method="POST" class="mt--30">
+                            {% csrf_token %}
+                            <button type="submit" class="rbt-btn btn-gradient w-100 btn-md icon-hover">
+                                <span class="btn-text">Confirmar Inscrição</span>
+                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                            </button>
+                        </form>
+
+                        <p class="text-center mt--20 small text-muted">
+                            <i class="feather-shield me-1"></i> Pagamento 100% Seguro
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    {% include 'include/footer.html' %}
+
+    <script>
+        function selectPayment(element) {
+            document.querySelectorAll('.payment-option').forEach(opt => {
+                opt.classList.remove('active');
+                const check = opt.querySelector('.ms-auto');
+                if (check) check.remove();
+            });
+            element.classList.add('active');
+            const checkDiv = document.createElement('div');
+            checkDiv.className = 'ms-auto';
+            checkDiv.innerHTML = '<i class="feather-check-circle text-primary"></i>';
+            element.appendChild(checkDiv);
+        }
+    </script>
+
+    {% include 'include/java.html' %}
+</body>
+
+</html>

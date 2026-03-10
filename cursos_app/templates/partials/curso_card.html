@@ -6,7 +6,7 @@
             {% else %}
             <img src="{% static 'assets/images/course/course-01.jpg' %}" alt="{{ curso.titulo }}" class="rbt-radius">
             {% endif %}
-            
+
             {% if curso.em_promocao %}
             <div class="rbt-badge-3 bg-white">
                 <span>{{ curso.percentual_desconto|floatformat:0 }}%</span>
@@ -15,65 +15,62 @@
             {% endif %}
         </a>
     </div>
-    
+
     <div class="rbt-card-body">
         <div class="rbt-card-top">
             <div class="rbt-review">
                 <div class="rating">
                     {% with comentarios=curso.comentarios.all %}
                     {% if comentarios %}
-                        {% with total=comentarios.count sum=comentarios.aggregate(sum=Sum('avaliacao')) %}
-                        {% with media=sum.sum|div:total %}
-                        {% for i in "12345" %}
-                            {% if forloop.counter <= media %}
-                            <i class="fas fa-star"></i>
-                            {% else %}
-                            <i class="far fa-star"></i>
-                            {% endif %}
+                    {% with total=comentarios.count sum=comentarios.aggregate(sum=Sum('avaliacao')) %}
+                    {% with media=sum.sum|div:total %}
+                    {% for i in "12345" %}
+                    {% if forloop.counter <= media %} <i class="fas fa-star"></i>
+                        {% else %}
+                        <i class="far fa-star"></i>
+                        {% endif %}
                         {% endfor %}
                         {% endwith %}
                         {% endwith %}
-                    {% else %}
+                        {% else %}
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star"></i>
-                    {% endif %}
-                    {% endwith %}
+                        {% endif %}
+                        {% endwith %}
                 </div>
                 <span class="rating-count">({{ curso.comentarios.count }})</span>
             </div>
         </div>
-        
+
         <h4 class="rbt-card-title">
             <a href="{% url 'curso_detalhe' curso.id %}">
                 {{ curso.titulo|truncatewords:8 }}
             </a>
         </h4>
-        
+
         <ul class="rbt-meta">
             <li><i class="feather-book"></i>{{ curso.modulos.count }} módulos</li>
             <li><i class="feather-clock"></i>{{ curso.carga_horaria }}h</li>
         </ul>
-        
+
         <div class="rbt-author-meta mb--20">
             <div class="rbt-avater">
                 {% if curso.centro.perfil and curso.centro.perfil.imagem %}
-                <img src="{{ curso.centro.perfil.imagem.url }}" 
-                     alt="{{ curso.centro.nome }}">
+                <img src="{{ curso.centro.perfil.imagem.url }}" alt="{{ curso.centro.nome }}">
                 {% else %}
-                <img src="{% static 'assets/images/team/avatar.jpg' %}" 
-                     alt="{{ curso.centro.nome }}">
+                <img src="{% static 'assets/images/team/avatar.jpg' %}" alt="{{ curso.centro.nome }}">
                 {% endif %}
             </div>
             <div class="rbt-author-info">
-                Por <a href="{% url 'perfil_centro' curso.centro.id %}">
+                Por <a href="{% url 'cursos_por_centro' curso.centro.id %}">
                     {{ curso.centro.nome|truncatewords:2 }}
                 </a>
             </div>
         </div>
-        
+
         <div class="rbt-card-bottom">
             <div class="rbt-price">
                 {% if curso.is_gratuito %}

@@ -8,12 +8,13 @@ from django.utils.translation import gettext_lazy as _
 SECRET_KEY = config("SECRET_KEY", default="django-insecure-default")
 DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
+ALLOWED_HOSTS = ['*']
 
 
 
 INSTALLED_APPS = [
-    'django.contrib.gis',
+    'jazzmin',
+    # 'django.contrib.gis',
     'django.contrib.admin',
     'channels',
     'django.contrib.auth',
@@ -58,10 +59,7 @@ ASGI_APPLICATION = 'eduangolacore.asgi.application'
 
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
-        },
+        'BACKEND': 'channels.layers.InMemoryChannelLayer'
     },
 }
 
@@ -172,6 +170,10 @@ WSGI_APPLICATION = 'eduangolacore.wsgi.application'
 
 
 
+# GeoDjango Windows Configuration
+GDAL_LIBRARY_PATH = config('GDAL_LIBRARY_PATH', default=None)
+GEOS_LIBRARY_PATH = config('GEOS_LIBRARY_PATH', default=None)
+
 # Database Configuration
 USE_SQLITE = config('USE_SQLITE', default=False, cast=bool)
 
@@ -262,13 +264,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'usuarios.Usuario' 
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='muquissicarlos@gmail.com')
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=EMAIL_HOST_USER)
 
