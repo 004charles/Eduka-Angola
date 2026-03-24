@@ -5,82 +5,131 @@
 
 {% block content %}
 <div class="dashboard-body">
-    <div class="breadcrumb mb-24 flex-between flex-wrap">
+    <div class="breadcrumb mb-24 flex-between flex-wrap gap-16">
         <div>
+            <h4 class="mb-4">Gestão de Turmas</h4>
             <ul class="flex-align gap-4">
-                <li><a href="{% url 'centro_dashboard' %}"
-                        class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
+                <li><a href="{% url 'centro_dashboard' %}" class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
                 <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
                 <li><span class="text-main-600 fw-normal text-15">Turmas</span></li>
             </ul>
         </div>
-        <a href="{% url 'criar_turma' %}" class="btn btn-main px-24 py-12">
-            <i class="ph ph-plus me-8"></i> Nova Turma
+        <a href="{% url 'criar_turma' %}" class="btn btn-primary-600 px-24 py-12 rounded-12 fw-bold d-flex align-items-center gap-8 shadow-sm hover-scale-1 transition-all">
+            <i class="ph ph-plus-circle text-xl"></i> Nova Turma
         </a>
     </div>
 
-    <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0">Todas as Turmas</h5>
+    <div class="card premium-card border-0 shadow-sm overflow-hidden">
+        <div class="card-header bg-white border-bottom border-gray-50 py-20 px-24">
+            <div class="flex-between flex-wrap gap-16">
+                <h5 class="mb-0 text-gray-900">Listagem de Turmas</h5>
+                <div class="flex-align gap-12">
+                    <div class="position-relative">
+                        <i class="ph ph-funnel position-absolute top-50 start-0 translate-middle-y ms-12 text-gray-400"></i>
+                        <select class="form-select form-select-sm ps-32 rounded-8 border-gray-100 text-13">
+                            <option>Todos os turnos</option>
+                            <option>Manhã</option>
+                            <option>Tarde</option>
+                            <option>Noite</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table style-two mb-0">
-                    <thead>
+                    <thead class="bg-gray-50">
                         <tr>
-                            <th>Turma</th>
-                            <th>Curso</th>
+                            <th class="ps-24">Identificação / Código</th>
+                            <th>Curso Relacionado</th>
                             <th>Turno</th>
                             <th>Data Início</th>
-                            <th>Vagas</th>
+                            <th>Ocupação</th>
                             <th>Status</th>
-                            <th class="text-center">Ações</th>
+                            <th class="text-center pe-24">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for turma in turmas %}
-                        <tr>
-                            <td>
-                                <div>
-                                    <h6 class="mb-0 text-15">{{ turma.nome }}</h6>
-                                    <span class="text-13 text-gray-600">{{ turma.codigo }}</span>
+                        <tr class="transition-all hover-bg-gray-50">
+                            <td class="ps-24">
+                                <div class="d-flex align-items-center gap-12">
+                                    <div class="w-40 h-40 rounded-10 bg-primary-50 text-primary-600 flex-center shadow-sm">
+                                        <i class="ph ph-users-four fw-bold text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 text-15 fw-bold text-gray-900">{{ turma.nome }}</h6>
+                                        <span class="text-12 text-gray-400 font-monospace uppercase">{{ turma.codigo }}</span>
+                                    </div>
                                 </div>
                             </td>
-                            <td><span class="text-15">{{ turma.curso.titulo }}</span></td>
-                            <td><span class="text-13">{{ turma.get_turno_display }}</span></td>
-                            <td><span class="text-13">{{ turma.data_inicio|date:"d/m/Y" }}</span></td>
                             <td>
-                                <span class="text-13">{{ turma.vagas_ocupadas }}/{{ turma.vagas_totais }}</span>
-                                <div class="progress h-4 bg-gray-100 rounded-pill mt-4" style="width: 80px;">
-                                    <div class="progress-bar bg-main-600"
-                                        style="width: {{ turma.percentual_ocupacao }}%"></div>
+                                <span class="text-14 fw-medium text-gray-700">{{ turma.curso.titulo }}</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-6">
+                                    {% if turma.turno == 'M' %}
+                                    <i class="ph ph-sun-horizon text-amber-500"></i>
+                                    {% elif turma.turno == 'T' %}
+                                    <i class="ph ph-sun text-orange-500"></i>
+                                    {% else %}
+                                    <i class="ph ph-moon text-indigo-500"></i>
+                                    {% endif %}
+                                    <span class="text-13">{{ turma.get_turno_display }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="text-13 fw-bold text-gray-800">{{ turma.data_inicio|date:"d/m/Y" }}</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-12" style="min-width: 140px;">
+                                    <div class="flex-grow-1">
+                                        <div class="progress h-6 bg-gray-100 rounded-pill overflow-hidden">
+                                            <div class="progress-bar {% if turma.percentual_ocupacao > 90 %}bg-danger{% elif turma.percentual_ocupacao > 70 %}bg-warning{% else %}bg-success-600{% endif %}"
+                                                role="progressbar" style="width: {{ turma.percentual_ocupacao }}%"
+                                                aria-valuenow="{{ turma.percentual_ocupacao }}" aria-valuemin="0" aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span class="text-12 fw-bold text-gray-700">{{ turma.vagas_ocupadas }}/{{ turma.vagas_totais }}</span>
                                 </div>
                             </td>
                             <td>
                                 {% if turma.status == 'ABERTA' %}
-                                <span
-                                    class="text-13 py-2 px-8 bg-success-50 text-success-600 rounded-pill">Aberta</span>
+                                <span class="badge bg-success-50 text-success-600 px-12 py-6 rounded-pill fw-bold">ATIVA</span>
                                 {% elif turma.status == 'EM_ANDAMENTO' %}
-                                <span class="text-13 py-2 px-8 bg-warning-50 text-warning-600 rounded-pill">Em
-                                    Andamento</span>
+                                <span class="badge bg-warning-50 text-warning-600 px-12 py-6 rounded-pill fw-bold">EM CURSO</span>
                                 {% elif turma.status == 'CONCLUIDA' %}
-                                <span class="text-13 py-2 px-8 bg-gray-50 text-gray-600 rounded-pill">Concluída</span>
+                                <span class="badge bg-gray-100 text-gray-500 px-12 py-6 rounded-pill fw-bold">ARQUIVADA</span>
                                 {% else %}
-                                <span
-                                    class="text-13 py-2 px-8 bg-danger-50 text-danger-600 rounded-pill">Cancelada</span>
+                                <span class="badge bg-danger-50 text-danger-600 px-12 py-6 rounded-pill fw-bold">CANCELADA</span>
                                 {% endif %}
                             </td>
-                            <td class="text-center">
-                                <a href="{% url 'editar_turma' turma.id %}" class="text-main-600 hover-text-main-700">
-                                    <i class="ph ph-pencil-simple text-xl"></i>
-                                </a>
+                            <td class="text-center pe-24">
+                                <div class="d-flex align-items-center justify-content-center gap-8">
+                                    <a href="{% url 'editar_turma' turma.id %}" class="w-32 h-32 rounded-8 bg-gray-50 text-gray-400 hover-bg-primary-600 hover-text-white flex-center transition-all" title="Editar Turma">
+                                        <i class="ph ph-pencil-simple text-lg"></i>
+                                    </a>
+                                    <button class="w-32 h-32 rounded-8 bg-gray-50 text-gray-400 hover-bg-info-600 hover-text-white flex-center transition-all" title="Ver Alunos">
+                                        <i class="ph ph-user-list text-lg"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="7" class="text-center text-gray-400 p-24">
-                                Nenhuma turma cadastrada. <a href="{% url 'criar_turma' %}" class="text-main-600">Criar
-                                    primeira turma</a>
+                            <td colspan="7" class="text-center py-60">
+                                <div class="max-w-400 mx-auto">
+                                    <div class="w-64 h-64 bg-gray-50 rounded-circle flex-center mx-auto mb-16">
+                                        <i class="ph ph-users-four text-gray-300 text-3xl"></i>
+                                    </div>
+                                    <h6 class="text-gray-900 mb-8">Nenhuma turma registrada</h6>
+                                    <p class="text-gray-500 mb-24">Comece criando sua primeira turma para matricular alunos.</p>
+                                    <a href="{% url 'criar_turma' %}" class="btn btn-outline-primary-600 px-24 py-10 rounded-10 fw-bold">
+                                        Criar Turma Agora
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -91,22 +140,27 @@
     </div>
 
     {% if turmas.has_other_pages %}
-    <div class="flex-between flex-wrap gap-8 mt-20">
-        <span class="text-gray-600 text-13">Mostrando {{ turmas.start_index }} a {{ turmas.end_index }} de {{
-            turmas.paginator.count }} turmas</span>
-        <ul class="pagination flex-align flex-wrap">
-            {% if turmas.has_previous %}
-            <li class="page-item"><a class="page-link" href="?page={{ turmas.previous_page_number }}">Anterior</a></li>
-            {% endif %}
-            {% for num in turmas.paginator.page_range %}
-            <li class="page-item {% if turmas.number == num %}active{% endif %}">
-                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-            </li>
-            {% endfor %}
-            {% if turmas.has_next %}
-            <li class="page-item"><a class="page-link" href="?page={{ turmas.next_page_number }}">Próximo</a></li>
-            {% endif %}
-        </ul>
+    <div class="flex-between flex-wrap gap-12 mt-32">
+        <p class="text-gray-400 text-13 mb-0">Mostrando <span class="text-gray-900 fw-bold">{{ turmas.start_index }}-{{ turmas.end_index }}</span> de <span class="text-gray-900 fw-bold">{{ turmas.paginator.count }}</span> turmas</p>
+        <nav>
+            <ul class="pagination pagination-premium mb-0 gap-8">
+                {% if turmas.has_previous %}
+                <li class="page-item"><a class="page-link rounded-12 border-0 shadow-sm w-40 h-40 flex-center" href="?page={{ turmas.previous_page_number }}"><i class="ph ph-caret-left"></i></a></li>
+                {% endif %}
+                {% for num in turmas.paginator.page_range %}
+                <li class="page-item {% if turmas.number == num %}active{% endif %}">
+                    {% if turmas.number == num %}
+                    <span class="page-link rounded-12 border-0 shadow-sm w-40 h-40 flex-center bg-primary-600 text-white">{{ num }}</span>
+                    {% else %}
+                    <a class="page-link rounded-12 border-0 shadow-sm w-40 h-40 flex-center text-gray-700" href="?page={{ num }}">{{ num }}</a>
+                    {% endif %}
+                </li>
+                {% endfor %}
+                {% if turmas.has_next %}
+                <li class="page-item"><a class="page-link rounded-12 border-0 shadow-sm w-40 h-40 flex-center" href="?page={{ turmas.next_page_number }}"><i class="ph ph-caret-right"></i></a></li>
+                {% endif %}
+            </ul>
+        </nav>
     </div>
     {% endif %}
 </div>

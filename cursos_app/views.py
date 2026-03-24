@@ -1357,7 +1357,7 @@ def buscar_cursos(request):
         cursos_video = cursos_video.filter(
             Q(titulo__icontains=termo) | 
             Q(descricao__icontains=termo) |
-            Q(instrutor__icontains=termo)
+            Q(instrutor__nome__icontains=termo)
         )
     
     if categoria_id:

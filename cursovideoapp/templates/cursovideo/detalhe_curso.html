@@ -1,0 +1,403 @@
+{% load static %}
+{% load i18n %}
+
+<!DOCTYPE html>
+<html lang="pt-pt">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>EdukAngola Play | {{ curso.titulo }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% include 'include/css.html' %}
+    
+    <style>
+        :root {
+            --play-bg-dark: #0f172a;
+            --play-card-bg-dark: #1e293b;
+            --play-text-dark: #ffffff;
+            --play-meta-dark: #94a3b8;
+            
+            --play-bg-light: #f8fafc;
+            --play-card-bg-light: #ffffff;
+            --play-text-light: #1e293b;
+            --play-meta-light: #64748b;
+
+            --play-primary: #7c3aed;
+            --play-secondary: #ec4899;
+        }
+
+        body.play-mode {
+            background-color: var(--play-bg-dark);
+            color: var(--play-text-dark);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body.play-mode.active-light-mode {
+            background-color: var(--play-bg-light);
+            color: var(--play-text-light);
+        }
+
+        .play-detail-hero {
+            position: relative;
+            height: 60vh;
+            min-height: 400px;
+            display: flex;
+            align-items: flex-end;
+            padding-bottom: 50px;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        body.play-mode.active-dark-mode .play-detail-hero {
+            background-image: linear-gradient(to top, rgba(15, 23, 42, 1) 0%, rgba(15, 23, 42, 0.4) 50%, rgba(15, 23, 42, 0.2) 100%);
+        }
+        
+        body.play-mode.active-light-mode .play-detail-hero {
+            background-image: linear-gradient(to top, rgba(248, 250, 252, 1) 0%, rgba(248, 250, 252, 0.4) 50%, rgba(248, 250, 252, 0.2) 100%);
+        }
+
+        .play-detail-hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            object-fit: cover;
+        }
+
+        .play-detail-content {
+            z-index: 2;
+        }
+
+        .play-title {
+            font-size: 56px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .play-meta-info {
+            display: flex;
+            gap: 20px;
+            font-size: 16px;
+            color: var(--play-meta-dark);
+            margin-bottom: 30px;
+            align-items: center;
+        }
+        
+        body.active-light-mode .play-meta-info {
+            color: var(--play-meta-light);
+        }
+
+        .match-score {
+            color: #22c55e;
+            font-weight: 700;
+        }
+
+        .play-btn {
+            padding: 14px 32px;
+            border-radius: 4px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.3s;
+            text-decoration: none !important;
+        }
+
+        .play-btn-primary {
+            background: #fff;
+            color: #000;
+        }
+        
+        body.active-dark-mode .play-btn-primary:hover {
+            background: #e2e8f0;
+        }
+
+        .play-btn-secondary {
+            background: rgba(148, 163, 184, 0.3);
+            color: #fff;
+            backdrop-filter: blur(10px);
+        }
+        
+        body.active-light-mode .play-btn-secondary {
+            color: var(--play-text-light);
+        }
+
+        .lessons-section {
+            padding: 50px 0;
+        }
+
+        .lesson-card {
+            background: var(--play-card-bg-dark);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: 0.3s;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .play-btn-certificado {
+            background: #22c55e;
+            color: #fff !important;
+            padding: 14px 32px;
+            border-radius: 4px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.3s;
+            text-decoration: none !important;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+            animation: bounceIn 0.8s ease;
+        }
+
+        .play-btn-certificado:hover {
+            background: #16a34a;
+            transform: translateY(-2px);
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        body.active-light-mode .lesson-card {
+            background: var(--play-card-bg-light);
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .lesson-card:hover {
+            background: rgba(255,255,255,0.05);
+            transform: translateX(10px);
+        }
+        
+        body.active-light-mode .lesson-card:hover {
+            background: #f1f5f9;
+        }
+
+        .lesson-num {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--play-meta-dark);
+            min-width: 40px;
+        }
+
+        .lesson-info {
+            flex-grow: 1;
+        }
+
+        .lesson-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .lesson-duration {
+            font-size: 14px;
+            color: var(--play-meta-dark);
+        }
+
+        .play-icon {
+            font-size: 24px;
+            color: var(--play-primary);
+        }
+
+        .instructor-card {
+            background: rgba(124, 58, 237, 0.1);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+
+        .instructor-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+
+        /* Adjust Header */
+        .play-mode .rbt-header-wrapper {
+            background-color: transparent !important;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .play-mode.active-light-mode .rbt-header-wrapper {
+            background-color: #fff !important;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .play-mode.active-dark-mode .rbt-header-wrapper {
+            background-color: var(--play-bg-dark) !important;
+        }
+    </style>
+</head>
+
+<body class="rbt-header-sticky play-mode active-dark-mode">
+
+    <div id="my_switcher" class="my_switcher">
+        <ul>
+            <li>
+                <a href="javascript: void(0);" data-theme="light" class="setColor light">
+                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode">
+                        Light</span>
+                </a>
+            </li>
+            <li>
+                <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
+                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span
+                        title="{% trans 'Dark Mode' %}"> {% trans 'Dark' %}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    {% include 'include/header.html' %}
+
+    <main class="rbt-main-wrapper">
+        <!-- Hero Section -->
+        <section class="play-detail-hero">
+            {% if curso.capa %}
+            <img src="{{ curso.capa.url }}" alt="{{ curso.titulo }}" class="play-detail-hero-bg">
+            {% else %}
+            <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{ curso.titulo }}" class="play-detail-hero-bg">
+            {% endif %}
+            
+            <div class="container">
+                <div class="play-detail-content">
+                    <h1 class="play-title">{{ curso.titulo }}</h1>
+                    <div class="play-meta-info">
+                        <span class="match-score">98% Relevante</span>
+                        <span>{{ curso.data_publicacao|date:"Y" }}</span>
+                        <span class="badge bg-secondary">{{ curso.get_nivel_display|default:"Geral" }}</span>
+                        <span>{{ curso.duracao_total }}</span>
+                        <span>HD</span>
+                    </div>
+                    
+                    <div class="d-flex gap-3">
+                        {% if user.is_authenticated %}
+                            {% if aluno_inscrito %}
+                                {% if aulas.exists %}
+                                <a href="{% url 'cursovideoapp:ver_aula' curso_slug=curso.slug pk=aulas.first.pk %}" class="play-btn play-btn-primary">
+                                    <i class="fas fa-play"></i> Continuar Assistindo
+                                </a>
+                                {% endif %}
+                                {% if progresso_total == 100 %}
+                                <a href="{% url 'cursovideoapp:emitir_certificado' curso_slug=curso.slug %}" class="play-btn-certificado" target="_blank">
+                                    <i class="fas fa-award"></i> Baixar Certificado
+                                </a>
+                                {% endif %}
+                            {% else %}
+                                <form action="{% url 'cursovideoapp:toggle_inscricao' slug=curso.slug %}" method="POST">
+                                    {% csrf_token %}
+                                    <button type="submit" class="play-btn play-btn-primary">
+                                        <i class="fas fa-plus"></i> Inscrever-se Agora
+                                    </button>
+                                </form>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'account_login' %}?next={{ request.path }}" class="play-btn play-btn-primary">
+                                <i class="fas fa-sign-in-alt"></i> Entrar para Assistir
+                            </a>
+                        {% endif %}
+                        <button class="play-btn play-btn-secondary">
+                            <i class="fas fa-thumbs-up"></i>
+                        </button>
+                        <button class="play-btn play-btn-secondary">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="lessons-section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <h2 class="mb--30">Aulas do Curso</h2>
+                        <div class="lesson-list">
+                            {% for aula in aulas %}
+                            <a href="{% if aluno_inscrito %}{% url 'cursovideoapp:ver_aula' curso_slug=curso.slug pk=aula.pk %}{% else %}#{% endif %}" class="text-decoration-none color-inherit">
+                                <div class="lesson-card">
+                                    <div class="lesson-num">{{ forloop.counter }}</div>
+                                    <div class="lesson-info">
+                                        <div class="lesson-title">{{ aula.titulo }}</div>
+                                        <div class="lesson-duration">{{ aula.duracao_formatada }}</div>
+                                    </div>
+                                    <div class="play-icon">
+                                        {% if aluno_inscrito %}
+                                        <i class="fas fa-play-circle"></i>
+                                        {% else %}
+                                        <i class="fas fa-lock"></i>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </a>
+                            {% empty %}
+                            <p>Nenhuma aula disponível ainda.</p>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mt--50">
+                            <h3>Sobre este curso</h3>
+                            <p class="lead opacity-8">{{ curso.descricao|linebreaks }}</p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="instructor-card">
+                            <h5>Instrutor</h5>
+                            <div class="d-flex align-items-center gap-3 mt--20">
+                                {% if curso.instrutor.foto %}
+                                <img src="{{ curso.instrutor.foto.url }}" alt="{{ curso.instrutor.nome }}" class="instructor-avatar">
+                                {% else %}
+                                <div class="instructor-avatar bg-primary d-flex align-items-center justify-content-center text-white">
+                                    {{ curso.instrutor.nome|slice:":1" }}
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <h6 class="mb-0">{{ curso.instrutor.nome }}</h6>
+                                    <small class="opacity-7">{{ curso.instrutor.titulo|default:"Especialista" }}</small>
+                                </div>
+                            </div>
+                            <p class="mt--20 small opacity-8">{{ curso.instrutor.biografia|truncatewords:30 }}</p>
+                        </div>
+
+                        <div class="mt--40">
+                            <h5>Recomendados para você</h5>
+                            <div class="row g-3 mt--10">
+                                {% for rec in cursos_recomendados|slice:":3" %}
+                                <div class="col-12">
+                                    <a href="{% url 'cursovideoapp:detalhe_curso' slug=rec.slug %}" class="text-decoration-none">
+                                        <div class="d-flex gap-3 align-items-center">
+                                            <img src="{{ rec.capa.url }}" style="width: 100px; aspect-ratio: 16/9; object-fit: cover; border-radius: 4px;">
+                                            <h6 class="small mb-0" style="color: inherit;">{{ rec.titulo }}</h6>
+                                        </div>
+                                    </a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    {% include 'include/footer.html' %}
+    {% include 'include/java.html' %}
+
+</body>
+</html>

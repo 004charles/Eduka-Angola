@@ -1,0 +1,67 @@
+{% extends 'base_gestor.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-6">
+            <h2 class="font-weight-bold text-navy mb-0">Gerir Filiais</h2>
+            <p class="text-muted mb-0">Administre as unidades integradas ao seu Centro.</p>
+        </div>
+        <div class="col-md-6 text-md-right mt-3 mt-md-0">
+            <a href="{% url 'criar_filial' %}" class="btn btn-primary bg-violet border-0 px-4 py-2" style="border-radius: 8px;">
+                <i class="feather-plus mr-2"></i>Nova Filial
+            </a>
+        </div>
+    </div>
+
+    <!-- Tabela de Filiais -->
+    <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-top-0 text-uppercase text-muted font-weight-bold" style="font-size: 0.85rem;">Nome da Filial</th>
+                            <th class="border-top-0 text-uppercase text-muted font-weight-bold" style="font-size: 0.85rem;">Email (Login)</th>
+                            <th class="border-top-0 text-uppercase text-muted font-weight-bold" style="font-size: 0.85rem;">Contacto</th>
+                            <th class="border-top-0 text-uppercase text-muted font-weight-bold" style="font-size: 0.85rem;">Endereço</th>
+                            <th class="border-top-0 text-uppercase text-muted font-weight-bold text-right" style="font-size: 0.85rem;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for filial in filiais %}
+                        <tr>
+                            <td class="align-middle">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-sm bg-violet-light text-violet rounded-circle d-flex align-items-center justify-content-center mr-3 font-weight-bold">
+                                        {{ filial.nome|slice:":1"|upper }}
+                                    </div>
+                                    <span class="font-weight-bold text-dark">{{ filial.nome }}</span>
+                                </div>
+                            </td>
+                            <td class="align-middle text-muted">{{ filial.usuario.email }}</td>
+                            <td class="align-middle text-muted">{{ filial.contato|default:"-" }}</td>
+                            <td class="align-middle text-muted">{{ filial.endereco|default:"-" }}</td>
+                            <td class="align-middle text-right">
+                                <a href="{% url 'editar_filial' filial.id %}" class="btn btn-sm btn-outline-primary" style="border-radius: 6px;">
+                                    <i class="feather-edit-2"></i> Editar
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <div class="mb-3"><i class="feather-map-pin" style="font-size: 3rem; opacity: 0.5;"></i></div>
+                                <h5>Nenhuma filial registada</h5>
+                                <p>Clique em "Nova Filial" para expandir a sua rede de centros.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

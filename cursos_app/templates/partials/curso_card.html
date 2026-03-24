@@ -1,3 +1,4 @@
+{% load static %}
 <div class="rbt-card variation-01 rbt-hover">
     <div class="rbt-card-img">
         <a href="{% url 'curso_detalhe' curso.id %}">
@@ -20,26 +21,15 @@
         <div class="rbt-card-top">
             <div class="rbt-review">
                 <div class="rating">
-                    {% with comentarios=curso.comentarios.all %}
-                    {% if comentarios %}
-                    {% with total=comentarios.count sum=comentarios.aggregate(sum=Sum('avaliacao')) %}
-                    {% with media=sum.sum|div:total %}
+                    {% with media=curso.get_media_avaliacoes|default:0 %}
                     {% for i in "12345" %}
-                    {% if forloop.counter <= media %} <i class="fas fa-star"></i>
+                        {% if forloop.counter <= media %} 
+                            <i class="fas fa-star"></i>
                         {% else %}
-                        <i class="far fa-star"></i>
+                            <i class="far fa-star"></i>
                         {% endif %}
-                        {% endfor %}
-                        {% endwith %}
-                        {% endwith %}
-                        {% else %}
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        {% endif %}
-                        {% endwith %}
+                    {% endfor %}
+                    {% endwith %}
                 </div>
                 <span class="rating-count">({{ curso.comentarios.count }})</span>
             </div>

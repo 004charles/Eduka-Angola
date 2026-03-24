@@ -13,137 +13,181 @@
         <ul>
             <li>
                 <a href="javascript: void(0);" data-theme="light" class="setColor light">
-                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode">
-                        Light</span>
+                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode"> Light</span>
                 </a>
             </li>
             <li>
                 <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
-                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span
-                        title="Dark Mode"> Dark</span>
+                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span title="Dark Mode"> Dark</span>
                 </a>
             </li>
         </ul>
     </div>
-{% include 'include/header.html' %}
+
+    {% include 'include/header.html' %}
     {% include 'include/loading.html' %}
 
-
-<div class="rbt-course-area bg-color-white rbt-section-gap">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="section-title text-center mb--60">
-                    <span class="subtitle bg-primary-opacity">Cursos Disponíveis</span>
-                    <h4 class="title">Resultados da Busca</h4>
-                    {% if termo_busca %}
-                    <p class="mb--0">Você pesquisou por: <strong>"{{ termo_busca }}"</strong></p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        
-        <div class="row g-5">
-    {% if cursos %}
-        {% for curso in cursos %}
-            <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
-                {% include 'curso_card.html' with curso=curso %}
-            </div>
-        {% endfor %}
-    {% else %}
-        <div class="col-12">
-            <div class="rbt-card variation-01 rbt-hover text-center">
-                <div class="rbt-card-body">
-                    <span class="rbt-badge-6 bg-primary-opacity mb--20">
-                        <i class="feather-alert-circle"></i>
-                    </span>
-                    <h5 class="card-title">Nenhum curso de centro encontrado</h5>
-                    <p class="card-text mb--20">Tente ajustar os critérios de busca ou explore nossos cursos em destaque</p>
-                    <a href="{% url 'todo_curso' %}" class="rbt-btn btn-gradient btn-sm">
-                        <i class="feather-arrow-left"></i> Ver todos os cursos
-                    </a>
-                </div>
-            </div>
-        </div>
-    {% endif %}
-</div>
-
-<!-- ================= Cursos em Vídeo ================= -->
-<div class="row mt--80 g-5">
-    <div class="col-lg-12">
-        <div class="section-title text-center mb--60">
-            <span class="subtitle bg-pink-opacity">Cursos em Vídeo</span>
-            <h4 class="title">Resultados da Busca (Vídeo)</h4>
-        </div>
-    </div>
-
-    {% if cursos_video %}
-        {% for curso in cursos_video %}
-            <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
-                {% include 'curso_video_card.html' with curso=curso %}
-            </div>
-        {% endfor %}
-    {% else %}
-        <div class="col-12">
-            <div class="rbt-card variation-01 rbt-hover text-center">
-                <div class="rbt-card-body">
-                    <span class="rbt-badge-6 bg-primary-opacity mb--20">
-                        <i class="feather-alert-circle"></i>
-                    </span>
-                    <h5 class="card-title">Nenhum curso em vídeo encontrado</h5>
-                    <p class="card-text mb--20">Explore nossa biblioteca de cursos em vídeo atualizada</p>
-                    <a href="#" class="rbt-btn btn-gradient btn-sm">
-                        <i class="feather-arrow-left"></i> Ver todos os cursos em vídeo
-                    </a>
-                </div>
-            </div>
-        </div>
-    {% endif %}
-</div>
-
-        
-        <!-- Paginação -->
-        {% if page_obj.paginator.num_pages > 1 %}
-        <div class="row">
-            <div class="col-lg-12 mt--60">
-                <div class="rbt-pagination text-center">
-                    <ul class="page-list">
-                        {% if page_obj.has_previous %}
-                        <li>
-                            <a href="?page={{ page_obj.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                                <i class="feather-chevrons-left"></i>
-                            </a>
-                        </li>
-                        {% endif %}
-                        
-                        {% for num in page_obj.paginator.page_range %}
-                            {% if page_obj.number == num %}
-                            <li class="active"><a href="#">{{ num }}</a></li>
-                            {% else %}
-                            <li>
-                                <a href="?page={{ num }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                                    {{ num }}
+    <!-- ================= Banner de Busca ================= -->
+    <div class="rbt-page-banner-wrapper">
+        <div class="rbt-banner-image"></div>
+        <div class="rbt-banner-content">
+            <div class="rbt-banner-content-top">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <ul class="page-list">
+                                <li class="rbt-breadcrumb-item"><a href="/">Início</a></li>
+                                <li><div class="icon-right"><i class="feather-chevron-right"></i></div></li>
+                                <li class="rbt-breadcrumb-item active">Resultados da Busca</li>
+                            </ul>
+                            <div class="title-wrapper">
+                                <h1 class="title mb--0">Busca: "{{ termo_busca|default:'Todos' }}"</h1>
+                                <a href="#" class="rbt-badge-2">
+                                    <div class="image">🔍</div> {{ cursos|length|add:cursos_video|length }} resultados
                                 </a>
-                            </li>
-                            {% endif %}
-                        {% endfor %}
-                        
-                        {% if page_obj.has_next %}
-                        <li>
-                            <a href="?page={{ page_obj.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                                <i class="feather-chevrons-right"></i>
-                            </a>
-                        </li>
-                        {% endif %}
-                    </ul>
+                            </div>
+                            <p class="description">Encontre os melhores cursos e conteúdos na EdukAngola.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Start Course Top (Filtragem) -->
+            <div class="rbt-course-top-wrapper mt--40 mt_sm--20">
+                <div class="container">
+                    <div class="row g-5 align-items-center">
+                        <div class="col-lg-5 col-md-12">
+                            <div class="rbt-sorting-list d-flex flex-wrap align-items-center">
+                                <div class="rbt-short-item">
+                                    <span class="course-index">Exibindo resultados para sua pesquisa</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-7 col-md-12">
+                            <div class="rbt-sorting-list d-flex flex-wrap align-items-center justify-content-start justify-content-lg-end">
+                                <div class="rbt-short-item">
+                                    <form action="{% url 'buscar_cursos' %}" method="GET" class="rbt-search-style me-0">
+                                        <input type="text" name="q" value="{{ termo_busca }}" placeholder="Pesquisar...">
+                                        <button type="submit" class="rbt-search-btn rbt-round-btn">
+                                            <i class="feather-search"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                                <div class="rbt-short-item">
+                                    <div class="view-more-btn">
+                                        <button class="discover-filter-button discover-filter-activation rbt-btn btn-white btn-md radius-round">
+                                            Filtrar <i class="feather-filter"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filtros Expansíveis -->
+                    <div class="default-exp-wrapper default-exp-expand">
+                        <form action="{% url 'buscar_cursos' %}" method="GET" id="filter-form">
+                            <input type="hidden" name="q" value="{{ termo_busca }}">
+                            <div class="filter-inner">
+                                <div class="filter-select-option">
+                                    <div class="filter-select rbt-modern-select">
+                                        <span class="select-label d-block">Categoria</span>
+                                        <select name="categoria">
+                                            <option value="">Todas</option>
+                                            {% for cat in categorias %}
+                                            <option value="{{ cat.id }}" {% if filtros.categoria == cat.id|stringformat:"i" %}selected{% endif %}>{{ cat.nome }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="filter-select-option">
+                                    <div class="filter-select rbt-modern-select">
+                                        <span class="select-label d-block">Nível</span>
+                                        <select name="nivel">
+                                            <option value="">Todos</option>
+                                            <option value="B" {% if filtros.nivel == 'B' %}selected{% endif %}>Básico</option>
+                                            <option value="I" {% if filtros.nivel == 'I' %}selected{% endif %}>Intermédio</option>
+                                            <option value="A" {% if filtros.nivel == 'A' %}selected{% endif %}>Avançado</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="filter-select-option">
+                                    <div class="filter-select">
+                                        <span class="select-label d-block">Preço Máximo (Kz)</span>
+                                        <input type="number" name="preco_max" value="{{ filtros.preco_max }}" placeholder="Ex: 5000" class="form-control rounded-pill">
+                                    </div>
+                                </div>
+                                <div class="filter-select-option">
+                                    <div class="filter-select d-flex gap-2 align-items-end h-100">
+                                        <button type="submit" class="rbt-btn btn-gradient btn-sm w-100">Aplicar</button>
+                                        <a href="{% url 'buscar_cursos' %}?q={{ termo_busca }}" class="rbt-btn btn-border btn-sm w-100 text-center">Limpar</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-        {% endif %}
     </div>
-</div>
 
-{% include 'include/footer.html' %}
-{% include 'include/java.html' %}
+    <div class="rbt-course-area rbt-section-gap">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="rbt-tab-menu">
+                        <ul class="nav nav-tabs justify-content-center rbt-course-filter-active" id="searchTabs" role="tablist">
+                            <li class="nav-item">
+                                <button class="nav-link active" id="centros-tab" data-bs-toggle="tab" data-bs-target="#centros" role="tab">
+                                    Centros de Formação ({{ cursos|length }})
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link" id="video-tab" data-bs-toggle="tab" data-bs-target="#video" role="tab">
+                                    EdukAngola Play ({{ cursos_video|length }})
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-content mt--60" id="searchTabsContent">
+                        <!-- Aba de Cursos Presenciais -->
+                        <div class="tab-pane fade show active" id="centros" role="tabpanel">
+                            <div class="row g-5">
+                                {% for curso in cursos %}
+                                    {% include 'curso_card.html' with curso=curso %}
+                                {% empty %}
+                                <div class="col-12 text-center py-5">
+                                    <i class="feather-info font-3x opacity-3 mb-3 d-block"></i>
+                                    <h5>Nenhum curso presencial encontrado</h5>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Aba de Cursos em Vídeo -->
+                        <div class="tab-pane fade" id="video" role="tabpanel">
+                            <div class="row g-5">
+                                {% for curso in cursos_video %}
+                                <div class="col-lg-4 col-md-6 col-12">
+                                    {% include 'curso_video_card.html' with curso=curso %}
+                                </div>
+                                {% empty %}
+                                <div class="col-12 text-center py-5">
+                                    <i class="feather-video font-3x opacity-3 mb-3 d-block"></i>
+                                    <h5>Nenhum título no EdukAngola Play encontrado</h5>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'include/footer.html' %}
+    {% include 'include/java.html' %}
 </body>
 </html>

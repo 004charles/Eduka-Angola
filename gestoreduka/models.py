@@ -532,6 +532,7 @@ class Filial(models.Model):
         related_name='filiais',
         verbose_name=_('Centro Principal')
     )
+    usuario = models.OneToOneField('usuarios.Usuario', on_delete=models.CASCADE, related_name='filial_profile', null=True, blank=True)
     nome = models.CharField(_('Nome da Filial'), max_length=100)
     endereco = models.CharField(_('Endereço'), max_length=255)
     telefone = models.CharField(_('Telefone'), max_length=20)
@@ -540,8 +541,13 @@ class Filial(models.Model):
     ativo = models.BooleanField(_('Ativa'), default=True)
     data_criacao = models.DateTimeField(_('Data de Criação'), auto_now_add=True)
 
+    class Meta:
+        verbose_name = _('Filial')
+        verbose_name_plural = _('Filiais')
+
     def __str__(self):
         return f"{self.nome} - Filial de {self.centro_principal.nome}"
+
 
 
 class Conversa(models.Model):

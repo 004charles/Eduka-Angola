@@ -87,74 +87,99 @@ def buscar_centros(request):
     })
 
 
+def get_gestor_context(user):
+    """
+    Helper function to get the centro and filial based on the user's role.
+    Returns (centro, filial) or (None, None) if not found.
+    """
+    try:
+        if user.tipo_usuario == 'GESTOR_FILIAL':
+            filial = user.filial_profile
+            centro = filial.centro_principal
+            return centro, filial
+        elif user.tipo_usuario in ['GESTOR', 'ADMIN'] or user.is_superuser:
+            centro = user.centro_profile
+            return centro, None
+    except Exception:
+        pass
+    return None, None
+
 def centro_dashboard(request):
     """
     Dashboard principal do Gestor exibindo métricas de desempenho do centro e atividades recentes.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
         messages.error(request, "Faça login para acessar o dashboard.")
         return redirect('login_gestor')
     
-    try:
-        centro = request.user.centro_profile
-        
-        # Estatísticas Gerais
-        total_cursos = centro.cursos.count()
-        total_inscricoes = Inscricao.objects.filter(curso__centro=centro).count()
-        inscricoes_pendentes = Inscricao.objects.filter(curso__centro=centro, status='P').count()
-        
-        # Receita Real (baseada em pagamentos confirmados)
-        receita_total = Inscricao.objects.filter(
-            curso__centro=centro, 
-            status='A'
-        ).aggregate(total=Sum('valor_pago'))['total'] or 0
-        
-        # Meta de cursos (exemplo baseado no plano)
-        assinatura = getattr(centro, 'assinatura', None)
-        limite_cursos = assinatura.plano.limite_cursos if assinatura and assinatura.plano else 5
-        
-        # Cursos Populares
-        cursos_populares = centro.cursos.annotate(
-            num_alunos=Count('inscricoes', filter=Q(inscricoes__status='A'))
-        ).order_by('-num_alunos')[:4]
-        
-        # Inscrições Recentes
-        recent_enrollments = Inscricao.objects.filter(
-            curso__centro=centro
-        ).select_related('aluno', 'curso').order_by('-data_inscricao')[:6]
-        
-        context = {
-            'centro': centro,
-            'stats': {
-                'total_cursos': total_cursos,
-                'total_inscricoes': total_inscricoes,
-                'inscricoes_pendentes': inscricoes_pendentes,
-                'receita_total': receita_total,
-                'limite_cursos': limite_cursos,
-                'percentual_cursos': (total_cursos / limite_cursos * 100) if limite_cursos > 0 else 0
-            },
-            'cursos_populares': cursos_populares,
-            'recent_enrollments': recent_enrollments,
-            'assinatura': assinatura
-        }
-        
-        return render(request, 'centro_dashboard.html', context)
-    except CentroDeFormacao.DoesNotExist:
-        messages.error(request, "Centro não encontrado.")
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        messages.error(request, "Perfil de centro ou filial não encontrado.")
         return redirect('login_gestor')
+        
+    # Estatísticas Gerais (Filtrar por filial se aplicável)
+    cursos_qs = filial.cursos.all() if filial else centro.cursos.all()
+    total_cursos = cursos_qs.count()
+    
+    inscricoes_qs = Inscricao.objects.filter(curso__centro=centro)
+    if filial:
+        inscricoes_qs = inscricoes_qs.filter(curso__filial=filial)
+        
+    total_inscricoes = inscricoes_qs.count()
+    inscricoes_pendentes = inscricoes_qs.filter(status='P').count()
+    
+    # Receita Real (baseada em pagamentos confirmados)
+    receita_total = inscricoes_qs.filter(
+        status='A'
+    ).aggregate(total=Sum('valor_pago'))['total'] or 0
+    
+    # Meta de cursos (exemplo baseado no plano)
+    assinatura = getattr(centro, 'assinatura', None)
+    limite_cursos = assinatura.plano.limite_cursos if assinatura and assinatura.plano else 5
+    
+    # Cursos Populares
+    cursos_populares = cursos_qs.annotate(
+        num_alunos=Count('inscricoes', filter=Q(inscricoes__status='A'))
+    ).order_by('-num_alunos')[:4]
+    
+    # Inscrições Recentes
+    recent_enrollments = inscricoes_qs.select_related('aluno', 'curso').order_by('-data_inscricao')[:6]
+    
+    context = {
+        'centro': centro,
+        'filial': filial,
+        'is_filial': filial is not None,
+        'stats': {
+            'total_cursos': total_cursos,
+            'total_inscricoes': total_inscricoes,
+            'inscricoes_pendentes': inscricoes_pendentes,
+            'receita_total': receita_total,
+            'limite_cursos': limite_cursos,
+            'percentual_cursos': (total_cursos / limite_cursos * 100) if limite_cursos > 0 else 0
+        },
+        'cursos_populares': cursos_populares,
+        'recent_enrollments': recent_enrollments,
+        'assinatura': assinatura
+    }
+    
+    return render(request, 'centro_dashboard.html', context)
 
 def gerenciar_inscricoes(request):
     """
-    View para o gestor gerenciar todas as inscrições do centro.
+    View para o gestor gerenciar todas as inscrições do centro ou filial.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
         return redirect('login_gestor')
     
-    try:
-        centro = request.user.centro_profile
-    except AttributeError:
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
         return redirect('login_gestor')
-    inscricoes_list = Inscricao.objects.filter(curso__centro=centro).select_related('aluno', 'curso', 'turma_escolhida').order_by('-data_inscricao')
+        
+    inscricoes_qs = Inscricao.objects.filter(curso__centro=centro)
+    if filial:
+        inscricoes_qs = inscricoes_qs.filter(curso__filial=filial)
+        
+    inscricoes_list = inscricoes_qs.select_related('aluno', 'curso', 'turma_escolhida').order_by('-data_inscricao')
     
     # Filtros
     status = request.GET.get('status')
@@ -167,6 +192,7 @@ def gerenciar_inscricoes(request):
     
     return render(request, 'gestor/inscricoes.html', {
         'centro': centro,
+        'filial': filial,
         'inscricoes': inscricoes,
         'selected_status': status
     })
@@ -174,63 +200,67 @@ def gerenciar_inscricoes(request):
 def gerenciar_assinatura(request):
     """
     View de monetização: Gestor vê seu plano e pode assinar ou mudar.
+    Para filiais, isso geralmente não se aplica, mas será mantido para visualização.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
         return redirect('login_gestor')
     
-    try:
-        centro = request.user.centro_profile
-    except AttributeError:
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
         return redirect('login_gestor')
+        
     assinatura = getattr(centro, 'assinatura', None)
     planos_disponiveis = Plano.objects.filter(ativo=True).exclude(id=assinatura.plano.id if assinatura and assinatura.plano else None)
     
     return render(request, 'gestor/assinatura.html', {
         'centro': centro,
+        'filial': filial,
         'assinatura': assinatura,
         'planos_disponiveis': planos_disponiveis
     })
 
 def analytics_centro(request):
     """
-    Dashboard de análises e métricas detalhadas do centro.
+    Dashboard de análises e métricas detalhadas do centro ou filial.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
         return redirect('login_gestor')
     
-    try:
-        centro = request.user.centro_profile
-    except AttributeError:
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
         return redirect('login_gestor')
     
-    # Métricas gerais
     from datetime import timedelta
     hoje = timezone.now()
     mes_passado = hoje - timedelta(days=30)
     
+    inscricoes_qs = Inscricao.objects.filter(curso__centro=centro)
+    cursos_qs = centro.cursos.all()
+    if filial:
+        inscricoes_qs = inscricoes_qs.filter(curso__filial=filial)
+        cursos_qs = filial.cursos.all()
+    
     # Receita mensal
-    receita_mes = Inscricao.objects.filter(
-        curso__centro=centro,
+    receita_mes = inscricoes_qs.filter(
         status='A',
         data_confirmacao__gte=mes_passado
     ).aggregate(total=Sum('valor_pago'))['total'] or 0
     
     # Crescimento de inscrições
-    inscricoes_mes = Inscricao.objects.filter(
-        curso__centro=centro,
+    inscricoes_mes = inscricoes_qs.filter(
         data_inscricao__gte=mes_passado
     ).count()
     
     # Top cursos
-    top_cursos = centro.cursos.annotate(
+    top_cursos = cursos_qs.annotate(
         num_alunos=Count('inscricoes', filter=Q(inscricoes__status='A'))
     ).order_by('-num_alunos')[:5]
     
-    # Taxa de conclusão (exemplo simplificado)
-    total_inscricoes = Inscricao.objects.filter(curso__centro=centro, status='A').count()
+    total_inscricoes = inscricoes_qs.filter(status='A').count()
     
     context = {
         'centro': centro,
+        'filial': filial,
         'receita_mes': receita_mes,
         'inscricoes_mes': inscricoes_mes,
         'top_cursos': top_cursos,
@@ -241,16 +271,20 @@ def analytics_centro(request):
 
 def gerenciar_turmas(request):
     """
-    Listagem e gerenciamento de todas as turmas do centro.
+    Listagem e gerenciamento de todas as turmas do centro ou filial.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
         return redirect('login_gestor')
     
-    try:
-        centro = request.user.centro_profile
-    except AttributeError:
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
         return redirect('login_gestor')
-    turmas = Turma.objects.filter(curso__centro=centro).select_related('curso', 'instrutor_principal').order_by('-data_inicio')
+        
+    turmas_qs = Turma.objects.filter(curso__centro=centro)
+    if filial:
+        turmas_qs = turmas_qs.filter(curso__filial=filial)
+        
+    turmas = turmas_qs.select_related('curso', 'instrutor_principal').order_by('-data_inicio')
     
     paginator = Paginator(turmas, 15)
     page_number = request.GET.get('page')
@@ -258,22 +292,23 @@ def gerenciar_turmas(request):
     
     return render(request, 'gestor/turmas/listar.html', {
         'centro': centro,
+        'filial': filial,
         'turmas': turmas_page
     })
 
 def criar_turma(request):
     """
-    Criação de uma nova turma para um curso do centro.
+    Criação de uma nova turma para um curso do centro ou filial.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
         return redirect('login_gestor')
     
-    try:
-        centro = request.user.centro_profile
-    except AttributeError:
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
         return redirect('login_gestor')
-    cursos = centro.cursos.filter(ativo=True)
-    instrutores = centro.instrutores.filter(ativo=True)
+        
+    cursos_context = filial.cursos.filter(ativo=True) if filial else centro.cursos.filter(ativo=True)
+    instrutores_context = filial.instrutores.filter(ativo=True) if filial else centro.instrutores.filter(ativo=True)
     
     if request.method == 'POST':
         curso_id = request.POST.get('curso')
@@ -290,6 +325,9 @@ def criar_turma(request):
         
         try:
             curso = get_object_or_404(Curso, id=curso_id, centro=centro)
+            if filial and curso.filial != filial:
+                raise Exception("Curso não pertence à sua filial.")
+                
             instrutor = Instrutor.objects.get(id=instrutor_id) if instrutor_id else None
             
             turma = Turma.objects.create(
@@ -313,25 +351,30 @@ def criar_turma(request):
     
     return render(request, 'gestor/turmas/form.html', {
         'centro': centro,
-        'cursos': cursos,
-        'instrutores': instrutores,
+        'filial': filial,
+        'cursos': cursos_context,
+        'instrutores': instrutores_context,
         'action': 'Criar'
     })
 
 def editar_turma(request, turma_id):
     """
-    Edição de uma turma existente.
+    Edição de uma turma existente no centro ou filial.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
         return redirect('login_gestor')
     
-    try:
-        centro = request.user.centro_profile
-    except AttributeError:
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
         return redirect('login_gestor')
+        
     turma = get_object_or_404(Turma, id=turma_id, curso__centro=centro)
-    cursos = centro.cursos.filter(ativo=True)
-    instrutores = centro.instrutores.filter(ativo=True)
+    if filial and turma.curso.filial != filial:
+        messages.error(request, "Permissão negada.")
+        return redirect('gerenciar_turmas')
+        
+    cursos_context = filial.cursos.filter(ativo=True) if filial else centro.cursos.filter(ativo=True)
+    instrutores_context = filial.instrutores.filter(ativo=True) if filial else centro.instrutores.filter(ativo=True)
     
     if request.method == 'POST':
         turma.nome = request.POST.get('nome')
@@ -353,40 +396,41 @@ def editar_turma(request, turma_id):
     
     return render(request, 'gestor/turmas/form.html', {
         'centro': centro,
+        'filial': filial,
         'turma': turma,
-        'cursos': cursos,
-        'instrutores': instrutores,
+        'cursos': cursos_context,
+        'instrutores': instrutores_context,
         'action': 'Editar'
     })
 
 def gerenciar_instrutores(request):
     """
-    Listagem e gestão de instrutores associados ao centro.
+    Listagem e gestão de instrutores associados ao centro ou filial.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
         return redirect('login_gestor')
     
-    try:
-        centro = request.user.centro_profile
-    except AttributeError:
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
         return redirect('login_gestor')
-    instrutores = centro.instrutores.all().order_by('nome')
+        
+    instrutores = filial.instrutores.all().order_by('nome') if filial else centro.instrutores.all().order_by('nome')
     
     return render(request, 'gestor/instrutores/listar.html', {
         'centro': centro,
+        'filial': filial,
         'instrutores': instrutores
     })
 
 def criar_instrutor(request):
     """
-    Cadastro de um novo instrutor para o centro.
+    Cadastro de um novo instrutor para o centro ou filial.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
         return redirect('login_gestor')
     
-    try:
-        centro = request.user.centro_profile
-    except AttributeError:
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
         return redirect('login_gestor')
     
     if request.method == 'POST':
@@ -398,6 +442,7 @@ def criar_instrutor(request):
         try:
             instrutor = Instrutor.objects.create(
                 centro_de_formacao=centro,
+                filial=filial,
                 nome=nome,
                 email=email,
                 biografia=biografia,
@@ -410,22 +455,27 @@ def criar_instrutor(request):
     
     return render(request, 'gestor/instrutores/form.html', {
         'centro': centro,
+        'filial': filial,
         'action': 'Criar',
         'areas': Instrutor.TIPO_CHOICES_ESPECIALIZACAO
     })
 
 def editar_instrutor(request, instrutor_id):
     """
-    Edição de dados de um instrutor existente.
+    Edição de dados de um instrutor existente no centro ou filial.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
         return redirect('login_gestor')
     
-    try:
-        centro = request.user.centro_profile
-    except AttributeError:
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
         return redirect('login_gestor')
+        
     instrutor = get_object_or_404(Instrutor, id=instrutor_id, centro_de_formacao=centro)
+    
+    if filial and instrutor.filial != filial:
+        messages.error(request, "Permissão negada.")
+        return redirect('gerenciar_instrutores')
     
     if request.method == 'POST':
         instrutor.nome = request.POST.get('nome')
@@ -440,6 +490,7 @@ def editar_instrutor(request, instrutor_id):
     
     return render(request, 'gestor/instrutores/form.html', {
         'centro': centro,
+        'filial': filial,
         'instrutor': instrutor,
         'action': 'Editar',
         'areas': Instrutor.TIPO_CHOICES_ESPECIALIZACAO
@@ -447,32 +498,35 @@ def editar_instrutor(request, instrutor_id):
 
 def gerenciar_eventos(request):
     """
-    Listagem e gerenciamento de eventos organizados pelo centro.
+    Listagem e gerenciamento de eventos organizados pelo centro ou filial.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
         return redirect('login_gestor')
     
-    try:
-        centro = request.user.centro_profile
-    except AttributeError:
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
         return redirect('login_gestor')
-    eventos = centro.eventos.all().order_by('-data_inicio')
+        
+    eventos_qs = centro.eventos.all()
+    # Atualmente o modelo de Evento não possui ForeignKey de Filial associada no modelo.
+    # Será carregado tudo do centro principal por simplicidade momentânea até adicionar Filial no Evento caso desejado.
+    eventos = eventos_qs.order_by('-data_inicio')
     
     return render(request, 'gestor/eventos.html', {
         'centro': centro,
+        'filial': filial,
         'eventos': eventos
     })
 
 def criar_evento(request):
     """
-    Criação de um novo evento relacionado ao centro.
+    Criação de um novo evento relacionado ao centro (e filial caso modelado).
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
         return redirect('login_gestor')
     
-    try:
-        centro = request.user.centro_profile
-    except AttributeError:
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
         return redirect('login_gestor')
     
     if request.method == 'POST':
@@ -503,6 +557,7 @@ def criar_evento(request):
     from .models import Evento
     return render(request, 'gestor/evento_form.html', {
         'centro': centro,
+        'filial': filial,
         'action': 'Criar',
         'tipos': Evento._meta.get_field('tipo').choices
     })
@@ -646,52 +701,41 @@ def seguir_centro(request, centro_id):
 
 def login_gestor(request):
     """
-    Autentica gestores de centros usando o sistema centralizado.
+    Autentica gestores de centros ou de filiais usando o sistema centralizado.
     """
+    if request.user.is_authenticated and request.user.tipo_usuario in ['GESTOR', 'GESTOR_FILIAL']:
+        return redirect("centro_dashboard")
+
     if request.method == "POST":
         email = request.POST.get("email", "").strip()
         senha = request.POST.get("senha", "").strip()
 
-        # Validações fortes
-        if not email or email.isspace():
-            messages.error(request, "O email não pode estar em branco.")
-            return render(request, "login_gestor.html")
-
-        if not senha or senha.isspace():
-            messages.error(request, "A senha não pode estar em branco.")
-            return render(request, "login_gestor.html")
-
-        # Validar formato do email
-        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        if not re.match(email_pattern, email):
-            messages.error(request, "Formato de email inválido.")
+        if not email or not senha:
+            messages.error(request, "Por favor, preencha todos os campos.")
             return render(request, "login_gestor.html")
 
         try:
-            # Autenticar usando o modelo Usuario
             from django.contrib.auth import authenticate, login
             user = authenticate(request, email=email, password=senha)
             
             if user is not None:
-                # Check if user is staff/superuser (should use Django admin instead)
-                if user.is_staff or user.is_superuser:
-                    messages.error(request, "Usuários administradores devem usar o painel admin do Django em /admin/")
-                    return render(request, "login_gestor.html")
-                
-                # Check if user is a GESTOR
-                if user.tipo_usuario == 'GESTOR':
-                    login(request, user)
-                    messages.success(request, f"Bem-vindo, {user.nome}!")
-                    return redirect("centro_dashboard")
+                if user.tipo_usuario in ['GESTOR', 'GESTOR_FILIAL'] or user.is_superuser:
+                    if hasattr(user, 'centro_profile') or hasattr(user, 'filial_profile'):
+                        login(request, user)
+                        messages.success(request, f"Olá, {user.nome}! Bem-vindo ao seu painel.")
+                        return redirect("centro_dashboard")
+                    else:
+                        messages.error(request, "Este utilizador não possui um Centro ou Filial vinculado.")
                 else:
-                    messages.error(request, "Este usuário não é um gestor de centro.")
+                    messages.error(request, "Esta conta não tem permissões de Gestor.")
             else:
-                messages.error(request, "E-mail ou senha inválidos.")
+                messages.error(request, "E-mail ou senha incorretos. Verifique os dados e tente novamente.")
                 
         except Exception as e:
-            messages.error(request, f"Erro ao realizar login: {str(e)}")
+            messages.error(request, f"Ocorreu um problema técnico: {str(e)}")
 
     return render(request, "login_gestor.html")
+
 
 def logout_gestor(request):
     from django.contrib.auth import logout
@@ -2038,15 +2082,15 @@ def excluir_area_formacao(request, area_id):
 
 def criar_curso(request):
     """
-    Cria um novo curso, permitindo salvar como rascunho ou iniciar processo de publicação.
+    Cria um novo curso de um centro ou filial, permitindo salvar como rascunho ou iniciar processo de publicação.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
         messages.error(request, "Faça login para criar cursos.")
         return redirect('login_gestor')
     
-    centro_id = request.user.centro_profile.id
-    
-    centro = get_object_or_404(CentroDeFormacao, id=centro_id, ativo=True)
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
     
     if request.method == 'POST':
         form = CursoForm(request.POST, request.FILES, centro=centro)
@@ -2054,6 +2098,7 @@ def criar_curso(request):
             try:
                 curso = form.save(commit=False)
                 curso.centro = centro
+                curso.filial = filial  # Associa à filial se existir
                 
                 # Se for salvar como rascunho
                 if request.POST.get('rascunho'):
@@ -2080,43 +2125,55 @@ def criar_curso(request):
     else:
         form = CursoForm(centro=centro)
     
+    instrutores = filial.instrutores.filter(ativo=True) if filial else centro.instrutores.filter(ativo=True)
+    
     context = {
         'form': form,
         'centro': centro,
+        'filial': filial,
         'categorias': Categoria.objects.all(),
-        'instrutores': Instrutor.objects.filter(centro_de_formacao=centro, ativo=True)
+        'instrutores': instrutores
     }
     return render(request, 'criar_curso.html', context)
 
 def curso_overview(request, curso_id):
     """Página de revisão do curso antes da publicação"""
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
         messages.error(request, "Faça login para ver o curso.")
         return redirect('login_gestor')
     
-    centro_id = request.user.centro_profile.id
-    
-    centro = get_object_or_404(CentroDeFormacao, id=centro_id, ativo=True)
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
+        
     curso = get_object_or_404(Curso, id=curso_id, centro=centro)
+    if filial and curso.filial != filial:
+        messages.error(request, "Permissão negada.")
+        return redirect('listar_cursos')
     
     context = {
         'curso': curso,
-        'centro': centro
+        'centro': centro,
+        'filial': filial
     }
     return render(request, 'curso_overview.html', context)
 
 def publicar_curso_final(request, curso_id):
     """Publicação final do curso após revisão"""
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
         messages.error(request, "Sessão expirada.")
         return redirect('login_gestor')
     
-    centro_id = request.user.centro_profile.id
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
     
     try:
-        centro = CentroDeFormacao.objects.get(id=centro_id, ativo=True)
         curso = Curso.objects.get(id=curso_id, centro=centro)
-        
+        if filial and curso.filial != filial:
+            messages.error(request, "Permissão negada.")
+            return redirect('listar_cursos')
+            
         # Validações finais antes de publicar
         if not curso.titulo:
             messages.error(request, "O curso precisa ter um título.")
@@ -2148,18 +2205,18 @@ def publicar_curso_final(request, curso_id):
 
 def listar_cursos(request):
     """
-    Lista todos os cursos do centro, organizados por status (publicados, rascunhos, destaques).
+    Lista todos os cursos do centro ou filial, organizados por status (publicados, rascunhos, destaques).
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
         messages.error(request, "Faça login para ver seus cursos.")
         return redirect('login_gestor')
     
-    centro_id = request.user.centro_profile.id
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
     
-    centro = get_object_or_404(CentroDeFormacao, id=centro_id, ativo=True)
-    
-    # CORREÇÃO: Use data_criacao ou data_inicio_inscricoes
-    cursos = Curso.objects.filter(centro=centro).order_by('-data_criacao')  # ← CORRIGIDO
+    cursos_qs = filial.cursos.all() if filial else centro.cursos.all()
+    cursos = cursos_qs.order_by('-data_criacao')
     
     # Filtros para as abas
     cursos_publicados = cursos.filter(publicado=True)
@@ -2171,7 +2228,8 @@ def listar_cursos(request):
         'cursos_publicados': cursos_publicados,
         'cursos_rascunhos': cursos_rascunhos,
         'cursos_destaque': cursos_destaque,
-        'centro': centro
+        'centro': centro,
+        'filial': filial
     }
     return render(request, 'listar_cursos.html', context)
     
@@ -2180,14 +2238,18 @@ def editar_curso(request, curso_id):
     """
     Permite editar os detalhes de um curso existente.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
         messages.error(request, "Faça login para editar cursos.")
         return redirect('login_gestor')
     
-    centro_id = request.user.centro_profile.id
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
     
-    centro = get_object_or_404(CentroDeFormacao, id=centro_id, ativo=True)
     curso = get_object_or_404(Curso, id=curso_id, centro=centro)
+    if filial and curso.filial != filial:
+        messages.error(request, "Permissão negada.")
+        return redirect('listar_cursos')
     
     if request.method == 'POST':
         form = CursoForm(request.POST, request.FILES, instance=curso, centro=centro)
@@ -2208,7 +2270,8 @@ def editar_curso(request, curso_id):
     context = {
         'form': form,
         'curso': curso,
-        'centro': centro
+        'centro': centro,
+        'filial': filial
     }
     return render(request, 'editar_curso.html', context)
 
@@ -2216,15 +2279,18 @@ def publicar_curso(request, curso_id):
     """
     Endpoint AJAX para publicar um curso, tornando-o visível no site.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
         return JsonResponse({'success': False, 'error': 'Sessão expirada'})
     
-    centro_id = request.user.centro_profile.id
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'success': False, 'error': 'Centro não encontrado'})
     
     try:
-        centro = CentroDeFormacao.objects.get(id=centro_id, ativo=True)
         curso = Curso.objects.get(id=curso_id, centro=centro)
-        
+        if filial and curso.filial != filial:
+            return JsonResponse({'success': False, 'error': 'Permissão negada'})
+            
         curso.publicado = True
         curso.save()
         
@@ -2240,15 +2306,18 @@ def despublicar_curso(request, curso_id):
     """
     Endpoint AJAX para despublicar um curso, removendo-o da visão pública.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
         return JsonResponse({'success': False, 'error': 'Sessão expirada'})
     
-    centro_id = request.user.centro_profile.id
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'success': False, 'error': 'Centro não encontrado'})
     
     try:
-        centro = CentroDeFormacao.objects.get(id=centro_id, ativo=True)
         curso = Curso.objects.get(id=curso_id, centro=centro)
-        
+        if filial and curso.filial != filial:
+            return JsonResponse({'success': False, 'error': 'Permissão negada'})
+            
         curso.publicado = False
         curso.save()
         
@@ -2264,15 +2333,20 @@ def excluir_curso(request, curso_id):
     """
     Exclui permanentemente um curso do banco de dados.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
         messages.error(request, "Sessão expirada.")
         return redirect('login_gestor')
     
-    centro_id = request.user.centro_profile.id
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
     
     try:
-        centro = CentroDeFormacao.objects.get(id=centro_id, ativo=True)
         curso = Curso.objects.get(id=curso_id, centro=centro)
+        if filial and curso.filial != filial:
+            messages.error(request, "Permissão negada.")
+            return redirect('listar_cursos')
+            
         curso.delete()
         
         messages.success(request, 'Curso excluído com sucesso!')
@@ -2732,3 +2806,244 @@ def api_load_more_centros(request):
         return JsonResponse({'centros': data, 'has_more': qs.count() > offset + limit})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+def gerenciar_filiais(request):
+    """
+    Listagem e gerenciamento de filiais pelo Centro Principal.
+    """
+    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        messages.error(request, "Acesso negado. Apenas o gestor principal pode gerir filiais.")
+        return redirect('login_gestor')
+        
+    centro = request.user.centro_profile
+    filiais = centro.filiais.select_related('usuario').all()
+    
+    return render(request, 'gestor/filiais/listar.html', {
+        'centro': centro,
+        'filiais': filiais
+    })
+
+from django.db import transaction
+
+def criar_filial(request):
+    """
+    Cadastro de uma nova filial pelo Centro Principal.
+    """
+    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        return redirect('login_gestor')
+        
+    centro = request.user.centro_profile
+    
+    if request.method == 'POST':
+        nome = request.POST.get('nome')
+        email = request.POST.get('email')
+        senha = request.POST.get('senha')
+        endereco = request.POST.get('endereco')
+        contato = request.POST.get('contato')
+        
+        try:
+            with transaction.atomic():
+                from usuarios.models import Usuario
+                # 1. Cria o utilizador da filial
+                if Usuario.objects.filter(email=email).exists():
+                    messages.error(request, 'Já existe um utilizador com este email.')
+                    return render(request, 'gestor/filiais/form.html', {'centro': centro, 'action': 'Criar'})
+                
+                usuario_filial = Usuario.objects.create(
+                    email=email,
+                    nome=nome,
+                    tipo_usuario='GESTOR_FILIAL'
+                )
+                usuario_filial.set_password(senha)
+                usuario_filial.save()
+                
+                # 2. Cria o perfil da filial
+                filial = Filial.objects.create(
+                    centro_principal=centro,
+                    usuario=usuario_filial,
+                    nome=nome,
+                    endereco=endereco,
+                    contato=contato
+                )
+                
+                messages.success(request, f'Filial "{filial.nome}" criada com sucesso!')
+                return redirect('gerenciar_filiais')
+        except Exception as e:
+            messages.error(request, f'Erro ao criar filial: {str(e)}')
+            
+    return render(request, 'gestor/filiais/form.html', {
+        'centro': centro,
+        'action': 'Criar'
+    })
+
+def editar_filial(request, filial_id):
+    """
+    Edição de uma filial existente pelo Centro Principal.
+    """
+    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        return redirect('login_gestor')
+        
+    centro = request.user.centro_profile
+    filial = get_object_or_404(Filial, id=filial_id, centro_principal=centro)
+    
+    if request.method == 'POST':
+        nome = request.POST.get('nome')
+        endereco = request.POST.get('endereco')
+        contato = request.POST.get('contato')
+        senha = request.POST.get('senha')
+        
+        try:
+            with transaction.atomic():
+                # Atualizar perfil filial
+                filial.nome = nome
+                filial.endereco = endereco
+                filial.contato = contato
+                filial.save()
+                
+                # Atualizar utilizador se nome mudou
+                if filial.usuario:
+                    usuario = filial.usuario
+                    usuario.nome = nome
+                    if senha:  # Mudar senha se fornecida
+                        usuario.set_password(senha)
+                    usuario.save()
+                    
+                messages.success(request, f'Filial "{filial.nome}" atualizada com sucesso!')
+                return redirect('gerenciar_filiais')
+        except Exception as e:
+            messages.error(request, f'Erro ao atualizar filial: {str(e)}')
+            
+    return render(request, 'gestor/filiais/form.html', {
+        'centro': centro,
+        'filial': filial,
+        'action': 'Editar'
+    })
+
+def gerenciar_alunos(request):
+    """
+    Motor de Busca e listagem de todos os alunos inscritos nos cursos do centro/filial.
+    """
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+        return redirect('login_gestor')
+        
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
+        
+    # Buscar IDs dos cursos pertencentes ao centro/filial
+    cursos_ids = filial.cursos.values_list('id', flat=True) if filial else centro.cursos.values_list('id', flat=True)
+    
+    # Encontrar todas as inscrições nesses cursos
+    from cursos_app.models import Inscricao
+    inscricoes = Inscricao.objects.filter(curso_id__in=cursos_ids)
+    alunos_ids = inscricoes.values_list('aluno_id', flat=True).distinct()
+    
+    from usuarios.models import Aluno
+    alunos = Aluno.objects.filter(id__in=alunos_ids).select_related('usuario', 'perfil')
+    
+    # Lógica de pesquisa
+    query = request.GET.get('q', '')
+    if query:
+        alunos = alunos.filter(
+            Q(nome__icontains=query) |
+            Q(usuario__email__icontains=query) |
+            Q(id__icontains=query)
+        )
+        
+    return render(request, 'gestor/alunos/listar.html', {
+        'centro': centro,
+        'filial': filial,
+        'alunos': alunos,
+        'query': query
+    })
+
+def dossie_aluno(request, aluno_id):
+    """
+    Visão detalhada (Dossiê) do histórico académico de um aluno no centro/filial atual.
+    """
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+        return redirect('login_gestor')
+        
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
+        
+    from usuarios.models import Aluno
+    aluno = get_object_or_404(Aluno, id=aluno_id)
+    
+    cursos_ids = filial.cursos.values_list('id', flat=True) if filial else centro.cursos.values_list('id', flat=True)
+    
+    from cursos_app.models import Inscricao
+    inscricoes = Inscricao.objects.filter(aluno=aluno, curso_id__in=cursos_ids).select_related('curso', 'turma_escolhida').order_by('-data_inscricao')
+    
+    if not inscricoes.exists():
+        messages.warning(request, "O aluno selecionado não possui histórico neste Centro/Filial.")
+        return redirect('gerenciar_alunos')
+        
+    return render(request, 'gestor/alunos/dossie.html', {
+        'centro': centro,
+        'filial': filial,
+        'aluno': aluno,
+        'inscricoes': inscricoes
+    })
+
+from django.db.models import Sum
+from django.utils import timezone
+
+def gerenciar_financeiro(request):
+    """
+    Gestão do fluxo de caixa (mensalidades, taxas de inscrição).
+    Gestor vê o global e quebra por filial. Filial vê apenas o seu.
+    """
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+        return redirect('login_gestor')
+        
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
+        
+    from cursos_app.models import Inscricao
+    
+    # Se GESTOR, pode ver todos os cursos do Centro (incluindo os das Filiais, que também pertecem ao Centro)
+    # Mas como o modelo Filial é novo, o Curso tem ForeignKey para Centro e Filial(null=True).
+    if request.user.tipo_usuario == 'GESTOR':
+        inscricoes_pagas = Inscricao.objects.filter(
+            curso__centro=centro,
+            valor_pago__gt=0
+        ).select_related('curso__filial', 'curso', 'aluno__usuario').order_by('-data_pagamento', '-data_inscricao')
+        
+        # Agregação global
+        total_receita = inscricoes_pagas.aggregate(Sum('valor_pago'))['valor_pago__sum'] or 0
+        
+        # Agregação por filial (null = Centro Mãe)
+        receita_centro_mae = inscricoes_pagas.filter(curso__filial__isnull=True).aggregate(Sum('valor_pago'))['valor_pago__sum'] or 0
+        
+        # Receitas das filiais
+        filiais_receita = []
+        for fil in centro.filiais.all():
+            receitas_f = inscricoes_pagas.filter(curso__filial=fil).aggregate(Sum('valor_pago'))['valor_pago__sum'] or 0
+            if receitas_f > 0:
+                filiais_receita.append({'nome': fil.nome, 'total': receitas_f})
+                
+    else:
+        # É GESTOR_FILIAL - só os cursos da filial
+        inscricoes_pagas = Inscricao.objects.filter(
+            curso__filial=filial,
+            valor_pago__gt=0
+        ).select_related('curso', 'aluno__usuario').order_by('-data_pagamento', '-data_inscricao')
+        
+        total_receita = inscricoes_pagas.aggregate(Sum('valor_pago'))['valor_pago__sum'] or 0
+        receita_centro_mae = 0
+        filiais_receita = []
+
+    # Pagamentos recentes
+    pagamentos_recentes = inscricoes_pagas[:50]
+    
+    return render(request, 'gestor/financeiro/dashboard.html', {
+        'centro': centro,
+        'filial': filial,
+        'total_receita': total_receita,
+        'receita_centro_mae': receita_centro_mae,
+        'filiais_receita': filiais_receita,
+        'pagamentos_recentes': pagamentos_recentes
+    })

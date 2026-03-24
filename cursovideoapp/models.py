@@ -1,5 +1,4 @@
-from django.db import models
-from django.utils.text import slugify
+import uuid
 from django.db import models
 from django.utils.text import slugify
 from django.core.validators import FileExtensionValidator
@@ -29,8 +28,11 @@ class Curso_video(models.Model):
     def total_inscritos(self):
         return self.inscritos.count()
     
+    def duracao_total_segundos(self):
+        return sum(aula.duracao_segundos for aula in self.aulas.all() if aula.duracao_segundos)
+
     def duracao_total(self):
-        total_segundos = sum(aula.duracao_segundos for aula in self.aulas.all() if aula.duracao_segundos)
+        total_segundos = self.duracao_total_segundos()
         horas, remainder = divmod(total_segundos, 3600)
         minutos, segundos = divmod(remainder, 60)
         
@@ -41,6 +43,22 @@ class Curso_video(models.Model):
     def total_visualizacoes(self):
         return sum(aula.visualizacoes for aula in self.aulas.all())
     
+    def verificar_conclusao(self, aluno):
+        """
+        Verifica se o aluno concluiu todas as aulas do curso.
+        """
+        total_aulas = self.aulas.count()
+        if total_aulas == 0:
+            return False
+            
+        aulas_concluidas = ProgressoAula.objects.filter(
+            aluno=aluno, 
+            aula__curso=self, 
+            concluida=True
+        ).count()
+        
+        return aulas_concluidas == total_aulas
+
     def __str__(self):
         return self.titulo
 
@@ -87,7 +105,25 @@ class ProgressoAula(models.Model):
             return min(100, int((self.tempo_assistido / self.aula.duracao_segundos) * 100))
         return 0
 
+class Certificado(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    aluno = models.ForeignKey('usuarios.Aluno', on_delete=models.CASCADE, related_name='certificados')
+    curso = models.ForeignKey(Curso_video, on_delete=models.CASCADE, related_name='certificados_emitidos')
+    data_emissao = models.DateTimeField(auto_now_add=True)
+    codigo_verificacao = models.CharField(max_length=20, unique=True, blank=True)
+    
+    class Meta:
+        unique_together = ('aluno', 'curso')
+        verbose_name = 'Certificado'
+        verbose_name_plural = 'Certificados'
 
+    def save(self, *args, **kwargs):
+        if not self.codigo_verificacao:
+            self.codigo_verificacao = str(uuid.uuid4()).split('-')[0].upper()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Certificado - {self.aluno.nome} - {self.curso.titulo}"
 
 class FavoritoCursoVideo(models.Model):
     aluno = models.ForeignKey('usuarios.Aluno', on_delete=models.CASCADE, related_name='favoritos_video')
@@ -102,3 +138,4 @@ class FavoritoCursoVideo(models.Model):
 
     def __str__(self):
         return f"{self.aluno.nome} - {self.curso.titulo}"
+

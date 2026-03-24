@@ -12,112 +12,84 @@
 
     {% include 'include/css.html' %}
     <style>
-        /* Estilo para indicar que o comentário será postado como aluno logado */
-        .aluno-logado-nota {
-            font-size: 0.8rem;
-            color: #6c757d;
-            margin-bottom: 10px;
+        /* Modern Comment Styles */
+        .rbt-comment-section {
+            background: var(--color-white);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-top: 50px;
         }
 
-
-        .errorlist {
-            color: #dc3545;
-            font-size: 0.875em;
-            margin-top: 5px;
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .form-control.is-invalid {
-            border-color: #dc3545;
-        }
-
-        .form-control.is-invalid:focus {
-            border-color: #dc3545;
-            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-        }
-
-        .post-thumbnail img {
-            width: 100%;
-            height: auto;
-            max-height: 400px;
-            /* opcional para limitar a altura */
-            object-fit: cover;
-            /* mantém a proporção cortando o excesso */
-        }
-
-        .comment-reactions {
-            margin-top: 10px;
-        }
-
-        .reaction-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 15px;
-            margin-right: 8px;
-            display: inline-flex;
+        .comment-avatar-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
             align-items: center;
-            gap: 4px;
-            color: #555;
-            transition: all 0.2s ease-in-out;
+            justify-content: center;
+            font-weight: 700;
+            color: #fff;
+            text-transform: uppercase;
+            font-size: 18px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        .reaction-btn:hover {
-            transform: scale(1.1);
+        .single-comment {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
         }
 
-        .reaction-count {
-            font-weight: bold;
-            color: #333;
+        .single-comment:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
         }
 
-        /* Adicione ao seu arquivo CSS */
-        .reaction-container {
-            position: relative;
-            display: inline-block;
+        .author-badge {
+            background: var(--color-primary);
+            color: white;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-left: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+        }
+
+        .comment-meta-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .replies-container {
+            border-left: 2px solid var(--color-primary-opacity);
+            margin-left: 25px;
+            padding-left: 25px;
+        }
+
+        .comment-respond {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 40px;
         }
 
         .reaction-main-btn {
-            background: #f5f5f5;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            border: 1px solid #eee;
+            background: #fff;
+            transition: all 0.2s;
         }
 
-        .reaction-dropdown {
-            display: none;
-            position: absolute;
-            bottom: 100%;
-            left: 0;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 5px;
-            z-index: 100;
-        }
-
-        .reaction-container:hover .reaction-dropdown {
-            display: flex;
-            gap: 5px;
-        }
-
-        .reaction-option {
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 50%;
-        }
-
-        .reaction-option:hover {
-            transform: scale(1.2);
-            transition: transform 0.2s;
+        .reaction-main-btn:hover {
+            background: var(--color-primary-opacity);
+            border-color: var(--color-primary);
         }
     </style>
 </head>
@@ -290,194 +262,139 @@
                     {% endif %}
 
                     <!-- Comentários -->
-                    <div class="rbt-comment-area">
-                        <div class="rbt-total-comment-post">
-                            <div class="title">
-                                <h4 class="mb--0">{{ comentarios.count }} Comentário{{ comentarios.count|pluralize }}
-                                </h4>
-                            </div>
-                            <div class="add-comment-button">
-                                <a class="rbt-btn btn-gradient icon-hover radius-round btn-md" href="#comentar">
-                                    <span class="btn-text">Adicionar Comentário</span>
-                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                </a>
-                            </div>
-                        </div>
-
-                        <!-- ================================
-    LISTA DE COMENTÁRIOS
-================================ -->
-{% if comentarios %}
-<ul class="comment-list">
-    {% for comentario in comentarios %}
-    {% if not comentario.parent %}
-    <li class="comment">
-        <div class="comment-body">
-            <div class="single-comment">
-                <!-- Avatar -->
-                <div class="comment-img">
-                    <img src="{% static 'assets/images/testimonial/testimonial-1.jpg' %}" alt="Author Image">
-                </div>
-
-                <div class="comment-inner">
-                    <!-- Nome -->
-                    <h6 class="commenter">
-                        <a href="#">{{ comentario.nome }}</a>
-                    </h6>
-
-                    <!-- Data -->
-                    <div class="comment-meta">
-                        <div class="time-spent">
-                            {{ comentario.criado_em|date:"d M Y H:i" }}
-                        </div>
-                    </div>
-
-                    <!-- Texto -->
-                    <div class="comment-text">
-                        <p class="b2">{{ comentario.mensagem }}</p>
-                    </div>
-
-                    <!-- Reações -->
-                    <div class="comment-reactions">
-                        <div class="reaction-container">
-                            <!-- Botão principal (like default) -->
-                            <button type="button" class="reaction-main-btn">
-                                <span class="reaction-icon">👍</span>
-                                <span class="reaction-count">{{ comentario.reacoes_dict.like|default:0 }}</span>
-                            </button>
-
-                            <!-- Dropdown de reações -->
-                            <div class="reaction-dropdown">
-                                {% for value, label in reacoes_choices %}
-                                <form method="post" action="{% url 'blog:reagir_comentario' comentario.id value %}" class="reaction-form">
-                                    {% csrf_token %}
-                                    <button type="submit" class="reaction-option" title="{{ label }}">
-                                        {% if value == 'like' %} 👍
-                                        {% elif value == 'love' %} ❤️
-                                        {% elif value == 'haha' %} 😂
-                                        {% elif value == 'wow' %} 😲
-                                        {% elif value == 'sad' %} 😢
-                                        {% elif value == 'angry' %} 😠
-                                        {% endif %}
-                                    </button>
-                                </form>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Botão responder -->
-                    <div class="comment-reply">
-                        <a href="#responder-{{ comentario.id }}" class="reply-btn">Responder</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Respostas -->
-        {% if comentario.respostas.all %}
-        <ul class="children">
-            {% for resposta in comentario.respostas.all %}
-            <li class="comment">
-                <div class="comment-body">
-                    <div class="single-comment">
-                        <!-- Avatar -->
-                        <div class="comment-img">
-                            <img src="{% static 'assets/images/testimonial/testimonial-1.jpg' %}" alt="Author Image">
-                        </div>
-
-                        <div class="comment-inner">
-                            <!-- Nome -->
-                            <h6 class="commenter">
-                                <a href="#">{{ resposta.nome }}</a>
-                            </h6>
-
-                            <!-- Data -->
-                            <div class="comment-meta">
-                                <div class="time-spent">
-                                    {{ resposta.criado_em|date:"d M Y H:i" }}
+                        <div class="rbt-comment-section">
+                            <div class="rbt-total-comment-post">
+                                <div class="title">
+                                    <h4 class="mb--0">{{ comentarios.count }} Comentário{{ comentarios.count|pluralize:"s" }}</h4>
                                 </div>
                             </div>
 
-                            <!-- Texto -->
-                            <div class="comment-text">
-                                <p class="b2">{{ resposta.mensagem }}</p>
-                            </div>
+                            {% if comentarios %}
+                            <ul class="comment-list mt--40">
+                                {% for comentario in comentarios %}
+                                {% if not comentario.parent %}
+                                <li class="comment mb--30">
+                                    <div class="single-comment">
+                                        <div class="comment-meta-top">
+                                            <div class="d-flex align-items-center">
+                                                <!-- Avatar Inteligente -->
+                                                <div class="comment-img mr--15">
+                                                    {% if comentario.aluno.perfil.get_foto_perfil_url %}
+                                                        <img src="{{ comentario.aluno.perfil.get_foto_perfil_url }}" alt="{{ comentario.nome }}" class="rounded-circle shadow-sm" style="width: 50px; height: 50px; object-fit: cover;">
+                                                    {% else %}
+                                                        <div class="comment-avatar-circle bg-color-primary shadow-sm">
+                                                            {{ comentario.nome|slice:":1" }}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="commenter-info">
+                                                    <h6 class="commenter mb-0">
+                                                        {{ comentario.nome }}
+                                                        {% if comentario.email == post.autor.email or comentario.aluno.usuario == post.autor.usuario %}
+                                                            <span class="author-badge">Autor</span>
+                                                        {% endif %}
+                                                    </h6>
+                                                    <span class="time-spent b3 opacity-6" style="font-size: 11px;">
+                                                        <i class="feather-calendar mr--5"></i> {{ comentario.criado_em|date:"d M, Y" }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Reações no topo -->
+                                            <div class="comment-reactions">
+                                                <div class="reaction-container">
+                                                    <button type="button" class="reaction-main-btn px-2 py-1 rounded-pill shadow-xs border">
+                                                        <span class="reaction-icon">👍</span>
+                                                        <span class="reaction-count ml--2 font-system" style="font-size: 13px;">{{ comentario.reacoes_dict.like|default:0 }}</span>
+                                                    </button>
+                                                    <div class="reaction-dropdown">
+                                                        {% for value, label in reacoes_choices %}
+                                                        <form method="post" action="{% url 'blog:reagir_comentario' comentario.id value %}" class="reaction-form">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="reaction-option" title="{{ label }}">
+                                                                {% if value == 'like' %} 👍 {% elif value == 'love' %} ❤️ {% elif value == 'haha' %} 😂 {% elif value == 'wow' %} 😲 {% elif value == 'sad' %} 😢 {% elif value == 'angry' %} 😠 {% endif %}
+                                                            </button>
+                                                        </form>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
 
-                            <!-- Reações -->
-                            <div class="comment-reactions">
-                                <div class="reaction-container">
-                                    <!-- Botão principal -->
-                                    <button type="button" class="reaction-main-btn">
-                                        <span class="reaction-icon">👍</span>
-                                        <span class="reaction-count">{{ resposta.reacoes_dict.like|default:0 }}</span>
-                                    </button>
+                                        <div class="comment-text mt--10">
+                                            <p class="b2 mb-0 color-body">{{ comentario.mensagem }}</p>
+                                        </div>
 
-                                    <!-- Dropdown de reações -->
-                                    <div class="reaction-dropdown">
-                                        {% for value, label in reacoes_choices %}
-                                        <form method="post" action="{% url 'blog:reagir_comentario' resposta.id value %}" class="reaction-form">
-                                            {% csrf_token %}
-                                            <button type="submit" class="reaction-option" title="{{ label }}">
-                                                {% if value == 'like' %} 👍
-                                                {% elif value == 'love' %} ❤️
-                                                {% elif value == 'haha' %} 😂
-                                                {% elif value == 'wow' %} 😲
-                                                {% elif value == 'sad' %} 😢
-                                                {% elif value == 'angry' %} 😠
-                                                {% endif %}
-                                            </button>
-                                        </form>
+                                        <div class="comment-reply mt--15">
+                                            <a href="javascript:void(0)" onclick="toggleReplyForm({{ comentario.id }})" class="rbt-btn-link font-system" style="font-size: 13px; font-weight: 600;">
+                                                <i class="feather-corner-up-left mr--5"></i> Responder
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <!-- Respostas (Sub-comentários) -->
+                                    {% if comentario.respostas.all %}
+                                    <div class="replies-container mt--15">
+                                        {% for resposta in comentario.respostas.all %}
+                                        <div class="single-comment bg-light-opacity p-3 py-2 border-0 mb--10">
+                                            <div class="d-flex align-items-center mb--5">
+                                                <div class="comment-img mr--10">
+                                                    {% if resposta.aluno.perfil.get_foto_perfil_url %}
+                                                        <img src="{{ resposta.aluno.perfil.get_foto_perfil_url }}" alt="{{ resposta.nome }}" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
+                                                    {% else %}
+                                                        <div class="comment-avatar-circle bg-color-secondary" style="width: 32px; height: 32px; font-size: 13px;">
+                                                            {{ resposta.nome|slice:":1" }}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="commenter-info">
+                                                    <h6 class="commenter mb-0 font-system" style="font-size: 13px; font-weight: 700;">
+                                                        {{ resposta.nome }}
+                                                        {% if resposta.email == post.autor.email or resposta.aluno.usuario == post.autor.usuario %}
+                                                            <span class="author-badge" style="font-size: 8px; padding: 1px 5px;">Autor</span>
+                                                        {% endif %}
+                                                    </h6>
+                                                    <span class="time-spent b3 opacity-6" style="font-size: 10px;">{{ resposta.criado_em|time:"H:i" }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="comment-text">
+                                                <p class="b3 mb-0 color-body" style="font-size: 14px;">{{ resposta.mensagem }}</p>
+                                            </div>
+                                        </div>
                                         {% endfor %}
                                     </div>
-                                </div>
+                                    {% endif %}
+
+                                    <!-- Form de Resposta Escondido -->
+                                    <div class="comment-respond mt--20" id="reply-form-{{ comentario.id }}" style="display: none;">
+                                        <h6 class="mb--15">Responder a {{ comentario.nome }}</h6>
+                                        <form method="post" action="{% url 'blog:comentar_post' post.slug %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="parent" value="{{ comentario.id }}">
+                                            {% if not aluno_logado %}
+                                                <div class="row g-2 mb-3">
+                                                    <div class="col-6"><input type="text" name="nome" placeholder="Nome *" required class="form-control bg-white"></div>
+                                                    <div class="col-6"><input type="email" name="email" placeholder="Email *" required class="form-control bg-white"></div>
+                                                </div>
+                                            {% else %}
+                                                <input type="hidden" name="nome" value="{{ aluno_nome }}">
+                                                <input type="hidden" name="email" value="{{ aluno_email }}">
+                                            {% endif %}
+                                            <textarea name="mensagem" placeholder="Sua resposta..." required class="form-control mb-3 bg-white" rows="3"></textarea>
+                                            <button type="submit" class="rbt-btn btn-gradient btn-sm">Enviar Resposta</button>
+                                        </form>
+                                    </div>
+                                </li>
+                                {% endif %}
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <div class="text-center py-5">
+                                <i class="feather-message-square font-4x opacity-2 d-block mb-3"></i>
+                                <span class="b2 opacity-5">Seja o primeiro a comentar!</span>
                             </div>
-
+                            {% endif %}
                         </div>
-                    </div>
-                </div>
-            </li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-
-        <!-- Formulário responder -->
-        <div class="comment-respond" id="responder-{{ comentario.id }}">
-            <form method="post" action="{% url 'blog:comentar_post' post.slug %}">
-                {% csrf_token %}
-                <input type="hidden" name="parent" value="{{ comentario.id }}">
-
-                {% if aluno_logado %}
-                <!-- Preenche automaticamente quando logado -->
-                <input type="hidden" name="nome" value="{{ aluno_nome }}">
-                <input type="hidden" name="email" value="{{ aluno_email }}">
-                {% else %}
-                <!-- Campos quando não logado -->
-                <div class="form-group">
-                    {{ form.nome.label_tag }}
-                    {{ form.nome }}
-                </div>
-                <div class="form-group">
-                    {{ form.email.label_tag }}
-                    {{ form.email }}
-                </div>
-                {% endif %}
-
-                <div class="form-group">
-                    {{ form.mensagem.label_tag }}
-                    {{ form.mensagem }}
-                </div>
-
-                <button type="submit" class="rbt-btn btn-gradient icon-hover radius-round btn-md">
-                    <span class="btn-text">Enviar Resposta</span>
-                </button>
-            </form>
-        </div>
-    </li>
-    {% endif %}
-    {% endfor %}
-</ul>
-{% endif %}
 
 
 <!-- ================================
@@ -596,7 +513,22 @@
     {% include 'include/footer.html' %}
     {% include 'include/java.html' %}
     <script>
+        function toggleReplyForm(commentId) {
+            const form = document.getElementById(`reply-form-${commentId}`);
+            if (form.style.display === 'none') {
+                // Esconde outros abertos
+                document.querySelectorAll('.comment-respond').forEach(f => {
+                     if (f.id.startsWith('reply-form-')) f.style.display = 'none';
+                });
+                form.style.display = 'block';
+                form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                form.style.display = 'none';
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
+
             // Fecha dropdown ao clicar fora
             document.addEventListener('click', function (e) {
                 if (!e.target.closest('.reaction-container')) {

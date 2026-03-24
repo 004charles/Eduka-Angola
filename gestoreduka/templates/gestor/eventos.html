@@ -1,69 +1,86 @@
+{% extends 'base_gestor.html' %}
 {% load static %}
 
 {% block title %}Eventos - {{ centro.nome }}{% endblock %}
 
 {% block content %}
-    {% include 'include/css_gestor.html' %}
-
 <div class="dashboard-body">
-    <div class="breadcrumb mb-24 flex-between flex-wrap">
+    <div class="breadcrumb mb-24 flex-between flex-wrap gap-16">
         <div>
+            <h4 class="mb-4">Agenda de Eventos</h4>
             <ul class="flex-align gap-4">
-                <li><a href="{% url 'centro_dashboard' %}"
-                        class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
+                <li><a href="{% url 'centro_dashboard' %}" class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
                 <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
                 <li><span class="text-main-600 fw-normal text-15">Eventos</span></li>
             </ul>
         </div>
-        <a href="{% url 'criar_evento' %}" class="btn btn-main px-24 py-12">
-            <i class="ph ph-plus me-8"></i> Novo Evento
+        <a href="{% url 'criar_evento' %}" class="btn btn-primary-600 px-24 py-12 rounded-12 fw-bold d-flex align-items-center gap-8 shadow-sm hover-scale-1 transition-all">
+            <i class="ph ph-calendar-plus text-xl"></i> Novo Evento
         </a>
     </div>
 
     <div class="row gy-4">
         {% for evento in eventos %}
-        <div class="col-lg-6">
-            <div class="card">
-                <div class="card-body">
-                    <div class="flex-between mb-16">
-                        <span class="text-13 py-2 px-8 bg-main-50 text-main-600 rounded-pill">{{ evento.get_tipo_display
-                            }}</span>
+        <div class="col-xl-4 col-md-6">
+            <div class="card premium-card border-0 shadow-sm h-100 transition-all hover-translate-y-4 overflow-hidden">
+                <div class="card-body p-24">
+                    <div class="flex-between mb-20">
+                        <span class="text-11 py-6 px-12 bg-primary-50 text-primary-600 rounded-pill fw-bold uppercase letter-spacing-05 shadow-sm">{{ evento.get_tipo_display }}</span>
                         {% if evento.destaque %}
-                        <span class="text-13 py-2 px-8 bg-warning-50 text-warning-600 rounded-pill">
-                            <i class="ph ph-star"></i> Destaque
+                        <span class="text-11 py-6 px-12 bg-amber-50 text-amber-600 rounded-pill fw-bold uppercase d-flex align-items-center gap-4 shadow-sm">
+                            <i class="ph ph-star-fill"></i> Destaque
                         </span>
                         {% endif %}
                     </div>
-                    <h5 class="mb-8">{{ evento.titulo }}</h5>
-                    <p class="text-gray-600 text-15 mb-16">{{ evento.descricao|truncatewords:20 }}</p>
-                    <div class="flex-align gap-16 flex-wrap mb-16">
-                        <div class="flex-align gap-8">
-                            <i class="ph ph-calendar text-main-600"></i>
-                            <span class="text-13 text-gray-600">{{ evento.data_inicio|date:"d/m/Y H:i" }}</span>
+                    
+                    <h5 class="mb-12 text-gray-900 fw-bold">{{ evento.titulo }}</h5>
+                    <p class="text-gray-500 text-14 mb-24 line-height-1-6">{{ evento.descricao|truncatewords:25 }}</p>
+                    
+                    <div class="vstack gap-12 mb-24">
+                        <div class="flex-align gap-12 p-12 bg-gray-50 rounded-12 transition-all hover-bg-white border border-transparent hover-border-gray-100">
+                            <div class="w-36 h-36 rounded-10 bg-white text-primary-600 flex-center shadow-sm">
+                                <i class="ph ph-calendar-blank fw-bold text-lg"></i>
+                            </div>
+                            <div>
+                                <p class="mb-0 text-13 fw-bold text-gray-800">{{ evento.data_inicio|date:"d \d\e F, Y" }}</p>
+                                <p class="mb-0 text-11 text-gray-400">às {{ evento.data_inicio|date:"H:i" }}</p>
+                            </div>
                         </div>
-                        <div class="flex-align gap-8">
-                            <i class="ph ph-map-pin text-main-600"></i>
-                            <span class="text-13 text-gray-600">{{ evento.local }}</span>
+                        <div class="flex-align gap-12 p-12 bg-gray-50 rounded-12 transition-all hover-bg-white border border-transparent hover-border-gray-100">
+                            <div class="w-36 h-36 rounded-10 bg-white text-danger-600 flex-center shadow-sm">
+                                <i class="ph ph-map-pin fw-bold text-lg"></i>
+                            </div>
+                            <div>
+                                <p class="mb-0 text-13 fw-bold text-gray-800">{{ evento.local|truncatechars:35 }}</p>
+                                <p class="mb-0 text-11 text-gray-400">Local do evento</p>
+                            </div>
                         </div>
                     </div>
-                    {% if evento.link_inscricao %}
-                    <a href="{{ evento.link_inscricao }}" target="_blank"
-                        class="btn btn-outline-main px-16 py-8 text-13">
-                        <i class="ph ph-link me-4"></i> Link de Inscrição
-                    </a>
-                    {% endif %}
+
+                    <div class="d-flex align-items-center gap-12">
+                        {% if evento.link_inscricao %}
+                        <a href="{{ evento.link_inscricao }}" target="_blank" class="btn btn-primary-600 flex-grow-1 py-12 rounded-10 d-flex align-items-center justify-content-center gap-8 shadow-sm">
+                            <i class="ph ph-link"></i> Ir para Inscrição
+                        </a>
+                        {% endif %}
+                        <a href="#" class="btn btn-outline-gray w-48 h-48 rounded-10 p-0 flex-center hover-bg-primary-600 hover-text-white transition-all">
+                            <i class="ph ph-pencil-simple text-xl"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
         {% empty %}
         <div class="col-12">
-            <div class="card">
-                <div class="card-body text-center p-40">
-                    <i class="ph ph-calendar-blank text-gray-300" style="font-size: 64px;"></i>
-                    <h5 class="mt-16 mb-8">Nenhum evento cadastrado</h5>
-                    <p class="text-gray-600 mb-16">Crie eventos como workshops, palestras e aulas abertas</p>
-                    <a href="{% url 'criar_evento' %}" class="btn btn-main px-24 py-12">
-                        <i class="ph ph-plus me-8"></i> Criar Primeiro Evento
+            <div class="card premium-card border-0 shadow-sm py-100 text-center">
+                <div class="card-body">
+                    <div class="w-96 h-96 bg-gray-50 rounded-circle flex-center mx-auto mb-24 shadow-inner">
+                        <i class="ph ph-calendar-blank text-gray-300 text-5xl"></i>
+                    </div>
+                    <h4 class="text-gray-900 mb-12 fw-bold">Sua agenda está vazia</h4>
+                    <p class="text-gray-500 mb-32 max-w-400 mx-auto">Promova workshops, webinários ou dias de portas abertas para atrair mais alunos para sua instituição.</p>
+                    <a href="{% url 'criar_evento' %}" class="btn btn-primary-600 px-32 py-14 rounded-12 fw-bold shadow-sm hover-scale-1 transition-all">
+                        Criar Meu Primeiro Evento
                     </a>
                 </div>
             </div>
@@ -73,4 +90,4 @@
 </div>
 {% endblock %}
 
-    {% include 'include/java_gestor.html' %}
+{% include 'include/java_gestor.html' %}

@@ -31,6 +31,14 @@ class Instrutor(models.Model):
         related_name='instrutores',
         verbose_name='Centro de Formação'
     )
+    filial = models.ForeignKey(
+        'gestoreduka.Filial', 
+        on_delete=models.CASCADE, 
+        related_name='instrutores',
+        verbose_name='Filial',
+        null=True,
+        blank=True
+    )
     nome = models.CharField(max_length=100, validators=[MinLengthValidator(3)])
     biografia = models.TextField()
     foto = models.ImageField(upload_to='instrutores/', null=True, blank=True)
@@ -108,6 +116,7 @@ class Curso(models.Model):
     ]
 
     centro = models.ForeignKey('gestoreduka.CentroDeFormacao', on_delete=models.CASCADE, verbose_name=_('Centro de Formação'), related_name='cursos')
+    filial = models.ForeignKey('gestoreduka.Filial', on_delete=models.CASCADE, verbose_name=_('Filial'), related_name='cursos', null=True, blank=True)
     titulo = models.CharField(_('Título do Curso'), max_length=200, validators=[MinLengthValidator(3)])
     descricao = models.TextField(_('Descrição Completa'))
     descricao_curta = models.CharField(_('Descrição Curta'), max_length=300, blank=True, help_text="Descrição resumida para cards e listagens")

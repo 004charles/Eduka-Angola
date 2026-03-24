@@ -122,16 +122,22 @@ def valida_cadastro_aluno(request):
     senha = request.POST.get('senha', '').strip()
     confirmar_senha = request.POST.get('confirmar_senha')
     
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+    
     if len(nome.strip()) == 0 or len(senha.strip()) == 0:
+        if is_ajax: return JsonResponse({'success': False, 'error': 'Nome e senha são obrigatórios.'})
         return redirect('/auth/registro_aluno?status=1')
     
     if len(senha) < 8:
+        if is_ajax: return JsonResponse({'success': False, 'error': 'A senha deve ter pelo menos 8 caracteres.'})
         return redirect('/auth/registro_aluno?status=2')
     
     if senha != confirmar_senha: 
+        if is_ajax: return JsonResponse({'success': False, 'error': 'As senhas não coincidem.'})
         return redirect('/auth/registro_aluno?status=5')
     
     if Usuario.objects.filter(email=email).exists():
+        if is_ajax: return JsonResponse({'success': False, 'error': 'Este e-mail já está registado.'})
         return redirect('/auth/registro_aluno?status=3')
     
     try:
@@ -156,10 +162,13 @@ def valida_cadastro_aluno(request):
         enviar_codigo_verificacao(email, 'CADASTRO')
         request.session['email_verificacao'] = email
         
+        if is_ajax:
+            return JsonResponse({'success': True, 'redirect': '/auth/verificar_email'})
         return redirect('verificar_email')
     
     except Exception as e:
         print(f"Erro ao cadastrar aluno: {e}")
+        if is_ajax: return JsonResponse({'success': False, 'error': 'Erro no servidor. Tente novamente.'})
         return redirect('/auth/registro_aluno?status=4')
         
 def enviar_email_confirmacao_aluno(nome, email):
@@ -259,15 +268,18 @@ def esqueci_senha(request):
     """
     Inicia o fluxo de 'Esqueci a Senha' enviando um código.
     """
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+    
     if request.method == 'POST':
-        email = request.POST.get('email')
+        email = request.POST.get('email', '').strip()
         if Aluno.objects.filter(usuario__email=email).exists():
             enviar_codigo_verificacao(email, 'RECUPERACAO')
             request.session['email_recuperacao'] = email
+            if is_ajax: return JsonResponse({'success': True, 'step': 2, 'message': 'Código enviado para o seu e-mail.'})
             return redirect('redefinir_senha')
         else:
-             # Por segurança, não informamos se o email existe ou não, ou informamos msg generica
-             return render(request, 'esqueci_senha.html', {'message': 'Se o email existir, um código foi enviado.'})
+            if is_ajax: return JsonResponse({'success': False, 'error': 'E-mail não encontrado.'})
+            return render(request, 'esqueci_senha.html', {'message': 'Se o email existir, um código foi enviado.'})
              
     return render(request, 'esqueci_senha.html')
 
@@ -275,16 +287,20 @@ def redefinir_senha(request):
     """
     Valida o código de recuperação e permite definir uma nova senha.
     """
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+    
     if request.method == 'POST':
-        codigo = request.POST.get('codigo')
-        nova_senha = request.POST.get('senha')
-        confirmar_senha = request.POST.get('confirmar_senha')
+        codigo = request.POST.get('codigo', '').strip()
+        nova_senha = request.POST.get('senha', '').strip()
+        confirmar_senha = request.POST.get('confirmar_senha', '').strip()
         email = request.session.get('email_recuperacao')
         
         if not email:
+            if is_ajax: return JsonResponse({'success': False, 'error': 'Sessão expirada. Tente novamente.'})
             return redirect('esqueci_senha')
             
         if nova_senha != confirmar_senha:
+            if is_ajax: return JsonResponse({'success': False, 'error': 'As senhas não coincidem.'})
             return render(request, 'redefinir_senha.html', {'error': 'Senhas não conferem'})
             
         try:
@@ -300,9 +316,11 @@ def redefinir_senha(request):
             if 'email_recuperacao' in request.session:
                 del request.session['email_recuperacao']
                 
+            if is_ajax: return JsonResponse({'success': True, 'message': 'Senha redefinida com sucesso!'})
             return redirect('/auth/login_aluno?status=senha_redefinida')
             
         except CodigoVerificacao.DoesNotExist:
+            if is_ajax: return JsonResponse({'success': False, 'error': 'Código inválido.'})
             return render(request, 'redefinir_senha.html', {'error': 'Código inválido'})
             
     return render(request, 'redefinir_senha.html')
@@ -316,7 +334,10 @@ def valida_login(request):
     email = request.POST.get('email', '').strip()
     senha = request.POST.get('senha', '').strip()
     
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+    
     if not email or not senha:
+        if is_ajax: return JsonResponse({'success': False, 'error': 'Credenciais em falta.'})
         return redirect('/auth/login_aluno?status=1')
     
     try:
@@ -324,18 +345,23 @@ def valida_login(request):
         
         if user is not None:
             if user.tipo_usuario != 'ALUNO':
-                return redirect('/auth/login_aluno?status=1') # Or specific error for wrong account type
+                if is_ajax: return JsonResponse({'success': False, 'error': 'Apenas alunos podem aceder aqui.'})
+                return redirect('/auth/login_aluno?status=1') 
             
             if not user.is_active:
+                if is_ajax: return JsonResponse({'success': False, 'error': 'Conta inativa. Verifique o seu e-mail.'})
                 return redirect('/auth/login_aluno?status=2')
                 
             login(request, user)
+            if is_ajax: return JsonResponse({'success': True, 'redirect': '/auth/aluno?status=0'})
             return redirect('/auth/aluno?status=0')
         else:
+            if is_ajax: return JsonResponse({'success': False, 'error': 'E-mail ou senha incorretos.'})
             return redirect('/auth/login_aluno?status=1')
             
     except Exception as e:
         print(f"Erro no login: {e}")
+        if is_ajax: return JsonResponse({'success': False, 'error': 'Erro interno. Tente novamente.'})
         return redirect('/auth/login_aluno?status=3')
         
 #-----------------------------fim validacao aluno----------------------------------
@@ -439,3 +465,37 @@ def configuracao_user(request):
     Página de configuração geral para o usuário.
     """
     return render(request, 'configuracao_user.html')
+
+from gestoreduka.models import Conversa, Mensagem
+
+@aluno_logado_e_centros
+def aluno_chat(request):
+    """
+    Renderiza a interface de chat para o aluno.
+    """
+    aluno = getattr(request.user, 'aluno_profile', None)
+    if not aluno:
+        return redirect('/auth/login_aluno')
+        
+    conversas = Conversa.objects.filter(aluno=aluno).order_by('-ultima_mensagem')
+    
+    conversa_id = request.GET.get('conversa_id')
+    conversa_atual = None
+    mensagens = []
+    
+    if conversa_id:
+        try:
+            conversa_atual = conversas.get(id=conversa_id)
+            mensagens = conversa_atual.mensagens.all().order_by('data_envio')
+        except Conversa.DoesNotExist:
+            pass
+            
+    return render(request, 'aluno_chat.html', {
+        'aluno_logado': True,
+        'aluno_nome': request.aluno_obj.nome if hasattr(request, 'aluno_obj') else aluno.nome,
+        'perfil': getattr(request, 'perfil', None),
+        'centros': getattr(request, 'centros', []),
+        'conversas': conversas,
+        'conversa_atual': conversa_atual,
+        'mensagens': mensagens,
+    })

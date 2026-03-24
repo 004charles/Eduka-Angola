@@ -1,0 +1,154 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificação de Certificado - EdukAngola</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+        
+        body {
+            background-color: #f8fafc;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .verification-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            border-radius: 50px;
+            background: #dcfce7;
+            color: #166534;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+
+        .logo {
+            width: 150px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .info-grid {
+            text-align: left;
+            margin: 30px 0;
+            background: #f1f5f9;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .info-item {
+            margin-bottom: 15px;
+        }
+
+        .info-item:last-child { margin-bottom: 0; }
+
+        .label {
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .value {
+            font-size: 16px;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .btn-home {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: #7c3aed;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(124, 58, 237, 0.3);
+        }
+
+        .verified-icon {
+            font-size: 40px;
+            color: #22c55e;
+            margin-bottom: 20px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="verification-card">
+        <img src="{% static 'assets/images/logo/logo.png' %}" alt="EdukAngola" class="logo">
+        
+        <div class="verified-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+
+        <div class="status-badge">
+            <i class="fas fa-shield-alt"></i> Certificado Autêntico
+        </div>
+
+        <h1>Fidelidade de Credencial</h1>
+        <p>Confirmamos que este certificado foi emitido pela plataforma oficial EdukAngola conforme os dados abaixo.</p>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="label">Aluno</div>
+                <div class="value">{{ certificado.aluno.nome }}</div>
+            </div>
+            <div class="info-item">
+                <div class="label">Curso</div>
+                <div class="value">{{ certificado.curso.titulo }}</div>
+            </div>
+            <div class="info-item">
+                <div class="label">ID de Verificação</div>
+                <div class="value">{{ certificado.codigo_verificacao }}</div>
+            </div>
+            <div class="info-item">
+                <div class="label">Data de Emissão</div>
+                <div class="value">{{ certificado.data_emissao|date:"d/m/Y" }}</div>
+            </div>
+        </div>
+
+        <p style="font-size: 12px;">EdukAngola - Transformando o Futuro através da Educação Digital em Angola.</p>
+
+        <a href="/" class="btn-home">Ir para o Início</a>
+    </div>
+</body>
+</html>

@@ -241,19 +241,19 @@
                             {% if curso.categoria %}
                             <li class="rbt-breadcrumb-item">
                                 <a href="{% url 'cursos_por_categoria' curso.categoria.id %}">
-                                    {{ curso.categoria.nome }}
+                                    {{curso.categoria.nome}}
                                 </a>
                             </li>
                             <li>
                                 <div class="icon-right"><i class="feather-chevron-right"></i></div>
                             </li>
                             {% endif %}
-                            <li class="rbt-breadcrumb-item active">{{ curso.titulo }}</li>
+                            <li class="rbt-breadcrumb-item active">{{curso.titulo}}</li>
                         </ul>
 
                         <!-- Título e Descrição -->
                         <h2 class="title">{{ curso.titulo }}</h2>
-                        <p class="description">{{ curso.descricao_curta|default:curso.descricao|truncatechars:150 }}</p>
+                        <p class="description">{{curso.descricao_curta|default:curso.descricao|truncatechars:150}}</p>
 
                         <!-- Badges e Informações -->
                         <div class="d-flex align-items-center mb--20 flex-wrap rbt-course-details-feature">
@@ -269,15 +269,14 @@
                             {% if curso.em_promocao %}
                             <div class="feature-sin discount-badge">
                                 <span class="rbt-badge bg-color-danger-opacity">
-                                    <i class="feather-percent"></i> {{ curso.percentual_desconto|floatformat:0 }}% OFF
+                                    <i class="feather-percent"></i> {{curso.percentual_desconto|floatformat:0}}% OFF
                                 </span>
                             </div>
                             {% endif %}
 
                             <!-- Avaliação Média -->
                             <div class="feature-sin rating">
-                                <span class="rating-value">{{ curso.get_media_avaliacoes|floatformat:1|default:"0.0"
-                                    }}</span>
+                                <span class="rating-value">{{curso.get_media_avaliacoes|floatformat:1|default:"0.0"}}</span>
                                 {% for i in "12345" %}
                                 {% if forloop.counter <= curso.get_media_avaliacoes|default:0 %} <i
                                     class="fa fa-star text-warning"></i>
@@ -291,12 +290,12 @@
 
                             <!-- Total de Avaliações -->
                             <div class="feature-sin total-rating">
-                                <span class="rbt-badge-4">{{ curso.comentarios.count }} Avaliações</span>
+                                <span class="rbt-badge-4">{{curso.comentarios.count}} Avaliações</span>
                             </div>
 
                             <!-- Total de Inscritos -->
                             <div class="feature-sin total-student">
-                                <span>{{ curso.total_inscritos|default:"0" }} estudantes</span>
+                                <span>{{curso.total_inscritos|default:"0"}} estudantes</span>
                             </div>
 
                             <!-- Certificado -->
@@ -311,7 +310,7 @@
                             <!-- Modalidade -->
                             <div class="feature-sin modalidade-badge">
                                 <span class="rbt-badge bg-info-opacity">
-                                    <i class="feather-video"></i> {{ curso.get_modalidade_display }}
+                                    <i class="feather-video"></i> {{curso.get_modalidade_display}}
                                 </span>
                             </div>
                         </div>
@@ -330,12 +329,12 @@
                                 </a>
                             </div>
                             <div class="rbt-author-info">
-                                Oferecido por <a href="#">{{ curso.centro.nome }}</a>
+                                Oferecido por <a href="#">{{curso.centro.nome}}</a>
                                 {% if curso.instrutores.exists %}
                                 <span class="separator mx--2">•</span>
                                 Ministrado por
                                 {% for instrutor in curso.instrutores.all %}
-                                <a href="#">{{ instrutor.nome }}</a>{% if not forloop.last %}, {% endif %}
+                                <a href="#">{{instrutor.nome}}</a>{% if not forloop.last %}, {% endif %}
                                 {% endfor %}
                                 {% endif %}
                             </div>
@@ -343,13 +342,12 @@
 
                         <!-- Meta Informações -->
                         <ul class="rbt-meta">
-                            <li><i class="feather-calendar"></i>Última atualização {{
-                                curso.data_atualizacao|date:"d/m/Y" }}</li>
-                            <li><i class="feather-globe"></i>{{ curso.get_idioma_display }}</li>
-                            <li><i class="feather-award"></i>{{ curso.get_nivel_display }}</li>
-                            <li><i class="feather-clock"></i>{{ curso.carga_horaria }} horas</li>
-                            <li><i class="feather-users"></i>{{ curso.get_modalidade_display }}</li>
-                            <li><i class="feather-eye"></i>{{ curso.visualizacoes }} visualizações</li>
+                            <li><i class="feather-calendar"></i>Última atualização {{curso.data_atualizacao|date:"d/m/Y" }}</li>
+                            <li><i class="feather-globe"></i>{{curso.get_idioma_display}}</li>
+                            <li><i class="feather-award"></i>{{curso.get_nivel_display}}</li>
+                            <li><i class="feather-clock"></i>{{curso.carga_horaria}} horas</li>
+                            <li><i class="feather-users"></i>{{curso.get_modalidade_display}}</li>
+                            <li><i class="feather-eye"></i>{{curso.visualizacoes}} visualizações</li>
                         </ul>
 
                     </div>
@@ -378,7 +376,7 @@
                             {% if curso.em_promocao %}
                             <div class="course-badge-overlay">
                                 <span class="rbt-badge bg-color-danger color-white">
-                                    PROMOÇÃO: {{ curso.percentual_desconto|floatformat:0 }}% OFF
+                                    PROMOÇÃO: {{curso.percentual_desconto|floatformat:0 }}% OFF
                                 </span>
                             </div>
                             {% endif %}
@@ -391,8 +389,7 @@
                                     <li class="current"><a href="#overview">Visão Geral</a></li>
                                     {% if modulos %}<li><a href="#coursecontent">Conteúdo</a></li>{% endif %}
                                     <li><a href="#details">Detalhes</a></li>
-                                    {% if curso.instrutores.exists %}<li><a href="#instructor">Instrutor</a></li>{%
-                                    endif %}
+                                    {% if curso.instrutores.exists %}<li><a href="#instructor">Instrutor</a></li>{% endif %}
                                     {% if comentarios %}<li><a href="#review">Avaliação</a></li>{% endif %}
                                     {% if cursos_relacionados or cursos_relacionados_lista %}<li><a
                                             href="#related">Cursos Relacionados</a></li>{% endif %}
@@ -433,7 +430,7 @@
                                         <div class="col-lg-6">
                                             <ul class="rbt-list-style-1">
                                                 {% for modulo in modulos|slice:":5" %}
-                                                <li><i class="feather-check-circle text-success"></i>{{ modulo.titulo }}
+                                                <li><i class="feather-check-circle text-success"></i>{{modulo.titulo}}
                                                 </li>
                                                 {% endfor %}
                                             </ul>
@@ -442,7 +439,7 @@
                                         <div class="col-lg-6">
                                             <ul class="rbt-list-style-1">
                                                 {% for modulo in modulos|slice:"5:10" %}
-                                                <li><i class="feather-check-circle text-success"></i>{{ modulo.titulo }}
+                                                <li><i class="feather-check-circle text-success"></i>{{modulo.titulo}}
                                                 </li>
                                                 {% endfor %}
                                             </ul>
@@ -460,7 +457,7 @@
                             <div class="rbt-course-feature-inner">
                                 <div class="section-title">
                                     <h4 class="rbt-title-style-3">Conteúdo do Curso</h4>
-                                    <p class="subtitle">{{ modulos.count }} módulos • {{ curso.carga_horaria }} horas de
+                                    <p class="subtitle">{{modulos.count}} módulos • {{curso.carga_horaria}} horas de
                                         conteúdo</p>
                                 </div>
 
@@ -472,9 +469,9 @@
                                                 class="accordion-button {% if not forloop.first %}collapsed{% endif %}"
                                                 type="button" data-bs-toggle="collapse"
                                                 data-bs-target="#collapse{{ modulo.id }}">
-                                                <span class="module-title">{{ modulo.titulo }}</span>
+                                                <span class="module-title">{{modulo.titulo}}</span>
                                                 <span class="module-info ms-auto">
-                                                    <span class="rbt-badge-5">Módulo {{ modulo.ordem|add:1 }}</span>
+                                                    <span class="rbt-badge-5">Módulo {{modulo.ordem|add:1}}</span>
                                                 </span>
                                             </button>
                                         </h2>
@@ -484,7 +481,7 @@
                                             <div class="accordion-body card-body pr--0">
                                                 {% if modulo.descricao %}
                                                 <div class="module-description mb--20">
-                                                    <p class="text-muted">{{ modulo.descricao }}</p>
+                                                    <p class="text-muted">{{modulo.descricao}}</p>
                                                 </div>
                                                 {% endif %}
 
@@ -513,7 +510,7 @@
                                                             </div>
                                                             {% if aula.duracao %}
                                                             <div class="course-content-right">
-                                                                <span class="min-lable">{{ aula.duracao }}</span>
+                                                                <span class="min-lable">{{aula.duracao}}</span>
                                                             </div>
                                                             {% endif %}
                                                         </a>
@@ -551,7 +548,7 @@
                                     </ul>
                                     {% elif curso.requisitos %}
                                     <div class="requirements-content">
-                                        {{ curso.requisitos|linebreaks }}
+                                        {{curso.requisitos|linebreaks}}
                                     </div>
                                     {% else %}
                                     <ul class="rbt-list-style-1">
@@ -573,12 +570,12 @@
                                     {% if curso.publico_alvo_items.exists %}
                                     <ul class="rbt-list-style-1">
                                         {% for item in curso.publico_alvo_items.all %}
-                                        <li><i class="feather-check text-info"></i>{{ item.texto }}</li>
+                                        <li><i class="feather-check text-info"></i>{{item.texto}}</li>
                                         {% endfor %}
                                     </ul>
                                     {% elif curso.publico_alvo %}
                                     <div class="audience-content">
-                                        {{ curso.publico_alvo|linebreaks }}
+                                        {{curso.publico_alvo|linebreaks}}
                                     </div>
                                     {% else %}
                                     <ul class="rbt-list-style-1">
@@ -603,25 +600,24 @@
                                             <ul class="rbt-list-style-2">
                                                 <li><i
                                                         class="feather-check-circle text-primary"></i><strong>Nível:</strong>
-                                                    {{ curso.get_nivel_display }}</li>
+                                                    {{curso.get_nivel_display}}</li>
                                                 <li><i class="feather-globe text-primary"></i><strong>Idioma:</strong>
-                                                    {{ curso.get_idioma_display }}</li>
+                                                    {{curso.get_idioma_display}}</li>
                                                 <li><i class="feather-clock text-primary"></i><strong>Carga
-                                                        Horária:</strong> {{ curso.carga_horaria }} horas</li>
+                                                        Horária:</strong>{{ curso.carga_horaria}} horas</li>
                                             </ul>
                                         </div>
                                         <div class="col-md-6">
                                             <ul class="rbt-list-style-2">
                                                 <li><i
                                                         class="feather-calendar text-primary"></i><strong>Início:</strong>
-                                                    {% if curso.data_inicio %}{{ curso.data_inicio|date:"d/m/Y" }}{%
-                                                    else %}A definir{% endif %}</li>
+                                                    {% if curso.data_inicio %}{{curso.data_inicio|date:"d/m/Y"}}{% else %}A definir{% endif %}</li>
                                                 <li><i
                                                         class="feather-award text-primary"></i><strong>Certificado:</strong>
                                                     {% if curso.certificado %}Sim{% else %}Não{% endif %}</li>
                                                 <li><i
                                                         class="feather-video text-primary"></i><strong>Modalidade:</strong>
-                                                    {{ curso.get_modalidade_display }}</li>
+                                                    {{curso.get_modalidade_display}}</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -634,8 +630,7 @@
                         <div class="rbt-instructor rbt-shadow-box intructor-wrapper mt--30" id="instructor">
                             <div class="about-author border-0 pb--0 pt--0">
                                 <div class="section-title mb--30">
-                                    <h4 class="rbt-title-style-3">Instrutor{% if curso.instrutores.count > 1 %}es{%
-                                        endif %}</h4>
+                                    <h4 class="rbt-title-style-3">Instrutor{% if curso.instrutores.count > 1 %}es{% endif %}</h4>
                                 </div>
 
                                 {% for instrutor in curso.instrutores.all %}
@@ -644,13 +639,13 @@
                                     <div class="thumbnail">
                                         {% if instrutor.foto %}
                                         <a href="#">
-                                            <img src="{{ instrutor.foto.url }}" alt="{{ instrutor.nome }}"
+                                            <img src="{{instrutor.foto.url}}" alt="{{instrutor.nome}}"
                                                 class="rbt-radius">
                                         </a>
                                         {% else %}
                                         <a href="#">
                                             <img src="{% static 'assets/images/team/avatar.jpg' %}"
-                                                alt="{{ instrutor.nome }}" class="rbt-radius">
+                                                alt="{{instrutor.nome}}" class="rbt-radius">
                                         </a>
                                         {% endif %}
                                     </div>
@@ -658,19 +653,18 @@
                                         <div class="author-info">
                                             <h5 class="title">
                                                 <a class="hover-flip-item-wrapper" href="#">
-                                                    {{ instrutor.nome }}
+                                                    {{instrutor.nome}}
                                                 </a>
                                             </h5>
                                             <span class="b3 subtitle">
-                                                {% if instrutor.titulo %}{{ instrutor.titulo }}{% endif %}
-                                                {% if instrutor.area_especializacao %} • {{
-                                                instrutor.get_area_especializacao_display }}{% endif %}
+                                                {% if instrutor.titulo %}{{instrutor.titulo}}{% endif %}
+                                                {% if instrutor.area_especializacao %} • {{instrutor.get_area_especializacao_display}}{% endif %}
                                             </span>
                                         </div>
 
                                         {% if instrutor.biografia %}
                                         <div class="content mt--15">
-                                            <p class="description">{{ instrutor.biografia|truncatewords:100 }}</p>
+                                            <p class="description">{{instrutor.biografia|truncatewords:100}}</p>
                                         </div>
                                         {% endif %}
                                     </div>
@@ -694,7 +688,7 @@
                                     <div class="col-lg-3">
                                         <div class="rating-box text-center">
                                             <div class="rating-number display-4 fw-bold">
-                                                {{ curso.get_media_avaliacoes|floatformat:1 }}
+                                                {{curso.get_media_avaliacoes|floatformat:1}}
                                             </div>
                                             <div class="rating mb--10">
                                                 {% for i in "12345" %}
@@ -705,7 +699,7 @@
                                                     {% endif %}
                                                     {% endfor %}
                                             </div>
-                                            <span class="sub-title d-block">{{ comentarios.count }} avaliações</span>
+                                            <span class="sub-title d-block">{{comentarios.count}} avaliações</span>
 
                                             <!-- Botão para avaliar -->
                                             {% if aluno_logado and aluno_inscricao and not comentario_existente %}
@@ -724,16 +718,15 @@
                                             <div class="single-progress-bar">
                                                 <div class="rating-text">
                                                     <span class="text">5 estrelas</span>
-                                                    <span class="rating-percent">{{ rating_counts.5|default:0 }}</span>
+                                                    <span class="rating-percent">{{rating_counts.5|default:0}}</span>
                                                 </div>
                                                 <div class="progress">
                                                     <div class="progress-bar bg-warning" role="progressbar"
-                                                        style="width: {{ rating_percent.5|default:0|floatformat:1 }}%"
-                                                        aria-valuenow="{{ rating_percent.5|default:0|floatformat:1 }}"
+                                                        style="width: {{rating_percent.5|default:0|floatformat:1}}%"
+                                                        aria-valuenow="{{rating_percent.5|default:0|floatformat:1}}"
                                                         aria-valuemin="0" aria-valuemax="100">
                                                     </div>
-                                                    <span class="value-text">{{ rating_percent.5|default:0|floatformat:0
-                                                        }}%</span>
+                                                    <span class="value-text">{{rating_percent.5|default:0|floatformat:0}}%</span>
                                                 </div>
                                             </div>
 
@@ -741,16 +734,15 @@
                                             <div class="single-progress-bar">
                                                 <div class="rating-text">
                                                     <span class="text">4 estrelas</span>
-                                                    <span class="rating-percent">{{ rating_counts.4|default:0 }}</span>
+                                                    <span class="rating-percent">{{rating_counts.4|default:0}}</span>
                                                 </div>
                                                 <div class="progress">
                                                     <div class="progress-bar bg-warning" role="progressbar"
-                                                        style="width: {{ rating_percent.4|default:0|floatformat:1 }}%"
-                                                        aria-valuenow="{{ rating_percent.4|default:0|floatformat:1 }}"
+                                                        style="width: {{rating_percent.4|default:0|floatformat:1}}%"
+                                                        aria-valuenow="{{rating_percent.4|default:0|floatformat:1}}"
                                                         aria-valuemin="0" aria-valuemax="100">
                                                     </div>
-                                                    <span class="value-text">{{ rating_percent.4|default:0|floatformat:0
-                                                        }}%</span>
+                                                    <span class="value-text">{{rating_percent.4|default:0|floatformat:0}}%</span>
                                                 </div>
                                             </div>
 
@@ -758,7 +750,7 @@
                                             <div class="single-progress-bar">
                                                 <div class="rating-text">
                                                     <span class="text">3 estrelas</span>
-                                                    <span class="rating-percent">{{ rating_counts.3|default:0 }}</span>
+                                                    <span class="rating-percent">{{rating_counts.3|default:0}}</span>
                                                 </div>
                                                 <div class="progress">
                                                     <div class="progress-bar bg-warning" role="progressbar"
@@ -766,8 +758,7 @@
                                                         aria-valuenow="{{ rating_percent.3|default:0|floatformat:1 }}"
                                                         aria-valuemin="0" aria-valuemax="100">
                                                     </div>
-                                                    <span class="value-text">{{ rating_percent.3|default:0|floatformat:0
-                                                        }}%</span>
+                                                    <span class="value-text">{{rating_percent.3|default:0|floatformat:0}}%</span>
                                                 </div>
                                             </div>
 
@@ -775,7 +766,7 @@
                                             <div class="single-progress-bar">
                                                 <div class="rating-text">
                                                     <span class="text">2 estrelas</span>
-                                                    <span class="rating-percent">{{ rating_counts.2|default:0 }}</span>
+                                                    <span class="rating-percent">{{rating_counts.2|default:0}}</span>
                                                 </div>
                                                 <div class="progress">
                                                     <div class="progress-bar bg-warning" role="progressbar"
@@ -783,8 +774,7 @@
                                                         aria-valuenow="{{ rating_percent.2|default:0|floatformat:1 }}"
                                                         aria-valuemin="0" aria-valuemax="100">
                                                     </div>
-                                                    <span class="value-text">{{ rating_percent.2|default:0|floatformat:0
-                                                        }}%</span>
+                                                    <span class="value-text">{{rating_percent.2|default:0|floatformat:0}}%</span>
                                                 </div>
                                             </div>
 
@@ -792,7 +782,7 @@
                                             <div class="single-progress-bar">
                                                 <div class="rating-text">
                                                     <span class="text">1 estrela</span>
-                                                    <span class="rating-percent">{{ rating_counts.1|default:0 }}</span>
+                                                    <span class="rating-percent">{{rating_counts.1|default:0}}</span>
                                                 </div>
                                                 <div class="progress">
                                                     <div class="progress-bar bg-warning" role="progressbar"
@@ -800,8 +790,7 @@
                                                         aria-valuenow="{{ rating_percent.1|default:0|floatformat:1 }}"
                                                         aria-valuemin="0" aria-valuemax="100">
                                                     </div>
-                                                    <span class="value-text">{{ rating_percent.1|default:0|floatformat:0
-                                                        }}%</span>
+                                                    <span class="value-text">{{rating_percent.1|default:0|floatformat:0}}%</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -821,8 +810,7 @@
                         <div class="rbt-course-review about-author rbt-shadow-box mb--30" id="review-form">
                             <div class="section-title text-start mb--20">
                                 <h4 class="rbt-title-style-3">
-                                    {% if comentario_existente %}Editar sua Avaliação{% else %}Avalie este Curso{% endif
-                                    %}
+                                    {% if comentario_existente %}Editar sua Avaliação{% else %}Avalie este Curso{% endif %}
                                 </h4>
                             </div>
                             <form action="{% url 'adicionar_comentario' curso.id %}" method="POST">
@@ -832,9 +820,7 @@
                                     <label class="mb--10">Sua classificação:</label>
                                     <div class="rbt-rating">
                                         {% for i in "54321" %}
-                                        <input type="radio" name="avaliacao" id="star{{ i }}" value="{{ i }}" {% if
-                                            comentario_existente and comentario_existente.avaliacao==i|add:0 %}checked{%
-                                            endif %} required>
+                                        <input type="radio" name="avaliacao" id="star{{ i }}" value="{{ i }}" {% if comentario_existente and comentario_existente.avaliacao == i|add:0 %}checked{% endif %} required>
                                         <label for="star{{ i }}"><i class="fa fa-star"></i></label>
                                         {% endfor %}
                                     </div>
@@ -866,16 +852,15 @@
 
                                 <div class="form-group mb--20">
                                     <label for="id_comentario">Seu Comentário</label>
-                                    {{ avaliacao_form.comentario }}
+                                    {{avaliacao_form.comentario}}
                                     {% if avaliacao_form.comentario.errors %}
-                                    <div class="text-danger small mt-1">{{ avaliacao_form.comentario.errors }}</div>
+                                    <div class="text-danger small mt-1">{{avaliacao_form.comentario.errors}}</div>
                                     {% endif %}
                                 </div>
 
                                 <button type="submit" class="rbt-btn btn-md btn-gradient hover-icon-reverse w-100">
                                     <span class="icon-reverse-wrapper">
-                                        <span class="btn-text">{% if comentario_existente %}Atualizar Avaliação{% else
-                                            %}Enviar Avaliação{% endif %}</span>
+                                        <span class="btn-text">{% if comentario_existente %}Atualizar Avaliação{% else %}Enviar Avaliação{% endif %}</span>
                                         <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                         <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                     </span>
@@ -889,7 +874,7 @@
                             <div class="section-title">
                                 <h4 class="rbt-title-style-3">
                                     <span class="sub-title">Avaliações dos Alunos</span>
-                                    <span class="badge bg-primary ms--2">{{ comentarios.count }}</span>
+                                    <span class="badge bg-primary ms--2">{{comentarios.count}}</span>
                                 </h4>
                             </div>
 
@@ -907,7 +892,7 @@
                                                     height="60">
                                                 {% else %}
                                                 <div class="avatar-placeholder">
-                                                    {{ comentario.aluno.nome|first|upper }}
+                                                    {{comentario.aluno.nome|first|upper}}
                                                 </div>
                                                 {% endif %}
                                             </a>
@@ -915,7 +900,7 @@
                                         <div class="media-body">
                                             <div class="author-info">
                                                 <h5 class="title mb--5">
-                                                    {{ comentario.aluno.nome }}
+                                                    {{comentario.aluno.nome}}
                                                     {% if comentario.status_aluno == 'COM' %}
                                                     <span class="rbt-badge bg-success-opacity ms--2">
                                                         <i class="feather-award"></i> Concluiu o curso
@@ -927,9 +912,9 @@
                                                     {% endif %}
                                                 </h5>
                                                 <div class="rating mb--10">
-                                                    {{ comentario.get_estrelas|safe }}
+                                                    {{comentario.get_estrelas|safe}}
                                                     <span class="text-muted ms--2">
-                                                        {{ comentario.data_comentario|date:"d/m/Y" }}
+                                                        {{comentario.data_comentario|date:"d/m/Y"}}
                                                         {% if comentario.editado %}
                                                         <span class="text-muted small">(editado)</span>
                                                         {% endif %}
@@ -937,7 +922,7 @@
                                                 </div>
                                             </div>
                                             <div class="content">
-                                                <p class="description mb--10">{{ comentario.comentario|linebreaks }}</p>
+                                                <p class="description mb--10">{{comentario.comentario|linebreaks}}</p>
 
                                                 <!-- Resposta do instrutor/centro -->
                                                 {% if comentario.resposta %}
@@ -947,18 +932,17 @@
                                                             <i class="feather-message-square"></i> Resposta do instrutor
                                                         </strong>
                                                         <span class="text-muted small ms-auto">
-                                                            {{ comentario.resposta_data|date:"d/m/Y" }}
+                                                            {{comentario.resposta_data|date:"d/m/Y"}}
                                                         </span>
                                                     </div>
-                                                    <p class="mb--0">{{ comentario.resposta|linebreaks }}</p>
+                                                    <p class="mb--0">{{comentario.resposta|linebreaks}}</p>
                                                 </div>
                                                 {% endif %}
 
                                                 <!-- Ações -->
                                                 <div class="comentario-acoes mt--10">
                                                     <div class="btn-group btn-group-sm" role="group">
-                                                        {% if user.is_authenticated and user.tipo_usuario == 'ALUNO' and
-                                                        user.aluno_profile.id == comentario.aluno.id %}
+                                                        {% if user.is_authenticated and user.tipo_usuario == 'ALUNO' and user.aluno_profile.id == comentario.aluno.id %}
                                                         <button type="button" class="btn btn-outline-primary btn-sm"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#editarAvaliacaoModal">
@@ -971,8 +955,7 @@
                                                         </a>
                                                         {% endif %}
 
-                                                        {% if user.is_authenticated and user.tipo_usuario == 'ALUNO' and
-                                                        user.aluno_profile.id != comentario.aluno.id %}
+                                                        {% if user.is_authenticated and user.tipo_usuario == 'ALUNO' and user.aluno_profile.id != comentario.aluno.id %}
                                                         <button type="button"
                                                             class="btn btn-outline-secondary btn-sm denunciar-btn"
                                                             data-comentario-id="{{ comentario.id }}">
@@ -1019,7 +1002,7 @@
                                         <h6 class="mb--5">Você já avaliou este curso!</h6>
                                         <p class="mb--0">
                                             Sua avaliação:
-                                            {{ comentario_existente.get_estrelas|safe }}
+                                            {{comentario_existente.get_estrelas|safe}}
                                             em {{ comentario_existente.data_comentario|date:"d/m/Y" }}
                                             <button class="rbt-btn btn-outline-primary btn-sm ms--2"
                                                 data-bs-toggle="modal" data-bs-target="#editarAvaliacaoModal">
@@ -1141,22 +1124,22 @@
                                         <span class="current-price display-4 fw-bold color-primary">Gratuito</span>
                                         {% elif curso.em_promocao %}
                                         <span class="current-price display-4 fw-bold color-primary">
-                                            {{ curso.preco_promocional|floatformat:0 }} KZ
+                                            {{curso.preco_promocional|floatformat:0}} KZ
                                         </span>
                                         <span class="off-price d-block">
-                                            <del>{{ curso.preco|floatformat:0 }} KZ</del>
+                                            <del>{{curso.preco|floatformat:0}} KZ</del>
                                             <span class="discount-badge ms--2">
-                                                -{{ curso.percentual_desconto|floatformat:0 }}%
+                                                -{{curso.percentual_desconto|floatformat:0}}%
                                             </span>
                                         </span>
                                         {% else %}
                                         <span class="current-price display-4 fw-bold color-primary">
-                                            {{ curso.preco|floatformat:0 }} KZ
+                                            {{curso.preco|floatformat:0}} KZ
                                         </span>
                                         {% if curso.permite_parcelamento %}
                                         <span class="installment-info d-block">
                                             ou {{ curso.max_parcelas }}x de
-                                            {{ curso.preco|divide:curso.max_parcelas|floatformat:0 }} KZ
+                                            {{curso.preco|divide:curso.max_parcelas|floatformat:0}} KZ
                                         </span>
                                         {% endif %}
                                         {% endif %}
@@ -1180,7 +1163,7 @@
                                         </a>
                                         {% else %}
                                         <a class="rbt-btn btn-secondary w-100 d-block text-center disabled">
-                                            <i class="feather-clock"></i> {{ aluno_inscricao.get_status_display }}
+                                            <i class="feather-clock"></i> {{aluno_inscricao.get_status_display}}
                                         </a>
                                         {% endif %}
                                     </div>
@@ -1246,23 +1229,20 @@
                                         </li>
                                         <li>
                                             <span>Duração</span>
-                                            <span class="rbt-feature-value rbt-badge-5">{{ curso.carga_horaria }}
+                                            <span class="rbt-feature-value rbt-badge-5">{{curso.carga_horaria}}
                                                 horas</span>
                                         </li>
                                         <li>
                                             <span>Nível</span>
-                                            <span class="rbt-feature-value rbt-badge-5">{{ curso.get_nivel_display
-                                                }}</span>
+                                            <span class="rbt-feature-value rbt-badge-5">{{curso.get_nivel_display}}</span>
                                         </li>
                                         <li>
                                             <span>Idioma</span>
-                                            <span class="rbt-feature-value rbt-badge-5">{{ curso.get_idioma_display
-                                                }}</span>
+                                            <span class="rbt-feature-value rbt-badge-5">{{curso.get_idioma_display}}</span>
                                         </li>
                                         <li>
                                             <span>Modalidade</span>
-                                            <span class="rbt-feature-value rbt-badge-5">{{ curso.get_modalidade_display
-                                                }}</span>
+                                            <span class="rbt-feature-value rbt-badge-5">{{curso.get_modalidade_display}}</span>
                                         </li>
                                         <li>
                                             <span>Certificado</span>
@@ -1312,15 +1292,13 @@
                                             <p class="rbt-badge-2 justify-content-center w-100 mb--10">
                                                 <i class="feather-phone mr--5"></i>
                                                 <a href="tel:+244{{ curso.centro.telefone|default:'900000000' }}">
-                                                    <strong>+244 {{ curso.centro.telefone|default:'900 000 000'
-                                                        }}</strong>
+                                                    <strong>+244 {{curso.centro.telefone|default:'900 000 000'}}</strong>
                                                 </a>
                                             </p>
                                             <p class="rbt-badge-2 justify-content-center w-100">
                                                 <i class="feather-mail mr--5"></i>
                                                 <a href="mailto:{{ curso.centro.email|default:'contato@centro.com' }}">
-                                                    <strong>{{ curso.centro.email|default:'contato@centro.com'
-                                                        }}</strong>
+                                                    <strong>{{curso.centro.email|default:'contato@centro.com'}}</strong>
                                                 </a>
                                             </p>
                                         </div>
@@ -1355,8 +1333,7 @@
                                 <div class="star-rating-wrapper">
                                     <div class="star-rating">
                                         {% for i in "54321" %}
-                                        <input type="radio" id="star{{ i }}" name="avaliacao" value="{{ i }}" {% if
-                                            i=="5" %}checked{% endif %} required>
+                                        <input type="radio" id="star{{ i }}" name="avaliacao" value="{{ i }}" {% if i == "5" %}checked{% endif %} required>
                                         <label for="star{{ i }}" title="{{ i }} estrela{{ i|pluralize:'s' }}">
                                             <i class="fa fa-star"></i>
                                         </label>
@@ -1425,8 +1402,7 @@
                                 <div class="star-rating-wrapper">
                                     <div class="star-rating">
                                         {% for i in "54321" %}
-                                        <input type="radio" id="editStar{{ i }}" name="avaliacao" value="{{ i }}" {% if
-                                            comentario_existente.avaliacao==i|add:0 %}checked{% endif %} required>
+                                        <input type="radio" id="editStar{{ i }}" name="avaliacao" value="{{ i }}" {% if comentario_existente.avaliacao == i|add:0 %}checked{% endif %} required>
                                         <label for="editStar{{ i }}" title="{{ i }} estrela{{ i|pluralize:'s' }}">
                                             <i class="fa fa-star"></i>
                                         </label>
@@ -1655,8 +1631,7 @@
                                                     {% for i in "12345" %}
                                                     {% if forloop.counter <= curso_rel.get_media_avaliacoes|default:0 %}
                                                         <i class="fas fa-star text-warning"></i>
-                                                        {% elif forloop.counter <=
-                                                            curso_rel.get_media_avaliacoes|add:0.5|default:0 %} <i
+                                                        {% elif forloop.counter <= curso_rel.get_media_avaliacoes|add:0.5|default:0 %} <i
                                                             class="fas fa-star-half-alt text-warning"></i>
                                                             {% else %}
                                                             <i class="fas fa-star-o text-muted"></i>

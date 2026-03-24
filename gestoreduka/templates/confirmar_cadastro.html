@@ -11,34 +11,177 @@
     {% include 'include/css_gestor.html' %}
 
 </head> 
-<body>
-    
-  <div class="preloader">
-    <div class="loader"></div>
-  </div>
+    <style>
+        :root {
+            --primary-color: #0066ff;
+            --secondary-color: #1a237e;
+            --bg-neutral: #f8fafc;
+        }
 
-<div class="side-overlay"></div>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-neutral);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-    <section class="auth d-flex">
-    <div class="auth-left bg-main-50 flex-center p-24">
-        <img src="{% static 'assets1/images/thumbs/auth-img1.png' %}" alt="">
+        .split-card {
+            background: white;
+            width: 100%;
+            max-width: 950px;
+            min-height: 650px;
+            display: flex;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.1);
+        }
+
+        .split-card__image {
+            flex: 1.1;
+            background-color: var(--secondary-color);
+            background-image: linear-gradient(rgba(26, 35, 126, 0.4), rgba(15, 23, 42, 0.8)), 
+                              url('https://images.unsplash.com/photo-1454165833767-02a6e12621a2?auto=format&fit=crop&q=80&w=1000');
+            background-size: cover;
+            background-position: center;
+            display: none;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 50px;
+            color: white;
+        }
+
+        @media (min-width: 768px) {
+            .split-card__image { display: flex; }
+        }
+
+        .split-card__form {
+            flex: 1;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .brand-logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .brand-logo i {
+            color: var(--primary-color);
+            font-size: 32px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            border: 2px solid #f1f5f9;
+            padding: 12px 16px 12px 48px;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background-color: #f8fafc;
+        }
+
+        .form-control:focus {
+            background-color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 22px;
+        }
+
+        .btn-premium {
+            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0, 102, 255, 0.3);
+            color: white;
+        }
+
+        .password-hint {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 6px;
+            display: block;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #94a3b8;
+            z-index: 10;
+        }
+
+        .alert-custom {
+            border-radius: 12px;
+            border: none;
+            font-size: 14px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+    </style>
+
+    <div class="preloader">
+        <div class="loader"></div>
     </div>
-    <div class="auth-right py-40 px-24 flex-center flex-column">
-        <div class="auth-right__inner mx-auto w-100">
-            <a href="index.html" class="auth-right__logo">
-                <img src="{% static 'assets1/images/logo/logo.png' %}" alt="">
-            </a>
-            <h2 class="mb-8">Crie sua conta 🚀</h2>
-            <p class="text-gray-600 text-15 mb-32">
-                Bem-vindo: <strong>{{ convite.centro.email }}</strong>
-            </p>
 
-            <!-- Mensagens de alerta -->
+    <div class="split-card">
+        <!-- Left Side: Image Content -->
+        <div class="split-card__image">
+            <h2 class="fw-bold text-white mb-2">Seja Bem-vindo</h2>
+            <p class="opacity-75 mb-0">Ative seu acesso administrativo e lidere a transformação do seu centro.</p>
+        </div>
+
+        <!-- Right Side: The Form -->
+        <div class="split-card__form">
+            <div class="text-center mb-4">
+                <a href="/" class="text-decoration-none">
+                    <img src="{% static 'assets/images/logo/Eduka-removebg-preview.png' %}" alt="EdukAngola Logo" style="height: 60px; object-fit: contain;">
+                </a>
+            </div>
+
+            <div class="mb-4 text-center">
+                <h3 class="fw-bold mb-1">Ativar Acesso</h3>
+                <p class="text-muted small">Configurando e-mail: <strong>{{ convite.centro.email }}</strong></p>
+            </div>
+
             {% if messages %}
-            <div class="mb-24">
+            <div class="mb-4">
                 {% for message in messages %}
-                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} 
-                            alert-dismissible fade show" role="alert">
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show alert-custom" role="alert">
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
@@ -48,153 +191,108 @@
 
             <form method="post">
                 {% csrf_token %}
-                <div class="mb-24">
-                    <label for="fullname" class="form-label mb-8 h6">Nome Completo</label>
+                
+                <div class="mb-3">
+                    <label class="form-label">Nome Completo</label>
                     <div class="position-relative">
-                        <input type="text" name="nome" class="form-control py-11 ps-40" id="fullname" 
-                               placeholder="Digite seu nome completo" 
-                               value="{{ nome_value|default:'' }}" required>
-                        <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-600 d-flex">
-                            <i class="ph ph-user"></i>
-                        </span>
+                        <i class="ph ph-user-circle input-icon"></i>
+                        <input type="text" name="nome" class="form-control" placeholder="Seu nome" value="{{ nome_value|default:'' }}" required>
                     </div>
                 </div>
 
-                <div class="mb-24">
-                    <label for="password" class="form-label mb-8 h6">Senha</label>
+                <div class="mb-3">
+                    <label class="form-label">Chave de Segurança</label>
                     <div class="position-relative">
-                        <input type="password" name="senha" class="form-control py-11 ps-40" id="password" 
-                               placeholder="Crie uma senha" 
-                               value="{{ senha_value|default:'' }}" required>
-                        <span class="toggle-password position-absolute top-50 inset-inline-end-0 me-16 translate-middle-y ph ph-eye-slash" data-target="password"></span>
-                        <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-600 d-flex">
-                            <i class="ph ph-lock"></i>
-                        </span>
-                    </div>
-                    <small class="text-muted">Mínimo 8 caracteres, com letras maiúsculas, minúsculas, números e símbolos</small>
-                </div>
-
-                <div class="mb-24">
-                    <label for="confirm-password" class="form-label mb-8 h6">Confirmar Senha</label>
-                    <div class="position-relative">
-                        <input type="password" name="confirm_senha" class="form-control py-11 ps-40" id="confirm-password" 
-                               placeholder="Repita a senha" 
-                               value="{{ confirm_senha_value|default:'' }}" required>
-                        <span class="toggle-password position-absolute top-50 inset-inline-end-0 me-16 translate-middle-y ph ph-eye-slash" data-target="confirm-password"></span>
-                        <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-600 d-flex">
-                            <i class="ph ph-lock"></i>
-                        </span>
+                        <i class="ph ph-lock-key input-icon"></i>
+                        <input type="password" name="senha" id="password" class="form-control" placeholder="Crie uma senha forte" required>
+                        <i class="toggle-password ph ph-eye-slash" data-target="password"></i>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-main rounded-pill w-100">Cadastrar</button>
-
-                <div class="divider my-32 position-relative text-center">
-                    <span class="divider__text text-gray-600 text-13 fw-medium px-26 bg-white">ou cadastre-se com</span>
+                <div class="mb-4">
+                    <label class="form-label">Confirmar Chave</label>
+                    <div class="position-relative">
+                        <i class="ph ph-lock-key input-icon"></i>
+                        <input type="password" name="confirm_senha" id="confirm-password" class="form-control" placeholder="Repita a senha" required>
+                        <i class="toggle-password ph ph-eye-slash" data-target="confirm-password"></i>
+                    </div>
                 </div>
 
-                <ul class="flex-align gap-10 flex-wrap justify-content-center">
-                    <li>
-                        <a href="https://www.facebook.com" class="w-38 h-38 flex-center rounded-6 text-facebook-600 bg-facebook-50 hover-bg-facebook-600 hover-text-white text-lg">
-                            <i class="ph-fill ph-facebook-logo"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://www.twitter.com" class="w-38 h-38 flex-center rounded-6 text-twitter-600 bg-twitter-50 hover-bg-twitter-600 hover-text-white text-lg">
-                            <i class="ph-fill ph-twitter-logo"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://www.google.com" class="w-38 h-38 flex-center rounded-6 text-google-600 bg-google-50 hover-bg-google-600 hover-text-white text-lg">
-                            <i class="ph ph-google-logo"></i>
-                        </a>
-                    </li>
-                </ul>
+                <button type="submit" class="btn btn-premium w-100 mb-3 text-uppercase">Ativar Meu Acesso</button>
+
+                <div class="text-center mt-3">
+                    <a href="{% url 'login_gestor' %}" class="text-primary small fw-bold text-decoration-none">Voltar ao Login</a>
+                </div>
             </form>
         </div>
     </div>
-</section>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Mostrar/ocultar senha
-    const toggleButtons = document.querySelectorAll('.toggle-password');
-    
-    toggleButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const targetId = this.getAttribute('data-target');
-            const passwordInput = document.getElementById(targetId);
-            
-            if (passwordInput) {
-                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                passwordInput.setAttribute('type', type);
-                this.classList.toggle('ph-eye');
-                this.classList.toggle('ph-eye-slash');
-            }
-        });
-    });
-
-    // Auto-dismiss alerts após 8 segundos
-    const alerts = document.querySelectorAll('.alert');
-    alerts.forEach(function(alert) {
-        setTimeout(function() {
-            if (alert.parentNode) {
-                alert.style.opacity = '0';
-                setTimeout(function() {
-                    if (alert.parentNode) {
-                        alert.parentNode.removeChild(alert);
-                    }
-                }, 300);
-            }
-        }, 8000);
-    });
-
-    // Validação em tempo real da senha
-    const passwordInput = document.getElementById('password');
-    if (passwordInput) {
-        passwordInput.addEventListener('input', function() {
-            const senha = this.value;
-            const hasUpperCase = /[A-Z]/.test(senha);
-            const hasLowerCase = /[a-z]/.test(senha);
-            const hasNumbers = /[0-9]/.test(senha);
-            const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(senha);
-            const isLongEnough = senha.length >= 8;
-
-            // Aqui você pode adicionar feedback visual se quiser
-        });
-    }
-});
-</script>
-
-        <!-- Jquery js -->
     <script src="{% static 'assets1/js/jquery-3.7.1.min.js' %}"></script>
-    <!-- Bootstrap Bundle Js -->
     <script src="{% static 'assets1/js/boostrap.bundle.min.js' %}"></script>
-    <!-- Phosphor Js -->
     <script src="{% static 'assets1/js/phosphor-icon.js' %}"></script>
-    <!-- file upload -->
-    <script src="{% static 'assets1/js/file-upload.js' %}"></script>
-    <!-- file upload -->
-    <script src="{% static 'assets1/js/plyr.js' %}"></script>
-    <!-- dataTables -->
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
-    <!-- full calendar -->
-    <script src="{% static 'assets1/js/full-calendar.js' %}"></script>
-    <!-- jQuery UI -->
-    <script src="{% static 'assets1/js/jquery-ui.js' %}"></script>
-    <!-- jQuery UI -->
-    <script src="{% static 'assets1/js/editor-quill.js' %}"></script>
-    <!-- apex charts -->
-    <script src="{% static 'assets1/js/apexcharts.min.js' %}"></script>
-    <!-- jvectormap Js -->
-    <script src="{% static 'assets1/js/jquery-jvectormap-2.0.5.min.js' %}"></script>
-    <!-- jvectormap world Js -->
-    <script src="{% static 'assets1/js/jquery-jvectormap-world-mill-en.js' %}"></script>
-    
-    <!-- main js -->
-    <script src="{% static 'assets1/js/main.js' %}"></script>
 
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleButtons = document.querySelectorAll('.toggle-password');
+        
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const passwordInput = document.getElementById(targetId);
+                
+                if (passwordInput) {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    this.classList.toggle('ph-eye');
+                    this.classList.toggle('ph-eye-slash');
+                }
+            });
+        });
 
+        // Auto-dismiss alerts
+        setTimeout(function() {
+            $('.alert').fadeOut('slow');
+        }, 6000);
+    });
+    </script>
+</body>
+</html>
 
-    </body>
+    <script src="{% static 'assets1/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'assets1/js/boostrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets1/js/phosphor-icon.js' %}"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleButtons = document.querySelectorAll('.toggle-password');
+        
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const passwordInput = document.getElementById(targetId);
+                
+                if (passwordInput) {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    this.classList.toggle('ph-eye');
+                    this.classList.toggle('ph-eye-slash');
+                }
+            });
+        });
+
+        // Auto-dismiss alerts
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                if ($(alert).length > 0) {
+                    $(alert).fadeOut('slow', function() {
+                        $(this).remove();
+                    });
+                }
+            }, 6000);
+        });
+    });
+    </script>
+</body>
+</html>
 </html>

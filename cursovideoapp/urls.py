@@ -2,6 +2,8 @@
 from django.urls import path
 from . import views
 
+app_name = 'cursovideoapp'
+
 urlpatterns = [
     path('', views.home_videos, name="home_videos"), # Replacing empty path
     path('lista/', views.lista_cursos, name="lista_cursos"),
@@ -12,4 +14,8 @@ urlpatterns = [
     path('<slug:slug>/comentar/', views.salvar_comentario_video, name="salvar_comentario_video"),
     path('<slug:curso_slug>/aula/<int:pk>/', views.ver_aula, name="ver_aula"),
     path('aula/<int:aula_id>/progresso/', views.atualizar_progresso, name="atualizar_progresso"),
+    
+    # Certificados
+    path('emitir-certificado/<slug:curso_slug>/', views.emitir_certificado, name="emitir_certificado"),
+    path('verificar-certificado/<str:codigo>/', views.verificar_certificado, name="verificar_certificado"),
 ]

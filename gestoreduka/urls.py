@@ -58,5 +58,16 @@ urlpatterns = [
     path('chat/modal/enviar-mensagem/', views.enviar_mensagem_centro_modal, name='enviar_mensagem_centro_modal'),
     path('chat/modal/atualizar-digitando/', views.atualizar_digitando_modal, name='atualizar_digitando_modal'),
     path('chat/modal/buscar-mensagens/<int:conversa_id>/', views.buscar_mensagens_modal, name='buscar_mensagens_modal'),
-
+    
+    # Filiais
+    path('filiais/', views.gerenciar_filiais, name='gerenciar_filiais'),
+    path('filiais/criar/', views.criar_filial, name='criar_filial'),
+    path('filiais/editar/<int:filial_id>/', views.editar_filial, name='editar_filial'),
+    
+    # Alunos (Motor de Busca e Dossiê)
+    path('alunos/', views.gerenciar_alunos, name='gerenciar_alunos'),
+    path('alunos/<int:aluno_id>/dossie/', views.dossie_aluno, name='dossie_aluno'),
+    
+    # Administrativo / Financeiro
+    path('financeiro/', views.gerenciar_financeiro, name='gerenciar_financeiro'),
 ]

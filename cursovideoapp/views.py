@@ -1,15 +1,56 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django.db.models import Count, Q, Avg
+from django.db.models import Count, Q, Avg, Sum
 from django.utils import timezone
 from datetime import timedelta
 import json
 from django.urls import reverse
+from django.core.exceptions import ObjectDoesNotExist
 
 from cursos_app.models import Categoria, Instrutor
-from cursovideoapp.models import Curso_video, FavoritoCursoVideo, Aula, ProgressoAula
+from cursovideoapp.models import Curso_video, FavoritoCursoVideo, Aula, ProgressoAula, Certificado
+
+@login_required
+def emitir_certificado(request, curso_slug):
+    """
+    Gera ou exibe o certificado de conclusão do curso para o aluno logado.
+    """
+    curso = get_object_or_404(Curso_video, slug=curso_slug)
+    try:
+        aluno = request.user.aluno_profile
+    except (ObjectDoesNotExist, AttributeError):
+        return redirect('index')
+    
+    # Verificar se o aluno concluiu todas as aulas
+    if not curso.verificar_conclusao(aluno):
+        return redirect('cursovideoapp:detalhe_curso', slug=curso_slug)
+    
+    # Obter ou criar o certificado
+    certificado, created = Certificado.objects.get_or_create(aluno=aluno, curso=curso)
+    
+    # Gerar link de verificação completo para o QR Code
+    verificacao_url = request.build_absolute_uri(
+        reverse('cursovideoapp:verificar_certificado', kwargs={'codigo': certificado.codigo_verificacao})
+    )
+    
+    return render(request, 'cursovideo/certificado.html', {
+        'certificado': certificado,
+        'aluno': aluno,
+        'curso': curso,
+        'verificacao_url': verificacao_url
+    })
+
+def verificar_certificado(request, codigo):
+    """
+    Página pública para validar a autenticidade de um certificado.
+    """
+    certificado = get_object_or_404(Certificado, codigo_verificacao=codigo)
+    return render(request, 'cursovideo/verificar_certificado.html', {
+        'certificado': certificado
+    })
 from avaliacoes.models import Comentario
 from cursos_app.forms import AvaliacaoForm
 
@@ -27,6 +68,11 @@ def home_videos(request):
         num_inscritos=Count('inscritos')
     ).order_by('-num_inscritos')[:4]
     
+    # 3. Most Watched (Mais Assistidos) - based on total lesson views
+    videos_assistidos = Curso_video.objects.annotate(
+        total_views=Sum('aulas__visualizacoes')
+    ).order_by('-total_views')[:4]
+    
     # Categories for filter
     categorias = Categoria.objects.annotate(
         num_cursos=Count('cursos_video')
@@ -35,6 +81,7 @@ def home_videos(request):
     context = {
         'videos_recentes': videos_recentes,
         'videos_populares': videos_populares,
+        'videos_assistidos': videos_assistidos,
         'categorias': categorias,
         'aluno_logado': False,
         'favoritos': [],
@@ -49,7 +96,7 @@ def home_videos(request):
                 'aluno_logado': True,
                 'favoritos': list(favoritos),
             })
-        except AttributeError:
+        except (ObjectDoesNotExist, AttributeError):
             pass
             
     return render(request, 'cursovideo/home.html', context)
@@ -67,7 +114,11 @@ def toggle_favorito_video(request):
         data = json.loads(request.body)
         curso_id = data.get('curso_id')
         curso = Curso_video.objects.get(id=curso_id)
-        aluno = request.user.aluno_profile
+        
+        try:
+            aluno = request.user.aluno_profile
+        except (ObjectDoesNotExist, AttributeError):
+            return JsonResponse({'status': 'error', 'message': 'Perfil de aluno não encontrado'}, status=403)
         
         favorito, created = FavoritoCursoVideo.objects.get_or_create(aluno=aluno, curso=curso)
         
@@ -108,10 +159,14 @@ def api_load_more_videos(request):
         data = []
         favoritos = []
         if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
-             favoritos = list(FavoritoCursoVideo.objects.filter(
-                 aluno=request.user.aluno_profile, 
-                 curso__in=cursos
-             ).values_list('curso_id', flat=True))
+             try:
+                 aluno = request.user.aluno_profile
+                 favoritos = list(FavoritoCursoVideo.objects.filter(
+                     aluno=aluno, 
+                     curso__in=cursos
+                 ).values_list('curso_id', flat=True))
+             except (ObjectDoesNotExist, AttributeError):
+                 favoritos = []
 
         for curso in cursos:
             # Fallback for image
@@ -154,7 +209,7 @@ def detalhe_curso(request, slug):
         try:
             aluno_obj = request.user.aluno_profile
             aluno_inscrito = curso.inscritos.filter(id=aluno_obj.id).exists()
-        except AttributeError:
+        except (ObjectDoesNotExist, AttributeError):
             aluno_logado = False
 
     # 2. Carregar comentários e avaliações
@@ -197,6 +252,18 @@ def detalhe_curso(request, slug):
     
     cursos_recomendados = Curso_video.objects.exclude(id=curso.id)[:6]
             
+    # 4. Calcular progresso do curso se aluno logado e inscrito
+    progresso_total = 0
+    if aluno_inscrito:
+        total_aulas = curso.aulas.count()
+        if total_aulas > 0:
+            aulas_concluidas = ProgressoAula.objects.filter(
+                aluno=aluno_obj, 
+                aula__curso=curso, 
+                concluida=True
+            ).count()
+            progresso_total = int((aulas_concluidas / total_aulas) * 100)
+            
     return render(request, 'cursovideo/detalhe_curso.html', {
         'curso': curso,
         'aluno_logado': aluno_logado,
@@ -211,6 +278,7 @@ def detalhe_curso(request, slug):
         'comentario_existente': comentario_existente,
         'total_visualizacoes': curso.aulas.all().count(), # Simplificado para exemplo
         'cursos_recomendados': cursos_recomendados,
+        'progresso_total': progresso_total,
     })
 
 @login_required
@@ -219,42 +287,100 @@ def toggle_inscricao(request, slug):
     Inscreve ou remove a inscrição de um aluno em um curso.
     """
     curso = get_object_or_404(Curso_video, slug=slug)
+    
     if request.user.tipo_usuario != 'ALUNO':
-        # Handle non-student logic
-        return redirect('detalhe_curso', slug=slug)
+        return redirect('cursovideoapp:detalhe_curso', slug=slug)
         
-    aluno = request.user.aluno_profile
+    try:
+        aluno = request.user.aluno_profile
+    except (ObjectDoesNotExist, AttributeError):
+        # Se for um Aluno sem perfil (deveria ser raro, mas acontece)
+        messages.error(request, "Perfil de aluno não encontrado. Por favor, complete o seu registo.")
+        return redirect('index')
+
     if curso.inscritos.filter(id=aluno.id).exists():
         curso.inscritos.remove(aluno)
     else:
         curso.inscritos.add(aluno)
-    return redirect('detalhe_curso', slug=slug)
+        
+    return redirect('cursovideoapp:detalhe_curso', slug=slug)
 
 @login_required
 def ver_aula(request, curso_slug, pk):
     """
-    Interface de visualização de uma aula específica do curso.
+    Interface de visualização de uma aula específica do curso com lógica de desbloqueio sequencial.
     """
     curso = get_object_or_404(Curso_video, slug=curso_slug)
     aula_atual = get_object_or_404(Aula, pk=pk, curso=curso)
     
-    # Check enrollment
-    if not curso.inscritos.filter(id=request.user.aluno_profile.id).exists():
-        return redirect('detalhe_curso', slug=curso_slug)
+    # Verificar inscrição
+    try:
+        aluno = request.user.aluno_profile
+    except (ObjectDoesNotExist, AttributeError):
+        return redirect('index')
+        
+    if not curso.inscritos.filter(id=aluno.id).exists():
+        return redirect('cursovideoapp:detalhe_curso', slug=curso_slug)
     
     aulas = curso.aulas.all().order_by('ordem')
     
-    # Get previous/next
+    # Lógica de desbloqueio sequencial
+    progressos = ProgressoAula.objects.filter(aluno=aluno, aula__curso=curso)
+    concluidas_ids = set(progressos.filter(concluida=True).values_list('aula_id', flat=True))
+    
+    aulas_status = []
+    # A primeira aula está sempre desbloqueada
+    aula_anterior_concluida = True 
+    
+    for i, aula in enumerate(aulas):
+        if i == 0 or not aula.requer_conclusao_anterior:
+            is_unlocked = True
+        else:
+            # Desbloqueada se a anterior estiver concluída
+            is_unlocked = aulas[i-1].id in concluidas_ids
+            
+        aulas_status.append({
+            'id': aula.id,
+            'titulo': aula.titulo,
+            'pk': aula.pk,
+            'duracao_formatada': aula.duracao_formatada(),
+            'is_unlocked': is_unlocked,
+            'is_completed': aula.id in concluidas_ids,
+            'ordem': aula.ordem,
+            'requer_conclusao_anterior': aula.requer_conclusao_anterior
+        })
+    
+    # Verificação de segurança: impedir acesso via URL a aulas bloqueadas
+    aula_atual_info = next((item for item in aulas_status if item['id'] == aula_atual.id), None)
+    if not aula_atual_info or not aula_atual_info['is_unlocked']:
+        # Encontrar a última aula desbloqueada para redirecionar
+        ultima_desbloqueada = next((item for item in reversed(aulas_status) if item['is_unlocked']), None)
+        if ultima_desbloqueada:
+            return redirect('cursovideoapp:ver_aula', curso_slug=curso_slug, pk=ultima_desbloqueada['pk'])
+        return redirect('cursovideoapp:detalhe_curso', slug=curso_slug)
+
     proxima_aula = aulas.filter(ordem__gt=aula_atual.ordem).first()
     aula_anterior = aulas.filter(ordem__lt=aula_atual.ordem).last()
+    
+    # Calcular progresso total
+    total_aulas = len(aulas_status)
+    aulas_concluidas = sum(1 for item in aulas_status if item['is_completed'])
+    progresso_total = int((aulas_concluidas / total_aulas) * 100) if total_aulas > 0 else 0
+    
+    # Obter progresso atual para controle de avanço no player
+    progresso_atual, created = ProgressoAula.objects.get_or_create(aluno=aluno, aula=aula_atual)
     
     return render(request, 'cursovideo/ver_aula.html', {
         'curso': curso,
         'aula_atual': aula_atual,
         'proxima_aula': proxima_aula,
         'aula_anterior': aula_anterior,
-        'aulas': aulas
+        'aulas_status': aulas_status,
+        'aulas': aulas,
+        'progresso_total': progresso_total,
+        'progresso_atual': progresso_atual,
     })
+
 
 @login_required
 def salvar_comentario_video(request, slug):
@@ -263,11 +389,13 @@ def salvar_comentario_video(request, slug):
     """
     curso = get_object_or_404(Curso_video, slug=slug)
     
-    # 1. Obter aluno
     if request.user.tipo_usuario != 'ALUNO':
-        return redirect('detalhe_curso', slug=slug)
+        return redirect('cursovideoapp:detalhe_curso', slug=slug)
         
-    aluno = request.user.aluno_profile
+    try:
+        aluno = request.user.aluno_profile
+    except (ObjectDoesNotExist, AttributeError):
+        return redirect('index')
     
     # 2. Verificar se aluno está inscrito
     if not curso.inscritos.filter(id=aluno.id).exists():
@@ -294,8 +422,9 @@ def atualizar_progresso(request, aula_id):
     """
     aula = get_object_or_404(Aula, id=aula_id)
     
-    if request.user.tipo_usuario != 'ALUNO':
-        return JsonResponse({'status': 'error', 'message': 'Não autorizado'}, status=403)
+    # Verificar se o usuário tem um perfil de aluno (pode ser admin testando)
+    if not hasattr(request.user, 'aluno_profile') or not request.user.aluno_profile:
+        return JsonResponse({'status': 'error', 'message': 'Perfil de aluno necessário'}, status=403)
         
     aluno = request.user.aluno_profile
     
@@ -307,11 +436,20 @@ def atualizar_progresso(request, aula_id):
     
     # Receber dados do POST
     try:
-        tempo_assistido = float(request.POST.get('tempo_assistido', 0))
-        concluida = request.POST.get('concluida') == 'true'
+        tempo_raw = request.POST.get('tempo_assistido', 0)
+        tempo_assistido = int(float(tempo_raw))
         
-        # Atualizar tempo assistido (armazenado em segundos)
-        progresso.tempo_assistido = int(tempo_assistido)
+        concluida_raw = request.POST.get('concluida', '').lower()
+        concluida = concluida_raw in ['true', '1', 'on', 'yes']
+        
+        # Redundância de segurança no backend
+        if not concluida and aula.duracao_segundos > 0:
+            if (aula.duracao_segundos - tempo_assistido) < 5:
+                concluida = True
+        
+        # Atualizar tempo assistido (armazenado em segundos) apenas se for maior
+        if tempo_assistido > progresso.tempo_assistido:
+            progresso.tempo_assistido = tempo_assistido
         
         if concluida:
             progresso.concluida = True

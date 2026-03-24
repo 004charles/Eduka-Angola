@@ -1,0 +1,104 @@
+{% extends 'base_gestor.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="font-weight-bold text-navy mb-0">Dossiê do Aluno</h2>
+            <p class="text-muted mb-0">Processo individual completo e histórico académico.</p>
+        </div>
+        <a href="{% url 'gerenciar_alunos' %}" class="btn btn-light shadow-sm text-dark font-weight-bold px-4">
+            <i class="feather-arrow-left mr-2"></i>Voltar
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Coluna Esquerda: Perfil -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="card-body text-center p-5">
+                    {% if aluno.perfil.foto_de_perfil %}
+                    <img src="{{ aluno.perfil.foto_de_perfil.url }}" alt="{{ aluno.nome }}" class="rounded-circle mb-3 shadow-sm" style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #fff;">
+                    {% else %}
+                    <div class="avatar avatar-xl bg-violet-light text-violet rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3 font-weight-bold shadow-sm" style="width: 120px; height: 120px; font-size: 2.5rem; border: 4px solid #fff;">
+                        {{ aluno.nome|slice:":1"|upper }}
+                    </div>
+                    {% endif %}
+                    
+                    <h4 class="font-weight-bold text-dark mb-1">{{ aluno.nome }}</h4>
+                    <p class="text-muted small mb-3">ID Registo: #{{ aluno.id|stringformat:"05d" }}</p>
+                    
+                    <div class="d-flex justify-content-center mb-4">
+                        <span class="badge badge-success px-3 py-2" style="border-radius: 8px;">Ativo no Sistema</span>
+                    </div>
+
+                    <hr class="mb-4">
+
+                    <ul class="list-unstyled text-left mb-0">
+                        <li class="mb-3">
+                            <div class="small font-weight-bold text-muted text-uppercase mb-1">Email</div>
+                            <div class="text-dark d-flex align-items-center"><i class="feather-mail mr-2 text-violet"></i> {{ aluno.usuario.email|default:"Não informado" }}</div>
+                        </li>
+                        <li class="mb-3">
+                            <div class="small font-weight-bold text-muted text-uppercase mb-1">Telefone</div>
+                            <div class="text-dark d-flex align-items-center"><i class="feather-phone mr-2 text-violet"></i> {{ aluno.perfil.telefone|default:"Não informado" }}</div>
+                        </li>
+                        <li>
+                            <div class="small font-weight-bold text-muted text-uppercase mb-1">Entrada na Unidade</div>
+                            <div class="text-dark d-flex align-items-center"><i class="feather-calendar mr-2 text-violet"></i> {{ aluno.data_cadastro|date:"d M, Y" }}</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coluna Direita: Histórico -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px; height: 100%;">
+                <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
+                    <h5 class="font-weight-bold text-navy mb-0"><i class="feather-book-open mr-2"></i> Percurso Académico</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="border-top-0 text-uppercase text-muted font-weight-bold" style="font-size: 0.85rem;">Curso</th>
+                                    <th class="border-top-0 text-uppercase text-muted font-weight-bold" style="font-size: 0.85rem;">Turma (se houver)</th>
+                                    <th class="border-top-0 text-uppercase text-muted font-weight-bold" style="font-size: 0.85rem;">Data da Matrícula</th>
+                                    <th class="border-top-0 text-uppercase text-muted font-weight-bold" style="font-size: 0.85rem;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for insp in inscricoes %}
+                                <tr>
+                                    <td class="align-middle font-weight-bold text-dark">{{ insp.curso.titulo }}</td>
+                                    <td class="align-middle text-muted">{{ insp.turma_escolhida.nome|default:"N/A" }}</td>
+                                    <td class="align-middle text-muted">{{ insp.data_inscricao|date:"d/m/Y H:i" }}</td>
+                                    <td class="align-middle">
+                                        {% if insp.status == 'P' %}
+                                        <span class="badge badge-warning text-dark px-2 py-1">Pendente</span>
+                                        {% elif insp.status == 'A' %}
+                                        <span class="badge badge-success px-2 py-1">Ativo/Inscrito</span>
+                                        {% elif insp.status == 'N' %}
+                                        <span class="badge badge-danger px-2 py-1">Negada</span>
+                                        {% elif insp.status == 'C' %}
+                                        <span class="badge badge-secondary px-2 py-1">Cancelada</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">Sem histórico neste centro.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

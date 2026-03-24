@@ -1,0 +1,73 @@
+{% extends 'base_gestor.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="font-weight-bold text-navy mb-0">{{ action }} Filial</h2>
+                    <p class="text-muted mb-0">Preencha os detalhes para {{ action|lower }} esta filial.</p>
+                </div>
+                <a href="{% url 'gerenciar_filiais' %}" class="btn btn-light shadow-sm text-dark font-weight-bold px-4">
+                    <i class="feather-arrow-left mr-2"></i>Voltar
+                </a>
+            </div>
+
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="card-body p-5">
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="font-weight-bold text-dark small text-uppercase">Nome da Filial <span class="text-danger">*</span></label>
+                                <input type="text" name="nome" class="form-control form-control-lg bg-light border-0" value="{{ filial.nome }}" required placeholder="Ex: Ceforita (Talatona)">
+                            </div>
+                            
+                            <div class="col-md-6 mb-4">
+                                <label class="font-weight-bold text-dark small text-uppercase">Telefone/Contacto</label>
+                                <input type="text" name="contato" class="form-control form-control-lg bg-light border-0" value="{{ filial.contato }}" placeholder="Ex: +244 923 000 000">
+                            </div>
+                            
+                            <div class="col-12 mb-4">
+                                <label class="font-weight-bold text-dark small text-uppercase">Endereço Físico</label>
+                                <input type="text" name="endereco" class="form-control form-control-lg bg-light border-0" value="{{ filial.endereco }}" placeholder="Localização completa da filial">
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        <h5 class="font-weight-bold text-navy mb-3"><i class="feather-lock mr-2 text-violet"></i> Credenciais de Acesso (Login)</h5>
+                        <p class="text-muted small mb-4">A filial usará estas credenciais para acessar seu próprio painel de forma autónoma.</p>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="font-weight-bold text-dark small text-uppercase">Email de Acesso {% if action == 'Criar' %}<span class="text-danger">*</span>{% endif %}</label>
+                                <input type="email" name="email" class="form-control form-control-lg bg-light border-0" value="{{ filial.usuario.email }}" {% if action == 'Editar' %}readonly{% else %}required{% endif %} placeholder="email@filial.com">
+                                {% if action == 'Editar' %}
+                                <small class="text-muted mt-1 d-block">O email não pode ser alterado após criação.</small>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-4">
+                                <label class="font-weight-bold text-dark small text-uppercase">{% if action == 'Editar' %}Nova Senha (Opcional){% else %}Senha Inicial <span class="text-danger">*</span>{% endif %}</label>
+                                <input type="password" name="senha" class="form-control form-control-lg bg-light border-0" {% if action == 'Criar' %}required{% endif %} minlength="6" placeholder="******">
+                                {% if action == 'Editar' %}
+                                <small class="text-muted mt-1 d-block">Deixe em branco para manter a senha atual.</small>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" class="btn btn-primary bg-violet border-0 px-5 py-3 font-weight-bold" style="border-radius: 8px;">
+                                {{ action }} Filial
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -86,9 +86,12 @@ class ReacaoComentario(models.Model):
         return f"{self.usuario} reagiu com {self.get_tipo_display()} no comentário {self.comentario.id}"
 
 
+from usuarios.models import Aluno
+
 class Comentario(models.Model):
-    REACOES_CHOICES = ReacaoComentario.REACOES_CHOICES  # agora funciona
+    REACOES_CHOICES = ReacaoComentario.REACOES_CHOICES 
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comentarios')
+    aluno = models.ForeignKey(Aluno, on_delete=models.SET_NULL, null=True, blank=True, related_name='blog_comentarios')
     nome = models.CharField(_('Nome'), max_length=100)
     email = models.EmailField(_('E-mail'))
     mensagem = models.TextField(_('Mensagem'))

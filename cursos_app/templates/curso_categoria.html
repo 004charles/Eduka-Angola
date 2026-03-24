@@ -152,11 +152,11 @@
                                         <span class="select-label d-block">Ordenar por</span>
                                         <select name="ordenar" onchange="this.form.submit()">
                                             <option value="">Padrão</option>
-                                            <option value="recentes" {% if filtros.ordenar=='recentes' %}selected{% endif %}>Mais recentes</option>
-                                            <option value="popularidade" {% if filtros.ordenar=='popularidade' %}selected{% endif %}>Popularidade</option>
-                                            <option value="mais_procurados" {% if filtros.ordenar=='mais_procurados' %}selected{% endif %}>Mais vistos</option>
-                                            <option value="preco_baixo" {% if filtros.ordenar=='preco_baixo' %}selected{% endif %}>Preço: menor para maior</option>
-                                            <option value="preco_alto" {% if filtros.ordenar=='preco_alto' %}selected{% endif %}>Preço: maior para menor</option>
+                                            <option value="recentes" {% if filtros.ordenar == 'recentes' %}selected{% endif %}>Mais recentes</option>
+                                            <option value="popularidade" {% if filtros.ordenar == 'popularidade' %}selected{% endif %}>Popularidade</option>
+                                            <option value="mais_procurados" {% if filtros.ordenar == 'mais_procurados' %}selected{% endif %}>Mais vistos</option>
+                                            <option value="preco_baixo" {% if filtros.ordenar == 'preco_baixo' %}selected{% endif %}>Preço: menor para maior</option>
+                                            <option value="preco_alto" {% if filtros.ordenar == 'preco_alto' %}selected{% endif %}>Preço: maior para menor</option>
                                         </select>
                                     </div>
                                 </div>

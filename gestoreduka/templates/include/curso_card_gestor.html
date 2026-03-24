@@ -1,0 +1,76 @@
+<div class="card premium-card border-0 shadow-sm transition-all h-100 overflow-hidden">
+    <div class="card-body p-12">
+        <div class="position-relative mb-16 overflow-hidden rounded-12 shadow-sm">
+            <a href="{% url 'curso_overview' curso.id %}" class="d-block aspect-ratio-16-9">
+                {% if curso.imagem %}
+                <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}" class="w-100 h-100 object-fit-cover transition-all hover-scale-110">
+                {% else %}
+                <div class="w-100 h-100 bg-gray-50 flex-center">
+                    <i class="ph ph-book-open text-4xl text-gray-200"></i>
+                </div>
+                {% endif %}
+            </a>
+            <div class="position-absolute top-12 left-12">
+                <span class="badge rounded-pill {% if curso.publicado %}bg-success-50 text-success-600{% else %}bg-warning-50 text-warning-600{% endif %} px-12 py-6 border-0 fw-bold shadow-sm">
+                    {% if curso.publicado %}Ativo{% else %}Rascunho{% endif %}
+                </span>
+            </div>
+            {% if curso.destaque_home %}
+            <div class="position-absolute top-12 right-12">
+                <div class="w-32 h-32 rounded-circle bg-amber-400 text-gray-900 flex-center shadow-sm" title="Destaque">
+                    <i class="ph ph-star fw-bold"></i>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="px-8 flex-grow-1 d-flex flex-column">
+            <div class="d-flex align-items-center gap-8 mb-10 mt-4">
+                <span class="text-11 fw-bold text-primary-600 px-8 py-4 bg-primary-50 rounded-6 text-uppercase letter-spacing-05">
+                    {{ curso.categoria.nome|default:"Geral" }}
+                </span>
+                <span class="text-11 text-gray-400 d-flex align-items-center gap-4 fw-medium">
+                    <i class="ph ph-clock text-14"></i> {{ curso.carga_horaria }}h
+                </span>
+            </div>
+            
+            <h6 class="mb-12 lh-base line-clamp-2" style="min-height: 48px;">
+                <a href="{% url 'curso_overview' curso.id %}" class="text-gray-900 hover-text-primary-600 transition-all fw-bold">
+                    {{ curso.titulo }}
+                </a>
+            </h6>
+
+            <div class="d-flex align-items-center justify-content-between pt-16 border-top border-gray-50 mt-auto">
+                <div class="d-flex align-items-center gap-8">
+                    {% with instrutor=curso.instrutores.first %}
+                    {% if instrutor %}
+                        {% if instrutor.foto %}
+                        <img src="{{ instrutor.foto.url }}" class="w-24 h-24 rounded-circle border border-white shadow-sm object-fit-cover" alt="">
+                        {% else %}
+                        <div class="w-24 h-24 rounded-circle bg-primary-50 text-primary-600 flex-center text-10 fw-bold border border-white shadow-sm">{{ instrutor.nome|first }}</div>
+                        {% endif %}
+                        <span class="text-12 text-gray-500 fw-medium">{{ instrutor.nome|truncatechars:15 }}</span>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+                <div class="badge bg-gray-50 text-gray-500 text-10 px-8 py-4 rounded-4 fw-bold">
+                    {{ curso.get_nivel_display|upper }}
+                </div>
+            </div>
+
+            <div class="mt-20 d-flex gap-8">
+                <a href="{% url 'curso_overview' curso.id %}" class="btn btn-outline-gray rounded-10 py-10 px-12 flex-grow-1 text-12 fw-bold transition-all hover-bg-gray-900 hover-text-white">
+                    <i class="ph ph-gear me-4"></i> Gerenciar
+                </a>
+                {% if not curso.publicado %}
+                <form method="post" action="{% url 'publicar_curso' curso.id %}" class="flex-grow-1">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary-600 rounded-10 py-10 px-12 w-100 text-12 fw-bold shadow-sm">
+                        <i class="ph ph-rocket-launch me-4"></i> Publicar
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

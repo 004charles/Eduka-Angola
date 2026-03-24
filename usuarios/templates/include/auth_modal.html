@@ -1,0 +1,307 @@
+{% load static %}
+{% load i18n %}
+
+<div class="modal fade rbt-modal-default" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content overflow-hidden border-0 radius-10">
+            <div class="modal-body p-0">
+                <button type="button" class="btn-close position-absolute top-0 end-0 m-4 z-index-1" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="row g-0">
+                    <!-- Left Side: Visual -->
+                    <div class="col-lg-6 d-none d-lg-block">
+                        <div class="h-100 min-vh-50" style="background-image: url('https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1000'); background-size: cover; background-position: center;">
+                            <div class="h-100 w-100 d-flex align-items-end p-5" style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
+                                <div class="text-white">
+                                    <h2 class="text-white mb-3">{% trans "Aprenda sem limites" %}</h2>
+                                    <p class="mb-0">{% trans "Junte-se a milhares de alunos e comece a sua jornada educativa hoje mesmo na EdukAngola." %}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Side: Forms -->
+                    <div class="col-lg-6 col-12">
+                        <div class="p-5">
+                            <div class="rbt-default-tab">
+                                <ul class="nav nav-tabs justify-content-start mb-5" role="tablist" id="authTabList">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-panel" type="button" role="tab" aria-controls="login-panel" aria-selected="true">{% trans "Entrar" %}</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-panel" type="button" role="tab" aria-controls="register-panel" aria-selected="false">{% trans "Registar" %}</button>
+                                    </li>
+                                </ul>
+
+                                <div class="tab-content border-0 p-0">
+                                    <!-- Login Panel -->
+                                    <div class="tab-pane fade show active" id="login-panel" role="tabpanel" aria-labelledby="login-tab">
+                                        <div class="section-title mb-4">
+                                            <h4 class="title">{% trans "Bem-vindo de volta!" %}</h4>
+                                            <p class="description">{% trans "Por favor, insira as suas credenciais." %}</p>
+                                        </div>
+                                        
+                                        <form id="ajax-login-form" method="POST" action="{% url 'valida_login_aluno' %}">
+                                            {% csrf_token %}
+                                            <div id="login-error-msg" class="alert alert-danger d-none mb-4"></div>
+                                            
+                                            <div class="form-group mb-4">
+                                                <label class="form-label">{% trans "E-mail ou Usuário" %}</label>
+                                                <input type="text" name="email" class="form-control" required>
+                                            </div>
+
+                                            <div class="form-group mb-4">
+                                                <label class="form-label">{% trans "Palavra-passe" %}</label>
+                                                <input type="password" name="senha" class="form-control" required>
+                                            </div>
+
+                                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="rememberMe">
+                                                    <label class="form-check-label text-muted" for="rememberMe">{% trans "Lembrar-me" %}</label>
+                                                </div>
+                                                <a href="javascript:void(0);" id="forgot-password-trigger" class="color-primary fw-600">{% trans "Esqueceu a senha?" %}</a>
+                                            </div>
+
+                                            <button type="submit" class="rbt-btn btn-gradient w-100">
+                                                <span id="login-btn-text">{% trans "Entrar" %}</span>
+                                                <span id="login-spinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <!-- Register Panel -->
+                                    <div class="tab-pane fade" id="register-panel" role="tabpanel" aria-labelledby="register-tab">
+                                        <div class="section-title mb-4">
+                                            <h4 class="title">{% trans "Crie a sua conta" %}</h4>
+                                            <p class="description">{% trans "Comece a aprender gratuitamente hoje." %}</p>
+                                        </div>
+
+                                        <form id="ajax-register-form" method="POST" action="{% url 'valida_cadastro_aluno' %}">
+                                            {% csrf_token %}
+                                            <div id="register-error-msg" class="alert alert-danger d-none mb-4"></div>
+
+                                            <div class="form-group mb-4">
+                                                <label class="form-label">{% trans "Nome Completo" %}</label>
+                                                <input type="text" name="nome" class="form-control" required>
+                                            </div>
+
+                                            <div class="form-group mb-4">
+                                                <label class="form-label">{% trans "E-mail" %}</label>
+                                                <input type="email" name="email" class="form-control" required>
+                                            </div>
+
+                                            <div class="form-group mb-4">
+                                                <label class="form-label">{% trans "Palavra-passe" %}</label>
+                                                <input type="password" name="senha" class="form-control" required>
+                                            </div>
+                                            
+                                            <div class="form-group mb-4">
+                                                <label class="form-label">{% trans "Confirmar Palavra-passe" %}</label>
+                                                <input type="password" name="confirmar_senha" class="form-control" required>
+                                            </div>
+
+                                            <button type="submit" class="rbt-btn btn-gradient w-100">
+                                                <span id="register-btn-text">{% trans "Criar Conta" %}</span>
+                                                <span id="register-spinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <!-- Recovery Panel -->
+                                    <div class="tab-pane fade" id="recovery-panel" role="tabpanel">
+                                        <div class="section-title mb-4">
+                                            <h4 class="title">{% trans "Recuperar Senha" %}</h4>
+                                            <p class="description" id="recovery-desc">{% trans "Introduza o seu e-mail para receber um código." %}</p>
+                                        </div>
+                                        
+                                        <form id="ajax-recovery-step1" method="POST" action="{% url 'esqueci_senha' %}">
+                                            {% csrf_token %}
+                                            <div id="recovery-error-msg" class="alert alert-danger d-none mb-4"></div>
+                                            <div id="recovery-success-msg" class="alert alert-success d-none mb-4"></div>
+
+                                            <div class="form-group mb-4">
+                                                <label class="form-label">{% trans "E-mail" %}</label>
+                                                <input type="email" name="email" class="form-control" required>
+                                            </div>
+
+                                            <button type="submit" class="rbt-btn btn-gradient w-100 mb-3">
+                                                <span id="recovery1-btn-text">{% trans "Enviar Código" %}</span>
+                                                <span id="recovery1-spinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                            </button>
+                                            <button type="button" class="rbt-btn btn-link w-100 back-to-login">{% trans "Voltar ao Login" %}</button>
+                                        </form>
+
+                                        <form id="ajax-recovery-step2" class="d-none" method="POST" action="{% url 'redefinir_senha' %}">
+                                            {% csrf_token %}
+                                            <div class="form-group mb-4">
+                                                <label class="form-label">{% trans "Código de 6 dígitos" %}</label>
+                                                <input type="text" name="codigo" class="form-control" required placeholder="000000">
+                                            </div>
+
+                                            <div class="form-group mb-4">
+                                                <label class="form-label">{% trans "Nova Palavra-passe" %}</label>
+                                                <input type="password" name="senha" class="form-control" required>
+                                            </div>
+
+                                            <div class="form-group mb-4">
+                                                <label class="form-label">{% trans "Confirmar Nova Palavra-passe" %}</label>
+                                                <input type="password" name="confirmar_senha" class="form-control" required>
+                                            </div>
+
+                                            <button type="submit" class="rbt-btn btn-gradient w-100 mb-3">
+                                                <span id="recovery2-btn-text">{% trans "Redefinir Senha" %}</span>
+                                                <span id="recovery2-spinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .rbt-modal-default .modal-content {
+        box-shadow: 0 30px 60px rgba(0,0,0,0.25);
+    }
+    .rbt-modal-default .nav-tabs .nav-link {
+        font-weight: 600;
+        font-size: 18px;
+        padding: 10px 0;
+        margin-right: 30px;
+        border: none;
+        color: var(--color-body);
+        transition: 0.3s;
+    }
+    .rbt-modal-default .nav-tabs .nav-link.active {
+        color: var(--color-primary);
+        border-bottom: 2px solid var(--color-primary);
+        background: transparent;
+    }
+    .rbt-modal-default .form-control {
+        background-color: var(--color-lightest);
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        padding: 12px 15px;
+        height: auto;
+    }
+    .rbt-modal-default .form-control:focus {
+        border-color: var(--color-primary);
+        box-shadow: none;
+    }
+    .rbt-modal-default .form-label {
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+    .btn-link {
+        background: none;
+        border: none;
+        color: var(--color-primary);
+        font-weight: 600;
+        font-size: 14px;
+        padding: 0;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('ajax-login-form');
+    const registerForm = document.getElementById('ajax-register-form');
+    const recoveryForm1 = document.getElementById('ajax-recovery-step1');
+    const recoveryForm2 = document.getElementById('ajax-recovery-step2');
+    const forgotTrigger = document.getElementById('forgot-password-trigger');
+    const backToLoginBtns = document.querySelectorAll('.back-to-login');
+
+    // Switch to Recovery
+    if (forgotTrigger) {
+        forgotTrigger.addEventListener('click', function() {
+            document.getElementById('authTabList').style.display = 'none';
+            document.querySelector('#login-panel').classList.remove('show', 'active');
+            document.querySelector('#recovery-panel').classList.add('show', 'active');
+        });
+    }
+
+    // Back to Login
+    backToLoginBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.getElementById('authTabList').style.display = 'flex';
+            document.querySelector('#recovery-panel').classList.remove('show', 'active');
+            document.querySelector('#login-panel').classList.add('show', 'active');
+            // Ensure first step is shown next time
+            recoveryForm1.classList.remove('d-none');
+            recoveryForm2.classList.add('d-none');
+        });
+    });
+
+    async function submitForm(form, errorDiv, successDiv = null) {
+        const formData = new FormData(form);
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const btnTextSpan = submitBtn.querySelector('span:not(.spinner-border)');
+        const spinnerSpan = submitBtn.querySelector('.spinner-border');
+        
+        // State: Loading
+        if (errorDiv) errorDiv.classList.add('d-none');
+        if (successDiv) successDiv.classList.add('d-none');
+        submitBtn.disabled = true;
+        if (btnTextSpan) btnTextSpan.classList.add('d-none');
+        if (spinnerSpan) spinnerSpan.classList.remove('d-none');
+
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else if (data.step === 2) {
+                    recoveryForm1.classList.add('d-none');
+                    recoveryForm2.classList.remove('d-none');
+                    if (successDiv) {
+                        successDiv.innerText = data.message;
+                        successDiv.classList.remove('d-none');
+                    }
+                    document.getElementById('recovery-desc').innerText = 'Insira o código enviado e a sua nova senha.';
+                } else {
+                    if (successDiv) {
+                        successDiv.innerText = data.message;
+                        successDiv.classList.remove('d-none');
+                        setTimeout(() => { location.reload(); }, 1500);
+                    }
+                }
+            } else {
+                if (errorDiv) {
+                    errorDiv.innerText = data.error || 'Erro inesperado.';
+                    errorDiv.classList.remove('d-none');
+                }
+            }
+        } catch (err) {
+            if (errorDiv) {
+                errorDiv.innerText = 'Erro de conexão.';
+                errorDiv.classList.remove('d-none');
+            }
+        } finally {
+            submitBtn.disabled = false;
+            if (btnTextSpan) btnTextSpan.classList.remove('d-none');
+            if (spinnerSpan) spinnerSpan.classList.add('d-none');
+        }
+    }
+
+    if (loginForm) loginForm.addEventListener('submit', (e) => { e.preventDefault(); submitForm(loginForm, document.getElementById('login-error-msg')); });
+    if (registerForm) registerForm.addEventListener('submit', (e) => { e.preventDefault(); submitForm(registerForm, document.getElementById('register-error-msg')); });
+    if (recoveryForm1) recoveryForm1.addEventListener('submit', (e) => { e.preventDefault(); submitForm(recoveryForm1, document.getElementById('recovery-error-msg'), document.getElementById('recovery-success-msg')); });
+    if (recoveryForm2) recoveryForm2.addEventListener('submit', (e) => { e.preventDefault(); submitForm(recoveryForm2, document.getElementById('recovery-error-msg'), document.getElementById('recovery-success-msg')); });
+});
+</script>

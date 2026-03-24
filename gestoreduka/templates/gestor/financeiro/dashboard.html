@@ -1,0 +1,131 @@
+{% extends 'base_gestor.html' %}
+{% load static %}
+{% load l10n %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-6">
+            <h2 class="font-weight-bold text-navy mb-0">Gestão de Finanças</h2>
+            <p class="text-muted mb-0">Visão global de pagamentos de Inscrições e Mensalidades.</p>
+        </div>
+    </div>
+
+    <!-- Cards Resumo -->
+    <div class="row mb-5">
+        <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 12px; background: linear-gradient(135deg, var(--brand-dark), var(--brand)); color: white;">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <p class="text-white-50 text-uppercase font-weight-bold mb-1" style="letter-spacing: 1px; font-size: 0.8rem;">Receita Total Arrecadada</p>
+                            <h2 class="font-weight-bold mb-0">{{ total_receita|unlocalize }} Kz</h2>
+                        </div>
+                        <div class="bg-white text-violet rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; flex-shrink: 0;">
+                            <i class="feather-dollar-sign" style="font-size: 20px;"></i>
+                        </div>
+                    </div>
+                    {% if request.user.tipo_usuario == 'GESTOR' %}
+                    <p class="mb-0 text-white-50 small"><i class="feather-bar-chart-2 mr-1"></i>Inclui Centro e todas as Filiais</p>
+                    {% else %}
+                    <p class="mb-0 text-white-50 small"><i class="feather-home mr-1"></i>Geração de renda exclusiva desta unidade</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if request.user.tipo_usuario == 'GESTOR' %}
+        <div class="col-lg-8">
+            <div class="row h-100">
+                <div class="col-md-5 mb-4 mb-md-0">
+                    <div class="card border-0 shadow-sm h-100" style="border-radius: 12px; border-left: 4px solid var(--success) !important;">
+                        <div class="card-body p-4">
+                            <p class="text-muted text-uppercase font-weight-bold mb-1" style="letter-spacing: 1px; font-size: 0.8rem;">Sede Principal</p>
+                            <h3 class="font-weight-bold text-dark mb-0 d-flex align-items-center">
+                                {{ receita_centro_mae|unlocalize }} Kz
+                            </h3>
+                            <p class="mb-0 text-success small mt-2"><i class="feather-arrow-up-right mr-1"></i>Renda direta da matriz</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-7">
+                    <div class="card border-0 shadow-sm h-100" style="border-radius: 12px; border-left: 4px solid var(--info) !important;">
+                        <div class="card-body p-4" style="max-height: 120px; overflow-y: auto;">
+                            <p class="text-muted text-uppercase font-weight-bold mb-2" style="letter-spacing: 1px; font-size: 0.8rem;">Divisão por Filial</p>
+                            {% if filiais_receita %}
+                                {% for item in filiais_receita %}
+                                <div class="d-flex justify-content-between align-items-center mb-1 border-bottom pb-1">
+                                    <span class="text-dark font-weight-bold small"><i class="feather-map-pin text-info mr-1"></i> {{ item.nome }}</span>
+                                    <span class="text-dark font-weight-bold small">{{ item.total|unlocalize }} Kz</span>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-muted small mb-0 pt-2">Nenhuma receita proveniente de filiais ainda.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Histórico de Pagamentos -->
+    <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+        <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
+            <h5 class="font-weight-bold text-navy mb-0"><i class="feather-clock mr-2"></i> Últimos Pagamentos</h5>
+        </div>
+        <div class="card-body p-0 mt-3">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-top-0 text-uppercase text-muted font-weight-bold" style="font-size: 0.85rem;">Aluno</th>
+                            <th class="border-top-0 text-uppercase text-muted font-weight-bold" style="font-size: 0.85rem;">Curso / Módulo</th>
+                            {% if request.user.tipo_usuario == 'GESTOR' %}
+                            <th class="border-top-0 text-uppercase text-muted font-weight-bold" style="font-size: 0.85rem;">Unidade</th>
+                            {% endif %}
+                            <th class="border-top-0 text-uppercase text-muted font-weight-bold" style="font-size: 0.85rem;">Data/Hora</th>
+                            <th class="border-top-0 text-uppercase text-muted font-weight-bold" style="font-size: 0.85rem;">Forma Pag.</th>
+                            <th class="border-top-0 text-uppercase text-muted font-weight-bold text-right" style="font-size: 0.85rem;">Valor Arrecadado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pt in pagamentos_recentes %}
+                        <tr>
+                            <td class="align-middle font-weight-bold text-dark">{{ pt.aluno.nome }}</td>
+                            <td class="align-middle text-dark">{{ pt.curso.titulo }}</td>
+                            
+                            {% if request.user.tipo_usuario == 'GESTOR' %}
+                            <td class="align-middle">
+                                {% if pt.curso.filial %}
+                                <span class="badge badge-info bg-info text-white px-2 py-1">{{ pt.curso.filial.nome }}</span>
+                                {% else %}
+                                <span class="badge badge-secondary px-2 py-1">Sede</span>
+                                {% endif %}
+                            </td>
+                            {% endif %}
+                            
+                            <td class="align-middle text-muted">{{ pt.data_pagamento|date:"d M Y, H:i" }}</td>
+                            <td class="align-middle text-muted">{{ pt.get_forma_pagamento_display|default:"-" }}</td>
+                            <td class="align-middle text-right font-weight-bold text-success">
+                                +{{ pt.valor_pago|unlocalize }} Kz
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="{% if request.user.tipo_usuario == 'GESTOR' %}6{% else %}5{% endif %}" class="text-center py-5 text-muted">
+                                <div class="mb-3"><i class="feather-inbox" style="font-size: 3rem; opacity: 0.5;"></i></div>
+                                <h5>Nenhum pagamento registado.</h5>
+                                <p>Os pagamentos aprovados aparecerão aqui.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

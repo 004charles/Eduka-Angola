@@ -1,130 +1,85 @@
 {% load static %}
-<aside class="sidebar">
-    <!-- sidebar close btn -->
-    <button type="button"
-        class="sidebar-close-btn text-gray-500 hover-text-white hover-bg-main-600 text-md w-24 h-24 border border-gray-100 hover-border-main-600 d-xl-none d-flex flex-center rounded-circle position-absolute"><i
-            class="ph ph-x"></i></button>
-    <!-- sidebar close btn -->
-
-    <a href="{% url 'centro_dashboard' %}"
-        class="sidebar__logo text-center p-20 position-sticky inset-block-start-0 bg-white w-100 z-1 pb-10">
-        {% if perfil and perfil.imagem %}
-        <img src="{{ perfil.imagem.url }}" alt="{{ centro.nome }}" style="max-height: 60px; width: auto;">
-        {% else %}
-        <img src="{% static 'assets/images/logo/logo.png' %}" alt="Logo" style="max-height: 60px; width: auto;">
-        {% endif %}
-    </a>
-
-    <div class="sidebar-menu-wrapper overflow-y-auto scroll-sm">
-        <div class="p-20 pt-10">
-            <ul class="sidebar-menu">
-                <li class="sidebar-menu__item">
-                    <a href="{% url 'centro_dashboard' %}" class="sidebar-menu__link">
-                        <span><i class="ph ph-squares-four"></i></span>
-                        <span class="text">Painel de Controle</span>
-                    </a>
-                </li>
-                <li class="sidebar-menu__item has-dropdown">
-                    <a href="javascript:void(0)" class="sidebar-menu__link">
-                        <span class="icon"><i class="ph ph-graduation-cap"></i></span>
-                        <span class="text">Cursos</span>
-                    </a>
-                    <!-- Submenu start -->
-                    <ul class="sidebar-submenu">
-                        <li class="sidebar-submenu__item">
-                            <a href="{% url 'listar_cursos' %}" class="sidebar-submenu__link">Nossos Cursos</a>
-                        </li>
-                        <li class="sidebar-submenu__item">
-                            <a href="{% url 'criar_curso' %}" class="sidebar-submenu__link">Criar Curso</a>
-                        </li>
-                        <li class="sidebar-submenu__item">
-                            <a href="{% url 'gerenciar_turmas' %}" class="sidebar-submenu__link">Turmas</a>
-                        </li>
-                    </ul>
-                    <!-- Submenu End -->
-                </li>
-                <li class="sidebar-menu__item">
-                    <a href="{% url 'gerenciar_inscricoes' %}" class="sidebar-menu__link">
-                        <span class="icon"><i class="ph ph-users-three"></i></span>
-                        <span class="text">Inscrições/Estudantes</span>
-                    </a>
-                </li>
-                <li class="sidebar-menu__item">
-                    <a href="{% url 'gerenciar_instrutores' %}" class="sidebar-menu__link">
-                        <span class="icon"><i class="ph ph-users"></i></span>
-                        <span class="text">Instrutores</span>
-                    </a>
-                </li>
-                <li class="sidebar-menu__item">
-                    <a href="{% url 'chat_centro' %}" class="sidebar-menu__link">
-                        <span class="icon"><i class="ph ph-chats-teardrop"></i></span>
-                        <span class="text">Chat</span>
-                    </a>
-                </li>
-                <li class="sidebar-menu__item">
-                    <a href="{% url 'analytics_centro' %}" class="sidebar-menu__link">
-                        <span class="icon"><i class="ph ph-chart-bar"></i></span>
-                        <span class="text">Análises</span>
-                    </a>
-                </li>
-                <li class="sidebar-menu__item">
-                    <a href="{% url 'gerenciar_eventos' %}" class="sidebar-menu__link">
-                        <span class="icon"><i class="ph ph-calendar-dots"></i></span>
-                        <span class="text">Eventos</span>
-                    </a>
-                </li>
-                <li class="sidebar-menu__item">
-                    <a href="{% url 'gerenciar_assinatura' %}" class="sidebar-menu__link">
-                        <span class="icon"><i class="ph ph-coins"></i></span>
-                        <span class="text">Planos e Assinatura</span>
-                    </a>
-                </li>
-
-                <li class="sidebar-menu__item">
-                    <span
-                        class="text-gray-300 text-sm px-20 pt-20 fw-semibold border-top border-gray-100 d-block text-uppercase">Configurações</span>
-                </li>
-                <li class="sidebar-menu__item">
-                    <a href="{% url 'configuracao_gestor' %}" class="sidebar-menu__link">
-                        <span class="icon"><i class="ph ph-gear"></i></span>
-                        <span class="text">Configurações</span>
-                    </a>
-                </li>
-
-                <li class="sidebar-menu__item has-dropdown">
-                    <a href="javascript:void(0)" class="sidebar-menu__link">
-                        <span class="icon"><i class="ph ph-shield-check"></i></span>
-                        <span class="text">Autenticação</span>
-                    </a>
-                    <!-- Submenu start -->
-                    <ul class="sidebar-submenu">
-                        <li class="sidebar-submenu__item">
-                            <a href="sign-in.html" class="sidebar-submenu__link">Entrar</a>
-                        </li>
-                        <li class="sidebar-submenu__item">
-                            <a href="sign-up.html" class="sidebar-submenu__link">Cadastrar-se</a>
-                        </li>
-                        <li class="sidebar-submenu__item">
-                            <a href="forgot-password.html" class="sidebar-submenu__link">Esqueci a Senha</a>
-                        </li>
-                        <li class="sidebar-submenu__item">
-                            <a href="reset-password.html" class="sidebar-submenu__link">Redefinir Senha</a>
-                        </li>
-                        <li class="sidebar-submenu__item">
-                            <a href="verify-email.html" class="sidebar-submenu__link">Verificar E-mail</a>
-                        </li>
-                        <li class="sidebar-submenu__item">
-                            <a href="two-step-verification.html" class="sidebar-submenu__link">Verificação em Duas
-                                Etapas</a>
-                        </li>
-                    </ul>
-                    <!-- Submenu End -->
-                </li>
-
-            </ul>
-        </div>
-
+<aside class="adm-sidebar" id="admSidebar">
+    <!-- Logo -->
+    <div class="logo-area">
+        <img src="{% static 'assets/images/logo/Eduka-removebg-preview.png' %}" alt="Logo">
+        <span class="logo-text">Eduka</span>
     </div>
 
+    <!-- Nav principal -->
+    <div class="nav-section">
+        <div class="nav-label">Menu Principal</div>
+        <a href="{% url 'centro_dashboard' %}" class="nav-link-item {% if request.resolver_match.url_name == 'centro_dashboard' %}active{% endif %}">
+            <i class="ph ph-squares-four"></i>
+            <span>Dashboard</span>
+        </a>
+    </div>
 
+    <div class="nav-section">
+        <div class="nav-label">Académico</div>
+        <a href="{% url 'gerenciar_alunos' %}" class="nav-link-item {% if request.resolver_match.url_name == 'gerenciar_alunos' or request.resolver_match.url_name == 'dossie_aluno' %}active{% endif %}">
+            <i class="ph ph-users-three"></i>
+            <span>Alunos & Dossiês</span>
+        </a>
+        <a href="{% url 'listar_cursos' %}" class="nav-link-item {% if request.resolver_match.url_name == 'listar_cursos' or request.resolver_match.url_name == 'criar_curso' %}active{% endif %}">
+            <i class="ph ph-graduation-cap"></i>
+            <span>Cursos</span>
+        </a>
+        <a href="{% url 'gerenciar_turmas' %}" class="nav-link-item {% if request.resolver_match.url_name == 'gerenciar_turmas' %}active{% endif %}">
+            <i class="ph ph-chalkboard-teacher"></i>
+            <span>Turmas & Aulas</span>
+        </a>
+        <a href="{% url 'gerenciar_inscricoes' %}" class="nav-link-item {% if request.resolver_match.url_name == 'gerenciar_inscricoes' %}active{% endif %}">
+            <i class="ph ph-user-plus"></i>
+            <span>Matrículas</span>
+        </a>
+        <a href="{% url 'gerenciar_instrutores' %}" class="nav-link-item {% if request.resolver_match.url_name == 'gerenciar_instrutores' %}active{% endif %}">
+            <i class="ph ph-identification-badge"></i>
+            <span>Instrutores</span>
+        </a>
+    </div>
+
+    <div class="nav-section">
+        <div class="nav-label">Comunicação</div>
+        <a href="{% url 'chat_centro' %}" class="nav-link-item {% if request.resolver_match.url_name == 'chat_centro' %}active{% endif %}">
+            <i class="ph ph-chat-circle-dots"></i>
+            <span>Mensagens</span>
+        </a>
+        <a href="{% url 'gerenciar_eventos' %}" class="nav-link-item {% if request.resolver_match.url_name == 'gerenciar_eventos' %}active{% endif %}">
+            <i class="ph ph-calendar-check"></i>
+            <span>Eventos</span>
+        </a>
+    </div>
+
+    <div class="nav-section">
+        <div class="nav-label">Administração</div>
+        
+        <a href="{% url 'gerenciar_financeiro' %}" class="nav-link-item {% if request.resolver_match.url_name == 'gerenciar_financeiro' %}active{% endif %}">
+            <i class="ph ph-wallet"></i>
+            <span>Finanças</span>
+        </a>
+        
+        {% if request.user.tipo_usuario == 'GESTOR' %}
+        <a href="{% url 'gerenciar_filiais' %}" class="nav-link-item {% if 'filiais' in request.path %}active{% endif %}">
+            <i class="ph ph-buildings"></i>
+            <span>Filiais</span>
+        </a>
+        {% endif %}
+        <a href="{% url 'gerenciar_assinatura' %}" class="nav-link-item {% if request.resolver_match.url_name == 'gerenciar_assinatura' %}active{% endif %}">
+            <i class="ph ph-credit-card"></i>
+            <span>Assinatura</span>
+        </a>
+        <a href="{% url 'configuracao_gestor' %}" class="nav-link-item {% if request.resolver_match.url_name == 'configuracao_gestor' %}active{% endif %}">
+            <i class="ph ph-gear-six"></i>
+            <span>Configurações</span>
+        </a>
+    </div>
+
+    <!-- Sidebar footer -->
+    <div class="sidebar-footer">
+        <a href="{% url 'logout_gestor' %}" class="nav-link-item" style="color:rgba(239,68,68,.75);">
+            <i class="ph ph-sign-out"></i>
+            <span>Sair</span>
+        </a>
+    </div>
 </aside>

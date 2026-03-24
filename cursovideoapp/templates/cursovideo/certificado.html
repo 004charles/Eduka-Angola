@@ -1,0 +1,228 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Certificado EdukAngola - {{ aluno.nome }}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Dancing+Script:wght@700&display=swap');
+        
+        @media print {
+            body { background: white !important; -webkit-print-color-adjust: exact; }
+            .no-print { display: none !important; }
+            .certificate-container { box-shadow: none !important; margin: 0 !important; }
+        }
+
+        body {
+            background: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            padding: 20px;
+        }
+
+        .no-print {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            border: none;
+        }
+
+        .btn-primary { background: #7c3aed; color: white; }
+        .btn-primary:hover { background: #6d28d9; }
+        .btn-outline { border: 2px solid #7c3aed; color: #7c3aed; background: transparent; }
+
+        .certificate-container {
+            width: 842px; /* A4 Landscape width in pixels at 72dpi */
+            height: 595px; /* A4 Landscape height in pixels at 72dpi */
+            background: white;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            border: 15px solid #7c3aed;
+            box-sizing: border-box;
+            background-image: linear-gradient(rgba(255,255,255,0.95), rgba(255,255,255,0.95)), url('https://www.transparenttextures.com/patterns/cubes.png');
+        }
+
+        .border-inner {
+            border: 2px solid #ec4899;
+            height: 100%;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .logo {
+            width: 180px;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            color: #7c3aed;
+            font-size: 34px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 25px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .student-name {
+            font-size: 38px;
+            color: #1e293b;
+            font-weight: 700;
+            margin: 15px 0;
+            border-bottom: 2px solid #ec4899;
+            display: inline-block;
+            padding: 0 40px;
+        }
+
+        .course-text {
+            font-size: 16px;
+            color: #64748b;
+            margin-top: 15px;
+        }
+
+        .course-name {
+            font-weight: 700;
+            color: #7c3aed;
+        }
+
+        .footer {
+            margin-top: auto;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .qr-code-container {
+            text-align: left;
+        }
+
+        .qr-code-box {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 5px;
+        }
+
+        .signature-block {
+            text-align: center;
+        }
+
+        .signature {
+            font-family: 'Dancing Script', cursive;
+            font-size: 28px;
+            color: #1e293b;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #94a3b8;
+            padding: 0 20px;
+        }
+
+        .signature-name {
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .date {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .corner {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            z-index: -1;
+        }
+        .top-left { top: -15px; left: -15px; border-top: 30px solid #ec4899; border-left: 30px solid #ec4899; }
+        .bottom-right { bottom: -15px; right: -15px; border-bottom: 30px solid #ec4899; border-right: 30px solid #ec4899; }
+
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button onclick="window.print()" class="btn btn-primary">Imprimir / Salvar PDF</button>
+        <a href="{% url 'cursovideoapp:detalhe_curso' slug=curso.slug %}" class="btn btn-outline">Voltar ao Curso</a>
+    </div>
+
+    <div class="certificate-container">
+        <div class="top-left corner"></div>
+        <div class="bottom-right corner"></div>
+        <div class="border-inner">
+            <img src="{% if curso.instrutor.usuario.foto_perfil %}{{ curso.instrutor.usuario.foto_perfil.url }}{% else %}{% static 'assets/images/logo/logo.png' %}{% endif %}" 
+                 onerror="this.src='{% static 'assets/images/logo/logo.png' %}'"
+                 alt="EdukAngola" class="logo">
+            
+            <div class="title">Certificado de Conclusão</div>
+            
+            <div class="subtitle">A plataforma EdukAngola certifica que</div>
+            
+            <div class="student-name">{{ aluno.nome }}</div>
+            
+            <div class="course-text">
+                concluiu com êxito o curso de vídeo-aulas de <br>
+                <span class="course-name">{{ curso.titulo }}</span>
+            </div>
+
+            <div class="footer">
+                <div class="qr-code-container">
+                    <div id="qrcode" class="qr-code-box"></div>
+                    <div class="signature-name" style="margin-top: 10px;">ID Verificação: {{ certificado.codigo_verificacao }}</div>
+                </div>
+
+                <div class="signature-block">
+                    <div class="signature">Carlos Muquissi Zangui</div>
+                    <div class="signature-name">Diretor Executivo</div>
+                </div>
+            </div>
+
+            <div class="date">Emitido em: {{ certificado.data_emissao|date:"d \d\e F \d\e Y" }}</div>
+        </div>
+    </div>
+
+    <!-- QRCode Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        new QRCode(document.getElementById("qrcode"), {
+            text: "{{ verificacao_url }}",
+            width: 90,
+            height: 90,
+            colorDark : "#1e293b",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+    </script>
+</body>
+</html>

@@ -84,7 +84,7 @@
                         <div class="rbt-separator"></div>
                         <div class="header-info">
                             <div class="header-right-btn d-flex">
-                                <a class="rbt-btn rbt-switch-btn btn-gradient btn-xs" href="{% url 'login_aluno' %}">
+                                <a class="rbt-btn rbt-switch-btn btn-gradient btn-xs" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#authModal">
                                     <span data-text="{% trans 'Entrar' %}">{% trans "Entrar" %}</span>
                                 </a>
                             </div>
@@ -159,6 +159,7 @@
                                 <!-- End Mega Menu  -->
                             </li>
 
+                            <li><a href="{% url 'cursovideoapp:home_videos' %}">EdukAngola Play</a></li>
                             <li><a href="{% url 'blog:lista_posts' %}">Blog</a></li>
                             <li><a href="{% url 'sobre' %}">{% trans "Sobre" %}</a></li>
                         </ul>
@@ -233,7 +234,7 @@
                         </li>
                         {% else %}
                         <li class="access-icon d-none d-xl-block">
-                            <a class="rbt-btn btn-border-gradient radius-round btn-sm" href="{% url 'login_aluno' %}">
+                            <a class="rbt-btn btn-border-gradient radius-round btn-sm" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#authModal">
                                 <span>{% trans 'Entrar' %}</span>
                             </a>
                         </li>
@@ -264,6 +265,35 @@
                         </form>
                     </div>
                 </div>
+
+                <div class="rbt-separator-mid">
+                    <hr class="rbt-separator m-0">
+                </div>
+
+                <div class="row g-4 pt--30">
+                    <div class="col-lg-12">
+                        <div class="section-title">
+                            <h5 class="title">Sugestões para Você</h5>
+                        </div>
+                    </div>
+                    {% for d in destaques_global %}
+                    <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+                        <div class="rbt-card variation-01 rbt-hover">
+                            <div class="rbt-card-img" style="height: 80px;">
+                                <a href="{% url 'curso_detalhe' d.id %}">
+                                    <img src="{{ d.imagem.url }}" alt="{{ d.titulo }}" style="height: 100%; object-fit: cover;">
+                                </a>
+                            </div>
+                            <div class="rbt-card-body p-3">
+                                <h6 class="rbt-card-title mb-0" style="font-size: 14px;">
+                                    <a href="{% url 'curso_detalhe' d.id %}">{{ d.titulo|truncatechars:40 }}</a>
+                                </h6>
+                                <span class="text-primary fw-bold" style="font-size: 12px;">{{ d.preco|default:'Grátis' }} Kz</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
@@ -290,6 +320,7 @@
             <ul class="mainmenu">
                 <li><a href="{% url 'index' %}">Home</a></li>
                 <li><a href="{% url 'home_cursos' %}">{% trans "Cursos" %}</a></li>
+                <li><a href="{% url 'cursovideoapp:home_videos' %}">EdukAngola Play</a></li>
                 <li><a href="{% url 'biblioteca' %}">{% trans "Biblioteca" %}</a></li>
                 <li><a href="{% url 'blog:lista_posts' %}">Blog</a></li>
                 {% if request.user.is_authenticated %}
@@ -298,7 +329,7 @@
                 {% endif %}
                 <li><a href="{% url 'logout' %}">{% trans "Sair" %}</a></li>
                 {% else %}
-                <li><a href="{% url 'login_aluno' %}">{% trans "Entrar" %}</a></li>
+                <li><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#authModal">{% trans "Entrar" %}</a></li>
                 {% endif %}
             </ul>
         </nav>
@@ -414,4 +445,8 @@
 {% if post.imagem_capa %}
 <meta property="og:image" content="{{ request.build_absolute_uri }}{{ post.imagem_capa.url }}">
 {% endif %}
+{% endif %}
+
+{% if not request.user.is_authenticated %}
+    {% include "include/auth_modal.html" %}
 {% endif %}

@@ -42,7 +42,8 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     TIPO_USUARIO_CHOICES = [
         ('ADMIN', 'Administrador'),
         ('ALUNO', 'Aluno'),
-        ('GESTOR', 'Gestor de Centro'),
+        ('GESTOR', 'Gestor de Centro Principal'),
+        ('GESTOR_FILIAL', 'Gestor de Filial'),
         ('BIBLIOTECA', 'Bibliotecário'),
         ('ESCOLA', 'Escola'),
         ('EMPRESA', 'Empresa'),

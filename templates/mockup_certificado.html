@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Mockup Certificado EdukAngola</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Dancing+Script:wght@700&display=swap');
+        
+        body {
+            background: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .certificate-container {
+            width: 800px;
+            height: 600px;
+            background: white;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            border: 15px solid #7c3aed;
+            box-sizing: border-box;
+            background-image: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), url('https://www.transparenttextures.com/patterns/cubes.png');
+        }
+
+        .border-inner {
+            border: 2px solid #ec4899;
+            height: 100%;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .logo {
+            width: 180px;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            color: #7c3aed;
+            font-size: 36px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 30px;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+
+        .student-name {
+            font-size: 42px;
+            color: #1e293b;
+            font-weight: 700;
+            margin: 20px 0;
+            border-bottom: 2px solid #ec4899;
+            display: inline-block;
+            padding: 0 40px;
+        }
+
+        .course-text {
+            font-size: 18px;
+            color: #64748b;
+            margin-top: 20px;
+        }
+
+        .course-name {
+            font-weight: 700;
+            color: #7c3aed;
+        }
+
+        .footer {
+            margin-top: auto;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .qr-code {
+            width: 100px;
+            height: 100px;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            padding: 5px;
+        }
+
+        .signature-block {
+            text-align: center;
+        }
+
+        .signature {
+            font-family: 'Dancing Script', cursive;
+            font-size: 28px;
+            color: #1e293b;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #94a3b8;
+            padding: 0 20px;
+        }
+
+        .signature-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .date {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        /* Decorative Elements */
+        .corner {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            z-index: -1;
+        }
+        .top-left { top: -15px; left: -15px; border-top: 40px solid #ec4899; border-left: 40px solid #ec4899; }
+        .bottom-right { bottom: -15px; right: -15px; border-bottom: 40px solid #ec4899; border-right: 40px solid #ec4899; }
+
+    </style>
+</head>
+<body>
+    <div class="certificate-container">
+        <div class="top-left corner"></div>
+        <div class="bottom-right corner"></div>
+        <div class="border-inner">
+            <img src="https://edukangola.com/static/assets/images/logo/logo.png" alt="EdukAngola" class="logo">
+            
+            <div class="title">Certificado de Conclusão</div>
+            
+            <div class="subtitle">A plataforma EdukAngola certifica que</div>
+            
+            <div class="student-name">[Nome do Aluno]</div>
+            
+            <div class="course-text">
+                concluiu com êxito o curso de vídeo-aulas de <br>
+                <span class="course-name">[Nome do Curso de Vídeo]</span>
+            </div>
+
+            <div class="footer">
+                <div class="signature-block" style="text-align: left;">
+                    <div class="qr-code">
+                        <!-- Placeholder para QR Code Real -->
+                        <div style="font-size: 10px; color: #94a3b8; text-align: center; margin-top: 35px;">VERIFICAR QR CODE</div>
+                    </div>
+                    <div class="signature-name" style="margin-top: 10px;">ID Verificação: ED-123456</div>
+                </div>
+
+                <div class="signature-block">
+                    <div class="signature">Carlos Muquissi Zangui</div>
+                    <div class="signature-name">Diretor Executivo</div>
+                </div>
+            </div>
+
+            <div class="date">Emitido em: 19 de Março de 2026</div>
+        </div>
+    </div>
+</body>
+</html>

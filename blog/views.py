@@ -109,7 +109,7 @@ def detalhe_post(request, slug):
             # Se o aluno estiver logado, sobrescreve nome e email
             if aluno_logado:
                 comentario.nome = aluno.nome
-                comentario.email = aluno.email
+                comentario.email = request.user.email
 
             # Define parent se for resposta
             parent_id = request.POST.get('parent')
@@ -164,7 +164,7 @@ def detalhe_post(request, slug):
         centros_seguidos = CentroSeguimento.objects.filter(aluno=aluno).values_list('centro_id', flat=True)
         context.update({
             'aluno_nome': aluno.nome,
-            'aluno_email': aluno.email,
+            'aluno_email': request.user.email,
             'favoritos': list(favoritos),
             'centros_seguidos': list(centros_seguidos),
         })
@@ -195,6 +195,7 @@ def comentar_post(request, slug):
             if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
                 try:
                     aluno = request.user.aluno_profile
+                    comentario.aluno = aluno
                     comentario.nome = aluno.nome
                     comentario.email = request.user.email
                 except AttributeError:

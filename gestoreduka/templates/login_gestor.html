@@ -27,39 +27,198 @@
     <!-- Main css -->
     <link rel="stylesheet" href="{% static 'assets1/css/main.css' %}">
 </head> 
-<body>
-    
-<!--==================== Preloader Start ====================-->
-  <div class="preloader">
-    <div class="loader"></div>
-  </div>
-<!--==================== Preloader End ====================-->
+    <style>
+        :root {
+            --primary-color: #0066ff;
+            --secondary-color: #1a237e;
+            --accent-color: #ffc107;
+            --bg-neutral: #f8fafc;
+        }
 
-<!--==================== Sidebar Overlay End ====================-->
-<div class="side-overlay"></div>
-<!--==================== Sidebar Overlay End ====================-->
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-neutral);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-    <section class="auth d-flex">
-    <div class="auth-left bg-main-50 flex-center p-24">
-        <img src="{% static 'assets1/images/thumbs/auth-img1.png' %}" alt="">
+        .split-card {
+            background: white;
+            width: 100%;
+            max-width: 950px;
+            min-height: 600px;
+            display: flex;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.1);
+        }
+
+        .split-card__image {
+            flex: 1.1;
+            background-color: var(--secondary-color);
+            background-image: linear-gradient(rgba(26, 35, 126, 0.4), rgba(15, 23, 42, 0.8)), 
+                              url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000');
+            background-size: cover;
+            background-position: center;
+            display: none;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 50px;
+            color: white;
+        }
+
+        @media (min-width: 768px) {
+            .split-card__image { display: flex; }
+        }
+
+        .split-card__form {
+            flex: 1;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .brand-logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            justify-content: center;
+        }
+
+        .brand-logo i {
+            color: var(--primary-color);
+            font-size: 32px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control {
+            border: 2px solid #f1f5f9;
+            padding: 12px 16px 12px 48px;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background-color: #f8fafc;
+        }
+
+        .form-control:focus {
+            background-color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 22px;
+        }
+
+        .btn-premium {
+            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.2);
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0, 102, 255, 0.3);
+            color: white;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #94a3b8;
+            z-index: 10;
+        }
+
+        .auth-footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .alert-custom {
+            border-radius: 12px;
+            border: none;
+            font-size: 14px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+    </style>
+
+    <div class="preloader">
+        <div class="loader"></div>
     </div>
-    <div class="auth-right py-40 px-24 flex-center flex-column">
-        <div class="auth-right__inner mx-auto w-100">
-            <a href="/" class="auth-right__logo">
-                <h1 style="font-size: 30px;">Bem vindo de Volta!</h1>
-            </a>
-            <h2 class="mb-8">Acesse sua conta 🔑</h2>
-            <p class="text-gray-600 text-15 mb-32">
-                Insira seu e-mail e token de acesso
-            </p>
 
-            <!-- Mensagens de alerta -->
+    <div class="split-card">
+        <!-- Left Side: Image Content -->
+        <div class="split-card__image">
+            <div class="mb-4">
+                <h2 class="fw-bold text-white mb-2">Painel de Gestão</h2>
+                <p class="opacity-75 mb-0">Gerencie seu centro de formação com dados em tempo real e eficiência administrativa.</p>
+            </div>
+            <div class="d-flex gap-4 mt-4">
+                <div class="text-center">
+                    <h5 class="fw-bold mb-0">Excelência</h5>
+                    <small class="opacity-50">Administrativa</small>
+                </div>
+                <div class="vr opacity-25"></div>
+                <div class="text-center">
+                    <h5 class="fw-bold mb-0">Decisão</h5>
+                    <small class="opacity-50">Data-driven</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: The Form -->
+        <div class="split-card__form">
+            <div class="text-center mb-4">
+                <a href="/" class="text-decoration-none">
+                    <img src="{% static 'assets/images/logo/Eduka-removebg-preview.png' %}" alt="EdukAngola Logo" style="height: 60px; object-fit: contain;">
+                </a>
+            </div>
+
+            <div class="mb-4 text-center">
+                <h3 class="fw-bold mb-1">Painel Gestor</h3>
+                <p class="text-muted small">Bem-vindo ao centro de comando da sua instituição.</p>
+            </div>
+
             {% if messages %}
-            <div class="mb-24">
+            <div class="mb-4">
                 {% for message in messages %}
-                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} 
-                            alert-dismissible fade show" role="alert">
-                    {{ message }}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show alert-custom" role="alert">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="ph {% if message.tags == 'error' %}ph-warning-circle{% else %}ph-check-circle{% endif %} h5 mb-0"></i>
+                        <span>{{ message }}</span>
+                    </div>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
                 {% endfor %}
@@ -69,90 +228,79 @@
             <form method="post" action="{% url 'login_gestor' %}">
                 {% csrf_token %}
 
-                <div class="mb-24">
-                    <label for="email" class="form-label mb-8 h6">E-mail do Centro</label>
+                <div class="mb-3">
+                    <label class="form-label">E-mail Administrativo</label>
                     <div class="position-relative">
-                        <input type="email" name="email" class="form-control py-11 ps-40" id="email" 
-                               placeholder="Digite seu e-mail" required 
-                               value="{{ request.POST.email|default:'' }}">
-                        <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-600 d-flex">
-                            <i class="ph ph-envelope"></i>
-                        </span>
+                        <i class="ph ph-envelope-simple input-icon"></i>
+                        <input type="email" name="email" class="form-control" placeholder="admin@seucentro.com" required value="{{ request.POST.email|default:'' }}">
                     </div>
                 </div>
                 
-                <div class="mb-24">
-                    <label for="senha" class="form-label mb-8 h6">Senha de acesso</label>
-                    <div class="position-relative">
-                        <input type="password" name="senha" class="form-control py-11 ps-40" id="senha" 
-                               placeholder="Digite seu token" required>
-                        <span class="toggle-password position-absolute top-50 inset-inline-end-0 me-16 translate-middle-y ph ph-eye-slash"></span>
-                        <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-600 d-flex">
-                            <i class="ph ph-key"></i>
-                        </span>
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="form-label mb-0">Chave de Acesso</label>
+                        <a href="#" class="text-primary small text-decoration-none fw-bold">Recuperar</a>
                     </div>
-                    <small class="text-muted"></small>
+                    <div class="position-relative">
+                        <i class="ph ph-lock-key input-icon"></i>
+                        <input type="password" name="senha" id="senha" class="form-control" placeholder="••••••••" required>
+                        <i class="toggle-password ph ph-eye-slash"></i>
+                    </div>
                 </div>
 
-                <button type="submit" class="btn btn-main rounded-pill w-100">Entrar</button>
+                <button type="submit" class="btn btn-premium w-100 mb-3 text-uppercase">Entrar no Painel</button>
 
-                <div class="mt-3 text-center">
-                    <a href="#" class="text-main-600 hover-text-decoration-underline text-15 fw-medium">
-                        Solicitar novo token
-                    </a>
+                <div class="auth-footer">
+                    Ainda não é um parceiro credenciado? <br>
+                    <a href="#" class="text-primary fw-bold text-decoration-none">Candidate sua Instituição</a>
                 </div>
             </form>
         </div>
     </div>
-</section>
 
-<script>
-// Script para mostrar/ocultar token
-document.addEventListener('DOMContentLoaded', function() {
-    const togglePassword = document.querySelector('.toggle-password');
-    const passwordInput = document.getElementById('senha');
-    
-    if (togglePassword && passwordInput) {
-        togglePassword.addEventListener('click', function() {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            this.classList.toggle('ph-eye');
-            this.classList.toggle('ph-eye-slash');
-        });
-    }
-});
-</script>
-
-
-        <!-- Jquery js -->
     <script src="{% static 'assets1/js/jquery-3.7.1.min.js' %}"></script>
-    <!-- Bootstrap Bundle Js -->
     <script src="{% static 'assets1/js/boostrap.bundle.min.js' %}"></script>
-    <!-- Phosphor Js -->
     <script src="{% static 'assets1/js/phosphor-icon.js' %}"></script>
-    <!-- file upload -->
-    <script src="{% static 'assets1/js/file-upload.js' %}"></script>
-    <!-- file upload -->
-    <script src="{% static 'assets1/js/plyr.js' %}"></script>
-    <!-- dataTables -->
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
-    <!-- full calendar -->
-    <script src="{% static 'assets1/js/full-calendar.js' %}"></script>
-    <!-- jQuery UI -->
-    <script src="{% static 'assets1/js/jquery-ui.js' %}"></script>
-    <!-- jQuery UI -->
-    <script src="{% static 'assets1/js/editor-quill.js' %}"></script>
-    <!-- apex charts -->
-    <script src="{% static 'assets1/js/apexcharts.min.js' %}"></script>
-    <!-- jvectormap Js -->
-    <script src="{% static 'assets1/js/jquery-jvectormap-2.0.5.min.js' %}"></script>
-    <!-- jvectormap world Js -->
-    <script src="{% static 'assets1/js/jquery-jvectormap-world-mill-en.js' %}"></script>
-    
-    <!-- main js -->
-    <script src="{% static 'assets1/js/main.js' %}"></script>
 
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const togglePassword = document.querySelector('.toggle-password');
+        const passwordInput = document.getElementById('senha');
+        
+        if (togglePassword && passwordInput) {
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.classList.toggle('ph-eye');
+                this.classList.toggle('ph-eye-slash');
+            });
+        }
+    });
+    </script>
+</body>
+</html>
+    </form>
+    </div>
 
+    <script src="{% static 'assets1/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'assets1/js/boostrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets1/js/phosphor-icon.js' %}"></script>
 
-    </body>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const togglePassword = document.querySelector('.toggle-password');
+        const passwordInput = document.getElementById('senha');
+        
+        if (togglePassword && passwordInput) {
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.classList.toggle('ph-eye');
+                this.classList.toggle('ph-eye-slash');
+            });
+        }
+    });
+    </script>
+</body>
+</html>
 </html>

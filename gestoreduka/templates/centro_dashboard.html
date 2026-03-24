@@ -1,870 +1,353 @@
+{% extends 'base_gestor.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Title -->
-    <title>{{centro.nome}}</title>
-    <!-- Favicon -->
-    {% include 'include/css_gestor.html' %}
-</head>
+{% block title %}Painel de Gestão — {{ centro.nome }}{% endblock %}
 
-<body>
+{% block extra_css %}
+/* Stat cards */
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px;
+}
+.stat-card .stat-icon {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+.stat-card .stat-info .label { font-size: 12px; font-weight: 500; color: var(--text-secondary); margin: 0; }
+.stat-card .stat-info .value { font-size: 22px; font-weight: 800; color: var(--text-primary); margin: 0; line-height: 1.2; }
 
-    <!--==================== Preloader Start ====================-->
-    <div class="preloader">
-        <div class="loader"></div>
+/* Table */
+.tbl thead th {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--text-muted);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--card-border);
+    background: #fafafa;
+}
+.tbl tbody td {
+    padding: 12px 16px;
+    font-size: 13px;
+    vertical-align: middle;
+    border-bottom: 1px solid #f3f4f6;
+}
+.tbl tbody tr:last-child td { border-bottom: 0; }
+
+.avatar-sm {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.status-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: .2px;
+}
+
+/* Quick link */
+.quick-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background .15s;
+    border: 1px solid transparent;
+}
+.quick-link:hover { background: #f9fafb; border-color: var(--card-border); }
+.quick-link .ql-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+.quick-link .ql-text { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.quick-link .ql-desc { font-size: 11px; color: var(--text-muted); margin: 0; }
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div style="margin-bottom:20px;">
+    <h5 style="font-weight:800;margin:0 0 4px;">Dashboard</h5>
+    <p style="font-size:13px;color:var(--text-secondary);margin:0;">Bem-vindo de volta, <strong>{{ centro.nome|default:"Gestor" }}</strong></p>
+</div>
+
+<!-- Stat cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="adm-card stat-card">
+            <div class="stat-icon" style="background:#ede9fe;color:var(--brand);">
+                <i class="ph ph-graduation-cap"></i>
+            </div>
+            <div class="stat-info">
+                <p class="label">Total de Cursos</p>
+                <p class="value">{{ stats.total_cursos|default:"0" }}</p>
+            </div>
+        </div>
     </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="adm-card stat-card">
+            <div class="stat-icon" style="background:#dbeafe;color:var(--info);">
+                <i class="ph ph-users"></i>
+            </div>
+            <div class="stat-info">
+                <p class="label">Alunos Inscritos</p>
+                <p class="value">{{ stats.total_inscricoes|default:"0" }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="adm-card stat-card">
+            <div class="stat-icon" style="background:#fef3c7;color:var(--warning);">
+                <i class="ph ph-clock-counter-clockwise"></i>
+            </div>
+            <div class="stat-info">
+                <p class="label">Pendentes</p>
+                <p class="value">{{ stats.inscricoes_pendentes|default:"0" }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="adm-card stat-card">
+            <div class="stat-icon" style="background:#d1fae5;color:var(--success);">
+                <i class="ph ph-hand-coins"></i>
+            </div>
+            <div class="stat-info">
+                <p class="label">Receita Total</p>
+                <p class="value">{{ stats.receita_total|default:"0" }} <span style="font-size:12px;font-weight:500;color:var(--text-muted);">KZ</span></p>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <div class="side-overlay"></div>
-    {% include 'include/header_gestor.html' %}
-
-    <div class="dashboard-main-wrapper">
-        {% include 'include/menu.html' %}
-
-        <div class="dashboard-body">
-            <div class="row gy-4">
-                <div class="col-lg-9">
-                    <!-- Grettings Box Start -->
-                    <div
-                        class="grettings-box position-relative rounded-16 bg-main-600 overflow-hidden gap-16 flex-wrap z-1">
-                        <img src="{% static 'assets1/images/bg/grettings-pattern.png' %}" alt=""
-                            class="position-absolute inset-block-start-0 inset-inline-start-0 z-n1 w-100 h-100 opacity-6">
-                        <div class="row gy-4">
-                            <div class="col-sm-7">
-                                <div class="grettings-box__content py-xl-4">
-                                    <!-- Alternativa 2 - Mais profissional -->
-                                    <h2 class="text-white mb-0">Olá, {{ centro.nome|default:"Centro" }}! </h2>
-                                    <p class="text-15 fw-light mt-4 text-white">Gere seus cursos e alunos de forma
-                                        eficiente.</p>
-                                    <p class="text-lg fw-light mt-24 text-white">Você já possui {{ stats.total_cursos }}
-                                        cursos publicados e {{ stats.total_inscricoes }} inscrições totais.</p>
-                                </div>
-                            </div>
-                            <div class="col-sm-5 d-sm-block d-none">
-                                <div class="text-center h-100 d-flex justify-content-center align-items-end ">
-                                    <img src="{% static 'assets1/images/thumbs/gretting-img.png' %}" alt="">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Grettings Box End -->
-
-                    <!-- Stats Grid Start -->
-                    <div class="row gy-4 mt-24">
-                        <div class="col-sm-6 col-xl-3">
-                            <div class="card p-20 bg-main-secondary-50 border-main-secondary-100 h-100">
-                                <div class="flex-between align-items-start mb-20">
-                                    <div>
-                                        <span class="text-gray-600 text-sm">Receita Total</span>
-                                        <h4 class="mb-0 mt-8">{{ stats.receita_total|default:"0" }} KZ</h4>
-                                    </div>
-                                    <div
-                                        class="w-44 h-44 rounded-circle bg-main-secondary-600 flex-center text-white text-2xl">
-                                        <i class="ph ph-wallet"></i>
-                                    </div>
-                                </div>
-                                <div class="flex-align gap-8">
-                                    <span class="text-main-secondary-600 text-sm fw-medium">Real</span>
-                                    <span class="text-gray-400 text-xs">Confirmada</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-xl-3">
-                            <div class="card p-20 bg-main-50 border-main-100 h-100">
-                                <div class="flex-between align-items-start mb-20">
-                                    <div>
-                                        <span class="text-gray-600 text-sm">Cursos Ativos</span>
-                                        <h4 class="mb-0 mt-8">{{ stats.total_cursos }} / {{ stats.limite_cursos }}</h4>
-                                    </div>
-                                    <div class="w-44 h-44 rounded-circle bg-main-600 flex-center text-white text-2xl">
-                                        <i class="ph ph-graduation-cap"></i>
-                                    </div>
-                                </div>
-                                <div class="progress h-4 bg-white rounded-pill">
-                                    <div class="progress-bar bg-main-600" style="width: {{ stats.percentual_cursos }}%">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-xl-3">
-                            <div class="card p-20 bg-purple-50 border-purple-100 h-100">
-                                <div class="flex-between align-items-start mb-20">
-                                    <div>
-                                        <span class="text-gray-600 text-sm">Total Estudantes</span>
-                                        <h4 class="mb-0 mt-8">{{ stats.total_inscricoes }}</h4>
-                                    </div>
-                                    <div class="w-44 h-44 rounded-circle bg-purple-600 flex-center text-white text-2xl">
-                                        <i class="ph ph-users"></i>
-                                    </div>
-                                </div>
-                                <span class="text-gray-400 text-xs">Inscrições acumuladas</span>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-xl-3">
-                            <div class="card p-20 bg-warning-50 border-warning-100 h-100">
-                                <div class="flex-between align-items-start mb-20">
-                                    <div>
-                                        <span class="text-gray-600 text-sm">Pendentes</span>
-                                        <h4 class="mb-0 mt-8">{{ stats.inscricoes_pendentes }}</h4>
-                                    </div>
-                                    <div
-                                        class="w-44 h-44 rounded-circle bg-warning-600 flex-center text-white text-2xl">
-                                        <i class="ph ph-clock"></i>
-                                    </div>
-                                </div>
-                                <a href="{% url 'gerenciar_inscricoes' %}?status=P"
-                                    class="text-warning-600 text-sm fw-medium">Ver todas &gt;</a>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Stats Grid End -->
-
-                    <!-- Table Start -->
-                    <div class="card mt-24 overflow-hidden">
-                        <div class="card-header">
-                            <div class="mb-0 flex-between flex-wrap gap-8">
-                                <h4 class="mb-0">Inscrições Recentes</h4>
-                                <a href="{% url 'gerenciar_inscricoes' %}"
-                                    class="text-13 fw-medium text-main-600 hover-text-decoration-underline">Ver
-                                    Todos</a>
-                            </div>
-                        </div>
-                        <div class="card-body p-0 overflow-x-auto scroll-sm scroll-sm-horizontal">
-                            <table class="table style-two mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Estudante</th>
-                                        <th>Curso</th>
-                                        <th>Data</th>
-                                        <th class="text-center">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for insc in recent_enrollments %}
-                                    <tr>
-                                        <td>
-                                            <div class="flex-align gap-8">
-                                                <div class="w-40 h-40 rounded-circle bg-main-50 flex-center">
-                                                    <i class="ph ph-user text-main-600"></i>
-                                                </div>
-                                                <div>
-                                                    <h6 class="mb-0 text-15">{{ insc.aluno.nome }}</h6>
-                                                    <span class="text-13 text-gray-600">{{ insc.aluno.email }}</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <h6 class="mb-0 text-15">{{ insc.curso.titulo }}</h6>
-                                        </td>
-                                        <td>
-                                            <span class="text-13 text-gray-600">{{ insc.data_inscricao|date:"d/m/Y"
-                                                }}</span>
-                                        </td>
-                                        <td>
-                                            <div class="flex-align justify-content-center">
-                                                {% if insc.status == 'A' %}
-                                                <span
-                                                    class="text-13 py-2 px-8 bg-success-50 text-success-600 rounded-pill">Ativo</span>
-                                                {% elif insc.status == 'P' %}
-                                                <span
-                                                    class="text-13 py-2 px-8 bg-warning-50 text-warning-600 rounded-pill">Pendente</span>
-                                                {% else %}
-                                                <span
-                                                    class="text-13 py-2 px-8 bg-danger-50 text-danger-600 rounded-pill">Cancelado</span>
-                                                {% endif %}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="4" class="text-center p-24 text-gray-400">Nenhuma inscrição
-                                            recente.</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                                <tr>
-                                    <td>
-                                        <div class="flex-align gap-8">
-                                            <div class="w-40 h-40 rounded-circle bg-main-600 flex-center flex-shrink-0">
-                                                <img src="{% static 'assets1/images/icons/course-name-icon1.png' %}"
-                                                    alt="">
-                                            </div>
-                                            <div class="">
-                                                <h6 class="mb-0">Design Accesibility</h6>
-                                                <div class="table-list">
-                                                    <span class="text-13 text-gray-600">Advanced</span>
-                                                    <span class="text-13 text-gray-600">12 Hours</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-align gap-8 mt-12">
-                                            <div class="progress w-100px  bg-main-100 rounded-pill h-4"
-                                                role="progressbar" aria-label="Basic example" aria-valuenow="32"
-                                                aria-valuemin="0" aria-valuemax="100">
-                                                <div class="progress-bar bg-main-600 rounded-pill" style="width: 32%">
-                                                </div>
-                                            </div>
-                                            <span class="text-main-600 flex-shrink-0 text-13 fw-medium">32%</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-align justify-content-center gap-16">
-                                            <span
-                                                class="text-13 py-2 px-8 bg-warning-50 text-warning-600 d-inline-flex align-items-center gap-8 rounded-pill">
-                                                <span
-                                                    class="w-6 h-6 bg-warning-600 rounded-circle flex-shrink-0"></span>
-                                                In Progress
-                                            </span>
-                                            <a href="assignment.html"
-                                                class="text-gray-900 hover-text-main-600 text-md d-flex"><i
-                                                    class="ph ph-caret-right"></i></a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="flex-align gap-8">
-                                            <div class="w-40 h-40 rounded-circle bg-purple-600 flex-center">
-                                                <img src="{% static 'assets1/images/icons/course-name-icon2.png' %}"
-                                                    alt="">
-                                            </div>
-                                            <div class="">
-                                                <h6 class="mb-0">Figma for Beginner</h6>
-                                                <div class="table-list">
-                                                    <span class="text-13 text-gray-600">Intermediate</span>
-                                                    <span class="text-13 text-gray-600">12 Hours</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-align gap-8 mt-12">
-                                            <div class="progress w-100px  bg-main-100 rounded-pill h-4"
-                                                role="progressbar" aria-label="Basic example" aria-valuenow="50"
-                                                aria-valuemin="0" aria-valuemax="100">
-                                                <div class="progress-bar bg-main-600 rounded-pill" style="width: 50%">
-                                                </div>
-                                            </div>
-                                            <span class="text-main-600 flex-shrink-0 text-13 fw-medium">50%</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-align justify-content-center gap-16">
-                                            <span
-                                                class="text-13 py-2 px-8 bg-warning-50 text-warning-600 d-inline-flex align-items-center gap-8 rounded-pill">
-                                                <span
-                                                    class="w-6 h-6 bg-warning-600 rounded-circle flex-shrink-0"></span>
-                                                In Progress
-                                            </span>
-                                            <a href="assignment.html"
-                                                class="text-gray-900 hover-text-main-600 text-md d-flex"><i
-                                                    class="ph ph-caret-right"></i></a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="flex-align gap-8">
-                                            <div class="w-40 h-40 rounded-circle bg-warning-600 flex-center">
-                                                <img src="assets/images/icons/course-name-icon3.png" alt="">
-                                            </div>
-                                            <div class="">
-                                                <h6 class="mb-0">Framer Design</h6>
-                                                <div class="table-list">
-                                                    <span class="text-13 text-gray-600">Advanced</span>
-                                                    <span class="text-13 text-gray-600">12 Hours</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-align gap-8 mt-12">
-                                            <div class="progress w-100px  bg-main-100 rounded-pill h-4"
-                                                role="progressbar" aria-label="Basic example" aria-valuenow="72"
-                                                aria-valuemin="0" aria-valuemax="100">
-                                                <div class="progress-bar bg-main-600 rounded-pill" style="width: 72%">
-                                                </div>
-                                            </div>
-                                            <span class="text-main-600 flex-shrink-0 text-13 fw-medium">72%</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-align justify-content-center gap-16">
-                                            <span
-                                                class="text-13 py-2 px-8 bg-warning-50 text-warning-600 d-inline-flex align-items-center gap-8 rounded-pill">
-                                                <span
-                                                    class="w-6 h-6 bg-warning-600 rounded-circle flex-shrink-0"></span>
-                                                In Progress
-                                            </span>
-                                            <a href="assignment.html"
-                                                class="text-gray-900 hover-text-main-600 text-md d-flex"><i
-                                                    class="ph ph-caret-right"></i></a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="flex-align gap-8">
-                                            <div class="w-40 h-40 rounded-circle bg-main-two-600 flex-center">
-                                                <img src="assets/images/icons/course-name-icon4.png" alt="">
-                                            </div>
-                                            <div class="">
-                                                <h6 class="mb-0">Frontend Development</h6>
-                                                <div class="table-list">
-                                                    <span class="text-13 text-gray-600">Intermediate</span>
-                                                    <span class="text-13 text-gray-600">12 Hours</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-align gap-8 mt-12">
-                                            <div class="progress w-100px  bg-main-100 rounded-pill h-4"
-                                                role="progressbar" aria-label="Basic example" aria-valuenow="100"
-                                                aria-valuemin="0" aria-valuemax="100">
-                                                <div class="progress-bar bg-main-600 rounded-pill" style="width: 100%">
-                                                </div>
-                                            </div>
-                                            <span class="text-main-600 flex-shrink-0 text-13 fw-medium">100%</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-align justify-content-center gap-16">
-                                            <span
-                                                class="text-13 py-2 px-8 bg-success-50 text-success-600 d-inline-flex align-items-center gap-8 rounded-pill">
-                                                <span
-                                                    class="w-6 h-6 bg-success-600 rounded-circle flex-shrink-0"></span>
-                                                Completed
-                                            </span>
-                                            <a href="assignment.html"
-                                                class="text-gray-900 hover-text-main-600 text-md d-flex"><i
-                                                    class="ph ph-caret-right"></i></a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="flex-align gap-8">
-                                            <div class="w-40 h-40 rounded-circle bg-main-600 flex-center flex-shrink-0">
-                                                <img src="assets/images/icons/course-name-icon1.png" alt="">
-                                            </div>
-                                            <div class="">
-                                                <h6 class="mb-0">Design Accesibility</h6>
-                                                <div class="table-list">
-                                                    <span class="text-13 text-gray-600">Advanced</span>
-                                                    <span class="text-13 text-gray-600">12 Hours</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-align gap-8 mt-12">
-                                            <div class="progress w-100px  bg-main-100 rounded-pill h-4"
-                                                role="progressbar" aria-label="Basic example" aria-valuenow="32"
-                                                aria-valuemin="0" aria-valuemax="100">
-                                                <div class="progress-bar bg-main-600 rounded-pill" style="width: 32%">
-                                                </div>
-                                            </div>
-                                            <span class="text-main-600 flex-shrink-0 text-13 fw-medium">32%</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-align justify-content-center gap-16">
-                                            <span
-                                                class="text-13 py-2 px-8 bg-warning-50 text-warning-600 d-inline-flex align-items-center gap-8 rounded-pill">
-                                                <span
-                                                    class="w-6 h-6 bg-warning-600 rounded-circle flex-shrink-0"></span>
-                                                In Progress
-                                            </span>
-                                            <a href="assignment.html"
-                                                class="text-gray-900 hover-text-main-600 text-md d-flex"><i
-                                                    class="ph ph-caret-right"></i></a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="flex-align gap-8">
-                                            <div class="w-40 h-40 rounded-circle bg-purple-600 flex-center">
-                                                <img src="assets/images/icons/course-name-icon2.png" alt="">
-                                            </div>
-                                            <div class="">
-                                                <h6 class="mb-0">Figma for Beginner</h6>
-                                                <div class="table-list">
-                                                    <span class="text-13 text-gray-600">Intermediate</span>
-                                                    <span class="text-13 text-gray-600">12 Hours</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-align gap-8 mt-12">
-                                            <div class="progress w-100px  bg-main-100 rounded-pill h-4"
-                                                role="progressbar" aria-label="Basic example" aria-valuenow="50"
-                                                aria-valuemin="0" aria-valuemax="100">
-                                                <div class="progress-bar bg-main-600 rounded-pill" style="width: 50%">
-                                                </div>
-                                            </div>
-                                            <span class="text-main-600 flex-shrink-0 text-13 fw-medium">50%</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-align justify-content-center gap-16">
-                                            <span
-                                                class="text-13 py-2 px-8 bg-warning-50 text-warning-600 d-inline-flex align-items-center gap-8 rounded-pill">
-                                                <span
-                                                    class="w-6 h-6 bg-warning-600 rounded-circle flex-shrink-0"></span>
-                                                In Progress
-                                            </span>
-                                            <a href="assignment.html"
-                                                class="text-gray-900 hover-text-main-600 text-md d-flex"><i
-                                                    class="ph ph-caret-right"></i></a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="flex-align gap-8">
-                                            <div class="w-40 h-40 rounded-circle bg-warning-600 flex-center">
-                                                <img src="assets/images/icons/course-name-icon3.png" alt="">
-                                            </div>
-                                            <div class="">
-                                                <h6 class="mb-0">Framer Design</h6>
-                                                <div class="table-list">
-                                                    <span class="text-13 text-gray-600">Advanced</span>
-                                                    <span class="text-13 text-gray-600">12 Hours</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-align gap-8 mt-12">
-                                            <div class="progress w-100px  bg-main-100 rounded-pill h-4"
-                                                role="progressbar" aria-label="Basic example" aria-valuenow="72"
-                                                aria-valuemin="0" aria-valuemax="100">
-                                                <div class="progress-bar bg-main-600 rounded-pill" style="width: 72%">
-                                                </div>
-                                            </div>
-                                            <span class="text-main-600 flex-shrink-0 text-13 fw-medium">72%</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-align justify-content-center gap-16">
-                                            <span
-                                                class="text-13 py-2 px-8 bg-warning-50 text-warning-600 d-inline-flex align-items-center gap-8 rounded-pill">
-                                                <span
-                                                    class="w-6 h-6 bg-warning-600 rounded-circle flex-shrink-0"></span>
-                                                In Progress
-                                            </span>
-                                            <a href="assignment.html"
-                                                class="text-gray-900 hover-text-main-600 text-md d-flex"><i
-                                                    class="ph ph-caret-right"></i></a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="flex-align gap-8">
-                                            <div class="w-40 h-40 rounded-circle bg-main-two-600 flex-center">
-                                                <img src="assets/images/icons/course-name-icon4.png" alt="">
-                                            </div>
-                                            <div class="">
-                                                <h6 class="mb-0">Frontend Development</h6>
-                                                <div class="table-list">
-                                                    <span class="text-13 text-gray-600">Intermediate</span>
-                                                    <span class="text-13 text-gray-600">12 Hours</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-align gap-8 mt-12">
-                                            <div class="progress w-100px  bg-main-100 rounded-pill h-4"
-                                                role="progressbar" aria-label="Basic example" aria-valuenow="100"
-                                                aria-valuemin="0" aria-valuemax="100">
-                                                <div class="progress-bar bg-main-600 rounded-pill" style="width: 100%">
-                                                </div>
-                                            </div>
-                                            <span class="text-main-600 flex-shrink-0 text-13 fw-medium">100%</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-align justify-content-center gap-16">
-                                            <span
-                                                class="text-13 py-2 px-8 bg-success-50 text-success-600 d-inline-flex align-items-center gap-8 rounded-pill">
-                                                <span
-                                                    class="w-6 h-6 bg-success-600 rounded-circle flex-shrink-0"></span>
-                                                Completed
-                                            </span>
-                                            <a href="assignment.html"
-                                                class="text-gray-900 hover-text-main-600 text-md d-flex"><i
-                                                    class="ph ph-caret-right"></i></a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="flex-align gap-8">
-                                            <div class="w-40 h-40 rounded-circle bg-purple-600 flex-center">
-                                                <img src="assets/images/icons/course-name-icon2.png" alt="">
-                                            </div>
-                                            <div class="">
-                                                <h6 class="mb-0">Figma for Beginner</h6>
-                                                <div class="table-list">
-                                                    <span class="text-13 text-gray-600">Intermediate</span>
-                                                    <span class="text-13 text-gray-600">12 Hours</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-align gap-8 mt-12">
-                                            <div class="progress w-100px  bg-main-100 rounded-pill h-4"
-                                                role="progressbar" aria-label="Basic example" aria-valuenow="50"
-                                                aria-valuemin="0" aria-valuemax="100">
-                                                <div class="progress-bar bg-main-600 rounded-pill" style="width: 50%">
-                                                </div>
-                                            </div>
-                                            <span class="text-main-600 flex-shrink-0 text-13 fw-medium">50%</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-align justify-content-center gap-16">
-                                            <span
-                                                class="text-13 py-2 px-8 bg-warning-50 text-warning-600 d-inline-flex align-items-center gap-8 rounded-pill">
-                                                <span
-                                                    class="w-6 h-6 bg-warning-600 rounded-circle flex-shrink-0"></span>
-                                                In Progress
-                                            </span>
-                                            <a href="assignment.html"
-                                                class="text-gray-900 hover-text-main-600 text-md d-flex"><i
-                                                    class="ph ph-caret-right"></i></a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <!-- Table End -->
-
-                </div>
-                <div class="col-lg-3">
-
-                    <!-- Calendar Start -->
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="calendar">
-                                <div class="calendar__header">
-                                    <button type="button" class="calendar__arrow left"><i
-                                            class="ph ph-caret-left"></i></button>
-                                    <p class="display h6 mb-0">""</p>
-                                    <button type="button" class="calendar__arrow right"><i
-                                            class="ph ph-caret-right"></i></button>
-                                </div>
-
-                                <div class="calendar__week week">
-                                    <div class="calendar__week-text">Su</div>
-                                    <div class="calendar__week-text">Mo</div>
-                                    <div class="calendar__week-text">Tu</div>
-                                    <div class="calendar__week-text">We</div>
-                                    <div class="calendar__week-text">Th</div>
-                                    <div class="calendar__week-text">Fr</div>
-                                    <div class="calendar__week-text">Sa</div>
-                                </div>
-                                <div class="days"></div>
-                            </div>
-
-                            <!-- Events start -->
-                            <div class="">
-                                <div class="mt-24 mb-24">
-                                    <div class="flex-align mb-8 gap-16">
-                                        <span class="text-sm text-gray-300 flex-shrink-0">Today</span>
-                                        <span class="border border-gray-50 border-dashed flex-grow-1"></span>
-                                    </div>
-                                    <div class="event-item bg-gray-50 rounded-8 p-16">
-                                        <div class=" flex-between gap-4">
-                                            <div class="flex-align gap-8">
-                                                <span
-                                                    class="icon d-flex w-44 h-44 bg-white rounded-8 flex-center text-2xl"><i
-                                                        class="ph ph-squares-four"></i></span>
-                                                <div class="">
-                                                    <h6 class="mb-2">Element of design test</h6>
-                                                    <span class="">10:00 - 11:00 AM</span>
-                                                </div>
-                                            </div>
-                                            <div class="dropdown flex-shrink-0">
-                                                <button class="text-gray-400 text-xl d-flex rounded-4" type="button"
-                                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="ph-fill ph-dots-three-outline"></i>
-                                                </button>
-                                                <div
-                                                    class="dropdown-menu dropdown-menu--md border-0 bg-transparent p-0">
-                                                    <div
-                                                        class="card border border-gray-100 rounded-12 box-shadow-custom">
-                                                        <div class="card-body p-12">
-                                                            <div class="max-h-200 overflow-y-auto scroll-sm pe-8">
-                                                                <ul>
-                                                                    <li class="mb-0">
-                                                                        <button type="button"
-                                                                            class="delete-btn py-6 text-15 px-8 hover-bg-gray-50 text-gray-300 w-100 rounded-8 fw-normal text-xs d-block text-start hover-text-gray-600">
-                                                                            <span
-                                                                                class="text d-flex align-items-center gap-8">
-                                                                                <i class="ph ph-trash"></i>
-                                                                                Remove</span>
-                                                                        </button>
-                                                                    </li>
-                                                                </ul>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="">
-                                <div class="mt-24">
-                                    <div class="flex-align mb-8 gap-16">
-                                        <span class="text-sm text-gray-300 flex-shrink-0">Sat, Aug 24</span>
-                                        <span class="border border-gray-50 border-dashed flex-grow-1"></span>
-                                    </div>
-                                    <div class="event-item bg-gray-50 rounded-8 p-16">
-                                        <div class=" flex-between gap-4">
-                                            <div class="flex-align gap-8">
-                                                <span
-                                                    class="icon d-flex w-44 h-44 bg-white rounded-8 flex-center text-2xl"><i
-                                                        class="ph ph-magic-wand"></i></span>
-                                                <div class="">
-                                                    <h6 class="mb-2">Design Principles test</h6>
-                                                    <span class="">10:00 - 11:00 AM</span>
-                                                </div>
-                                            </div>
-                                            <div class="dropdown flex-shrink-0">
-                                                <button class="text-gray-400 text-xl d-flex rounded-4" type="button"
-                                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="ph-fill ph-dots-three-outline"></i>
-                                                </button>
-                                                <div
-                                                    class="dropdown-menu dropdown-menu--md border-0 bg-transparent p-0">
-                                                    <div
-                                                        class="card border border-gray-100 rounded-12 box-shadow-custom">
-                                                        <div class="card-body p-12">
-                                                            <div class="max-h-200 overflow-y-auto scroll-sm pe-8">
-                                                                <ul>
-                                                                    <li class="mb-0">
-                                                                        <button type="button"
-                                                                            class="delete-btn py-6 text-15 px-8 hover-bg-gray-50 text-gray-300 w-100 rounded-8 fw-normal text-xs d-block text-start hover-text-gray-600">
-                                                                            <span
-                                                                                class="text d-flex align-items-center gap-8">
-                                                                                <i class="ph ph-trash"></i>
-                                                                                Remove</span>
-                                                                        </button>
-                                                                    </li>
-                                                                </ul>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="event-item bg-gray-50 rounded-8 p-16 mt-16">
-                                        <div class=" flex-between gap-4">
-                                            <div class="flex-align gap-8">
-                                                <span
-                                                    class="icon d-flex w-44 h-44 bg-white rounded-8 flex-center text-2xl"><i
-                                                        class="ph ph-briefcase"></i></span>
-                                                <div class="">
-                                                    <h6 class="mb-2">Prepare Job Interview</h6>
-                                                    <span class="">09:00 - 10:00 AM</span>
-                                                </div>
-                                            </div>
-                                            <div class="dropdown flex-shrink-0">
-                                                <button class="text-gray-400 text-xl d-flex rounded-4" type="button"
-                                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="ph-fill ph-dots-three-outline"></i>
-                                                </button>
-                                                <div
-                                                    class="dropdown-menu dropdown-menu--md border-0 bg-transparent p-0">
-                                                    <div
-                                                        class="card border border-gray-100 rounded-12 box-shadow-custom">
-                                                        <div class="card-body p-12">
-                                                            <div class="max-h-200 overflow-y-auto scroll-sm pe-8">
-                                                                <ul>
-                                                                    <li class="mb-0">
-                                                                        <button type="button"
-                                                                            class="delete-btn py-6 text-15 px-8 hover-bg-gray-50 text-gray-300 w-100 rounded-8 fw-normal text-xs d-block text-start hover-text-gray-600">
-                                                                            <span
-                                                                                class="text d-flex align-items-center gap-8">
-                                                                                <i class="ph ph-trash"></i>
-                                                                                Remove</span>
-                                                                        </button>
-                                                                    </li>
-                                                                </ul>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <a href="event.html" class="btn btn-main w-100 mt-24">All Events</a>
-                            </div>
-                            <!-- Events End -->
-
-                        </div>
-                    </div>
-                    <!-- Calendar End -->
-
-                    <!-- Donut Chart Start -->
-                    <div class="card mt-24">
-                        <div class="card-header border-bottom border-gray-100 flex-between gap-8 flex-wrap">
-                            <h5 class="mb-0">Most Activity</h5>
-                            <div class="dropdown flex-shrink-0">
-                                <button class="text-gray-400 text-xl d-flex rounded-4" type="button"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="ph-fill ph-dots-three-outline"></i>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu--md border-0 bg-transparent p-0">
-                                    <div class="card border border-gray-100 rounded-12 box-shadow-custom">
-                                        <div class="card-body p-12">
-                                            <div class="max-h-200 overflow-y-auto scroll-sm pe-8">
-                                                <ul>
-                                                    <li class="mb-0">
-                                                        <a href="students.html"
-                                                            class="py-6 text-15 px-8 hover-bg-gray-50 text-gray-300 w-100 rounded-8 fw-normal text-xs d-block text-start">
-                                                            <span class="text"> <i class="ph ph-user me-4"></i>
-                                                                View</span>
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="flex-center">
-                                <div id="activityDonutChart" class="w-auto d-inline-block"></div>
-                            </div>
-
-                            <div class="flex-between gap-8 flex-wrap mt-24">
-                                <div class="flex-align flex-column">
-                                    <span
-                                        class="w-12 h-12 bg-white border border-3 border-main-600 rounded-circle"></span>
-                                    <span class="text-13 my-4 text-main-600">Mentoring</span>
-                                    <h6 class="mb-0">65.2%</h6>
-                                </div>
-                                <div class="flex-align flex-column">
-                                    <span
-                                        class="w-12 h-12 bg-white border border-3 border-main-two-600 rounded-circle"></span>
-                                    <span class="text-13 my-4 text-main-two-600">Organization</span>
-                                    <h6 class="mb-0">25.0%</h6>
-                                </div>
-                                <div class="flex-align flex-column">
-                                    <span
-                                        class="w-12 h-12 bg-white border border-3 border-warning-600 rounded-circle"></span>
-                                    <span class="text-13 my-4 text-warning-600">Planning</span>
-                                    <h6 class="mb-0">9.8%</h6>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Donut Chart End -->
-
-                    <!-- Community Groups card Start -->
-                    <div class="card mt-24">
-                        <div class="card-body">
-                            <div class="mb-20 flex-between flex-wrap gap-8">
-                                <h4 class="mb-0">Community Groups</h4>
-                                <a href="student-courses.html"
-                                    class="w-28 h-28 flex-center bg-gray-50 rounded-circle text-gray-600 hover-bg-gray-100"><i
-                                        class="ph ph-plus"></i></a>
-                            </div>
-                            <div
-                                class="p-xl-4 py-16 px-12 flex-between gap-8 rounded-8 border border-gray-100 hover-border-gray-200 transition-1 mb-16">
-                                <div class="flex-align flex-wrap gap-8">
-                                    <span
-                                        class="text-main-600 bg-main-50 w-44 h-44 rounded-circle flex-center text-2xl flex-shrink-0"><i
-                                            class="ph-fill ph-graduation-cap"></i></span>
-                                    <div>
-                                        <h6 class="mb-0">Design Community, USA</h6>
-                                        <span class="text-13 text-gray-500 fw-medium">125k Members</span>
-                                    </div>
-                                </div>
-                                <a href="assignment.html" class="text-gray-900 hover-text-main-600"><i
-                                        class="ph ph-caret-right"></i></a>
-                            </div>
-                            <div
-                                class="p-xl-4 py-16 px-12 flex-between gap-8 rounded-8 border border-gray-100 hover-border-gray-200 transition-1 mb-16">
-                                <div class="flex-align flex-wrap gap-8">
-                                    <span
-                                        class="text-dribble-600 bg-dribble-50 w-44 h-44 rounded-circle flex-center text-2xl flex-shrink-0"><i
-                                            class="ph ph-dribbble-logo"></i></span>
-                                    <div>
-                                        <h6 class="mb-0">Dribbble Global Groups</h6>
-                                        <span class="text-13 text-gray-500 fw-medium">28M Members</span>
-                                    </div>
-                                </div>
-                                <a href="assignment.html" class="text-gray-900 hover-text-main-600"><i
-                                        class="ph ph-caret-right"></i></a>
-                            </div>
-                            <div
-                                class="p-xl-4 py-16 px-12 flex-between gap-8 rounded-8 border border-gray-100 hover-border-gray-200 transition-1">
-                                <div class="flex-align flex-wrap gap-8">
-                                    <span
-                                        class="text-purple-600 bg-purple-50 w-44 h-44 rounded-circle flex-center text-2xl flex-shrink-0"><i
-                                            class="ph ph-chart-line-up"></i></span>
-                                    <div>
-                                        <h6 class="mb-0">Marketing Support Group</h6>
-                                        <span class="text-13 text-gray-500 fw-medium">125k Members</span>
-                                    </div>
-                                </div>
-                                <a href="assignment.html" class="text-gray-900 hover-text-main-600"><i
-                                        class="ph ph-caret-right"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Community Groups card End -->
-
-                </div>
+<div class="row g-3">
+    <!-- Chart + Table -->
+    <div class="col-lg-8">
+        <!-- Chart -->
+        <div class="adm-card mb-3">
+            <div class="card-head">
+                <h6>Evolução de Inscrições</h6>
+                <select style="font-size:12px;border:1px solid var(--card-border);border-radius:6px;padding:4px 10px;color:var(--text-secondary);background:#fff;outline:none;">
+                    <option>Este Ano</option>
+                    <option>Último Mês</option>
+                </select>
+            </div>
+            <div class="card-content">
+                <div id="mainChart" style="height:260px;"></div>
             </div>
         </div>
 
-        <div class="dashboard-footer">
-            <div class="flex-between flex-wrap gap-16">
-                <p class="text-gray-300 text-13 fw-normal"> &copy; Copyright Edmate 2024, All Right Reserverd</p>
-                <div class="flex-align flex-wrap gap-16">
-                    <a href="index-2.html#"
-                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">License</a>
-                    <a href="index-2.html#"
-                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">More
-                        Themes</a>
-                    <a href="index-2.html#"
-                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">Documentation</a>
-                    <a href="index-2.html#"
-                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">Support</a>
-                </div>
+        <!-- Table -->
+        <div class="adm-card">
+            <div class="card-head">
+                <h6>Inscrições Recentes</h6>
+                <a href="{% url 'gerenciar_inscricoes' %}" style="font-size:12px;font-weight:600;color:var(--brand);text-decoration:none;">Ver tudo →</a>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="tbl" style="width:100%;border-collapse:collapse;">
+                    <thead>
+                        <tr>
+                            <th>Aluno</th>
+                            <th>Curso</th>
+                            <th style="text-align:center;">Data</th>
+                            <th style="text-align:center;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for insc in inscricoes_recentes %}
+                        <tr>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <div class="avatar-sm" style="background:var(--brand-50);color:var(--brand);">{{ insc.aluno.nome|slice:":2"|upper }}</div>
+                                    <div>
+                                        <p style="margin:0;font-weight:600;color:var(--text-primary);">{{ insc.aluno.nome }}</p>
+                                        <p style="margin:0;font-size:11px;color:var(--text-muted);">{{ insc.aluno.email }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ insc.curso.titulo }}</td>
+                            <td style="text-align:center;color:var(--text-secondary);">{{ insc.data_inscricao|date:"d/m/Y" }}</td>
+                            <td style="text-align:center;">
+                                {% if insc.status == 'A' %}
+                                <span class="status-badge" style="background:#d1fae5;color:#059669;">Activo</span>
+                                {% else %}
+                                <span class="status-badge" style="background:#fef3c7;color:#d97706;">Pendente</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" style="text-align:center;padding:30px;color:var(--text-muted);">Nenhuma inscrição recente.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <!-- Jquery js -->
+    <!-- Sidebar widgets -->
+    <div class="col-lg-4">
+        <!-- Ações rápidas -->
+        <div class="adm-card mb-3">
+            <div class="card-head">
+                <h6>Ações Rápidas</h6>
+            </div>
+            <div class="card-content" style="padding:12px;">
+                <a href="{% url 'criar_curso' %}" class="quick-link">
+                    <div class="ql-icon" style="background:var(--brand-50);color:var(--brand);">
+                        <i class="ph ph-plus-circle"></i>
+                    </div>
+                    <div>
+                        <div class="ql-text">Criar Curso</div>
+                        <p class="ql-desc">Publicar novo conteúdo</p>
+                    </div>
+                </a>
+                <a href="{% url 'gerenciar_inscricoes' %}" class="quick-link">
+                    <div class="ql-icon" style="background:#dbeafe;color:var(--info);">
+                        <i class="ph ph-user-plus"></i>
+                    </div>
+                    <div>
+                        <div class="ql-text">Gerir Matrículas</div>
+                        <p class="ql-desc">Aprovar ou rejeitar inscrições</p>
+                    </div>
+                </a>
+                <a href="{% url 'configuracao_gestor' %}" class="quick-link">
+                    <div class="ql-icon" style="background:#fef3c7;color:var(--warning);">
+                        <i class="ph ph-gear-six"></i>
+                    </div>
+                    <div>
+                        <div class="ql-text">Configurações</div>
+                        <p class="ql-desc">Ajustar perfil e preferências</p>
+                    </div>
+                </a>
+            </div>
+        </div>
 
-    {% include 'include/java_gestor.html' %}
+        <!-- Engajamento -->
+        <div class="adm-card mb-3">
+            <div class="card-head">
+                <h6>Engajamento</h6>
+            </div>
+            <div class="card-content" style="text-align:center;">
+                <div id="engagementDonut" style="min-height:180px;"></div>
+                <div class="row mt-3 g-0">
+                    <div class="col-6">
+                        <p style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin:0 0 2px;">Conclusão</p>
+                        <p style="font-size:16px;font-weight:800;margin:0;">78%</p>
+                    </div>
+                    <div class="col-6" style="border-left:1px solid var(--card-border);">
+                        <p style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin:0 0 2px;">Aprovação</p>
+                        <p style="font-size:16px;font-weight:800;margin:0;">92%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <!-- Cursos populares -->
+        <div class="adm-card">
+            <div class="card-head">
+                <h6>Top Cursos</h6>
+                <a href="{% url 'listar_cursos' %}" style="font-size:12px;font-weight:600;color:var(--brand);text-decoration:none;">Ver →</a>
+            </div>
+            <div class="card-content" style="padding:12px 16px;">
+                {% for curso in centro.cursos.all|slice:":4" %}
+                <div style="display:flex;align-items:center;gap:12px;padding:10px 0;{% if not forloop.last %}border-bottom:1px solid #f3f4f6;{% endif %}">
+                    <div style="width:40px;height:40px;border-radius:8px;overflow:hidden;flex-shrink:0;background:var(--brand-50);display:flex;align-items:center;justify-content:center;">
+                        {% if curso.imagem %}
+                        <img src="{{ curso.imagem.url }}" style="width:100%;height:100%;object-fit:cover;" alt="">
+                        {% else %}
+                        <i class="ph ph-book-open" style="font-size:18px;color:var(--brand);"></i>
+                        {% endif %}
+                    </div>
+                    <div style="flex-grow:1;min-width:0;">
+                        <p style="margin:0;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ curso.titulo }}</p>
+                        <p style="margin:0;font-size:11px;color:var(--text-muted);">{{ curso.num_alunos|default:"0" }} alunos</p>
+                    </div>
+                </div>
+                {% empty %}
+                <p style="text-align:center;color:var(--text-muted);font-size:13px;padding:16px 0;">Nenhum curso ainda.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-</body>
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Main area chart
+    if(document.querySelector('#mainChart')) {
+        new ApexCharts(document.querySelector('#mainChart'), {
+            series: [{
+                name: 'Inscrições',
+                data: [12, 19, 8, 25, 14, 22, 30, 18, 24, 20, 28, 15]
+            }],
+            chart: { type: 'area', height: 260, toolbar: { show: false }, fontFamily: 'Inter' },
+            colors: ['#6c20f0'],
+            dataLabels: { enabled: false },
+            stroke: { curve: 'smooth', width: 2 },
+            fill: {
+                type: 'gradient',
+                gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.05, stops: [0, 100] }
+            },
+            xaxis: {
+                categories: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
+                labels: { style: { fontSize: '11px', colors: '#9ca3af' } },
+                axisBorder: { show: false },
+                axisTicks: { show: false }
+            },
+            yaxis: { labels: { style: { fontSize: '11px', colors: '#9ca3af' } } },
+            grid: { borderColor: '#f3f4f6', strokeDashArray: 3 },
+            tooltip: { theme: 'light' }
+        }).render();
+    }
 
-</html>
+    // Engagement donut
+    if(document.querySelector('#engagementDonut')) {
+        new ApexCharts(document.querySelector('#engagementDonut'), {
+            series: [78, 22],
+            chart: { type: 'donut', height: 180 },
+            colors: ['#6c20f0', '#e5e7eb'],
+            dataLabels: { enabled: false },
+            legend: { show: false },
+            stroke: { width: 0 },
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: '78%',
+                        labels: {
+                            show: true,
+                            total: {
+                                show: true,
+                                label: 'Média',
+                                fontSize: '11px',
+                                color: '#9ca3af',
+                                formatter: () => '78%'
+                            }
+                        }
+                    }
+                }
+            }
+        }).render();
+    }
+});
+</script>
+{% endblock %}
