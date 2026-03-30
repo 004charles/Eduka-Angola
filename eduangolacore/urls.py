@@ -24,7 +24,6 @@ urlpatterns = [
     path('gestoreduka/', include('gestoreduka.urls')),
     path('blog/', include('blog.urls')),
     path('estagio/', include('estagio.urls')), 
-    path('biblioteca/', include('biblioteca.urls')), 
     path('centro/', include('centro_formacao.urls')),
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

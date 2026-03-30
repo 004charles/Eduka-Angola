@@ -130,7 +130,7 @@
                                                 <div class="mega-top-banner">
                                                     <div class="content">
                                                         <h4 class="title">{% trans "Portal EdukAngola" %}</h4>
-                                                        <p class="description">{% trans "Cursos, bibliotecas e guias de estudo em um só lugar." %}</p>
+                                                        <p class="description">{% trans "Cursos, tutorias e guias de estudo em um só lugar." %}</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -140,7 +140,6 @@
                                                 <h3 class="rbt-short-title">{% trans "Ensino" %}</h3>
                                                 <ul class="mega-menu-item">
                                                     <li><a href="{% url 'home_cursos' %}">{% trans "Todos os Cursos" %}</a></li>
-                                                    <li><a href="{% url 'biblioteca' %}">{% trans "Biblioteca Digital" %}</a></li>
                                                     <li><a href="#">{% trans "Ensino Médio" %}</a></li>
                                                     <li><a href="#">{% trans "Ensino Superior" %}</a></li>
                                                 </ul>
@@ -191,19 +190,19 @@
                                 <div class="inner">
                                     <div class="rbt-admin-profile">
                                         <div class="admin-thumbnail">
-                                            {% if request.user.aluno_profile.foto_de_perfil %}
-                                            <img src="{{ request.user.aluno_profile.foto_de_perfil.url }}"
-                                                alt="Profile">
-                                            {% else %}
-                                            <div class="initials-avatar">
-                                                {{ request.user.username|slice:":2"|upper }}
-                                            </div>
-                                            {% endif %}
+                                            {% with foto_url=request.user.get_foto_perfil_url %}
+                                                {% if foto_url %}
+                                                    <img src="{{ foto_url }}" alt="{{ request.user.nome }}">
+                                                {% else %}
+                                                    <div class="initials-avatar">
+                                                        {{ request.user.get_iniciais }}
+                                                    </div>
+                                                {% endif %}
+                                            {% endwith %}
                                         </div>
                                         <div class="admin-info">
-                                            <span class="name">{{
-                                                request.user.get_full_name|default:request.user.username }}</span>
-                                            <a class="rbt-btn-link color-primary" href="/perfil">{% trans "Ver Perfil" %}</a>
+                                            <span class="name">{{ request.user.nome|default:request.user.email }}</span>
+                                            <span class="role">{{ request.user.get_tipo_usuario_display }}</span>
                                         </div>
                                     </div>
                                     <ul class="user-list-wrapper">
@@ -214,14 +213,37 @@
                                                 <span>{% trans "Dashboard Aluno" %}</span>
                                             </a>
                                         </li>
-                                        {% elif request.user.tipo_usuario == 'GESTOR' %}
+                                        <li>
+                                            <a href="#">
+                                                <i class="feather-book-open"></i>
+                                                <span>{% trans "Meus Cursos" %}</span>
+                                            </a>
+                                        </li>
+                                        {% elif request.user.tipo_usuario == 'GESTOR' or request.user.tipo_usuario == 'GESTOR_FILIAL' %}
                                         <li>
                                             <a href="{% url 'gestoreduka:analytics' %}">
-                                                <i class="feather-home"></i>
+                                                <i class="feather-bar-chart-2"></i>
                                                 <span>{% trans "Painel Gestor" %}</span>
                                             </a>
                                         </li>
+                                        {% elif request.user.is_superuser or request.user.tipo_usuario == 'ADMIN' %}
+                                        <li>
+                                            <a href="/admin/">
+                                                <i class="feather-shield"></i>
+                                                <span>{% trans "Administração Central" %}</span>
+                                            </a>
+                                        </li>
                                         {% endif %}
+
+                                        <li>
+                                            <a href="/perfil">
+                                                <i class="feather-settings"></i>
+                                                <span>{% trans "Configurações" %}</span>
+                                            </a>
+                                        </li>
+                                        
+                                        <hr class="dropdown-divider">
+                                        
                                         <li>
                                             <a href="{% url 'logout' %}">
                                                 <i class="feather-log-out"></i>
@@ -321,13 +343,16 @@
                 <li><a href="{% url 'index' %}">Home</a></li>
                 <li><a href="{% url 'home_cursos' %}">{% trans "Cursos" %}</a></li>
                 <li><a href="{% url 'cursovideoapp:home_videos' %}">EdukAngola Play</a></li>
-                <li><a href="{% url 'biblioteca' %}">{% trans "Biblioteca" %}</a></li>
                 <li><a href="{% url 'blog:lista_posts' %}">Blog</a></li>
                 {% if request.user.is_authenticated %}
-                {% if request.user.tipo_usuario == 'ALUNO' %}
-                <li><a href="{% url 'aluno' %}">{% trans "Dashboard" %}</a></li>
-                {% endif %}
-                <li><a href="{% url 'logout' %}">{% trans "Sair" %}</a></li>
+                    {% if request.user.tipo_usuario == 'ALUNO' %}
+                        <li><a href="{% url 'aluno' %}">{% trans "Meu Painel" %}</a></li>
+                    {% elif request.user.tipo_usuario == 'GESTOR' or request.user.tipo_usuario == 'GESTOR_FILIAL' %}
+                        <li><a href="{% url 'gestoreduka:analytics' %}">{% trans "Painel Gestor" %}</a></li>
+                    {% elif request.user.is_superuser %}
+                        <li><a href="/admin/">{% trans "Administração" %}</a></li>
+                    {% endif %}
+                    <li><a href="{% url 'logout' %}">{% trans "Sair" %}</a></li>
                 {% else %}
                 <li><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#authModal">{% trans "Entrar" %}</a></li>
                 {% endif %}
@@ -434,6 +459,74 @@
         border-radius: 50%;
         font-weight: bold;
         font-size: 14px;
+        box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.35);
+        border: 2px solid #fff;
+    }
+
+    .rbt-user-menu-list-wrapper .inner {
+        padding: 24px;
+        border-radius: 12px;
+        border: 1px solid rgba(0,0,0,0.06);
+        min-width: 280px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
+
+    .user-list-wrapper li a {
+        padding: 12px 18px;
+        border-radius: 10px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        color: #444;
+        font-weight: 500;
+        margin-bottom: 2px;
+    }
+
+    .user-list-wrapper li a:hover {
+        background: rgba(var(--color-primary-rgb), 0.08);
+        color: var(--color-primary);
+        transform: translateX(8px);
+    }
+
+    .user-list-wrapper li a i {
+        font-size: 20px;
+        opacity: 0.9;
+    }
+
+    .admin-info .name {
+        font-weight: 700;
+        display: block;
+        margin-bottom: 5px;
+        color: var(--color-heading);
+        font-size: 16px;
+        line-height: 1.2;
+    }
+
+    .admin-info .role {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-weight: 700;
+        background: rgba(var(--color-primary-rgb), 0.1);
+        color: var(--color-primary);
+        display: inline-block;
+    }
+
+    .dropdown-divider {
+        margin: 15px 0;
+        border-top: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .rbt-admin-profile {
+        padding-bottom: 20px;
+        margin-bottom: 15px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 15px;
     }
 </style>
 

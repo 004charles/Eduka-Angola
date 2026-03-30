@@ -515,6 +515,32 @@
                 object-fit: cover;
                 display: block;
             }
+
+            /* Dark Mode Overrides for Banner */
+            body.active-dark-mode .static-text {
+                color: #ffffff !important;
+            }
+            
+            body.active-dark-mode .total-join-students {
+                color: #ffffff !important;
+            }
+
+            body.active-dark-mode .more-author-text .subtitle {
+                color: #b1b1b1 !important;
+            }
+
+            body.active-dark-mode .section-title p, 
+            body.active-dark-mode .description {
+                color: #b1b1b1 !important;
+            }
+
+            body.active-dark-mode .designation {
+                color: #b1b1b1 !important;
+            }
+
+            body.active-dark-mode .rbt-banner-7 {
+                background-image: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%) !important;
+            }
         </style>
 
 
@@ -587,7 +613,7 @@
 
                                             <!-- MÉTRICAS -->
                                             <p class="designation"
-                                               style="margin-top: 5px; font-size: 14px; color: #111;">
+                                               style="margin-top: 5px; font-size: 14px;">
                                                 {{ centro.cursos.count }} cursos disponíveis ·
                                                 {{ centro.seguidores.count }} seguidores
                                             </p>
@@ -1143,12 +1169,11 @@
                             <div class="d-flex align-items-center gap-4">
                                 <span class="icon bg-color-secondary">
                                     <img src="{% static 'assets/images/icons/f-icon-03.png' %}"
-                                        alt="Ícone de Biblioteca">
+                                        alt="Ícone de Suporte">
                                 </span>
-                                <h6 class="card-title">Biblioteca Digital <br> Completa</h6>
+                                <h6 class="card-title">Comunidade & <br> Suporte</h6>
                             </div>
-                            <p class="description">Acesse milhares de livros, artigos e materiais didáticos de qualquer
-                                lugar, a qualquer momento.</p>
+                            <p class="description">Faça parte de uma rede ativa de estudantes e conte com suporte dedicado para sua jornada.</p>
                         </div>
                     </div>
                 </div>

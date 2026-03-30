@@ -97,7 +97,11 @@ def atualizar_localizacao(request):
         lng = data.get("lng")
 
         if lat and lng:
-            aluno = request.user.aluno_profile
+            # Garante que usamos getattr para evitar erro 'RelatedObjectDoesNotExist'
+            aluno = getattr(request.user, 'aluno_profile', None)
+            if not aluno:
+                return JsonResponse({"status": "erro", "message": "Apenas alunos podem atualizar localização."}, status=403)
+                
             perfil, created = PerfilAluno.objects.get_or_create(aluno=aluno)
 
             try:

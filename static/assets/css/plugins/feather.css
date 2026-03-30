@@ -1,9 +1,9 @@
 @font-face {
 	font-family: 'Feather';
 	src:
-	url('../../fonts/Feather.ttf%3Fsdxovp') format('truetype'),
-	url('../../fonts/Feather.woff%3Fsdxovp') format('woff'),
-	url('../../fonts/Feather.svg%3Fsdxovp') format('svg');
+	url('../../fonts/Feather.ttf?sdxovp') format('truetype'),
+	url('../../fonts/Feather.woff?sdxovp') format('woff'),
+	url('../../fonts/Feather.svg?sdxovp') format('svg');
 	font-weight: normal;
 	font-style: normal;
 }

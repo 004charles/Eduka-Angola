@@ -1,12 +1,12 @@
 asgiref==3.9.1
-django-allauth==65.3.1
-PyJWT
-requests
-cryptography
 Django==5.2.4
+django-allauth==65.3.1
 django-jazzmin==3.0.1
 gunicorn==23.0.0
 packaging==25.0
-pillow==11.3.0 
+pillow==11.3.0
 psycopg2-binary==2.9.10
 sqlparse==0.5.3
+PyJWT
+requests
+cryptography

@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'blog',
     'cursovideoapp',
     'estagio',
-    'biblioteca',
     'planos',
     'inteligencia',
     'avaliacoes',

@@ -5301,7 +5301,7 @@
      font-style: normal;
      font-weight: normal;
      src: url("../../fonts/fontawesome-free/webfonts/fa-brands-400.eot");
-     src: url("../../fonts/fontawesome-free/webfonts/fa-brands-400.eot%3F") format("embedded-opentype"), url("../../fonts/fontawesome-free/webfonts/fa-brands-400.woff2") format("woff2"), url("../../fonts/fontawesome-free/webfonts/fa-brands-400.woff") format("woff"), url("../../fonts/fontawesome-free/webfonts/fa-brands-400.ttf") format("truetype"), url("../../fonts/fontawesome-free/webfonts/fa-brands-400.svg") format("svg");
+     src: url("../../fonts/fontawesome-free/webfonts/fa-brands-400.eot?") format("embedded-opentype"), url("../../fonts/fontawesome-free/webfonts/fa-brands-400.woff2") format("woff2"), url("../../fonts/fontawesome-free/webfonts/fa-brands-400.woff") format("woff"), url("../../fonts/fontawesome-free/webfonts/fa-brands-400.ttf") format("truetype"), url("../../fonts/fontawesome-free/webfonts/fa-brands-400.svg") format("svg");
  }
  
  .fab {
@@ -5313,7 +5313,7 @@
      font-style: normal;
      font-weight: 400;
      src: url("../../fonts/fontawesome-free/webfonts/fa-regular-400.eot");
-     src: url("../../fonts/fontawesome-free/webfonts/fa-regular-400.eot%3F") format("embedded-opentype"), url("../../fonts/fontawesome-free/webfonts/fa-regular-400.woff2") format("woff2"), url("../../fonts/fontawesome-free/webfonts/fa-regular-400.woff") format("woff"), url("../../fonts/fontawesome-free/webfonts/fa-regular-400.ttf") format("truetype"), url("../../fonts/fontawesome-free/webfonts/fa-regular-400.svg") format("svg");
+     src: url("../../fonts/fontawesome-free/webfonts/fa-regular-400.eot?") format("embedded-opentype"), url("../../fonts/fontawesome-free/webfonts/fa-regular-400.woff2") format("woff2"), url("../../fonts/fontawesome-free/webfonts/fa-regular-400.woff") format("woff"), url("../../fonts/fontawesome-free/webfonts/fa-regular-400.ttf") format("truetype"), url("../../fonts/fontawesome-free/webfonts/fa-regular-400.svg") format("svg");
  }
  
  .far {
@@ -5326,7 +5326,7 @@
      font-style: normal;
      font-weight: 900;
      src: url("../../fonts/fontawesome-free/webfonts/fa-solid-900.eot");
-     src: url("../../fonts/fontawesome-free/webfonts/fa-solid-900.eot%3F") format("embedded-opentype"), url("../../fonts/fontawesome-free/webfonts/fa-solid-900.woff2") format("woff2"), url("../../fonts/fontawesome-free/webfonts/fa-solid-900.woff") format("woff"), url("../../fonts/fontawesome-free/webfonts/fa-solid-900.ttf") format("truetype"), url("../../fonts/fontawesome-free/webfonts/fa-solid-900.svg") format("svg");
+     src: url("../../fonts/fontawesome-free/webfonts/fa-solid-900.eot?") format("embedded-opentype"), url("../../fonts/fontawesome-free/webfonts/fa-solid-900.woff2") format("woff2"), url("../../fonts/fontawesome-free/webfonts/fa-solid-900.woff") format("woff"), url("../../fonts/fontawesome-free/webfonts/fa-solid-900.ttf") format("truetype"), url("../../fonts/fontawesome-free/webfonts/fa-solid-900.svg") format("svg");
  }
  
  .fa,

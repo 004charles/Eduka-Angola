@@ -44,9 +44,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         ('ALUNO', 'Aluno'),
         ('GESTOR', 'Gestor de Centro Principal'),
         ('GESTOR_FILIAL', 'Gestor de Filial'),
-        ('BIBLIOTECA', 'Bibliotecário'),
         ('ESCOLA', 'Escola'),
-        ('EMPRESA', 'Empresa'),
     ]
 
     nome = models.CharField(_('Nome Completo'), max_length=100, blank=True, null=True)
@@ -69,7 +67,20 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         return self.nome.split()[0] if self.nome else self.email
 
     def __str__(self):
-        return self.nome
+        return self.nome if self.nome else self.email
+
+    def get_foto_perfil_url(self):
+        """Retorna a URL da foto de perfil do aluno se existir."""
+        if hasattr(self, 'aluno_profile'):
+            if hasattr(self.aluno_profile, 'perfil') and self.aluno_profile.perfil.get_foto_perfil_url():
+                return self.aluno_profile.perfil.get_foto_perfil_url()
+        return None
+
+    def get_iniciais(self):
+        """Retorna as iniciais do nome para o avatar."""
+        if self.nome:
+            return "".join([n[0].upper() for n in self.nome.split()[:2]])
+        return self.email[:2].upper()
 
     class Meta:
         verbose_name = 'Usuário'
