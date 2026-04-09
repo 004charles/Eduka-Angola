@@ -1,4 +1,3 @@
-# urls.py
 from django.urls import path
 from . import views
 
@@ -13,9 +12,7 @@ urlpatterns = [
     path('<slug:slug>/inscrever/', views.toggle_inscricao, name="toggle_inscricao"),
     path('<slug:slug>/comentar/', views.salvar_comentario_video, name="salvar_comentario_video"),
     path('<slug:curso_slug>/aula/<int:pk>/', views.ver_aula, name="ver_aula"),
-    path('aula/<int:aula_id>/progresso/', views.atualizar_progresso, name="atualizar_progresso"),
-    
-    # Certificados
+    path('aula/<int:aula_id>/progresso/', views.atualizar_progresso, name="atualizar_progresso"), 
     path('emitir-certificado/<slug:curso_slug>/', views.emitir_certificado, name="emitir_certificado"),
     path('verificar-certificado/<str:codigo>/', views.verificar_certificado, name="verificar_certificado"),
 ]
