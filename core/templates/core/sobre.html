@@ -55,9 +55,12 @@
                                     </span>
                                 </span>
                             </h1>
-                            <p class="description has-medium-font-size mt--20">Potenciando o futuro de Angola através da
-                                educação digital acessível,
-                                inovadora e conectada com o mercado de trabalho global.
+                            <p class="description has-medium-font-size mt--20">
+                                {% if sobre.descricao %}
+                                    {{ sobre.descricao }}
+                                {% else %}
+                                    Potenciando o futuro de Angola através da educação digital acessível, inovadora e conectada com o mercado de trabalho global.
+                                {% endif %}
                             </p>
                             <div class="slider-btn rbt-button-group justify-content-center">
                                 <a class="rbt-btn btn-gradient hover-icon-reverse" href="{% url 'login_aluno' %}">
@@ -131,36 +134,98 @@
         <div class="container">
             <div class="row g-5 align-items-center">
                 <div class="col-lg-6">
-                    <div class="content">
-                        <img src="{% static 'assets/images/custom/about_hero.png' %}" alt="Visão EdukAngola"
-                            class="rbt-radius shadow-lg">
+                    <div class="content text-start">
+                        <span class="rbt-badge-6 bg-primary-opacity">Nossa Missão</span>
+                        <h3 class="title">Transformando vidas através do conhecimento.</h3>
+                        <p class="description mt--30">{{ sobre.missao|default:"A EdukAngola nasceu com o propósito de democratizar o acesso à educação de qualidade em Angola, permitindo que qualquer pessoa, em qualquer lugar, possa aprender novas competências e transformar sua realidade profissional." }}</p>
                     </div>
                 </div>
-                <div class="col-lg-6" data-sal="slide-up" data-sal-duration="700">
-                    <div class="inner pl--50 pl_sm--5">
-                        <div class="content text-start">
-                            <span class="rbt-badge-6 bg-primary-opacity">Sobre a Edukangola</span>
-                            <h3 class="title">Bem-vindo à Edukangola para aprimorar suas habilidades com os melhores
-                                cursos online.</h3>
-                            <p class="description mt--30"><strong>Plataforma educacional Edukangola</strong> ipsum dolor
-                                sit amet consectetur adipisicing elit.</p>
-                            <p class="description">Nam inventore praesentium alias incidunt! Veritatis, necessitatibus
-                                fuga dolore tenetur, beatae suscipit fugit est ea perspiciatis quo provident nisi dolor
-                                similique architecto nihil.</p>
-                            <div class="read-more-btn mt--40">
-                                <a class="rbt-btn rbt-marquee-btn radius-round btn-gradient"
-                                    href="{% url 'registro_aluno' %}">
-                                    <span data-text="Criar Conta Grátis">
-                                        Criar Conta Grátis
-                                    </span>
-                                </a>
-                            </div>
-                        </div>
+                <div class="col-lg-6">
+                    <div class="content text-start">
+                        <span class="rbt-badge-6 bg-secondary-opacity">Nossa Visão</span>
+                        <h3 class="title">Ser o maior ecossistema de educação em Angola.</h3>
+                        <p class="description mt--30">{{ sobre.visao|default:"Nossa visão é ser a plataforma de referência para centros de formação e estudantes, criando pontes reais entre o aprendizado e as oportunidades de carreira." }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row g-5 align-items-center mt--40">
+                <div class="col-lg-12">
+                     <div class="content text-center">
+                        <span class="rbt-badge-6 bg-violet-opacity">Nossos Valores</span>
+                        <h3 class="title">O que nos guia todos os dias.</h3>
+                        <p class="description mt--20" style="max-width: 800px; margin: 0 auto;">{{ sobre.valores|default:"Inovação constante, compromisso com a excelência, transparência total e foco absoluto no sucesso do nosso aluno." }}</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Start Testimonial Area -->
+    <div class="rbt-testimonial-area testimonial-section-02 bg-color-extra2 rbt-section-gap overflow-hidden">
+        <div class="container">
+            <div class="row mb--60">
+                <div class="col-lg-12">
+                    <div class="section-title text-center">
+                        <span class="subtitle bg-primary-opacity">Depoimentos</span>
+                        <h2 class="title">O que dizem sobre nós</h2>
+                    </div>
+                </div>
+            </div>
+            
+            {% if depoimentos %}
+            <div class="row align-items-center row--30">
+                <div class="col-lg-6">
+                    <div class="rbt-testimonial-content tab-content" id="myTabContent">
+                        {% for dep in depoimentos %}
+                        <div class="tab-pane fade {% if forloop.first %}active show{% endif %}" id="testimonial-tab{{ forloop.counter }}" role="tabpanel" aria-labelledby="testimonial-tab{{ forloop.counter }}-tab">
+                            <div class="inner">
+                                <div class="rating mb--30">
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= dep.nota %}
+                                            <i class="fa fa-star" style="color: #FFD700;"></i>
+                                        {% else %}
+                                            <i class="fa fa-star-o" style="color: #ccc;"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <p>{{ dep.texto }}</p>
+                            </div>
+                            <div class="author-info">
+                                <h6><span>{{ dep.nome }}</span> - {% if dep.tipo == 'PLATAFORMA' %}Aluno EdukAngola{% else %}Aluno do Centro {{ dep.centro.nome }}{% endif %}</h6>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-lg-6 mt_md--40 mt_sm--40">
+                    <div class="rbt-testimonial-img nav nav-tabs" id="myTab" role="tablist">
+                        {% for dep in depoimentos %}
+                        <a class="nav-item {% if forloop.first %}active{% endif %}" id="testimonial-tab{{ forloop.counter }}-tab" data-bs-toggle="tab" data-bs-target="#testimonial-tab{{ forloop.counter }}" role="tab" aria-controls="testimonial-tab{{ forloop.counter }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                            <div class="image">
+                                {% if dep.foto %}
+                                    <img src="{{ dep.foto.url }}" alt="{{ dep.nome }}">
+                                {% elif dep.aluno.perfil.foto_de_perfil %}
+                                    <img src="{{ dep.aluno.perfil.foto_de_perfil.url }}" alt="{{ dep.nome }}">
+                                {% else %}
+                                    <img src="{% static 'assets/images/testimonial/client-01.png' %}" alt="{{ dep.nome }}">
+                                {% endif %}
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p>Inspirando milhares de alunos todos os dias.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <!-- End Testimonial Area -->
     <!-- Área de Chamada para Ação -->
     <div class="rbt-call-to-action-area rbt-section-gap bg-gradient-8">
         <div class="rbt-callto-action rbt-cta-default style-6">
@@ -312,212 +377,93 @@
                 </div>
             </div>
             <div class="row g-5">
-
+                {% for instrutor in instrutores %}
                 <!-- Start Single Team  -->
                 <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                     <div class="rbt-team-modal-thumb nav nav-tabs">
                         <a class="rbt-team-thumbnail" href="javascript:void(0)" data-bs-toggle="modal"
-                            data-bs-target="#exampleModal">
+                            data-bs-target="#instrutorModal{{ instrutor.id }}">
                             <div class="thumb">
-                                <img src="{% static 'assets/images/team/team-05.jpg' %}" alt="Testimonial Images">
+                                {% if instrutor.foto %}
+                                    <img src="{{ instrutor.foto.url }}" alt="{{ instrutor.nome }}">
+                                {% else %}
+                                    <img src="{% static 'assets/images/team/team-01.jpg' %}" alt="{{ instrutor.nome }}">
+                                {% endif %}
                             </div>
                         </a>
                     </div>
                 </div>
                 <!-- End Single Team  -->
 
-                <!-- Start Single Team  -->
-                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                    <div class="rbt-team-modal-thumb nav nav-tabs">
-                        <a class="rbt-team-thumbnail" href="javascript:void(0)" data-bs-toggle="modal"
-                            data-bs-target="#exampleModal">
-                            <div class="thumb">
-                                <img src="{% static 'assets/images/team/team-09.jpg' %}" alt="Testimonial Images">
+                <!-- Modal for this instructor -->
+                <div class="rbt-team-modal modal fade rbt-modal-default" id="instrutorModal{{ instrutor.id }}" tabindex="-1"
+                    aria-labelledby="instrutorModal{{ instrutor.id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="rbt-round-btn" data-bs-dismiss="modal" aria-label="Close">
+                                    <i class="feather-x"></i>
+                                </button>
                             </div>
-                        </a>
-                    </div>
-                </div>
-                <!-- End Single Team  -->
+                            <div class="modal-body">
+                                <div class="inner">
+                                    <div class="row g-5 row--30 align-items-center">
+                                        <div class="col-lg-4">
+                                            <div class="rbt-team-thumbnail">
+                                                <div class="thumb">
+                                                    {% if instrutor.foto %}
+                                                        <img class="w-100" src="{{ instrutor.foto.url }}" alt="{{ instrutor.nome }}">
+                                                    {% else %}
+                                                        <img class="w-100" src="{% static 'assets/images/team/team-01.jpg' %}" alt="{{ instrutor.nome }}">
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <div class="rbt-team-details">
+                                                <div class="author-info">
+                                                    <h4 class="title">{{ instrutor.nome }}</h4>
+                                                    <span class="designation theme-gradient">{{ instrutor.get_area_especializacao_display }}</span>
+                                                    <span class="team-form">
+                                                        <i class="feather-map-pin"></i>
+                                                        <span class="location">{{ instrutor.centro_de_formacao.nome }}</span>
+                                                    </span>
+                                                </div>
+                                                <p class="mb--15">{{ instrutor.biografia|linebreaksbr }}</p>
 
-                <!-- Start Single Team  -->
-                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                    <div class="rbt-team-modal-thumb nav nav-tabs">
-                        <a class="rbt-team-thumbnail" href="javascript:void(0)" data-bs-toggle="modal"
-                            data-bs-target="#exampleModal">
-                            <div class="thumb">
-                                <img src="{% static 'assets/images/team/team-03.jpg' %}" alt="Testimonial Images">
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                <!-- End Single Team  -->
-
-                <!-- Start Single Team  -->
-                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                    <div class="rbt-team-modal-thumb nav nav-tabs">
-                        <a class="rbt-team-thumbnail" href="javascript:void(0)" data-bs-toggle="modal"
-                            data-bs-target="#exampleModal">
-                            <div class="thumb">
-                                <img src="{% static 'assets/images/team/team-07.jpg' %}" alt="Testimonial Images">
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                <!-- End Single Team  -->
-
-                <!-- Start Single Team  -->
-                <div class="col-lg-2 col-md-3 col-sm-4 col-12">
-                    <div class="rbt-team-modal-thumb nav nav-tabs">
-                        <a class="rbt-team-thumbnail" href="javascript:void(0)" data-bs-toggle="modal"
-                            data-bs-target="#exampleModal">
-                            <div class="thumb">
-                                <img src="{% static 'assets/images/team/team-01.jpg' %}" alt="Testimonial Images">
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                <!-- End Single Team  -->
-
-                <!-- Start Single Team  -->
-                <div class="col-lg-2 col-md-3 col-sm-4 col-12">
-                    <div class="rbt-team-modal-thumb nav nav-tabs">
-                        <a class="rbt-team-thumbnail" href="javascript:void(0)" data-bs-toggle="modal"
-                            data-bs-target="#exampleModal">
-                            <div class="thumb">
-                                <img src="{% static 'assets/images/team/team-02.jpg' %}" alt="Testimonial Images">
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                <!-- End Single Team  -->
-
-                <!-- Start Single Team  -->
-                <div class="col-lg-2 col-md-3 col-sm-4 col-12">
-                    <div class="rbt-team-modal-thumb nav nav-tabs">
-                        <a class="rbt-team-thumbnail" href="javascript:void(0)" data-bs-toggle="modal"
-                            data-bs-target="#exampleModal">
-                            <div class="thumb">
-                                <img src="{% static 'assets/images/team/team-04.jpg' %}" alt="Testimonial Images">
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                <!-- End Single Team  -->
-
-                <!-- Start Single Team  -->
-                <div class="col-lg-2 col-md-3 col-sm-4 col-12">
-                    <div class="rbt-team-modal-thumb nav nav-tabs">
-                        <a class="rbt-team-thumbnail" href="javascript:void(0)" data-bs-toggle="modal"
-                            data-bs-target="#exampleModal">
-                            <div class="thumb">
-                                <img src="{% static 'assets/images/team/team-06.jpg' %}" alt="Testimonial Images">
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                <!-- End Single Team  -->
-
-                <!-- Start Single Team  -->
-                <div class="col-lg-2 col-md-3 col-sm-4 col-12">
-                    <div class="rbt-team-modal-thumb nav nav-tabs">
-                        <a class="rbt-team-thumbnail" href="javascript:void(0)" data-bs-toggle="modal"
-                            data-bs-target="#exampleModal">
-                            <div class="thumb">
-                                <img src="{% static 'assets/images/team/team-08.jpg' %}" alt="Testimonial Images">
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                <!-- End Single Team  -->
-
-                <!-- Start Single Team  -->
-                <div class="col-lg-2 col-md-3 col-sm-4 col-12">
-                    <div class="rbt-team-modal-thumb nav nav-tabs">
-                        <a class="rbt-team-thumbnail" href="javascript:void(0)" data-bs-toggle="modal"
-                            data-bs-target="#exampleModal">
-                            <div class="thumb">
-                                <img src="{% static 'assets/images/team/team-10.jpg' %}" alt="Testimonial Images">
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                <!-- End Single Team  -->
-
-            </div>
-
-            <div class="rbt-team-modal modal fade rbt-modal-default" id="exampleModal" tabindex="-1"
-                aria-labelledby="exampleModal" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="rbt-round-btn" data-bs-dismiss="modal" aria-label="Close">
-                                <i class="feather-x"></i>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="inner">
-                                <div class="row g-5 row--30 align-items-center">
-                                    <div class="col-lg-4">
-                                        <div class="rbt-team-thumbnail">
-                                            <div class="thumb">
-                                                <img class="w-100" src="{% static 'assets/images/team/team-09.jpg' %}"
-                                                    alt="Testimonial Images">
+                                                <ul class="social-icon social-default mt--20 justify-content-start">
+                                                    {% if instrutor.facebook %}
+                                                    <li><a href="{{ instrutor.facebook }}"><i class="feather-facebook"></i></a></li>
+                                                    {% endif %}
+                                                    {% if instrutor.twitter %}
+                                                    <li><a href="{{ instrutor.twitter }}"><i class="feather-twitter"></i></a></li>
+                                                    {% endif %}
+                                                    {% if instrutor.instagram %}
+                                                    <li><a href="{{ instrutor.instagram }}"><i class="feather-instagram"></i></a></li>
+                                                    {% endif %}
+                                                    {% if instrutor.linkedin %}
+                                                    <li><a href="{{ instrutor.linkedin }}"><i class="feather-linkedin"></i></a></li>
+                                                    {% endif %}
+                                                </ul>
+                                                <ul class="rbt-information-list mt--25">
+                                                    <li>
+                                                        <a href="mailto:{{ instrutor.email }}"><i class="feather-mail"></i>{{ instrutor.email }}</a>
+                                                    </li>
+                                                </ul>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-8">
-                                        <div class="rbt-team-details">
-                                            <div class="author-info">
-                                                <h4 class="title">Mames Mary</h4>
-                                                <span class="designation theme-gradient">English Teacher</span>
-                                                <span class="team-form">
-                                                    <i class="feather-map-pin"></i>
-                                                    <span class="location">CO Miego, AD,USA</span>
-                                                </span>
-                                            </div>
-                                            <p class="mb--15">You can run Histudy easily. Any School, University,
-                                                College can be use this histudy education template for their educational
-                                                purpose. A university can be success you.</p>
-
-                                            <p>Run their online leaning management system by histudy education template
-                                                any where and time.</p>
-                                            <ul class="social-icon social-default mt--20 justify-content-start">
-                                                <li><a href="https://www.facebook.com/">
-                                                        <i class="feather-facebook"></i>
-                                                    </a>
-                                                </li>
-                                                <li><a href="https://www.twitter.com">
-                                                        <i class="feather-twitter"></i>
-                                                    </a>
-                                                </li>
-                                                <li><a href="https://www.instagram.com/">
-                                                        <i class="feather-instagram"></i>
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a href="https://www.linkdin.com/">
-                                                        <i class="feather-linkedin"></i>
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                            <ul class="rbt-information-list mt--25">
-                                                <li>
-                                                    <a href="about-us-02.html#"><i
-                                                            class="feather-phone"></i>+1-202-555-0174</a>
-                                                </li>
-                                                <li>
-                                                    <a href="mailto:hello@example.com"><i
-                                                            class="feather-mail"></i>example@gmail.com</a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
+                                    <div class="top-circle-shape"></div>
                                 </div>
-                                <div class="top-circle-shape"></div>
                             </div>
                         </div>
                     </div>
                 </div>
+                {% empty %}
+                <div class="col-12 text-center">
+                    <p class="color-white">Conectando você aos melhores especialistas de Angola.</p>
+                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -532,16 +478,15 @@
                         <span class="small-title w-600">Os Clientes Mais Confiáveis no Mundo da Educação</span>
                     </div>
                     <ul class="brand-list brand-style-3 justify-content-center justify-content-lg-between">
-                        <li><a href="about-us-02.html#"><img src="{% static 'assets/images/brand/brand-01.png' %}"
-                                    alt="Brand Image"></a></li>
-                        <li><a href="about-us-02.html#"><img src="{% static 'assets/images/brand/brand-02.png' %}"
-                                    alt="Brand Image"></a></li>
-                        <li><a href="about-us-02.html#"><img src="{% static 'assets/images/brand/brand-03.png' %}"
-                                    alt="Brand Image"></a></li>
-                        <li><a href="about-us-02.html#"><img src="{% static 'assets/images/brand/brand-05.png' %}"
-                                    alt="Brand Image"></a></li>
-                        <li><a href="about-us-02.html#"><img src="{% static 'assets/images/brand/brand-06.png' %}"
-                                    alt="Brand Image"></a></li>
+                        {% for centro in centros %}
+                        <li>
+                            <a href="{% url 'cursos_por_centro' centro.id %}">
+                                <img src="{{ centro.perfil.imagem.url }}" alt="{{ centro.nome }}">
+                            </a>
+                        </li>
+                        {% empty %}
+                        <p class="text-center">Parceiros comprometidos com a educação em Angola.</p>
+                        {% endfor %}
                     </ul>
                 </div>
             </div>

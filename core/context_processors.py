@@ -19,3 +19,11 @@ def destaques(request):
             ativo=True
         ).select_related('centro')[:5]
     }
+
+def google_maps_key(request):
+    """
+    Disponibiliza a chave da API do Google Maps para os templates.
+    """
+    return {
+        'GOOGLE_MAPS_API_KEY': settings.GOOGLE_MAPS_API_KEY
+    }

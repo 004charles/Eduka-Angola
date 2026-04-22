@@ -1,0 +1,69 @@
+{% extends 'aluno_base.html' %}
+{% load static %}
+
+{% block title %}Configurações de Conta | Edukangola{% endblock %}
+
+{% block dashboard_content %}
+<div class="rbt-dashboard-content bg-color-white rbt-shadow-box">
+    <div class="content">
+        <div class="section-title">
+            <h4 class="rbt-title-style-3">Configurações de Segurança</h4>
+            <p>Gerencie sua senha e acessos à conta.</p>
+        </div>
+
+        <div class="tab-content mt--40">
+            <div class="tab-pane fade active show" id="password" role="tabpanel">
+                <form action="{% url 'configuracao_user' %}" method="POST" class="rbt-profile-row rbt-default-form row row--15">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="password">
+                    
+                    <div class="col-12">
+                        <h5 class="mb--20"><i class="feather-lock me-2"></i>Alterar Senha</h5>
+                        <div class="row g-5">
+                            <div class="col-12">
+                                <div class="rbt-form-group">
+                                    <label for="currentpassword">Senha Atual</label>
+                                    <div class="input-icon-wrapper" style="position: relative;">
+                                        <i class="feather-lock" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #666;"></i>
+                                        <input id="currentpassword" name="currentpassword" type="password" style="padding-left: 45px;" placeholder="Digite sua senha atual" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="rbt-form-group">
+                                    <label for="newpassword">Nova Senha</label>
+                                    <div class="input-icon-wrapper" style="position: relative;">
+                                        <i class="feather-shield" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #666;"></i>
+                                        <input id="newpassword" name="newpassword" type="password" style="padding-left: 45px;" placeholder="Mínimo 8 caracteres" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="rbt-form-group">
+                                    <label for="retypenewpassword">Confirmar Nova Senha</label>
+                                    <div class="input-icon-wrapper" style="position: relative;">
+                                        <i class="feather-check-circle" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #666;"></i>
+                                        <input id="retypenewpassword" name="retypenewpassword" type="password" style="padding-left: 45px;" placeholder="Repita a nova senha" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt--30">
+                        <div class="form-submit-group text-end">
+                            <button type="submit" class="rbt-btn btn-md btn-gradient hover-icon-reverse">
+                                <span class="icon-reverse-wrapper">
+                                    <span class="btn-text">Atualizar Senha</span>
+                                    <span class="btn-icon"><i class="feather-refresh-cw"></i></span>
+                                    <span class="btn-icon"><i class="feather-refresh-cw"></i></span>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

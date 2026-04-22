@@ -91,26 +91,24 @@
             background: var(--color-primary-opacity);
             border-color: var(--color-primary);
         }
+
+        /* Dark Mode Overrides */
+        .active-dark-mode .single-comment,
+        .active-dark-mode .rbt-comment-section,
+        .active-dark-mode .comment-respond,
+        .active-dark-mode .reaction-main-btn {
+            background-color: var(--color-darker) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            color: var(--color-body-white) !important;
+        }
+        .active-dark-mode .bg-white {
+            background-color: var(--color-darker) !important;
+            color: var(--color-body-white) !important;
+        }
     </style>
 </head>
 
 <body class="rbt-header-sticky">
-    <div id="my_switcher" class="my_switcher">
-        <ul>
-            <li>
-                <a href="javascript: void(0);" data-theme="light" class="setColor light">
-                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode">
-                        Light</span>
-                </a>
-            </li>
-            <li>
-                <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
-                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span
-                        title="Dark Mode"> Dark</span>
-                </a>
-            </li>
-        </ul>
-    </div>
 
     {% include 'include/header.html' %}
 

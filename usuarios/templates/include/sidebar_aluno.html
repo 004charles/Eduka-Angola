@@ -1,0 +1,31 @@
+{% load static %}
+<div class="rbt-default-sidebar sticky-top rbt-shadow-box rbt-gradient-border">
+    <div class="inner">
+        <div class="content-item-content">
+            <div class="rbt-default-sidebar-wrapper">
+                <div class="section-title mb--20">
+                    <h6 style="color: black;" class="rbt-title-style-2">Menu Aluno</h6>
+                </div>
+                <nav class="mainmenu-nav">
+                    <ul class="dashboard-mainmenu rbt-default-sidebar-list">
+                        <li><a href="{% url 'aluno_perfil' %}" class="{% if current_page == 'perfil' %}active{% endif %}"><i class="feather-user"></i><span>Perfil do Aluno</span></a></li>
+                        <li><a href="{% url 'aluno_cursos' %}" class="{% if current_page == 'cursos' %}active{% endif %}"><i class="feather-book-open"></i><span>Os Meus Cursos</span></a></li>
+                        <li><a href="{% url 'aluno_favoritos' %}" class="{% if current_page == 'favoritos' %}active{% endif %}"><i class="feather-bookmark"></i><span>Cursos Favoritos</span></a></li>
+                        <li><a href="{% url 'aluno_depoimento' %}" class="{% if current_page == 'depoimento' %}active{% endif %}"><i class="feather-message-square"></i><span>Meu Depoimento</span></a></li>
+                    </ul>
+                </nav>
+
+                <div class="section-title mt--40 mb--20">
+                    <h6 class="rbt-title-style-2">Configurações</h6>
+                </div>
+
+                <nav class="mainmenu-nav">
+                    <ul class="dashboard-mainmenu rbt-default-sidebar-list">
+                        <li><a href="{% url 'aluno_configuracoes' %}" class="{% if current_page == 'configuracoes' %}active{% endif %}"><i class="feather-settings"></i><span>Configurações</span></a></li>
+                        <li><a href="{% url 'logout' %}"><i class="feather-log-out"></i><span>Encerrar Sessão</span></a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>

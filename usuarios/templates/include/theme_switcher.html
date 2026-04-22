@@ -1,0 +1,20 @@
+{% load static %}
+{% load i18n %}
+<!-- Start Switcher Area -->
+<div id="my_switcher" class="my_switcher">
+    <ul>
+        <li>
+            <a href="javascript: void(0);" data-theme="light" class="setColor light">
+                <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="{% trans 'Light Mode' %}">
+                    {% trans 'Light' %}</span>
+            </a>
+        </li>
+        <li>
+            <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
+                <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span
+                    title="{% trans 'Dark Mode' %}"> {% trans "Dark" %}</span>
+            </a>
+        </li>
+    </ul>
+</div>
+<!-- End Switcher Area -->

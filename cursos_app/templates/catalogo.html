@@ -1,5 +1,7 @@
 {% load static %}
 {% load humanize %}
+{% load curso_filters %}
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,257 +17,233 @@
     {% include 'include/header.html' %}
     {% include 'include/menu_mobile.html' %}
 
-    <div class="rbt-page-banner-wrapper">
-        <div class="rbt-banner-image"></div>
+    <!-- Start Breadcrumb Area -->
+    <div class="rbt-breadcrumb-default ptb--100 ptb_md--50 ptb_sm--30 bg-gradient-1">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
-                    <div class="rbt-page-banner-inner pt--120 pb--120">
-                        <h1 class="title text-center">{% trans 'Catálogo de Cursos' %}</h1>
-                        <p class="description text-center">{% trans 'Encontre o curso perfeito para alavancar sua
-                            carreira.' %}</p>
+                    <div class="breadcrumb-inner text-center">
+                        <h2 class="title">
+                            {% if secao_ativa %}
+                                {{ secao_ativa.titulo }}
+                            {% else %}
+                                {% trans 'Impulsione o Seu Futuro Hoje' %}
+                            {% endif %}
+                        </h2>
+                        <ul class="page-list">
+                            <li class="rbt-breadcrumb-item"><a href="/">Home</a></li>
+                            <li>
+                                <div class="icon-right"><i class="feather-chevron-right"></i></div>
+                            </li>
+                            <li class="rbt-breadcrumb-item active">
+                                {% if secao_ativa %}
+                                    {{ secao_ativa.titulo }}
+                                {% else %}
+                                    {% trans 'Explorar Conhecimento' %}
+                                {% endif %}
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <!-- End Breadcrumb Area -->
 
-    <div class="rbt-course-area bg-color-white ptb--60">
+    <div class="rbt-course-area bg-color-white rbt-section-gap">
         <div class="container">
-            <div class="row g-5">
-                <!-- Sidebar de Filtros -->
-                <div class="col-lg-3">
-                    <aside class="rbt-sidebar-widget-wrapper rbt-gradient-border">
-                        <form method="get" id="filter-form" class="rbt-search-filter-form">
-                            <div class="rbt-single-widget widget_categories">
-                                <h5 class="title"><i class="feather-filter"></i> {% trans 'Filtrar Resultados' %}</h5>
-
-                                <!-- Busca -->
-                                <div class="rbt-form-group mb--20">
-                                    <label class="form-label">{% trans 'Palavra-chave' %}</label>
-                                    <input type="text" name="q" class="form-control"
-                                        placeholder="Ex: Programação, Inglês..." value="{{ filtros.busca|default:'' }}">
-                                </div>
-
-                                <!-- Origem -->
-                                <div class="rbt-form-group mb--20">
-                                    <label class="form-label">{% trans 'Formato / Origem' %}</label>
-                                    <select name="origem" class="form-select">
-                                        <option value="">{% trans 'Todos os formatos' %}</option>
-                                        <option value="parceiro" {% if filtros.origem=='parceiro' %}selected{% endif %}>
-                                            {% trans 'Centros Parceiros (Presencial)' %}</option>
-                                        <option value="original" {% if filtros.origem=='original' %}selected{% endif %}>
-                                            {% trans 'EdukaAngola Original (Vídeo)' %}</option>
-                                    </select>
-                                </div>
-
-                                <!-- Filtros Especiais -->
-                                <div class="rbt-form-group mb--20">
-                                    <label class="form-label">{% trans 'Filtros Dinâmicos' %}</label>
-                                    <div class="rbt-checkbox-wrapper mb--5">
-                                        <input id="check-semana" type="checkbox" name="tempo" value="semana" {% if
-                                            filtros.tempo=='semana' %}checked{% endif %}>
-                                        <label for="check-semana">{% trans 'Cursos da Semana' %}</label>
-                                    </div>
-                                    <div class="rbt-checkbox-wrapper mb--5">
-                                        <input id="check-proximos" type="checkbox" name="proximos" value="true" {% if
-                                            filtros.proximos=="true" or filtros.proximos==\'true\' %}checked{% endif %}>
-                                        <label for="check-proximos">{% trans "Início Próximo (30 dias)" %}</label>
-                                    </div>
-                                    <div class="rbt-checkbox-wrapper mb--5">
-                                        <input id="check-destaque" type="checkbox" name="destaque" value="true" {% if
-                                            filtros.destaque=='true' %}checked{% endif %}>
-                                        <label for="check-destaque">{% trans 'Em Destaque' %}</label>
-                                    </div>
-                                    {% if user.is_authenticated and user.tipo_usuario == 'ALUNO' %}
-                                    <div class="rbt-checkbox-wrapper mb--5">
-                                        <input id="check-ia" type="checkbox" name="para_voce" value="true" {% if
-                                            filtros.para_voce=='true' %}checked{% endif %}>
-                                        <label for="check-ia" class="text-primary fw-bold">✨ {% trans 'Especial Para
-                                            Você' %}</label>
-                                    </div>
-                                    {% endif %}
-                                </div>
-
-                                <!-- Categorias -->
-                                <div class="rbt-form-group mb--20">
-                                    <label class="form-label">{% trans 'Categoria' %}</label>
-                                    <select name="categoria" class="form-select">
-                                        <option value="">{% trans 'Todas as categorias' %}</option>
-                                        {% for cat in categorias %}
-                                        <option value="{{ cat.id }}" {% if
-                                            filtros.categoria|stringformat:"s"==cat.id|stringformat:"s" %}selected{%
-                                            endif %}>
-                                            {{ cat.nome }} ({{ cat.total_cursos }})
-                                        </option>
-                                        {% endfor %}
-                                        <option value="tecnologia" {% if filtros.categoria=='tecnologia' %}selected{%
-                                            endif %}>
-                                            {% trans 'Cursos de Tecnologia' %}
-                                        </option>
-                                    </select>
-                                </div>
-
-                                <!-- Nível -->
-                                <div class="rbt-form-group mb--20">
-                                    <label class="form-label">{% trans 'Nível' %}</label>
-                                    <select name="nivel" class="form-select">
-                                        <option value="">{% trans 'Todos os níveis' %}</option>
-                                        <option value="B" {% if filtros.nivel=='B' %}selected{% endif %}>{% trans
-                                            'Básico' %}</option>
-                                        <option value="I" {% if filtros.nivel=='I' %}selected{% endif %}>{% trans
-                                            'Intermediário' %}</option>
-                                        <option value="A" {% if filtros.nivel=='A' %}selected{% endif %}>{% trans
-                                            'Avançado' %}</option>
-                                    </select>
-                                </div>
-
-                                <!-- Preço -->
-                                <div class="rbt-form-group mb--20">
-                                    <label class="form-label">{% trans 'Preço' %}</label>
-                                    <select name="preco" class="form-select">
-                                        <option value="">{% trans 'Todos os preços' %}</option>
-                                        <option value="gratuitos" {% if filtros.preco=='gratuitos' %}selected{% endif
-                                            %}>{% trans 'Gratuitos' %}</option>
-                                        <option value="pagina_100" {% if filtros.preco=='pagina_100' %}selected{% endif
-                                            %}>{% trans 'Até 100 KZ' %}</option>
-                                        <option value="100_500" {% if filtros.preco=='100_500' %}selected{% endif %}>{%
-                                            trans '100 - 500 KZ' %}</option>
-                                        <option value="500_plus" {% if filtros.preco=='500_plus' %}selected{% endif %}>
-                                            {% trans 'Acima de 500 KZ' %}</option>
-                                    </select>
-                                </div>
-
-                                <!-- Botões -->
-                                <div class="d-grid gap-2">
-                                    <button type="submit" class="rbt-btn btn-gradient btn-sm hover-transform">
-                                        <i class="feather-search"></i> {% trans 'Buscar e Filtrar' %}
-                                    </button>
-                                    <a href="{% url 'catalogo_cursos' %}"
-                                        class="rbt-btn btn-border btn-sm hover-transform text-center">
-                                        {% trans 'Limpar Tudo' %}
-                                    </a>
+            <form method="get" id="filter-form" class="rbt-search-filter-form">
+                <div class="row g-5">
+                    <!-- Sidebar de Filtros (Esquerda) -->
+                    <div class="col-lg-3">
+                        <aside class="rbt-sidebar-widget-wrapper rbt-gradient-border" style="background: var(--color-white); padding: 25px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.03); border: 1px solid var(--color-border);">
+                            {% if filtros.secao %}
+                                <input type="hidden" name="secao" value="{{ filtros.secao }}">
+                            {% endif %}
+                            
+                            <!-- Pesquisa Central -->
+                            <div class="rbt-single-widget mb--40">
+                                <h5 class="title mb--20" style="color: var(--color-heading); font-size: 18px;">{% trans 'Pesquisar' %}</h5>
+                                <div class="rbt-search-style-1 search-form-with-suggestions">
+                                    <input type="text" name="q" class="rbt-search-autocomplete" placeholder="O que pretende aprender?" value="{{ filtros.busca|default:'' }}" style="border-radius: 10px; border: 1px solid var(--color-border); background-color: var(--color-white); color: var(--color-heading); padding: 15px 20px; font-size: 16px;" autocomplete="off">
+                                    <div class="search-suggestions-wrapper"></div>
+                                    <button class="search-btn" style="right: 15px; color: var(--color-body);"><i class="feather-search"></i></button>
                                 </div>
                             </div>
-                </div>
 
-                <!-- CTA Lateral -->
-                <div class="rbt-single-widget mt--30 bg-primary-opacity">
-                    <h5 class="title">{% trans 'Por que Edukangola?' %}</h5>
-                    <ul class="rbt-list-style-1">
-                        <li><i class="feather-check-circle text-primary"></i> {% trans 'Instrutores Verificados'
-                            %}</li>
-                        <li><i class="feather-check-circle text-primary"></i> {% trans 'Certificados Válidos' %}
-                        </li>
-                        <li><i class="feather-check-circle text-primary"></i> {% trans 'Suporte Dedicado' %}
-                        </li>
-                    </ul>
-                </div>
-                </aside>
-            </div>
+                            <!-- Filtros Rápidos -->
+                            <div class="rbt-single-widget mb--40">
+                                <h5 class="title mb--20" style="color: var(--color-heading); font-size: 18px;">{% trans 'Filtros Dinâmicos' %}</h5>
+                                <div class="rbt-checkbox-group">
+                                    <div class="rbt-checkbox-wrapper mb--15">
+                                        <input id="check-semana" type="checkbox" name="tempo" value="semana" {% if filtros.tempo == "semana" %}checked{% endif %}>
+                                        <label for="check-semana" style="color: var(--color-body); font-size: 16px; margin-left: 10px;">{% trans 'Novidades da Semana' %}</label>
+                                    </div>
+                                    <div class="rbt-checkbox-wrapper mb--15">
+                                        <input id="check-proximos" type="checkbox" name="proximos" value="true" {% if filtros.proximos == "true" or filtros.proximos == 'true' %}checked{% endif %}>
+                                        <label for="check-proximos" style="color: var(--color-body); font-size: 16px; margin-left: 10px;">{% trans "A começar brevemente" %}</label>
+                                    </div>
+                                    <div class="rbt-checkbox-wrapper mb--15">
+                                        <input id="check-destaque" type="checkbox" name="destaque" value="true" {% if filtros.destaque == "true" or filtros.destaque == 'true' %}checked{% endif %}>
+                                        <label for="check-destaque" style="color: var(--color-body); font-size: 16px; margin-left: 10px;">{% trans 'Cursos em Destaque' %}</label>
+                                    </div>
+                                    {% if user.is_authenticated and user.tipo_usuario == 'ALUNO' %}
+                                    <div class="rbt-checkbox-wrapper mb--15">
+                                        <input id="check-ia" type="checkbox" name="para_voce" value="true" {% if filtros.para_voce == "true" or filtros.para_voce == 'true' %}checked{% endif %}>
+                                        <label for="check-ia" class="text-primary fw-bold" style="font-size: 16px; margin-left: 10px;"> ✨ {% trans 'Para Mim (IA)' %}</label>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
 
-            <!-- Lista de Cursos -->
-            <div class="col-lg-9">
-                <!-- Cabeçalho com Sort e Contador -->
-                <div class="rbt-sorting-area d-flex flex-wrap align-items-center justify-content-between mb--30">
-                    <div class="col-lg-6">
-                        <div class="section-title">
-                            <h4 class="title mb--0">{{ total_cursos }} {% trans 'Cursos Disponíveis' %}</h4>
-                            {% if filtros.busca %}
-                            <p class="description mt--5 mb--0">Resultados para: "<strong>{{ filtros.busca
-                                    }}</strong>"</p>
-                            {% endif %}
-                        </div>
+                            <!-- Seletores Premium -->
+                            <div class="rbt-single-widget mb--40">
+                                <div class="filter-select-group mb--25">
+                                    <label class="form-label fw-bold mb--12" style="font-size: 16px; color: var(--color-body);">{% trans 'Categoria' %}</label>
+                                    <select name="categoria" class="form-select" style="border-radius: 10px; border: 1px solid var(--color-border); background-color: var(--color-white); color: var(--color-heading); padding: 10px 15px; font-size: 15px;">
+                                        <option value="">{% trans 'Todas as categorias' %}</option>
+                                        {% for cat in categorias %}
+                                        <option value="{{ cat.id }}" {% if filtros.categoria|stringformat:"s" == cat.id|stringformat:"s" %}selected{% endif %}>
+                                            {{ cat.nome }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="filter-select-group mb--25">
+                                    <label class="form-label fw-bold mb--12" style="font-size: 16px; color: var(--color-body);">{% trans 'Nível' %}</label>
+                                    <select name="nivel" class="form-select" style="border-radius: 10px; border: 1px solid var(--color-border); background-color: var(--color-white); color: var(--color-heading); padding: 10px 15px; font-size: 15px;">
+                                        <option value="">{% trans 'Todos os níveis' %}</option>
+                                        <option value="B" {% if filtros.nivel == 'B' %}selected{% endif %}>{% trans 'Básico' %}</option>
+                                        <option value="I" {% if filtros.nivel == 'I' %}selected{% endif %}>{% trans 'Intermediário' %}</option>
+                                        <option value="A" {% if filtros.nivel == 'A' %}selected{% endif %}>{% trans 'Avançado' %}</option>
+                                    </select>
+                                </div>
+
+                                <div class="filter-select-group">
+                                    <label class="form-label fw-bold mb--12" style="font-size: 16px; color: var(--color-body);">{% trans 'Preço' %}</label>
+                                    <select name="preco" class="form-select" style="border-radius: 10px; border: 1px solid var(--color-border); background-color: var(--color-white); color: var(--color-heading); padding: 10px 15px; font-size: 15px;">
+                                        <option value="">{% trans 'Qualquer preço' %}</option>
+                                        <option value="gratuitos" {% if filtros.preco == 'gratuitos' %}selected{% endif %}>{% trans 'Gratuitos' %}</option>
+                                        <option value="pagina_100" {% if filtros.preco == 'pagina_100' %}selected{% endif %}>{% trans 'Até 100 KZ' %}</option>
+                                        <option value="100_500" {% if filtros.preco == '100_500' %}selected{% endif %}>{% trans '100 - 500 KZ' %}</option>
+                                        <option value="500_plus" {% if filtros.preco == '500_plus' %}selected{% endif %}>{% trans 'Acima de 500 KZ' %}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="rbt-filter-actions d-grid gap-3 mt--60">
+                                <button type="submit" class="rbt-btn btn-gradient btn-md text-center" style="font-size: 16px; padding: 15px;">
+                                    <i class="feather-filter"></i> {% trans 'Filtrar Agora' %}
+                                </button>
+                                <a href="{% url 'catalogo_cursos' %}" class="rbt-btn btn-link btn-md text-center text-muted" style="font-size: 15px;">
+                                    {% trans 'Limpar tudo' %}
+                                </a>
+                            </div>
+                        </aside>
                     </div>
-                    <div class="col-lg-6 text-end">
-                        <div class="rbt-sorting-list d-flex justify-content-end align-items-center">
-                            <span class="me-3">{% trans 'Ordenar por:' %}</span>
-                            <select name="order" class="form-select w-auto" onchange="this.form.submit()">
-                                <option value="">{% trans 'Mais Recentes' %}</option>
-                                <option value="mais_procurados" {% if request.GET.order=='mais_procurados' or
-                                    filtros.mais_procurados=='true' %}selected{% endif %}>{% trans 'Mais Populares' %}
-                                </option>
-                                <option value="inicio_proximo" {% if request.GET.order=='inicio_proximo' or
-                                    filtros.inicio_proximo=='true' %}selected{% endif %}>{% trans 'Início Próximo' %}
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Grid de Cursos -->
-                {% if cursos %}
-                <div class="row g-5">
-                    {% for curso in cursos %}
-                    {% include 'curso_card.html' with curso=curso %}
-                    {% endfor %}
-                </div>
-
-                <!-- Paginação Estilizada -->
-                {% if page_obj.has_other_pages %}
-                <div class="row mt--60">
-                    <div class="col-lg-12">
-                        <nav>
-                            <ul class="rbt-pagination text-center">
-                                {% if page_obj.has_previous %}
-                                <li>
-                                    <a
-                                        href="?page={{ page_obj.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                                        <i class="feather-chevron-left"></i>
-                                    </a>
-                                </li>
+                    <!-- Conteúdo Principal (Direita) -->
+                    <div class="col-lg-9">
+                        <!-- Cabeçalho de Ordenação -->
+                        <div class="rbt-sorting-area d-flex flex-wrap align-items-center justify-content-between mb--30 p-4" style="background: var(--color-white); border-radius: 12px; border: 1px solid var(--color-border); box-shadow: 0 2px 15px rgba(0,0,0,0.02);">
+                            <div class="sorting-left">
+                                <h4 class="title mb--0" style="font-size: 18px; color: var(--color-heading);">
+                                    {% if cursos %}
+                                        {{ total_cursos }} {% trans "Cursos Encontrados" %}
+                                    {% else %}
+                                        {% trans "Eduka-Angola: Conectando Talento e Conhecimento" %}
+                                    {% endif %}
+                                </h4>
+                                {% if filtros.busca %}
+                                    <span class="small text-muted">{% trans 'Resultados para' %}: <strong>"{{ filtros.busca }}"</strong></span>
                                 {% endif %}
+                            </div>
 
-                                {% for num in page_obj.paginator.page_range %}
-                                {% if page_obj.number == num %}
-                                <li class="active"><a href="#">{{ num }}</a></li>
-                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <li>
-                                    <a
-                                        href="?page={{ num }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                                        {{ num }}
-                                    </a>
-                                    </li>
-                                    {% endif %}
-                                    {% endfor %}
-
-                                    {% if page_obj.has_next %}
-                                    <li>
-                                        <a
-                                            href="?page={{ page_obj.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                                            <i class="feather-chevron-right"></i>
-                                        </a>
-                                    </li>
-                                    {% endif %}
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-                {% endif %}
-
-                {% else %}
-                <div class="col-lg-12">
-                    <div class="rbt-empty-state text-center py-5">
-                        <div class="icon mb-4">
-                            <i class="feather-frown display-4 text-muted"></i>
+                            <div class="sorting-right d-flex align-items-center gap-3">
+                                <span class="small fw-bold text-muted text-uppercase" style="letter-spacing: 1px;">{% trans 'Ordenar por:' %}</span>
+                                <select name="order" class="form-select w-auto border-0 bg-transparent fw-bold text-primary" onchange="this.form.submit()" style="cursor: pointer; font-size: 15px;">
+                                    <option value="">{% trans 'Mais Recentes' %}</option>
+                                    <option value="mais_procurados" {% if request.GET.order == 'mais_procurados' %}selected{% endif %}>{% trans 'Mais Populares' %}</option>
+                                    <option value="inicio_proximo" {% if request.GET.order == 'inicio_proximo' %}selected{% endif %}>{% trans 'Início Próximo' %}</option>
+                                </select>
+                            </div>
                         </div>
-                        <h4 class="title">{% trans 'Nenhum curso encontrado' %}</h4>
-                        <p class="description">{% trans 'Tente usar outros termos ou limpe os filtros para ver mais
-                            resultados.' %}</p>
-                        <a href="{% url 'catalogo_cursos' %}" class="rbt-btn btn-gradient hover-icon-reverse mt-3">
-                            <span class="icon-reverse-wrapper">
-                                <span class="btn-text">Limpar Filtros</span>
-                                <span class="btn-icon"><i class="feather-refresh-cw"></i></span>
-                                <span class="btn-icon"><i class="feather-refresh-cw"></i></span>
-                            </span>
-                        </a>
+
+                        <!-- Grid de Resultados -->
+                        {% if cursos %}
+                            <div class="row g-5">
+                                {% for curso in cursos %}
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        {% include 'components/curso_card.html' with curso=curso %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Paginação -->
+                            {% if page_obj.has_other_pages %}
+                                <div class="row mt--60">
+                                    <div class="col-lg-12">
+                                        <nav>
+                                            <ul class="rbt-pagination justify-content-center">
+                                                {% if page_obj.has_previous %}
+                                                    <li><a href="?page={{ page_obj.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"><i class="feather-chevron-left"></i></a></li>
+                                                {% endif %}
+
+                                                {% for num in page_obj.paginator.page_range %}
+                                                    {% if page_obj.number == num %}
+                                                        <li class="active"><a href="#">{{ num }}</a></li>
+                                                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                                        <li><a href="?page={{ num }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a></li>
+                                                    {% endif %}
+                                                {% endfor %}
+
+                                                {% if page_obj.has_next %}
+                                                    <li><a href="?page={{ page_obj.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"><i class="feather-chevron-right"></i></a></li>
+                                                {% endif %}
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="rbt-empty-state text-center py-5" style="background: var(--color-extra2); border-radius: 16px; border: 2px dashed var(--color-border);">
+                                <div class="icon mb-4">
+                                    <i class="feather-search display-4 text-muted"></i>
+                                </div>
+                                <h3 class="title mb--10">{% trans "Ops! Não encontramos o que procura" %}</h3>
+                                <p class="description mb--30">{% trans "Tente ajustar os seus filtros ou pesquise por outros termos." %}</p>
+                                <a href="{% url 'catalogo_cursos' %}" class="rbt-btn btn-gradient btn-md">
+                                    <span class="btn-text">{% trans "Limpar Filtros" %}</span>
+                                </a>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
-                {% endif %}
-                </form>
-            </div>
+            </form>
+        </div>
+    </div>
         </div>
     </div>
     {% include 'include/footer.html' %}
+
+    <div id="my_switcher" class="my_switcher">
+        <ul>
+            <li>
+                <a href="javascript: void(0);" data-theme="light" class="setColor light">
+                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode">
+                        Light</span>
+                </a>
+            </li>
+            <li>
+                <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
+                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span title="Dark Mode">
+                        Dark</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
     {% include 'include/java.html' %}
 </body>
 

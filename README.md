@@ -135,8 +135,7 @@ O EdukAngola é composto por duas grandes áreas principais:
 - Pagamentos via Multicaixa e Visa  
 - Gateways de pagamento internacionais  
 - Integração com ERPs educacionais via API  
-- Aplicativo mobile nativo  
-- Player com DRM integrado  
+- Aplicativo player com DRM integrado  
 - Marketplace de cursos de terceiros  
 
 ---

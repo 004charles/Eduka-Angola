@@ -1,60 +1,68 @@
-{% extends 'base_gestor.html' %}
+{% extends 'gestor_base.html' %}
 {% load static %}
 
 {% block content %}
-<div class="container-fluid p-4">
-    <div class="row mb-4 align-items-center">
-        <div class="col-md-6">
-            <h2 class="font-weight-bold text-navy mb-0">Gerir Filiais</h2>
-            <p class="text-muted mb-0">Administre as unidades integradas ao seu Centro.</p>
+<div class="flex flex-col gap-5 lg:gap-7.5">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-xl font-bold text-foreground">Gerenciar Filiais</h1>
+            <p class="text-sm text-secondary-foreground">Acompanhe e controle os seus centros de formação satélites integrados à sua conta principal.</p>
         </div>
-        <div class="col-md-6 text-md-right mt-3 mt-md-0">
-            <a href="{% url 'criar_filial' %}" class="btn btn-primary bg-violet border-0 px-4 py-2" style="border-radius: 8px;">
-                <i class="feather-plus mr-2"></i>Nova Filial
+        <div class="flex items-center gap-2">
+            <a href="{% url 'criar_filial' %}" class="kt-btn kt-btn-primary">
+                <i class="ki-filled ki-plus"></i> Nova Filial
             </a>
         </div>
     </div>
 
-    <!-- Tabela de Filiais -->
-    <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="bg-light">
+    <!-- Lista de Filiais -->
+    <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm overflow-hidden">
+        
+        <div class="px-5 py-4 border-b border-border flex items-center justify-between bg-accent/5">
+            <h3 class="font-semibold text-base text-foreground">Todas as Filiais</h3>
+            <span class="text-xs text-muted-foreground">{{ filiais|length }} filiais cadastradas</span>
+        </div>
+
+        <div class="px-5 py-2">
+            <div class="overflow-x-auto">
+                <table class="table-auto w-full text-left text-sm whitespace-nowrap">
+                    <thead class="text-xs text-muted-foreground border-b border-border uppercase tracking-wider">
                         <tr>
-                            <th class="border-top-0 text-uppercase text-muted font-weight-bold" style="font-size: 0.85rem;">Nome da Filial</th>
-                            <th class="border-top-0 text-uppercase text-muted font-weight-bold" style="font-size: 0.85rem;">Email (Login)</th>
-                            <th class="border-top-0 text-uppercase text-muted font-weight-bold" style="font-size: 0.85rem;">Contacto</th>
-                            <th class="border-top-0 text-uppercase text-muted font-weight-bold" style="font-size: 0.85rem;">Endereço</th>
-                            <th class="border-top-0 text-uppercase text-muted font-weight-bold text-right" style="font-size: 0.85rem;">Ações</th>
+                            <th class="pb-3 font-medium">Nome da Filial</th>
+                            <th class="pb-3 font-medium">Responsável / E-mail</th>
+                            <th class="pb-3 font-medium">Localização</th>
+                            <th class="pb-3 font-medium text-right">Ações</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-dashed divide-border">
                         {% for filial in filiais %}
-                        <tr>
-                            <td class="align-middle">
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar avatar-sm bg-violet-light text-violet rounded-circle d-flex align-items-center justify-content-center mr-3 font-weight-bold">
-                                        {{ filial.nome|slice:":1"|upper }}
-                                    </div>
-                                    <span class="font-weight-bold text-dark">{{ filial.nome }}</span>
+                        <tr class="hover:bg-accent/20 transition-colors">
+                            <td class="py-4">
+                                <span class="text-sm font-semibold text-foreground">{{ filial.nome }}</span>
+                            </td>
+                            <td class="py-4">
+                                <div class="flex flex-col">
+                                    <span class="text-sm text-foreground">{{ filial.usuario.nome|default:filial.nome }}</span>
+                                    <span class="text-xs text-muted-foreground">{{ filial.usuario.email }}</span>
                                 </div>
                             </td>
-                            <td class="align-middle text-muted">{{ filial.usuario.email }}</td>
-                            <td class="align-middle text-muted">{{ filial.contato|default:"-" }}</td>
-                            <td class="align-middle text-muted">{{ filial.endereco|default:"-" }}</td>
-                            <td class="align-middle text-right">
-                                <a href="{% url 'editar_filial' filial.id %}" class="btn btn-sm btn-outline-primary" style="border-radius: 6px;">
-                                    <i class="feather-edit-2"></i> Editar
-                                </a>
+                            <td class="py-4">
+                                <span class="text-xs text-secondary-foreground">{{ filial.endereco|default:"Endereço não definido" }}</span>
+                            </td>
+                            <td class="py-4 text-right">
+                                <div class="flex items-center justify-end gap-1">
+                                    <a href="{% url 'editar_filial' filial.id %}" class="kt-btn kt-btn-sm kt-btn-icon kt-btn-ghost hover:bg-warning/10 hover:text-warning" title="Editar Filial">
+                                        <i class="ki-filled ki-pencil text-lg"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="5" class="text-center py-5 text-muted">
-                                <div class="mb-3"><i class="feather-map-pin" style="font-size: 3rem; opacity: 0.5;"></i></div>
-                                <h5>Nenhuma filial registada</h5>
-                                <p>Clique em "Nova Filial" para expandir a sua rede de centros.</p>
+                            <td colspan="4" class="py-10 text-center text-sm text-muted-foreground">
+                                <p>Nenhuma filial cadastrada até ao momento.</p>
                             </td>
                         </tr>
                         {% endfor %}
@@ -63,5 +71,6 @@
             </div>
         </div>
     </div>
+
 </div>
-{% endblock %}
+{% endblock content %}

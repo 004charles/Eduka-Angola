@@ -10,9 +10,9 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Favicon -->
-    {% include 'include/css.html' %}
-</head>
+{% load static %}
+{% load curso_filters %}
+{% load i18n %}
 
 <body class="rbt-header-sticky">
 
@@ -66,18 +66,18 @@
                         <div class="col-xl-7">
                             <div class="inner position-relative">
                                 <h6 class="subtitle">
-                                    <span class="theme-gradient">Aprendizagem Profissional e Contínua</span>
+                                    <span class="theme-gradient">Aprendizagem Direcionada a Resultados</span>
                                 </h6>
 
                                 <h1 class="sec-title">
-                                    Cursos de centros Agora na Palma dos Seus
-                                    <span class="theme-gradient">Dedos</span>
+                                    Eleve o Seu Potencial. Construa o Seu
+                                    <span class="theme-gradient">Futuro.</span>
                                 </h1>
 
                                 <p class="description">
-                                    Aprenda novas competências com cursos práticos e atualizados,
-                                    desenvolvidos para impulsionar a sua carreira e crescimento profissional.
-                                    <span class="w-500"> Estude no seu ritmo, onde e quando quiser.</span>
+                                    Desenvolva novas competências industriais com especialistas experientes e acelere o crescimento da sua carreira. 
+                                    A educação oficial que o mercado exige, entregue 
+                                    <span class="w-500"> no momento exato em que você precisa.</span>
                                 </p>
 
 
@@ -96,7 +96,9 @@
                                 <div class="banner-card pb--60 swiper rbt-dot-bottom-center banner-swiper-active">
                                     <div class="swiper-wrapper">
                                         {% for curso in cursos_destaque %}
-                                        {% include 'cursos/card_home_cursos.html' %}
+                                        <div class="swiper-slide">
+                                            {% include 'components/curso_card.html' with curso=curso %}
+                                        </div>
                                         {% endfor %}
                                     </div>
                                     <div class="rbt-swiper-pagination"></div>
@@ -191,12 +193,12 @@
         <div class="container">
             <div class="section-title text-center mb--55">
                 <h6 class="b2 mb--15">
-                    <span class="theme-gradient">Categorias Populares</span>
+                    <span class="theme-gradient">Catálogo Interativo</span>
                 </h6>
 
                 <h2 class="title w-600">
-                    Explore as Principais Categorias de Cursos <br>
-                    Que <span class="theme-gradient">Transformam o Seu Futuro</span>
+                    Desenvolva as Habilidades Que <br>
+                    O <span class="theme-gradient">Mercado de Topo Procura</span>
                 </h2>
             </div>
 
@@ -265,11 +267,11 @@
                 <div class="col-lg-12">
                     <div class="section-title text-start">
                         <h6 class="b2 mb--15">
-                            <span class="theme-gradient">Centros de formacao</span>
+                            <span class="theme-gradient">Especializações Premium</span>
                         </h6>
                         <h2 class="title w-600">
-                            Explore os
-                            <span class="theme-gradient">cursos em Destaque.</span>
+                            As Formações Com Maior
+                            <span class="theme-gradient">Impacto em Carreiras Atuais.</span>
                         </h2>
                     </div>
                 </div>
@@ -278,7 +280,9 @@
             <!-- CARDS -->
             <div class="row g-5">
                 {% for curso in cursos_destaque|slice:":8" %}
-                {% include "cursos/card_geral.html" with curso=curso %}
+                <div class="col-lg-4 col-md-6 col-12">
+                    {% include "components/curso_card.html" with curso=curso %}
+                </div>
                 {% empty %}
                 <p class="text-center">Nenhum curso disponível.</p>
                 {% endfor %}
@@ -341,7 +345,7 @@
                             <div class="rbt-feature-wrapper mt--40">
                                 <div class="rbt-feature feature-style-1 align-items-center">
                                     <div class="icon bg-pink-opacity">
-                                        <i class="feather-heart"></i>
+                                        <i class="feather-bookmark"></i>
                                     </div>
                                     <div class="feature-content">
                                         <h6 class="feature-title">Aulas Flexíveis</h6>
@@ -390,11 +394,11 @@
                 <div class="col-lg-12">
                     <div class="section-title text-start">
                         <h6 class="b2 mb--15">
-                            <span class="theme-gradient">Centros de formacao</span>
+                            <span class="theme-gradient">Favoritos da Indústria</span>
                         </h6>
                         <h2 class="title w-600">
-                            Descubra os
-                            <span class="theme-gradient">cursos mais inscritos.</span>
+                            As Escolhas Preferidas Pelos
+                            <span class="theme-gradient">Profissionais de Excelência.</span>
                         </h2>
                     </div>
                 </div>
@@ -403,7 +407,9 @@
             <!-- CARDS -->
             <div class="row g-5">
                 {% for curso in cursos_proximos|slice:":8" %}
-                {% include "cursos/card_geral.html" with curso=curso %}
+                <div class="col-lg-4 col-md-6 col-12">
+                    {% include "components/curso_card.html" with curso=curso %}
+                </div>
                 {% empty %}
                 <p class="text-center">Nenhum curso disponível.</p>
                 {% endfor %}
@@ -438,11 +444,11 @@
                 <div class="col-lg-12">
                     <div class="section-title text-start">
                         <h6 class="b2 mb--15">
-                            <span class="theme-gradient">Centros de formacao</span>
+                            <span class="theme-gradient">Acabados de Chegar</span>
                         </h6>
                         <h2 class="title w-600">
-                            Novos
-                            <span class="theme-gradient">lançamentos</span>
+                            As Competências Mais Recentes do
+                            <span class="theme-gradient">Panorama Tecnológico.</span>
                         </h2>
                     </div>
                 </div>
@@ -451,7 +457,9 @@
             <!-- CARDS -->
             <div class="row g-5">
                 {% for curso in cursos_destaque|slice:":8" %}
-                {% include "cursos/card_geral.html" with curso=curso %}
+                <div class="col-lg-4 col-md-6 col-12">
+                    {% include "components/curso_card.html" with curso=curso %}
+                </div>
                 {% empty %}
                 <p class="text-center">Nenhum curso disponível.</p>
                 {% endfor %}

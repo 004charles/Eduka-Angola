@@ -1,88 +1,73 @@
-{% extends 'base_gestor.html' %}
+{% extends 'gestor_base.html' %}
 {% load static %}
 
 {% block content %}
-<div class="container-fluid p-4">
-    <div class="row mb-4 align-items-center">
-        <div class="col-md-6">
-            <h2 class="font-weight-bold text-navy mb-0">Gestão de Alunos</h2>
-            <p class="text-muted mb-0">Pesquise e consulte o histórico académico dos alunos da sua unidade.</p>
+<div class="flex flex-col gap-5 lg:gap-7.5">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-xl font-bold text-foreground">Gestão de Alunos</h1>
+            <p class="text-sm text-secondary-foreground">Consulte a base de dados de alunos inscritos nos seus cursos e aceda aos seus dossiês académicos.</p>
         </div>
     </div>
 
-    <!-- Motor de Busca -->
-    <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
-        <div class="card-body p-4">
-            <form method="GET" action="{% url 'gerenciar_alunos' %}" class="d-flex align-items-center">
-                <div class="input-group input-group-lg">
-                    <div class="input-group-prepend border-0">
-                        <span class="input-group-text bg-light border-0 text-muted">
-                            <i class="feather-search"></i>
-                        </span>
-                    </div>
-                    <input type="text" name="q" class="form-control bg-light border-0" placeholder="Pesquisar por nome, email ou ID do aluno..." value="{{ query }}">
-                    <div class="input-group-append border-0">
-                        <button class="btn btn-primary bg-violet border-0 px-4 font-weight-bold" type="submit">Procurar</button>
-                    </div>
-                </div>
-            </form>
-            {% if query %}
-            <div class="mt-3 text-muted small">
-                Mostrando resultados para: <strong class="text-dark">"{{ query }}"</strong> 
-                <a href="{% url 'gerenciar_alunos' %}" class="text-danger ml-2"><i class="feather-x"></i> Limpar pesquisa</a>
-            </div>
-            {% endif %}
-        </div>
+    <!-- Barra de Pesquisa -->
+    <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm p-4">
+        <form method="GET" class="relative w-full md:max-w-md">
+            <i class="ki-filled ki-magnifier absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-lg"></i>
+            <input type="text" name="q" value="{{ query|default:'' }}" class="kt-input ps-10" placeholder="Pesquisar por nome ou e-mail...">
+            <button type="submit" class="hidden">Pesquisar</button>
+        </form>
     </div>
 
-    <!-- Resultados -->
-    <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="bg-light">
+    <!-- Tabela de Alunos -->
+    <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm overflow-hidden mt-2">
+        <div class="px-5 py-4 border-b border-border flex items-center justify-between bg-accent/5">
+            <h3 class="font-semibold text-base text-foreground">Base de Alunos</h3>
+            <span class="text-xs text-muted-foreground">{{ alunos|length }} alunos encontrados</span>
+        </div>
+
+        <div class="px-5 py-2">
+            <div class="overflow-x-auto">
+                <table class="table-auto w-full text-left text-sm whitespace-nowrap">
+                    <thead class="text-xs text-muted-foreground border-b border-border uppercase tracking-wider">
                         <tr>
-                            <th class="border-top-0 text-uppercase text-muted font-weight-bold" style="font-size: 0.85rem;">Aluno</th>
-                            <th class="border-top-0 text-uppercase text-muted font-weight-bold" style="font-size: 0.85rem;">Email</th>
-                            <th class="border-top-0 text-uppercase text-muted font-weight-bold" style="font-size: 0.85rem;">Acesso</th>
-                            <th class="border-top-0 text-uppercase text-muted font-weight-bold text-right" style="font-size: 0.85rem;">Ações</th>
+                            <th class="pb-3 font-medium">Estudante</th>
+                            <th class="pb-3 font-medium">ID / Cadastro</th>
+                            <th class="pb-3 font-medium text-right">Ações</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-dashed divide-border">
                         {% for aluno in alunos %}
-                        <tr>
-                            <td class="align-middle">
-                                <div class="d-flex align-items-center">
-                                    {% if aluno.perfil.foto_de_perfil %}
-                                    <img src="{{ aluno.perfil.foto_de_perfil.url }}" alt="{{ aluno.nome }}" class="rounded-circle mr-3" style="width: 40px; height: 40px; object-fit: cover;">
-                                    {% else %}
-                                    <div class="avatar avatar-sm bg-violet-light text-violet rounded-circle d-flex align-items-center justify-content-center mr-3 font-weight-bold" style="width: 40px; height: 40px;">
-                                        {{ aluno.nome|slice:":1"|upper }}
+                        <tr class="hover:bg-accent/20 transition-colors">
+                            <td class="py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="size-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm uppercase">
+                                        {{ aluno.usuario.nome|make_list|first }}
                                     </div>
-                                    {% endif %}
-                                    <div>
-                                        <span class="font-weight-bold text-dark d-block">{{ aluno.nome }}</span>
-                                        <small class="text-muted">ID: #{{ aluno.id }}</small>
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-semibold text-foreground">{{ aluno.usuario.nome }}</span>
+                                        <span class="text-xs text-muted-foreground">{{ aluno.usuario.email }}</span>
                                     </div>
                                 </div>
                             </td>
-                            <td class="align-middle text-muted">{{ aluno.usuario.email }}</td>
-                            <td class="align-middle text-muted">{{ aluno.data_cadastro|date:"d/m/Y" }}</td>
-                            <td class="align-middle text-right">
-                                <a href="{% url 'dossie_aluno' aluno.id %}" class="btn btn-sm btn-outline-primary font-weight-bold" style="border-radius: 6px;">
-                                    <i class="feather-folder mr-1"></i> Ver Dossiê
+                            <td class="py-4">
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-mono text-muted-foreground">ID: #{{ aluno.id }}</span>
+                                    <span class="text-xs text-secondary-foreground">Inscrito desde {{ aluno.usuario.date_joined|date:"d/m/Y" }}</span>
+                                </div>
+                            </td>
+                            <td class="py-4 text-right">
+                                <a href="{% url 'dossie_aluno' aluno.id %}" class="kt-btn kt-btn-sm kt-btn-light">
+                                    <i class="ki-filled ki-file"></i> Ver Dossiê
                                 </a>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="4" class="text-center py-5 text-muted">
-                                <div class="mb-3"><i class="feather-users" style="font-size: 3rem; opacity: 0.5;"></i></div>
-                                {% if query %}
-                                <h5>Nenhum aluno encontrado para "{{ query }}"</h5>
-                                {% else %}
-                                <h5>Nenhum aluno registado nesta unidade.</h5>
-                                {% endif %}
+                            <td colspan="3" class="py-10 text-center text-sm text-muted-foreground">
+                                <p>Nenhum aluno encontrado na busca.</p>
                             </td>
                         </tr>
                         {% endfor %}
@@ -91,5 +76,6 @@
             </div>
         </div>
     </div>
+
 </div>
-{% endblock %}
+{% endblock content %}

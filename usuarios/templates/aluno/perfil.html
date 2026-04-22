@@ -1,0 +1,149 @@
+{% extends 'aluno_base.html' %}
+{% load static %}
+
+{% block title %}Meu Perfil | Edukangola{% endblock %}
+
+{% block dashboard_content %}
+<div class="rbt-dashboard-content bg-color-white rbt-shadow-box">
+    <div class="content">
+        <div class="section-title">
+            <h4 class="rbt-title-style-3">Meu Perfil</h4>
+            <p>Mantenha seus dados atualizados para uma melhor experiência na plataforma.</p>
+        </div>
+
+        <!-- Perfil Form Start -->
+        <form action="{% url 'editar_perfil' %}" method="POST" enctype="multipart/form-data" class="rbt-profile-row rbt-default-form row g-5">
+            {% csrf_token %}
+            
+            <!-- Avatar Section -->
+            <div class="col-lg-12">
+                <div class="profile-avatar-wrapper mb--40">
+                    <div class="rbt-profile-thumb" style="width: 150px; height: 150px; position: relative; margin: 0 auto;">
+                        {% if perfil.get_foto_perfil_url %}
+                            <img id="perfil-preview" src="{{ perfil.get_foto_perfil_url }}" alt="Foto de Perfil" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid var(--color-primary);">
+                        {% else %}
+                            <img id="perfil-preview" src="{% static 'assets/images/team/team-01.jpg' %}" alt="Foto de Perfil" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid #eee;">
+                        {% endif %}
+                        
+                        <div class="avatar-edit-overlay" style="position: absolute; bottom: 5px; right: 5px; background: var(--color-primary); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 3px solid white; transition: 0.3s;">
+                            <label for="foto_de_perfil" style="margin: 0; cursor: pointer;">
+                                <i class="feather-camera" style="color: white; font-size: 18px;"></i>
+                            </label>
+                            <input type="file" id="foto_de_perfil" name="foto_de_perfil" hidden onchange="previewImage(this)">
+                        </div>
+                    </div>
+                    <div class="text-center mt--10">
+                        <span class="small text-muted">Clique no ícone para alterar sua foto</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Basic Info Section -->
+            <div class="col-12 mt--20">
+                <h5 class="mb--20"><i class="feather-user me-2"></i>Informações Básicas</h5>
+                <div class="row g-5">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label for="nome">Nome Completo</label>
+                            <div class="input-icon-wrapper" style="position: relative;">
+                                <i class="feather-user" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #666;"></i>
+                                <input id="nome" name="nome" type="text" value="{{ aluno_obj.nome }}" style="padding-left: 45px;" placeholder="Seu nome completo" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label for="telefone">Número de Telefone</label>
+                            <div class="input-icon-wrapper" style="position: relative;">
+                                <i class="feather-phone" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #666;"></i>
+                                <input id="telefone" name="telefone" type="tel" value="{{ perfil.telefone|default:'' }}" style="padding-left: 45px;" placeholder="+244 9XX XXX XXX">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Biography Section -->
+            <div class="col-12 mt--40">
+                <h5 class="mb--20"><i class="feather-info me-2"></i>Sobre Mim</h5>
+                <div class="form-group">
+                    <label for="biografia">Biografia Acadêmica / Profissional</label>
+                    <textarea id="biografia" name="biografia" rows="5" placeholder="Conte-nos um pouco sobre sua trajetória, objetivos e paixões...">{{ perfil.biografia }}</textarea>
+                </div>
+            </div>
+
+            <!-- Identification Section -->
+            <div class="col-12 mt--40">
+                <h5 class="mb--20"><i class="feather-file-text me-2"></i>Documentos de Identidade</h5>
+                <p class="description small">Seus documentos são criptografados e asseguram a validade do seu diploma ao fim de cada curso.</p>
+                <div class="row g-5">
+                    <div class="col-lg-6">
+                        <div class="rbt-shadow-box rbt-border-dashed p-3">
+                            <label class="d-block mb--10 fw-bold text-center">BI (Frente) <span class="text-danger">*</span></label>
+                            {% if perfil.bilhete_frente %}
+                                <div class="mb-3 text-success text-center small"><i class="feather-check-circle"></i> Documento já carregado</div>
+                                <input type="file" name="bilhete_frente" accept="image/*,.pdf" class="form-control">
+                            {% else %}
+                                <div class="mb-3 text-danger text-center small"><i class="feather-alert-circle"></i> Documento em falta</div>
+                                <input type="file" name="bilhete_frente" accept="image/*,.pdf" class="form-control" required>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="rbt-shadow-box rbt-border-dashed p-3">
+                            <label class="d-block mb--10 fw-bold text-center">BI (Verso) <span class="text-danger">*</span></label>
+                            {% if perfil.bilhete_verso %}
+                                <div class="mb-3 text-success text-center small"><i class="feather-check-circle"></i> Documento já carregado</div>
+                                <input type="file" name="bilhete_verso" accept="image/*,.pdf" class="form-control">
+                            {% else %}
+                                <div class="mb-3 text-danger text-center small"><i class="feather-alert-circle"></i> Documento em falta</div>
+                                <input type="file" name="bilhete_verso" accept="image/*,.pdf" class="form-control" required>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="col-12 mt--50">
+                <div class="form-submit-group text-end">
+                    <button type="submit" class="rbt-btn btn-md btn-gradient hover-icon-reverse">
+                        <span class="icon-reverse-wrapper">
+                            <span class="btn-text">Salvar Alterações</span>
+                            <span class="btn-icon"><i class="feather-save"></i></span>
+                            <span class="btn-icon"><i class="feather-save"></i></span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </form>
+        <!-- Perfil Form End -->
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('perfil-preview');
+                preview.src = e.target.result;
+                preview.style.borderColor = 'var(--color-primary)';
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+
+<style>
+    .avatar-edit-overlay:hover {
+        transform: scale(1.1);
+        background: #000;
+        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+</style>
+{% endblock %}

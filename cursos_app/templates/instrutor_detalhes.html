@@ -1,0 +1,169 @@
+{% load static %}
+{% load i18n %}
+{% load curso_filters %}
+<!DOCTYPE html>
+<html lang="pt-pt">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Edukangola | {{ instrutor.nome }}</title>
+    <meta name="robots" content="noindex, follow">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    {% include 'include/css.html' %}
+    <style>
+        .instructor-profile-thumb {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .instructor-info-card {
+            background: #fff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+
+<body class="rbt-header-sticky">
+
+    {% include 'include/header.html' %}
+
+    <main class="rbt-main-wrapper">
+        
+        <!-- Start Breadcrumb Area -->
+        <div class="rbt-breadcrumb-default ptb--100 ptb_md--50 ptb_sm--30 bg-gradient-1">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="breadcrumb-inner text-center">
+                            <h2 class="title">{{ instrutor.nome }}</h2>
+                            <ul class="page-list">
+                                <li class="rbt-breadcrumb-item"><a href="/">Home</a></li>
+                                <li>
+                                    <div class="icon-right"><i class="feather-chevron-right"></i></div>
+                                </li>
+                                <li class="rbt-breadcrumb-item active">Instrutor</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Breadcrumb Area -->
+
+        <div class="rbt-instructor-area rbt-section-gap bg-color-white">
+            <div class="container">
+                <div class="row g-5">
+                    
+                    <!-- Perfil do Instrutor Side -->
+                    <div class="col-lg-4">
+                        <div class="instructor-profile-thumb">
+                            {% if instrutor.foto %}
+                                <img class="w-100" src="{{ instrutor.foto.url }}" alt="{{ instrutor.nome }}">
+                            {% else %}
+                                <img class="w-100" src="{% static 'assets/images/team/team-01.jpg' %}" alt="{{ instrutor.nome }}">
+                            {% endif %}
+                        </div>
+                        
+                        <div class="instructor-info-card mt--30">
+                            <h5 class="title mb--15">Linha Direta ao Mentor</h5>
+                            <ul class="rbt-information-list">
+                                <li>
+                                    <a href="mailto:{{ instrutor.email }}"><i class="feather-mail"></i> {{ instrutor.email }}</a>
+                                </li>
+                                <li class="mt--10">
+                                    <span class="location"><i class="feather-map-pin"></i> {{ instrutor.centro_de_formacao.nome }}</span>
+                                </li>
+                            </ul>
+                            
+                            <ul class="social-icon social-default mt--30 justify-content-start">
+                                {% if instrutor.facebook %}
+                                <li><a href="{{ instrutor.facebook }}"><i class="feather-facebook"></i></a></li>
+                                {% endif %}
+                                {% if instrutor.twitter %}
+                                <li><a href="{{ instrutor.twitter }}"><i class="feather-twitter"></i></a></li>
+                                {% endif %}
+                                {% if instrutor.instagram %}
+                                <li><a href="{{ instrutor.instagram }}"><i class="feather-instagram"></i></a></li>
+                                {% endif %}
+                                {% if instrutor.linkedin %}
+                                <li><a href="{{ instrutor.linkedin }}"><i class="feather-linkedin"></i></a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Detalhes e Cursos Main -->
+                    <div class="col-lg-8">
+                        <div class="instructor-details-content">
+                            <div class="section-title text-start mb--20">
+                                <span class="subtitle theme-gradient">{{ instrutor.get_area_especializacao_display }}</span>
+                                <h2 class="title">O Seu Mentor Nesta Jornada</h2>
+                            </div>
+                            <p class="description b1 mb--30">
+                                {{ instrutor.biografia|linebreaksbr }}
+                            </p>
+                            
+                            <hr class="rbt-separator m-0">
+                            
+                            <div class="row mt--40">
+                                <div class="col-lg-12">
+                                    <div class="section-title text-start mb--30">
+                                        <h4 class="title">Mais Caminhos Guiados por {{ instrutor.nome }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-5">
+                                {% for curso in cursos %}
+                                <div class="col-lg-6 col-md-6 col-12">
+                                    {% include 'components/curso_card.html' with curso=curso %}
+                                </div>
+                                {% empty %}
+                                <div class="col-12">
+                                    <div class="rbt-error-content text-center">
+                                        <p>Ainda não existem formações publicadas orientadas por este especialista.</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    {% include 'include/footer.html' %}
+
+    <div id="my_switcher" class="my_switcher">
+        <ul>
+            <li>
+                <a href="javascript: void(0);" data-theme="light" class="setColor light">
+                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode">
+                        Light</span>
+                </a>
+            </li>
+            <li>
+                <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
+                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span title="Dark Mode">
+                        Dark</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    {% include 'include/java.html' %}
+
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script>
+        feather.replace();
+    </script>
+
+</body>
+
+</html>

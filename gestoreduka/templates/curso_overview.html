@@ -1,206 +1,177 @@
-{% extends 'base_gestor.html' %}
+{% extends 'gestor_base.html' %}
 {% load static %}
 
-{% block title %}Visão Geral do Curso - {{ centro.nome }}{% endblock %}
-
 {% block content %}
-<div class="dashboard-body">
-    <div class="breadcrumb mb-24 d-flex align-items-center justify-content-between flex-wrap gap-16">
-        <div>
-            <h4 class="mb-4">Detalhes do Curso</h4>
-            <ul class="flex-align gap-4">
-                <li><a href="{% url 'centro_dashboard' %}" class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
-                <li><span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span></li>
-                <li><a href="{% url 'listar_cursos' %}" class="text-gray-200 fw-normal text-15 hover-text-main-600">Cursos</a></li>
-                <li><span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span></li>
-                <li><span class="text-main-600 fw-normal text-15">Visão Geral</span></li>
-            </ul>
+<div class="flex flex-col gap-5 lg:gap-7.5">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-xl font-bold text-foreground">Visão Geral do Curso</h1>
+            <p class="text-sm text-secondary-foreground">
+                Revise os detalhes abaixo antes de tornar este curso público para estudantes.
+            </p>
         </div>
-        <div class="flex-align gap-12">
-            <a href="{% url 'editar_curso' curso.id %}" class="btn btn-outline-gray rounded-12 px-20 py-12 d-flex align-items-center gap-8 shadow-sm transition-all hover-scale-1">
-                <i class="ph ph-pencil-simple text-xl"></i>
-                <span class="fw-bold">Editar Curso</span>
+        <div class="flex items-center gap-2">
+            <a href="{% url 'listar_cursos' %}" class="kt-btn kt-btn-light">
+                <i class="ki-filled ki-arrow-left"></i> Voltar à Lista
             </a>
-            <form method="post" action="{% url 'publicar_curso_final' curso.id %}" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary-600 rounded-12 px-24 py-12 d-flex align-items-center gap-8 shadow-sm transition-all hover-scale-1">
-                    <i class="ph ph-rocket-launch text-xl"></i>
-                    <span class="fw-bold">{% if curso.publicado %}Atualizar Portal{% else %}Publicar Agora{% endif %}</span>
-                </button>
-            </form>
+            <a href="{% url 'editar_curso' curso.id %}" class="kt-btn kt-btn-light">
+                <i class="ki-filled ki-pencil"></i> Editar Detalhes
+            </a>
+            {% if not curso.publicado %}
+                <form action="{% url 'publicar_curso_final' curso.id %}" method="POST" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="kt-btn kt-btn-primary">
+                        <i class="ki-filled ki-check"></i> Publicar Agora
+                    </button>
+                </form>
+            {% else %}
+               <span class="kt-badge kt-badge-lg kt-badge-success kt-badge-outline">Cursos Publicado</span>
+            {% endif %}
         </div>
     </div>
 
-    <!-- Course Overview Start -->
-    <div class="row g-24">
-        <!-- Main Content -->
-        <div class="col-lg-8">
-            <div class="card premium-card border-0 shadow-sm overflow-hidden mb-24">
-                <div class="position-relative overflow-hidden aspect-ratio-21-9">
+    {% if messages %}
+        <div class="flex flex-col gap-2">
+            {% for message in messages %}
+                <div class="p-4 rounded-lg text-sm font-medium {% if message.tags == 'success' %}bg-success/10 text-success border border-success/20{% elif message.tags == 'error' %}bg-danger/10 text-danger border border-danger/20{% else %}bg-warning/10 text-warning border border-warning/20{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-7.5">
+        
+        <!-- Main Info -->
+        <div class="lg:col-span-2 flex flex-col gap-5 lg:gap-7.5">
+            
+            <!-- Banner/Image -->
+            <div class="kt-card bg-background border border-border rounded-xl shadow-sm overflow-hidden">
+                <div class="relative w-full aspect-video bg-accent/30">
                     {% if curso.imagem %}
-                    <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}" class="w-100 h-100 object-fit-cover">
+                        <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}" class="w-full h-full object-cover">
                     {% else %}
-                    <div class="w-100 h-100 bg-gray-50 flex-center">
-                        <i class="ph ph-book-open text-7xl text-gray-200"></i>
-                    </div>
+                        <div class="flex items-center justify-center h-full text-muted-foreground">
+                            <i class="ki-filled ki-picture text-6xl"></i>
+                        </div>
                     {% endif %}
-                    <div class="position-absolute bottom-20 left-20 d-flex gap-12">
-                        <span class="badge bg-white/90 backdrop-blur text-primary-600 px-16 py-10 shadow-sm text-uppercase fw-bold text-11 rounded-12 border-0">
-                            {{ curso.categoria.nome|default:"Geral" }}
-                        </span>
-                        <span class="badge bg-white/90 backdrop-blur text-success-600 px-16 py-10 shadow-sm text-uppercase fw-bold text-11 rounded-12 border-0">
-                            {{ curso.get_modalidade_display }}
-                        </span>
-                    </div>
                 </div>
-
-                <div class="card-body p-32">
-                    <div class="d-flex align-items-start justify-content-between mb-24">
-                        <div>
-                            <h2 class="h3 mb-12 fw-bold text-gray-900">{{ curso.titulo }}</h2>
-                            {% if curso.descricao_curta %}
-                            <p class="text-17 text-gray-500 mb-0 lead">{{ curso.descricao_curta }}</p>
-                            {% endif %}
-                        </div>
+                <div class="p-6">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="kt-badge kt-badge-sm kt-badge-primary kt-badge-outline">{{ curso.categoria.nome }}</span>
+                        <span class="kt-badge kt-badge-sm kt-badge-light kt-badge-outline">{{ curso.get_nivel_display }}</span>
                     </div>
-
-                    <div class="description-section mb-40">
-                        <h5 class="fw-bold mb-16 text-gray-900 border-start border-4 border-primary-600 ps-16">Descrição do Curso</h5>
-                        <div class="text-gray-600 text-16 line-height-1_8">
-                            {{ curso.descricao|linebreaksbr }}
-                        </div>
-                    </div>
-
-                    <div class="educational-grid">
-                        <h5 class="fw-bold mb-24 text-gray-900">Configuração Acadêmica</h5>
-                        <div class="row g-16">
-                            {% if curso.objetivo_geral %}
-                            <div class="col-md-6">
-                                <div class="p-20 rounded-16 bg-gray-50 h-100 border border-gray-100">
-                                    <div class="w-40 h-40 bg-white rounded-10 flex-center shadow-xs mb-16 text-primary-600">
-                                        <i class="ph ph-target text-xl fw-bold"></i>
+                    <h2 class="text-2xl font-bold text-foreground mb-4">{{ curso.titulo }}</h2>
+                    <p class="text-secondary-foreground leading-relaxed mb-6">{{ curso.descricao }}</p>
+                    
+                    <div class="border-t border-border pt-6 mt-6">
+                        <h4 class="font-semibold text-base mb-4">Instrutores</h4>
+                        <div class="flex flex-wrap gap-4">
+                            {% for instrutor in curso.instrutores.all %}
+                                <div class="flex items-center gap-3 p-3 rounded-lg border border-border bg-accent/20">
+                                    <div class="size-10 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center">
+                                        {% if instrutor.foto %}
+                                            <img src="{{ instrutor.foto.url }}" alt="{{ instrutor.nome }}" class="size-full object-cover">
+                                        {% else %}
+                                            <span class="font-bold text-primary">{{ instrutor.nome|make_list|first }}</span>
+                                        {% endif %}
                                     </div>
-                                    <h6 class="fw-bold text-gray-900 mb-8">Objetivo Geral</h6>
-                                    <p class="text-14 text-gray-500 mb-0">{{ curso.objetivo_geral }}</p>
-                                </div>
-                            </div>
-                            {% endif %}
-                            {% if curso.publico_alvo %}
-                            <div class="col-md-6">
-                                <div class="p-20 rounded-16 bg-gray-50 h-100 border border-gray-100">
-                                    <div class="w-40 h-40 bg-white rounded-10 flex-center shadow-xs mb-16 text-success-600">
-                                        <i class="ph ph-users text-xl fw-bold"></i>
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-semibold text-foreground">{{ instrutor.nome }}</span>
+                                        <span class="text-xs text-muted-foreground">{{ instrutor.especialidade|default:"Instrutor" }}</span>
                                     </div>
-                                    <h6 class="fw-bold text-gray-900 mb-8">Público-Alvo</h6>
-                                    <p class="text-14 text-gray-500 mb-0">{{ curso.publico_alvo }}</p>
                                 </div>
-                            </div>
-                            {% endif %}
+                            {% empty %}
+                                <p class="text-sm text-warning italic">Nenhum instrutor atribuído.</p>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
             </div>
 
-            {% if curso.instrutores.all %}
-            <div class="card premium-card border-0 shadow-sm p-32">
-                <h5 class="fw-bold mb-24 text-gray-900">Corpo Docente Especialista</h5>
-                <div class="row g-16">
-                    {% for instrutor in curso.instrutores.all %}
-                    <div class="col-md-6">
-                        <div class="d-flex align-items-center gap-16 p-20 rounded-16 bg-gray-50 border border-gray-100 transition-all hover-border-primary-200">
-                            {% if instrutor.foto %}
-                            <img src="{{ instrutor.foto.url }}" class="w-64 h-64 rounded-circle object-fit-cover shadow-sm border-2 border-white" alt="">
-                            {% else %}
-                            <div class="w-64 h-64 rounded-circle bg-primary-100 text-primary-600 flex-center fw-bold text-xl border-2 border-white">
-                                {{ instrutor.nome|first }}
-                            </div>
-                            {% endif %}
-                            <div>
-                                <h6 class="mb-4 fw-bold text-gray-900">{{ instrutor.nome_completo }}</h6>
-                                <span class="badge bg-primary-50 text-primary-600 rounded-pill px-10 py-4 text-10 fw-bold">INSTRUTOR VERIFICADO</span>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
         </div>
 
         <!-- Sidebar Info -->
-        <div class="col-lg-4">
-            <div class="card premium-card border-0 shadow-sm p-32 sticky-top" style="top: 100px;">
-                <h5 class="fw-bold mb-32 text-gray-900">Resumo da Oferta</h5>
+        <div class="flex flex-col gap-5 lg:gap-7.5">
+            
+            <div class="kt-card bg-background border border-border rounded-xl shadow-sm p-6">
+                <h3 class="font-semibold text-lg mb-4 text-foreground text-center">Resumo de Matrícula</h3>
                 
-                <div class="price-box mb-32 p-24 rounded-20 bg-gray-900 text-white shadow-lg overflow-hidden position-relative">
-                    <div class="position-absolute top-0 end-0 p-24 opacity-10">
-                        <i class="ph ph-wallet-fill text-6xl"></i>
+                <div class="flex flex-col gap-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-dashed border-border">
+                        <span class="text-sm text-secondary-foreground">Preço do Curso</span>
+                        <span class="text-lg font-bold text-foreground">{{ curso.preco|floatformat:2 }} Kz</span>
                     </div>
-                    <span class="text-11 text-gray-400 fw-bold uppercase letter-spacing-1 d-block mb-12">Investimento Total</span>
-                    <div class="d-flex align-items-baseline gap-8 mb-4">
-                        {% if curso.preco_promocional %}
-                        <h2 class="mb-0 fw-bold text-white">{{ curso.preco_promocional|floatformat:0 }} <small class="text-14 fw-normal text-gray-400">KZ</small></h2>
-                        <span class="text-14 text-gray-500 text-decoration-line-through">{{ curso.preco|floatformat:0 }} KZ</span>
-                        {% elif curso.preco %}
-                        <h2 class="mb-0 fw-bold text-white">{{ curso.preco|floatformat:0 }} <small class="text-14 fw-normal text-gray-400">KZ</small></h2>
-                        {% else %}
-                        <h2 class="mb-0 fw-bold text-success-400">Gratuito</h2>
-                        {% endif %}
+                    {% if curso.preco_inscricao %}
+                    <div class="flex items-center justify-between pb-3 border-b border-dashed border-border">
+                        <span class="text-sm text-secondary-foreground">Taxa de Inscrição</span>
+                        <span class="text-base font-semibold text-foreground">{{ curso.preco_inscricao|floatformat:2 }} Kz</span>
                     </div>
-                    <p class="text-gray-400 text-12 mb-0">{% if curso.permite_parcelamento %}Até {{ curso.max_parcelas }}x no Multicaixa{% else %}Pagamento único à vista{% endif %}</p>
-                </div>
-
-                <div class="vstack gap-12 mb-32">
-                    <div class="d-flex align-items-center justify-content-between p-16 rounded-16 border border-gray-50">
-                        <div class="d-flex align-items-center gap-12">
-                            <i class="ph ph-clock text-xl text-primary-600"></i>
-                            <span class="text-14 text-gray-500">Carga Horária</span>
+                    {% endif %}
+                    
+                    {% if curso.preco_promocional %}
+                    <div class="flex flex-col gap-1 p-3 rounded-lg bg-success/5 border border-success/20">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-success font-medium">Preço Promocional</span>
+                            <span class="text-lg font-bold text-success">{{ curso.preco_promocional|floatformat:2 }} Kz</span>
                         </div>
-                        <span class="text-14 fw-bold text-gray-900">{{ curso.carga_horaria }}h</span>
+                        <span class="text-[10px] text-muted-foreground">Válido até {{ curso.data_fim_promocao|date:"d/m/Y H:i" }}</span>
                     </div>
-
-                    <div class="d-flex align-items-center justify-content-between p-16 rounded-16 border border-gray-50">
-                        <div class="d-flex align-items-center gap-12">
-                            <i class="ph ph-chart-bar-horizontal text-xl text-success-600"></i>
-                            <span class="text-14 text-gray-500">Nível Educativo</span>
+                    {% endif %}
+                    
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <div class="flex flex-col p-3 rounded-lg bg-accent/30 border border-border">
+                            <span class="text-[10px] uppercase text-muted-foreground font-bold">Carga Horária</span>
+                            <span class="text-sm font-bold">{{ curso.carga_horaria }}h</span>
                         </div>
-                        <span class="text-14 fw-bold text-gray-900">{{ curso.get_nivel_display }}</span>
-                    </div>
-
-                    <div class="d-flex align-items-center justify-content-between p-16 rounded-16 border border-gray-50">
-                        <div class="d-flex align-items-center gap-12">
-                            <i class="ph ph-translate text-xl text-amber-600"></i>
-                            <span class="text-14 text-gray-500">Idioma</span>
+                        <div class="flex flex-col p-3 rounded-lg bg-accent/30 border border-border">
+                            <span class="text-[10px] uppercase text-muted-foreground font-bold">Duração</span>
+                            <span class="text-sm font-bold">{{ curso.get_duracao_display }}</span>
                         </div>
-                        <span class="text-14 fw-bold text-gray-900">{{ curso.get_idioma_display }}</span>
                     </div>
 
-                    <div class="d-flex align-items-center justify-content-between p-16 rounded-16 border border-gray-50">
-                        <div class="d-flex align-items-center gap-12">
-                            <i class="ph ph-certificate text-xl text-info-600"></i>
-                            <span class="text-14 text-gray-500">Certificado</span>
+                    <div class="flex flex-col gap-2 mt-4">
+                        <div class="flex items-center gap-2 text-sm {% if curso.certificado %}text-success{% else %}text-muted-foreground{% endif %}">
+                            <i class="ki-filled {% if curso.certificado %}ki-check-circle{% else %}ki-cross-circle{% endif %} text-lg"></i>
+                            Certificado de Conclusão
                         </div>
-                        <span class="text-14 fw-bold text-gray-900">{% if curso.certificado %}Incluso{% else %}Não incluso{% endif %}</span>
+                        <div class="flex items-center gap-2 text-sm {% if curso.modalidade == 'O' %}text-primary{% else %}text-info{% endif %}">
+                            <i class="ki-filled ki-pointers text-lg"></i>
+                            {{ curso.get_modalidade_display }}
+                        </div>
                     </div>
-                </div>
-
-                <div class="alert bg-primary-50 border-0 rounded-16 p-20 mb-32">
-                    <h6 class="text-13 fw-bold text-primary-700 mb-8"><i class="ph ph-info me-8"></i> Status do Portal</h6>
-                    <p class="text-12 text-primary-600 mb-0">Este curso está atualmente como <strong>{{ curso.get_status_display|default:curso.publicado|yesno:"Publicado,Rascunho" }}</strong> para os alunos.</p>
-                </div>
-
-                <div class="d-grid gap-12">
-                    <a href="{% url 'editar_curso' curso.id %}" class="btn btn-primary-600 py-14 rounded-14 fw-bold shadow-sm transition-all hover-scale-1">
-                        Gerenciar Detalhes
-                    </a>
-                    <button class="btn btn-outline-gray py-14 rounded-14 fw-bold transition-all" onclick="alert('Funcionalidade de exclusão desativada para proteção de dados.')">
-                        Arquivar Curso
-                    </button>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
 
-{% include 'include/java_gestor.html' %}
+            <div class="kt-card bg-background border border-border rounded-xl shadow-sm p-6">
+                <h3 class="font-semibold text-base mb-4 text-foreground">Estado do Curso</h3>
+                <div class="flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm">Publicado</span>
+                        <span class="kt-badge kt-badge-sm {% if curso.publicado %}kt-badge-success{% else %}kt-badge-warning{% endif %} kt-badge-outline">
+                            {% if curso.publicado %}Sim{% else %}Não{% endif %}
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm">Rascunho</span>
+                        <span class="kt-badge kt-badge-sm {% if curso.rascunho %}kt-badge-primary{% else %}kt-badge-light{% endif %} kt-badge-outline">
+                            {% if curso.rascunho %}Sim{% else %}Não{% endif %}
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm">Em Destaque</span>
+                        <span class="kt-badge kt-badge-sm {% if curso.destaque %}kt-badge-info{% else %}kt-badge-light{% endif %} kt-badge-outline">
+                            {% if curso.destaque %}Sim{% else %}Não{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock content %}

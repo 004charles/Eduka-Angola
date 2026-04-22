@@ -1,470 +1,311 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Title -->
-    <title> {{centro.nome}} | chat </title>
-    {% include 'include/css_gestor.html' %}
-
-</head>
-
-<body>
-
-    <!--==================== Preloader Start ====================-->
-    <div class="preloader">
-        <div class="loader"></div>
-    </div>
-    <!--==================== Preloader End ====================-->
-
-    <!--==================== Sidebar Overlay End ====================-->
-    <div class="side-overlay"></div>
-    <!--==================== Sidebar Overlay End ====================-->
-
-    <!-- ============================ Sidebar Start ============================ -->
-
-    {% include 'include/header_gestor.html' %}
-    <!-- ============================ Sidebar End  ============================ -->
-
-    <div class="dashboard-main-wrapper">
-        {% include 'include/menu.html' %}
-
+{% extends 'gestor_base.html' %}
 {% load static %}
 
-<div class="dashboard-body">
-    <!-- Breadcrumb Start -->
-    <div class="breadcrumb mb-24">
-        <ul class="flex-align gap-4">
-            <li><a href="{% url 'centro_dashboard' %}" class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
-            <li><span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span></li>
-            <li><span class="text-main-600 fw-normal text-15">Chat com Alunos</span></li>
-        </ul>
+{% block content %}
+<style>
+    /* Reforço para Ícones KeenIcons */
+    .ki-filled, [class^="ki-"], [class*=" ki-"] {
+        font-family: 'KeenIcons' !important;
+        speak: never;
+        font-style: normal;
+        font-weight: normal;
+        font-variant: normal;
+        text-transform: none;
+        line-height: 1;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+</style>
+<!-- Layout de Ecrã Dividido (Split View) -->
+<div class="flex flex-row gap-0 h-[calc(100vh-100px)] border border-border rounded-xl shadow-sm bg-background overflow-hidden">
+    
+    <!-- Coluna Esquerda: Lista de Conversas (Fixa) -->
+    <div class="flex flex-col w-[350px] shrink-0 border-e border-border bg-background">
+        <div class="px-5 py-4 border-b border-border flex items-center justify-between bg-accent/10">
+            <h3 class="font-bold text-base text-foreground">Mensagens</h3>
+            <span class="badge badge-sm badge-outline badge-primary">{{ conversas.count }}</span>
+        </div>
+        
+        <div class="kt-scrollable-y grow p-0" style="overflow-y: auto;">
+            <div class="flex flex-col divide-y divide-border">
+                {% for conversa in conversas %}
+                <a href="{% url 'chat_centro' %}?conversa_id={{ conversa.id }}" 
+                   onclick="loadChat({{ conversa.id }}, event)"
+                   data-id="{{ conversa.id }}"
+                   class="conversa-item flex items-center gap-3.5 px-5 py-4 hover:bg-accent/30 transition-all {% if conversa_atual and conversa_atual.id == conversa.id %}bg-primary/10 border-s-4 border-primary shadow-sm z-10{% endif %}">
+                    <div class="relative shrink-0">
+                        <div class="size-11 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg">
+                            {{ conversa.aluno.nome|first|upper }}
+                        </div>
+                        <div class="absolute -end-0.5 -bottom-0.5 size-3 rounded-full bg-success border-2 border-background"></div>
+                    </div>
+                    <div class="flex flex-col grow min-w-0">
+                        <div class="flex items-center justify-between mb-0.5">
+                            <span class="text-sm font-bold text-foreground truncate">{{ conversa.aluno.nome }}</span>
+                            <span class="text-[10px] text-muted-foreground">{{ conversa.ultima_mensagem|date:"H:i" }}</span>
+                        </div>
+                        <p class="text-xs text-secondary-foreground truncate">
+                            {{ conversa.mensagens.last.mensagem|default:"Inicie a conversa..." }}
+                        </p>
+                    </div>
+                </a>
+                {% empty %}
+                <div class="flex flex-col items-center justify-center py-10 px-5 text-center gap-3">
+                    <i class="ki-filled ki-messages text-4xl text-muted-foreground"></i>
+                    <p class="text-sm text-secondary-foreground">Nenhuma conversa encontrada.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
-    <!-- Breadcrumb End -->
 
-    <div class="chart-wrapper d-flex flex-wrap gap-24">
-        <!-- chat sidebar Start -->
-        <div class="card chat-list">
-            <div class="card-header py-16 border-bottom border-gray-100">
-                <form class="position-relative">
-                    <button type="submit" class="input-icon text-xl d-flex text-gray-600 pointer-event-none">
-                        <i class="ph ph-magnifying-glass"></i>
-                    </button>
-                    <input type="text" id="search-chat"
-                        class="form-control ps-44 h-44 border-gray-100 focus-border-main-600 rounded-pill placeholder-15"
-                        placeholder="Buscar aluno...">
-                </form>
-            </div>
-            <div class="card-body p-0">
-                <div class="chat-list-wrapper p-24 overflow-y-auto scroll-sm">
-                    {% for conversa in conversas %}
-                    <div class="chat-list__item flex-between gap-8 cursor-pointer {% if conversa_atual and conversa_atual.id == conversa.id %}active{% endif %}"
-                         onclick="selecionarConversa({{ conversa.id }})">
-                        <div class="d-flex align-items-start gap-16">
-                            <div class="position-relative flex-shrink-0">
-                                {% if conversa.aluno.perfil.get_foto_perfil_url %}
-                                <img src="{{ conversa.aluno.perfil.get_foto_perfil_url }}" alt="{{ conversa.aluno.nome }}" 
-                                     class="w-44 h-44 rounded-circle object-fit-cover flex-shrink-0">
-                                {% else %}
-                                <div class="w-44 h-44 rounded-circle bg-main-600 flex-center">
-                                    <span class="text-white fw-bold">
-                                        {{ conversa.aluno.perfil.get_inicial_nome }}
-                                    </span>
-                                </div>
-                                {% endif %}
-                                <span class="activation-badge w-12 h-12 border-2 position-absolute inset-block-end-0 inset-inline-end-0 bg-success"></span>
-                            </div>
-                            <div class="d-flex flex-column">
-                                <h6 class="text-line-1 text-15 text-gray-400 fw-bold mb-0">{{ conversa.aluno.nome }}</h6>
-                                <span class="text-line-1 text-13 text-gray-200">
-                                    {% with ultima_msg=conversa.mensagens.last %}
-                                        {% if ultima_msg and not ultima_msg.digitando %}
-                                            {{ ultima_msg.mensagem|truncatechars:30 }}
-                                        {% else %}
-                                            Inicie uma conversa...
-                                        {% endif %}
-                                    {% endwith %}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="dropdown flex-shrink-0">
-                            <button class="text-gray-400 text-xl d-flex rounded-4" type="button"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="ph-fill ph-dots-three-outline"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu--md border-0 bg-transparent p-0">
-                                <div class="card border border-gray-100 rounded-12 box-shadow-custom">
-                                    <div class="card-body p-12">
-                                        <div class="max-h-200 overflow-y-auto scroll-sm pe-8">
-                                            <ul>
-                                                <li class="mb-0">
-                                                    <button type="button" class="delete-item-btn py-6 text-15 px-8 hover-bg-gray-50 text-gray-300 w-100 rounded-8 fw-normal text-xs d-block text-start">
-                                                        <span class="text"> <i class="ph ph-user me-4"></i>Perfil do Aluno</span>
-                                                    </button>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div class="text-center py-20">
-                        <i class="ph ph-chats text-4xl text-gray-300 mb-8"></i>
-                        <p class="text-gray-400 text-sm">Nenhuma conversa iniciada</p>
-                    </div>
-                    {% endfor %}
+    <!-- Coluna Direita: Área de Chat Ativa (Expansível) -->
+    <div id="chat-main-container" class="flex flex-col grow bg-background min-w-0">
+        <!-- Contentor de Conteúdo Móvel (Header + Mensagens) -->
+        <div id="chat-content-container" class="grow flex flex-col min-h-0 overflow-hidden">
+            <div class="grow flex flex-col items-center justify-center gap-4 text-center p-10">
+                <div class="size-20 rounded-full bg-accent/60 flex items-center justify-center text-muted-foreground mb-2">
+                    <i class="ki-filled ki-messages text-5xl"></i>
                 </div>
+                <h3 class="font-bold text-lg text-foreground">A sua central de suporte</h3>
+                <p class="text-sm text-secondary-foreground max-w-xs">Selecione uma conversa na barra lateral para começar a responder aos seus alunos em tempo real.</p>
             </div>
         </div>
-        <!-- chat sidebar End -->
 
-        <!-- chat box Start -->
-        <div class="card chat-box">
-            {% if conversa_atual %}
-            <div class="card-header py-16 border-bottom border-gray-100">
-                <div class="chat-list__item flex-between gap-8">
-                    <div class="d-flex align-items-start gap-16">
-                        <div class="position-relative flex-shrink-0">
-                            {% if conversa_atual.aluno.perfil.get_foto_perfil_url %}
-                            <img src="{{ conversa_atual.aluno.perfil.get_foto_perfil_url }}" alt="{{ conversa_atual.aluno.nome }}" 
-                                 class="w-40 h-40 rounded-circle object-fit-cover flex-shrink-0">
-                            {% else %}
-                            <div class="w-40 h-40 rounded-circle bg-main-600 flex-center">
-                                <span class="text-white fw-bold">
-                                    {{ conversa_atual.aluno.perfil.get_inicial_nome }}
-                                </span>
-                            </div>
-                            {% endif %}
-                            <span class="activation-badge w-12 h-12 border-2 position-absolute inset-block-end-0 inset-inline-end-0 bg-success"></span>
-                        </div>
-                        <div class="d-flex flex-column">
-                            <h6 class="text-line-1 text-15 text-gray-400 fw-bold mb-0">{{ conversa_atual.aluno.nome }}</h6>
-                            <span class="text-line-1 text-13 text-gray-200">Aluno</span>
-                        </div>
-                    </div>
-
-                    <div class="flex-align gap-16">
-                        <div class="dropdown flex-shrink-0">
-                            <button class="text-gray-400 text-xl d-flex rounded-4" type="button"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="ph-fill ph-dots-three-outline-vertical"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu--md border-0 bg-transparent p-0">
-                                <div class="card border border-gray-100 rounded-12 box-shadow-custom">
-                                    <div class="card-body p-12">
-                                        <div class="max-h-200 overflow-y-auto scroll-sm pe-8">
-                                            <ul>
-                                                <li class="mb-0">
-                                                    <button type="button" class="delete-item-btn py-6 text-15 px-8 hover-bg-gray-50 text-gray-300 w-100 rounded-8 fw-normal text-xs d-block text-start">
-                                                        <span class="text"><i class="ph ph-x-circle"></i> Limpar Conversa</span>
-                                                    </button>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <!-- Campo de Resposta (ESTÁVEL) -->
+        <div id="static-chat-footer" class="p-4 border-t border-border bg-background transition-all opacity-50 pointer-events-none">
+            <form id="dashboard-chat-form" class="flex items-center gap-3 bg-muted/30 px-4 py-2 rounded-2xl border border-border focus-within:border-primary transition-all">
+                <input type="hidden" id="conversa-id" value="">
+                <input type="file" id="chat-file-input" class="hidden" accept="image/*,application/pdf,.doc,.docx">
+                
+                <button type="button" onclick="document.getElementById('chat-file-input').click()" class="kt-btn kt-btn-icon kt-btn-sm kt-btn-ghost text-muted-foreground hover:text-primary shrink-0">
+                    <i class="ki-filled ki-paperclip text-xl"></i>
+                </button>
+                
+                <input type="text" id="dashboard-chat-input" 
+                       class="grow bg-transparent border-none outline-none text-sm py-2 text-foreground placeholder:text-muted-foreground w-full" 
+                       placeholder="Escreva a sua resposta..." autocomplete="off" disabled>
+                
+                <button type="submit" id="chat-submit-btn" class="kt-btn kt-btn-primary size-9 flex items-center justify-center rounded-xl shadow-lg shadow-primary/20 shrink-0" disabled>
+                    <i class="ki-filled ki-send text-xl"></i>
+                </button>
+            </form>
             
-            <div class="card-body p-0">
-                <div class="chat-box-item-wrapper overflow-y-auto scroll-sm p-24" id="mensagens-container">
-                    {% for mensagem in mensagens %}
-                    <div class="chat-box-item {% if mensagem.is_centro %}right{% endif %} d-flex align-items-end gap-8">
-                        {% if not mensagem.is_centro %}
-                            {% if conversa_atual.aluno.perfil.get_foto_perfil_url %}
-                            <img src="{{ conversa_atual.aluno.perfil.get_foto_perfil_url }}" 
-                                 class="w-40 h-40 rounded-circle object-fit-cover flex-shrink-0" 
-                                 alt="{{ conversa_atual.aluno.nome }}">
-                            {% else %}
-                            <div class="w-40 h-40 rounded-circle bg-main-100 flex-center flex-shrink-0">
-                                <span class="text-main-600 fw-bold text-sm">
-                                    {{ conversa_atual.aluno.perfil.get_inicial_nome }}
-                                </span>
-                            </div>
-                            {% endif %}
-                        {% endif %}
-                        
-                        <div class="chat-box-item__content">
-                            {% if mensagem.digitando %}
-                            <div class="digitando-animation py-16 px-16 px-lg-4">
-                                <span class="dot"></span>
-                                <span class="dot"></span>
-                                <span class="dot"></span>
-                            </div>
-                            {% else %}
-                            <p class="chat-box-item__text py-16 px-16 px-lg-4 {% if mensagem.is_centro %}bg-main-600 text-white{% endif %}">
-                                {{ mensagem.mensagem }}
-                            </p>
-                            {% endif %}
-                            <span class="text-gray-200 text-13 mt-2 d-block">{{ mensagem.data_envio|date:"H:i" }}</span>
-                        </div>
-
-                        {% if mensagem.is_centro %}
-                        <div class="w-40 h-40 rounded-circle bg-main-600 flex-center flex-shrink-0">
-                            <span class="text-white fw-bold text-sm">
-                                {{ centro.nome|first }}
-                            </span>
-                        </div>
-                        {% endif %}
+            <!-- Preview de Arquivo Selecionado -->
+            <div id="file-preview-container" class="hidden mt-3 p-2 bg-primary/5 rounded-lg border border-primary/20 flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div id="file-preview-icon" class="size-8 rounded bg-primary/20 flex items-center justify-center shrink-0">
+                        <i class="ki-filled ki-file text-primary text-lg"></i>
                     </div>
-                    {% endfor %}
+                    <span id="file-name-display" class="text-xs font-medium text-foreground truncate"></span>
                 </div>
+                <button type="button" onclick="cancelFileSelection()" class="kt-btn kt-btn-icon kt-btn-xs kt-btn-ghost text-danger shrink-0">
+                    <i class="ki-filled ki-cross text-lg"></i>
+                </button>
             </div>
-            
-            <div class="card-footer border-top border-gray-100">
-                <form id="form-mensagem" class="flex-align gap-8 chat-box-bottom">
-                    <input type="hidden" id="conversa-id" value="{{ conversa_atual.id }}">
-                    
-                    <label for="fileUp" class="flex-shrink-0 file-btn w-48 h-48 flex-center bg-main-50 text-24 text-main-600 rounded-circle hover-bg-main-100 transition-2">
-                        <i class="ph ph-paperclip"></i>
-                    </label>
-                    <input type="file" name="fileName" id="fileUp" hidden>
-                    
-                    <input type="text" id="input-mensagem"
-                        class="form-control h-48 border-transparent px-20 focus-border-main-600 bg-main-50 rounded-pill placeholder-15"
-                        placeholder="Digite sua mensagem..." 
-                        onkeydown="handleTyping(event)"
-                        onkeyup="stopTyping()">
-                    
-                    <button type="submit" class="flex-shrink-0 submit-btn btn btn-main rounded-pill flex-align gap-4 py-15">
-                        Enviar <span class="d-flex text-md d-sm-flex d-none"><i class="ph-fill ph-paper-plane-tilt"></i></span>
-                    </button>
-                </form>
-            </div>
-            {% else %}
-            <div class="card-body d-flex align-items-center justify-content-center" style="min-height: 400px;">
-                <div class="text-center">
-                    <i class="ph ph-chat-text text-5xl text-gray-300 mb-16"></i>
-                    <h4 class="text-gray-400 mb-8">Selecione uma conversa</h4>
-                    <p class="text-gray-300">Escolha um aluno para iniciar o chat</p>
-                </div>
-            </div>
-            {% endif %}
         </div>
-        <!-- chat box End -->
     </div>
 </div>
 
-<style>
-.chat-list__item.active {
-    background-color: #f8f9fa;
-    border-radius: 8px;
-}
-
-.digitando-animation {
-    display: flex;
-    gap: 4px;
-    align-items: center;
-}
-
-.dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: #6b7280;
-    animation: pulse 1.5s infinite ease-in-out;
-}
-
-.dot:nth-child(2) {
-    animation-delay: 0.2s;
-}
-
-.dot:nth-child(3) {
-    animation-delay: 0.4s;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 0.4; }
-    50% { opacity: 1; }
-}
-</style>
-
 <script>
-let typingTimer;
-const TYPING_INTERVAL = 1000; // 1 segundo
-let isTyping = false;
+let selectedFile = null;
+let currentConversaId = null;
+let pollingInterval = null;
 
-function selecionarConversa(conversaId) {
-    window.location.href = `{% url 'chat_centro' %}?conversa_id=${conversaId}`;
+function cancelFileSelection() {
+    selectedFile = null;
+    const fileInput = document.getElementById('chat-file-input');
+    if (fileInput) fileInput.value = '';
+    const preview = document.getElementById('file-preview-container');
+    if (preview) preview.classList.add('hidden');
 }
 
-function handleTyping(event) {
-    if (event.key === 'Enter') {
-        event.preventDefault();
-        enviarMensagem();
-        return;
-    }
+function loadChat(conversaId, event) {
+    if (event) event.preventDefault();
     
-    clearTimeout(typingTimer);
-    iniciarDigitando();
+    // Parar polling anterior
+    if (pollingInterval) clearInterval(pollingInterval);
+    
+    currentConversaId = conversaId;
+    const container = document.getElementById('chat-content-container');
+    
+    // Feedback visual na sidebar
+    document.querySelectorAll('.conversa-item').forEach(el => el.classList.remove('bg-primary/10', 'border-s-4', 'border-primary', 'shadow-sm', 'z-10'));
+    const activeItem = document.querySelector(`.conversa-item[data-id="${conversaId}"]`);
+    if (activeItem) activeItem.classList.add('bg-primary/10', 'border-s-4', 'border-primary', 'shadow-sm', 'z-10');
+
+    // Mostrar loader
+    container.innerHTML = `
+        <div class="grow flex flex-col items-center justify-center gap-3">
+            <span class="kt-spinner kt-spinner-primary kt-spinner-lg"></span>
+            <span class="text-sm text-muted-foreground">Carregando conversa...</span>
+        </div>
+    `;
+
+    fetchConversaContent(conversaId);
 }
 
-function iniciarDigitando() {
-    const conversaId = document.getElementById('conversa-id').value;
-    
-    if (!isTyping) {
-        isTyping = true;
-        
-        fetch('{% url "atualizar_status_digitando" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: JSON.stringify({
-                conversa_id: conversaId,
-                digitando: true
-            })
-        });
-    }
-    
-    typingTimer = setTimeout(stopTyping, TYPING_INTERVAL);
-}
-
-function stopTyping() {
-    const conversaId = document.getElementById('conversa-id').value;
-    
-    if (isTyping) {
-        isTyping = false;
-        
-        fetch('{% url "atualizar_status_digitando" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: JSON.stringify({
-                conversa_id: conversaId,
-                digitando: false
-            })
-        });
-    }
-}
-
-function enviarMensagem() {
-    const input = document.getElementById('input-mensagem');
-    const mensagem = input.value.trim();
-    const conversaId = document.getElementById('conversa-id').value;
-    
-    if (!mensagem) return;
-    
-    fetch('{% url "enviar_mensagem_centro" %}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: JSON.stringify({
-            conversa_id: conversaId,
-            mensagem: mensagem
-        })
+function fetchConversaContent(conversaId) {
+    fetch(`{% url 'chat_centro' %}?conversa_id=${conversaId}&partial=true`)
+    .then(res => {
+        if (!res.ok) throw new Error(`Erro do servidor: ${res.status}`);
+        return res.text();
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            input.value = '';
-            carregarMensagens();
+    .then(html => {
+        const container = document.getElementById('chat-content-container');
+        if (!html.trim()) {
+            container.innerHTML = `
+                <div class="grow flex flex-col items-center justify-center p-10 text-danger text-center">
+                    <i class="ki-filled ki-information-2 text-4xl mb-2"></i>
+                    <p class="font-bold">A conversa não pôde ser carregada ou está vazia.</p>
+                </div>`;
+            return;
         }
+        container.innerHTML = html;
+        
+        // ATIVAÇÃO DO CAMPO ESTÁTICO
+        const footer = document.getElementById('static-chat-footer');
+        const input = document.getElementById('dashboard-chat-input');
+        const submitBtn = document.getElementById('chat-submit-btn');
+        const idInput = document.getElementById('conversa-id');
+        
+        idInput.value = conversaId;
+        footer.classList.remove('opacity-50', 'pointer-events-none');
+        input.disabled = false;
+        submitBtn.disabled = false;
+        input.focus();
+        
+        const chatContainer = document.getElementById('dashboard-chat-messages');
+        if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
+        
+        setupChatListeners();
+        
+        pollingInterval = setInterval(() => {
+            refreshMessages(conversaId);
+        }, 5000);
+    })
+    .catch(err => {
+        const container = document.getElementById('chat-content-container');
+        container.innerHTML = `
+            <div class="grow flex flex-col items-center justify-center p-10 text-danger text-center">
+                <i class="ki-filled ki-shield-cross text-4xl mb-2"></i>
+                <p class="font-bold">Erro de Carregamento:</p>
+                <p class="text-sm">${err.message}</p>
+                <button onclick="loadChat(${conversaId})" class="mt-4 px-4 py-2 bg-danger text-white rounded-lg">Tentar Novamente</button>
+            </div>`;
+        console.error('Erro ao carregar conversa:', err);
     });
 }
 
-function carregarMensagens() {
-    const conversaId = document.getElementById('conversa-id').value;
-    
-    fetch(`{% url "buscar_mensagens" 0 %}`.replace('0', conversaId))
-    .then(response => response.json())
-    .then(data => {
-        const container = document.getElementById('mensagens-container');
-        container.innerHTML = '';
+function refreshMessages(conversaId) {
+    const chatContainer = document.getElementById('dashboard-chat-messages');
+    if (!chatContainer) return;
+
+    fetch(`/gestoreduka/chat/mensagens/${conversaId}/`)
+    .then(res => res.text())
+    .then(html => {
+        const currentMessagesCount = chatContainer.children.length;
+        chatContainer.innerHTML = html;
         
-        data.mensagens.forEach(msg => {
-            let avatarHTML = '';
-            
-            if (!msg.is_centro) {
-                if (msg.foto_perfil) {
-                    avatarHTML = `<img src="${msg.foto_perfil}" class="w-40 h-40 rounded-circle object-fit-cover flex-shrink-0" alt="${msg.remetente_nome}">`;
+        // Só faz scroll se houver novas mensagens
+        if (chatContainer.children.length > currentMessagesCount) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    })
+    .catch(err => console.error('Erro no polling:', err));
+}
+
+function setupChatListeners() {
+    const fileInput = document.getElementById('chat-file-input');
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+                document.getElementById('file-name-display').textContent = selectedFile.name;
+                document.getElementById('file-preview-container').classList.remove('hidden');
+                
+                if (selectedFile.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        document.getElementById('file-preview-icon').innerHTML = `<img src="${ev.target.result}" class="size-full object-cover rounded">`;
+                    };
+                    reader.readAsDataURL(selectedFile);
                 } else {
-                    const inicial = msg.inicial || msg.remetente_nome.charAt(0);
-                    avatarHTML = `<div class="w-40 h-40 rounded-circle bg-main-100 flex-center flex-shrink-0">
-                        <span class="text-main-600 fw-bold text-sm">${inicial}</span>
-                    </div>`;
+                    document.getElementById('file-preview-icon').innerHTML = `<i class="ki-filled ki-file text-primary text-lg"></i>`;
                 }
             }
-            
-            const centroAvatarHTML = msg.is_centro ? `
-                <div class="w-40 h-40 rounded-circle bg-main-600 flex-center flex-shrink-0">
-                    <span class="text-white fw-bold text-sm">{{ centro.nome|first }}</span>
-                </div>
-            ` : '';
-            
-            const mensagemHTML = `
-                <div class="chat-box-item ${msg.is_centro ? 'right' : ''} d-flex align-items-end gap-8">
-                    ${avatarHTML}
-                    
-                    <div class="chat-box-item__content">
-                        ${msg.digitando ? `
-                        <div class="digitando-animation py-16 px-16 px-lg-4">
-                            <span class="dot"></span>
-                            <span class="dot"></span>
-                            <span class="dot"></span>
-                        </div>
-                        ` : `
-                        <p class="chat-box-item__text py-16 px-16 px-lg-4 ${msg.is_centro ? 'bg-main-600 text-white' : ''}">
-                            ${msg.mensagem}
-                        </p>
-                        `}
-                        <span class="text-gray-200 text-13 mt-2 d-block">${msg.data_envio}</span>
-                    </div>
-
-                    ${centroAvatarHTML}
-                </div>
-            `;
-            container.innerHTML += mensagemHTML;
         });
-        
-        container.scrollTop = container.scrollHeight;
-    });
+    }
+
+    const chatForm = document.getElementById('dashboard-chat-form');
+    if (chatForm) {
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const input = document.getElementById('dashboard-chat-input');
+            const msg = input.value.trim();
+            const conversaId = document.getElementById('conversa-id').value;
+
+            if (!msg && !selectedFile) return;
+
+            const formData = new FormData();
+            formData.append('conversa_id', conversaId);
+            formData.append('mensagem', msg);
+            if (selectedFile) formData.append('arquivo', selectedFile);
+
+            const submitBtn = chatForm.querySelector('button[type="submit"]');
+            const originalBtnHtml = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="kt-spinner kt-spinner-sm kt-spinner-light"></span>';
+
+            fetch('{% url "enviar_mensagem_centro" %}', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    input.value = '';
+                    cancelFileSelection();
+                    refreshMessages(conversaId); // Atualiza sem recarregar a página!
+                } else {
+                    alert('Erro ao enviar: ' + (data.error || 'Desconhecido'));
+                }
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnHtml;
+            })
+            .catch(err => {
+                console.error('Erro:', err);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnHtml;
+            });
+        });
+    }
 }
 
-// Enviar mensagem ao submeter o formulário
-document.getElementById('form-mensagem').addEventListener('submit', function(e) {
-    e.preventDefault();
-    enviarMensagem();
+document.addEventListener('DOMContentLoaded', function() {
+    // Se houver conversa_id no URL ao carregar a página, abre automaticamente
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialId = urlParams.get('conversa_id');
+    if (initialId) {
+        loadChat(initialId);
+    }
 });
-
-// Atualizar mensagens a cada 3 segundos
-{% if conversa_atual %}
-setInterval(carregarMensagens, 3000);
-{% endif %}
 </script>
-        <div class="dashboard-footer">
-            <div class="flex-between flex-wrap gap-16">
-                <p class="text-gray-300 text-13 fw-normal"> &copy; Copyright Edmate 2024, All Right Reserverd</p>
-                <div class="flex-align flex-wrap gap-16">
-                    <a href="message.html#"
-                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">License</a>
-                    <a href="message.html#"
-                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">More
-                        Themes</a>
-                    <a href="message.html#"
-                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">Documentation</a>
-                    <a href="message.html#"
-                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">Support</a>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    {% include 'include/java_gestor.html' %}
-
-</body>
-
-</html>
+<style>
+/* Estilização extra para scroll do Metronic 9 */
+.kt-scrollable-y {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.1) transparent;
+}
+.kt-scrollable-y::-webkit-scrollbar {
+    width: 5px;
+}
+.kt-scrollable-y::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.1);
+    border-radius: 10px;
+}
+</style>
+{% endblock %}

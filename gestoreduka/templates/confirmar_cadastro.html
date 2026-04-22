@@ -1,298 +1,314 @@
+{% extends 'auth_base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Title -->
-    <title> Cadastro centro </title>
-    <!-- Favicon -->
-    {% include 'include/css_gestor.html' %}
 
-</head> 
-    <style>
-        :root {
-            --primary-color: #0066ff;
-            --secondary-color: #1a237e;
-            --bg-neutral: #f8fafc;
-        }
+{% block title %}Confirmar Cadastro - GestorEduka{% endblock %}
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-neutral);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .split-card {
-            background: white;
-            width: 100%;
-            max-width: 950px;
-            min-height: 650px;
-            display: flex;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.1);
-        }
-
-        .split-card__image {
-            flex: 1.1;
-            background-color: var(--secondary-color);
-            background-image: linear-gradient(rgba(26, 35, 126, 0.4), rgba(15, 23, 42, 0.8)), 
-                              url('https://images.unsplash.com/photo-1454165833767-02a6e12621a2?auto=format&fit=crop&q=80&w=1000');
-            background-size: cover;
-            background-position: center;
-            display: none;
-            flex-direction: column;
-            justify-content: flex-end;
-            padding: 50px;
-            color: white;
-        }
-
-        @media (min-width: 768px) {
-            .split-card__image { display: flex; }
-        }
-
-        .split-card__form {
-            flex: 1;
-            padding: 60px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .brand-logo {
-            font-size: 24px;
-            font-weight: 800;
-            color: var(--secondary-color);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 30px;
-            justify-content: center;
-        }
-
-        .brand-logo i {
-            color: var(--primary-color);
-            font-size: 32px;
-        }
-
-        .form-label {
-            font-size: 13px;
-            font-weight: 600;
-            color: #64748b;
-            margin-bottom: 8px;
-        }
-
-        .form-control {
-            border: 2px solid #f1f5f9;
-            padding: 12px 16px 12px 48px;
-            border-radius: 12px;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            background-color: #f8fafc;
-        }
-
-        .form-control:focus {
-            background-color: white;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94a3b8;
-            font-size: 22px;
-        }
-
-        .btn-premium {
-            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
-            border: none;
-            padding: 16px;
-            border-radius: 12px;
-            font-weight: 700;
-            color: white;
-            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        .btn-premium:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 25px rgba(0, 102, 255, 0.3);
-            color: white;
-        }
-
-        .password-hint {
-            font-size: 11px;
-            color: #94a3b8;
-            margin-top: 6px;
-            display: block;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #94a3b8;
-            z-index: 10;
-        }
-
-        .alert-custom {
-            border-radius: 12px;
-            border: none;
-            font-size: 14px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
-    </style>
-
-    <div class="preloader">
-        <div class="loader"></div>
-    </div>
-
-    <div class="split-card">
-        <!-- Left Side: Image Content -->
-        <div class="split-card__image">
-            <h2 class="fw-bold text-white mb-2">Seja Bem-vindo</h2>
-            <p class="opacity-75 mb-0">Ative seu acesso administrativo e lidere a transformação do seu centro.</p>
-        </div>
-
-        <!-- Right Side: The Form -->
-        <div class="split-card__form">
-            <div class="text-center mb-4">
-                <a href="/" class="text-decoration-none">
-                    <img src="{% static 'assets/images/logo/Eduka-removebg-preview.png' %}" alt="EdukAngola Logo" style="height: 60px; object-fit: contain;">
-                </a>
+{% block content %}
+<div class="kt-card max-w-[600px] w-full shadow-2xl bg-background/95 backdrop-blur-md border border-white/10 overflow-hidden">
+    <!-- Header Stepper -->
+    <div class="bg-primary/5 border-b border-white/5 p-6 md:p-8">
+        <div class="flex items-center justify-between relative max-w-[400px] mx-auto">
+            <!-- Step Items -->
+            <div class="step-item active flex flex-col items-center gap-2 z-10" data-step="1">
+                <div class="size-10 rounded-full bg-primary text-white flex items-center justify-center font-bold shadow-lg shadow-primary/20">1</div>
+                <span class="text-[10px] uppercase font-bold text-primary tracking-tighter">Centro</span>
             </div>
-
-            <div class="mb-4 text-center">
-                <h3 class="fw-bold mb-1">Ativar Acesso</h3>
-                <p class="text-muted small">Configurando e-mail: <strong>{{ convite.centro.email }}</strong></p>
+            <div class="step-item flex flex-col items-center gap-2 z-10" data-step="2">
+                <div class="size-10 rounded-full bg-accent border-2 border-border text-muted-foreground flex items-center justify-center font-bold">2</div>
+                <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-tighter">Local</span>
             </div>
-
-            {% if messages %}
-            <div class="mb-4">
-                {% for message in messages %}
-                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show alert-custom" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                {% endfor %}
+            <div class="step-item flex flex-col items-center gap-2 z-10" data-step="3">
+                <div class="size-10 rounded-full bg-accent border-2 border-border text-muted-foreground flex items-center justify-center font-bold">3</div>
+                <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-tighter">Gestor</span>
             </div>
-            {% endif %}
-
-            <form method="post">
-                {% csrf_token %}
-                
-                <div class="mb-3">
-                    <label class="form-label">Nome Completo</label>
-                    <div class="position-relative">
-                        <i class="ph ph-user-circle input-icon"></i>
-                        <input type="text" name="nome" class="form-control" placeholder="Seu nome" value="{{ nome_value|default:'' }}" required>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Chave de Segurança</label>
-                    <div class="position-relative">
-                        <i class="ph ph-lock-key input-icon"></i>
-                        <input type="password" name="senha" id="password" class="form-control" placeholder="Crie uma senha forte" required>
-                        <i class="toggle-password ph ph-eye-slash" data-target="password"></i>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label">Confirmar Chave</label>
-                    <div class="position-relative">
-                        <i class="ph ph-lock-key input-icon"></i>
-                        <input type="password" name="confirm_senha" id="confirm-password" class="form-control" placeholder="Repita a senha" required>
-                        <i class="toggle-password ph ph-eye-slash" data-target="confirm-password"></i>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-premium w-100 mb-3 text-uppercase">Ativar Meu Acesso</button>
-
-                <div class="text-center mt-3">
-                    <a href="{% url 'login_gestor' %}" class="text-primary small fw-bold text-decoration-none">Voltar ao Login</a>
-                </div>
-            </form>
+            <div class="step-item flex flex-col items-center gap-2 z-10" data-step="4">
+                <div class="size-10 rounded-full bg-accent border-2 border-border text-muted-foreground flex items-center justify-center font-bold">4</div>
+                <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-tighter">Final</span>
+            </div>
+            
+            <!-- Progress Line -->
+            <div class="absolute h-[2px] bg-border top-5 left-5 right-5 -z-0">
+                <div id="progress-line" class="absolute h-full bg-primary transition-all duration-300" style="width: 0%"></div>
+            </div>
         </div>
     </div>
 
-    <script src="{% static 'assets1/js/jquery-3.7.1.min.js' %}"></script>
-    <script src="{% static 'assets1/js/boostrap.bundle.min.js' %}"></script>
-    <script src="{% static 'assets1/js/phosphor-icon.js' %}"></script>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggleButtons = document.querySelectorAll('.toggle-password');
+    <form method="POST" enctype="multipart/form-data" class="kt-card-content p-8 md:p-10" id="registration-form">
+        {% csrf_token %}
         
-        toggleButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const targetId = this.getAttribute('data-target');
-                const passwordInput = document.getElementById(targetId);
+        <!-- STEP 1: INSTITUIÇÃO -->
+        <div class="step-content" data-step="1">
+            <h3 class="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                <i class="ki-filled ki-bank text-primary"></i> Dados da Instituição
+            </h3>
+            
+            <div class="flex flex-col gap-5">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-foreground uppercase tracking-wider">Nome do Centro <span class="text-danger">*</span></label>
+                    <input type="text" name="nome_centro" value="{{ convite.centro.nome }}" class="kt-input" placeholder="Ex: Centro de Formação Profissional" required>
+                </div>
                 
-                if (passwordInput) {
-                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                    passwordInput.setAttribute('type', type);
-                    this.classList.toggle('ph-eye');
-                    this.classList.toggle('ph-eye-slash');
-                }
-            });
-        });
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-foreground uppercase tracking-wider">NIF da Instituição <span class="text-danger">*</span></label>
+                    <input type="text" name="nif" value="{{ post_data.nif }}" class="kt-input" placeholder="Ex: 5400000000" required>
+                </div>
 
-        // Auto-dismiss alerts
-        setTimeout(function() {
-            $('.alert').fadeOut('slow');
-        }, 6000);
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-foreground uppercase tracking-wider">Logotipo (Opcional)</label>
+                    <div class="flex items-center gap-4">
+                        <div class="size-16 rounded-xl border-2 border-dashed border-border flex items-center justify-center bg-accent/50 overflow-hidden" id="logo-preview">
+                            <i class="ki-filled ki-picture text-2xl text-muted-foreground"></i>
+                        </div>
+                        <label class="kt-btn kt-btn-sm kt-btn-outline cursor-pointer">
+                            <i class="ki-filled ki-cloud-change"></i> Escolher Logo
+                            <input type="file" name="logo" class="hidden" accept="image/*" onchange="previewLogo(this)">
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 2: LOCALIZAÇÃO -->
+        <div class="step-content hidden" data-step="2">
+            <h3 class="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                <i class="ki-filled ki-geolocation text-primary"></i> Localização
+            </h3>
+            
+            <div class="flex flex-col gap-5">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-foreground uppercase tracking-wider">País de Sede <span class="text-danger">*</span></label>
+                    <select name="pais" class="kt-input" required>
+                        <option value="AO" {% if not post_data.pais or post_data.pais == 'AO' %}selected{% endif %}>Angola</option>
+                        <option value="PT" {% if post_data.pais == 'PT' %}selected{% endif %}>Portugal</option>
+                        <option value="BR" {% if post_data.pais == 'BR' %}selected{% endif %}>Brasil</option>
+                        <option value="CV" {% if post_data.pais == 'CV' %}selected{% endif %}>Cabo Verde</option>
+                        <option value="MZ" {% if post_data.pais == 'MZ' %}selected{% endif %}>Moçambique</option>
+                        <option value="ST" {% if post_data.pais == 'ST' %}selected{% endif %}>São Tomé e Príncipe</option>
+                        <option value="GW" {% if post_data.pais == 'GW' %}selected{% endif %}>Guiné-Bissau</option>
+                        <option value="TL" {% if post_data.pais == 'TL' %}selected{% endif %}>Timor-Leste</option>
+                    </select>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-foreground uppercase tracking-wider">Endereço Completo</label>
+                    <input type="text" name="endereco" id="id_endereco" value="{{ post_data.endereco }}" class="kt-input" placeholder="Rua, Bairro, nº">
+                    <input type="hidden" name="lat" id="id_lat" value="{{ post_data.lat }}">
+                    <input type="hidden" name="lng" id="id_lng" value="{{ post_data.lng }}">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-xs font-semibold text-foreground uppercase tracking-wider">Província / Estado</label>
+                        <input type="text" name="provincia" value="{{ post_data.provincia }}" class="kt-input" placeholder="Ex: Luanda ou Lisboa">
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-xs font-semibold text-foreground uppercase tracking-wider">Cidade / Município</label>
+                        <input type="text" name="cidade" value="{{ post_data.cidade }}" class="kt-input" placeholder="Ex: Luanda">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 3: GESTOR & SEGURANÇA -->
+        <div class="step-content hidden" data-step="3">
+            <h3 class="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                <i class="ki-filled ki-profile-circle text-primary"></i> Dados do Gestor
+            </h3>
+            
+            <div class="flex flex-col gap-5">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-foreground uppercase tracking-wider">Nome Completo do Gestor <span class="text-danger">*</span></label>
+                    <input type="text" name="nome_gestor" value="{{ post_data.nome_gestor }}" class="kt-input" placeholder="Como deseja ser chamado" required>
+                </div>
+                
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-foreground uppercase tracking-wider">Telefone de Contacto</label>
+                    <input type="text" name="telefone" value="{{ post_data.telefone }}" class="kt-input" placeholder="+244 9..">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-xs font-semibold text-foreground uppercase tracking-wider">Palavra-passe <span class="text-danger">*</span></label>
+                        <input type="password" name="senha" class="kt-input" placeholder="••••••••" required>
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-xs font-semibold text-foreground uppercase tracking-wider">Confirmar <span class="text-danger">*</span></label>
+                        <input type="password" name="confirm_senha" class="kt-input" placeholder="••••••••" required>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 4: FINALIZAÇÃO -->
+        <div class="step-content hidden" data-step="4">
+            <h3 class="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                <i class="ki-filled ki-badge text-primary"></i> Biografia & Finalização
+            </h3>
+            
+            <div class="flex flex-col gap-5">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-foreground uppercase tracking-wider">Resumo sobre a Instituição</label>
+                    <textarea name="biografia" rows="4" class="kt-input resize-none" placeholder="Conte-nos brevemente sobre o seu centro de formação...">{{ post_data.biografia }}</textarea>
+                </div>
+                
+                <div class="p-4 rounded-lg bg-primary/5 border border-primary/10">
+                    <p class="text-xs text-secondary-foreground">
+                        Ao finalizar, o seu centro estará ativo na plataforma Eduka-Angola e poderá começar a publicar cursos.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex items-center justify-between mt-10">
+            <button type="button" id="prev-btn" class="kt-btn kt-btn-outline invisible">
+                <i class="ki-filled ki-left mr-1"></i> Anterior
+            </button>
+            <button type="button" id="next-btn" class="kt-btn kt-btn-primary">
+                Próximo <i class="ki-filled ki-right ml-1"></i>
+            </button>
+            <button type="submit" id="submit-btn" class="kt-btn kt-btn-success hidden">
+                <i class="ki-filled ki-check-circle mr-1"></i> Finalizar Cadastro
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    let currentStep = 1;
+    const totalSteps = 4;
+    
+    const nextBtn = document.getElementById('next-btn');
+    const prevBtn = document.getElementById('prev-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    const progressLine = document.getElementById('progress-line');
+    
+    function updateStepper() {
+        // Toggle visibility of step contents
+        document.querySelectorAll('.step-content').forEach(content => {
+            content.classList.toggle('hidden', parseInt(content.dataset.step) !== currentStep);
+        });
+        
+        // Update Step indicators
+        document.querySelectorAll('.step-item').forEach(item => {
+            const stepNum = parseInt(item.dataset.step);
+            const icon = item.querySelector('.size-10');
+            const text = item.querySelector('span');
+            
+            if (stepNum < currentStep) {
+                icon.classList.remove('bg-accent', 'border-2', 'border-border', 'text-muted-foreground', 'bg-primary');
+                icon.classList.add('bg-success', 'text-white');
+                icon.innerHTML = '<i class="ki-filled ki-check text-white"></i>';
+                text.classList.remove('text-muted-foreground', 'text-primary');
+                text.classList.add('text-success');
+            } else if (stepNum === currentStep) {
+                icon.classList.remove('bg-accent', 'border-2', 'border-border', 'text-muted-foreground', 'bg-success');
+                icon.classList.add('bg-primary', 'text-white');
+                icon.innerHTML = stepNum;
+                text.classList.remove('text-muted-foreground', 'text-success');
+                text.classList.add('text-primary');
+            } else {
+                icon.classList.remove('bg-primary', 'bg-success', 'text-white');
+                icon.classList.add('bg-accent', 'border-2', 'border-border', 'text-muted-foreground');
+                icon.innerHTML = stepNum;
+                text.classList.remove('text-primary', 'text-success');
+                text.classList.add('text-muted-foreground');
+            }
+        });
+        
+        // Update buttons
+        prevBtn.classList.toggle('invisible', currentStep === 1);
+        if (currentStep === totalSteps) {
+            nextBtn.classList.add('hidden');
+            submitBtn.classList.remove('hidden');
+        } else {
+            nextBtn.classList.remove('hidden');
+            submitBtn.classList.add('hidden');
+        }
+        
+        // Update progress line
+        const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
+        progressLine.style.width = `${progress}%`;
+    }
+    
+    nextBtn.addEventListener('click', () => {
+        if (currentStep < totalSteps) {
+            currentStep++;
+            updateStepper();
+        }
     });
-    </script>
-</body>
-</html>
+    
+    prevBtn.addEventListener('click', () => {
+        if (currentStep > 1) {
+            currentStep--;
+            updateStepper();
+        }
+    });
 
-    <script src="{% static 'assets1/js/jquery-3.7.1.min.js' %}"></script>
-    <script src="{% static 'assets1/js/boostrap.bundle.min.js' %}"></script>
-    <script src="{% static 'assets1/js/phosphor-icon.js' %}"></script>
+    function previewLogo(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('logo-preview');
+                preview.innerHTML = `<img src="${e.target.result}" class="size-full object-cover">`;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
 
-    <script>
+    // --- Integração Google Maps Autocomplete ---
+</script>
+
+<script src="{% static 'assets/js/google_maps_loader.js' %}"></script>
+<script>
     document.addEventListener('DOMContentLoaded', function() {
-        const toggleButtons = document.querySelectorAll('.toggle-password');
-        
-        toggleButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const targetId = this.getAttribute('data-target');
-                const passwordInput = document.getElementById(targetId);
-                
-                if (passwordInput) {
-                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                    passwordInput.setAttribute('type', type);
-                    this.classList.toggle('ph-eye');
-                    this.classList.toggle('ph-eye-slash');
-                }
-            });
-        });
+        const apiKey = "{{ GOOGLE_MAPS_API_KEY }}";
+        if (apiKey && window.EdukaMaps) {
+            window.EdukaMaps.load(apiKey).then(maps => {
+                const input = document.getElementById('id_endereco');
+                if (!input) return;
 
-        // Auto-dismiss alerts
-        const alerts = document.querySelectorAll('.alert');
-        alerts.forEach(function(alert) {
-            setTimeout(function() {
-                if ($(alert).length > 0) {
-                    $(alert).fadeOut('slow', function() {
-                        $(this).remove();
+                const autocomplete = new maps.places.Autocomplete(input, {
+                    types: ['address'],
+                    fields: ['address_components', 'geometry', 'formatted_address']
+                });
+
+                autocomplete.addListener('place_changed', function() {
+                    const place = autocomplete.getPlace();
+                    if (!place.geometry) return;
+
+                    // Capturar Coordenadas
+                    document.getElementById('id_lat').value = place.geometry.location.lat();
+                    document.getElementById('id_lng').value = place.geometry.location.lng();
+
+                    // Preencher campos de endereço automaticamente
+                    place.address_components.forEach(component => {
+                        const types = component.types;
+                        
+                        // Província / Estado
+                        if (types.includes('administrative_area_level_1')) {
+                            const provInput = document.querySelector('input[name="provincia"]');
+                            if (provInput) provInput.value = component.long_name;
+                        }
+                        
+                        // Cidade / Município
+                        if (types.includes('locality') || types.includes('administrative_area_level_2')) {
+                            const cidadeInput = document.querySelector('input[name="cidade"]');
+                            if (cidadeInput) cidadeInput.value = component.long_name;
+                        }
+                        
+                        // País
+                        if (types.includes('country')) {
+                             const paisSelect = document.querySelector('select[name="pais"]');
+                             if (paisSelect) {
+                                 // Tenta selecionar pelo código (AO, PT, BR...)
+                                 paisSelect.value = component.short_name;
+                             }
+                        }
                     });
-                }
-            }, 6000);
-        });
+                });
+            }).catch(err => console.error("EdukaMaps Error:", err));
+        }
     });
-    </script>
-</body>
-</html>
-</html>
+</script>
+{% endblock %}

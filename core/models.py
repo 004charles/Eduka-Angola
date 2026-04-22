@@ -25,6 +25,12 @@ class SobreNos(models.Model):
     visao = models.TextField(blank=True, null=True)  
     valores = models.TextField(blank=True, null=True) 
 
+    # Campos de Contacto Adicionados
+    telefone = models.CharField("Telefone", max_length=20, blank=True, null=True)
+    email_contato = models.EmailField("E-mail de Contacto", blank=True, null=True)
+    endereco = models.TextField("Endereço", blank=True, null=True)
+    mapa_iframe = models.TextField("Iframe do Google Maps", blank=True, null=True, help_text="Cole aqui o código de incorporação do Google Maps")
+
     imagem_destaque = models.ImageField(upload_to='sobre_nos/', blank=True, null=True)  
 
     video_explicacao = models.FileField(
@@ -36,3 +42,19 @@ class SobreNos(models.Model):
 
     def __str__(self):
         return self.titulo
+
+class MensagemContato(models.Model):
+    nome = models.CharField("Nome", max_length=150)
+    email = models.EmailField("E-mail")
+    assunto = models.CharField("Assunto", max_length=200)
+    mensagem = models.TextField("Mensagem")
+    lido = models.BooleanField("Lido?", default=False)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Mensagem de Contacto"
+        verbose_name_plural = "Mensagens de Contacto"
+        ordering = ['-criado_em']
+
+    def __str__(self):
+        return f"{self.nome} - {self.assunto}"

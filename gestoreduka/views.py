@@ -6,6 +6,9 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+import json
 from django.utils import timezone
 from django.urls import reverse
 from django.db.models import Q, Sum, Count, Value
@@ -19,13 +22,14 @@ from .models import (
     CentroDeFormacao, PerfilCentroDeFormacao, Certificacao, 
     Diferencial, AreaFormacao, Equipe, Recurso, Depoimento,
     Estatistica, Parceria, Evento, GaleriaImagem, ReelCentro,
-    Filial, ConviteCentro, Conversa, Mensagem, CentroSeguimento
+    Filial, ConviteCentro, Conversa, Mensagem, CentroSeguimento,
+    CategoriaCentro, AnuncioCentro
 )
 from cursos_app.models import Curso, Categoria, Instrutor, Inscricao, Turma
 from planos.models import AssinaturaMembro, Plano
 from usuarios.models import Aluno
 from usuarios.decorators import aluno_logado_e_centros
-from .forms import CursoForm
+from .forms import CursoForm, AnuncioForm
 
 @aluno_logado_e_centros
 def buscar_centros(request):
@@ -42,7 +46,33 @@ def buscar_centros(request):
     except (ValueError, TypeError):
         raio = 10
     
+    q = request.GET.get('q')
+    cat_slug = request.GET.get('categoria')
+    
     centros = CentroDeFormacao.objects.filter(ativo=True)
+    
+    # Filtrar por categoria
+    if cat_slug:
+        centros = centros.filter(categorias__slug=cat_slug)
+    
+    # Se pesquisar por curso, filtrar os centros que oferecem o curso
+    if q:
+        centros = centros.filter(
+            Q(cursos__titulo__icontains=q) | 
+            Q(nome__icontains=q)
+        ).distinct()
+
+    categorias = CategoriaCentro.objects.filter(ativa=True)
+
+    context = {
+        'centros': centros,
+        'q': q,
+        'categorias': categorias,
+        'categoria_selecionada': cat_slug,
+        'latitude': latitude,
+        'longitude': longitude,
+        'google_maps_api_key': settings.GOOGLE_MAPS_API_KEY,
+    }
     
     # Se tiver coordenadas, calcular distância
     if latitude and longitude:
@@ -79,12 +109,31 @@ def buscar_centros(request):
         except (ValueError, TypeError) as e:
             print(f"Erro nas coordenadas: {e}")
             pass
+    
+    # Atualizar centros no contexto após filtros geo
+    context['centros'] = centros
             
-    return render(request, 'core/buscar_centros.html', {
-        'centros': centros,
-        'latitude': latitude,
-        'longitude': longitude,
-    })
+    return render(request, 'core/buscar_centros.html', context)
+
+@login_required
+def seguir_centro_ajax(request, centro_id):
+    """
+    Endpoint AJAX para seguir ou deixar de seguir um centro.
+    """
+    if request.user.tipo_usuario != 'ALUNO':
+        return JsonResponse({'error': 'Apenas alunos podem seguir centros.'}, status=403)
+    
+    centro = get_object_or_404(CentroDeFormacao, id=centro_id)
+    aluno = request.user.aluno_profile
+    
+    seguimento, created = CentroSeguimento.objects.get_or_create(aluno=aluno, centro=centro)
+    
+    if not created:
+        seguimento.delete()
+        return JsonResponse({'seguindo': False, 'mensagem': f'Deixaste de seguir {centro.nome}'})
+    
+    return JsonResponse({'seguindo': True, 'mensagem': f'Agora segues {centro.nome}'})
+
 
 
 def get_gestor_context(user):
@@ -97,24 +146,63 @@ def get_gestor_context(user):
             filial = user.filial_profile
             centro = filial.centro_principal
             return centro, filial
-        elif user.tipo_usuario in ['GESTOR', 'ADMIN'] or user.is_superuser:
-            centro = user.centro_profile
-            return centro, None
+        elif user.tipo_usuario in ['GESTOR', 'ADMIN', 'ALUNO'] or user.is_superuser:
+            # Tentar pegar o centro, se falhar (ObjectDoesNotExist), retorna None
+            try:
+                centro = user.centro_profile
+                return centro, None
+            except Exception:
+                return None, None
     except Exception:
         pass
     return None, None
+
+@login_required
+def perfil_institucional_interno(request):
+    """
+    Visualização interna premium do perfil do centro (estilo portfólio/Works).
+    """
+    centro, filial = get_gestor_context(request.user)
+    
+    if not centro:
+        messages.error(request, "Perfil do centro não encontrado.")
+        return redirect('centro_dashboard')
+
+    # Dados para o layout Works
+    try:
+        perfil = centro.perfil
+    except:
+        perfil = None
+
+    cursos = centro.cursos.all().order_by('-destaque', '-data_criacao')
+    instrutores = Instrutor.objects.filter(centro_de_formacao=centro, ativo=True)
+    galeria = centro.galeria_imagens.all().order_by('ordem')
+    seguidores_count = centro.seguidores.count()
+
+    context = {
+        'centro': centro,
+        'filial': filial,
+        'perfil': perfil,
+        'cursos': cursos,
+        'instrutores': instrutores,
+        'galeria': galeria,
+        'seguidores_count': seguidores_count,
+        'google_maps_api_key': settings.GOOGLE_MAPS_API_KEY,
+    }
+
+    return render(request, 'perfil_interno.html', context)
 
 def centro_dashboard(request):
     """
     Dashboard principal do Gestor exibindo métricas de desempenho do centro e atividades recentes.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         messages.error(request, "Faça login para acessar o dashboard.")
         return redirect('login_gestor')
     
     centro, filial = get_gestor_context(request.user)
     if not centro:
-        messages.error(request, "Perfil de centro ou filial não encontrado.")
+        messages.error(request, "Esta conta não tem permissões de Gestor ou o perfil não foi encontrado.")
         return redirect('login_gestor')
         
     # Estatísticas Gerais (Filtrar por filial se aplicável)
@@ -155,7 +243,8 @@ def centro_dashboard(request):
             'inscricoes_pendentes': inscricoes_pendentes,
             'receita_total': receita_total,
             'limite_cursos': limite_cursos,
-            'percentual_cursos': (total_cursos / limite_cursos * 100) if limite_cursos > 0 else 0
+            'percentual_cursos': (total_cursos / limite_cursos * 100) if limite_cursos > 0 else 0,
+            'total_seguidores': centro.seguidores.count()
         },
         'cursos_populares': cursos_populares,
         'recent_enrollments': recent_enrollments,
@@ -168,7 +257,7 @@ def gerenciar_inscricoes(request):
     """
     View para o gestor gerenciar todas as inscrições do centro ou filial.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         return redirect('login_gestor')
     
     centro, filial = get_gestor_context(request.user)
@@ -202,7 +291,7 @@ def gerenciar_assinatura(request):
     View de monetização: Gestor vê seu plano e pode assinar ou mudar.
     Para filiais, isso geralmente não se aplica, mas será mantido para visualização.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         return redirect('login_gestor')
     
     centro, filial = get_gestor_context(request.user)
@@ -223,7 +312,7 @@ def analytics_centro(request):
     """
     Dashboard de análises e métricas detalhadas do centro ou filial.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         return redirect('login_gestor')
     
     centro, filial = get_gestor_context(request.user)
@@ -273,7 +362,7 @@ def gerenciar_turmas(request):
     """
     Listagem e gerenciamento de todas as turmas do centro ou filial.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         return redirect('login_gestor')
     
     centro, filial = get_gestor_context(request.user)
@@ -300,7 +389,7 @@ def criar_turma(request):
     """
     Criação de uma nova turma para um curso do centro ou filial.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         return redirect('login_gestor')
     
     centro, filial = get_gestor_context(request.user)
@@ -361,7 +450,7 @@ def editar_turma(request, turma_id):
     """
     Edição de uma turma existente no centro ou filial.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         return redirect('login_gestor')
     
     centro, filial = get_gestor_context(request.user)
@@ -407,7 +496,7 @@ def gerenciar_instrutores(request):
     """
     Listagem e gestão de instrutores associados ao centro ou filial.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         return redirect('login_gestor')
     
     centro, filial = get_gestor_context(request.user)
@@ -426,7 +515,7 @@ def criar_instrutor(request):
     """
     Cadastro de um novo instrutor para o centro ou filial.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         return redirect('login_gestor')
     
     centro, filial = get_gestor_context(request.user)
@@ -464,7 +553,7 @@ def editar_instrutor(request, instrutor_id):
     """
     Edição de dados de um instrutor existente no centro ou filial.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         return redirect('login_gestor')
     
     centro, filial = get_gestor_context(request.user)
@@ -500,7 +589,7 @@ def gerenciar_eventos(request):
     """
     Listagem e gerenciamento de eventos organizados pelo centro ou filial.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         return redirect('login_gestor')
     
     centro, filial = get_gestor_context(request.user)
@@ -522,7 +611,7 @@ def criar_evento(request):
     """
     Criação de um novo evento relacionado ao centro (e filial caso modelado).
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         return redirect('login_gestor')
     
     centro, filial = get_gestor_context(request.user)
@@ -567,109 +656,96 @@ def confirmar_cadastro(request, token):
     convite = get_object_or_404(ConviteCentro, token=token, usado=False)
 
     if request.method == "POST":
-        nome = request.POST.get("nome", "").strip()
+        nome_centro = request.POST.get("nome_centro", "").strip()
+        nome_gestor = request.POST.get("nome_gestor", "").strip()
+        nif = request.POST.get("nif", "").strip()
+        telefone = request.POST.get("telefone", "").strip()
+        endereco = request.POST.get("endereco", "").strip()
+        cidade = request.POST.get("cidade", "").strip()
+        provincia = request.POST.get("provincia", "").strip()
+        pais = request.POST.get("pais", "AO").strip()
         senha = request.POST.get("senha", "").strip()
         confirm_senha = request.POST.get("confirm_senha", "").strip()
+        biografia = request.POST.get("biografia", "").strip()
+        lat = request.POST.get("lat", "").strip()
+        lng = request.POST.get("lng", "").strip()
 
         # Validações completas
         errors = []
 
-        # Validar nome
-        if not nome:
-            errors.append("O nome é obrigatório.")
-        elif nome.isspace():
-            errors.append("O nome não pode conter apenas espaços em branco.")
-        elif len(nome) < 2:
-            errors.append("O nome deve ter pelo menos 2 caracteres.")
-        elif len(nome) > 100:
-            errors.append("O nome deve ter no máximo 100 caracteres.")
+        if not nome_centro: errors.append("O nome do centro é obrigatório.")
+        if not nome_gestor: errors.append("O nome do gestor é obrigatório.")
+        if not nif: errors.append("O NIF é obrigatório.")
+        if not senha: errors.append("A senha é obrigatória.")
+        if senha != confirm_senha: errors.append("As senhas não coincidem.")
+        if len(senha) < 8: errors.append("A senha deve ter pelo menos 8 caracteres.")
 
-        # Validar senha
-        if not senha:
-            errors.append("A senha é obrigatória.")
-        elif senha.isspace():
-            errors.append("A senha não pode conter apenas espaços em branco.")
-        elif len(senha) < 8:
-            errors.append("A senha deve ter pelo menos 8 caracteres.")
-        elif len(senha) > 128:
-            errors.append("A senha deve ter no máximo 128 caracteres.")
-        else:
-            # Verificar força da senha
-            if not re.search(r'[A-Z]', senha):
-                errors.append("A senha deve conter pelo menos uma letra maiúscula.")
-            if not re.search(r'[a-z]', senha):
-                errors.append("A senha deve conter pelo menos uma letra minúscula.")
-            if not re.search(r'[0-9]', senha):
-                errors.append("A senha deve conter pelo menos um número.")
-            if not re.search(r'[!@#$%^&*(),.?":{}|<>]', senha):
-                errors.append("A senha deve conter pelo menos um caractere especial.")
-
-        # Validar confirmação de senha
-        if not confirm_senha:
-            errors.append("A confirmação de senha é obrigatória.")
-        elif senha != confirm_senha:
-            errors.append("As senhas não coincidem.")
-
-        # Se houver erros, mostrar todos
         if errors:
             for error in errors:
                 messages.error(request, error)
-            return render(request, "confirmar_cadastro.html", {
-                "convite": convite,
-                "nome_value": nome,  # Manter valores preenchidos
-                "senha_value": senha,
-                "confirm_senha_value": confirm_senha
-            })
+            return render(request, "confirmar_cadastro.html", {"convite": convite, "post_data": request.POST})
 
         try:
-            # Verificar se o centro ainda existe
             centro = convite.centro
-            if not centro:
-                messages.error(request, "Centro não encontrado.")
-                return render(request, "confirmar_cadastro.html", {"convite": convite})
-
-            # Criar ou atualizar o usuário
             from usuarios.models import Usuario
             
-            # Verificar se já existe um usuário com este email
+            # 1. Criar/Atualizar Usuário
             usuario, created = Usuario.objects.get_or_create(
                 email=centro.email,
                 defaults={
-                    'nome': nome,
+                    'nome': nome_gestor,
                     'tipo_usuario': 'GESTOR',
-                    'is_active': True,
+                    'is_active': True
                 }
             )
-            
-            # Definir a senha
             usuario.set_password(senha)
-            usuario.nome = nome  # Atualizar nome caso já exista
+            usuario.tipo_usuario = 'GESTOR'
+            usuario.is_active = True
+            usuario.nome = nome_gestor
             usuario.save()
-            
-            # Associar o usuário ao centro
+
+            # 2. Atualizar Centro
+            centro.nome = nome_centro
+            centro.nif = nif
+            centro.telefone = telefone
+            centro.endereco = endereco
+            centro.cidade = cidade
+            centro.provincia = provincia
+            centro.pais = pais
             centro.usuario = usuario
-            centro.nome = nome
             centro.ativo = True
+            
+            if lat and lng:
+                centro.set_localizacao(float(lat), float(lng))
+                
             centro.save()
 
-            # Marcar convite como usado
+            # 3. Criar/Atualizar Perfil Institucional
+            perfil, _ = PerfilCentroDeFormacao.objects.get_or_create(centro=centro)
+            perfil.descricao = biografia
+            if 'logo' in request.FILES:
+                perfil.imagem = request.FILES['logo']
+            perfil.save()
+
+            # 4. Finalizar Convite
             convite.usado = True
             convite.save()
 
-            messages.success(request, "Cadastro concluído com sucesso! Agora você pode fazer login com seu email e senha.")
-            return redirect("login_gestor")
+            messages.success(request, f"Cadastro do centro {nome_centro} concluído com sucesso! Pode agora fazer login.")
+            return redirect('login_gestor')
 
         except Exception as e:
-            messages.error(request, f"Erro ao processar cadastro: {str(e)}")
+            messages.error(request, f"Ocorreu um erro ao processar o cadastro: {str(e)}")
             return render(request, "confirmar_cadastro.html", {
                 "convite": convite,
-                "nome_value": nome,
-                "senha_value": senha,
-                "confirm_senha_value": confirm_senha
+                "GOOGLE_MAPS_API_KEY": settings.GOOGLE_MAPS_API_KEY
             })
 
     # GET request - mostrar formulário vazio
-    return render(request, "confirmar_cadastro.html", {"convite": convite})
+    return render(request, "confirmar_cadastro.html", {
+        "convite": convite,
+        "GOOGLE_MAPS_API_KEY": settings.GOOGLE_MAPS_API_KEY
+    })
 
     
 def seguir_centro(request, centro_id):
@@ -719,7 +795,8 @@ def login_gestor(request):
             user = authenticate(request, email=email, password=senha)
             
             if user is not None:
-                if user.tipo_usuario in ['GESTOR', 'GESTOR_FILIAL'] or user.is_superuser:
+                # Lógica Flexível: Se tem perfil de centro, é gestor, mesmo que o tipo esteja como ALUNO
+                if user.tipo_usuario in ['GESTOR', 'GESTOR_FILIAL'] or user.is_superuser or hasattr(user, 'centro_profile'):
                     if hasattr(user, 'centro_profile') or hasattr(user, 'filial_profile'):
                         login(request, user)
                         messages.success(request, f"Olá, {user.nome}! Bem-vindo ao seu painel.")
@@ -749,7 +826,7 @@ def configuracao_gestor(request):
     """
     Exibe a página de configurações do gestor, permitindo editar detalhes do centro e perfil.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated:
         messages.error(request, "Faça login para acessar as configurações.")
         return redirect('login_gestor')
     
@@ -766,7 +843,9 @@ def configuracao_gestor(request):
             'active_tab': active_tab,
             'latitude': centro.latitude,
             'longitude': centro.longitude,
+            'google_maps_api_key': settings.GOOGLE_MAPS_API_KEY,
         }
+
         return render(request, 'configuracao_gestor.html', context)
         
     except CentroDeFormacao.DoesNotExist:
@@ -779,7 +858,7 @@ def atualizar_dados_pessoais(request):
     Processa a atualização dos dados básicos e localização geográfica do centro de formação.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -804,11 +883,8 @@ def atualizar_dados_pessoais(request):
                     lat_float = float(latitude)
                     lng_float = float(longitude)
                     
-                    # Validar coordenadas (Angola está aproximadamente entre -18 e -4 de latitude e 11 e 24 de longitude)
-                    if -18 <= lat_float <= -4 and 11 <= lng_float <= 24:
-                        centro.set_localizacao(lat_float, lng_float)
-                    else:
-                        messages.warning(request, "Coordenadas fora do território de Angola. Verifique os valores.")
+                    # Guardar a localização (agora suporta qualquer parte do mundo)
+                    centro.set_localizacao(lat_float, lng_float)
                         
                 except (ValueError, TypeError):
                     messages.warning(request, "Coordenadas inválidas. Use números decimais.")
@@ -844,7 +920,7 @@ def atualizar_senha(request):
     Permite ao gestor alterar sua senha de acesso após validação da senha atual.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -886,7 +962,7 @@ def atualizar_redes_sociais(request):
     Atualiza os links das redes sociais (Facebook, Instagram, WhatsApp) no perfil do centro.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -911,7 +987,7 @@ def upload_imagem_perfil(request):
     Endpoint AJAX para upload e atualização da imagem de perfil (logo) do centro.
     """
     if request.method == 'POST' and request.FILES.get('imagem_perfil'):
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             return JsonResponse({'success': False, 'error': 'Sessão expirada'})
         
         try:
@@ -941,7 +1017,7 @@ def upload_banner(request):
     Endpoint AJAX para upload e atualização do banner de capa do perfil do centro.
     """
     if request.method == 'POST' and request.FILES.get('banner'):
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             return JsonResponse({'success': False, 'error': 'Sessão expirada'})
         
         try:
@@ -972,7 +1048,7 @@ def diferenciais_gestor(request):
     """
     Exibe a lista de diferenciais competitivos cadastrados para o centro.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated:
         messages.error(request, "Faça login para acessar as configurações.")
         return redirect('login_gestor')
     
@@ -998,7 +1074,7 @@ def adicionar_diferencial(request):
     Cadastra um novo diferencial (título, descrição e ícone) para o centro.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1026,7 +1102,7 @@ def editar_diferencial(request, diferencial_id):
     Edita os dados de um diferencial existente pertencente ao centro.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1057,7 +1133,7 @@ def excluir_diferencial(request, diferencial_id):
     Remove permanentemente um diferencial do cadastro do centro.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1083,7 +1159,7 @@ def equipe_gestor(request):
     """
     Exibe a listagem de membros da equipe administrativa e docente do centro.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated:
         messages.error(request, "Faça login para acessar as configurações.")
         return redirect('login_gestor')
     
@@ -1109,7 +1185,7 @@ def adicionar_membro_equipe(request):
     Cadastra um novo membro na equipe do centro, incluindo foto e biografia.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1145,7 +1221,7 @@ def editar_membro_equipe(request, membro_id):
     Edita os dados de um membro da equipe existente.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1186,7 +1262,7 @@ def excluir_membro_equipe(request, membro_id):
     Remove permanentemente um membro da equipe do centro.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1217,7 +1293,7 @@ def depoimentos_gestor(request):
     """
     Lista todos os depoimentos (testimonials) vinculados ao centro.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated:
         messages.error(request, "Faça login para acessar as configurações.")
         return redirect('login_gestor')
     
@@ -1243,7 +1319,7 @@ def adicionar_depoimento(request):
     Adiciona um novo depoimento manual ao perfil do centro.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1277,7 +1353,7 @@ def toggle_aprovacao_depoimento(request, depoimento_id):
     Alterna o status de aprovação de um depoimento para exibição pública.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1306,7 +1382,7 @@ def excluir_depoimento(request, depoimento_id):
     Exclui permanentemente um depoimento.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1337,7 +1413,7 @@ def estatisticas_gestor(request):
     """
     Gerencia as estatísticas chave exibidas no perfil do centro (ex: número de formados).
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated:
         messages.error(request, "Faça login para acessar as configurações.")
         return redirect('login_gestor')
     
@@ -1363,7 +1439,7 @@ def adicionar_estatistica(request):
     Cria uma nova métrica estatística para o centro.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1392,7 +1468,7 @@ def editar_estatistica(request, estatistica_id):
     Atualiza os dados de uma estatística existente.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1424,7 +1500,7 @@ def excluir_estatistica(request, estatistica_id):
     Remove uma estatística da exibição do centro.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1451,7 +1527,7 @@ def parcerias_gestor(request):
     """
     Exibe a listagem de parcerias estratégicas do centro de formação.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated:
         messages.error(request, "Faça login para acessar as configurações.")
         return redirect('login_gestor')
     
@@ -1477,7 +1553,7 @@ def adicionar_parceria(request):
     Cadastra uma nova parceria, incluindo logo da empresa parceira.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1509,7 +1585,7 @@ def toggle_parceria(request, parceria_id):
     Ativa ou desativa a exibição de uma parceria no perfil do centro.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1538,7 +1614,7 @@ def excluir_parceria(request, parceria_id):
     Remove permanentemente uma parceria do cadastro.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1569,7 +1645,7 @@ def eventos_gestor(request):
     """
     Lista todos os eventos cadastrados pelo centro.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated:
         messages.error(request, "Faça login para acessar as configurações.")
         return redirect('login_gestor')
     
@@ -1595,7 +1671,7 @@ def adicionar_evento(request):
     Cria um novo evento com data, local e imagem.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1642,7 +1718,7 @@ def toggle_destaque_evento(request, evento_id):
     Define se um evento deve aparecer em destaque no perfil.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1671,7 +1747,7 @@ def excluir_evento(request, evento_id):
     Remove um evento permanentemente.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1703,7 +1779,7 @@ def reels_gestor(request):
     """
     Gerencia os vídeos curtos (reels) promocionais do centro.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated:
         messages.error(request, "Faça login para acessar as configurações.")
         return redirect('login_gestor')
     
@@ -1729,7 +1805,7 @@ def adicionar_reel(request):
     Realiza o upload de um novo vídeo para os reels do centro.
     """
     if request.method == 'POST' and request.FILES.get('video'):
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1761,7 +1837,7 @@ def toggle_publico_reel(request, reel_id):
     Alterna a visibilidade pública de um reel.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1790,7 +1866,7 @@ def toggle_destaque_reel(request, reel_id):
     Define se um vídeo curto (reel) deve aparecer em destaque no perfil.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1819,7 +1895,7 @@ def excluir_reel(request, reel_id):
     Remove permanentemente um vídeo curto (reel) e seus arquivos de mídia.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1854,7 +1930,7 @@ def recursos_gestor(request):
     """
     Lista os recursos e infraestrutura (ex: Wi-Fi, Estacionamento) do centro.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated:
         messages.error(request, "Faça login para acessar as configurações.")
         return redirect('login_gestor')
     
@@ -1880,7 +1956,7 @@ def adicionar_recurso(request):
     Cadastra um novo recurso ou benefício oferecido pelo centro.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1908,7 +1984,7 @@ def editar_recurso(request, recurso_id):
     Edita os dados de um recurso existente.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1939,7 +2015,7 @@ def excluir_recurso(request, recurso_id):
     Exclui um recurso do perfil do centro.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -1967,7 +2043,7 @@ def areas_formacao_gestor(request):
     """
     Gerencia as áreas de formação técnica e acadêmica do centro.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated:
         messages.error(request, "Faça login para acessar as configurações.")
         return redirect('login_gestor')
     
@@ -1993,7 +2069,7 @@ def adicionar_area_formacao(request):
     Cadastra uma nova área de conhecimento ou departamento no centro.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -2022,7 +2098,7 @@ def editar_area_formacao(request, area_id):
     Atualiza as informações de uma área de formação existente.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -2054,7 +2130,7 @@ def excluir_area_formacao(request, area_id):
     Remove uma área de formação do cadastro.
     """
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+        if not request.user.is_authenticated:
             messages.error(request, "Sessão expirada.")
             return redirect('login_gestor')
         
@@ -2084,7 +2160,7 @@ def criar_curso(request):
     """
     Cria um novo curso de um centro ou filial, permitindo salvar como rascunho ou iniciar processo de publicação.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         messages.error(request, "Faça login para criar cursos.")
         return redirect('login_gestor')
     
@@ -2138,7 +2214,7 @@ def criar_curso(request):
 
 def curso_overview(request, curso_id):
     """Página de revisão do curso antes da publicação"""
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         messages.error(request, "Faça login para ver o curso.")
         return redirect('login_gestor')
     
@@ -2160,7 +2236,7 @@ def curso_overview(request, curso_id):
 
 def publicar_curso_final(request, curso_id):
     """Publicação final do curso após revisão"""
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         messages.error(request, "Sessão expirada.")
         return redirect('login_gestor')
     
@@ -2207,7 +2283,7 @@ def listar_cursos(request):
     """
     Lista todos os cursos do centro ou filial, organizados por status (publicados, rascunhos, destaques).
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         messages.error(request, "Faça login para ver seus cursos.")
         return redirect('login_gestor')
     
@@ -2238,7 +2314,7 @@ def editar_curso(request, curso_id):
     """
     Permite editar os detalhes de um curso existente.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         messages.error(request, "Faça login para editar cursos.")
         return redirect('login_gestor')
     
@@ -2279,7 +2355,7 @@ def publicar_curso(request, curso_id):
     """
     Endpoint AJAX para publicar um curso, tornando-o visível no site.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         return JsonResponse({'success': False, 'error': 'Sessão expirada'})
     
     centro, filial = get_gestor_context(request.user)
@@ -2306,7 +2382,7 @@ def despublicar_curso(request, curso_id):
     """
     Endpoint AJAX para despublicar um curso, removendo-o da visão pública.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         return JsonResponse({'success': False, 'error': 'Sessão expirada'})
     
     centro, filial = get_gestor_context(request.user)
@@ -2333,7 +2409,7 @@ def excluir_curso(request, curso_id):
     """
     Exclui permanentemente um curso do banco de dados.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         messages.error(request, "Sessão expirada.")
         return redirect('login_gestor')
     
@@ -2368,56 +2444,99 @@ def chat_centro(request):
     """
     Interface principal de chat para o gestor do centro responder a alunos.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
-        messages.error(request, "Acesso negado.")
+    if not request.user.is_authenticated:
         return redirect('login_gestor')
     
-    centro_id = request.user.centro_profile.id
+    # Verificação robusta: se tem perfil de centro, é admin ou é aluno (teste), pode entrar
+    tem_centro = hasattr(request.user, 'centro_profile') and request.user.centro_profile is not None
+    is_admin_or_test = request.user.tipo_usuario in ['ADMIN', 'ALUNO']
     
-    centro = get_object_or_404(CentroDeFormacao, id=centro_id, ativo=True)
+    if not (tem_centro or is_admin_or_test):
+        messages.error(request, f"Acesso negado. O seu utilizador ({request.user.email}) não possui um centro de formação associado.")
+        return redirect('login_gestor')
     
-    # Buscar conversas do centro
-    conversas = Conversa.objects.filter(centro=centro, ativa=True).select_related('aluno')
+    try:
+        centro = request.user.centro_profile
+    except AttributeError:
+        # Se for admin sem centro, pegamos o primeiro para visualização
+        centro = CentroDeFormacao.objects.filter(ativo=True).first()
     
-    # Se houver uma conversa específica selecionada
+    # Buscar conversas ativas do centro
+    conversas = Conversa.objects.filter(centro=centro, ativa=True).select_related('aluno__usuario')
+    
+    # Capturar e validar ID da conversa
     conversa_id = request.GET.get('conversa_id')
     conversa_atual = None
     mensagens = []
     
     if conversa_id:
-        conversa_atual = get_object_or_404(Conversa, id=conversa_id, centro=centro)
-        mensagens = Mensagem.objects.filter(conversa=conversa_atual).select_related('remetente_aluno', 'remetente_centro')
+        # Limpar o ID caso venha com lixo (ex: / no final)
+        clean_id = ''.join(filter(str.isdigit, str(conversa_id)))
+        if clean_id:
+            conversa_atual = Conversa.objects.filter(id=clean_id, centro=centro).first()
+            if conversa_atual:
+                mensagens = Mensagem.objects.filter(conversa=conversa_atual).select_related('remetente_aluno', 'remetente_centro').order_by('data_envio')
+    
+    cursos_centro = []
+    if conversa_atual:
+        cursos_centro = conversa_atual.centro.cursos.filter(ativo=True, publicado=True).order_by('-destaque', '-data_criacao')[:6]
     
     context = {
         'centro': centro,
         'conversas': conversas,
         'conversa_atual': conversa_atual,
         'mensagens': mensagens,
+        'cursos_centro': cursos_centro,
     }
+    
+    # Se for um pedido parcial via AJAX para carregar o miolo do chat
+    if request.GET.get('partial') == 'true':
+        return render(request, 'include/dashboard_chat_content.html', context)
+        
     return render(request, 'chat_centro.html', context)
 
+@csrf_exempt
+@require_http_methods(["POST"])
 def enviar_mensagem_centro(request):
     """
-    Endpoint AJAX para o centro enviar uma mensagem de texto em uma conversa.
+    Endpoint para o centro enviar uma mensagem (texto ou imagem) em uma conversa.
+    Suporta FormData para permitir upload de arquivos.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
-        return JsonResponse({'error': 'Não autenticado'}, status=401)
-    
-    centro_id = request.user.centro_profile.id
+    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL', 'ADMIN', 'ALUNO']:
+        return JsonResponse({'error': 'Não autenticado ou permissão insuficiente'}, status=401)
     
     try:
-        data = json.loads(request.body)
-        conversa_id = data.get('conversa_id')
-        mensagem_texto = data.get('mensagem')
+        centro = request.user.centro_profile
         
-        centro = CentroDeFormacao.objects.get(id=centro_id, ativo=True)
+        # Aceita tanto JSON como FormData
+        if request.content_type == 'application/json':
+            data = json.loads(request.body)
+            conversa_id = data.get('conversa_id')
+            mensagem_texto = data.get('mensagem')
+            arquivo = None
+        else:
+            conversa_id = request.POST.get('conversa_id')
+            mensagem_texto = request.POST.get('mensagem', '')
+            arquivo = request.FILES.get('arquivo')
+        
+        if not mensagem_texto and not arquivo:
+            return JsonResponse({'error': 'A mensagem não pode estar vazia'}, status=400)
+            
         conversa = get_object_or_404(Conversa, id=conversa_id, centro=centro)
+        
+        tipo_msg = 'TEXTO'
+        if arquivo:
+            if arquivo.content_type.startswith('image/'):
+                tipo_msg = 'IMAGEM'
+            else:
+                tipo_msg = 'ARQUIVO'
         
         mensagem = Mensagem.objects.create(
             conversa=conversa,
             remetente_centro=centro,
             mensagem=mensagem_texto,
-            tipo='TEXTO'
+            arquivo=arquivo,
+            tipo=tipo_msg
         )
         
         # Atualizar última mensagem da conversa
@@ -2433,11 +2552,58 @@ def enviar_mensagem_centro(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 
+def get_mensagens_ajax(request, conversa_id):
+    """
+    Retorna apenas o fragmento HTML das mensagens de uma conversa para atualização dinâmica.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Não autenticado'}, status=401)
+        
+    term_centro = hasattr(request.user, 'centro_profile') and request.user.centro_profile is not None
+    if not (term_centro or request.user.tipo_usuario in ['ADMIN', 'ALUNO']):
+        return JsonResponse({'error': 'Acesso negado'}, status=403)
+        
+    try:
+        centro = request.user.centro_profile
+    except AttributeError:
+        centro = CentroDeFormacao.objects.filter(ativo=True).first()
+        
+    conversa = get_object_or_404(Conversa, id=conversa_id, centro=centro)
+    mensagens = Mensagem.objects.filter(conversa=conversa).select_related('remetente_aluno', 'remetente_centro').order_by('data_envio')
+    
+    # NOVO: Carregar cursos para o catálogo inicial (sempre presente no topo do fragmento)
+    cursos_centro = conversa.centro.cursos.filter(ativo=True, publicado=True).order_by('-destaque', '-data_criacao')[:6]
+    
+    return render(request, 'include/chat_messages_fragment.html', {
+        'mensagens': mensagens,
+        'conversa_atual': conversa,
+        'cursos_centro': cursos_centro,
+    })
+
+@login_required
+def eliminar_conversa(request, conversa_id):
+    """
+    Remove permanentemente uma conversa e todas as suas mensagens.
+    """
+    if request.user.tipo_usuario == 'ALUNO':
+        centro = CentroDeFormacao.objects.filter(ativo=True).first()
+    else:
+        centro = getattr(request.user, 'centro_profile', None)
+        
+    if not centro:
+        messages.error(request, "Não possui permissão para esta ação.")
+        return redirect('chat_centro')
+        
+    conversa = get_object_or_404(Conversa, id=conversa_id, centro=centro)
+    conversa.delete()
+    messages.success(request, "Conversa removida com sucesso.")
+    return redirect('chat_centro')
+
 def atualizar_status_digitando(request):
     """
     Atualiza o status "digitando" do centro em uma conversa via AJAX.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated:
         return JsonResponse({'error': 'Não autenticado'}, status=401)
     
     centro_id = request.user.centro_profile.id
@@ -2481,7 +2647,7 @@ def buscar_mensagens(request, conversa_id):
     """
     Recupera as mensagens de uma conversa específica para atualização do chat.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated:
         return JsonResponse({'error': 'Não autenticado'}, status=401)
     
     centro_id = request.user.centro_profile.id
@@ -2610,12 +2776,17 @@ def centro_chat_modal(request, centro_id):
                 'digitando': msg.digitando
             })
         
+        # NOVO: Incluir cursos para o catálogo inicial no modal
+        cursos_centro = centro.cursos.filter(ativo=True, publicado=True).order_by('-destaque', '-data_criacao')[:6]
+        cursos_data = [{'titulo': c.titulo, 'url': c.get_absolute_url()} for c in cursos_centro]
+        
         return JsonResponse({
             'success': True,
             'conversa_id': conversa.id,
             'mensagens': mensagens_data,
             'centro_nome': centro.nome,
-            'aluno_nome': aluno.nome
+            'aluno_nome': aluno.nome,
+            'cursos': cursos_data
         })
         
     except Exception as e:
@@ -2625,29 +2796,61 @@ def centro_chat_modal(request, centro_id):
 @require_http_methods(["POST"])
 @login_required
 def enviar_mensagem_centro_modal(request):
-    """Enviar mensagem via modal do perfil do centro"""
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
-        return JsonResponse({'error': 'Não autenticado'}, status=401)
+    """
+    Versão unificada para o aluno enviar mensagens via modal ou página de chat.
+    Suporta JSON (apenas texto) e FormData (texto + multimédia).
+    """
+    if request.user.tipo_usuario != 'ALUNO':
+        return JsonResponse({'error': 'Acesso restrito a alunos'}, status=403)
     
     try:
-        data = json.loads(request.body)
-        conversa_id = data.get('conversa_id')
-        mensagem_texto = data.get('mensagem')
+        conversa_id = None
+        mensagem_texto = ""
+        arquivo = None
+
+        # Tentar obter dados independentemente do Content-Type (mais robusto)
+        if request.content_type and 'application/json' in request.content_type:
+            try:
+                data = json.loads(request.body)
+                conversa_id = data.get('conversa_id')
+                mensagem_texto = data.get('mensagem', '')
+            except:
+                pass
         
+        # Se não veio via JSON, ou se JSON falhou, tentar POST
+        if not conversa_id:
+            conversa_id = request.POST.get('conversa_id')
+            mensagem_texto = request.POST.get('mensagem', '')
+            arquivo = request.FILES.get('arquivo')
+
+        if not conversa_id:
+            print("[CHAT ERROR] conversa_id não encontrado no pedido")
+            return JsonResponse({'success': False, 'error': 'Conversa não especificada'}, status=400)
+
         aluno = request.user.aluno_profile
         conversa = get_object_or_404(Conversa, id=conversa_id, aluno=aluno)
-        
+
+        tipo_msg = 'TEXTO'
+        if arquivo:
+            ext = arquivo.name.split('.')[-1].lower()
+            if ext in ['jpg', 'jpeg', 'png', 'gif', 'webp']:
+                tipo_msg = 'IMAGEM'
+            else:
+                tipo_msg = 'ARQUIVO'
+
         mensagem = Mensagem.objects.create(
             conversa=conversa,
             remetente_aluno=aluno,
             mensagem=mensagem_texto,
-            tipo='TEXTO'
+            arquivo=arquivo,
+            tipo=tipo_msg
         )
         
         # Atualizar última mensagem da conversa
+        from django.utils import timezone
         conversa.ultima_mensagem = timezone.now()
         conversa.save()
-        
+
         return JsonResponse({
             'success': True,
             'mensagem_id': mensagem.id,
@@ -2656,7 +2859,8 @@ def enviar_mensagem_centro_modal(request):
         })
         
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+        print(f"[CHAT ERROR] Erro geral ao enviar: {str(e)}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -2742,7 +2946,14 @@ def buscar_mensagens_modal(request, conversa_id):
             'digitando': True
         })
     
-    return JsonResponse({'mensagens': mensagens_data})
+    # NOVO: Incluir cursos para o catálogo inicial no modal
+    cursos_centro = conversa.centro.cursos.filter(ativo=True, publicado=True).order_by('-destaque', '-data_criacao')[:6]
+    cursos_data = [{'titulo': c.titulo, 'url': c.get_absolute_url()} for c in cursos_centro]
+    
+    return JsonResponse({
+        'mensagens': mensagens_data,
+        'cursos': cursos_data
+    })
 
 
 # --- New Home Views ---
@@ -2811,7 +3022,7 @@ def gerenciar_filiais(request):
     """
     Listagem e gerenciamento de filiais pelo Centro Principal.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated:
         messages.error(request, "Acesso negado. Apenas o gestor principal pode gerir filiais.")
         return redirect('login_gestor')
         
@@ -2829,7 +3040,7 @@ def criar_filial(request):
     """
     Cadastro de uma nova filial pelo Centro Principal.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated:
         return redirect('login_gestor')
         
     centro = request.user.centro_profile
@@ -2840,6 +3051,8 @@ def criar_filial(request):
         senha = request.POST.get('senha')
         endereco = request.POST.get('endereco')
         contato = request.POST.get('contato')
+        lat = request.POST.get('lat')
+        lng = request.POST.get('lng')
         
         try:
             with transaction.atomic():
@@ -2863,7 +3076,9 @@ def criar_filial(request):
                     usuario=usuario_filial,
                     nome=nome,
                     endereco=endereco,
-                    contato=contato
+                    contato=contato,
+                    latitude=lat if lat else None,
+                    longitude=lng if lng else None
                 )
                 
                 messages.success(request, f'Filial "{filial.nome}" criada com sucesso!')
@@ -2880,7 +3095,7 @@ def editar_filial(request, filial_id):
     """
     Edição de uma filial existente pelo Centro Principal.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'GESTOR':
+    if not request.user.is_authenticated:
         return redirect('login_gestor')
         
     centro = request.user.centro_profile
@@ -2888,9 +3103,10 @@ def editar_filial(request, filial_id):
     
     if request.method == 'POST':
         nome = request.POST.get('nome')
-        endereco = request.POST.get('endereco')
         contato = request.POST.get('contato')
         senha = request.POST.get('senha')
+        lat = request.POST.get('lat')
+        lng = request.POST.get('lng')
         
         try:
             with transaction.atomic():
@@ -2898,6 +3114,9 @@ def editar_filial(request, filial_id):
                 filial.nome = nome
                 filial.endereco = endereco
                 filial.contato = contato
+                if lat and lng:
+                    filial.latitude = lat
+                    filial.longitude = lng
                 filial.save()
                 
                 # Atualizar utilizador se nome mudou
@@ -2923,7 +3142,7 @@ def gerenciar_alunos(request):
     """
     Motor de Busca e listagem de todos os alunos inscritos nos cursos do centro/filial.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         return redirect('login_gestor')
         
     centro, filial = get_gestor_context(request.user)
@@ -2961,7 +3180,7 @@ def dossie_aluno(request, aluno_id):
     """
     Visão detalhada (Dossiê) do histórico académico de um aluno no centro/filial atual.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         return redirect('login_gestor')
         
     centro, filial = get_gestor_context(request.user)
@@ -2995,7 +3214,7 @@ def gerenciar_financeiro(request):
     Gestão do fluxo de caixa (mensalidades, taxas de inscrição).
     Gestor vê o global e quebra por filial. Filial vê apenas o seu.
     """
-    if not request.user.is_authenticated or request.user.tipo_usuario not in ['GESTOR', 'GESTOR_FILIAL']:
+    if not request.user.is_authenticated:
         return redirect('login_gestor')
         
     centro, filial = get_gestor_context(request.user)
@@ -3046,4 +3265,43 @@ def gerenciar_financeiro(request):
         'receita_centro_mae': receita_centro_mae,
         'filiais_receita': filiais_receita,
         'pagamentos_recentes': pagamentos_recentes
+    })
+@login_required
+def listar_anuncios(request):
+    """Listagem de anúncios do centro para o gestor"""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
+        
+    anuncios = centro.anuncios.all().order_by('-data_publicacao')
+    
+    return render(request, 'gestor/anuncios/listar.html', {
+        'centro': centro,
+        'anuncios': anuncios
+    })
+
+@login_required
+def criar_anuncio(request):
+    """Criação de um novo anúncio institucional"""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
+        
+    if request.method == 'POST':
+        from .forms import AnuncioForm
+        form = AnuncioForm(request.POST, request.FILES)
+        if form.is_valid():
+            anuncio = form.save(commit=False)
+            anuncio.centro = centro
+            anuncio.save()
+            messages.success(request, 'Anúncio publicado com sucesso! Os seus seguidores foram notificados.')
+            return redirect('listar_anuncios')
+    else:
+        from .forms import AnuncioForm
+        form = AnuncioForm()
+        
+    return render(request, 'gestor/anuncios/form.html', {
+        'centro': centro,
+        'form': form,
+        'title': 'Novo Anúncio'
     })

@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -17,7 +18,6 @@
     <style>
         .title .category-name {
             color: #3f80ea;
-            /* Cor azul moderna */
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -37,26 +37,41 @@
             background-color: #3f80ea;
             border-radius: 3px;
         }
+
+        /* ApexCharts Overrides */
+        .apexcharts-canvas {
+            margin: 0 auto;
+        }
+        .chart-container {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        body.active-dark-mode .chart-container {
+            background: #1a1a2e;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        /* Swiper Custom Navigation */
+        .swiper-button-next, .swiper-button-prev {
+            background: var(--color-white);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            box-shadow: var(--shadow-1);
+            color: var(--color-primary);
+        }
+        .swiper-button-next::after, .swiper-button-prev::after {
+            font-size: 18px;
+            font-weight: bold;
+        }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
 
 <body>
-    <div id="my_switcher" class="my_switcher">
-        <ul>
-            <li>
-                <a href="javascript: void(0);" data-theme="light" class="setColor light">
-                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode">
-                        Light</span>
-                </a>
-            </li>
-            <li>
-                <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
-                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span
-                        title="Dark Mode"> Dark</span>
-                </a>
-            </li>
-        </ul>
-    </div>
 
     {% include 'include/header.html' %}
 
@@ -67,96 +82,91 @@
     <a class="close_side_menu" href="javascript:void(0);"></a>
 
     <!-- Modal de Chat Avançado -->
+    {% if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO' %}
     <div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content rbt-shadow-box rbt-gradient-border">
-                <div class="modal-header bg-main-600 text-white">
+            <div class="modal-content rbt-shadow-box rbt-gradient-border" style="border: none; overflow: hidden; border-radius: 16px;">
+                <div class="modal-header" style="background: linear-gradient(90deg, #3f80ea, #5e97f3); color: white; padding: 20px; border: none;">
                     <h5 class="modal-title" id="chatModalLabel">
                         <i class="feather-message-circle me-2"></i>
-                        Chat com <span id="centro-chat-nome">{{ centro.nome }}</span>
+                        Chat com <span id="centro-chat-nome">{{centro.nome}}</span>
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-0">
                     <!-- Chat Container -->
-                    <div class="chat-container" style="height: 500px;">
-                        <!-- Header do Chat -->
-                        <div class="chat-header bg-main-50 p-3 border-bottom">
+                    <div class="chat-container" style="height: 550px; display: flex; flex-direction: column;">
+                        <!-- Header do Chat Informativo -->
+                        <div class="chat-header p-3 border-bottom d-flex align-items-center justify-content-between" style="background: #fdfdfd;">
                             <div class="d-flex align-items-center">
                                 <div class="chat-avatar me-3">
                                     {% if centro.perfil.imagem %}
-                                    <img src="{{ centro.perfil.imagem.url }}" alt="{{ centro.nome }}"
-                                        class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+                                    <img src="{{centro.perfil.imagem.url}}" alt="{{centro.nome}}"
+                                        class="rounded-circle shadow-sm" style="width: 45px; height: 45px; object-fit: cover; border: 2px solid white;">
                                     {% else %}
-                                    <div class="rounded-circle bg-main-600 text-white d-flex align-items-center justify-content-center fw-bold"
-                                        style="width: 50px; height: 50px; font-size: 20px;">
+                                    <div class="rounded-circle bg-main-600 text-white d-flex align-items-center justify-content-center fw-bold shadow-sm"
+                                        style="width: 45px; height: 45px; font-size: 18px;">
                                         {{ centro.nome|first }}
                                     </div>
                                     {% endif %}
                                 </div>
                                 <div class="chat-info">
-                                    <h6 class="mb-0 text-main-600">{{ centro.nome }}</h6>
-                                    <small class="text-muted" id="chat-status">
-                                        <span class="status-dot bg-success"></span> Online
+                                    <h6 class="mb-0" style="color: #1c2132; font-weight: 700;">{{centro.nome}}</h6>
+                                    <small class="text-success d-flex align-items-center gap-1" style="font-size: 11px; font-weight: 600;">
+                                        <span class="status-dot bg-success" style="width: 7px; height: 7px;"></span> Especialista Online
                                     </small>
                                 </div>
+                            </div>
+                            <div class="chat-options">
+                                <span class="badge bg-primary-opacity py-2 px-3 rounded-pill text-primary fw-bold" style="font-size: 10px;">RESPOSTA RÁPIDA</span>
                             </div>
                         </div>
 
                         <!-- Área de Mensagens -->
-                        <div class="chat-messages p-3" id="chat-messages"
-                            style="height: 350px; overflow-y: auto; background: #f8f9fa;">
+                        <div class="chat-messages p-4 flex-grow-1" id="chat-messages"
+                            style="overflow-y: auto; background-color: #f0f2f5; background-image: url('https://www.transparenttextures.com/patterns/cubes.png');">
 
                             <!-- Mensagens serão carregadas aqui via JavaScript -->
                             <div class="text-center py-5" id="loading-messages">
-                                <div class="spinner-border text-main-600" role="status">
+                                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
                                     <span class="visually-hidden">Carregando...</span>
                                 </div>
-                                <p class="mt-2 text-muted">Carregando conversa...</p>
+                                <p class="mt-3 fw-bold text-muted">A preparar a tua conversa segura...</p>
                             </div>
                         </div>
 
                         <!-- Indicador de Digitando -->
-                        <div class="chat-typing-indicator px-3 py-2" id="typing-indicator" style="display: none;">
+                        <div class="chat-typing-indicator px-4 py-2" id="typing-indicator" style="display: none; background: rgba(240, 242, 245, 0.8);">
                             <div class="d-flex align-items-center">
                                 <div class="typing-animation me-2">
-                                    <span></span>
-                                    <span></span>
-                                    <span></span>
+                                    <span></span><span></span><span></span>
                                 </div>
-                                <small class="text-muted" id="typing-text">{{ centro.nome }} está digitando...</small>
+                                <small class="text-muted fw-bold" style="font-size: 11px;">O centro está a responder...</small>
                             </div>
                         </div>
 
-                        <!-- Input de Mensagem -->
-                        <div class="chat-input p-3 border-top bg-white">
-                            <form id="chat-form" class="d-flex align-items-center gap-2">
+                        <!-- Chat Input (Fundo vibrante) -->
+                        <div class="chat-input p-3 bg-white border-top shadow-lg">
+                            <form id="chat-form" class="d-flex align-items-center gap-3">
                                 <input type="hidden" id="conversa-id">
-
-                                <!-- Anexos -->
-                                <div class="chat-actions">
-                                    <button type="button" class="btn btn-sm btn-outline-main rounded-circle"
-                                        data-bs-toggle="tooltip" title="Anexar arquivo">
-                                        <i class="feather-paperclip"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-main rounded-circle"
-                                        data-bs-toggle="tooltip" title="Enviar imagem">
-                                        <i class="feather-image"></i>
+                                
+                                <div class="attachment-btns d-flex gap-2">
+                                    <button type="button" class="btn btn-icon btn-light rounded-circle shadow-sm" title="Anexar">
+                                        <i class="feather-paperclip" style="color: #3f80ea;"></i>
                                     </button>
                                 </div>
 
-                                <!-- Input de texto -->
-                                <div class="flex-grow-1">
-                                    <input type="text" id="chat-input" class="form-control border-main-200 rounded-pill"
-                                        placeholder="Digite sua mensagem..." autocomplete="off"
+                                <div class="flex-grow-1 position-relative">
+                                    <input type="text" id="chat-input" class="form-control rounded-pill border-0 px-4 py-3 shadow-none"
+                                        style="background: #f0f2f5; font-size: 14px; font-weight: 500;"
+                                        placeholder="Escreve a tua mensagem aqui..." autocomplete="off"
                                         onkeydown="handleChatTyping(event)" onkeyup="stopChatTyping()">
                                 </div>
 
-                                <!-- Botão enviar -->
-                                <button type="submit" class="btn btn-main rounded-circle"
-                                    style="width: 45px; height: 45px;">
-                                    <i class="feather-send"></i>
+                                <button type="submit" class="btn btn-primary rounded-circle shadow-lg"
+                                    style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; transition: transform 0.2s;">
+                                    <i class="feather-send" style="font-size: 20px;"></i>
                                 </button>
                             </form>
                         </div>
@@ -165,17 +175,28 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
     <!-- Botão Flutuante do Chat -->
     <div class="chat-floating-btn" id="chat-floating-btn">
-        <button class="btn btn-main rounded-pill shadow-lg d-flex align-items-center gap-2" data-bs-toggle="modal"
+        {% if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO' %}
+        <button class="btn btn-primary rounded-pill shadow-lg d-flex align-items-center gap-2" data-bs-toggle="modal"
             data-bs-target="#chatModal" onclick="iniciarChat({{ centro.id }})">
+            <div class="chat-pulse mr--10"></div>
             <i class="feather-message-circle"></i>
-            <span>Conversar</span>
+            <span>Conversar agora</span>
         </button>
+        {% else %}
+        <a href="{% url 'login_aluno' %}?next={{request.path}}" class="btn btn-dark rounded-pill shadow-lg d-flex align-items-center gap-2">
+            <i class="feather-lock"></i>
+            <span>Login para conversar</span>
+        </a>
+        {% endif %}
 
-        <!-- Notificação de novas mensagens -->
-        <span class="chat-notification badge bg-danger" id="chat-notification" style="display: none;">1</span>
+        <!-- Notificação de novas mensagens (se logado) -->
+        {% if request.user.is_authenticated %}
+        <span class="chat-notification badge bg-danger" id="chat-notification" style="display: none; border: 2px solid white;">1</span>
+        {% endif %}
     </div>
 
     <style>
@@ -342,12 +363,16 @@
     <script>
         // Variáveis globais do chat
         let chatConversaId = null;
-        let chatSocket = null;
+        let chatSocket = null; // WebSocket desativado
+        let chatPollingInterval = null; // NOVO: Motor de Polling
         let chatTypingTimer = null;
         let chatIsTyping = false;
 
         // Iniciar chat quando o modal é aberto
         function iniciarChat(centroId) {
+            // Parar polling anterior se existir
+            if (chatPollingInterval) clearInterval(chatPollingInterval);
+
             // Mostrar loading
             document.getElementById('loading-messages').style.display = 'block';
             document.getElementById('chat-messages').innerHTML = '<div id="loading-messages" class="text-center py-5"><div class="spinner-border text-main-600" role="status"><span class="visually-hidden">Carregando...</span></div><p class="mt-2 text-muted">Carregando conversa...</p></div>';
@@ -360,8 +385,13 @@
                         chatConversaId = data.conversa_id;
                         document.getElementById('conversa-id').value = chatConversaId;
 
-                        // Iniciar WebSocket
-                        iniciarWebSocket();
+                        // Iniciar WebSocket (Desativado temporariamente)
+                        // iniciarWebSocket();
+
+                        // Iniciar Motor de Polling (Tempo Real via HTTP)
+                        chatPollingInterval = setInterval(() => {
+                            carregarMensagensChat();
+                        }, 5000);
 
                         // Carregar mensagens iniciais
                         carregarMensagensIniciais(data.mensagens);
@@ -519,8 +549,31 @@
                     if (loading) loading.style.display = 'none';
 
                     container.innerHTML = '';
-                    let hasTyping = false;
+                    
+                    // NOVO: Renderizar catálogo de cursos se houver
+                    if (data.cursos && data.cursos.length > 0) {
+                        let catalogHtml = '<div class="welcome-catalog-modal mb-4 p-2 bg-light rounded-3">';
+                        catalogHtml += '<div class="d-flex align-items-center gap-2 mb-2 px-1">';
+                        catalogHtml += '<i class="ki-filled ki-shop text-primary fs-6"></i>';
+                        catalogHtml += '<span class="fw-bold text-dark small">Nossos Cursos</span>';
+                        catalogHtml += '</div>';
+                        catalogHtml += '<div class="d-flex overflow-auto gap-2 pb-1" style="scrollbar-width: none; -ms-overflow-style: none;">';
+                        
+                        data.cursos.forEach(curso => {
+                            catalogHtml += `
+                                <a href="${curso.url}" target="_blank" 
+                                   class="badge rounded-pill bg-white border border-primary border-opacity-25 text-dark fw-medium p-2 px-3 text-decoration-none shadow-sm hover-elevate d-flex align-items-center gap-2"
+                                   style="min-width: fit-content; white-space: nowrap;">
+                                    <i class="ki-filled ki-book-open text-primary fs-8"></i>
+                                    ${curso.titulo}
+                                </a>`;
+                        });
+                        
+                        catalogHtml += '</div></div>';
+                        container.innerHTML = catalogHtml;
+                    }
 
+                    let hasTyping = false;
                     data.mensagens.forEach(msg => {
                         const messageDiv = document.createElement('div');
                         messageDiv.className = `chat-message ${msg.is_centro ? 'received' : 'sent'}`;
@@ -735,12 +788,12 @@
                                             {% if centro.perfil.imagem %}
                                             <span class="image"
                                                 style="width: 70px; height: 70px; border-radius: 50%; overflow: hidden; padding: 5px; background-color: #fff; border: 2px solid #0d6efd; box-shadow: 0 0 8px rgba(0, 0, 0, 0.15); display: flex; align-items: center; justify-content: center;">
-                                                <img src="{{ centro.perfil.imagem.url }}" alt="Logo do Centro"
+                                                <img src="{{centro.perfil.imagem.url}}" alt="Logo do Centro"
                                                     class="img-fluid"
                                                     style="width: 100%; height: 100%; object-fit: cover;">
                                             </span>
                                             {% endif %}
-                                            <strong class="ms-2">{{ centro.nome|striptags }}</strong>
+                                            <strong class="ms-2">{{centro.nome|striptags}}</strong>
                                         </span>
                                         {% if centro.perfil.verificado %}
                                         <span class="rbt-badge-2 bg-success">
@@ -759,18 +812,16 @@
                                         <a href="#"><i class="fa fa-star"></i></a>
                                     </div>
                                     <div class="feature-sin total-rating">
-                                        <a class="rbt-badge-4" href="#">{{ centro.perfil.total_avaliacoes|default:"215"
-                                            }} avaliações</a>
+                                        <a class="rbt-badge-4" href="#">{{centro.perfil.total_avaliacoes|default:"215"}} avaliações</a>
                                     </div>
                                     <div class="feature-sin total-student">
-                                        <span>{{ centro.perfil.total_seguidores|default:"1.247" }} seguidores</span>
+                                        <span>{{seguidores_count|default:"0"}} seguidores</span>
                                     </div>
                                     <div class="feature-sin total-courses">
-                                        <span>{{ centro.cursos.count }} cursos ativos</span>
+                                        <span>{{centro.cursos.count}} cursos ativos</span>
                                     </div>
                                 </div>
-                                <h2 class="title theme-gradient">Seja bem-vindo ao perfil do centro <strong>{{
-                                        centro.nome }}</strong>!</h2>
+                                <h2 class="title theme-gradient">Seja bem-vindo ao perfil do centro <strong>{{centro.nome}}</strong>!</h2>
 
                                 <div class="rbt-author-meta mb--20">
                                     <div class="rbt-author-info">
@@ -780,15 +831,13 @@
                                         </span>
                                         <div class="mt-2">
                                             <p class="text-muted" id="descricao-centro">
-                                                {{ centro.perfil.descricao|default:"Centro de formação profissional
+                                                {{centro.perfil.descricao|default:"Centro de formação profissional
                                                 especializado em tecnologia e gestão. Oferecemos cursos certificados com
-                                                metodologia prática e orientação para o mercado de
-                                                trabalho."|slice:":200" }}...
-                                                <span id="mais-descricao" style="display: none;">{{
-                                                    centro.perfil.descricao|default:"Nossa missão é transformar vidas
+                                                metodologia prática e orientação para o mercado detrabalho."|slice:":200"}}...
+                                                 <span id="mais-descricao" style="display: none;">{{centro.perfil.descricao|default:"Nossa missão é transformar vidas
                                                     através da educação de qualidade, preparando profissionais para os
                                                     desafios do mercado atual. Com mais de 15 anos de experiência, já
-                                                    formamos mais de 10.000 alunos."|slice:"200:" }}</span>
+                                                    formamos mais de 10.000 alunos."|slice:"200:"}}</span>
                                             </p>
                                             <button class="btn btn-sm btn-outline-primary" id="btn-ver-mais"
                                                 onclick="verMaisDescricao()">Ver mais</button>
@@ -797,14 +846,11 @@
                                 </div>
 
                                 <ul class="rbt-meta">
-                                    <li><i class="feather-calendar"></i>Fundado em {{
-                                        centro.perfil.ano_fundacao|default:"2008" }}</li>
-                                    <li><i class="feather-map-pin"></i>{{ centro.endereco|default:"Luanda, Angola" }}
+                                    <li><i class="feather-calendar"></i>Fundado em {{centro.perfil.ano_fundacao|default:"2008"}}</li>
+                                    <li><i class="feather-map-pin"></i>{{ centro.endereco|default:"Luanda, Angola"}}
                                     </li>
-                                    <li><i class="feather-award"></i>{{ centro.perfil.certificacoes|default:"Certificado
-                                        DGERT" }}</li>
-                                    <li><i class="feather-briefcase"></i>{{
-                                        centro.perfil.taxa_empregabilidade|default:"87%" }} de empregabilidade</li>
+                                    <li><i class="feather-award"></i>{{centro.perfil.certificacoes|default:"Certificado DGERT" }}</li>
+                                    <li><i class="feather-briefcase"></i>{{centro.perfil.taxa_empregabilidade|default:"87%"}} de empregabilidade</li>
                                 </ul>
                             </div>
                         </div>
@@ -903,6 +949,27 @@
                                             </button>
                                         </div>
 
+                                        <!-- Botão Seguir Centro -->
+                                        <div class="follow-btn mt--15">
+                                            {% if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO' %}
+                                                <button id="btn-seguir-centro" 
+                                                        class="rbt-btn w-100 d-block text-center icon-hover {% if aluno_segue %}btn-secondary{% else %}btn-gradient{% endif %}"
+                                                        onclick="toggleSeguimento({{ centro.id }})">
+                                                    <span class="btn-text">{% if aluno_segue %}Seguindo{% else %}Seguir Centro{% endif %}</span>
+                                                    <span class="btn-icon"><i class="{% if aluno_segue %}feather-check{% else %}feather-plus{% endif %}"></i></span>
+                                                </button>
+                                            {% else %}
+                                                <a href="{% url 'login_aluno' %}?next={{ request.path }}" 
+                                                   class="rbt-btn btn-gradient w-100 d-block text-center icon-hover">
+                                                    <span class="btn-text">Entrar para Seguir</span>
+                                                    <span class="btn-icon"><i class="feather-user-plus"></i></span>
+                                                </a>
+                                            {% endif %}
+                                            <div class="text-center mt--10">
+                                                <small class="text-muted"><i class="feather-users me-1"></i> <span id="count-seguidores">{{ seguidores_count|default:0 }}</span> seguidores</small>
+                                            </div>
+                                        </div>
+
                                         <!-- Garantia -->
                                         <div class="text-center mt--20">
                                             <span class="subtitle">
@@ -977,30 +1044,29 @@
                                         <div class="rbt-widget-details mt--30">
                                             <h6 class="title mb--20">Nossa Filosofia</h6>
                                             <div class="values-section">
+                                                {% if perfil.missao %}
                                                 <div class="value-item mb--15">
                                                     <h6 class="value-title"><i
                                                             class="feather-target text-primary me-2"></i>Missão</h6>
-                                                    <p class="value-text small">{{
-                                                        centro.perfil.missao|default:"Proporcionar educação de qualidade
-                                                        que transforme vidas e prepare profissionais para os desafios do
-                                                        mercado de trabalho angolano." }}</p>
+                                                    <p class="value-text small">{{ perfil.missao }}</p>
                                                 </div>
+                                                {% endif %}
+                                                
+                                                {% if perfil.visao %}
                                                 <div class="value-item mb--15">
                                                     <h6 class="value-title"><i
                                                             class="feather-eye text-success me-2"></i>Visão</h6>
-                                                    <p class="value-text small">{{ centro.perfil.visao|default:"Ser
-                                                        referência em formação profissional em Angola, reconhecida pela
-                                                        excelência no ensino e pelo sucesso dos nossos formandos." }}
-                                                    </p>
+                                                    <p class="value-text small">{{ perfil.visao }}</p>
                                                 </div>
+                                                {% endif %}
+                                                
+                                                {% if perfil.valores %}
                                                 <div class="value-item">
                                                     <h6 class="value-title"><i
                                                             class="feather-heart text-danger me-2"></i>Valores</h6>
-                                                    <p class="value-text small">{{
-                                                        centro.perfil.valores|default:"Qualidade, Inovação, Compromisso
-                                                        com o Sucesso do Aluno, Responsabilidade Social e Excelência
-                                                        Profissional." }}</p>
+                                                    <p class="value-text small">{{ perfil.valores }}</p>
                                                 </div>
+                                                {% endif %}
                                             </div>
                                         </div>
 
@@ -1171,41 +1237,144 @@
                                     <div class="rbt-show-more-btn">Mostrar Mais</div>
                                 </div>
 
-                                <!-- Estatísticas -->
+                                <!-- Estatísticas e Crescimento (Gráficos de Montanha) -->
                                 <div class="rbt-course-feature-box rbt-shadow-box mt--30" id="estatisticas">
-                                    <div class="section-title">
-                                        <h4 class="rbt-title-style-3">Nossos Números</h4>
+                                    <div class="section-title text-center mb--30">
+                                        <h4 class="rbt-title-style-3 mb-0">Métricas de Impacto e Alcance</h4>
+                                        <p class="small">Acompanhe a nossa trajetória de crescimento e compromisso </p>
                                     </div>
-                                    <div class="row text-center g-4">
-                                        <div class="col-md-3 col-6">
-                                            <div class="stat-item">
-                                                <h3 class="text-primary mb-1">{{ centro.cursos.count }}+</h3>
-                                                <p class="small mb-0">Cursos Ativos</p>
+                                    
+                                    <div class="row g-4">
+                                        <!-- Gráfico de Alunos -->
+                                        <div class="col-lg-6">
+                                            <div class="chart-container-mini" style="background: rgba(108, 32, 240, 0.02); border-radius: 12px; padding: 15px; border: 1px solid rgba(108, 32, 240, 0.1);">
+                                                <h6 class="mb--10" style="font-size: 13px;"><i class="feather-trending-up theme-gradient"></i> Inscrições</h6>
+                                                <div id="alunosChart" style="min-height: 200px;"></div>
                                             </div>
                                         </div>
-                                        <div class="col-md-3 col-6">
-                                            <div class="stat-item">
-                                                <h3 class="text-success mb-1">{{
-                                                    centro.perfil.total_alunos_formados|default:"10.000" }}+</h3>
-                                                <p class="small mb-0">Alunos Formados</p>
+                                        
+                                        <!-- Gráfico de Seguidores -->
+                                        <div class="col-lg-6">
+                                            <div class="chart-container-mini" style="background: rgba(236, 72, 153, 0.02); border-radius: 12px; padding: 15px; border: 1px solid rgba(236, 72, 153, 0.1);">
+                                                <h6 class="mb--10" style="font-size: 13px;"><i class="feather-users theme-gradient"></i> Seguidores</h6>
+                                                <div id="seguidoresChart" style="min-height: 200px;"></div>
                                             </div>
                                         </div>
+                                    </div>
+
+                                    {% if estatisticas %}
+                                    <div class="row text-center g-4 mt--20 border-top pt--20">
+                                        {% for stat in estatisticas %}
                                         <div class="col-md-3 col-6">
                                             <div class="stat-item">
-                                                <h3 class="text-warning mb-1">{{
-                                                    centro.perfil.taxa_empregabilidade|default:"87%" }}</h3>
-                                                <p class="small mb-0">Taxa de Empregabilidade</p>
+                                                <h3 class="text-primary mb-1" style="font-size: 20px;">{{ stat.valor }}</h3>
+                                                <p class="small mb-0" style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #888;">{{ stat.titulo }}</p>
                                             </div>
                                         </div>
-                                        <div class="col-md-3 col-6">
-                                            <div class="stat-item">
-                                                <h3 class="text-info mb-1">{{ centro.perfil.ano_fundacao|default:"15"
-                                                    }}+</h3>
-                                                <p class="small mb-0">Anos de Experiência</p>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        const commonOptions = {
+                                            chart: {
+                                                type: 'area',
+                                                height: 180,
+                                                toolbar: { show: false },
+                                                sparkline: { enabled: false }
+                                            },
+                                            dataLabels: { enabled: false },
+                                            stroke: { curve: 'smooth', width: 2 },
+                                            fill: {
+                                                type: 'gradient',
+                                                gradient: {
+                                                    shadeIntensity: 1,
+                                                    opacityFrom: 0.45,
+                                                    opacityTo: 0.05,
+                                                    stops: [20, 100, 100, 100]
+                                                }
+                                            },
+                                            xaxis: {
+                                                categories: {{ chart_labels|safe }},
+                                                labels: { show: true, style: { fontSize: '10px' } },
+                                                axisBorder: { show: false },
+                                                axisTicks: { show: false }
+                                            },
+                                            yaxis: { show: false },
+                                            grid: { show: false }
+                                        };
+
+                                        // Gráfico de Alunos
+                                        new ApexCharts(document.querySelector("#alunosChart"), {
+                                            ...commonOptions,
+                                            series: [{ name: 'Inscrições', data: {{ chart_alunos_values|safe }} }],
+                                            colors: ['#6c20f0']
+                                        }).render();
+
+                                        // Gráfico de Seguidores
+                                        new ApexCharts(document.querySelector("#seguidoresChart"), {
+                                            ...commonOptions,
+                                            series: [{ name: 'Seguidores', data: {{ chart_seguidores_values|safe }} }],
+                                            colors: ['#ec4899']
+                                        }).render();
+                                    });
+                                </script>
+
+                                <!-- Eventos do Centro -->
+                                {% if eventos %}
+                                <div class="rbt-course-feature-box rbt-shadow-box mt--30" id="eventos">
+                                    <div class="section-title mb--20">
+                                        <h4 class="rbt-title-style-3 mb-0">Próximos Eventos</h4>
+                                    </div>
+                                    <div class="row g-5">
+                                        {% for evento in eventos %}
+                                        <div class="col-lg-6 col-md-6 col-12">
+                                            <div class="rbt-card variation-01 rbt-hover" style="height: 100%;">
+                                                <div class="rbt-card-img" style="height: 140px;">
+                                                    {% if evento.imagem %}
+                                                    <img src="{{ evento.imagem.url }}" alt="{{ evento.titulo }}" style="height: 100%; object-fit: cover;">
+                                                    {% else %}
+                                                    <div class="bg-primary-opacity d-flex align-items-center justify-content-center h-100">
+                                                        <i class="feather-calendar text-primary" style="font-size: 40px;"></i>
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="rbt-card-body p-4">
+                                                    <div class="rbt-card-top mb-1">
+                                                        <span class="badge bg-primary-opacity text-primary" style="font-size: 10px;">{{ evento.get_tipo_display }}</span>
+                                                    </div>
+                                                    <h6 class="rbt-card-title mb-2" style="font-size: 15px;"><a href="#">{{ evento.titulo }}</a></h6>
+                                                    <div class="rbt-meta small" style="font-size: 12px;">
+                                                        <span class="me-2"><i class="feather-calendar me-1"></i>{{ evento.data_inicio|date:"d M" }}</span>
+                                                        <span><i class="feather-map-pin me-1"></i>{{ evento.local|truncatechars:15 }}</span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
+                                        {% endfor %}
                                     </div>
                                 </div>
+                                {% endif %}
+
+                                <!-- Galeria de Fotos -->
+                                {% if galeria %}
+                                <div class="rbt-course-feature-box rbt-shadow-box mt--30" id="galeria">
+                                    <div class="section-title">
+                                        <h4 class="rbt-title-style-3">Galeria do Centro</h4>
+                                    </div>
+                                    <div class="row g-3">
+                                        {% for foto in galeria %}
+                                        <div class="col-lg-4 col-md-6 col-6">
+                                            <div class="gallery-item-image rbt-radius overflow-hidden" style="height: 140px; cursor: pointer;">
+                                                <img src="{{ foto.imagem.url }}" alt="{{ foto.titulo }}" class="w-100 h-100" style="object-fit: cover; transition: 0.3s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -1283,13 +1452,13 @@
 
 
 
-    <div class="rbt-team-area bg-color-white rbt-section-gap">
+    <div class="rbt-team-area bg-color-white rbt-section-gap" id="formadores">
         <div class="container">
             <div class="row mb--60">
                 <div class="col-lg-12">
                     <div class="section-title text-center">
-                        <h2 class="title">Formadores que inspiram!</h2>
-                        <p class="description">Conheça nossa equipe de instrutores especializados do {{ centro.nome }}
+                        <h2 class="title">Expertise em Destaque</h2>
+                        <p class="description">Liderança e conhecimento: Conheça os especialistas que guiam o {{ centro.nome }}
                         </p>
                     </div>
                 </div>
@@ -1450,188 +1619,138 @@
 
 
 
+    <!-- Start Course Categories Section -->
     <div class="rbt-categories-area bg-color-extra2 rbt-section-gap">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
                     <div class="section-title text-center mb--40">
-                        <h2 class="title">Nossas categorias de Cursos</h2>
+                        <span class="subtitle bg-primary-opacity">📚 {% trans "Explore Áreas de Formação" %}</span>
+                        <h2 class="title">{% trans "Especialidades da Instituição" %}</h2>
+                        <p class="description mt--10">{% trans "Escolha uma área para ver os cursos específicos deste centro." %}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="swiper category-activation-one rbt-arrow-between icon-bg-gray gutter-swiper-30 ptb--20">
-                <div class="swiper-wrapper">
-                    {% for grupo in cursos_por_categoria %}
-                    <!-- Box de Categoria -->
-                    <div class="swiper-slide">
-                        <div class="single-slide">
-                            <a class="rbt-cat-box rbt-cat-box-1 text-center"
-                                href="{% url 'cursos_por_categoria' grupo.categoria.slug %}">
-                                <div class="inner">
-                                    <div class="icons">
-                                        <img src="{{ grupo.categoria.imagem.url }}" alt="{{ grupo.categoria.nome }}">
-                                    </div>
-                                    <div class="content">
-                                        <h5 class="title">{{ grupo.categoria.nome }}</h5>
-                                        <div class="read-more-btn">
-                                            <span class="rbt-btn-link">{{ grupo.cursos|length }} Cursos<i
-                                                    class="feather-arrow-right"></i></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
+            <div class="row g-4">
+                {% for item in cursos_por_categoria %}
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <a href="{% url 'catalogo_cursos' %}?centro={{ centro.id }}&categoria={{ item.categoria.id }}" 
+                       class="rbt-cat-box variation-3 text-center p-5 h-100 d-flex flex-column align-items-center justify-content-center hvr-up"
+                       style="border: 1px solid var(--color-border); border-radius: 16px; background: var(--color-white); box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+                        <div class="inner w-100">
+                            <div class="icons mb--20">
+                                {% if item.categoria.imagem %}
+                                    <img src="{{ item.categoria.imagem.url }}" alt="{{ item.categoria.nome }}" style="width: 50px; height: 50px; object-fit: contain;">
+                                {% else %}
+                                    <i class="feather-book-open text-primary" style="font-size: 40px;"></i>
+                                {% endif %}
+                            </div>
+                            <div class="content">
+                                <h5 class="title mb-1" style="font-size: 18px; font-weight: 700; color: var(--color-heading);">{{ item.categoria.nome }}</h5>
+                                <span class="read-more-btn font-system fw-bold text-primary" style="font-size: 13px;">{{ item.total_cursos }} {% trans "Cursos" %} <i class="feather-arrow-right"></i></span>
+                            </div>
                         </div>
-                    </div>
-                    {% endfor %}
+                    </a>
                 </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- End Course Categories Section -->
 
-                <!-- Navegação do Swiper -->
-                <div class="rbt-swiper-arrow rbt-arrow-left">
-                    <div class="custom-overfolow">
-                        <i class="rbt-icon feather-arrow-left"></i>
-                        <i class="rbt-icon-top feather-arrow-left"></i>
+
+
+    <!-- Start All Courses Grid -->
+    <div class="rbt-course-area bg-color-white rbt-section-gap" id="todos-os-cursos">
+        <div class="container">
+            <div class="row mb--60 align-items-end">
+                <div class="col-lg-12">
+                    <div class="section-title text-center">
+                        <span class="subtitle bg-secondary-opacity">🎯 {% trans "Oferta Formativa Global" %}</span>
+                        <h2 class="title">{% trans "Portfólio de Formação" %}</h2>
+                        <p class="description">{% trans "Explore todos os cursos disponíveis nesta instituição de excelência." %}</p>
                     </div>
                 </div>
-
-                <div class="rbt-swiper-arrow rbt-arrow-right">
-                    <div class="custom-overfolow">
-                        <i class="rbt-icon feather-arrow-right"></i>
-                        <i class="rbt-icon-top feather-arrow-right"></i>
+            </div>
+            
+            <div class="row g-5 mt--30">
+                <div class="col-lg-12">
+                    <div class="swiper course-swiper-activation rbt-arrow-between pb--60">
+                        <div class="swiper-wrapper">
+                            {% for curso in todos_os_cursos %}
+                            <div class="swiper-slide">
+                                {% include 'components/curso_card.html' with curso=curso %}
+                            </div>
+                            {% empty %}
+                            <div class="col-lg-12 text-center py-5">
+                                <div class="rbt-empty-box p-5 border-radius-10" style="border: 2px dashed var(--color-border);">
+                                    <i class="feather-frown display-3 text-muted mb--20"></i>
+                                    <h4>{% trans "Nenhum curso publicado de momento." %}</h4>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="rbt-swiper-arrow">
+                            <div class="swiper-button-next"><i class="feather-arrow-right"></i></div>
+                            <div class="swiper-button-prev"><i class="feather-arrow-left"></i></div>
+                        </div>
+                        <div class="swiper-pagination"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <!-- End All Courses Grid -->
 
-    <div class="rbt-related-course-area bg-color-white rbt-section-gap">
-        {% for grupo in cursos_por_categoria %}
-        <div class="container category-courses-section">
-            <div style="margin-bottom: 10px;" class="mt--80">
-                <div class="rbt-brand-title-wrap">
-                    <h5 class="rbt-brand-title w-600 text-center mb-0">Descubra <span class="theme-gradient">cursos
-                            exclusivos</span> sobre <span class="theme-gradient">{{ grupo.categoria.nome }}</span></h5>
+    {% if depoimentos %}
+    <div class="rbt-testimonial-area bg-color-white rbt-section-gap" id="depoimentos">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="section-title text-center">
+                        <h2 class="title">Vozes do Sucesso: A Experiência dos Alunos</h2>
+                        <p class="description">Trajetórias de transformação real contadas por quem viveu a experiência no {{ centro.nome }}.</p>
+                    </div>
                 </div>
             </div>
-
-            <hr class="category-divider">
-
-            <div class="swiper swiper-category-{{ forloop.counter }}">
-                <div class="swiper-wrapper">
-                    {% for curso in grupo.cursos %}
-                    <div class="col-lg-3 col-md-4 col-sm-6 col-12 px-2"> <!-- espaçamento externo -->
-                        <div class="rbt-card variation-01 rbt-hover"
-                            style="min-height: 370px; border-radius: 12px; overflow: hidden;">
-
-                            <!-- Imagem -->
-                            <div class="rbt-card-img" style="height: 180px; overflow: hidden;">
-                                <a href="{% url 'curso_detalhe' id=curso.id %}">
-                                    <img src="{{curso.imagem.url}}" alt="{{curso.titulo}}"
-                                        style="width: 100%; height: 100%; object-fit: cover;">
-                                    <div class="rbt-badge-3 bg-white">
-                                        <span>-10%</span>
-                                        <span>Off</span>
-                                    </div>
-                                </a>
+            <div class="row g-5 mt--20">
+                {% for depoimento in depoimentos %}
+                <div class="col-lg-4 col-md-6 col-12">
+                    <div class="rbt-testimonial-box rbt-shadow-box rbt-radius p-5 h-100">
+                        <div class="inner">
+                            <div class="clint-info-wrapper mb--20 d-flex align-items-center">
+                                <div class="thumb" style="width: 60px; height: 60px; border-radius: 50%; overflow: hidden; margin-right: 15px;">
+                                    {% if depoimento.foto %}
+                                    <img src="{{ depoimento.foto.url }}" alt="{{ depoimento.nome }}" class="w-100 h-100" style="object-fit: cover;">
+                                    {% else %}
+                                    <div class="bg-primary text-white d-flex align-items-center justify-content-center h-100 fw-bold">{{ depoimento.nome|first }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="client-info">
+                                    <h5 class="title mb-0" style="font-size: 16px;">{{ depoimento.nome }}</h5>
+                                    <span class="designation small text-muted">{{ depoimento.cargo }}</span>
+                                </div>
                             </div>
-
-                            <!-- Corpo do card -->
-                            <div class="rbt-card-body" style="padding: 15px 18px;"> <!-- padding interno -->
-
-                                <!-- Topo -->
-                                <div class="rbt-card-top d-flex justify-content-between align-items-center mb-2">
-                                    <div class="rbt-review d-flex align-items-center">
-                                        <div class="rating" style="color: #f5a623; font-size: 13px;">
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                        </div>
-                                        <span class="rating-count" style="font-size: 12px; margin-left: 5px;">(5)</span>
-                                    </div>
-                                    <div class="rbt-bookmark-btn">
-                                        <a class="rbt-round-btn" title="Bookmark" href="#">
-                                            <i class="feather-bookmark"></i>
-                                        </a>
-                                    </div>
+                            <div class="description">
+                                <p class="subtitle-3" style="font-style: italic;">"{{ depoimento.texto }}"</p>
+                                <div class="rating mt--10" style="color: #f5a623;">
+                                    {% for i in "12345"|make_list %}
+                                        <i class="{% if forloop.counter <= depoimento.nota %}fas{% else %}far{% endif %} fa-star"></i>
+                                    {% endfor %}
                                 </div>
-
-                                <!-- Título -->
-                                <h4 class="rbt-card-title mb-2" style="font-size: 16px; line-height: 1.3;">
-                                    <a href="{% url 'curso_detalhe' id=curso.id %}">{{curso.titulo}}</a>
-                                </h4>
-
-                                <!-- Metadados -->
-                                <ul class="rbt-meta mb-2" style="font-size: 13px; color: #666;">
-                                    <li><i class="feather-book"></i> 8 Aulas</li>
-                                    <li><i class="feather-users"></i> 30 Alunos</li>
-                                </ul>
-
-
-
-                                <!-- Autor -->
-                                <div class="rbt-author-meta d-flex align-items-center mb-3">
-                                    <div class="rbt-avater me-2">
-                                        <a href="#">
-                                            <img src="{% static 'assets/images/client/avatar-03.png' %}" alt="Autor"
-                                                style="width: 32px; height: 32px; border-radius: 50%;">
-                                        </a>
-                                    </div>
-                                    <div class="rbt-author-info" style="font-size: 12px;">
-                                        Por <a href="#">Slaughter</a> em <a href="#">Languages</a>
-                                    </div>
-                                </div>
-
-                                <!-- Preço + botão -->
-                                <div class="rbt-card-bottom d-flex justify-content-between align-items-center">
-                                    <div class="rbt-price">
-                                        <span class="current-price" style="font-weight: bold; color: #27ae60;">
-                                            Kz {{ curso.preco }}
-                                        </span>
-                                        <span class="off-price"
-                                            style="text-decoration: line-through; font-size: 13px; color: #888;">
-                                            Kz {{ curso.preco_antigo }}
-                                        </span>
-                                    </div>
-                                    <a class="rbt-btn-link" href="{% url 'curso_detalhe' id=curso.id %}">
-                                        Ver mais <i class="feather-arrow-right"></i>
-                                    </a>
-                                </div>
-
                             </div>
                         </div>
                     </div>
-                    {% endfor %}
                 </div>
+                {% endfor %}
             </div>
         </div>
-        {% endfor %}
     </div>
-
-    </div>
+    {% endif %}
 
     {% include 'include/footer.html' %}
     {% include 'include/java.html' %}
-    <script>
-        {% for grupo in cursos_por_categoria %}
-        new Swiper(".swiper-category-{{ forloop.counter }}", {
-            slidesPerView: 4,   // quantidade de cards visíveis
-            spaceBetween: 20,   // espaçamento entre os cards
-            loop: true,         // loop infinito
-            autoplay: {
-                delay: 3000,    // tempo de cada slide (3s)
-                disableOnInteraction: false
-            },
-            breakpoints: {
-                320: { slidesPerView: 1 },
-                576: { slidesPerView: 2 },
-                768: { slidesPerView: 3 },
-                1200: { slidesPerView: 4 }
-            }
-        });
-        {% endfor %}
-    </script>
 
     <script>
         function verMaisDescricao() {
@@ -1704,6 +1823,87 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var swiper = new Swiper(".course-swiper-activation", {
+                slidesPerView: 1,
+                spaceBetween: 30,
+                loop: true,
+                pagination: {
+                    el: ".swiper-pagination",
+                    clickable: true,
+                },
+                navigation: {
+                    nextEl: ".swiper-button-next",
+                    prevEl: ".swiper-button-prev",
+                },
+                breakpoints: {
+                    575: {
+                        slidesPerView: 1,
+                    },
+                    768: {
+                        slidesPerView: 2,
+                    },
+                    992: {
+                        slidesPerView: 3,
+                    },
+                    1200: {
+                        slidesPerView: 4,
+                    },
+                },
+            });
+        });
+
+        function toggleSeguimento(centroId) {
+            // ... resto do código ...
+
+            fetch(`/gestoreduka/centros/seguir/${centroId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    const textSpan = btn.querySelector('.btn-text');
+                    const iconI = btn.querySelector('.btn-icon i');
+                    let count = parseInt(countSpan.textContent);
+                    
+                    if (data.seguindo) {
+                        btn.classList.remove('btn-gradient');
+                        btn.classList.add('btn-secondary');
+                        textSpan.textContent = 'Seguindo';
+                        iconI.className = 'feather-check';
+                        count++;
+                    } else {
+                        btn.classList.remove('btn-secondary');
+                        btn.classList.add('btn-gradient');
+                        textSpan.textContent = 'Seguir Centro';
+                        iconI.className = 'feather-plus';
+                        count--;
+                    }
+                    countSpan.textContent = count;
+                    
+                    // Toast de feedback
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: data.mensagem,
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
+                    }
+                }
+            })
+            .catch(error => console.error('Erro ao seguir centro:', error));
+        }
+    </script>
 </body>
 
 </html>

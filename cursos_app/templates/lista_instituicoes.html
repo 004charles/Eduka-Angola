@@ -1,0 +1,621 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="pt-pt">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>{% trans "Instituições Parceiras" %} | EdukAngola</title>
+    <meta name="robots" content="noindex, follow">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- CSS -->
+    {% include 'include/css.html' %}
+    
+    <style>
+        /* DASHBOARD BANNER STYLE */
+        .hero-banner-wrapper {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 100px; /* Header space */
+            border-radius: 0 0 50px 50px;
+        }
+
+        .hero-banner-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+
+        .hero-banner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.8) 100%);
+            z-index: 2;
+        }
+
+        .hero-content-inner {
+            position: relative;
+            z-index: 3;
+            text-align: center;
+            width: 100%;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+
+        /* CENTER FEATURED CARDS STYLE */
+        .center-featured-card {
+            display: block;
+            height: 250px;
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow-2);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            border: 1px solid var(--color-border);
+            margin-bottom: 30px;
+        }
+
+        .center-featured-card:hover {
+            transform: scale(1.03) translateY(-5px);
+            border-color: var(--color-primary);
+        }
+
+        .center-banner-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.8s ease;
+        }
+
+        .center-featured-card:hover .center-banner-bg {
+            transform: scale(1.1);
+        }
+
+        .center-card-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 25px;
+            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .center-mini-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+            background-color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .center-card-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .center-name {
+            color: white;
+            font-size: 18px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .center-tag {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .inst-meta-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 2;
+        }
+
+        .stats-badge {
+            background: var(--color-white);
+            color: var(--color-primary);
+            padding: 4px 12px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--color-border);
+        }
+
+        .verified-badge {
+            background: #00d084;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            border: 2px solid white;
+        }
+
+        /* NATIVE SEARCH & SORTING AREA */
+        .rbt-sorting-area {
+            background: var(--color-white);
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .custom-select-wrapper select,
+        .custom-select-wrapper .form-select {
+            border-radius: 10px !important;
+            border: 1px solid var(--color-border) !important;
+            background-color: var(--color-white) !important;
+            color: var(--color-heading) !important;
+            padding: 10px 15px !important;
+            font-size: 15px;
+            outline: none;
+            min-width: 220px;
+        }
+
+        .custom-search-input {
+            border-radius: 10px;
+            border: 1px solid var(--color-border);
+            background-color: var(--color-white);
+            color: var(--color-heading);
+            padding: 10px 15px 10px 45px;
+            font-size: 15px;
+            width: 100%;
+            outline: none;
+        }
+
+        /* CUSTOM DROPDOWN */
+        .custom-dropdown {
+            position: relative;
+            min-width: 220px;
+        }
+
+        .custom-dropdown-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 1px solid var(--color-border);
+            background-color: var(--color-white);
+            color: var(--color-heading);
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .custom-dropdown-btn:hover {
+            border-color: var(--color-primary);
+        }
+
+        .custom-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            width: 100%;
+            min-width: 220px;
+            background-color: var(--color-white);
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            z-index: 999;
+            overflow: hidden;
+        }
+
+        .custom-dropdown-menu.open {
+            display: block;
+            animation: dropdownFadeIn 0.15s ease;
+        }
+
+        @keyframes dropdownFadeIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .custom-dropdown-item {
+            padding: 10px 16px;
+            font-size: 14px;
+            color: var(--color-heading);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .custom-dropdown-item:hover,
+        .custom-dropdown-item.active {
+            background-color: var(--color-primary);
+            color: #fff;
+        }
+
+        /* DARK MODE for custom dropdown */
+        .active-dark-mode .custom-dropdown-btn {
+            background-color: var(--color-bodyest) !important;
+            color: var(--color-white) !important;
+            border-color: rgba(255,255,255,0.1) !important;
+        }
+
+        .active-dark-mode .custom-dropdown-menu {
+            background-color: var(--color-darker) !important;
+            border-color: rgba(255,255,255,0.1) !important;
+        }
+
+        .active-dark-mode .custom-dropdown-item {
+            color: var(--color-white) !important;
+        }
+
+        .active-dark-mode .custom-dropdown-item:hover,
+        .active-dark-mode .custom-dropdown-item.active {
+            background-color: var(--color-primary) !important;
+            color: #fff !important;
+        }
+    </style>
+</head>
+
+<body class="rbt-header-sticky">
+
+    {% include 'include/header.html' %}
+
+    <main class="rbt-main-wrapper">
+        
+        <!-- START BANNER AREA (estilo igual à homepage) -->
+        <div class="rbt-banner-area rbt-banner-19">
+            <div class="container">
+                <div class="swiper rbt-banner-activation-2 rbt-banner-slider-inst">
+                    <div class="swiper-wrapper">
+                        {% for centro in centros_banner %}
+                        {% cycle 'bg-slide-1' 'bg-slide-2' 'bg-slide-3' as bg_class silent %}
+                        <div class="swiper-slide">
+                            <div class="coursera-slide {{ bg_class }}">
+                                <!-- Esquerda: Texto -->
+                                <div class="slide-content">
+                                    <!-- Logo + badge verificado -->
+                                    <div class="d-flex align-items-center gap-3 mb-3">
+                                        <div style="width:56px; height:56px; border-radius:12px; overflow:hidden; background:#fff; box-shadow:0 2px 12px rgba(0,0,0,0.12); flex-shrink:0; border:1px solid #eee;">
+                                            {% if centro.perfil.imagem %}
+                                            <img src="{{ centro.perfil.imagem.url }}" alt="{{ centro.nome }}" style="width:100%; height:100%; object-fit:cover;">
+                                            {% else %}
+                                            <div style="width:100%; height:100%; background:linear-gradient(135deg,#6366f1,#8b5cf6); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:900; font-size:1.4rem;">{{ centro.nome|slice:":1"|upper }}</div>
+                                            {% endif %}
+                                        </div>
+                                        {% if centro.perfil.verificado %}
+                                        <span style="background:#f0fdf4; color:#16a34a; padding:3px 12px; border-radius:50px; font-size:0.72rem; font-weight:700; border:1px solid #bbf7d0;">
+                                            <i class="feather-check-circle me-1"></i>Verificado
+                                        </span>
+                                        {% endif %}
+                                        {% if centro.perfil.modalidade %}
+                                        <span style="background:#eff6ff; color:#1d4ed8; padding:3px 12px; border-radius:50px; font-size:0.72rem; font-weight:700; border:1px solid #bfdbfe;">
+                                            {{ centro.perfil.modalidade }}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+
+                                    <h1 class="slide-title">{{ centro.nome }}</h1>
+
+                                    {% if centro.perfil.descricao %}
+                                    <p class="slide-description">{{ centro.perfil.descricao|truncatechars:130 }}</p>
+                                    {% elif centro.cidade or centro.provincia %}
+                                    <p class="slide-description">
+                                        <i class="feather-map-pin me-1"></i>
+                                        {{ centro.cidade }}{% if centro.cidade and centro.provincia %}, {% endif %}{{ centro.provincia }}
+                                    </p>
+                                    {% endif %}
+
+                                    <!-- Stats inline -->
+                                    <div class="d-flex gap-4 mb-4">
+                                        <div style="display:flex; align-items:center; gap:6px; font-size:0.85rem; font-weight:600; color:#374151;">
+                                            <i class="feather-book-open" style="color:#6366f1;"></i>
+                                            {{ centro.total_cursos }} Cursos
+                                        </div>
+                                        <div style="display:flex; align-items:center; gap:6px; font-size:0.85rem; font-weight:600; color:#374151;">
+                                            <i class="feather-users" style="color:#6366f1;"></i>
+                                            {{ centro.perfil.total_seguidores|default:0 }} Seguidores
+                                        </div>
+                                    </div>
+
+                                    <a href="{% url 'cursos_por_centro' centro.id %}" class="coursera-btn">
+                                        Ver Cursos <i class="feather-arrow-right"></i>
+                                    </a>
+                                </div>
+
+                                <!-- Direita: Imagem / Banner do centro -->
+                                <div class="slide-image-wrapper">
+                                    {% if centro.perfil.banner %}
+                                    <img src="{{ centro.perfil.banner.url }}" alt="{{ centro.nome }}" style="max-height:360px; width:100%; object-fit:cover; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.12);">
+                                    {% elif centro.perfil.imagem %}
+                                    <img src="{{ centro.perfil.imagem.url }}" alt="{{ centro.nome }}" style="max-height:320px; object-fit:contain; border-radius:16px;">
+                                    {% else %}
+                                    <div style="width:380px; height:280px; border-radius:16px; background:linear-gradient(135deg,#6366f1 0%,#8b5cf6 50%,#a855f7 100%); display:flex; align-items:center; justify-content:center; box-shadow:0 8px 32px rgba(99,102,241,0.3);">
+                                        <span style="color:#fff; font-weight:900; font-size:5rem; opacity:0.8;">{{ centro.nome|slice:":1"|upper }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="swiper-slide">
+                            <div class="coursera-slide bg-slide-1">
+                                <div class="slide-content">
+                                    <h1 class="slide-title">Portal de Instituições</h1>
+                                    <p class="slide-description">Descubra os melhores centros de formação de Angola num só lugar.</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Paginação dots -->
+                    <div class="rbt-swiper-pagination" style="bottom: 20px !important;"></div>
+                </div>
+            </div>
+        </div>
+        <!-- END BANNER AREA -->
+
+
+        <!-- NEARBY SECTION (Dynamic) -->
+        <div id="nearby-section" class="rbt-section-gapTop" style="display: none; background: rgba(var(--color-primary-rgb), 0.03); padding-bottom: 80px;">
+            <div class="container">
+                <div class="row align-items-center mb--40">
+                    <div class="col-lg-12">
+                        <div class="section-title text-start">
+                            <span class="subtitle bg-primary-opacity">✨ {% trans "Exclusivo para si" %}</span>
+                            <h2 class="title" style="font-size: 32px; font-weight: 800;">{% trans "Instituições a menos de 30km" %}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-5" id="nearby-container">
+                    <!-- Cards dinâmicos aqui -->
+                </div>
+            </div>
+        </div>
+
+        <!-- FILTERS AND LIST -->
+        <div class="rbt-section-gap">
+            <div class="container">
+                
+                <!-- NEW PLATFORM-STANDARD FILTER BAR -->
+                <div class="rbt-sorting-area d-flex flex-wrap align-items-center justify-content-between mb--50">
+                    <div class="section-title">
+                        <h4 class="title mb--0" style="font-size: 20px; color: var(--color-heading);">{{ total_centros }} {% trans "Instituições Parceiras" %}</h4>
+                    </div>
+                    
+                    <form action="." method="GET" class="d-flex flex-wrap gap-4 align-items-center mt--20 mt-lg-0 w-100 w-lg-auto">
+                        <!-- Search Field -->
+                        <div class="search-icon-wrapper">
+                            <i class="feather-search"></i>
+                            <input type="text" name="q" value="{{ q }}" placeholder="{% trans 'Buscar instituição...' %}" class="custom-search-input">
+                        </div>
+
+                        <!-- Province Custom Dropdown -->
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="fw-bold" style="color: var(--color-body); white-space: nowrap;">{% trans "Província:" %}</span>
+                            <!-- Hidden real input -->
+                            <input type="hidden" name="provincia" id="provincia-input" value="{{ provincia_selecionada }}">
+                            <div class="custom-dropdown" id="provincia-dropdown">
+                                <button type="button" class="custom-dropdown-btn" id="provincia-btn">
+                                    <span id="provincia-label">{% if provincia_selecionada %}{{ provincia_selecionada }}{% else %}{% trans "Todas as Províncias" %}{% endif %}</span>
+                                    <i class="feather-chevron-down" style="font-size: 14px;"></i>
+                                </button>
+                                <div class="custom-dropdown-menu" id="provincia-menu">
+                                    <div class="custom-dropdown-item {% if not provincia_selecionada %}active{% endif %}" data-value="">{% trans "Todas as Províncias" %}</div>
+                                    {% for p in provincias %}
+                                    <div class="custom-dropdown-item {% if provincia_selecionada == p %}active{% endif %}" data-value="{{ p }}">{{ p }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="rbt-btn btn-gradient btn-sm px-4 py-2" style="height: 45px;">
+                            <i class="feather-filter me-2"></i>{% trans "Filtrar" %}
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Grid using Home Page Card Style -->
+                <div class="row g-5">
+                    {% for centro in page_obj %}
+                    <div class="col-lg-4 col-md-6">
+                        <a href="{% url 'cursos_por_centro' centro.id %}" class="center-featured-card">
+                            <!-- Background Banner -->
+                            <div class="center-banner-bg" style="background-image: url('{% if centro.perfil.banner %}{{ centro.perfil.banner.url }}{% else %}{% static 'assets/images/bg/bg-image-10.jpg' %}{% endif %}');"></div>
+                            
+                            <!-- Top Info (Stats & Verified) -->
+                            <div class="inst-meta-info">
+                                <div class="stats-badge">{{ centro.total_cursos }} {% trans "Cursos" %}</div>
+                                {% if centro.perfil.verificado %}
+                                <div class="verified-badge" title="{% trans 'Verificado' %}"><i class="feather-check"></i></div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Overlay Content -->
+                            <div class="center-card-overlay">
+                                {% if centro.perfil.imagem %}
+                                <img src="{{ centro.perfil.imagem.url }}" alt="{{ centro.nome }}" class="center-mini-logo">
+                                {% else %}
+                                <div class="center-mini-logo d-flex align-items-center justify-content-center" style="background: var(--color-primary); color: white; font-weight: bold; font-size: 24px;">
+                                    {{ centro.nome|slice:":1" }}
+                                </div>
+                                {% endif %}
+                                <div class="center-card-info">
+                                    <span class="center-name">{{ centro.nome }}</span>
+                                    <span class="center-tag"><i class="feather-map-pin me-1"></i> {{ centro.cidade|default:centro.provincia }}</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    {% empty %}
+                    <div class="col-lg-12 text-center py-5">
+                        <i class="feather-search display-1 text-muted mb--20"></i>
+                        <h3>{% trans "Nenhuma instituição encontrada" %}</h3>
+                        <p>{% trans "Tente ajustar os termos da sua pesquisa ou filtros." %}</p>
+                        <a href="{% url 'lista_centros' %}" class="rbt-btn btn-border mt--20">{% trans "Limpar Filtros" %}</a>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if page_obj.has_other_pages %}
+                <div class="row mt--60">
+                    <div class="col-12">
+                        <nav>
+                            <ul class="rbt-pagination justify-content-center">
+                                {% if page_obj.has_previous %}
+                                <li><a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if provincia_selecionada %}&provincia={{ provincia_selecionada }}{% endif %}"><i class="feather-chevron-left"></i></a></li>
+                                {% endif %}
+                                
+                                {% for num in page_obj.paginator.page_range %}
+                                <li class="{% if page_obj.number == num %}active{% endif %}">
+                                    <a href="?page={{ num }}{% if q %}&q={{ q }}{% endif %}{% if provincia_selecionada %}&provincia={{ provincia_selecionada }}{% endif %}">{{ num }}</a>
+                                </li>
+                                {% endfor %}
+
+                                {% if page_obj.has_next %}
+                                <li><a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if provincia_selecionada %}&provincia={{ provincia_selecionada }}{% endif %}"><i class="feather-chevron-right"></i></a></li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+
+    </main>
+
+    {% include 'include/footer.html' %}
+    {% include 'include/java.html' %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    fetch(`/api/centros-proximos/?lat=${lat}&lng=${lng}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.centros && data.centros.length > 0) {
+                                const container = document.getElementById('nearby-container');
+                                const section = document.getElementById('nearby-section');
+                                
+                                data.centros.forEach(centro => {
+                                    const card = `
+                                        <div class="col-lg-4 col-md-6">
+                                            <a href="${centro.url}" class="center-featured-card">
+                                                <div class="center-banner-bg" style="background-image: url('${centro.banner}');"></div>
+                                                <div class="inst-meta-info">
+                                                    <div class="stats-badge">${centro.total_cursos} {% trans "Cursos" %}</div>
+                                                    <div class="stats-badge" style="background: var(--color-primary); color: white;">${centro.distancia} km</div>
+                                                </div>
+                                                <div class="center-card-overlay">
+                                                    <img src="${centro.imagem}" alt="${centro.nome}" class="center-mini-logo">
+                                                    <div class="center-card-info">
+                                                        <span class="center-name">${centro.nome}</span>
+                                                        <span class="center-tag"><i class="feather-map-pin me-1"></i> ${centro.cidade}</span>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    `;
+                                    container.innerHTML += card;
+                                });
+                                
+                                section.style.display = 'block';
+                            }
+                        })
+                        .catch(error => console.error('Erro ao buscar centros próximos:', error));
+                });
+            }
+        });
+        /* Custom Dropdown Logic */
+        const dropdownBtn = document.getElementById('provincia-btn');
+        const dropdownMenu = document.getElementById('provincia-menu');
+        const dropdownItems = document.querySelectorAll('.custom-dropdown-item');
+        const hiddenInput = document.getElementById('provincia-input');
+        const dropdownLabel = document.getElementById('provincia-label');
+        
+        if (dropdownBtn && dropdownMenu) {
+            dropdownBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                dropdownMenu.classList.toggle('open');
+            });
+            
+            // Fechar ao clicar fora
+            document.addEventListener('click', function(e) {
+                if (!document.getElementById('provincia-dropdown').contains(e.target)) {
+                    dropdownMenu.classList.remove('open');
+                }
+            });
+            
+            dropdownItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const value = this.getAttribute('data-value');
+                    const text = this.innerText;
+                    
+                    hiddenInput.value = value;
+                    dropdownLabel.innerText = text;
+                    dropdownMenu.classList.remove('open');
+                    
+                    // Submeter formulário
+                    hiddenInput.closest('form').submit();
+                });
+            });
+        }
+
+        /* Swiper — Banner Instituições (mesmo estilo da homepage) */
+        if (typeof Swiper !== 'undefined') {
+            new Swiper('.rbt-banner-slider-inst', {
+                loop: true,
+                autoplay: {
+                    delay: 5000,
+                    disableOnInteraction: false,
+                },
+                speed: 700,
+                pagination: {
+                    el: '.rbt-banner-slider-inst .rbt-swiper-pagination',
+                    clickable: true,
+                },
+            });
+        }
+    </script>
+</body>
+</html>

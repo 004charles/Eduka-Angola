@@ -1,145 +1,108 @@
-{% extends 'base_gestor.html' %}
+{% extends 'gestor_base.html' %}
 {% load static %}
 
-{% block title %}Inscrições - {{ centro.nome }}{% endblock %}
-
 {% block content %}
-<div class="dashboard-body">
-    <div class="breadcrumb mb-24 flex-between flex-wrap gap-16">
-        <div>
-            <h4 class="mb-4">Matrículas e Inscrições</h4>
-            <ul class="flex-align gap-4">
-                <li><a href="{% url 'centro_dashboard' %}" class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
-                <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
-                <li><span class="text-main-600 fw-normal text-15">Inscrições</span></li>
-            </ul>
-        </div>
-        <div class="flex-align gap-12">
-            <div class="search-container d-md-block d-none" style="width: 250px;">
-                <div class="position-relative">
-                    <i class="ph ph-magnifying-glass position-absolute top-50 start-0 translate-middle-y ms-16 text-gray-400"></i>
-                    <input type="text" class="form-control ps-40 rounded-pill border-gray-100" placeholder="Buscar aluno...">
-                </div>
-            </div>
-            <select class="form-select rounded-pill border-gray-100 px-20 ps-40" style="background-position: left 15px center; width: 180px;" onchange="window.location.href='?status='+this.value">
-                <option value="">Todos Status</option>
-                <option value="P" {% if selected_status == "P" %}selected{% endif %}>Pendentes</option>
-                <option value="A" {% if selected_status == "A" %}selected{% endif %}>Aceitas</option>
-                <option value="N" {% if selected_status == "N" %}selected{% endif %}>Negadas</option>
-            </select>
+<div class="flex flex-col gap-5 lg:gap-7.5">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-xl font-bold text-foreground">Gerenciar Inscrições</h1>
+            <p class="text-sm text-secondary-foreground">Acompanhe e valide as solicitações de matrícula dos alunos nos seus cursos.</p>
         </div>
     </div>
 
-    <div class="card premium-card border-0 shadow-sm overflow-hidden">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table style-two mb-0">
-                    <thead class="bg-gray-50">
+    <!-- Filtros de Status -->
+    <div class="flex flex-col border-b border-border mb-2">
+        <ul class="flex items-center gap-5 text-sm font-medium text-muted-foreground overflow-x-auto">
+            <li>
+                <a href="?status=" class="flex items-center gap-2 py-3 border-b-2 transition-colors whitespace-nowrap {% if not selected_status %}border-primary text-primary{% else %}border-transparent hover:text-foreground{% endif %}">
+                    Todas
+                </a>
+            </li>
+            <li>
+                <a href="?status=P" class="flex items-center gap-2 py-3 border-b-2 transition-colors whitespace-nowrap {% if selected_status == 'P' %}border-primary text-primary{% else %}border-transparent hover:text-foreground{% endif %}">
+                    Pendentes
+                </a>
+            </li>
+            <li>
+                <a href="?status=A" class="flex items-center gap-2 py-3 border-b-2 transition-colors whitespace-nowrap {% if selected_status == 'A' %}border-primary text-primary{% else %}border-transparent hover:text-foreground{% endif %}">
+                    Aprovadas
+                </a>
+            </li>
+            <li>
+                <a href="?status=R" class="flex items-center gap-2 py-3 border-b-2 transition-colors whitespace-nowrap {% if selected_status == 'R' %}border-primary text-primary{% else %}border-transparent hover:text-foreground{% endif %}">
+                    Rejeitadas
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Tabela de Inscrições -->
+    <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm overflow-hidden">
+        
+        <div class="px-5 py-4 border-b border-border flex items-center justify-between bg-accent/5">
+            <h3 class="font-semibold text-base text-foreground">Lista de Inscritos</h3>
+            <span class="text-xs text-muted-foreground">{{ inscricoes.paginator.count }} inscrições encontradas</span>
+        </div>
+
+        <div class="px-5 py-2">
+            <div class="overflow-x-auto">
+                <table class="table-auto w-full text-left text-sm whitespace-nowrap">
+                    <thead class="text-xs text-muted-foreground border-b border-border uppercase tracking-wider">
                         <tr>
-                            <th class="ps-24">Aluno</th>
-                            <th>Curso / Categoria</th>
-                            <th>Turma</th>
-                            <th>Data</th>
-                            <th>Investimento</th>
-                            <th>Status</th>
-                            <th class="text-center pe-24">Ações</th>
+                            <th class="pb-3 font-medium">Estudante</th>
+                            <th class="pb-3 font-medium">Curso / Turma</th>
+                            <th class="pb-3 font-medium">Data</th>
+                            <th class="pb-3 font-medium text-center">Status</th>
+                            <th class="pb-3 font-medium text-right">Ações</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-dashed divide-border">
                         {% for inscricao in inscricoes %}
-                        <tr class="transition-all hover-bg-gray-50">
-                            <td class="ps-24">
-                                <div class="flex-align gap-12">
-                                    <div class="w-44 h-44 rounded-circle bg-primary-50 text-primary-600 flex-center fw-bold shadow-sm">
-                                        {{ inscricao.aluno.nome|slice:":1"|upper }}
+                        <tr class="hover:bg-accent/20 transition-colors">
+                            <td class="py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="size-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm uppercase">
+                                        {{ inscricao.aluno.usuario.nome|make_list|first }}
                                     </div>
-                                    <div>
-                                        <h6 class="mb-0 text-15 fw-bold text-gray-900">{{ inscricao.aluno.nome }}</h6>
-                                        <span class="text-12 text-gray-400">{{ inscricao.aluno.email }}</span>
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-semibold text-foreground">{{ inscricao.aluno.usuario.nome }}</span>
+                                        <span class="text-xs text-muted-foreground">{{ inscricao.aluno.usuario.email }}</span>
                                     </div>
                                 </div>
                             </td>
-                            <td>
-                                <h6 class="mb-0 text-14 text-gray-800">{{ inscricao.curso.titulo }}</h6>
-                                <span class="badge bg-gray-100 text-gray-600 fw-medium text-10 uppercase px-8 py-4 mt-4">{{ inscricao.curso.categoria.nome }}</span>
-                            </td>
-                            <td>
-                                {% if inscricao.turma_escolhida %}
-                                <div class="d-flex align-items-center gap-6">
-                                    <i class="ph ph-chalkboard-teacher text-primary-600"></i>
-                                    <span class="text-13 fw-medium text-gray-700">{{ inscricao.turma_escolhida.nome }}</span>
-                                </div>
-                                {% else %}
-                                <span class="text-12 text-gray-300 italic">A definir</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <div class="text-gray-700">
-                                    <p class="mb-0 text-13 fw-bold">{{ inscricao.data_inscricao|date:"d M, Y" }}</p>
-                                    <p class="mb-0 text-11 text-gray-400">{{ inscricao.data_inscricao|date:"H:i" }}</p>
+                            <td class="py-4">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-medium text-foreground">{{ inscricao.curso.titulo }}</span>
+                                    <span class="text-xs text-muted-foreground">Turma: {{ inscricao.turma_escolhida.nome|default:"Não definida" }}</span>
                                 </div>
                             </td>
-                            <td>
-                                {% if inscricao.valor_pago %}
-                                <span class="text-14 fw-bold text-gray-900">{{ inscricao.valor_pago|floatformat:2 }} <small class="text-10">KZ</small></span>
-                                {% else %}
-                                <span class="badge bg-danger-50 text-danger-600 fw-bold">NÃO PAGO</span>
-                                {% endif %}
+                            <td class="py-4">
+                                <span class="text-xs text-secondary-foreground">{{ inscricao.data_inscricao|date:"d/m/Y H:i" }}</span>
                             </td>
-                            <td>
+                            <td class="py-4 text-center">
                                 {% if inscricao.status == 'A' %}
-                                <span class="text-12 py-6 px-12 bg-success-50 text-success-600 rounded-pill fw-bold d-inline-flex align-items-center gap-6 shadow-sm">
-                                    <span class="w-6 h-6 bg-success-600 rounded-circle animate-pulse"></span> Aceita
-                                </span>
+                                    <span class="kt-badge kt-badge-sm kt-badge-success kt-badge-outline">Aprovada</span>
                                 {% elif inscricao.status == 'P' %}
-                                <span class="text-12 py-6 px-12 bg-warning-50 text-warning-600 rounded-pill fw-bold d-inline-flex align-items-center gap-6 shadow-sm">
-                                    <span class="w-6 h-6 bg-warning-600 rounded-circle animate-pulse"></span> Pendente
-                                </span>
-                                {% elif inscricao.status == 'N' %}
-                                <span class="text-12 py-6 px-12 bg-danger-50 text-danger-600 rounded-pill fw-bold d-inline-flex align-items-center gap-6 shadow-sm">
-                                    <span class="w-6 h-6 bg-danger-600 rounded-circle"></span> Negada
-                                </span>
-                                {% else %}
-                                <span class="text-12 py-6 px-12 bg-gray-50 text-gray-600 rounded-pill fw-bold d-inline-flex align-items-center gap-6 shadow-sm">
-                                    <span class="w-6 h-6 bg-gray-400 rounded-circle"></span> Cancelada
-                                </span>
+                                    <span class="kt-badge kt-badge-sm kt-badge-warning kt-badge-outline">Pendente</span>
+                                {% elif inscricao.status == 'R' %}
+                                    <span class="kt-badge kt-badge-sm kt-badge-danger kt-badge-outline">Rejeitada</span>
                                 {% endif %}
                             </td>
-                            <td class="text-center pe-24">
-                                <div class="dropdown">
-                                    <button class="w-32 h-32 rounded-8 bg-gray-50 text-gray-400 hover-bg-primary-600 hover-text-white transition-all border-0" type="button" data-bs-toggle="dropdown">
-                                        <i class="ph ph-dots-three-outline-vertical fw-bold"></i>
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu--md border-0 shadow-lg p-8 mt-2">
-                                        <li>
-                                            <a class="dropdown-item rounded-8 d-flex align-items-center gap-10 py-8" href="#">
-                                                <i class="ph ph-eye text-primary-600"></i> Detalhes
-                                            </a>
-                                        </li>
-                                        {% if inscricao.status == 'P' %}
-                                        <li>
-                                            <a class="dropdown-item rounded-8 d-flex align-items-center gap-10 py-8 text-success-600 fw-bold" href="#">
-                                                <i class="ph ph-check-circle"></i> Aprovar
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item rounded-8 d-flex align-items-center gap-10 py-8 text-danger-600 fw-bold" href="#">
-                                                <i class="ph ph-x-circle"></i> Recusar
-                                            </a>
-                                        </li>
-                                        {% endif %}
-                                    </ul>
+                            <td class="py-4 text-right">
+                                <div class="flex items-center justify-end gap-1">
+                                    <a href="{% url 'dossie_aluno' inscricao.aluno.id %}" class="kt-btn kt-btn-sm kt-btn-icon kt-btn-ghost hover:bg-info/10 hover:text-info" title="Dossiê do Aluno">
+                                        <i class="ki-filled ki-profile-circle text-lg"></i>
+                                    </a>
+                                    <!-- Here we could add buttons for AJAX approval/rejection if views allow -->
                                 </div>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="7" class="text-center py-80">
-                                <div class="max-w-400 mx-auto">
-                                    <img src="{% static 'assets/images/icons/empty-state.png' %}" alt="" class="mb-24 opacity-50" style="width: 120px;">
-                                    <h5 class="text-gray-900 mb-8">Nenhuma matrícula encontrada</h5>
-                                    <p class="text-gray-500 mb-0">Acompanhe as inscrições dos seus alunos diretamente por aqui assim que elas ocorrerem.</p>
-                                </div>
+                            <td colspan="5" class="py-10 text-center text-sm text-muted-foreground">
+                                <p>Nenhuma inscrição encontrada para este status.</p>
                             </td>
                         </tr>
                         {% endfor %}
@@ -147,42 +110,29 @@
                 </table>
             </div>
         </div>
-    </div>
 
-    <!-- Pagination -->
-    {% if inscricoes.has_other_pages %}
-    <div class="flex-between flex-wrap gap-12 mt-32">
-        <p class="text-gray-400 text-13 mb-0">Mostrando <span class="text-gray-900 fw-bold">{{ inscricoes.start_index }}-{{ inscricoes.end_index }}</span> de <span class="text-gray-900 fw-bold">{{ inscricoes.paginator.count }}</span> matrículas</p>
-        <nav aria-label="Navegação de página">
-            <ul class="pagination pagination-premium mb-0 gap-8">
+        <!-- Paginação -->
+        {% if inscricoes.has_other_pages %}
+        <div class="px-5 py-4 border-t border-border flex items-center justify-center">
+            <div class="flex items-center gap-1">
                 {% if inscricoes.has_previous %}
-                <li class="page-item">
-                    <a class="page-link rounded-12 border-0 shadow-sm w-40 h-40 flex-center" href="?page={{ inscricoes.previous_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}">
-                        <i class="ph ph-caret-left"></i>
+                    <a href="?page={{ inscricoes.previous_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}" class="kt-btn kt-btn-sm kt-btn-icon kt-btn-light">
+                        <i class="ki-filled ki-left"></i>
                     </a>
-                </li>
                 {% endif %}
-
-                {% for num in inscricoes.paginator.page_range %}
-                    {% if inscricoes.number == num %}
-                    <li class="page-item active"><span class="page-link rounded-12 border-0 shadow-sm w-40 h-40 flex-center bg-primary-600 text-white">{{ num }}</span></li>
-                    {% elif num > inscricoes.number|add:'-3' and num < inscricoes.number|add:'3' %}
-                    <li class="page-item"><a class="page-link rounded-12 border-0 shadow-sm w-40 h-40 flex-center text-gray-700" href="?page={{ num }}{% if selected_status %}&status={{ selected_status }}{% endif %}">{{ num }}</a></li>
-                    {% endif %}
-                {% endfor %}
-
+                
+                <span class="text-sm font-medium px-4">Página {{ inscricoes.number }} de {{ inscricoes.paginator.num_pages }}</span>
+                
                 {% if inscricoes.has_next %}
-                <li class="page-item">
-                    <a class="page-link rounded-12 border-0 shadow-sm w-40 h-40 flex-center" href="?page={{ inscricoes.next_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}">
-                        <i class="ph ph-caret-right"></i>
+                    <a href="?page={{ inscricoes.next_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}" class="kt-btn kt-btn-sm kt-btn-icon kt-btn-light">
+                        <i class="ki-filled ki-right"></i>
                     </a>
-                </li>
                 {% endif %}
-            </ul>
-        </nav>
-    </div>
-    {% endif %}
-</div>
-{% endblock %}
+            </div>
+        </div>
+        {% endif %}
 
-{% include 'include/java_gestor.html' %}
+    </div>
+
+</div>
+{% endblock content %}

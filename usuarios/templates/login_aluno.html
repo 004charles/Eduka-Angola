@@ -43,8 +43,8 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="breadcrumb-inner text-center">
-                        <h2 class="title">Bem-vindo de volta!</h2>
-                        <p class="welcome-message">Por favor faça login para acessar sua conta.</p>
+                        <h2 class="title">Aceda à Sua Conta</h2>
+                        <p class="welcome-message">Continue a Sua Evolução Educativa Oficial.</p>
                         <ul class="page-list">
                             <li class="rbt-breadcrumb-item"><a
                                     href="https://histudy.pixcelsthemes.com/histudy/index.html">Home</a></li>
@@ -66,7 +66,7 @@
             <div class="row justify-content-center">
                 <div class="col-lg-6">
                     <div class="rbt-contact-form contact-form-style-1 mx-auto">
-                        <h3 class="title text-center mb-4">Login</h3>
+                        <h3 class="title text-center mb-4">Credenciais</h3>
 
                         <!-- Mensagens de status APENAS para login -->
                         <div class="messages-container">
@@ -107,6 +107,7 @@
 
                         <form method="POST" action="{% url 'valida_login_aluno' %}">
                             {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ next }}">
                             <div class="form-group">
                                 <input name="email" type="email" required />
                                 <label>E-mail *</label>
@@ -127,7 +128,7 @@
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="rbt-lost-password text-end">
-                                        <a class="rbt-btn-link" href="{% url 'esqueci_senha' %}">Esqueceu a senha?</a>
+                                        <a class="rbt-btn-link" href="{% url 'esqueci_senha' %}">Precisa de ajuda com a palavra-passe?</a>
                                     </div>
                                 </div>
                             </div>
@@ -135,7 +136,7 @@
                             <div class="form-submit-group">
                                 <button type="submit" class="rbt-btn btn-md btn-gradient hover-icon-reverse w-100">
                                     <span class="icon-reverse-wrapper">
-                                        <span class="btn-text">Entrar</span>
+                                        <span class="btn-text">Entrar na Plataforma</span>
                                         <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                         <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                     </span>

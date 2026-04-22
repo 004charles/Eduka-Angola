@@ -1,93 +1,65 @@
-{% extends 'base_gestor.html' %}
+{% extends 'gestor_base.html' %}
 {% load static %}
 
-{% block title %}Eventos - {{ centro.nome }}{% endblock %}
-
 {% block content %}
-<div class="dashboard-body">
-    <div class="breadcrumb mb-24 flex-between flex-wrap gap-16">
-        <div>
-            <h4 class="mb-4">Agenda de Eventos</h4>
-            <ul class="flex-align gap-4">
-                <li><a href="{% url 'centro_dashboard' %}" class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
-                <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
-                <li><span class="text-main-600 fw-normal text-15">Eventos</span></li>
-            </ul>
+<div class="flex flex-col gap-5 lg:gap-7.5">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-xl font-bold text-foreground">Gerenciar Eventos</h1>
+            <p class="text-sm text-secondary-foreground">Organize workshops, palestras e conferências para atrair e engajar os seus alunos.</p>
         </div>
-        <a href="{% url 'criar_evento' %}" class="btn btn-primary-600 px-24 py-12 rounded-12 fw-bold d-flex align-items-center gap-8 shadow-sm hover-scale-1 transition-all">
-            <i class="ph ph-calendar-plus text-xl"></i> Novo Evento
-        </a>
+        <div class="flex items-center gap-2">
+            <a href="{% url 'criar_evento' %}" class="kt-btn kt-btn-primary">
+                <i class="ki-filled ki-plus"></i> Novo Evento
+            </a>
+        </div>
     </div>
 
-    <div class="row gy-4">
+    <!-- Lista de Eventos -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-7.5">
         {% for evento in eventos %}
-        <div class="col-xl-4 col-md-6">
-            <div class="card premium-card border-0 shadow-sm h-100 transition-all hover-translate-y-4 overflow-hidden">
-                <div class="card-body p-24">
-                    <div class="flex-between mb-20">
-                        <span class="text-11 py-6 px-12 bg-primary-50 text-primary-600 rounded-pill fw-bold uppercase letter-spacing-05 shadow-sm">{{ evento.get_tipo_display }}</span>
-                        {% if evento.destaque %}
-                        <span class="text-11 py-6 px-12 bg-amber-50 text-amber-600 rounded-pill fw-bold uppercase d-flex align-items-center gap-4 shadow-sm">
-                            <i class="ph ph-star-fill"></i> Destaque
-                        </span>
-                        {% endif %}
+        <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm overflow-hidden group">
+            <div class="relative h-40 bg-accent/20 flex items-center justify-center overflow-hidden">
+                <div class="absolute top-3 end-3 z-10">
+                    <span class="kt-badge kt-badge-sm kt-badge-primary kt-badge-outline">{{ evento.get_tipo_display }}</span>
+                </div>
+                <i class="ki-filled ki-calendar text-6xl text-muted-foreground opacity-20"></i>
+            </div>
+            
+            <div class="p-6 flex flex-col grow">
+                <h3 class="text-base font-bold text-foreground mb-2 group-hover:text-primary transition-colors">{{ evento.titulo }}</h3>
+                <div class="flex flex-col gap-2 mb-4 grow">
+                    <div class="flex items-center gap-2 text-xs text-secondary-foreground">
+                        <i class="ki-filled ki-calendar text-sm"></i>
+                        {{ evento.data_inicio|date:"d/m/Y H:i" }}
                     </div>
-                    
-                    <h5 class="mb-12 text-gray-900 fw-bold">{{ evento.titulo }}</h5>
-                    <p class="text-gray-500 text-14 mb-24 line-height-1-6">{{ evento.descricao|truncatewords:25 }}</p>
-                    
-                    <div class="vstack gap-12 mb-24">
-                        <div class="flex-align gap-12 p-12 bg-gray-50 rounded-12 transition-all hover-bg-white border border-transparent hover-border-gray-100">
-                            <div class="w-36 h-36 rounded-10 bg-white text-primary-600 flex-center shadow-sm">
-                                <i class="ph ph-calendar-blank fw-bold text-lg"></i>
-                            </div>
-                            <div>
-                                <p class="mb-0 text-13 fw-bold text-gray-800">{{ evento.data_inicio|date:"d \d\e F, Y" }}</p>
-                                <p class="mb-0 text-11 text-gray-400">às {{ evento.data_inicio|date:"H:i" }}</p>
-                            </div>
-                        </div>
-                        <div class="flex-align gap-12 p-12 bg-gray-50 rounded-12 transition-all hover-bg-white border border-transparent hover-border-gray-100">
-                            <div class="w-36 h-36 rounded-10 bg-white text-danger-600 flex-center shadow-sm">
-                                <i class="ph ph-map-pin fw-bold text-lg"></i>
-                            </div>
-                            <div>
-                                <p class="mb-0 text-13 fw-bold text-gray-800">{{ evento.local|truncatechars:35 }}</p>
-                                <p class="mb-0 text-11 text-gray-400">Local do evento</p>
-                            </div>
-                        </div>
+                    {% if evento.local %}
+                    <div class="flex items-center gap-2 text-xs text-secondary-foreground">
+                        <i class="ki-filled ki-pointers text-sm"></i>
+                        {{ evento.local }}
                     </div>
+                    {% endif %}
+                </div>
+                
+                <p class="text-xs text-muted-foreground line-clamp-2 mb-4">{{ evento.descricao|truncatechars:100 }}</p>
 
-                    <div class="d-flex align-items-center gap-12">
-                        {% if evento.link_inscricao %}
-                        <a href="{{ evento.link_inscricao }}" target="_blank" class="btn btn-primary-600 flex-grow-1 py-12 rounded-10 d-flex align-items-center justify-content-center gap-8 shadow-sm">
-                            <i class="ph ph-link"></i> Ir para Inscrição
-                        </a>
-                        {% endif %}
-                        <a href="#" class="btn btn-outline-gray w-48 h-48 rounded-10 p-0 flex-center hover-bg-primary-600 hover-text-white transition-all">
-                            <i class="ph ph-pencil-simple text-xl"></i>
-                        </a>
-                    </div>
+                <div class="flex items-center justify-between pt-4 border-t border-dashed border-border mt-auto">
+                    <span class="text-[10px] font-bold text-muted-foreground uppercase">Organizado por {{ centro.nome }}</span>
+                    <!-- Ações futuras como Editar/Excluir -->
                 </div>
             </div>
         </div>
         {% empty %}
-        <div class="col-12">
-            <div class="card premium-card border-0 shadow-sm py-100 text-center">
-                <div class="card-body">
-                    <div class="w-96 h-96 bg-gray-50 rounded-circle flex-center mx-auto mb-24 shadow-inner">
-                        <i class="ph ph-calendar-blank text-gray-300 text-5xl"></i>
-                    </div>
-                    <h4 class="text-gray-900 mb-12 fw-bold">Sua agenda está vazia</h4>
-                    <p class="text-gray-500 mb-32 max-w-400 mx-auto">Promova workshops, webinários ou dias de portas abertas para atrair mais alunos para sua instituição.</p>
-                    <a href="{% url 'criar_evento' %}" class="btn btn-primary-600 px-32 py-14 rounded-12 fw-bold shadow-sm hover-scale-1 transition-all">
-                        Criar Meu Primeiro Evento
-                    </a>
-                </div>
+        <div class="col-span-full py-10 text-center">
+            <div class="kt-card bg-background border border-border rounded-xl shadow-sm p-10 flex flex-col items-center">
+                <i class="ki-filled ki-calendar text-4xl text-muted-foreground opacity-20 mb-4"></i>
+                <p class="text-sm text-muted-foreground">Nenhum evento agendado para o momento.</p>
             </div>
         </div>
         {% endfor %}
     </div>
-</div>
-{% endblock %}
 
-{% include 'include/java_gestor.html' %}
+</div>
+{% endblock content %}

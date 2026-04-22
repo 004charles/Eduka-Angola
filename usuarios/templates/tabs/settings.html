@@ -1,0 +1,114 @@
+{% load static %}
+<div class="rbt-dashboard-content bg-color-white rbt-shadow-box">
+    <div class="content">
+        <div class="section-title">
+            <h4 class="rbt-title-style-3">Configurações</h4>
+        </div>
+
+        <div class="advance-tab-button mb--30">
+            <ul class="nav nav-tabs tab-button-style-2 justify-content-start" id="settinsTab-4" role="tablist">
+                <li role="presentation">
+                    <a href="#profile" class="tab-button active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" role="tab" aria-controls="profile" aria-selected="true">
+                        <span class="title">Perfil</span>
+                    </a>
+                </li>
+                <li role="presentation">
+                    <a href="#password" class="tab-button" id="password-tab" data-bs-toggle="tab" data-bs-target="#password" role="tab" aria-controls="password" aria-selected="false">
+                        <span class="title">Senha</span>
+                    </a>
+                </li>
+                <li role="presentation">
+                    <a href="#social" class="tab-button" id="social-tab" data-bs-toggle="tab" data-bs-target="#social" role="tab" aria-controls="social" aria-selected="false">
+                        <span class="title">Redes Sociais</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="tab-content">
+            <div class="tab-pane fade active show" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                <form action="{% url 'configuracao_user' %}" method="POST" enctype="multipart/form-data" class="rbt-profile-row rbt-default-form row row--15">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="profile">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-12">
+                        <div class="rbt-form-group">
+                            <label for="nome">Nome Completo</label>
+                            <input id="nome" name="nome" type="text" value="{{ aluno_nome }}">
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-12">
+                        <div class="rbt-form-group">
+                            <label for="telefone">Número de Telefone</label>
+                            <input id="telefone" name="telefone" type="tel" value="{{ perfil.telefone|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="rbt-form-group">
+                            <label for="bio">Biografia</label>
+                            <textarea id="bio" name="biografia" cols="20" rows="5">{{ perfil.biografia|default:'' }}</textarea>
+                        </div>
+                    </div>
+                    <div class="col-12 mt--20">
+                        <div class="rbt-form-group">
+                            <button type="submit" class="rbt-btn btn-gradient">Atualizar Perfil</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="tab-pane fade" id="password" role="tabpanel" aria-labelledby="password-tab">
+                <form action="{% url 'configuracao_user' %}" method="POST" class="rbt-profile-row rbt-default-form row row--15">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="password">
+                    <div class="col-12">
+                        <div class="rbt-form-group">
+                            <label for="currentpassword">Senha Atual</label>
+                            <input id="currentpassword" name="currentpassword" type="password" placeholder="Senha Atual">
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="rbt-form-group">
+                            <label for="newpassword">Nova Senha</label>
+                            <input id="newpassword" name="newpassword" type="password" placeholder="Nova Senha">
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="rbt-form-group">
+                            <label for="retypenewpassword">Confirme a Nova Senha</label>
+                            <input id="retypenewpassword" name="retypenewpassword" type="password" placeholder="Confirme a Nova Senha">
+                        </div>
+                    </div>
+                    <div class="col-12 mt--10">
+                        <div class="rbt-form-group">
+                            <button type="submit" class="rbt-btn btn-gradient">Atualizar Senha</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="tab-pane fade" id="social" role="tabpanel" aria-labelledby="social-tab">
+                <form action="{% url 'configuracao_user' %}" method="POST" class="rbt-profile-row rbt-default-form row row--15">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="social">
+                    <div class="col-12">
+                        <div class="rbt-form-group">
+                            <label for="linkedin"><i class="feather-linkedin"></i> Linkedin</label>
+                            <input id="linkedin" name="linkedin" type="text" value="{{ perfil.linkedin|default:'' }}" placeholder="https://linkedin.com/in/perfil">
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="rbt-form-group">
+                            <label for="github"><i class="feather-github"></i> Github</label>
+                            <input id="github" name="github" type="text" value="{{ perfil.github|default:'' }}" placeholder="https://github.com/usuario">
+                        </div>
+                    </div>
+                    <div class="col-12 mt--10">
+                        <div class="rbt-form-group">
+                            <button type="submit" class="rbt-btn btn-gradient">Salvar Links Sociais</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

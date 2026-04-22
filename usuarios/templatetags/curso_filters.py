@@ -34,3 +34,37 @@ def multiply(value, arg):
 def get_rating_count(comentarios, rating):
     """Alias para avaliacao_count"""
     return avaliacao_count(comentarios, rating)
+
+@register.filter(name='is_favorited_by')
+def is_favorited_by(curso, user):
+    from cursos_app.models import Favorito
+    from cursovideoapp.models import FavoritoCursoVideo
+
+    if not user.is_authenticated:
+        return False
+    
+    # Check if user has an aluno profile
+    if not hasattr(user, 'aluno_profile'):
+        return False
+        
+    aluno = user.aluno_profile
+    
+    # Detect model type
+    model_name = curso.__class__.__name__
+    
+    if model_name == 'Curso':
+        return Favorito.objects.filter(aluno=aluno, curso=curso).exists()
+    elif model_name == 'Curso_video':
+        return FavoritoCursoVideo.objects.filter(aluno=aluno, curso=curso).exists()
+        
+    return False
+
+@register.filter
+def model_type(obj):
+    return obj.__class__.__name__
+
+@register.filter
+def get_item(dictionary, key):
+    if dictionary:
+        return dictionary.get(key)
+    return None

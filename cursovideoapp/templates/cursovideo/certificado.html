@@ -4,17 +4,24 @@
 <head>
     <meta charset="UTF-8">
     <title>Certificado EdukAngola - {{ aluno.nome }}</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Montserrat:wght@400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- PDF & QR Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Dancing+Script:wght@700&display=swap');
-        
-        @media print {
-            body { background: white !important; -webkit-print-color-adjust: exact; }
-            .no-print { display: none !important; }
-            .certificate-container { box-shadow: none !important; margin: 0 !important; }
+        :root {
+            --brand-primary: #7c3aed;
+            --brand-secondary: #ec4899;
+            --text-dark: #1e293b;
+            --text-gray: #64748b;
+            --gold: #d4af37;
         }
 
         body {
-            background: #f0f0f0;
+            background: #e2e8f0;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -25,204 +32,497 @@
             padding: 20px;
         }
 
-        .no-print {
-            margin-bottom: 20px;
+        .controls {
+            margin-bottom: 30px;
             display: flex;
             gap: 15px;
+            z-index: 100;
         }
 
         .btn {
-            padding: 12px 24px;
+            padding: 12px 28px;
             border-radius: 8px;
             text-decoration: none;
             font-weight: 600;
+            font-size: 15px;
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.3s ease;
             border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .btn-primary { background: #7c3aed; color: white; }
-        .btn-primary:hover { background: #6d28d9; }
-        .btn-outline { border: 2px solid #7c3aed; color: #7c3aed; background: transparent; }
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--brand-primary), #6d28d9); 
+            color: white; 
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+        }
+        .btn-primary:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+        }
 
-        .certificate-container {
-            width: 842px; /* A4 Landscape width in pixels at 72dpi */
-            height: 595px; /* A4 Landscape height in pixels at 72dpi */
-            background: white;
-            padding: 40px;
+        .btn-outline { 
+            border: 2px solid var(--text-dark); 
+            color: var(--text-dark); 
+            background: rgba(255,255,255,0.8); 
+        }
+        .btn-outline:hover {
+            background: var(--text-dark);
+            color: white;
+        }
+
+        /* Certificado A4 Landscape Exact Dimensions for html2pdf */
+        .certificate-wrapper {
+            width: 1122px; /* A4 Landscape at 96 DPI */
+            height: 793px;
+            background: #fff;
             position: relative;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
-            border: 15px solid #7c3aed;
-            box-sizing: border-box;
-            background-image: linear-gradient(rgba(255,255,255,0.95), rgba(255,255,255,0.95)), url('https://www.transparenttextures.com/patterns/cubes.png');
+            box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+            /* Soft paper texture */
+            background-image: 
+                radial-gradient(circle at center, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.95) 100%),
+                url('https://www.transparenttextures.com/patterns/cream-paper.png');
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .border-inner {
-            border: 2px solid #ec4899;
-            height: 100%;
+        /* Watermark Background */
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            width: 650px;
+            opacity: 0.03;
+            pointer-events: none;
+            object-fit: contain;
+            filter: grayscale(100%);
+        }
+
+        /* Outer Frame with Gold Trim */
+        .frame-outer {
+            width: calc(100% - 60px);
+            height: calc(100% - 60px);
+            border: 1px solid #dcdcdc;
+            padding: 4px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Inner Content Border with Gradients */
+        .frame-inner {
             width: 100%;
+            height: 100%;
+            border: 3px solid var(--gold);
+            border-image: linear-gradient(to bottom right, var(--brand-primary), var(--gold), var(--brand-secondary)) 1;
             box-sizing: border-box;
-            padding: 40px;
+            padding: 50px 70px;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            text-align: center;
             position: relative;
         }
 
-        .logo {
-            width: 180px;
-            margin-bottom: 20px;
+        /* Corners */
+        .corner-accent {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--gold);
+            z-index: 20;
         }
+        .tl { top: -10px; left: -10px; border-right: none; border-bottom: none; }
+        .tr { top: -10px; right: -10px; border-left: none; border-bottom: none; }
+        .bl { bottom: -10px; left: -10px; border-right: none; border-top: none; }
+        .br { bottom: -10px; right: -10px; border-left: none; border-top: none; }
 
-        .title {
-            color: #7c3aed;
-            font-size: 34px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 4px;
+        /* Header / Logo */
+        .cert-header {
+            display: flex;
+            justify-content: center;
             margin-bottom: 25px;
         }
 
-        .subtitle {
+        .cert-logo {
+            height: 60px;
+            object-fit: contain;
+        }
+
+        /* Typography */
+        .cert-title-container {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .cert-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 56px;
+            font-weight: 700;
+            color: var(--brand-primary);
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            margin: 0;
+            line-height: 1.1;
+        }
+
+        .cert-subtitle {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 24px;
+            color: var(--text-gray);
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .cert-body {
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .student-presentation {
             font-size: 16px;
-            color: #64748b;
-            margin-bottom: 8px;
+            color: var(--text-gray);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
         }
 
         .student-name {
-            font-size: 38px;
-            color: #1e293b;
+            font-family: 'Playfair Display', serif;
+            font-size: 52px;
+            color: var(--text-dark);
             font-weight: 700;
-            margin: 15px 0;
-            border-bottom: 2px solid #ec4899;
-            display: inline-block;
-            padding: 0 40px;
+            margin: 10px 0 25px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+            /* Golden underline style */
+            background-image: linear-gradient(to right, transparent, var(--gold), transparent);
+            background-size: 100% 2px;
+            background-position: bottom;
+            background-repeat: no-repeat;
+            padding-bottom: 15px;
         }
 
-        .course-text {
-            font-size: 16px;
-            color: #64748b;
-            margin-top: 15px;
+        .course-presentation {
+            font-size: 18px;
+            color: var(--text-dark);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
         }
 
         .course-name {
+            display: block;
+            font-family: 'Playfair Display', serif;
             font-weight: 700;
-            color: #7c3aed;
+            font-size: 30px;
+            color: var(--brand-primary);
+            margin-top: 15px;
+            font-style: italic;
         }
 
-        .footer {
-            margin-top: auto;
-            width: 100%;
+        /* Footer & Signatures & QR */
+        .cert-footer {
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
+            margin-top: 30px;
         }
 
-        .qr-code-container {
-            text-align: left;
+        .qr-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 30%;
         }
 
-        .qr-code-box {
-            width: 100px;
-            height: 100px;
+        .qr-wrapper {
             background: white;
+            padding: 8px;
             border: 1px solid #e2e8f0;
-            padding: 5px;
+            border-radius: 4px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
-        .signature-block {
+        .qr-info {
+            font-size: 11px;
+            color: var(--text-gray);
+            line-height: 1.4;
+        }
+
+        .qr-info strong {
+            color: var(--text-dark);
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .code-pill {
+            display: inline-block;
+            background: #f1f5f9;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--brand-primary);
+            font-weight: 700;
+            margin-top: 4px;
+            border: 1px solid #cbd5e1;
+        }
+
+        .signature-section {
+            width: 30%;
             text-align: center;
         }
 
-        .signature {
+        .signature-img {
             font-family: 'Dancing Script', cursive;
-            font-size: 28px;
-            color: #1e293b;
+            font-size: 42px;
+            color: var(--text-dark);
+            line-height: 0.8;
             margin-bottom: 5px;
-            border-bottom: 1px solid #94a3b8;
-            padding: 0 20px;
+            display: inline-block;
+            transform: rotate(-3deg);
+        }
+
+        .signature-line {
+            height: 1px;
+            background: var(--text-dark);
+            width: 250px;
+            margin: 0 auto 8px;
         }
 
         .signature-name {
-            font-size: 11px;
-            font-weight: 600;
-            color: #64748b;
-            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text-dark);
         }
 
-        .date {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+        .signature-role {
             font-size: 12px;
-            color: #94a3b8;
+            color: var(--text-gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 2px;
         }
 
-        .corner {
-            position: absolute;
-            width: 80px;
-            height: 80px;
-            z-index: -1;
+        .badge-section {
+            width: 30%;
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-end;
         }
-        .top-left { top: -15px; left: -15px; border-top: 30px solid #ec4899; border-left: 30px solid #ec4899; }
-        .bottom-right { bottom: -15px; right: -15px; border-bottom: 30px solid #ec4899; border-right: 30px solid #ec4899; }
+
+        .medal {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100px;
+            height: 100px;
+        }
+
+        .medal-circle {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, #fcd34d, #b45309);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(180, 83, 9, 0.4);
+            z-index: 2;
+            position: relative;
+            border: 3px solid #fff;
+        }
+        
+        .medal-circle-inner {
+            width: 76px;
+            height: 76px;
+            border: 1px dashed rgba(255,255,255,0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .medal-text {
+            color: white;
+            font-weight: 800;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 22px;
+            line-height: 1;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .ribbon-l, .ribbon-r {
+            position: absolute;
+            bottom: -15px;
+            width: 40px;
+            height: 60px;
+            background: var(--brand-primary);
+            z-index: 1;
+        }
+
+        .ribbon-l {
+            left: 10px;
+            transform: rotate(20deg);
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+        }
+
+        .ribbon-r {
+            right: 10px;
+            transform: rotate(-20deg);
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+        }
+
+        .cert-bottom-info {
+            position: absolute;
+            bottom: 25px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 11px;
+            color: #94a3b8;
+            letter-spacing: 1px;
+        }
 
     </style>
 </head>
 <body>
-    <div class="no-print">
-        <button onclick="window.print()" class="btn btn-primary">Imprimir / Salvar PDF</button>
-        <a href="{% url 'cursovideoapp:detalhe_curso' slug=curso.slug %}" class="btn btn-outline">Voltar ao Curso</a>
+    
+    <div class="controls" id="controls">
+        <a href="{% url 'cursovideoapp:detalhe_curso' slug=curso.slug %}" class="btn btn-outline">
+            ← Voltar ao Curso
+        </a>
+        <button onclick="downloadPDF()" class="btn btn-primary" id="btn-download">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            Exportar PDF
+        </button>
     </div>
 
-    <div class="certificate-container">
-        <div class="top-left corner"></div>
-        <div class="bottom-right corner"></div>
-        <div class="border-inner">
-            <img src="{% if curso.instrutor.usuario.foto_perfil %}{{ curso.instrutor.usuario.foto_perfil.url }}{% else %}{% static 'assets/images/logo/logo.png' %}{% endif %}" 
-                 onerror="this.src='{% static 'assets/images/logo/logo.png' %}'"
-                 alt="EdukAngola" class="logo">
-            
-            <div class="title">Certificado de Conclusão</div>
-            
-            <div class="subtitle">A plataforma EdukAngola certifica que</div>
-            
-            <div class="student-name">{{ aluno.nome }}</div>
-            
-            <div class="course-text">
-                concluiu com êxito o curso de vídeo-aulas de <br>
-                <span class="course-name">{{ curso.titulo }}</span>
-            </div>
+    <!-- The Certificate Canvas -->
+    <div class="certificate-wrapper" id="div-certificado">
+        
+        <!-- Watermark -->
+        <img src="{% static 'assets/images/logo/logo1-removebg-preview.png' %}" class="watermark" alt="Watermark" onerror="this.onerror=null; this.src='{% static 'assets/images/logo/logo.png' %}';">
 
-            <div class="footer">
-                <div class="qr-code-container">
-                    <div id="qrcode" class="qr-code-box"></div>
-                    <div class="signature-name" style="margin-top: 10px;">ID Verificação: {{ certificado.codigo_verificacao }}</div>
+        <div class="frame-outer">
+            <!-- decorative corners -->
+            <div class="corner-accent tl"></div>
+            <div class="corner-accent tr"></div>
+            <div class="corner-accent bl"></div>
+            <div class="corner-accent br"></div>
+
+            <div class="frame-inner">
+                
+                <div class="cert-header">
+                    <img src="{% if curso.instrutor.usuario.foto_perfil %}{{ curso.instrutor.usuario.foto_perfil.url }}{% else %}{% static 'assets/images/logo/logo.png' %}{% endif %}" onerror="this.src='{% static 'assets/images/logo/logo.png' %}'" alt="Instituição" class="cert-logo">
                 </div>
 
-                <div class="signature-block">
-                    <div class="signature">Carlos Muquissi Zangui</div>
-                    <div class="signature-name">Diretor Executivo</div>
+                <div class="cert-title-container">
+                    <h1 class="cert-title">Certificado de Conclusão</h1>
+                    <div class="cert-subtitle">Conferido com Orgulho e Confiança Académica</div>
                 </div>
-            </div>
 
-            <div class="date">Emitido em: {{ certificado.data_emissao|date:"d \d\e F \d\e Y" }}</div>
+                <div class="cert-body">
+                    <div class="student-presentation">Certifica-se publicamente que</div>
+                    <div class="student-name">{{ aluno.nome }}</div>
+                    <div class="course-presentation">
+                        cumpriu com sucesso todos os requisitos de visualização, participação e superou todas as metas do módulo educacional e intensivo de:
+                        <span class="course-name">"{{ curso.titulo }}"</span>
+                    </div>
+                </div>
+
+                <div class="cert-footer">
+                    <!-- QR Verification -->
+                    <div class="qr-section">
+                        <div id="qrcode" class="qr-wrapper"></div>
+                        <div class="qr-info">
+                            <strong>Validação de Autenticidade</strong>
+                            Escaneie para validar as credenciais. <br>
+                            ID de Registo Oficial: <br>
+                            <span class="code-pill">{{ certificado.codigo_verificacao }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Signature -->
+                    <div class="signature-section">
+                        <div class="signature-img">Carlos Zangui</div>
+                        <div class="signature-line"></div>
+                        <div class="signature-name">CARLOS MUQUISSI ZANGUI</div>
+                        <div class="signature-role">Diretor Executivo EdukAngola</div>
+                    </div>
+
+                    <!-- Seal -->
+                    <div class="badge-section">
+                        <div class="medal">
+                            <div class="ribbon-l"></div>
+                            <div class="ribbon-r"></div>
+                            <div class="medal-circle">
+                                <div class="medal-circle-inner">
+                                    <span class="medal-text">2026</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cert-bottom-info">
+                    Data de Emissão Institucional pela EdukAngola: {{ certificado.data_emissao|date:"d \d\e F, Y" }}
+                </div>
+
+            </div>
         </div>
     </div>
 
-    <!-- QRCode Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
-        new QRCode(document.getElementById("qrcode"), {
-            text: "{{ verificacao_url }}",
-            width: 90,
-            height: 90,
-            colorDark : "#1e293b",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
+        // Generate QR
+        document.addEventListener('DOMContentLoaded', () => {
+             new QRCode(document.getElementById("qrcode"), {
+                 text: "{{ verificacao_url|escapejs }}",
+                 width: 80,
+                 height: 80,
+                 colorDark : "#1e293b",
+                 colorLight : "#ffffff",
+                 correctLevel : QRCode.CorrectLevel.H
+             });
         });
+
+        // HTML2PDF Export
+        function downloadPDF() {
+            const btn = document.getElementById('btn-download');
+            btn.innerHTML = 'A Gerar PDF... aguarde.';
+            btn.disabled = true;
+
+            const element = document.getElementById('div-certificado');
+            
+            const opt = {
+                margin:       0,
+                filename:     'EdukAngola_{{ aluno.nome|slugify }}_{{ curso.titulo|slugify }}.pdf',
+                image:        { type: 'jpeg', quality: 1 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'px', format: [1122, 793], orientation: 'landscape', compress: true }
+            };
+
+            // Remove box-shadow before printing to avoid PDF artifacts around borders
+            element.style.boxShadow = 'none';
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                btn.innerHTML = '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Transferência Concluída!';
+                element.style.boxShadow = '0 25px 60px rgba(0,0,0,0.15)'; // Restore shadow
+                
+                setTimeout(() => {
+                    btn.innerHTML = '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> Exportar PDF';
+                    btn.disabled = false;
+                }, 3000);
+            });
+        }
     </script>
 </body>
 </html>

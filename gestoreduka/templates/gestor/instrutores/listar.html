@@ -1,76 +1,63 @@
-{% extends 'base_gestor.html' %}
+{% extends 'gestor_base.html' %}
 {% load static %}
 
-{% block title %}Instrutores - {{ centro.nome }}{% endblock %}
-
 {% block content %}
-<div class="dashboard-body">
-    <div class="breadcrumb mb-24 flex-between flex-wrap gap-16">
-        <div>
-            <h4 class="mb-4">Corpo Docente</h4>
-            <ul class="flex-align gap-4">
-                <li><a href="{% url 'centro_dashboard' %}" class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
-                <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
-                <li><span class="text-main-600 fw-normal text-15">Instrutores</span></li>
-            </ul>
+<div class="flex flex-col gap-5 lg:gap-7.5">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-xl font-bold text-foreground">Gerenciar Instrutores</h1>
+            <p class="text-sm text-secondary-foreground">Faça o controlo da sua equipa docente, perfis e áreas de especialização.</p>
         </div>
-        <a href="{% url 'criar_instrutor' %}" class="btn btn-primary-600 px-24 py-12 rounded-12 fw-bold d-flex align-items-center gap-8 shadow-sm hover-scale-1 transition-all">
-            <i class="ph ph-user-plus text-xl"></i> Adicionar Instrutor
-        </a>
+        <div class="flex items-center gap-2">
+            <a href="{% url 'criar_instrutor' %}" class="kt-btn kt-btn-primary">
+                <i class="ki-filled ki-plus"></i> Novo Instrutor
+            </a>
+        </div>
     </div>
 
-    <div class="row gy-4">
+    <!-- Lista de Instrutores -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-7.5">
         {% for instrutor in instrutores %}
-        <div class="col-xxl-3 col-lg-4 col-sm-6">
-            <div class="card premium-card border-0 shadow-sm h-100 transition-all hover-translate-y-4">
-                <div class="card-body text-center p-32">
-                    <div class="position-relative d-inline-block mb-24">
-                        {% if instrutor.foto %}
-                        <img src="{{ instrutor.foto.url }}" alt="{{ instrutor.nome }}"
-                            class="w-100 h-100 rounded-circle object-fit-cover shadow-sm border border-4 border-white" style="width: 100px !important; height: 100px !important;">
-                        {% else %}
-                        <div class="w-100 h-100 rounded-circle bg-primary-50 text-primary-600 flex-center mx-auto shadow-sm border border-4 border-white" style="width: 100px !important; height: 100px !important;">
-                            <i class="ph ph-user text-4xl fw-bold"></i>
-                        </div>
-                        {% endif %}
-                        <span class="position-absolute bottom-0 end-0 {% if instrutor.ativo %}bg-success{% else %}bg-gray-400{% endif %} border border-3 border-white rounded-circle" style="width: 20px; height: 20px;"></span>
-                    </div>
-
-                    <h5 class="mb-4 text-gray-900 fw-bold">{{ instrutor.nome }}</h5>
-                    <p class="text-primary-600 text-13 fw-bold mb-12 uppercase letter-spacing-05">{{ instrutor.get_especializacao_display }}</p>
-                    <div class="d-flex align-items-center justify-content-center gap-8 text-gray-400 mb-24">
-                        <i class="ph ph-envelope-simple"></i>
-                        <span class="text-12">{{ instrutor.email|truncatechars:25 }}</span>
-                    </div>
-
-                    <div class="pt-24 border-top border-gray-50 flex-align gap-8 justify-content-center">
-                        <a href="{% url 'editar_instrutor' instrutor.id %}"
-                            class="btn btn-outline-gray w-100 py-10 rounded-10 text-13 fw-bold d-flex align-items-center justify-content-center gap-8 hover-bg-primary-600 hover-text-white transition-all">
-                            <i class="ph ph-pencil-simple"></i> Editar Perfil
-                        </a>
-                        <button class="btn btn-gray-50 rounded-10 w-44 h-44 flex-center text-gray-400 hover-text-primary-600 transition-all">
-                            <i class="ph ph-chat-circle-dots text-xl"></i>
-                        </button>
-                    </div>
+        <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm overflow-hidden group">
+            <div class="p-6 flex flex-col items-center text-center">
+                <!-- Foto -->
+                <div class="relative size-20 rounded-full bg-primary/10 border-2 border-border mb-4 flex items-center justify-center overflow-hidden">
+                    {% if instrutor.foto %}
+                        <img src="{{ instrutor.foto.url }}" alt="{{ instrutor.nome }}" class="size-full object-cover">
+                    {% else %}
+                        <span class="text-2xl font-bold text-primary">{{ instrutor.nome|make_list|first }}</span>
+                    {% endif %}
                 </div>
-            </div>
-        </div>
-        {% empty %}
-        <div class="col-12">
-            <div class="card premium-card border-0 shadow-sm py-80 text-center">
-                <div class="card-body">
-                    <div class="w-80 h-80 bg-gray-50 rounded-circle flex-center mx-auto mb-24">
-                        <i class="ph ph-users text-gray-300 text-4xl"></i>
-                    </div>
-                    <h4 class="text-gray-900 mb-8 fw-bold">Nenhum instrutor encontrado</h4>
-                    <p class="text-gray-500 mb-32 max-w-400 mx-auto">Adicione profissionais qualificados para gerenciar o conteúdo e as turmas da sua instituição.</p>
-                    <a href="{% url 'criar_instrutor' %}" class="btn btn-primary-600 px-32 py-14 rounded-12 fw-bold shadow-sm">
-                        Cadastrar Primeiro Instrutor
+                
+                <h3 class="text-base font-bold text-foreground mb-1 group-hover:text-primary transition-colors">{{ instrutor.nome }}</h3>
+                <span class="text-xs text-muted-foreground mb-3">{{ instrutor.area_especializacao|default:"Especialidade não definida" }}</span>
+                
+                <div class="flex items-center gap-2 mb-4">
+                    {% if instrutor.ativo %}
+                        <span class="kt-badge kt-badge-sm kt-badge-success kt-badge-outline">Ativo</span>
+                    {% else %}
+                        <span class="kt-badge kt-badge-sm kt-badge-danger kt-badge-outline">Inativo</span>
+                    {% endif %}
+                </div>
+
+                <div class="w-full flex items-center justify-center gap-2 pt-4 border-t border-dashed border-border">
+                    <a href="{% url 'editar_instrutor' instrutor.id %}" class="kt-btn kt-btn-sm kt-btn-light grow justify-center">
+                        <i class="ki-filled ki-pencil"></i> Editar
                     </a>
                 </div>
             </div>
         </div>
+        {% empty %}
+        <div class="col-span-full py-10 text-center">
+            <div class="kt-card bg-background border border-border rounded-xl shadow-sm p-10 flex flex-col items-center">
+                <i class="ki-filled ki-user text-4xl text-muted-foreground opacity-20 mb-4"></i>
+                <p class="text-sm text-muted-foreground">Nenhum instrutor encontrado para esta instituição.</p>
+            </div>
+        </div>
         {% endfor %}
     </div>
+
 </div>
-{% endblock %}
+{% endblock content %}

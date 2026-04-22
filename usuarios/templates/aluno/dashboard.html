@@ -1,0 +1,158 @@
+{% extends 'aluno_base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Painel do Aluno" %} | EdukAngola{% endblock %}
+
+{% block dashboard_content %}
+<div class="rbt-dashboard-content">
+    
+    <!-- Welcome Header -->
+    <div class="rbt-shadow-box bg-color-white rbt-radius p--40 mb--40 border">
+        <div class="content">
+            <h3 class="title mb-0" style="font-weight: 800;">{% trans "Olá," %} {{ aluno_nome }}! 👋</h3>
+            <p class="description mt--10" style="font-size: 18px; color: var(--color-body);">{% trans "Bom revisitar a sua jornada de aprendizado. Aqui está o seu resumo atual:" %}</p>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="row g-5 mb--60">
+        <div class="col-lg-4 col-md-6">
+            <div class="rbt-counterup variation-01 rbt-hover-03 rbt-radius p--30 border bg-color-white h-100" style="border-left: 5px solid var(--color-primary) !important;">
+                <div class="inner d-flex align-items-center gap-4">
+                    <div class="rbt-round-icon bg-primary-opacity" style="width: 60px; height: 60px; font-size: 24px;">
+                        <i class="feather-book-open"></i>
+                    </div>
+                    <div class="content">
+                        <h3 class="counter mb-0"><span class="odometer" data-count="{{ total_cursos|default:0 }}">00</span></h3>
+                        <span class="p small fw-bold text-uppercase">{% trans "Inscrições" %}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+            <div class="rbt-counterup variation-01 rbt-hover-03 rbt-radius p--30 border bg-color-white h-100" style="border-left: 5px solid var(--color-success) !important;">
+                <div class="inner d-flex align-items-center gap-4">
+                    <div class="rbt-round-icon bg-success-opacity" style="width: 60px; height: 60px; font-size: 24px; color: var(--color-success);">
+                        <i class="feather-monitor"></i>
+                    </div>
+                    <div class="content">
+                        <h3 class="counter mb-0"><span class="odometer" data-count="{{ total_cursos_ativos|default:0 }}">00</span></h3>
+                        <span class="p small fw-bold text-uppercase">{% trans "Em Curso" %}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+            <div class="rbt-counterup variation-01 rbt-hover-03 rbt-radius p--30 border bg-color-white h-100" style="border-left: 5px solid #8e44ad !important;">
+                <div class="inner d-flex align-items-center gap-4">
+                    <div class="rbt-round-icon bg-violet-opacity" style="width: 60px; height: 60px; font-size: 24px; color: #8e44ad;">
+                        <i class="feather-award"></i>
+                    </div>
+                    <div class="content">
+                        <h3 class="counter mb-0"><span class="odometer" data-count="{{ total_certificados|default:0 }}">00</span></h3>
+                        <span class="p small fw-bold text-uppercase">{% trans "Certificados" %}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Courses Progress -->
+    <div class="rbt-shadow-box bg-color-white rbt-radius p--40 border mb--60">
+        <div class="section-title d-flex justify-content-between align-items-center mb--40">
+            <h4 class="title mb-0">{% trans "Continuar a Aprender" %}</h4>
+            <a href="{% url 'aluno_cursos' %}" class="rbt-btn-link">{% trans "Ver todos" %} <i class="feather-arrow-right"></i></a>
+        </div>
+        
+        <div class="row g-5">
+            {% for item in inscricoes_com_progresso %}
+            <div class="col-lg-12">
+                <div class="course-progress-card p--30 rbt-border-dashed rbt-radius d-flex align-items-center gap-4 flex-wrap flex-md-nowrap">
+                    <div class="thumbnail" style="width: 120px; flex-shrink: 0;">
+                        {% if item.imagem_url %}
+                        <img src="{{ item.imagem_url }}" alt="Course" class="rbt-radius" style="width: 120px; height: 80px; object-fit: cover;">
+                        {% else %}
+                        <img src="{% static 'assets/images/course/course-01.jpg' %}" alt="Course" class="rbt-radius" style="width: 120px; height: 80px; object-fit: cover;">
+                        {% endif %}
+                    </div>
+                    <div class="content w-100">
+                        <div class="d-flex justify-content-between align-items-start mb--10">
+                            <div>
+                                <h5 class="title mb-0">
+                                    {% if item.is_video %}
+                                    <a href="{% url 'cursovideoapp:detalhe_curso' item.slug %}" class="hover-primary">{{ item.titulo }}</a>
+                                    {% else %}
+                                    <a href="{% url 'painel_curso' item.id %}" class="hover-primary">{{ item.titulo }}</a>
+                                    {% endif %}
+                                </h5>
+                                <span class="text-muted small">{{ item.concluidas }} / {{ item.total_aulas }} {% trans "aulas concluídas" %}</span>
+                            </div>
+                            <span class="h6 mb-0 text-primary">{{ item.progresso }}%</span>
+                        </div>
+                        <div class="progress" style="height: 10px; background-color: var(--color-border-light); border-radius: 10px;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ item.progresso }}%; border-radius: 10px;" aria-valuenow="{{ item.progresso }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    <div class="action-btn" style="flex-shrink: 0;">
+                        {% if item.is_video %}
+                        <a href="{% url 'cursovideoapp:detalhe_curso' item.slug %}" class="rbt-btn btn-sm btn-border hover-icon-reverse">
+                        {% else %}
+                        <a href="{% url 'painel_curso' item.id %}" class="rbt-btn btn-sm btn-border hover-icon-reverse">
+                        {% endif %}
+                            <span class="icon-reverse-wrapper">
+                                <span class="btn-text">{% trans "Retomar" %}</span>
+                                <span class="btn-icon"><i class="feather-play"></i></span>
+                                <span class="btn-icon"><i class="feather-play"></i></span>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-lg-12 text-center py--40">
+                <i class="feather-book-open display-4 text-muted mb--20"></i>
+                <p class="text-muted">{% trans "Ainda não iniciou nenhum curso. Escolha um curso e comece hoje!" %}</p>
+                <a href="{% url 'catalogo_cursos' %}" class="rbt-btn btn-gradient btn-sm mt--20">{% trans "Explorar Cursos" %}</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<style>
+    .hover-primary:hover {
+        color: var(--color-primary) !important;
+    }
+    .course-progress-card {
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+    .course-progress-card:hover {
+        transform: translateX(10px);
+        border-color: var(--color-primary);
+        background: rgba(var(--color-primary-rgb), 0.02);
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof Odometer !== 'undefined') {
+            const odometers = document.querySelectorAll('.odometer');
+            odometers.forEach(od => {
+                const count = od.getAttribute('data-count');
+                const target = new Odometer({
+                    el: od,
+                    value: 0
+                });
+                setTimeout(() => {
+                    od.innerHTML = count;
+                }, 500);
+            });
+        }
+    });
+</script>
+{% endblock %}

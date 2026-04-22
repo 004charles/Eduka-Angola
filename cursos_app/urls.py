@@ -9,6 +9,9 @@ urlpatterns = [
     path('curso_detalhe/<int:id>/', views.curso_detalhe, name='curso_detalhe'),
     path('centro/<int:centro_id>/cursos/', views.cursos_por_centro, name='cursos_por_centro'),
     path('categoria/<slug:slug>/', views.cursos_por_categoria, name='cursos_por_categoria'),
+    path('instituicoes/', views.lista_centros, name='lista_centros'),
+    path('api/centros-proximos/', views.api_centros_proximos, name='api_centros_proximos'),
+    path('api/mapa-global/', views.api_mapa_global, name='api_mapa_global'),
     path('pagina_categoria/', views.pagina_categoria, name = 'pagina_categoria'),
     path('todo_curso/', views.todo_curso, name = 'todo_curso'),
     path('buscar/', views.buscar_cursos, name='buscar_cursos'),
@@ -22,6 +25,9 @@ urlpatterns = [
     path('comentarios/<int:comentario_id>/excluir/', views.excluir_comentario, name='excluir_comentario'),
     path('comentarios/<int:comentario_id>/denunciar/', views.denunciar_comentario, name='denunciar_comentario'),
     path('', views.catalogo_cursos, name='catalogo_cursos'),
+    path('instrutor/<int:id>/', views.instrutor_detalhes, name='instrutor_detalhes'),
+    path('api/sugestoes/', views.api_buscar_sugestoes, name='api_buscar_sugestoes'),
+    path('painel_curso/<int:curso_id>/', views.painel_curso, name='painel_curso'),
 
     
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

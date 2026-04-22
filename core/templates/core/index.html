@@ -1,5 +1,6 @@
 {% load static %}
 {% load i18n %}
+{% load curso_filters %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -17,6 +18,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="{% static 'js/components/course_card.js' %}"></script>
 
 
     {% include 'include/css.html' %}
@@ -465,30 +467,133 @@
                 transform: translateY(0);
             }
         }
+
+        /* Featured Centers Section Styles */
+        .rbt-featured-centers-area {
+            padding: 60px 0 0 0;
+            overflow: hidden;
+        }
+
+        .featured-centers-track {
+            display: flex;
+            gap: 25px;
+            overflow-x: auto;
+            padding: 20px 5px 40px 5px;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: thin;
+            scrollbar-color: var(--color-primary) transparent;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .featured-centers-track::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .featured-centers-track::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+            border-radius: 10px;
+        }
+
+        .featured-centers-track::-webkit-scrollbar-thumb {
+            background-color: var(--color-primary);
+            border-radius: 10px;
+        }
+
+        .center-featured-card {
+            flex: 0 0 350px;
+            height: 220px;
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            scroll-snap-align: start;
+            box-shadow: var(--shadow-2);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            border: 1px solid var(--color-border);
+        }
+
+        .center-featured-card:hover {
+            transform: scale(1.03) translateY(-5px);
+        }
+
+        .center-banner-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.8s ease;
+        }
+
+        .center-featured-card:hover .center-banner-bg {
+            transform: scale(1.1);
+        }
+
+        .center-card-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .center-mini-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: white;
+            padding: 5px;
+            object-fit: contain;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .center-card-info .center-name {
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+            display: block;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .center-card-info .center-tag {
+            color: var(--color-primary);
+            font-size: 11px;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 2px 10px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 768px) {
+            .center-featured-card {
+                flex: 0 0 280px;
+                height: 180px;
+            }
+            .rbt-featured-centers-area {
+                padding: 40px 0 0 0;
+            }
+            .center-card-info .center-name {
+                font-size: 16px;
+            }
+        }
     </style>
 
 </head>
 
 <body class="rbt-header-sticky">
 
-    <div id="my_switcher" class="my_switcher">
-        <ul>
-            <li>
-                <a href="javascript: void(0);" data-theme="light" class="setColor light">
-                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode">
-                        Light</span>
-                </a>
-            </li>
-            <li>
-                <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
-                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span
-                        title="{% trans 'Dark Mode' %}"> {% trans 'Dark' %}</span>
-                </a>
-            </li>
-        </ul>
-    </div>
     {% include 'include/header.html' %}
-    {% include 'include/loading.html' %}
 
 
     <main style="margin-top: 13px;" class="rbt-main-wrapper ">
@@ -501,13 +606,13 @@
                         <div class="swiper-slide">
                             <div class="coursera-slide bg-slide-1">
                                 <div class="slide-content">
-                                    <h1 class="slide-title">Encontre os melhores Centros de Formação</h1>
+                                    <h1 class="slide-title">A Sua Próxima Etapa Profissional Começa Aqui</h1>
                                     <p class="slide-description">
-                                        Conectamos você a instituições avaliadas e verificadas em toda Angola.
-                                        Inicie ou avance na sua carreira hoje mesmo.
+                                        Conectamos você às instituições mais prestigiadas de Angola. 
+                                        O selo de qualidade que o mercado reconhece e a sua carreira exige.
                                     </p>
-                                    <a href="{% url 'home_centro' %}" class="coursera-btn">
-                                        Explorar Centros <i class="feather-arrow-right"></i>
+                                    <a href="{% url 'lista_centros' %}" class="coursera-btn">
+                                        Especializações <i class="feather-arrow-right"></i>
                                     </a>
                                 </div>
                                 <div class="slide-image-wrapper">
@@ -521,13 +626,13 @@
                         <div class="swiper-slide">
                             <div class="coursera-slide bg-slide-2">
                                 <div class="slide-content">
-                                    <h1 class="slide-title">Domine novas habilidades com cursos práticos</h1>
+                                    <h1 class="slide-title">Domine o Prático. Torne-se Essencial.</h1>
                                     <p class="slide-description">
-                                        Aprenda com especialistas em ambientes reais de sala de aula.
-                                        Formação presencial com certificação reconhecida.
+                                        Formação técnica de elite com mentores experientes. 
+                                        Onde a teoria encontra a exigência real do mundo do trabalho.
                                     </p>
                                     <a href="{% url 'home_cursos' %}" class="coursera-btn">
-                                        Ver Cursos <i class="feather-arrow-right"></i>
+                                        Programas Presenciais <i class="feather-arrow-right"></i>
                                     </a>
                                 </div>
                                 <div class="slide-image-wrapper">
@@ -540,13 +645,13 @@
                         <div class="swiper-slide">
                             <div class="coursera-slide bg-slide-3">
                                 <div class="slide-content">
-                                    <h1 class="slide-title">Aprenda no seu ritmo com cursos em vídeo</h1>
+                                    <h1 class="slide-title">Lidere a Sua Própria Evolução Digital</h1>
                                     <p class="slide-description">
-                                        Acesse centenas de aulas online e estude onde e quando quiser.
-                                        O conhecimento dos melhores especialistas a um clique.
+                                        Aceda ao conhecimento dos maiores especialistas do país. 
+                                        Aprenda no seu ritmo e assuma o controlo do seu futuro.
                                     </p>
                                     <a href="{% url 'home_cursos' %}" class="coursera-btn">
-                                        Começar Agora <i class="feather-arrow-right"></i>
+                                        Jornada Online <i class="feather-arrow-right"></i>
                                     </a>
                                 </div>
                                 <div class="slide-image-wrapper">
@@ -569,7 +674,7 @@
                 <div class="row align-items-center">
                     <div class="col-lg-12">
                         <div class="section-title text-center mb--40">
-                            <span class="small-title w-600">Confiam na EdukaAngola</span>
+                            <span class="small-title w-600">Alinhados com a Excelência Industrial e Corporativa</span>
                         </div>
                         <ul class="brand-list brand-style-2 justify-content-center">
                             <li><a href="#"><img src="{% static 'assets/images/brand/brand-01.png' %}"
@@ -596,10 +701,10 @@
                 <div class="row row--15 mt_dec--30">
                     <div class="col-lg-4 col-xl-4 col-md-6 col-sm-6 col-12 mt--30">
                         <div class="section-title text-start">
-                            <h2 class="title">O que você vai encontrar</h2>
+                            <h2 class="title">O Ecossistema da Sua Carreira</h2>
                             <p class="description mt--20">
-                                Cursos de centros de formação, conteúdos em vídeo da plataforma e materiais de apoio para
-                                impulsionar o seu aprendizado.
+                                Do rigor técnico presencial à flexibilidade digital: entregamos o conhecimento oficial 
+                                que as empresas líderes em Angola procuram nos seus profissionais.
                             </p>
                             <div class="read-more-btn">
                                 <a class="rbt-btn btn-gradient radius rbt-marquee-btn marquee-text-y" href="#">
@@ -681,10 +786,9 @@
                                         alt="Shape Images">
                                 </div>
                                 <div class="content">
-                                    <h6 class="title"><a href="#">Livros</a></h6>
+                                    <h6 class="title"><a href="#">Acervo Técnico Especializado</a></h6>
                                     <p class="description">
-                                        Livros e materiais de apoio para aprofundar conhecimentos e complementar os
-                                        estudos.
+                                        Fichas, manuais e guias práticos para consolidar o seu domínio técnico total.
                                     </p>
                                 </div>
                             </div>
@@ -715,17 +819,16 @@
                                                 Asrafy</strong>
                                         </a>
                                     </div>
-                                    <h1 style="font-size: 35px;" class="title">Os melhores cursos em video para impulsionar sua
-                                        carreira</h1>
+                                    <h1 style="font-size: 35px;" class="title">EdukAngola Play: A Sua Biblioteca Pessoal de Sucesso</h1>
                                     <p class="description has-medium-font-size mt--20">
-                                        Cursos práticos e atualizados para você se destacar no mercado de trabalho.
+                                        Transforme o seu tempo em capital intelectual com conteúdos que o mercado de topo exige.
                                     </p>
 
                                     <div class="slider-btn rbt-button-group justify-content-start">
                                         <a class="rbt-btn btn-gradient radius-round hover-icon-reverse"
                                             href="10-online-course.html#">
                                             <span class="icon-reverse-wrapper">
-                                                <span class="btn-text">Veja como funciona</span>
+                                                <span class="btn-text">Descobrir Ecossistema</span>
                                                 <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                                 <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                             </span>
@@ -733,7 +836,7 @@
                                         <a class="rbt-btn radius-round hover-icon-reverse btn-white"
                                             href="10-online-course.html#">
                                             <span class="icon-reverse-wrapper">
-                                                <span class="btn-text">Inscreva-se</span>
+                                                <span class="btn-text">Iniciar Ascensão</span>
                                                 <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                                 <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                             </span>
@@ -759,15 +862,93 @@
 
 
 
+
+
+        {% if centros_destaque %}
+        <!-- Centros em Destaque Section -->
+        <div class="rbt-featured-centers-area bg-color-white">
+            <div class="container">
+                <div class="row align-items-center mb--40">
+                    <div class="col-lg-12">
+                        <div class="section-title text-start">
+                            <span class="subtitle bg-primary-opacity">{% trans "Parceiros" %} ✨</span>
+                            <h2 class="title" style="font-size: 32px; font-weight: 800;">{% trans "Centros em Destaque" %}</h2>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="featured-centers-track">
+                    {% for centro in centros_destaque %}
+                    <a href="{% url 'cursos_por_centro' centro.id %}" class="center-featured-card">
+                        <div class="center-banner-bg" style="background-image: url('{{ centro.perfil.banner.url }}');"></div>
+                        <div class="center-card-overlay">
+                            {% if centro.perfil.imagem %}
+                            <img src="{{ centro.perfil.imagem.url }}" alt="{{ centro.nome }}" class="center-mini-logo">
+                            {% else %}
+                            <div class="center-mini-logo d-flex align-items-center justify-content-center" style="background: var(--color-primary); color: white; font-weight: bold; border: none;">
+                                {{ centro.nome|slice:":1" }}
+                            </div>
+                            {% endif %}
+                            <div class="center-card-info">
+                                <span class="center-name">{{ centro.nome }}</span>
+                                <span class="center-tag">💎 {% trans "Instituicão" %}</span>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <!-- End Centros em Destaque Section -->
+        {% endif %}
+
+        <!-- Start Global Map Section -->
+        <div class="rbt-map-area bg-color-white rbt-section-gapTop">
+            <div class="container">
+                <div class="row mb--40">
+                    <div class="col-lg-12">
+                        <div class="section-title text-center">
+                            <span class="subtitle bg-secondary-opacity">{% trans "Geolocalização" %} 🌍</span>
+                            <h2 class="title" style="font-size: 32px; font-weight: 800;">{% trans "Mapa Global de Oportunidades" %}</h2>
+                            <p class="description mt--10">{% trans "Descubra centros de formação e cursos perto de si ou em qualquer parte do mundo." %}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="map-wrapper" style="position: relative; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.08); border: 1px solid var(--color-border);">
+                            <div id="home-global-map" style="height: 500px; width: 100%;">
+                                <div class="d-flex align-items-center justify-content-center h-100 bg-light">
+                                    <div class="text-center">
+                                        <div class="spinner-border text-primary mb-3" role="status"></div>
+                                        <p class="text-muted tracking-tight">{% trans "A carregar mapa de oportunidades..." %}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Overlay Controls -->
+                            <div class="map-overlay-controls" style="position: absolute; bottom: 20px; right: 20px; z-index: 5;">
+                                <button id="btn-recenter" class="rbt-btn btn-white btn-sm shadow-sm">
+                                    <i class="feather-crosshair"></i> {% trans "Minha Localização" %}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Global Map Section -->
+
         <div class="rbt-categories-area rbt-section-gap bg-color-white">
             <div class="container">
                 <div class="row g-5 align-items-center mb--50">
                     <div class="col-lg-8 col-md-7 col-12">
                         <div class="section-title">
-                            <h2 class="title">Em qual area você<span><img
+                            <h2 class="title">Qual o Rumo da Sua <span><img
                                         src="{% static 'assets/images/shape/o-icon-2.png' %}" alt="Cap Icon"></span>
-                                quer mergulhar?</h2>
-                            <p class="description">Explore nossas principais áreas de conhecimento</p>
+                                Próxima Vitória?</h2>
+                            <p class="description">Escolha a especialização que abrirá as portas do seu futuro.</p>
 
                         </div>
                     </div>
@@ -826,170 +1007,18 @@
 
 
 
-        <!-- Seção de Cursos Temáticos Style Coursera -->
-        <div class="rbt-course-area rbt-section-gapBottom bg-color-white">
-            <div class="container">
-                
-                <!-- 1. Cursos em Destaque -->
-                <div class="row g-5 align-items-center mb--30">
-                    <div class="col-lg-12">
-                        <div class="section-title text-start">
-                            <h2 class="title"><span class="theme-gradient">Destaques</span> do EdukAngola</h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="swiper cursosDestaqueSwiper mb--60">
-                    <div class="swiper-wrapper">
-                        {% for curso in cursos_destaque %}
-                        <div class="swiper-slide">
-                            <div class="rbt-card variation-01 rbt-hover">
-                                <div class="rbt-card-img">
-                                    <a href="{% url 'curso_detalhe' id=curso.id %}">
-                                        {% if curso.imagem %}
-                                        <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}" style="height: 200px; object-fit: cover;">
-                                        {% else %}
-                                        <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{ curso.titulo }}" style="height: 200px; object-fit: cover;">
-                                        {% endif %}
-                                    </a>
-                                </div>
-                                <div class="rbt-card-body">
-                                    <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}" style="font-size: 18px;">{{ curso.titulo }}</a></h4>
-                                    <div class="rbt-card-bottom">
-                                        <div class="rbt-price"><span class="current-price">kz {{ curso.preco }}</span></div>
-                                        <span class="rbt-badge-card">Destaque</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <div class="rbt-swiper-pagination"></div>
-                </div>
-
-                <!-- 2. Novidades da Semana -->
-                <div class="row g-5 align-items-center mb--30">
-                    <div class="col-lg-12">
-                        <div class="section-title text-start">
-                            <h2 class="title">Novidades da <span class="theme-gradient">Semana</span></h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="swiper cursosSemanaSwiper mb--60">
-                    <div class="swiper-wrapper">
-                        {% for curso in cursos_recentes|slice:":10" %}
-                        <div class="swiper-slide">
-                            <div class="rbt-card variation-01 rbt-hover shadow-sm">
-                                <div class="rbt-card-img">
-                                    <a href="{% url 'curso_detalhe' id=curso.id %}">
-                                        <img src="{{ curso.imagem.url|default:'/static/assets/images/course/default-course.jpg' }}" alt="{{ curso.titulo }}" style="height: 180px; object-fit: cover;">
-                                    </a>
-                                </div>
-                                <div class="rbt-card-body">
-                                    <h5 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}" style="font-size: 16px;">{{ curso.titulo }}</a></h5>
-                                    <div class="rbt-price"><span class="current-price">kz {{ curso.preco }}</span></div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <!-- 3. Especial Para Você (IA) - Apenas se logado -->
-                {% if aluno_logado and cursos_recomendados %}
-                <div class="row g-5 align-items-center mb--30">
-                    <div class="col-lg-12">
-                        <div class="section-title text-start">
-                            <h2 class="title">✨ Especial <span class="theme-gradient">Para Você</span></h2>
-                            <p class="description">Recomendações baseadas no seu perfil e interesses.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="swiper cursosIASwiper mb--60">
-                    <div class="swiper-wrapper">
-                        {% for curso in cursos_recomendados %}
-                        <div class="swiper-slide">
-                            <div class="rbt-card variation-01 rbt-hover border-primary">
-                                <div class="rbt-card-img">
-                                    <a href="{% url 'curso_detalhe' id=curso.id %}">
-                                        <img src="{{ curso.imagem.url|default:'/static/assets/images/course/default-course.jpg' }}" alt="{{ curso.titulo }}" style="height: 200px; object-fit: cover;">
-                                    </a>
-                                </div>
-                                <div class="rbt-card-body">
-                                    <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}" style="font-size: 18px;">{{ curso.titulo }}</a></h4>
-                                    <div class="rbt-card-bottom">
-                                        <div class="rbt-price"><span class="current-price">kz {{ curso.preco }}</span></div>
-                                        <span class="badge bg-primary">IA Pick</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- 4. Início Próximo -->
-                <div class="row g-5 align-items-center mb--30">
-                    <div class="col-lg-12">
-                        <div class="section-title text-start">
-                            <h2 class="title">⏰ Início <span class="theme-gradient">Próximo</span></h2>
-                            <p class="description">Cursos com aulas começando nos próximos dias. Não perca a vaga!</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="swiper cursosProximosSwiper mb--60">
-                    <div class="swiper-wrapper">
-                        {% for curso in cursos_proximos %}
-                        <div class="swiper-slide">
-                            <div class="rbt-card variation-01 rbt-hover">
-                                <div class="rbt-card-img">
-                                    <a href="{% url 'curso_detalhe' id=curso.id %}">
-                                        <img src="{{ curso.imagem.url|default:'/static/assets/images/course/default-course.jpg' }}" alt="{{ curso.titulo }}" style="height: 180px; object-fit: cover;">
-                                    </a>
-                                </div>
-                                <div class="rbt-card-body">
-                                    <h5 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}" style="font-size: 16px;">{{ curso.titulo }}</a></h5>
-                                    <div class="rbt-card-bottom">
-                                        <div class="rbt-price"><span class="current-price">kz {{ curso.preco }}</span></div>
-                                        <span class="text-danger small fw-bold"><i class="feather-clock"></i> {{ curso.data_inicio|date:"d/m" }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-
-            </div>
-        </div>
+        <!-- Secções Dinâmicas de Cursos -->
+        {% for secao in secoes_dinamicas %}
+            {% include 'components/home_course_section.html' with secao=secao %}
+            
+            {% if forloop.counter == 4 %}
+                <!-- Secção de Instrutores (Injetada após a 4ª secção) -->
+                {% include 'components/home_instrutores_section.html' %}
+            {% endif %}
+        {% endfor %}
 
         <!-- EdukAngola Play Teaser -->
-        <div class="rbt-callto-action-area bg-color-white rbt-section-gap">
-            <div class="container">
-                <div class="rbt-cta-6 bg_image radius-10 text-center" style="padding: 60px 20px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;">
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="inner">
-                                <div class="section-title text-center">
-                                    <span class="play-badge" style="background: var(--color-primary); color: #fff; padding: 5px 15px; border-radius: 4px; font-weight: 700; text-transform: uppercase; margin-bottom: 20px; display: inline-block;">100% ONLINE</span>
-                                    <h2 class="title" style="color: #fff;">Descubra o <span class="theme-gradient">EdukAngola Play</span></h2>
-                                    <p class="description" style="color: #cbd5e1; max-width: 700px; margin: 0 auto 30px;">
-                                        Aprenda com os melhores especialistas de Angola e do mundo no seu próprio ritmo. 
-                                        Acesse nosso catálogo exclusivo de cursos em vídeo e transforme sua carreira hoje mesmo.
-                                    </p>
-                                    <div class="call-to-btn">
-                                        <a class="rbt-btn btn-gradient radius-round" href="{% url 'cursovideoapp:home_videos' %}">
-                                            Explorar EdukAngola Play <i class="feather-arrow-right"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        
         <!-- Start Testimonial Area -->
         <div class="rbt-testimonial-area testimonial-section-02 bg-color-white rbt-section-gap overflow-hidden">
             <div class="shape-1">
@@ -999,251 +1028,53 @@
                 <div class="row align-items-center row--30">
                     <div class="col-lg-6">
                         <!-- Start Tab Content  -->
+                        {% if depoimentos %}
                         <div class="rbt-testimonial-content tab-content" id="myTabContent">
-                            <div class="tab-pane fade active show" id="testimonial-tab1" role="tabpanel"
-                                aria-labelledby="testimonial-tab1-tab">
+                            {% for d in depoimentos %}
+                            <div class="tab-pane fade {% if forloop.first %}active show{% endif %}" id="testimonial-tab{{ forloop.counter }}" role="tabpanel"
+                                aria-labelledby="testimonial-tab{{ forloop.counter }}-tab">
                                 <div class="inner">
                                     <div class="rating mb--30">
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
+                                        {% for i in "12345" %}
+                                            <a href="#"><i class="fa fa-star {% if forloop.counter > d.nota %}text-muted{% endif %}"></i></a>
+                                        {% endfor %}
                                     </div>
-                                    <p>Histudy The standard chunk of Lorem Ipsum used since the 1500s is reproduced
-                                        below for those interested. Sections Bonorum et Malorum original.</p>
+                                    <p>{{ d.texto }}</p>
                                 </div>
                                 <div class="author-info">
-                                    <h6><span>Histudy </span> - COO, AMERIMAR ENTERPRISES, INC.</h6>
+                                    <h6><span>{{ d.nome }}</span> - {% if d.aluno %}{{ d.aluno.nome }}{% else %}{{ d.cargo }}{% endif %}</h6>
                                 </div>
                             </div>
-
-                            <div class="tab-pane fade" id="testimonial-tab2" role="tabpanel"
-                                aria-labelledby="testimonial-tab2-tab">
-                                <div class="inner">
-                                    <div class="rating mb--30">
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                    </div>
-                                    <p>The standard chunk of Lorem Ipsum used since the 1500s is reproduced
-                                        below for those interested. Sections Bonorum et Malorum original.</p>
-                                </div>
-                                <div class="author-info">
-                                    <h6><span>Nira </span> - COO, AMERIMAR ENTERPRISES, INC.</h6>
-                                </div>
-                            </div>
-
-                            <div class="tab-pane fade" id="testimonial-tab3" role="tabpanel"
-                                aria-labelledby="testimonial-tab3-tab">
-                                <div class="inner">
-                                    <div class="rating mb--30">
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                    </div>
-                                    <p>Rafiq The standard chunk of Lorem Ipsum used since the 1500s is reproduced
-                                        below for those interested. Sections Bonorum et Malorum original.</p>
-                                </div>
-                                <div class="author-info">
-                                    <h6><span>Jone Jane </span> - COO, AMERIMAR ENTERPRISES, INC.</h6>
-                                </div>
-                            </div>
-
-                            <div class="tab-pane fade" id="testimonial-tab4" role="tabpanel"
-                                aria-labelledby="testimonial-tab4-tab">
-                                <div class="inner">
-                                    <div class="rating mb--30">
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                    </div>
-                                    <p>Janen The standard chunk of Lorem Ipsum used since the 1500s is reproduced
-                                        below for those interested. Sections Bonorum et Malorum original.</p>
-                                </div>
-                                <div class="author-info">
-                                    <h6><span>Janen Asrafy </span> - COO, AMERIMAR ENTERPRISES, INC.</h6>
-                                </div>
-                            </div>
-
-                            <div class="tab-pane fade" id="testimonial-tab5" role="tabpanel"
-                                aria-labelledby="testimonial-tab5-tab">
-                                <div class="inner">
-                                    <div class="rating mb--30">
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                    </div>
-                                    <p>Afrin The standard chunk of Lorem Ipsum used since the 1500s is reproduced
-                                        below for those interested. Sections Bonorum et Malorum original.</p>
-                                </div>
-                                <div class="author-info">
-                                    <h6><span>Afrin </span> - COO, AMERIMAR ENTERPRISES, INC.</h6>
-                                </div>
-                            </div>
-
-                            <div class="tab-pane fade" id="testimonial-tab6" role="tabpanel"
-                                aria-labelledby="testimonial-tab6-tab">
-                                <div class="inner">
-                                    <div class="rating mb--30">
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                    </div>
-                                    <p>Education The standard chunk of Lorem Ipsum used since the 1500s is reproduced
-                                        below for those interested. Sections Bonorum et Malorum original.</p>
-                                </div>
-                                <div class="author-info">
-                                    <h6><span>Asrafy </span> - COO, AMERIMAR ENTERPRISES, INC.</h6>
-                                </div>
-                            </div>
-
-                            <div class="tab-pane fade" id="testimonial-tab7" role="tabpanel"
-                                aria-labelledby="testimonial-tab7-tab">
-                                <div class="inner">
-                                    <div class="rating mb--30">
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                    </div>
-                                    <p>Mohima The standard chunk of Lorem Ipsum used since the 1500s is reproduced
-                                        below for those interested. Sections Bonorum et Malorum original.</p>
-                                </div>
-                                <div class="author-info">
-                                    <h6><span>Mohima Asrafy </span> - COO, AMERIMAR ENTERPRISES, INC.</h6>
-                                </div>
-                            </div>
-
-                            <div class="tab-pane fade" id="testimonial-tab8" role="tabpanel"
-                                aria-labelledby="testimonial-tab8-tab">
-                                <div class="inner">
-                                    <div class="rating mb--30">
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                        <a href="21-art-design-school.html#"><i class="fa fa-star"></i></a>
-                                    </div>
-                                    <p>Nuha The standard chunk of Lorem Ipsum used since the 1500s is reproduced
-                                        below for those interested. Sections Bonorum et Malorum original.</p>
-                                </div>
-                                <div class="author-info">
-                                    <h6><span>Nuha </span> - COO, AMERIMAR ENTERPRISES, INC.</h6>
-                                </div>
-                            </div>
+                            {% endfor %}
                         </div>
+                        {% endif %}
                         <!-- End Tab Content  -->
                     </div>
                     <div class="col-lg-6 mt_md--30 mt_sm--30">
                         <!-- Start Tab Nav  -->
+                        {% if depoimentos %}
                         <ul class="testimonial-thumb-wrapper nav nav-tabs" id="myTab" role="tablist">
+                            {% for d in depoimentos %}
                             <li>
-                                <a class="active" id="testimonial-tab1-tab" data-bs-toggle="tab"
-                                    data-bs-target="#testimonial-tab1" role="tab" aria-controls="testimonial-tab1"
-                                    aria-selected="true">
+                                <a class="{% if forloop.first %}active{% endif %}" id="testimonial-tab{{ forloop.counter }}-tab" data-bs-toggle="tab"
+                                    data-bs-target="#testimonial-tab{{ forloop.counter }}" role="tab" aria-controls="testimonial-tab{{ forloop.counter }}"
+                                    aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
                                     <div class="testimonial-thumbnai">
                                         <div class="thumb">
-                                            <img src="{% static 'assets/images/testimonial/testimonial-8.jpg' %}"
-                                                alt="Testimonial Images">
+                                            {% if d.foto %}
+                                                <img src="{{ d.foto.url }}" alt="Testimonial Images">
+                                            {% elif d.aluno and d.aluno.usuario.get_foto_perfil_url %}
+                                                <img src="{{ d.aluno.usuario.get_foto_perfil_url }}" alt="Testimonial Images">
+                                            {% else %}
+                                                <img src="{% static 'assets/images/testimonial/testimonial-8.jpg' %}" alt="Testimonial Images">
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </a>
                             </li>
-
-                            <li>
-                                <a id="testimonial-tab2-tab" data-bs-toggle="tab" data-bs-target="#testimonial-tab2"
-                                    role="tab" aria-controls="testimonial-tab2" aria-selected="false">
-                                    <div class="testimonial-thumbnai">
-                                        <div class="thumb">
-                                            <img src="{% static 'assets/images/testimonial/testimonial-8.jpg' %}"
-                                                alt="Testimonial Images">
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-
-                            <li>
-                                <a id="testimonial-tab3-tab" data-bs-toggle="tab" data-bs-target="#testimonial-tab3"
-                                    role="tab" aria-controls="testimonial-tab3" aria-selected="false">
-                                    <div class="testimonial-thumbnai">
-                                        <div class="thumb">
-                                            <img src="{% static 'assets/images/testimonial/testimonial-8.jpg' %}"
-                                                alt="Testimonial Images">
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a id="testimonial-tab4-tab" data-bs-toggle="tab" data-bs-target="#testimonial-tab4"
-                                    role="tab" aria-controls="testimonial-tab4" aria-selected="false">
-                                    <div class="testimonial-thumbnai">
-                                        <div class="thumb">
-                                            <img src="{% static 'assets/images/testimonial/testimonial-8.jpg' %}"
-                                                alt="Testimonial Images">
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-
-                            <li>
-                                <a id="testimonial-tab5-tab" data-bs-toggle="tab" data-bs-target="#testimonial-tab5"
-                                    role="tab" aria-controls="testimonial-tab5" aria-selected="false">
-                                    <div class="testimonial-thumbnai">
-                                        <div class="thumb">
-                                            <img src="{% static 'assets/images/testimonial/testimonial-8.jpg' %}"
-                                                alt="Testimonial Images">
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-
-                            <li>
-                                <a id="testimonial-tab6-tab" data-bs-toggle="tab" data-bs-target="#testimonial-tab6"
-                                    role="tab" aria-controls="testimonial-tab6" aria-selected="false">
-                                    <div class="testimonial-thumbnai">
-                                        <div class="thumb">
-                                            <img src="{% static 'assets/images/testimonial/testimonial-8.jpg' %}"
-                                                alt="Testimonial Images">
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-
-                            <li>
-                                <a id="testimonial-tab7-tab" data-bs-toggle="tab" data-bs-target="#testimonial-tab7"
-                                    role="tab" aria-controls="testimonial-tab7" aria-selected="false">
-                                    <div class="testimonial-thumbnai">
-                                        <div class="thumb">
-                                            <img src="{% static 'assets/images/testimonial/testimonial-8.jpg' %}"
-                                                alt="Testimonial Images">
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-
-                            <li>
-                                <a id="testimonial-tab8-tab" data-bs-toggle="tab" data-bs-target="#testimonial-tab8"
-                                    role="tab" aria-controls="testimonial-tab8" aria-selected="false">
-                                    <div class="testimonial-thumbnai">
-                                        <div class="thumb">
-                                            <img src="{% static 'assets/images/testimonial/testimonial-8.jpg' %}"
-                                                alt="Testimonial Images">
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
+                            {% endfor %}
                         </ul>
+                        {% endif %}
                         <!-- End Tab Content  -->
                     </div>
                 </div>
@@ -1259,8 +1090,8 @@
                 <div class="row mb--60 g-5 align-items-end">
                     <div class="col-lg-8 col-md-8 col-12">
                         <div class="section-title text-start">
-                            <h6 class="b2 mb--15"><span class="theme-gradient">Notícias & Blog</span></h6>
-                            <h2 class="title w-600">Confira Nossas <span class="theme-gradient">Atualizações</span></h2>
+                            <h6 class="b2 mb--15"><span class="theme-gradient">Visão Estratégica & Panorama</span></h6>
+                            <h2 class="title w-600">Atualizações de <span class="theme-gradient">Impacto no Mercado</span></h2>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-4 col-12">
@@ -1397,8 +1228,8 @@
     <!-- Swiper JS -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
-        // 1. Swiper Destaques
-        new Swiper(".cursosDestaqueSwiper", {
+        // 1. Inicializador genérico para as seções dinâmicas de cursos
+        new Swiper(".dynamicCourseSwiper", {
             slidesPerView: 4,
             spaceBetween: 25,
             loop: true,
@@ -1412,40 +1243,18 @@
             }
         });
 
-        // 2. Swiper Novidades da Semana
-        new Swiper(".cursosSemanaSwiper", {
-            slidesPerView: 5,
-            spaceBetween: 20,
-            autoplay: { delay: 3500, disableOnInteraction: false },
-            breakpoints: {
-                0: { slidesPerView: 1.5, spaceBetween: 10 },
-                768: { slidesPerView: 3, spaceBetween: 15 },
-                1200: { slidesPerView: 5, spaceBetween: 20 }
-            }
-        });
-
-        // 3. Swiper IA (Especial Para Você)
-        new Swiper(".cursosIASwiper", {
+        // 2. Inicializador para Instrutores
+        new Swiper(".instrutoresSwiper", {
             slidesPerView: 4,
             spaceBetween: 25,
             loop: true,
             autoplay: { delay: 5000, disableOnInteraction: false },
+            pagination: { el: '.rbt-swiper-pagination', clickable: true },
             breakpoints: {
-                0: { slidesPerView: 1.2 },
-                768: { slidesPerView: 2.5 },
-                1200: { slidesPerView: 4 }
-            }
-        });
-
-        // 4. Swiper Início Próximo
-        new Swiper(".cursosProximosSwiper", {
-            slidesPerView: 5,
-            spaceBetween: 20,
-            autoplay: { delay: 4500, disableOnInteraction: false },
-            breakpoints: {
-                0: { slidesPerView: 1.5 },
-                768: { slidesPerView: 3 },
-                1200: { slidesPerView: 5 }
+                0: { slidesPerView: 1.2, spaceBetween: 15 },
+                576: { slidesPerView: 2, spaceBetween: 20 },
+                992: { slidesPerView: 3, spaceBetween: 25 },
+                1200: { slidesPerView: 4, spaceBetween: 25 }
             }
         });
 
@@ -1476,40 +1285,10 @@
 
     <script>
         const csrftoken = '{{ csrf_token }}';
-        document.addEventListener('DOMContentLoaded', function () {
-            const botoes = document.querySelectorAll('.favorito-btn');
-
-            botoes.forEach(botao => {
-                botao.addEventListener('click', function () {
-                    const cursoId = this.getAttribute('data-curso-id');
-
-                    fetch(`/favorito/${cursoId}/`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRFToken': '{{ csrf_token }}',
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({})
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.status === 'added') {
-                                this.classList.add('favorito-ativo');
-                            } else if (data.status === 'removed') {
-                                this.classList.remove('favorito-ativo');
-                            } else {
-                                alert(data.message);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Erro:', error);
-                            alert('Erro ao atualizar favorito.');
-                        });
-                });
-            });
-        });
+        window.GOOGLE_MAPS_API_KEY = "{{ GOOGLE_MAPS_API_KEY }}";
     </script>
+    <script src="{% static 'assets/js/google_maps_loader.js' %}"></script>
+    <script src="{% static 'assets/js/home_map_init.js' %}"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -1611,17 +1390,16 @@
             const cursor = document.querySelector('.cursor-pulse');
 
             // Texto especial da solução (aparece primeiro por 5 minutos)
-            const solutionText = "Formação prática para entrar no mercado de trabalho";
+            const solutionText = "Formação de Elite para Quem Exige o Topo do Mercado";
 
 
             // Textos normais (começam após 5 minutos)
             const normalTexts = [
-                "Aprenda uma profissão que o mercado precisa",
-                "Conhecimento que vira oportunidade",
-                "Conhecimento que vira oportunidade",
-                "Formamos profissionais, não apenas alunos",
-                "Estude com propósito. Trabalhe com confiança.",
-                "Estude com propósito. Trabalhe com confiança."
+                "Domine as Competências Que os Recrutadores Priorizam",
+                "Transforme Saber Técnico em Autoridade Profissional",
+                "Forjamos Líderes Técnicos para a Indústria Angolana",
+                "Capacite-se com Rigor. Lidere com Excelência.",
+                "O Conhecimento Oficial Que o Seu Futuro Exige"
             ];
 
             let isShowingSolution = true;

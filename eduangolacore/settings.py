@@ -1,22 +1,28 @@
+import os
 from pathlib import Path
+
 from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-import os
 from django.utils.translation import gettext_lazy as _
 
 SECRET_KEY = config("SECRET_KEY", default="django-insecure-default")
-DEBUG = config("DEBUG", default=False, cast=bool)
+DEBUG = config("DEBUG", default=True, cast=bool)
 
 ALLOWED_HOSTS = ['*']
+
+GOOGLE_MAPS_API_KEY = config("GOOGLE_MAPS_API_KEY", default="")
+
 
 
 
 INSTALLED_APPS = [
-    'jazzmin',
     # 'django.contrib.gis',
     'django.contrib.admin',
-    'channels',
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'corsheaders',
+    # 'channels',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -25,11 +31,8 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
 
 
-    'pwa',
-
-
-    'ckeditor',     
-    'ckeditor_uploader',
+    # 'ckeditor',     
+    # 'ckeditor_uploader',
 
     # Allauth
     'django.contrib.sites',
@@ -50,6 +53,8 @@ INSTALLED_APPS = [
     'avaliacoes',
     'centro_formacao',
 
+    'crispy_forms',
+    'crispy_bootstrap5',
 ]
 
 
@@ -101,6 +106,7 @@ CSRF_TRUSTED_ORIGINS = [
 SITE_DOMAIN = 'http://127.0.0.1:8000'  
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -144,6 +150,7 @@ ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 
 LOGIN_REDIRECT_URL = '/'
+SESSION_COOKIE_NAME = 'eduka_session'
 LOGOUT_REDIRECT_URL = '/'
 
 TEMPLATES = [
@@ -158,6 +165,7 @@ TEMPLATES = [
                 'django.template.context_processors.i18n',
                 'core.context_processors.languages',
                 'core.context_processors.destaques',
+                'core.context_processors.google_maps_key',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -266,106 +274,29 @@ AUTH_USER_MODEL = 'usuarios.Usuario'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=EMAIL_HOST_USER)
 
 
-JAZZMIN_SETTINGS = {
-    "site_title": "Educa + Angola Admin",
-    "site_header": "Educa + Angola",
-    "site_brand": "Educa + Angola",
-    "welcome_sign": "Bem-vindo ao Educa + Angola",
-    "show_ui_builder": True, 
+
+
+
+# REST FRAMEWORK & CORS CONFIG
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',
+    ),
 }
 
-JAZZMIN_UI_TWEAKS = {
-    "navbar_small_text": False,
-    "footer_small_text": False,
-    "body_small_text": False,
-    "brand_small_text": False,
-    "brand_colour": "navbar-dark",
-    "accent": "accent-primary",
-    "navbar": "navbar-dark",
-    "no_navbar_border": False,
-    "navbar_fixed": True,
-    "layout_boxed": False,
-    "footer_fixed": False,
-    "sidebar_fixed": True,
-    "sidebar": "sidebar-dark-primary",
-    "sidebar_nav_small_text": False,
-    "sidebar_disable_expand": False,
-    "sidebar_nav_child_indent": True,
-    "sidebar_nav_compact_style": False,
-    "sidebar_nav_legacy_style": False,
-    "sidebar_nav_flat_style": False,
-    "theme": "darkly", 
-}
+CORS_ALLOW_ALL_ORIGINS = True
 
-
-
-
-
-# Configurações do PWA
-PWA_APP_NAME = 'EdukaAngola'
-PWA_APP_DESCRIPTION = "Plataforma de Educação Online"
-PWA_APP_THEME_COLOR = '#007bff'
-PWA_APP_BACKGROUND_COLOR = '#ffffff'
-PWA_APP_DISPLAY = 'standalone'
-PWA_APP_SCOPE = '/'
-PWA_APP_ORIENTATION = 'portrait'
-PWA_APP_START_URL = '/'
-PWA_APP_STATUS_BAR_COLOR = 'default'
-PWA_APP_ICONS = [
-    {
-        'src': '/static/assets/images/logo/Eduka-removebg-preview.png',
-        'sizes': '72x72'
-    },
-    {
-        'src': '/static/assets/images/logo/Eduka-removebg-preview.png',
-        'sizes': '96x96'
-    },
-    {
-        'src': '/static/assets/images/logo/Eduka-removebg-preview.png',
-        'sizes': '128x128'
-    },
-    {
-        'src': '/static/assets/images/logo/Eduka-removebg-preview.png',
-        'sizes': '144x144'
-    },
-    {
-        'src': '/static/assets/images/logo/Eduka-removebg-preview.png',
-        'sizes': '152x152'
-    },
-    {
-        'src': '/static/assets/images/logo/Eduka-removebg-preview.png',
-        'sizes': '192x192'
-    },
-    {
-        'src': '/static/assets/images/logo/Eduka-removebg-preview.png',
-        'sizes': '384x384'
-    },
-    {
-        'src': '/static/assets/images/logo/Eduka-removebg-preview.png',
-        'sizes': '512x512'
-    }
-]
-PWA_APP_ICONS_APPLE = [
-    {
-        'src': '/static/assets/images/logo/Eduka-removebg-preview.png',
-        'sizes': '180x180'
-    }
-]
-PWA_APP_SPLASH_SCREEN = [
-    {
-        'src': '/static/assets/images/logo/Eduka-removebg-preview.png',
-        'media': '(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)'
-    }
-]
-PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'static', 'js', 'serviceworker.js')
-
-PWA_APP_DIR = 'ltr'
-PWA_APP_LANG = 'pt-BR'
-
+# Crispy Forms
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"

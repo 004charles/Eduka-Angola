@@ -2,10 +2,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinLengthValidator
 from django.utils import timezone
-import uuid
-from django.db import models
-from django.utils import timezone
 from django.conf import settings
+import uuid
 
 
 from django.core.exceptions import ImproperlyConfigured
@@ -24,11 +22,30 @@ from django.utils.translation import gettext_lazy as _
 
 
 
+from django.utils.text import slugify
 from django.contrib.auth.hashers import make_password, check_password
 
-# from django.contrib.gis.db import models as gis_models
-# from django.contrib.gis.geos import Point
-# from django.utils.translation import gettext_lazy as _
+class CategoriaCentro(models.Model):
+    """Categorias globais para centros de formação (Tecnologia, Línguas, etc.)"""
+    nome = models.CharField(_('Nome'), max_length=100, unique=True)
+    slug = models.SlugField(_('Slug'), unique=True, blank=True)
+    icone = models.CharField(_('Ícone (FontAwesome/Feather)'), max_length=50, blank=True, help_text="Ex: feather-monitor")
+    descricao = models.TextField(_('Descrição'), blank=True)
+    ativa = models.BooleanField(_('Ativa'), default=True)
+
+    class Meta:
+        verbose_name = _('Categoria de Centro')
+        verbose_name_plural = _('Categorias de Centros')
+        ordering = ['nome']
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.nome)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.nome
+
 
 class CentroDeFormacao(gis_models.Model):
     """
@@ -36,12 +53,28 @@ class CentroDeFormacao(gis_models.Model):
     Lida com endereço físico, coordenadas GIS e informações básicas de contato.
     Integrado com a autenticação centralizada do Usuario.
     """
+    PAIS_CHOICES = [
+        ('AO', _('Angola')),
+        ('PT', _('Portugal')),
+        ('BR', _('Brasil')),
+        ('CV', _('Cabo Verde')),
+        ('MZ', _('Moçambique')),
+        ('ST', _('São Tomé e Príncipe')),
+        ('GW', _('Guiné-Bissau')),
+        ('TL', _('Timor-Leste')),
+    ]
+
     usuario = models.OneToOneField('usuarios.Usuario', on_delete=models.CASCADE, related_name='centro_profile', null=True, blank=True)
     nome = models.CharField(_('Nome do Centro'), max_length=100, blank=True, null=True)
     nif = models.CharField(_('NIF'), max_length=18, unique=True, blank=True, null=True)
+    pais = models.CharField(_('País'), max_length=2, choices=PAIS_CHOICES, default='AO')
     endereco = models.CharField(_('Endereço'), max_length=255, blank=True, null=True)
     cidade = models.CharField(_('Cidade'), max_length=100, blank=True, null=True)
-    provincia = models.CharField(_('Província'), max_length=100, blank=True, null=True)
+    provincia = models.CharField(_('Província'), max_length=100, blank=True, null=True, help_text="Província (Angola) ou Distrito/Região (Portugal)")
+    fuso_horario = models.CharField(_('Fuso Horário'), max_length=50, default='Africa/Luanda')
+    
+    # Novas Categorias
+    categorias = models.ManyToManyField(CategoriaCentro, related_name='centros_principais', blank=True)
     
     if HAS_GEODJANGO and not settings.DATABASES['default']['ENGINE'].endswith('sqlite3'):
         localizacao = gis_models.PointField(
@@ -73,14 +106,54 @@ class CentroDeFormacao(gis_models.Model):
 
     @property
     def latitude(self):
-        return self.localizacao.y if self.localizacao else None
+        """Retorna a latitude de forma resiliente, suportando formato Point ou string."""
+        if not self.localizacao:
+            return None
+        
+        # Caso o dado seja uma string (fallback ou legado)
+        if isinstance(self.localizacao, str):
+            if ',' in self.localizacao:
+                try:
+                    return float(self.localizacao.split(',')[0])
+                except (ValueError, IndexError):
+                    return None
+            return None
+            
+        # Caso o dado seja um objeto geográfico (GeoDjango)
+        try:
+            return self.localizacao.y
+        except AttributeError:
+            # Caso HAS_GEODJANGO seja True mas o objeto não tenha .y (raro)
+            return None
 
     @property
     def longitude(self):
-        return self.localizacao.x if self.localizacao else None
+        """Retorna a longitude de forma resiliente, suportando formato Point ou string."""
+        if not self.localizacao:
+            return None
+            
+        # Caso o dado seja uma string
+        if isinstance(self.localizacao, str):
+            if ',' in self.localizacao:
+                try:
+                    return float(self.localizacao.split(',')[1])
+                except (ValueError, IndexError):
+                    return None
+            return None
+            
+        # Caso o dado seja um objeto geográfico (GeoDjango)
+        try:
+            return self.localizacao.x
+        except AttributeError:
+            return None
 
     def set_localizacao(self, lat, lng):
-        self.localizacao = Point(lng, lat, srid=4326)
+        if HAS_GEODJANGO:
+            from django.contrib.gis.geos import Point
+            self.localizacao = Point(lng, lat, srid=4326)
+        else:
+            self.localizacao = f"{lat},{lng}"
+
 
     def get_endereco_completo(self):
         parts = [part for part in [self.endereco, self.cidade, self.provincia] if part]
@@ -236,18 +309,33 @@ class Recurso(models.Model):
 
 class Depoimento(models.Model):
     """
-    Modelo para armazenar depoimentos de alunos sobre o centro de formação.
+    Modelo para armazenar depoimentos de alunos sobre o centro de formação ou sobre a plataforma.
     """
+    TIPO_CHOICES = [
+        ('PLATAFORMA', _('Sobre a Plataforma')),
+        ('CENTRO', _('Sobre o Centro de Formação')),
+    ]
+
+    tipo = models.CharField(_('Tipo'), max_length=20, choices=TIPO_CHOICES, default='PLATAFORMA')
     centro = models.ForeignKey(
         CentroDeFormacao,
         on_delete=models.CASCADE,
-        related_name='depoimentos'
+        related_name='depoimentos',
+        null=True,
+        blank=True
+    )
+    aluno = models.ForeignKey(
+        'usuarios.Aluno',
+        on_delete=models.SET_NULL,
+        related_name='meus_depoimentos',
+        null=True,
+        blank=True
     )
     nome = models.CharField(_('Nome'), max_length=100)
     foto = models.ImageField(_('Foto'), upload_to='depoimentos/', blank=True)
     cargo = models.CharField(_('Cargo/Curso'), max_length=100, blank=True)
     texto = models.TextField(_('Depoimento'))
-    nota = models.PositiveIntegerField(_('Nota (1-5)'))
+    nota = models.PositiveIntegerField(_('Nota (1-5)'), default=5)
     data = models.DateField(_('Data'), auto_now_add=True)
     aprovado = models.BooleanField(_('Aprovado?'), default=False)
 
@@ -538,7 +626,14 @@ class Filial(models.Model):
     telefone = models.CharField(_('Telefone'), max_length=20)
     email = models.EmailField(_('E-mail'), unique=True)
     whatsapp = models.CharField(_('WhatsApp'), max_length=20, blank=True, null=True)
+    
+    # Geolocalização
+    latitude = models.DecimalField(_('Latitude'), max_digits=22, decimal_places=16, blank=True, null=True)
+    longitude = models.DecimalField(_('Longitude'), max_digits=22, decimal_places=16, blank=True, null=True)
+    
     ativo = models.BooleanField(_('Ativa'), default=True)
+    data_exclusao = models.DateTimeField(_('Data de Exclusão'), null=True, blank=True)
+    categorias = models.ManyToManyField('CategoriaCentro', related_name='filiais_centros', blank=True, verbose_name=_('Categorias'))
     data_criacao = models.DateTimeField(_('Data de Criação'), auto_now_add=True)
 
     class Meta:
@@ -581,8 +676,25 @@ class Mensagem(models.Model):
     lida = models.BooleanField(default=False)
     digitando = models.BooleanField(default=False)
 
-    class Meta:
-        ordering = ['data_envio']
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        
+        # Notificar o aluno se a mensagem for do centro e for uma nova mensagem real
+        if is_new and self.remetente_centro and not self.digitando:
+            from cursos_app.utils import notificar_seguidores
+            # Usamos o hub mas com lógica específica para conversa
+            from usuarios.models import NotificacaoAluno
+            NotificacaoAluno.objects.create(
+                aluno=self.conversa.aluno,
+                titulo=f"Nova mensagem de {self.remetente_centro.nome}",
+                mensagem=self.mensagem[:100] + ("..." if len(self.mensagem) > 100 else ""),
+                link="/usuarios/aluno/chat/", # Link genérico para o chat do aluno
+                tipo='CHAT'
+            )
+            # Atualizar timestamp da conversa
+            self.conversa.ultima_mensagem = timezone.now()
+            self.conversa.save(update_fields=['ultima_mensagem'])
 
     def __str__(self):
         return f"Mensagem de {self.remetente} - {self.mensagem[:20]}"
@@ -595,3 +707,42 @@ class Mensagem(models.Model):
 
     def is_centro(self):
         return self.remetente_centro is not None
+
+
+class AnuncioCentro(models.Model):
+    """
+    Anúncios/Novidades publicados pelos centros na sua dashboard para os seguidores.
+    """
+    centro = models.ForeignKey(CentroDeFormacao, on_delete=models.CASCADE, related_name='anuncios')
+    titulo = models.CharField(_('Título do Anúncio'), max_length=200)
+    conteudo = models.TextField(_('Conteúdo'))
+    imagem = models.ImageField(_('Imagem (opcional)'), upload_to='anuncios/', null=True, blank=True)
+    data_publicacao = models.DateTimeField(auto_now_add=True)
+    importante = models.BooleanField(_('Anúncio Urgente/Importante'), default=False)
+    
+    class Meta:
+        ordering = ['-data_publicacao']
+        verbose_name = _('Anúncio do Centro')
+        verbose_name_plural = _('Anúncios dos Centros')
+
+    def __str__(self):
+        return f"{self.titulo} - {self.centro.nome}"
+
+
+
+class AnuncioCentro(models.Model):
+    """Novidades e comunicados gerais dos centros para seus seguidores"""
+    centro = models.ForeignKey(CentroDeFormacao, on_delete=models.CASCADE, related_name='anuncios')
+    titulo = models.CharField(_('Título'), max_length=200)
+    conteudo = models.TextField(_('Conteúdo'))
+    imagem = models.ImageField(_('Imagem'), upload_to='anuncios/', blank=True, null=True)
+    data_publicacao = models.DateTimeField(_('Data de Publicação'), auto_now_add=True)
+    ativo = models.BooleanField(_('Ativo'), default=True)
+
+    class Meta:
+        verbose_name = _('Anúncio de Centro')
+        verbose_name_plural = _('Anúncios de Centros')
+        ordering = ['-data_publicacao']
+
+    def __str__(self):
+        return f"{self.centro.nome} - {self.titulo}"

@@ -4,6 +4,7 @@ from gestoreduka import views
 
 urlpatterns = [
     path('dashboard/centro/', views.centro_dashboard, name='centro_dashboard'),
+    path('perfil/', views.perfil_institucional_interno, name='perfil_institucional_interno'),
     path("cadastro/confirmar/<uuid:token>/", views.confirmar_cadastro, name="confirmar_cadastro"),
     path('login_gestor/', views.login_gestor, name='login_gestor'),
     path('home/', views.home_centros, name='home_centros'),
@@ -47,9 +48,10 @@ urlpatterns = [
     
     #--------------------------------url chat-------------------------------
     path('chat/', views.chat_centro, name='chat_centro'),
-    path('chat/enviar-mensagem/', views.enviar_mensagem_centro, name='enviar_mensagem_centro'),
+    path('chat/enviar/', views.enviar_mensagem_centro, name='enviar_mensagem_centro'),
+    path('chat/mensagens/<int:conversa_id>/', views.get_mensagens_ajax, name='get_mensagens_ajax'),
     path('chat/digitando/', views.atualizar_status_digitando, name='atualizar_status_digitando'),
-    path('chat/mensagens/<int:conversa_id>/', views.buscar_mensagens, name='buscar_mensagens'),
+    path('chat/eliminar/<int:conversa_id>/', views.eliminar_conversa, name='eliminar_conversa'),
 
 
 
@@ -70,4 +72,9 @@ urlpatterns = [
     
     # Administrativo / Financeiro
     path('financeiro/', views.gerenciar_financeiro, name='gerenciar_financeiro'),
+    path('centros/seguir/<int:centro_id>/', views.seguir_centro_ajax, name='seguir_centro_ajax'),
+    
+    # Anúncios Institucionais
+    path('dashboard/anuncios/', views.listar_anuncios, name='listar_anuncios'),
+    path('dashboard/anuncios/criar/', views.criar_anuncio, name='criar_anuncio'),
 ]

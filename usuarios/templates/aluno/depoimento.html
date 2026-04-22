@@ -1,0 +1,119 @@
+{% extends 'aluno_base.html' %}
+{% load static %}
+
+{% block title %}Meu Depoimento | Edukangola{% endblock %}
+
+{% block dashboard_content %}
+<div class="rbt-dashboard-content bg-color-white rbt-shadow-box">
+    <div class="content">
+        <div class="section-title">
+            <h4 class="rbt-title-style-3">Meu Depoimento</h4>
+            <p>Sua opinião é fundamental para melhorarmos a plataforma.</p>
+        </div>
+
+        <div class="row g-5">
+            <div class="col-lg-12">
+                <!-- Formulário de Depoimento -->
+        <div class="rbt-comment-form">
+            <div class="inner">
+                <form action="{% url 'enviar_depoimento' %}" method="POST" class="rbt-profile-row rbt-default-form row g-5">
+                    {% csrf_token %}
+                            <div class="col-lg-6">
+                                <div class="rbt-form-group">
+                                    <label for="tipo" class="form-label">Sobre o que é seu depoimento?</label>
+                                    <div class="rbt-modern-select">
+                                        <select name="tipo" id="tipo" class="w-100" required>
+                                            <option value="PLATAFORMA">Plataforma Edukangola</option>
+                                            <option value="CENTRO">Um Centro de Formação específico</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6" id="centro_select_wrapper" style="display: none;">
+                                <div class="rbt-form-group">
+                                    <label for="centro" class="form-label">Selecione o Centro</label>
+                                    <div class="rbt-modern-select">
+                                        <select name="centro" id="centro" class="w-100">
+                                            {% for centro in centros_inscritos %}
+                                                <option value="{{ centro.id }}">{{ centro.nome }}</option>
+                                            {% empty %}
+                                                <option value="">Você não está vinculado a nenhum centro</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="rbt-form-group">
+                                    <label for="texto" class="form-label">Seu Depoimento</label>
+                                    <textarea id="texto" name="texto" placeholder="Conte sua experiência..." required></textarea>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="form-submit-group">
+                                    <button type="submit" class="rbt-btn btn-md btn-gradient hover-icon-reverse">
+                                        <span class="icon-reverse-wrapper">
+                                            <span class="btn-text">Enviar Depoimento</span>
+                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+                </form>
+            </div>
+        </div>
+
+                <hr class="mt--40 mb--40">
+
+                <h5 class="mb--20">Meus Depoimentos Enviados</h5>
+                <div class="rbt-dashboard-table table-responsive">
+                    <table class="rbt-table table table-borderless">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Texto</th>
+                                <th>Data</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dep in meus_depoimentos %}
+                            <tr>
+                                <td>{{ dep.get_tipo_display }}</td>
+                                <td>{{ dep.texto|truncatechars:50 }}</td>
+                                <td>{{ dep.data|date:"d/m/Y" }}</td>
+                                <td>
+                                    {% if dep.aprovado %}
+                                        <span class="badge bg-success">Aprovado</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Pendente</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center">Nenhum depoimento enviado ainda.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('tipo').addEventListener('change', function() {
+        var wrapper = document.getElementById('centro_select_wrapper');
+        if (this.value === 'CENTRO') {
+            wrapper.style.display = 'block';
+        } else {
+            wrapper.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

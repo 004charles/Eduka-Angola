@@ -12,6 +12,13 @@ from datetime import timedelta
 
 
 
+def validate_video_size(value):
+    filesize = value.size
+    if filesize > 50 * 1024 * 1024:  # 50MB
+        raise ValidationError(_("O tamanho máximo do vídeo não pode exceder 50MB."))
+    return value
+
+
 class Instrutor(models.Model):
     TIPO_CHOICES_ESPECIALIZACAO = [
         ('TECNOLOGIA_INFORMACAO', 'Tecnologia de Informação'),
@@ -115,6 +122,30 @@ class Curso(models.Model):
         ('HIBRIDO', 'Híbrido'),
     ]
 
+    MOEDA_CHOICES = [
+        ('AOA', _('Kwanza (AOA)')),
+        ('EUR', _('Euro (EUR)')),
+        ('USD', _('Dólar (USD)')),
+    ]
+
+    DURACAO_CHOICES = [
+        ('1_SEMANA', '1 Semana'),
+        ('2_SEMANAS', '2 Semanas'),
+        ('3_SEMANAS', '3 Semanas'),
+        ('1_MES', '1 Mês'),
+        ('2_MESES', '2 Meses'),
+        ('3_MESES', '3 Meses'),
+        ('4_MESES', '4 Meses'),
+        ('5_MESES', '5 Meses'),
+        ('6_MESES', '6 Meses'),
+        ('7_MESES', '7 Meses'),
+        ('8_MESES', '8 Meses'),
+        ('9_MESES', '9 Meses'),
+        ('10_MESES', '10 Meses'),
+        ('11_MESES', '11 Meses'),
+        ('1_ANO', '1 Ano'),
+    ]
+
     centro = models.ForeignKey('gestoreduka.CentroDeFormacao', on_delete=models.CASCADE, verbose_name=_('Centro de Formação'), related_name='cursos')
     filial = models.ForeignKey('gestoreduka.Filial', on_delete=models.CASCADE, verbose_name=_('Filial'), related_name='cursos', null=True, blank=True)
     titulo = models.CharField(_('Título do Curso'), max_length=200, validators=[MinLengthValidator(3)])
@@ -134,10 +165,12 @@ class Curso(models.Model):
         help_text='Define se o curso é gratuito ou pago'
     )
     
+    moeda = models.CharField(_('Moeda'), max_length=3, choices=MOEDA_CHOICES, default='AOA')
+    
     preco = models.DecimalField(
         _('Preço do Curso'),
         max_digits=10,
-        decimal_places=3,
+        decimal_places=2,
         validators=[MinValueValidator(0)],
         default=0
     )
@@ -169,12 +202,21 @@ class Curso(models.Model):
     data_fim_inscricoes = models.DateTimeField(_('Fim das Inscrições'), null=True, blank=True)
     
     modalidade = models.CharField(_('Modalidade'), max_length=10, choices=MODALIDADE_CHOICES, default='PRESENCIAL')
+    duracao = models.CharField(_('Duração'), max_length=20, choices=DURACAO_CHOICES, blank=True, null=True)
     ativo = models.BooleanField(_('Curso Ativo'), default=True)
     publicado = models.BooleanField(_('Publicado'), default=False)
     imagem = models.ImageField(_('Imagem do Curso'), upload_to='cursos/', null=True, blank=True)
     requisitos = models.TextField(_('Pré-requisitos'), blank=True, null=True)
     objetivo_geral = models.TextField(_('Objetivo Geral'), blank=True)
-    publico_alvo = models.TextField(_('Público-Alvo'), blank=True)
+
+    video_preview_file = models.FileField(
+        _('Ficheiro de Vídeo de Prévia'),
+        upload_to='cursos/previews/',
+        null=True,
+        blank=True,
+        validators=[validate_video_size],
+        help_text='Carregue um vídeo curto de apresentação (Máx: 50MB)'
+    )
 
     video_previa_url = models.URLField(
     _('Vídeo de Prévia do Curso'),
@@ -245,10 +287,6 @@ class Curso(models.Model):
             
 
     def atualizar_vagas_globais(self):
-        self.vagas_ocupadas = self.inscricoes.filter(status='A').count()
-        self.vagas_disponiveis = self.total_vagas_totais - self.vagas_ocupadas
-        self.save(update_fields=['vagas_ocupadas', 'vagas_disponiveis'])
-        
         for turma in self.turmas.all():
             turma.atualizar_vagas_turma()
 
@@ -345,6 +383,10 @@ class Curso(models.Model):
         )['total'] or 0
 
     @property
+    def vagas_ocupadas(self):
+        return self.inscricoes.filter(status='A').count()
+
+    @property
     def total_vagas_disponiveis(self):
         return self.total_vagas_totais - self.vagas_ocupadas
 
@@ -375,7 +417,7 @@ class Curso(models.Model):
 
     def get_absolute_url(self):
         from django.urls import reverse
-        return reverse('curso_detalhe', kwargs={'slug': self.slug})
+        return reverse('curso_detalhe', kwargs={'id': self.id})
 
     @property
     def get_media_avaliacoes(self):
@@ -781,22 +823,7 @@ class PreRequisitoCurso(models.Model):
         return self.texto
 
 
-class PublicoAlvoCurso(models.Model):
-    curso = models.ForeignKey(
-        Curso, 
-        on_delete=models.CASCADE, 
-        related_name='publico_alvo_items'
-    )
-    texto = models.CharField(_('Público-Alvo'), max_length=255)
-    ordem = models.PositiveIntegerField(_('Ordem'), default=0)
-
-    class Meta:
-        ordering = ['ordem']
-        verbose_name = 'Público-Alvo do Curso'
-        verbose_name_plural = 'Públicos-Alvo do Curso'
-
-    def __str__(self):
-        return self.texto
+# PublicoAlvoCurso removido conforme solicitação
 
 
 

@@ -1,0 +1,192 @@
+{% load static %}
+{% load i18n %}
+
+<div class="rbt-dashboard-content bg-color-white rbt-shadow-box p-4 p-md-5">
+    <div class="content">
+        <!-- Cabeçalho da Jornada -->
+        <div class="section-title mb--40">
+            <h4 class="rbt-title-style-3">{% trans "Minha Jornada de Especialização" %}</h4>
+            <p class="description">{% trans "Acompanhe o seu progresso, aceda aos conteúdos e conquiste as suas certificações profissionais." %}</p>
+        </div>
+
+        <!-- Estatísticas Rápidas de Progresso -->
+        <div class="row g-4 mb--50">
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="rbt-counterup style-2 bg-primary-opacity rounded-3 p-4">
+                    <div class="inner">
+                        <div class="content">
+                            <h3 class="counter"><span class="odometer">{{ total_cursos_ativos|default:0 }}</span></h3>
+                            <span class="subtitle">{% trans "Cursos Ativos" %}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="rbt-counterup style-2 bg-secondary-opacity rounded-3 p-4">
+                    <div class="inner">
+                        <div class="content">
+                            <h3 class="counter"><span class="odometer">{{ total_certificados|default:0 }}</span></h3>
+                            <span class="subtitle">{% trans "Certificações Concluídas" %}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de Cursos -->
+        <div class="row g-5">
+            {% if inscricoes_reais or cursos_videos_inscritos %}
+                
+                <!-- 1. Cursos Presenciais / Híbridos (Inscrições Reais) -->
+                {% for inscricao in inscricoes_reais %}
+                <div class="col-12">
+                    <div class="rbt-card list-view variation-01 rbt-hover card-career-progression shadow-none border">
+                        <div class="rbt-card-img" style="max-width: 250px;">
+                            <a href="{% url 'curso_detalhe' id=inscricao.curso.id %}">
+                                {% if inscricao.curso.imagem %}
+                                    <img src="{{ inscricao.curso.imagem.url }}" alt="{{ inscricao.curso.titulo }}">
+                                {% else %}
+                                    <img src="{% static 'assets/images/course/course-online-01.jpg' %}" alt="{{ inscricao.curso.titulo }}">
+                                {% endif %}
+                                <div class="rbt-badge-card px-3 py-1 bg-white text-dark fw-bold" style="position: absolute; top: 10px; left: 10px; border-radius: 4px; font-size: 10px;">
+                                    {{ inscricao.curso.get_modalidade_display }}
+                                </div>
+                            </a>
+                        </div>
+                        <div class="rbt-card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="rbt-card-title mb-0"><a href="{% url 'curso_detalhe' id=inscricao.curso.id %}">{{ inscricao.curso.titulo }}</a></h5>
+                                <span class="badge {% if inscricao.status == 'A' %}bg-success{% elif inscricao.status == 'P' %}bg-warning{% else %}bg-danger{% endif %} text-white">
+                                    {{ inscricao.get_status_display }}
+                                </span>
+                            </div>
+                            
+                            <p class="b3 mb-2"><i class="feather-home me-1"></i> {{ inscricao.curso.centro.nome }}</p>
+                            
+                            <!-- Barra de Progresso Simulada baseada no Status -->
+                            <div class="rbt-progress-area mt--20 mb--20">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="b3 fw-bold">{% trans "Progresso do Curso" %}</span>
+                                    <span class="b3 fw-bold">{% if inscricao.status == 'A' %}50%{% elif inscricao.status == 'P' %}0%{% else %}--{% endif %}</span>
+                                </div>
+                                <div class="progress" style="height: 6px;">
+                                    <div class="progress-bar bg-gradient" role="progressbar" 
+                                         style="width: {% if inscricao.status == 'A' %}50%{% elif inscricao.status == 'P' %}0%{% else %}0%{% endif %}" 
+                                         aria-valuenow="{% if inscricao.status == 'A' %}50%{% else %}0%{% endif %}" aria-valuemin="0" aria-valuemax="100">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rbt-card-bottom d-flex align-items-center justify-content-between mt-auto">
+                                <div class="rbt-author d-flex align-items-center gap-2">
+                                    <i class="feather-calendar text-primary"></i>
+                                    <span class="b3 text-muted">{% trans "Inscrição em" %} {{ inscricao.data_inscricao|date:"d/m/Y" }}</span>
+                                </div>
+                                <a class="rbt-btn btn-sm btn-gradient py-2 px-4" href="{% url 'curso_detalhe' id=inscricao.curso.id %}">
+                                    {% if inscricao.status == 'A' %}{% trans "Aceder às Aulas" %}{% else %}{% trans "Ver Detalhes" %}{% endif %}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- 2. Cursos em Vídeo -->
+                {% for curso_video in cursos_videos_inscritos %}
+                <div class="col-12">
+                    <div class="rbt-card list-view variation-01 rbt-hover card-career-progression shadow-none border">
+                        <div class="rbt-card-img" style="max-width: 250px;">
+                            <a href="#">
+                                {% if curso_video.capa %}
+                                    <img src="{{ curso_video.capa.url }}" alt="{{ curso_video.titulo }}">
+                                {% else %}
+                                    <img src="{% static 'assets/images/course/course-online-02.jpg' %}" alt="{{ curso_video.titulo }}">
+                                {% endif %}
+                                <div class="rbt-badge-card px-3 py-1 bg-dark text-white fw-bold" style="position: absolute; top: 10px; left: 10px; border-radius: 4px; font-size: 10px;">
+                                    {% trans "VÍDEO AULA" %}
+                                </div>
+                            </a>
+                        </div>
+                        <div class="rbt-card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="rbt-card-title mb-0"><a href="#">{{ curso_video.titulo }}</a></h5>
+                                <span class="badge bg-primary text-white">{% trans "Online" %}</span>
+                            </div>
+                            
+                            <p class="b3 mb-2"><i class="feather-user me-1"></i> {{ curso_video.instrutor.nome|default:"EdukaAngola" }}</p>
+
+                            <!-- Barra de Progresso Real (Cursos em Vídeo costumam ter progresso real) -->
+                            <div class="rbt-progress-area mt--20 mb--20">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="b3 fw-bold">{% trans "Progresso nos Vídeos" %}</span>
+                                    <span class="b3 fw-bold">75%</span> <!-- Exemplo estático ou via contexto se disponível -->
+                                </div>
+                                <div class="progress" style="height: 6px;">
+                                    <div class="progress-bar bg-gradient" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+
+                            <div class="rbt-card-bottom d-flex align-items-center justify-content-between mt-auto">
+                                <div class="rbt-author d-flex align-items-center gap-2">
+                                    <i class="feather-play-circle text-primary"></i>
+                                    <span class="b3 text-muted">{% trans "Catálogo Digital" %}</span>
+                                </div>
+                                <a class="rbt-btn btn-sm btn-gradient py-2 px-4" href="#">
+                                    {% trans "Continuar Aprendendo" %}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+            {% else %}
+                <div class="col-12">
+                    <div class="empty-state-journey text-center py--100 bg-light rounded-3 border-dashed">
+                        <div class="icon-wrap bg-white shadow-sm rounded-circle d-inline-flex align-items-center justify-content-center mb--30" style="width: 100px; height: 100px;">
+                            <i class="feather-book-open text-primary" style="font-size: 40px;"></i>
+                        </div>
+                        <h4 class="title">{% trans "Inicie a sua jornada profissional" %}</h4>
+                        <p class="description px-5">{% trans "Ainda não encontramos inscrições ou cursos em vídeo associados à sua conta. Explore o nosso catálogo e inicie hoje mesmo a sua transformação." %}</p>
+                        <div class="btn-wrap mt--30 d-flex gap-3 justify-content-center">
+                            <a href="{% url 'buscar_centros' %}" class="rbt-btn btn-gradient">{% trans "Descobrir Centros" %}</a>
+                            <a href="{% url 'lista_cursos' %}" class="rbt-btn btn-border btn-primary-opacity">{% trans "Ver Todos os Cursos" %}</a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .card-career-progression {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 12px !important;
+        overflow: hidden;
+    }
+    
+    .card-career-progression:hover {
+        transform: translateX(10px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
+        border-color: var(--color-primary) !important;
+    }
+
+    .bg-primary-opacity { background: rgba(var(--color-primary-rgb), 0.1) !important; }
+    .bg-secondary-opacity { background: rgba(var(--color-secondary-rgb), 0.1) !important; }
+    
+    .border-dashed { border: 2px dashed #e6e6e6 !important; }
+    
+    .progress-bar.bg-gradient {
+        background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-secondary) 100%) !important;
+    }
+
+    @media (max-width: 768px) {
+        .card-career-progression.list-view {
+            flex-direction: column;
+        }
+        .card-career-progression.list-view .rbt-card-img {
+            max-width: 100% !important;
+        }
+    }
+</style>

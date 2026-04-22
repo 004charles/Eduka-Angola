@@ -1,73 +1,115 @@
-{% extends 'base_gestor.html' %}
+{% extends 'gestor_base.html' %}
 {% load static %}
 
 {% block content %}
-<div class="container-fluid p-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="font-weight-bold text-navy mb-0">{{ action }} Filial</h2>
-                    <p class="text-muted mb-0">Preencha os detalhes para {{ action|lower }} esta filial.</p>
-                </div>
-                <a href="{% url 'gerenciar_filiais' %}" class="btn btn-light shadow-sm text-dark font-weight-bold px-4">
-                    <i class="feather-arrow-left mr-2"></i>Voltar
-                </a>
-            </div>
+<div class="flex flex-col gap-5 lg:gap-7.5">
 
-            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
-                <div class="card-body p-5">
-                    <form method="POST">
-                        {% csrf_token %}
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-4">
-                                <label class="font-weight-bold text-dark small text-uppercase">Nome da Filial <span class="text-danger">*</span></label>
-                                <input type="text" name="nome" class="form-control form-control-lg bg-light border-0" value="{{ filial.nome }}" required placeholder="Ex: Ceforita (Talatona)">
-                            </div>
-                            
-                            <div class="col-md-6 mb-4">
-                                <label class="font-weight-bold text-dark small text-uppercase">Telefone/Contacto</label>
-                                <input type="text" name="contato" class="form-control form-control-lg bg-light border-0" value="{{ filial.contato }}" placeholder="Ex: +244 923 000 000">
-                            </div>
-                            
-                            <div class="col-12 mb-4">
-                                <label class="font-weight-bold text-dark small text-uppercase">Endereço Físico</label>
-                                <input type="text" name="endereco" class="form-control form-control-lg bg-light border-0" value="{{ filial.endereco }}" placeholder="Localização completa da filial">
-                            </div>
-                        </div>
-                        
-                        <hr class="my-4">
-                        <h5 class="font-weight-bold text-navy mb-3"><i class="feather-lock mr-2 text-violet"></i> Credenciais de Acesso (Login)</h5>
-                        <p class="text-muted small mb-4">A filial usará estas credenciais para acessar seu próprio painel de forma autónoma.</p>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-4">
-                                <label class="font-weight-bold text-dark small text-uppercase">Email de Acesso {% if action == 'Criar' %}<span class="text-danger">*</span>{% endif %}</label>
-                                <input type="email" name="email" class="form-control form-control-lg bg-light border-0" value="{{ filial.usuario.email }}" {% if action == 'Editar' %}readonly{% else %}required{% endif %} placeholder="email@filial.com">
-                                {% if action == 'Editar' %}
-                                <small class="text-muted mt-1 d-block">O email não pode ser alterado após criação.</small>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="col-md-6 mb-4">
-                                <label class="font-weight-bold text-dark small text-uppercase">{% if action == 'Editar' %}Nova Senha (Opcional){% else %}Senha Inicial <span class="text-danger">*</span>{% endif %}</label>
-                                <input type="password" name="senha" class="form-control form-control-lg bg-light border-0" {% if action == 'Criar' %}required{% endif %} minlength="6" placeholder="******">
-                                {% if action == 'Editar' %}
-                                <small class="text-muted mt-1 d-block">Deixe em branco para manter a senha atual.</small>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-end mt-4">
-                            <button type="submit" class="btn btn-primary bg-violet border-0 px-5 py-3 font-weight-bold" style="border-radius: 8px;">
-                                {{ action }} Filial
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-xl font-bold text-foreground">{{ action }} Filial</h1>
+            <p class="text-sm text-secondary-foreground">
+                {% if action == 'Criar' %}Configure uma nova conta de gestor de filial para o seu centro.{% else %}Atualize os dados da filial "{{ filial.nome }}".{% endif %}
+            </p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="{% url 'gerenciar_filiais' %}" class="kt-btn kt-btn-light">
+                <i class="ki-filled ki-arrow-left"></i> Voltar
+            </a>
         </div>
     </div>
+
+    {% if messages %}
+        <div class="flex flex-col gap-2">
+            {% for message in messages %}
+                <div class="p-4 rounded-lg text-sm font-medium {% if message.tags == 'success' %}bg-success/10 text-success border border-success/20{% elif message.tags == 'error' %}bg-danger/10 text-danger border border-danger/20{% else %}bg-warning/10 text-warning border border-warning/20{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="POST" class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm overflow-hidden">
+        {% csrf_token %}
+        <div class="p-6 flex flex-col gap-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Nome -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Nome da Filial *</label>
+                    <input type="text" name="nome" value="{{ filial.nome|default:'' }}" class="kt-input" placeholder="Ex: Eduka Angola - Belas" required>
+                </div>
+
+                <!-- E-mail -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">E-mail de Acesso *</label>
+                    <input type="email" name="email" value="{{ filial.usuario.email|default:'' }}" class="kt-input" placeholder="filial@email.com" required {% if action == 'Editar' %}disabled{% endif %}>
+                    {% if action == 'Editar' %}<span class="text-[10px] text-muted-foreground">O e-mail de acesso não pode ser alterado.</span>{% endif %}
+                </div>
+            </div>
+
+            {% if action == 'Criar' %}
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-medium text-foreground">Senha Inicial *</label>
+                <input type="password" name="senha" class="kt-input" placeholder="Defina uma senha para este gestor" required>
+            </div>
+            {% endif %}
+
+            <div class="border-t border-dashed border-border pt-6 mt-2">
+                <h4 class="text-sm font-semibold mb-4 text-foreground">Informações de Contacto</h4>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">Telefone de Contacto</label>
+                        <input type="text" name="contato" value="{{ filial.contato|default:'' }}" class="kt-input" placeholder="Ex: 923 000 000">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">Endereço Completo</label>
+                        <input type="text" name="endereco" id="id_endereco" value="{{ filial.endereco|default:'' }}" class="kt-input" placeholder="Ex: Rua Direita de Belas, Luanda">
+                        <input type="hidden" name="lat" id="id_lat" value="{{ filial.latitude|default:'' }}">
+                        <input type="hidden" name="lng" id="id_lng" value="{{ filial.longitude|default:'' }}">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="p-6 border-t border-border flex justify-end bg-accent/5">
+            <button type="submit" class="kt-btn kt-btn-primary">
+                <i class="ki-filled ki-check"></i> {{ action }} Filial
+            </button>
+        </div>
+    </form>
+
 </div>
-{% endblock %}
+{% endblock content %}
+
+{% block scripts %}
+<script src="{% static 'assets/js/google_maps_loader.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const apiKey = "{{ GOOGLE_MAPS_API_KEY }}";
+        if (apiKey && window.EdukaMaps) {
+            window.EdukaMaps.load(apiKey).then(maps => {
+                const input = document.getElementById('id_endereco');
+                if (!input) return;
+
+                const autocomplete = new maps.places.Autocomplete(input, {
+                    types: ['address'],
+                    fields: ['address_components', 'geometry', 'formatted_address']
+                });
+
+                autocomplete.addListener('place_changed', function() {
+                    const place = autocomplete.getPlace();
+                    if (!place.geometry) return;
+
+                    // Capturar Coordenadas
+                    document.getElementById('id_lat').value = place.geometry.location.lat();
+                    document.getElementById('id_lng').value = place.geometry.location.lng();
+                    
+                    console.log("Coordenadas capturadas:", place.geometry.location.lat(), place.geometry.location.lng());
+                });
+            }).catch(err => console.error("EdukaMaps Error:", err));
+        }
+    });
+</script>
+{% endblock scripts %}

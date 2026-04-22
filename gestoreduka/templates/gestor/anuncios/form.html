@@ -1,0 +1,98 @@
+{% extends 'gestor_base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="flex flex-col gap-5 lg:gap-7.5 max-w-4xl mx-auto">
+    
+    <!-- Cabeçalho -->
+    <div class="flex items-center gap-3">
+        <a href="{% url 'listar_anuncios' %}" class="size-9 flex items-center justify-center rounded-lg bg-accent/60 text-secondary-foreground hover:text-primary transition-colors">
+            <i class="ki-filled ki-arrow-left text-lg"></i>
+        </a>
+        <div class="flex flex-col gap-1">
+            <h1 class="text-xl font-bold text-foreground">{{ title }}</h1>
+            <p class="text-sm text-secondary-foreground">Crie um comunicado impactante para os seus alunos e seguidores.</p>
+        </div>
+    </div>
+
+    <!-- Formulário -->
+    <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm p-6 lg:p-8">
+        <form method="post" enctype="multipart/form-data" class="flex flex-col gap-6">
+            {% csrf_token %}
+            
+            <div class="flex flex-col gap-5">
+                <!-- Título -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-semibold text-foreground">{{ form.titulo.label }}</label>
+                    {{ form.titulo }}
+                    {% if form.titulo.errors %}
+                        <p class="text-xs text-danger mt-1">{{ form.titulo.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Conteúdo -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-semibold text-foreground">{{ form.conteudo.label }}</label>
+                    {{ form.conteudo }}
+                    {% if form.conteudo.errors %}
+                        <p class="text-xs text-danger mt-1">{{ form.conteudo.errors.0 }}</p>
+                    {% endif %}
+                    <p class="text-xs text-muted-foreground italic">Dica: Seja claro e direto para aumentar o engagement.</p>
+                </div>
+
+                <!-- Imagem e Publicar -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-semibold text-foreground">{{ form.imagem.label }}</label>
+                        <div class="relative">
+                            {{ form.imagem }}
+                        </div>
+                        <p class="text-[10px] text-muted-foreground">Formatos suportados: JPG, PNG. Máx 2MB.</p>
+                    </div>
+
+                    <div class="flex items-center gap-3 bg-accent/20 p-4 rounded-xl border border-dashed border-border h-fit self-end">
+                        {{ form.ativo }}
+                        <div class="flex flex-col">
+                            <label class="text-sm font-bold text-foreground" for="{{ form.ativo.id_for_label }}">Disparar Imediatamente</label>
+                            <span class="text-xs text-secondary-foreground">Notificar seguidores por e-mail e site agora.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-6 border-t border-border mt-4">
+                <a href="{% url 'listar_anuncios' %}" class="kt-btn kt-btn-light">Cancelar</a>
+                <button type="submit" class="kt-btn kt-btn-primary flex items-center gap-2">
+                    <i class="ki-filled ki-check text-lg"></i>
+                    Publicar Agora
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Info Box -->
+    <div class="bg-blue-50 border border-blue-100 rounded-xl p-5 flex gap-4">
+        <div class="size-10 shrink-0 bg-blue-100 text-blue-600 flex items-center justify-center rounded-full">
+            <i class="ki-filled ki-information-2 text-2xl"></i>
+        </div>
+        <div class="flex flex-col gap-1">
+            <h4 class="text-sm font-bold text-blue-900">Sabia que?</h4>
+            <p class="text-xs text-blue-800 leading-relaxed">Cada anúncio que publica é enviado automaticamente por e-mail para todos os alunos que seguem o seu centro. Isto garante que a sua mensagem chegue diretamente à caixa de entrada deles!</p>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Ajustes para alinhar com Metronic 9 */
+.kt-input {
+    @apply w-full bg-background border border-border rounded-lg px-4 py-2.5 text-sm text-foreground focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all;
+}
+textarea.kt-input {
+    min-height: 120px;
+}
+.kt-checkbox {
+    @apply accent-primary cursor-pointer;
+}
+</style>
+{% endblock %}

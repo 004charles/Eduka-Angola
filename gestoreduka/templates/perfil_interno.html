@@ -1,0 +1,374 @@
+{% extends 'gestor_base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    .hero-bg {
+        background-image: url('{% if perfil.banner %}{{ perfil.banner.url }}{% else %}{% static "metronic/assets/media/images/2600x1200/bg-1.png" %}{% endif %}');
+    }
+    .dark .hero-bg {
+        background-image: url('{% if perfil.banner %}{{ perfil.banner.url }}{% else %}{% static "metronic/assets/media/images/2600x1200/bg-1-dark.png" %}{% endif %}');
+    }
+</style>
+
+<main class="grow" role="content">
+    <!-- Toolbar -->
+    <div class="pb-5">
+        <div class="kt-container-fluid flex items-center justify-between flex-wrap gap-3">
+            <div class="flex items-center flex-wrap gap-1 lg:gap-5">
+                <h1 class="font-medium text-base text-mono">
+                    {% trans "Perfil Institucional" %}
+                </h1>
+                <div class="flex items-center flex-wrap gap-1 text-sm">
+                    <a class="text-secondary-foreground hover:text-primary" href="{% url 'centro_dashboard' %}">
+                        Home
+                    </a>
+                    <span class="text-muted-foreground text-sm">/</span>
+                    <span class="text-mono">{% trans "Perfil Público" %}</span>
+                </div>
+            </div>
+            <div class="flex items-center flex-wrap gap-3">
+                <a class="kt-btn kt-btn-outline" href="{% url 'configuracao_gestor' %}">
+                    <i class="ki-filled ki-setting-2"></i>
+                    {% trans "Configurações" %}
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- End of Toolbar -->
+
+    <!-- Hero -->
+    <div class="kt-container-fluid mb-5 lg:mb-10">
+        <div class="bg-center bg-cover bg-no-repeat hero-bg rounded-xl overflow-hidden max-w-[1000px] mx-auto shadow-sm">
+            <div class="kt-container-fluid">
+                <div class="flex flex-col items-center gap-2 lg:gap-3.5 py-6 lg:pt-10 lg:pb-14">
+                    <div class="relative">
+                        <img class="rounded-full border-3 border-success h-[100px] w-[100px] shrink-0 object-cover shadow-lg" 
+                             src="{% if perfil.imagem %}{{ perfil.imagem.url }}{% else %}{% static 'metronic/assets/media/avatars/300-1.png' %}{% endif %}" alt="{{ centro.nome }}"/>
+                        <div class="absolute bottom-1 end-1 size-5 bg-success rounded-full border-2 border-background" title="Ativo"></div>
+                    </div>
+                    
+                    <div class="flex items-center gap-1.5">
+                        <div class="text-xl lg:text-2xl leading-5 font-bold text-foreground text-mono">
+                            {{ centro.nome }}
+                        </div>
+                        <i class="ki-filled ki-verify text-primary text-xl"></i>
+                    </div>
+
+                    <div class="flex flex-wrap justify-center gap-2 lg:gap-5 text-sm font-medium text-secondary-foreground">
+                        <div class="flex gap-1.25 items-center bg-background/50 backdrop-blur-sm px-3 py-1 rounded-full border border-white/10">
+                            <i class="ki-filled ki-geolocation text-primary text-sm"></i>
+                            {{ centro.cidade }}, {{ centro.provincia }}
+                        </div>
+                        <div class="flex gap-1.25 items-center bg-background/50 backdrop-blur-sm px-3 py-1 rounded-full border border-white/10">
+                            <i class="ki-filled ki-sms text-primary text-sm"></i>
+                            {{ centro.email }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End of Hero -->
+
+    <!-- Navigation Tabs -->
+    <div class="kt-container-fluid">
+        <div class="flex items-center flex-wrap md:flex-nowrap lg:items-end justify-between border-b border-b-border gap-3 lg:gap-6 mb-5 lg:mb-10">
+            <div class="grid">
+                <div class="kt-scrollable-x-auto">
+                    <div class="kt-menu gap-3 lg:gap-8" data-kt-tabs="true">
+                        <div class="kt-menu-item border-b-2 border-b-transparent kt-menu-item-active:border-b-primary kt-menu-item-here:border-b-primary active" data-kt-tab-toggle="#tab_works">
+                            <button class="kt-menu-link gap-1.5 pb-2 lg:pb-4 px-2">
+                                <span class="kt-menu-title text-nowrap font-semibold text-sm text-secondary-foreground kt-menu-item-active:text-primary kt-menu-link-hover:text-primary">
+                                    {% trans "Works (Cursos)" %}
+                                </span>
+                            </button>
+                        </div>
+                        <div class="kt-menu-item border-b-2 border-b-transparent kt-menu-item-active:border-b-primary kt-menu-item-here:border-b-primary" data-kt-tab-toggle="#tab_overview">
+                            <button class="kt-menu-link gap-1.5 pb-2 lg:pb-4 px-2">
+                                <span class="kt-menu-title text-nowrap font-semibold text-sm text-secondary-foreground kt-menu-item-active:text-primary kt-menu-link-hover:text-primary">
+                                    {% trans "Visão Geral" %}
+                                </span>
+                            </button>
+                        </div>
+                        <div class="kt-menu-item border-b-2 border-b-transparent kt-menu-item-active:border-b-primary kt-menu-item-here:border-b-primary" data-kt-tab-toggle="#tab_teams">
+                            <button class="kt-menu-link gap-1.5 pb-2 lg:pb-4 px-2">
+                                <span class="kt-menu-title text-nowrap font-semibold text-sm text-secondary-foreground kt-menu-item-active:text-primary kt-menu-link-hover:text-primary">
+                                    {% trans "Equipa" %}
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end grow lg:grow-0 lg:pb-4 gap-4 lg:gap-8 mb-3 lg:mb-0">
+                <div class="flex flex-col items-center">
+                    <span class="text-lg font-bold text-foreground leading-none">{{ seguidores_count }}</span>
+                    <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">{% trans "Seguidores" %}</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-lg font-bold text-foreground leading-none">{{ centro.cursos.count }}</span>
+                    <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">{% trans "Works" %}</span>
+                </div>
+                <a href="{% url 'criar_curso' %}" class="kt-btn kt-btn-primary ms-4">
+                    <i class="ki-filled ki-plus"></i>
+                    {% trans "Novo Curso" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contents -->
+    <div class="kt-container-fluid">
+        
+        <!-- Tab: Works -->
+        <div id="tab_works">
+            <div class="flex flex-col items-stretch gap-5 lg:gap-7.5">
+                <div class="flex flex-wrap items-center gap-5 justify-between">
+                    <h3 class="text-lg text-mono font-semibold">
+                        {{ cursos.count }} {% trans "Trabalhos Publicados" %}
+                    </h3>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 lg:gap-7.5">
+                    {% for curso in cursos %}
+                    <div class="kt-card shadow-md shadow-black/5 border-0 rounded-xl overflow-hidden group">
+                        <div class="relative h-40 lg:h-48 overflow-hidden">
+                            <img alt="{{ curso.titulo }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                                 src="{% if curso.imagem %}{{ curso.imagem.url }}{% else %}{% static 'metronic/assets/media/images/600x400/21.jpg' %}{% endif %}"/>
+                            <div class="absolute top-3 end-3">
+                                <span class="kt-badge kt-badge-sm {% if curso.publicado %}kt-badge-success{% else %}kt-badge-warning{% endif %} shadow-sm">
+                                    {% if curso.publicado %}{% trans "Ativo" %}{% else %}{% trans "Rascunho" %}{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="kt-card-border kt-card-rounded-b flex flex-col gap-3 px-5 py-5 border-t-0">
+                            <div class="flex flex-col gap-1">
+                                <a class="text-lg font-bold text-mono hover:text-primary transition-colors leading-tight" href="{% url 'curso_overview' curso.id %}">
+                                    {{ curso.titulo }}
+                                </a>
+                                <span class="text-xs font-semibold text-muted-foreground uppercase tracking-widest">{{ curso.categoria.nome }}</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between mt-2 pt-4 border-t border-dashed border-border">
+                                <div class="flex items-center grow">
+                                    <div class="flex -space-x-2 overflow-hidden me-3">
+                                        <div class="flex items-center justify-center size-7 rounded-full bg-primary/10 text-primary border-2 border-background">
+                                            <i class="ki-filled ki-people text-xs"></i>
+                                        </div>
+                                    </div>
+                                    <span class="text-xs font-bold text-secondary-foreground">{{ curso.num_alunos|default:0 }} Alunos</span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <a href="{% url 'editar_curso' curso.id %}" class="kt-btn kt-btn-icon kt-btn-xs kt-btn-light border border-border">
+                                        <i class="ki-filled ki-pencil"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-span-full py-20 text-center kt-card border-dashed">
+                        <div class="flex flex-col items-center gap-4">
+                            <div class="size-20 bg-muted/20 rounded-full flex items-center justify-center">
+                                <i class="ki-filled ki-book-open text-4xl text-muted-foreground"></i>
+                            </div>
+                            <h4 class="text-lg font-bold text-foreground">{% trans "Nenhum curso encontrado" %}</h4>
+                            <p class="text-sm text-muted-foreground">{% trans "Comece por criar o seu primeiro curso institucional." %}</p>
+                            <a href="{% url 'criar_curso' %}" class="kt-btn kt-btn-primary mt-2">
+                                <i class="ki-filled ki-plus"></i> {% trans "Criar Curso" %}
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Overview -->
+        <div class="hidden" id="tab_overview">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-7.5">
+                <div class="lg:col-span-2 flex flex-col gap-5 lg:gap-7.5">
+                    <div class="kt-card p-8">
+                        <h3 class="text-xl font-bold text-foreground mb-6">{% trans "Sobre a Instituição" %}</h3>
+                        <div class="text-secondary-foreground leading-relaxed text-base space-y-4">
+                            {{ perfil.descricao|linebreaks|default:"Sem descrição configurada." }}
+                        </div>
+
+                        {% if perfil.missao or perfil.visao %}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mt-10 p-6 bg-muted/20 rounded-2xl border border-dashed border-border">
+                            <div class="flex flex-col gap-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="size-8 bg-primary/10 text-primary rounded-lg flex items-center justify-center">
+                                        <i class="ki-filled ki-flag"></i>
+                                    </div>
+                                    <h4 class="font-bold text-sm uppercase tracking-widest">{% trans "Missão" %}</h4>
+                                </div>
+                                <p class="text-sm text-secondary-foreground leading-relaxed">{{ perfil.missao|default:"N/A" }}</p>
+                            </div>
+                            <div class="flex flex-col gap-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="size-8 bg-success/10 text-success rounded-lg flex items-center justify-center">
+                                        <i class="ki-filled ki-eye"></i>
+                                    </div>
+                                    <h4 class="font-bold text-sm uppercase tracking-widest">{% trans "Visão" %}</h4>
+                                </div>
+                                <p class="text-sm text-secondary-foreground leading-relaxed">{{ perfil.visao|default:"N/A" }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-5 lg:gap-7.5">
+                    <div class="kt-card p-6">
+                        <h3 class="text-lg font-bold text-foreground mb-6 flex items-center gap-2">
+                            <i class="ki-filled ki-geolocation text-primary text-xl"></i>
+                            {% trans "Nossa Localização" %}
+                        </h3>
+                        {% if filial.latitude is not None or centro.latitude is not None %}
+                        <div id="map-internal" class="rounded-2xl overflow-hidden border border-border shadow-inner" style="height: 250px; width: 100%;"></div>
+                        <div class="mt-5 space-y-3">
+                            <div class="flex items-start gap-3 text-sm">
+                                <i class="ki-filled ki-map-pin text-muted-foreground mt-0.5"></i>
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-foreground">{% trans "Endereço Completo" %}</span>
+                                    <span class="text-muted-foreground">{{ centro.get_endereco_completo }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="py-16 text-center text-muted-foreground italic text-sm bg-muted/10 rounded-2xl border-2 border-dashed border-border">
+                            {% trans "Coordenadas não configuradas." %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="kt-card p-6">
+                        <h3 class="text-lg font-bold text-foreground mb-4">{% trans "Redes Sociais" %}</h3>
+                        <div class="flex gap-4">
+                            {% if perfil.facebook %}
+                            <a href="{{ perfil.facebook }}" class="kt-btn kt-btn-icon kt-btn-light size-10 rounded-xl hover:text-blue-600 transition-all border border-border">
+                                <i class="ki-filled ki-facebook text-xl"></i>
+                            </a>
+                            {% endif %}
+                            {% if perfil.instagram %}
+                            <a href="{{ perfil.instagram }}" class="kt-btn kt-btn-icon kt-btn-light size-10 rounded-xl hover:text-pink-600 transition-all border border-border">
+                                <i class="ki-filled ki-instagram text-xl"></i>
+                            </a>
+                            {% endif %}
+                            {% if perfil.whatsapp %}
+                            <a href="{{ perfil.whatsapp }}" class="kt-btn kt-btn-icon kt-btn-light size-10 rounded-xl hover:text-green-600 transition-all border border-border">
+                                <i class="ki-filled ki-whatsapp text-xl"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Teams -->
+        <div class="hidden" id="tab_teams">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+                {% for instrutor in instrutores %}
+                <div class="kt-card p-6 flex flex-col items-center text-center gap-5 border border-border shadow-sm hover:shadow-md transition-all group">
+                    <div class="relative">
+                        <img class="size-20 lg:size-24 rounded-2xl object-cover border-2 border-background shadow-md group-hover:scale-105 transition-transform" 
+                             src="{% if instrutor.foto %}{{ instrutor.foto.url }}{% else %}{% static 'metronic/assets/media/avatars/300-11.png' %}{% endif %}" alt="{{ instrutor.nome }}"/>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <h4 class="font-bold text-base text-mono text-foreground">{{ instrutor.nome }}</h4>
+                        <span class="text-[11px] font-bold text-primary uppercase tracking-[0.2em]">{{ instrutor.especialidade|default:"Instrutor Associado" }}</span>
+                    </div>
+                    <div class="flex gap-2.5 mt-2">
+                        <button class="kt-btn kt-btn-icon kt-btn-xs kt-btn-light rounded-lg border border-border"><i class="ki-filled ki-sms"></i></button>
+                        <button class="kt-btn kt-btn-icon kt-btn-xs kt-btn-light rounded-lg border border-border"><i class="ki-filled ki-messages"></i></button>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-full py-24 text-center kt-card border-dashed">
+                    <div class="flex flex-col items-center gap-4">
+                        <div class="size-16 bg-muted/20 rounded-full flex items-center justify-center">
+                            <i class="ki-filled ki-users text-3xl text-muted-foreground"></i>
+                        </div>
+                        <p class="text-muted-foreground font-semibold">{% trans "Nenhum instrutor registado nesta instituição." %}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Tab System (Metronic logic replication)
+        const tabToggles = document.querySelectorAll('[data-kt-tab-toggle]');
+        const tabPanes = document.querySelectorAll('[id^="tab_"]');
+
+        tabToggles.forEach(toggle => {
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('data-kt-tab-toggle');
+                
+                // Clear active states
+                tabToggles.forEach(t => t.classList.remove('active'));
+                tabPanes.forEach(p => p.classList.add('hidden'));
+
+                // Set new active
+                this.classList.add('active');
+                const targetPane = document.querySelector(targetId);
+                if (targetPane) {
+                    targetPane.classList.remove('hidden');
+                }
+
+                // Map resize trigger
+                if (targetId === '#tab_overview' && window.googleInternalMap) {
+                    setTimeout(() => {
+                        google.maps.event.trigger(window.googleInternalMap, 'resize');
+                    }, 150);
+                }
+            });
+        });
+
+        // Google Maps Internal
+        const lat = parseFloat("{% if filial.latitude %}{{ filial.latitude }}{% else %}{{ centro.latitude }}{% endif %}");
+        const lon = parseFloat("{% if filial.longitude %}{{ filial.longitude }}{% else %}{{ centro.longitude }}{% endif %}");
+        const apiKey = "{{ google_maps_api_key }}";
+
+        if (!isNaN(lat) && !isNaN(lon) && apiKey && window.EdukaMaps) {
+            window.EdukaMaps.load(apiKey).then(maps => {
+                const container = document.getElementById('map-internal');
+                if (!container) return;
+
+                window.googleInternalMap = new maps.Map(container, {
+                    center: { lat: lat, lng: lon },
+                    zoom: 16,
+                    disableDefaultUI: true,
+                    zoomControl: true,
+                    styles: [
+                        {
+                            "featureType": "all",
+                            "elements": "geometry",
+                            "stylers": [{"color": "#f5f5f5"}]
+                        }
+                    ]
+                });
+
+                new maps.Marker({
+                    position: { lat: lat, lng: lon },
+                    map: window.googleInternalMap,
+                    icon: {
+                        url: "{% static 'metronic/assets/media/icons/map-pin.png' %}",
+                        scaledSize: new maps.Size(40, 40)
+                    }
+                });
+            });
+        }
+    });
+</script>
+{% endblock content %}
+

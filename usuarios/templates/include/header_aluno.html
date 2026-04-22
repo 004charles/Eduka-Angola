@@ -1,0 +1,43 @@
+{% load static %}
+<div class="rbt-dashboard-content-wrapper">
+    <!-- Bem-vindo simplificado -->
+    <div class="rbt-dashboard-welcome mb--40">
+        <div class="section-title">
+            <h2 class="title" style="font-weight: 700;">Bem-vindo de volta, <span class="theme-gradient">{{aluno_nome}}</span>!</h2>
+            <p class="description">Pronto para progredir na sua trajetória?</p>
+        </div>
+    </div>
+    
+    <!-- Início da Informação do Aluno - Estilizado como Card -->
+    <div class="rbt-tutor-information bg-color-white rbt-shadow-box mb--40" style="margin-top: 0; padding: 30px;">
+        <div class="rbt-tutor-information-left">
+            <div class="thumbnail rbt-avatars size-lg">
+                {% if perfil.foto_de_perfil %}
+                    <img src="{{ perfil.foto_de_perfil.url }}" alt="Foto de {{ aluno_nome }}">
+                {% elif perfil.imagem %}
+                    <img src="{{ perfil.imagem.url }}" alt="Foto de {{ aluno_nome }}">
+                {% else %}
+                    <img src="{% static 'assets/images/team/avatar-2.jpg' %}" alt="Foto padrão">
+                {% endif %}
+            </div>
+            <div class="tutor-content">
+                <h5 class="title">{{aluno_nome}}</h5>
+                <ul class="rbt-meta mt--5">
+                    <li><i class="feather-book"></i>{{ total_cursos|default:0 }} Cursos Inscritos</li>
+                    <li><i class="feather-award"></i>{{ total_certificados|default:0 }} Certificados</li>
+                </ul>
+            </div>
+        </div>
+        <div class="rbt-tutor-information-right">
+            <div class="tutor-btn">
+                <a class="rbt-btn btn-sm btn-gradient hover-icon-reverse" href="{% url 'aluno_perfil' %}">
+                    <span class="icon-reverse-wrapper">
+                        <span class="btn-text">Editar Perfil</span>
+                        <span class="btn-icon"><i class="feather-edit"></i></span>
+                        <span class="btn-icon"><i class="feather-edit"></i></span>
+                    </span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

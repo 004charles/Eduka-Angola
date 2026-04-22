@@ -11,16 +11,12 @@
     {% include 'include/css.html' %}
     <style>
         .checkout-box {
-            background: #ffffff;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             padding: 40px;
             margin-bottom: 30px;
-            border: 1px solid #f0f0f0;
         }
 
         .order-summary {
-            background: #f9f9f9;
             border-radius: 15px;
             padding: 30px;
             position: sticky;
@@ -33,7 +29,7 @@
             align-items: center;
             margin-bottom: 25px;
             padding-bottom: 25px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--color-border);
         }
 
         .course-mini-card img {
@@ -44,7 +40,7 @@
         }
 
         .payment-option {
-            border: 2px solid #eee;
+            border: 2px solid var(--color-border);
             border-radius: 12px;
             padding: 20px;
             cursor: pointer;
@@ -56,18 +52,18 @@
         }
 
         .payment-option:hover {
-            border-color: #6f4ef6;
-            background: #f8f6ff;
+            border-color: var(--color-primary);
+            background: rgba(var(--color-primary-rgb), 0.05);
         }
 
         .payment-option.active {
-            border-color: #6f4ef6;
-            background: #f8f6ff;
+            border-color: var(--color-primary);
+            background: rgba(var(--color-primary-rgb), 0.05);
         }
 
         .payment-option i {
             font-size: 24px;
-            color: #6f4ef6;
+            color: var(--color-primary);
         }
 
         .total-row {
@@ -75,10 +71,9 @@
             justify-content: space-between;
             font-size: 20px;
             font-weight: 700;
-            color: #1c1d1f;
             margin-top: 20px;
             padding-top: 20px;
-            border-top: 2px solid #eee;
+            border-top: 2px solid var(--color-border);
         }
 
         .step-indicator {
@@ -104,7 +99,7 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: #6f4ef6;
+            background: var(--color-primary);
             color: white;
             display: flex;
             align-items: center;
@@ -124,13 +119,13 @@
     {% include 'include/header.html' %}
     {% include 'include/loading.html' %}
 
-    <main class="rbt-main-wrapper" style="background-color: #f5f8fa; padding: 80px 0;">
+    <main class="rbt-main-wrapper bg-color-extra2 ptb--100">
         <div class="container">
             <!-- Step Indicator -->
             <div class="step-indicator">
                 <div class="step active">
                     <div class="step-number">1</div>
-                    <span class="step-text">Confirmação</span>
+                    <span class="step-text">Revisão e Dados</span>
                 </div>
                 <div class="step">
                     <div class="step-number">2</div>
@@ -138,107 +133,142 @@
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
-                    <span class="step-text">Acesso</span>
+                    <span class="step-text">Sucesso</span>
                 </div>
             </div>
 
-            <div class="row g-5">
-                <!-- Detalhes da Inscrição -->
-                <div class="col-lg-8">
-                    <div class="checkout-box">
-                        <h3 class="title mb--30">Detalhes da Inscrição</h3>
+            <form action="{% url 'inscrever_curso' curso.id %}" method="POST">
+                {% csrf_token %}
+                <div class="row g-5">
+                    
+                    <!-- Lado Esquerdo: Resumo do Curso e Formulário -->
+                    <div class="col-lg-8">
+                        <div class="checkout-box mb--30">
+                            <!-- 1. Resumo do Curso -->
+                            <h3 class="title mb--20">1. O curso que escolheste</h3>
+                            
+                            <div class="course-mini-card rbt-shadow-box rbt-border-dashed p-4 rounded-4 mb--30">
+                                {% if curso.imagem %}
+                                <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}">
+                                {% endif %}
+                                <div class="w-100">
+                                    <h4 class="mb--5">{{ curso.titulo }}</h4>
+                                    <div class="d-flex flex-wrap gap-3 mt--10">
+                                        <span class="rbt-badge-6"><i class="feather-user"></i> {{ curso.centro.nome }}</span>
+                                        <span class="rbt-badge-6"><i class="feather-map-pin"></i> {{ curso.get_modalidade_display|default:curso.modalidade }}</span>
+                                        {% if curso.duracao %}
+                                        <span class="rbt-badge-6"><i class="feather-clock"></i> {{ curso.get_duracao_display|default:curso.duracao }}</span>
+                                        {% endif %}
+                                        <span class="rbt-badge-6"><i class="feather-calendar"></i> Início: {{ curso.data_inicio|date:"d/m/Y"|default:"Imediato" }}</span>
+                                    </div>
+                                    <div class="mt--15 pb--10 border-bottom border-secondary">
+                                        <h5 class="theme-gradient mb-0 fs-4">
+                                            {% if curso.is_gratuito %}Gratuito{% else %}{{ curso.preco }} KZ{% endif %}
+                                        </h5>
+                                    </div>
+                                    <div class="mt--15">
+                                        <small class="text-muted"><i class="feather-info"></i> Turma Selecionada: <strong class="text-primary">{{ turma_disponivel.nome|default:"Turma Geral" }}</strong></small>
+                                    </div>
+                                </div>
+                            </div>
 
-                        <div class="course-mini-card">
-                            {% if curso.imagem %}
-                            <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}">
+                            <!-- 2. Formulário de Inscrição -->
+                            <h3 class="title mb--20 mt--40">2. Confirma os teus dados</h3>
+                            <p class="description mb--20">Apenas precisamos do essencial para garantir o teu acesso.</p>
+                            
+                            <div class="row g-4 mb--30">
+                                <div class="col-md-6">
+                                    <div class="rbt-form-group">
+                                        <label class="form-label fw-bold">Nome Completo</label>
+                                        <input type="text" value="{{ request.user.nome|default:aluno.nome }}" disabled class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="rbt-form-group">
+                                        <label class="form-label fw-bold">E-mail</label>
+                                        <input type="email" value="{{ request.user.email }}" disabled class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="rbt-form-group">
+                                        <label class="form-label fw-bold">Telefone</label>
+                                        <input type="text" value="{{ aluno.perfil.telefone|default:'' }}" disabled class="form-control" placeholder="Sem telefone registado.">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rbt-shadow-box rbt-border-dashed p-4 rounded-4 mb--30 text-center">
+                                <i class="feather-shield text-success" style="font-size: 24px;"></i>
+                                <h6 class="mb-0 mt-2">Identidade Verificada</h6>
+                                <p class="small description mb-0">Os seus documentos encontram-se válidos e protegidos em sistema.</p>
+                            </div>
+
+                            <!-- 3. Forma de Pagamento (Se Pago) -->
+                            {% if not curso.is_gratuito %}
+                            <h3 class="title mt--40 mb--20">3. Como preferes efetuar o pagamento?</h3>
+                            <div class="payment-methods">
+                                <div class="payment-option active" onclick="selectPayment(this)">
+                                    <i class="feather-credit-card"></i>
+                                    <div>
+                                        <h6 class="mb-0">Multicaixa Express / Referência</h6>
+                                        <small class="description">Aprovação imediata do acesso ao curso.</small>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <i class="feather-check-circle text-primary"></i>
+                                    </div>
+                                </div>
+
+                                <div class="payment-option" onclick="selectPayment(this)">
+                                    <i class="feather-file-text"></i>
+                                    <div>
+                                        <h6 class="mb-0">Transferência Bancária / Depósito</h6>
+                                        <small class="description">Analisado em até 24h úteis.</small>
+                                    </div>
+                                </div>
+                            </div>
                             {% endif %}
-                            <div>
-                                <h4 class="mb--5">{{ curso.titulo }}</h4>
-                                <span class="rbt-badge-6">Por: {{ curso.centro.nome }}</span>
-                            </div>
-                        </div>
 
-                        <div class="row g-4 mb--30">
-                            <div class="col-md-6">
-                                <div class="rbt-form-group">
-                                    <label class="form-label fw-bold">Seu Nome</label>
-                                    <input type="text" value="{{ aluno.nome }}" disabled class="form-control bg-light">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="rbt-form-group">
-                                    <label class="form-label fw-bold">E-mail de Acesso</label>
-                                    <input type="email" value="{{ aluno.usuario.email }}" disabled
-                                        class="form-control bg-light">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="alert alert-info d-flex align-items-center gap-3 py-4 rounded-4">
-                            <i class="feather-info" style="font-size: 24px;"></i>
-                            <div>
-                                <p class="mb-0 fw-bold">Turma Selecionada: {{ turma_disponivel.nome|default:"Turma
-                                    Geral" }}</p>
-                                <small>As aulas iniciam em {{ curso.data_inicio|date:"d/m/Y" }}</small>
-                            </div>
-                        </div>
-
-                        <h4 class="title mt--40 mb--20">Escolha a Forma de Pagamento</h4>
-                        <div class="payment-methods">
-                            <div class="payment-option active" onclick="selectPayment(this)">
-                                <i class="feather-credit-card"></i>
-                                <div>
-                                    <h6 class="mb-0">Multicaixa Express</h6>
-                                    <small class="text-muted">Acesso imediato após confirmação</small>
-                                </div>
-                                <div class="ms-auto">
-                                    <i class="feather-check-circle text-primary"></i>
-                                </div>
-                            </div>
-
-                            <div class="payment-option" onclick="selectPayment(this)">
-                                <i class="feather-file-text"></i>
-                                <div>
-                                    <h6 class="mb-0">Transferência Bancária</h6>
-                                    <small class="text-muted">Acesso em até 24h úteis</small>
-                                </div>
-                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Resumo do Pedido -->
-                <div class="col-lg-4">
-                    <div class="order-summary rbt-shadow-box">
-                        <h4 class="title mb--20">Resumo do Pedido</h4>
-                        <div class="d-flex justify-content-between mb--15">
-                            <span class="text-muted">Preço do Curso</span>
-                            <span class="fw-bold">{{ curso.preco|default:"0" }} KZ</span>
+                    <!-- Lado Direito: Resumo e Instruções -->
+                    <div class="col-lg-4">
+                        <div class="order-summary rbt-shadow-box mb--30">
+                            <!-- Botão Final Claro -->
+                            <h4 class="title mb--20">Resumo</h4>
+                            <div class="d-flex justify-content-between mb--15">
+                                <span class="description">Preço Total</span>
+                                <span class="fw-bold">{% if curso.is_gratuito %}Kz 0{% else %}{{ curso.preco }} KZ{% endif %}</span>
+                            </div>
+
+                            <div class="mt--30">
+                                <button type="submit" class="rbt-btn btn-gradient w-100 btn-md icon-hover p-3" style="font-size: 16px;">
+                                    <span class="btn-text">{% if curso.is_gratuito %}Concluir Inscrição{% else %}Avançar para Pagamento{% endif %}</span>
+                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                </button>
+                            </div>
+                            <p class="text-center mt--20 small description"> <i class="feather-shield text-success me-1"></i> Ambiente 100% Seguro </p>
                         </div>
-                        <div class="d-flex justify-content-between mb--15">
-                            <span class="text-muted">Taxas</span>
-                            <span class="text-success fw-bold">Grátis</span>
+
+                        <!-- 4. Instruções Importantes -->
+                        <div class="rbt-shadow-box rbt-border-dashed">
+                            <h5 class="title mb--15"><i class="feather-info text-primary"></i> Próximos Passos</h5>
+                            <ul class="rbt-list-style-1 description small">
+                                {% if curso.is_gratuito %}
+                                <li><strong>Acesso Imediato:</strong> Assim que clicares em "Concluir Inscrição", a tua matrícula será confirmada.</li>
+                                <li><strong>Sala de Aula:</strong> O botão abaixo redirecionará-te diretamente para a sala de aula do curso.</li>
+                                <li><strong>Email:</strong> Vais receber uma cópia com a confirmação no teu portal.</li>
+                                {% else %}
+                                <li><strong>Referência:</strong> Na próxima página receberás os detalhes para pagamento.</li>
+                                <li><strong>Código por Email:</strong> Irás receber uma cópia do código de validação no teu e-mail. Tens algumas horas para concluir o pagamento.</li>
+                                <li><strong>Confirmação:</strong> Usa a opção Multicaixa para acesso instantâneo na plataforma logo após validar a transação.</li>
+                                {% endif %}
+                            </ul>
                         </div>
 
-                        <div class="total-row">
-                            <span>Total</span>
-                            <span class="theme-gradient">{{ valor_total|default:"0" }} KZ</span>
-                        </div>
-
-                        <form action="{% url 'inscrever_curso' curso.id %}" method="POST" class="mt--30">
-                            {% csrf_token %}
-                            <button type="submit" class="rbt-btn btn-gradient w-100 btn-md icon-hover">
-                                <span class="btn-text">Confirmar Inscrição</span>
-                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                            </button>
-                        </form>
-
-                        <p class="text-center mt--20 small text-muted">
-                            <i class="feather-shield me-1"></i> Pagamento 100% Seguro
-                        </p>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
     </main>
 

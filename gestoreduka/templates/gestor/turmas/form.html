@@ -1,127 +1,128 @@
-{% extends 'base_gestor.html' %}
+{% extends 'gestor_base.html' %}
 {% load static %}
 
-{% block title %}{{ action }} Turma - {{ centro.nome }}{% endblock %}
-
 {% block content %}
-<div class="dashboard-body">
-    <div class="breadcrumb mb-24">
-        <ul class="flex-align gap-4">
-            <li><a href="{% url 'centro_dashboard' %}"
-                    class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
-            <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
-            <li><a href="{% url 'gerenciar_turmas' %}"
-                    class="text-gray-200 fw-normal text-15 hover-text-main-600">Turmas</a></li>
-            <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
-            <li><span class="text-main-600 fw-normal text-15">{{ action }}</span></li>
-        </ul>
+<div class="flex flex-col gap-5 lg:gap-7.5">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-xl font-bold text-foreground">{{ action }} Turma</h1>
+            <p class="text-sm text-secondary-foreground">
+                {% if action == 'Criar' %}Defina as configurações da nova turma para um curso específico.{% else %}Atualize os dados da turma "{{ turma.nome }}".{% endif %}
+            </p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="{% url 'gerenciar_turmas' %}" class="kt-btn kt-btn-light">
+                <i class="ki-filled ki-arrow-left"></i> Voltar
+            </a>
+        </div>
     </div>
 
-    <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0">{{ action }} Turma</h5>
-        </div>
-        <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
-                <div class="row gy-20">
-                    <div class="col-md-6">
-                        <label class="form-label">Curso *</label>
-                        <select name="curso" class="form-select" required {% if turma %}disabled{% endif %}>
-                            <option value="">Selecione um curso</option>
-                            {% for curso in cursos %}
-                            <option value="{{ curso.id }}" {% if turma and turma.curso.id == curso.id %}selected{% endif %}>
-                                {{ curso.titulo }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Nome da Turma *</label>
-                        <input type="text" name="nome" class="form-control" value="{{ turma.nome|default:'' }}"
-                            required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Código *</label>
-                        <input type="text" name="codigo" class="form-control" value="{{ turma.codigo|default:'' }}" {% if turma %}readonly{% endif %} required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Turno *</label>
-                        <select name="turno" class="form-select" required>
-                            <option value="">Selecione</option>
-                            <option value="MANHA" {% if turma.turno == 'MANHA' %}selected{% endif %}>Manhã</option>
-                            <option value="TARDE" {% if turma.turno == 'TARDE' %}selected{% endif %}>Tarde</option>
-                            <option value="NOITE" {% if turma.turno == 'NOITE' %}selected{% endif %}>Noite</option>
-                            <option value="INTEGRAL" {% if turma.turno == 'INTEGRAL' %}selected{% endif %}>Integral
-                            </option>
-                            <option value="SABADO" {% if turma.turno == 'SABADO' %}selected{% endif %}>Sábado</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Data de Início *</label>
-                        <input type="date" name="data_inicio" class="form-control"
-                            value="{{ turma.data_inicio|date:'Y-m-d'|default:'' }}" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Data de Término *</label>
-                        <input type="date" name="data_fim" class="form-control"
-                            value="{{ turma.data_fim|date:'Y-m-d'|default:'' }}" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Horário de Início *</label>
-                        <input type="time" name="horario_inicio" class="form-control"
-                            value="{{ turma.horario_inicio|default:'' }}" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Horário de Término *</label>
-                        <input type="time" name="horario_fim" class="form-control"
-                            value="{{ turma.horario_fim|default:'' }}" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Dias da Semana *</label>
-                        <input type="text" name="dias_semana" class="form-control"
-                            value="{{ turma.dias_semana|default:'' }}" placeholder="Ex: SEG,QUA,SEX" required>
-                        <small class="text-gray-600">Use: SEG, TER, QUA, QUI, SEX, SAB, DOM</small>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Vagas Totais *</label>
-                        <input type="number" name="vagas_totais" class="form-control"
-                            value="{{ turma.vagas_totais|default:'20' }}" min="1" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Instrutor Principal</label>
-                        <select name="instrutor_principal" class="form-select">
-                            <option value="">Nenhum</option>
-                            {% for instrutor in instrutores %}
-                            <option value="{{ instrutor.id }}" {% if turma and turma.instrutor_principal.id == instrutor.id %}selected{% endif %}>
-                                {{ instrutor.nome }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    {% if turma %}
-                    <div class="col-md-6">
-                        <label class="form-label">Status *</label>
-                        <select name="status" class="form-select" required>
-                            <option value="ABERTA" {% if turma.status == 'ABERTA' %}selected{% endif %}>Aberta</option>
-                            <option value="EM_ANDAMENTO" {% if turma.status == 'EM_ANDAMENTO' %}selected{% endif %}>Em
-                                Andamento</option>
-                            <option value="CONCLUIDA" {% if turma.status == 'CONCLUIDA' %}selected{% endif %}>Concluída
-                            </option>
-                            <option value="CANCELADA" {% if turma.status == 'CANCELADA' %}selected{% endif %}>Cancelada
-                            </option>
-                        </select>
-                    </div>
-                    {% endif %}
+    {% if messages %}
+        <div class="flex flex-col gap-2">
+            {% for message in messages %}
+                <div class="p-4 rounded-lg text-sm font-medium {% if message.tags == 'success' %}bg-success/10 text-success border border-success/20{% elif message.tags == 'error' %}bg-danger/10 text-danger border border-danger/20{% else %}bg-warning/10 text-warning border border-warning/20{% endif %}">
+                    {{ message }}
                 </div>
-                <div class="flex-align gap-8 mt-24">
-                    <button type="submit" class="btn btn-main px-24 py-12">
-                        <i class="ph ph-floppy-disk me-8"></i> Salvar
-                    </button>
-                    <a href="{% url 'gerenciar_turmas' %}" class="btn btn-outline-gray px-24 py-12">Cancelar</a>
-                </div>
-            </form>
+            {% endfor %}
         </div>
-    </div>
+    {% endif %}
+
+    <form method="POST" class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm overflow-hidden">
+        {% csrf_token %}
+        <div class="p-6 flex flex-col gap-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Curso -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Curso Relacionado *</label>
+                    <select name="curso" class="kt-select" required>
+                        <option value="">Selecione o curso</option>
+                        {% for curso in cursos %}
+                            <option value="{{ curso.id }}" {% if turma.curso.id == curso.id %}selected{% endif %}>{{ curso.titulo }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Nome da Turma -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Nome da Turma *</label>
+                    <input type="text" name="nome" value="{{ turma.nome|default:'' }}" class="kt-input" placeholder="Ex: Turma Manhã 2024" required>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Código -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Código Interno</label>
+                    <input type="text" name="codigo" value="{{ turma.codigo|default:'' }}" class="kt-input" placeholder="Ex: PY24-01">
+                </div>
+
+                <!-- Instrutor -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Instrutor Responsável</label>
+                    <select name="instrutor_principal" class="kt-select">
+                        <option value="">Nenhum instrutor selecionado</option>
+                        {% for instrutor in instrutores %}
+                            <option value="{{ instrutor.id }}" {% if turma.instrutor_principal.id == instrutor.id %}selected{% endif %}>{{ instrutor.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Vagas -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Vagas Totais *</label>
+                    <input type="number" name="vagas_totais" value="{{ turma.vagas_totais|default:'30' }}" class="kt-input" min="1" required>
+                </div>
+            </div>
+
+            <div class="border-t border-dashed border-border pt-6 mt-2">
+                <h4 class="text-sm font-semibold mb-4">Datas e Horários</h4>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">Data de Início *</label>
+                        <input type="date" name="data_inicio" value="{{ turma.data_inicio|date:'Y-m-d' }}" class="kt-input" required>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">Data de Término *</label>
+                        <input type="date" name="data_fim" value="{{ turma.data_fim|date:'Y-m-d' }}" class="kt-input" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">Turno *</label>
+                        <select name="turno" class="kt-select" required>
+                            <option value="M" {% if turma.turno == 'M' %}selected{% endif %}>Manhã</option>
+                            <option value="T" {% if turma.turno == 'T' %}selected{% endif %}>Tarde</option>
+                            <option value="N" {% if turma.turno == 'N' %}selected{% endif %}>Noite</option>
+                            <option value="I" {% if turma.turno == 'I' %}selected{% endif %}>Integral</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">H. Início</label>
+                        <input type="time" name="horario_inicio" value="{{ turma.horario_inicio|time:'H:i' }}" class="kt-input">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">H. Fim</label>
+                        <input type="time" name="horario_fim" value="{{ turma.horario_fim|time:'H:i' }}" class="kt-input">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">Dias da Semana</label>
+                        <input type="text" name="dias_semana" value="{{ turma.dias_semana|default:'' }}" class="kt-input" placeholder="Ex: Seg, Qua, Sex">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="p-6 border-t border-border flex justify-end bg-accent/5">
+            <button type="submit" class="kt-btn kt-btn-primary">
+                <i class="ki-filled ki-check"></i> {{ action }} Turma
+            </button>
+        </div>
+    </form>
+
 </div>
-{% endblock %}
+{% endblock content %}

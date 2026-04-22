@@ -4,9 +4,11 @@ from .models import Usuario, Aluno, Escola, PerfilAluno, CodigoVerificacao
 from gestoreduka.models import CentroDeFormacao, CentroSeguimento
 from cursos_app.models import Curso, Favorito
 from django.contrib import messages
-from django.contrib.auth import logout as auth_logout
+from django.contrib.auth import authenticate, login, logout as auth_logout, update_session_auth_hash
+from django.contrib.auth.hashers import check_password
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -62,27 +64,174 @@ def adicionar_favorito(request, curso_id):
 def login_aluno(request):
     """
     Renderiza a página de login do aluno com cursos em destaque.
+    Redireciona para o painel se já estiver logado.
     """
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
+        return redirect('aluno') # Usando o nome da URL para garantir a barra correta
+        
     status = request.GET.get('status')
+    next_url = request.GET.get('next', '')
+    
     cursos_destaque = Curso.objects.filter(
         destaque=True, publicado=True, ativo=True
     ).select_related('centro').prefetch_related('instrutores')
 
-    return render(request, 'login_aluno.html', {'status':status, 'cursos_destaque':cursos_destaque})
+    return render(request, 'login_aluno.html', {
+        'status': status, 
+        'cursos_destaque': cursos_destaque,
+        'next': next_url
+    })
 
 
+
+from gestoreduka.models import Depoimento, CentroDeFormacao
+from cursos_app.models import Favorito, Inscricao
+
+def get_aluno_common_context(request):
+    """Retorna o contexto comum para todas as páginas do aluno."""
+    aluno = request.aluno_obj
+    perfil = request.perfil
+    inscricoes_reais = Inscricao.objects.filter(aluno=aluno).select_related('curso', 'curso__centro')
+    
+    return {
+        'aluno_logado': True,
+        'aluno_nome': aluno.nome,
+        'aluno_obj': aluno,
+        'perfil': perfil,
+        'inscricoes_reais': inscricoes_reais,
+    }
 
 @aluno_logado_e_centros
-def aluno(request):
-    """
-    Área principal do perfil do aluno. Os dados são enriquecidos pelo decorador aluno_logado_e_centros.
-    """
-    return render(request, 'aluno.html', {
-        'aluno_logado': True,
-        'aluno_nome': request.aluno_obj.nome,
-        'perfil': request.perfil,
-        'centros': request.centros,
+def aluno_dashboard(request):
+    from cursovideoapp.models import ProgressoAula
+    context = get_aluno_common_context(request)
+    aluno = context['aluno_obj']
+    
+    inscricoes_com_progresso = []
+    
+    # Cursos do catálogo presencial/híbrido
+    for inscricao in context['inscricoes_reais']:
+        curso = inscricao.curso
+        progresso = 0
+        total_aulas = 0
+        concluidas = 0
+        
+        inscricoes_com_progresso.append({
+            'is_video': False,
+            'inscricao': inscricao,
+            'curso': curso,
+            'progresso': progresso,
+            'total_aulas': total_aulas,
+            'concluidas': concluidas,
+            'imagem_url': curso.imagem.url if curso.imagem else None,
+            'titulo': curso.titulo,
+            'id': curso.id
+        })
+        
+    # Cursos do catálogo em vídeo
+    cursos_videos = aluno.cursos_inscritos_video.all()
+    for curso_video in cursos_videos:
+        total_aulas = curso_video.aulas.count()
+        concluidas = ProgressoAula.objects.filter(aluno=aluno, aula__curso=curso_video, concluida=True).count()
+        progresso = int((concluidas / total_aulas * 100)) if total_aulas > 0 else 0
+        
+        inscricoes_com_progresso.append({
+            'is_video': True,
+            'curso': curso_video,
+            'progresso': progresso,
+            'total_aulas': total_aulas,
+            'concluidas': concluidas,
+            'imagem_url': curso_video.capa.url if curso_video.capa else None,
+            'titulo': curso_video.titulo,
+            'slug': curso_video.slug
+        })
+    
+    total_cursos_ativos = context['inscricoes_reais'].filter(status='A').count() + cursos_videos.count()
+    
+    # Contar certificados
+    total_certificados = 0
+    if hasattr(aluno, 'certificados'):
+        total_certificados = aluno.certificados.count()
+    
+    context.update({
+        'current_page': 'dashboard',
+        'total_cursos': context['inscricoes_reais'].count() + cursos_videos.count(),
+        'total_cursos_ativos': total_cursos_ativos,
+        'total_certificados': total_certificados,
+        'inscricoes_com_progresso': inscricoes_com_progresso[:4], 
     })
+    return render(request, 'aluno/dashboard.html', context)
+
+@aluno_logado_e_centros
+def aluno_cursos(request):
+    context = get_aluno_common_context(request)
+    context['current_page'] = 'cursos'
+    context['cursos_inscritos'] = [i.curso for i in context['inscricoes_reais']]
+    context['cursos_videos_inscritos'] = request.aluno_obj.cursos_inscritos_video.all()
+    return render(request, 'aluno/cursos.html', context)
+
+@aluno_logado_e_centros
+def aluno_favoritos(request):
+    context = get_aluno_common_context(request)
+    context['current_page'] = 'favoritos'
+    context['favoritos_lista'] = Favorito.objects.filter(aluno=request.aluno_obj).select_related('curso')
+    return render(request, 'aluno/favoritos.html', context)
+
+@aluno_logado_e_centros
+def aluno_depoimento(request):
+    context = get_aluno_common_context(request)
+    context['current_page'] = 'depoimento'
+    context['meus_depoimentos'] = Depoimento.objects.filter(aluno=request.aluno_obj).order_by('-data')
+    context['centros_inscritos'] = CentroDeFormacao.objects.filter(cursos__inscricoes__aluno=request.aluno_obj).distinct()
+    return render(request, 'aluno/depoimento.html', context)
+
+@aluno_logado_e_centros
+def aluno_perfil(request):
+    context = get_aluno_common_context(request)
+    context['current_page'] = 'perfil'
+    return render(request, 'aluno/perfil.html', context)
+
+@aluno_logado_e_centros
+def aluno_configuracoes(request):
+    context = get_aluno_common_context(request)
+    context['current_page'] = 'configuracoes'
+    return render(request, 'aluno/settings.html', context)
+
+@aluno_logado_e_centros
+def enviar_depoimento(request):
+    """
+    Processa o envio de um novo depoimento pelo aluno.
+    """
+    if request.method == 'POST':
+        tipo = request.POST.get('tipo')
+        centro_id = request.POST.get('centro')
+        texto = request.POST.get('texto')
+        nota = request.POST.get('nota', 5)
+        
+        depoimento = Depoimento(
+            aluno=request.aluno_obj,
+            nome=request.aluno_obj.nome,
+            tipo=tipo,
+            texto=texto,
+            nota=nota,
+            aprovado=False
+        )
+        
+        if tipo == 'CENTRO' and centro_id:
+            try:
+                depoimento.centro = CentroDeFormacao.objects.get(id=centro_id)
+            except CentroDeFormacao.DoesNotExist:
+                pass
+        
+        # Se o aluno tiver foto, usa no depoimento
+        if request.perfil.foto_de_perfil:
+            depoimento.foto = request.perfil.foto_de_perfil
+            
+        depoimento.save()
+        messages.success(request, "Seu depoimento foi enviado com sucesso e está aguardando revisão!")
+        return redirect('aluno_depoimento')
+        
+    return redirect('aluno_dashboard')
 
 
 
@@ -329,8 +478,6 @@ def redefinir_senha(request):
             
     return render(request, 'redefinir_senha.html')
 
-from django.contrib.auth import authenticate, login
-
 def valida_login(request):
     """
     Valida as credenciais do usuário usando o sistema de autenticação do Django.
@@ -357,8 +504,12 @@ def valida_login(request):
                 return redirect('/auth/login_aluno?status=2')
                 
             login(request, user)
-            if is_ajax: return JsonResponse({'success': True, 'redirect': '/auth/aluno?status=0'})
-            return redirect('/auth/aluno?status=0')
+            
+            # Suporte ao parâmetro next
+            next_url = request.POST.get('next') or request.GET.get('next') or '/auth/aluno?status=0'
+            
+            if is_ajax: return JsonResponse({'success': True, 'redirect': next_url})
+            return redirect(next_url)
         else:
             if is_ajax: return JsonResponse({'success': False, 'error': 'E-mail ou senha incorretos.'})
             return redirect('/auth/login_aluno?status=1')
@@ -383,9 +534,9 @@ def login_instrutor(request):
 
 def login_escola(request):
     """
-    Renderiza a página de login da escola.
+    REMOVIDO: Página de login da escola.
     """
-    return render(request, 'login_escola.html')
+    return redirect('/auth/login_aluno')
 
 def logout_usuario(request):
     """
@@ -455,20 +606,69 @@ def editar_perfil(request):
 
         if 'foto_de_perfil' in request.FILES:
             perfil.foto_de_perfil = request.FILES['foto_de_perfil']
+            
+        if 'bilhete_frente' in request.FILES:
+            perfil.bilhete_frente = request.FILES['bilhete_frente']
+            
+        if 'bilhete_verso' in request.FILES:
+            perfil.bilhete_verso = request.FILES['bilhete_verso']
         
         aluno.save()
         perfil.save()
         
         messages.success(request, "Perfil atualizado com sucesso!")
-        return redirect('/auth/aluno')  
-
-    return redirect('/auth/aluno')
+        return redirect('aluno_perfil')
+    
+    return redirect('aluno_dashboard')
 
 def configuracao_user(request):
     """
-    Página de configuração geral para o usuário.
+    Lida com as configurações do usuário enviadas via tabs.
     """
-    return render(request, 'configuracao_user.html')
+    if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
+        return redirect('/auth/login_aluno')
+    
+    aluno = request.user.aluno_profile
+    perfil, _ = PerfilAluno.objects.get_or_create(aluno=aluno)
+    
+    if request.method == 'POST':
+        form_type = request.POST.get('form_type')
+        
+        if form_type == 'profile':
+            aluno.nome = request.POST.get('nome')
+            perfil.telefone = request.POST.get('telefone')
+            perfil.biografia = request.POST.get('biografia')
+            aluno.save()
+            perfil.save()
+            messages.success(request, "Perfil atualizado!")
+            
+        elif form_type == 'social':
+            perfil.linkedin = request.POST.get('linkedin')
+            perfil.github = request.POST.get('github')
+            perfil.save()
+            messages.success(request, "Redes sociais atualizadas!")
+            
+        elif form_type == 'password':
+            current_password = request.POST.get('currentpassword')
+            new_password = request.POST.get('newpassword')
+            retype_new_password = request.POST.get('retypenewpassword')
+            
+            user = request.user
+            if user.check_password(current_password):
+                if new_password == retype_new_password:
+                    if len(new_password) >= 8:
+                        user.set_password(new_password)
+                        user.save()
+                        update_session_auth_hash(request, user)  # Mantém o usuário logado
+                        messages.success(request, "Sua senha foi alterada com sucesso!")
+                    else:
+                        messages.error(request, "A nova senha deve ter pelo menos 8 caracteres.")
+                else:
+                    messages.error(request, "As novas senhas não coincidem.")
+            else:
+                messages.error(request, "A senha atual está incorreta.")
+            
+        return redirect('aluno_configuracoes')
 
 from gestoreduka.models import Conversa, Mensagem
 
@@ -494,6 +694,10 @@ def aluno_chat(request):
         except Conversa.DoesNotExist:
             pass
             
+    cursos_centro = []
+    if conversa_atual:
+        cursos_centro = conversa_atual.centro.cursos.filter(ativo=True, publicado=True).order_by('-destaque', '-data_criacao')[:6]
+            
     return render(request, 'aluno_chat.html', {
         'aluno_logado': True,
         'aluno_nome': request.aluno_obj.nome if hasattr(request, 'aluno_obj') else aluno.nome,
@@ -502,4 +706,29 @@ def aluno_chat(request):
         'conversas': conversas,
         'conversa_atual': conversa_atual,
         'mensagens': mensagens,
+        'cursos_centro': cursos_centro,
+    })
+
+@login_required
+def get_mensagens_aluno_ajax(request, conversa_id):
+    """
+    Retorna apenas o fragmento HTML das mensagens para o polling do portal do aluno.
+    """
+    aluno = getattr(request.user, 'aluno_profile', None)
+    if not aluno:
+        return JsonResponse({'error': 'Acesso negado'}, status=403)
+        
+    conversa = get_object_or_404(Conversa, id=conversa_id, aluno=aluno)
+    mensagens = conversa.mensagens.all().order_by('data_envio')
+    
+    # NOVO: Carregar cursos para o catálogo inicial
+    cursos_centro = conversa.centro.cursos.filter(ativo=True, publicado=True).order_by('-destaque', '-data_criacao')[:6]
+    
+    # Marcar mensagens recebidas do centro como lidas
+    mensagens.filter(remetente_centro__isnull=False, lida=False).update(lida=True)
+    
+    return render(request, 'include/aluno_messages_fragment.html', {
+        'mensagens': mensagens,
+        'conversa_atual': conversa,
+        'cursos_centro': cursos_centro,
     })

@@ -2,6 +2,7 @@
 from django import forms
 from django.utils import timezone
 from cursos_app.models import Curso, Categoria, Instrutor
+from .models import AnuncioCentro
 
 class CursoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -23,7 +24,8 @@ class CursoForm(forms.ModelForm):
 
         # Adicionar placeholders e help texts
         self.fields['titulo'].help_text = 'Máximo 200 caracteres'
-        self.fields['preco'].help_text = 'Valor em Kz. Use 0 para curso gratuito'
+        self.fields['moeda'].help_text = 'Selecione a unidade monetária de cobrança'
+        self.fields['preco'].help_text = 'Valor do curso na moeda selecionada. Use 0 para gratuito'
         self.fields['preco_inscricao'].help_text = 'Valor da taxa de inscrição (opcional)'
         self.fields['carga_horaria'].help_text = 'Número de horas do curso'
 
@@ -31,88 +33,95 @@ class CursoForm(forms.ModelForm):
         model = Curso
         fields = [
             'titulo', 'descricao', 'descricao_curta', 'nivel', 'idioma', 'categoria',
-            'certificado', 'instrutores', 'carga_horaria', 'preco', 'preco_inscricao',
-            'preco_promocional', 'data_inicio_promocao', 'data_fim_promocao',
+            'certificado', 'instrutores', 'carga_horaria', 'duracao', 
+            'moeda', 'preco', 'preco_inscricao', 'preco_promocional', 
+            'data_inicio_promocao', 'data_fim_promocao',
             'modalidade', 'publicado', 'imagem', 'destaque'
         ]
         widgets = {
             'titulo': forms.TextInput(attrs={
-                'class': 'form-control py-12 px-16 rounded-12 border border-gray-100',
+                'class': 'kt-input',
                 'placeholder': 'Ex: Curso Completo de Python para Iniciantes',
                 'maxlength': '200'
             }),
             'descricao': forms.Textarea(attrs={
-                'class': 'form-control py-12 px-16 rounded-12 border border-gray-100',
+                'class': 'kt-input',
                 'rows': 4,
                 'placeholder': 'Descreva detalhadamente o conteúdo, objetivos e benefícios do curso...'
             }),
             'descricao_curta': forms.TextInput(attrs={
-                'class': 'form-control py-12 px-16 rounded-12 border border-gray-100',
+                'class': 'kt-input',
                 'placeholder': 'Descrição resumida para cards e listagens (máx. 300 caracteres)',
                 'maxlength': '300'
             }),
             'nivel': forms.Select(attrs={
-                'class': 'form-select py-12 px-16 rounded-12 border border-gray-100'
+                'class': 'kt-select'
             }),
             'idioma': forms.Select(attrs={
-                'class': 'form-select py-12 px-16 rounded-12 border border-gray-100'
+                'class': 'kt-select'
             }),
             'categoria': forms.Select(attrs={
-                'class': 'form-select py-12 px-16 rounded-12 border border-gray-100'
+                'class': 'kt-select'
             }),
             'modalidade': forms.Select(attrs={
-                'class': 'form-select py-12 px-16 rounded-12 border border-gray-100'
+                'class': 'kt-select'
+            }),
+            'duracao': forms.Select(attrs={
+                'class': 'kt-select'
+            }),
+            'moeda': forms.Select(attrs={
+                'class': 'kt-select'
             }),
             'carga_horaria': forms.NumberInput(attrs={
-                'class': 'form-control py-12 px-16 rounded-12 border border-gray-100',
+                'class': 'kt-input',
                 'placeholder': 'Ex: 40',
                 'min': '1',
                 'max': '1000'
             }),
             'preco': forms.NumberInput(attrs={
-                'class': 'form-control py-12 px-16 rounded-12 border border-gray-100',
+                'class': 'kt-input',
                 'placeholder': '0.000',
                 'step': '0.001',
                 'min': '0'
             }),
             'preco_inscricao': forms.NumberInput(attrs={
-                'class': 'form-control py-12 px-16 rounded-12 border border-gray-100',
+                'class': 'kt-input',
                 'placeholder': '0.000',
                 'step': '0.001',
                 'min': '0'
             }),
             'preco_promocional': forms.NumberInput(attrs={
-                'class': 'form-control py-12 px-16 rounded-12 border border-gray-100',
+                'class': 'kt-input',
                 'placeholder': '0.000',
                 'step': '0.001',
                 'min': '0'
             }),
             'data_inicio_promocao': forms.DateTimeInput(attrs={
-                'class': 'form-control py-12 px-16 rounded-12 border border-gray-100',
+                'class': 'kt-input',
                 'type': 'datetime-local',
             }),
             'data_fim_promocao': forms.DateTimeInput(attrs={
-                'class': 'form-control py-12 px-16 rounded-12 border border-gray-100',
+                'class': 'kt-input',
                 'type': 'datetime-local',
             }),
             'instrutores': forms.SelectMultiple(attrs={
-                'class': 'form-select py-12 px-16 rounded-12 border border-gray-100',
+                'class': 'kt-select',
                 'size': '4'
             }),
             'certificado': forms.CheckboxInput(attrs={
-                'class': 'form-check-input',
+                'class': 'kt-checkbox',
                 'style': 'width: 18px; height: 18px;'
             }),
             'destaque': forms.CheckboxInput(attrs={
-                'class': 'form-check-input',
+                'class': 'kt-checkbox',
                 'style': 'width: 18px; height: 18px;'
             }),
             'publicado': forms.CheckboxInput(attrs={
-                'class': 'form-check-input',
+                'class': 'kt-checkbox',
                 'style': 'width: 18px; height: 18px;'
             }),
             'imagem': forms.FileInput(attrs={
-                'class': 'form-control py-12 px-16 rounded-12 border border-gray-100',
+                'class': 'kt-input',
                 'accept': 'image/*'
             })
         }
@@ -126,12 +135,14 @@ class CursoForm(forms.ModelForm):
             'certificado': 'Oferece Certificado?',
             'instrutores': 'Instrutores *',
             'carga_horaria': 'Carga Horária (horas) *',
-            'preco': 'Preço Normal (Kz) *',
-            'preco_inscricao': 'Taxa de Inscrição (Kz)',
-            'preco_promocional': 'Preço Promocional (Kz)',
+            'moeda': 'Moeda do Curso *',
+            'preco': 'Preço Normal *',
+            'preco_inscricao': 'Taxa de Inscrição',
+            'preco_promocional': 'Preço Promocional',
             'data_inicio_promocao': 'Início da Promoção',
             'data_fim_promocao': 'Fim da Promoção',
             'modalidade': 'Modalidade *',
+            'duracao': 'Duração do Curso *',
             'publicado': 'Publicar Curso?',
             'imagem': 'Imagem de Capa',
             'destaque': 'Destacar este curso?'
@@ -202,3 +213,33 @@ class CursoForm(forms.ModelForm):
         if descricao_curta and len(descricao_curta.strip()) < 10:
             raise forms.ValidationError('A descrição curta deve ter pelo menos 10 caracteres.')
         return descricao_curta.strip()
+
+class AnuncioForm(forms.ModelForm):
+    class Meta:
+        model = AnuncioCentro
+        fields = ['titulo', 'conteudo', 'imagem', 'ativo']
+        widgets = {
+            'titulo': forms.TextInput(attrs={
+                'class': 'kt-input',
+                'placeholder': 'Título impactante do anúncio/comunicado'
+            }),
+            'conteudo': forms.Textarea(attrs={
+                'class': 'kt-input',
+                'rows': 5,
+                'placeholder': 'Escreva aqui o conteúdo da novidade que quer partilhar com os seus seguidores...'
+            }),
+            'imagem': forms.FileInput(attrs={
+                'class': 'kt-input',
+                'accept': 'image/*'
+            }),
+            'ativo': forms.CheckboxInput(attrs={
+                'class': 'kt-checkbox',
+                'style': 'width: 18px; height: 18px;'
+            })
+        }
+        labels = {
+            'titulo': 'Título do Anúncio *',
+            'conteudo': 'Conteúdo da Mensagem *',
+            'imagem': 'Imagem de Destaque (opcional)',
+            'ativo': 'Publicar agora?'
+        }

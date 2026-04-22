@@ -1,0 +1,205 @@
+{% extends 'gestor_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="flex flex-col gap-5 lg:gap-7.5">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-xl font-bold text-foreground">Editar Curso</h1>
+            <p class="text-sm text-secondary-foreground">
+                Altere as configurações, programa ou detalhes financeiros do curso "{{ curso.titulo }}".
+            </p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="{% url 'listar_cursos' %}" class="kt-btn kt-btn-light">
+                <i class="ki-filled ki-arrow-left"></i> Voltar
+            </a>
+            <a href="{% url 'curso_overview' curso.id %}" class="kt-btn kt-btn-light">
+                <i class="ki-filled ki-eye"></i> Visualizar
+            </a>
+        </div>
+    </div>
+
+    {% if messages %}
+        <div class="flex flex-col gap-2">
+            {% for message in messages %}
+                <div class="p-4 rounded-lg text-sm font-medium {% if message.tags == 'success' %}bg-success/10 text-success border border-success/20{% elif message.tags == 'error' %}bg-danger/10 text-danger border border-danger/20{% else %}bg-warning/10 text-warning border border-warning/20{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" class="flex flex-col lg:flex-row gap-5 lg:gap-7.5">
+        {% csrf_token %}
+
+        <!-- Left Column: Main form data -->
+        <div class="flex flex-col gap-5 lg:gap-7.5 lg:w-2/3">
+            
+            <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm">
+                <div class="border-b border-border px-5 py-4">
+                    <h3 class="font-semibold text-base text-foreground">Informações Básicas</h3>
+                </div>
+                <div class="p-5 flex flex-col gap-6">
+                    
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">{{ form.titulo.label }}</label>
+                        {{ form.titulo }}
+                        {% if form.titulo.errors %}<span class="text-xs text-danger">{{ form.titulo.errors.as_text }}</span>{% endif %}
+                        <span class="text-xs text-muted-foreground">{{ form.titulo.help_text }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">{{ form.descricao_curta.label }}</label>
+                        {{ form.descricao_curta }}
+                        {% if form.descricao_curta.errors %}<span class="text-xs text-danger">{{ form.descricao_curta.errors.as_text }}</span>{% endif %}
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">{{ form.descricao.label }}</label>
+                        {{ form.descricao }}
+                        {% if form.descricao.errors %}<span class="text-xs text-danger">{{ form.descricao.errors.as_text }}</span>{% endif %}
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium text-foreground">{{ form.categoria.label }}</label>
+                            {{ form.categoria }}
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium text-foreground">{{ form.nivel.label }}</label>
+                            {{ form.nivel }}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium text-foreground">{{ form.idioma.label }}</label>
+                            {{ form.idioma }}
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium text-foreground">{{ form.instrutores.label }}</label>
+                            {{ form.instrutores }}
+                            {% if form.instrutores.errors %}<span class="text-xs text-danger">{{ form.instrutores.errors.as_text }}</span>{% endif %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm">
+                <div class="border-b border-border px-5 py-4">
+                    <h3 class="font-semibold text-base text-foreground">Preços e Promoção</h3>
+                </div>
+                <div class="p-5 flex flex-col gap-6">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium text-foreground">{{ form.preco.label }}</label>
+                            {{ form.preco }}
+                            {% if form.preco.errors %}<span class="text-xs text-danger">{{ form.preco.errors.as_text }}</span>{% endif %}
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium text-foreground">{{ form.preco_inscricao.label }}</label>
+                            {{ form.preco_inscricao }}
+                        </div>
+                    </div>
+
+                    <h4 class="text-sm font-medium pt-3 mt-3 border-t border-dashed border-border">Campanha Promocional</h4>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">{{ form.preco_promocional.label }}</label>
+                        {{ form.preco_promocional }}
+                        {% if form.preco_promocional.errors %}<span class="text-xs text-danger">{{ form.preco_promocional.errors.as_text }}</span>{% endif %}
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium text-foreground">{{ form.data_inicio_promocao.label }}</label>
+                            {{ form.data_inicio_promocao }}
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium text-foreground">{{ form.data_fim_promocao.label }}</label>
+                            {{ form.data_fim_promocao }}
+                        </div>
+                    </div>
+                    {% if form.data_fim_promocao.errors %}<span class="text-xs text-danger block mt-2">{{ form.data_fim_promocao.errors.as_text }}</span>{% endif %}
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Settings and Media -->
+        <div class="flex flex-col gap-5 lg:gap-7.5 lg:w-1/3">
+
+            <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm">
+                <div class="border-b border-border px-5 py-4">
+                    <h3 class="font-semibold text-base text-foreground">Media</h3>
+                </div>
+                <div class="p-5 flex flex-col gap-5">
+                    {% if curso.imagem %}
+                        <div class="relative w-full aspect-video rounded-lg overflow-hidden border border-border mb-3">
+                            <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}" class="w-full h-full object-cover">
+                        </div>
+                    {% endif %}
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">{{ form.imagem.label }}</label>
+                        {{ form.imagem }}
+                        <span class="text-xs text-muted-foreground">O tamanho recomendado é 800x600px.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm">
+                <div class="border-b border-border px-5 py-4">
+                    <h3 class="font-semibold text-base text-foreground">Configurações Gerais</h3>
+                </div>
+                <div class="p-5 flex flex-col gap-5">
+                    
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">{{ form.modalidade.label }}</label>
+                        {{ form.modalidade }}
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">{{ form.duracao.label }}</label>
+                        {{ form.duracao }}
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">{{ form.carga_horaria.label }}</label>
+                        {{ form.carga_horaria }}
+                        {% if form.carga_horaria.errors %}<span class="text-xs text-danger">{{ form.carga_horaria.errors.as_text }}</span>{% endif %}
+                    </div>
+
+                    <div class="pt-3 border-t border-dashed border-border flex flex-col gap-3">
+                        <label class="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                            {{ form.certificado }} {{ form.certificado.label }}
+                        </label>
+                        <label class="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                            {{ form.destaque }} {{ form.destaque.label }}
+                        </label>
+                        <label class="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                            {{ form.publicado }} {{ form.publicado.label }}
+                        </label>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex flex-col gap-3">
+                <button type="submit" class="kt-btn kt-btn-primary w-full justify-center">
+                    <i class="ki-filled ki-check-circle"></i> Atualizar Curso
+                </button>
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+{% endblock content %}

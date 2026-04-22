@@ -1,427 +1,201 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'gestor_base.html' %}
+{% load static %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Title -->
-    {% include 'include/css_gestor.html' %}
+{% block content %}
+<div class="flex flex-col gap-5 lg:gap-7.5">
 
-</head>
-
-<body>
-
-    <!--==================== Preloader Start ====================-->
-    <div class="preloader">
-        <div class="loader"></div>
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-xl font-bold text-foreground">{% if is_edit %}Editar Curso{% else %}Criar Novo Curso{% endif %}</h1>
+            <p class="text-sm text-secondary-foreground">
+                {% if is_edit %}Altere as configurações, programa ou detalhes financeiros.{% else %}Preencha os detalhes para lançar um novo curso na sua instituição.{% endif %}
+            </p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="{% url 'listar_cursos' %}" class="kt-btn kt-btn-light">
+                <i class="ki-filled ki-arrow-left"></i> Voltar
+            </a>
+            <!-- Note: The save buttons are within the form -->
+        </div>
     </div>
 
-    <div class="side-overlay"></div>
-    {% include 'include/header_gestor.html' %}
-
-    <div class="dashboard-main-wrapper">
-        {% include 'include/menu.html' %}
-
-        <!-- criar_curso.html -->
-        {% load static %}
-
-        <!-- Mensagens do Django -->
-        {% if messages %}
-        <div class="container mt-4">
+    {% if messages %}
+        <div class="flex flex-col gap-2">
             {% for message in messages %}
-            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show"
-                role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+                <div class="p-4 rounded-lg text-sm font-medium {% if message.tags == 'success' %}bg-success/10 text-success border border-success/20{% elif message.tags == 'error' %}bg-danger/10 text-danger border border-danger/20{% else %}bg-warning/10 text-warning border border-warning/20{% endif %}">
+                    {{ message }}
+                </div>
             {% endfor %}
         </div>
-        {% endif %}
+    {% endif %}
 
-        <div class="dashboard-body">
-            <div class="breadcrumb-with-buttons mb-24 flex-between flex-wrap gap-8">
-                <!-- Breadcrumb Start -->
-                <div class="breadcrumb mb-24">
-                    <ul class="flex-align gap-4">
-                        <li><a href="{% url 'centro_dashboard' %}"
-                                class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
-                        <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
-                        <li><a href="{% url 'listar_cursos' %}"
-                                class="text-gray-200 fw-normal text-15 hover-text-main-600">Cursos</a></li>
-                        <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
-                        <li><span class="text-main-600 fw-normal text-15">Criar Curso</span></li>
-                    </ul>
+    <form method="POST" enctype="multipart/form-data" class="flex flex-col lg:flex-row gap-5 lg:gap-7.5">
+        {% csrf_token %}
+
+        <!-- Left Column: Main form data -->
+        <div class="flex flex-col gap-5 lg:gap-7.5 lg:w-2/3">
+            
+            <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm">
+                <div class="border-b border-border px-5 py-4">
+                    <h3 class="font-semibold text-base text-foreground">Informações Básicas</h3>
                 </div>
-                <!-- Breadcrumb End -->
+                <div class="p-5 flex flex-col gap-6">
+                    
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">{{ form.titulo.label }}</label>
+                        {{ form.titulo }}
+                        {% if form.titulo.errors %}<span class="text-xs text-danger">{{ form.titulo.errors.as_text }}</span>{% endif %}
+                        <span class="text-xs text-muted-foreground">{{ form.titulo.help_text }}</span>
+                    </div>
 
-                <!-- Buttons Start -->
-                <div class="flex-align justify-content-end gap-8">
-                    <button type="button"
-                        class="btn btn-outline-main bg-main-100 border-main-100 text-main-600 rounded-pill py-9"
-                        onclick="salvarRascunho()">Salvar como Rascunho</button>
-                    <button type="submit" form="cursoForm" class="btn btn-main rounded-pill py-9">Criar Curso</button>
-                </div>
-                <!-- Buttons End -->
-            </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">{{ form.descricao_curta.label }}</label>
+                        {{ form.descricao_curta }}
+                        {% if form.descricao_curta.errors %}<span class="text-xs text-danger">{{ form.descricao_curta.errors.as_text }}</span>{% endif %}
+                    </div>
 
-            <!-- Create Course Step List Start -->
-            <ul class="step-list mb-24">
-                <li class="step-list__item py-15 px-24 text-15 text-heading fw-medium flex-center gap-6 active">
-                    <span class="icon text-xl d-flex"><i class="ph ph-circle"></i></span>
-                    Detalhes do Curso
-                    <span class="line position-relative"></span>
-                </li>
-                <li class="step-list__item py-15 px-24 text-15 text-heading fw-medium flex-center gap-6">
-                    <span class="icon text-xl d-flex"><i class="ph ph-circle"></i></span>
-                    Conteúdo
-                    <span class="line position-relative"></span>
-                </li>
-                <li class="step-list__item py-15 px-24 text-15 text-heading fw-medium flex-center gap-6">
-                    <span class="icon text-xl d-flex"><i class="ph ph-circle"></i></span>
-                    Sobre o Curso
-                    <span class="line position-relative"></span>
-                </li>
-                <li class="step-list__item py-15 px-24 text-15 text-heading fw-medium flex-center gap-6">
-                    <span class="icon text-xl d-flex"><i class="ph ph-circle"></i></span>
-                    Configurações
-                    <span class="line position-relative"></span>
-                </li>
-                <li class="step-list__item py-15 px-24 text-15 text-heading fw-medium flex-center gap-6">
-                    <span class="icon text-xl d-flex"><i class="ph ph-circle"></i></span>
-                    Publicar
-                    <span class="line position-relative"></span>
-                </li>
-            </ul>
-            <!-- Create Course Step List End -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">{{ form.descricao.label }}</label>
+                        {{ form.descricao }}
+                        {% if form.descricao.errors %}<span class="text-xs text-danger">{{ form.descricao.errors.as_text }}</span>{% endif %}
+                    </div>
 
-            <!-- Course Tab Start -->
-            <div class="card">
-                <div class="card-header border-bottom border-gray-100 flex-align gap-8">
-                    <h5 class="mb-0">Detalhes do Curso</h5>
-                    <button type="button" class="text-main-600 text-md d-flex" data-bs-toggle="tooltip"
-                        data-bs-placement="top" data-bs-title="Detalhes do Curso">
-                        <i class="ph-fill ph-question"></i>
-                    </button>
-                </div>
-                <div class="card-body">
-                    <form id="cursoForm" method="post" action="{% url 'criar_curso' %}" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <div class="row gy-20">
-                            <div class="col-xxl-3 col-md-4 col-sm-5">
-                                <div class="mb-20">
-                                    <label class="h5 fw-semibold font-heading mb-0">Imagem do Curso <span
-                                            class="text-13 text-gray-400 fw-medium">(Opcional)</span> </label>
-                                </div>
-                                <div class="image-upload">
-                                    <div class="avatar-upload">
-                                        {{ form.imagem }}
-                                        <div class="avatar-preview">
-                                            <div id="imagePreview"
-                                                style="background-image: url('{% static 'assets1/images/thumbs/default-course.jpg' %}'); height: 200px; background-size: cover; background-position: center;">
-                                            </div>
-                                        </div>
-                                        <label for="id_imagem"
-                                            class="btn btn-outline-main w-100 mt-2 rounded-pill py-8">
-                                            <i class="ph ph-upload me-2"></i>Escolher Imagem
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xxl-9 col-md-8 col-sm-7">
-                                <div class="row g-20">
-                                    <!-- Campos Básicos -->
-                                    <div class="col-sm-12">
-                                        <label for="id_titulo" class="h5 mb-8 fw-semibold font-heading">Título do Curso
-                                            <span class="text-13 text-gray-400 fw-medium">(Obrigatório)</span></label>
-                                        <div class="position-relative">
-                                            {{ form.titulo }}
-                                            <div
-                                                class="text-gray-400 position-absolute inset-inline-end-0 top-50 translate-middle-y me-16">
-                                                <span id="current">0</span>
-                                                <span id="maximum">/ 200</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-12">
-                                        <label for="id_descricao_curta"
-                                            class="h5 mb-8 fw-semibold font-heading">Descrição Curta *</label>
-                                        {{ form.descricao_curta }}
-                                        <small class="text-gray-400">{{ form.descricao_curta.help_text }}</small>
-                                    </div>
-
-                                    <div class="col-sm-12">
-                                        <label for="id_descricao" class="h5 mb-8 fw-semibold font-heading">Descrição
-                                            Detalhada *</label>
-                                        {{ form.descricao }}
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                        <label for="id_categoria" class="h5 mb-8 fw-semibold font-heading">Categoria
-                                            *</label>
-                                        {{ form.categoria }}
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                        <label for="id_nivel" class="h5 mb-8 fw-semibold font-heading">Nível *</label>
-                                        {{ form.nivel }}
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                        <label for="id_idioma" class="h5 mb-8 fw-semibold font-heading">Idioma *</label>
-                                        {{ form.idioma }}
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                        <label for="id_modalidade" class="h5 mb-8 fw-semibold font-heading">Modalidade
-                                            *</label>
-                                        {{ form.modalidade }}
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                        <label for="id_carga_horaria" class="h5 mb-8 fw-semibold font-heading">Carga
-                                            Horária (horas) *</label>
-                                        {{ form.carga_horaria }}
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                        <label for="id_vagas_minimas" class="h5 mb-8 fw-semibold font-heading">Vagas
-                                            Mínimas *</label>
-                                        {{ form.vagas_minimas }}
-                                        <small class="text-gray-400">{{ form.vagas_minimas.help_text }}</small>
-                                    </div>
-
-                                    <!-- Preços -->
-                                    <div class="col-sm-4">
-                                        <label for="id_preco" class="h5 mb-8 fw-semibold font-heading">Preço Normal (Kz)
-                                            *</label>
-                                        {{ form.preco }}
-                                        <small class="text-gray-400">{{ form.preco.help_text }}</small>
-                                    </div>
-
-                                    <div class="col-sm-4">
-                                        <label for="id_preco_inscricao" class="h5 mb-8 fw-semibold font-heading">Taxa de
-                                            Inscrição (Kz)</label>
-                                        {{ form.preco_inscricao }}
-                                    </div>
-
-                                    <div class="col-sm-4">
-                                        <label for="id_preco_promocional" class="h5 mb-8 fw-semibold font-heading">Preço
-                                            Promocional (Kz)</label>
-                                        {{ form.preco_promocional }}
-                                    </div>
-
-                                    <!-- Datas de Inscrição -->
-                                    <div class="col-sm-6">
-                                        <label for="id_data_inicio_inscricoes"
-                                            class="h5 mb-8 fw-semibold font-heading">Início das Inscrições *</label>
-                                        {{ form.data_inicio_inscricoes }}
-                                        <small class="text-gray-400">{{ form.data_inicio_inscricoes.help_text }}</small>
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                        <label for="id_data_fim_inscricoes" class="h5 mb-8 fw-semibold font-heading">Fim
-                                            das Inscrições</label>
-                                        {{ form.data_fim_inscricoes }}
-                                        <small class="text-gray-400">{{ form.data_fim_inscricoes.help_text }}</small>
-                                    </div>
-
-                                    <!-- Datas de Promoção -->
-                                    <div class="col-sm-6">
-                                        <label for="id_data_inicio_promocao"
-                                            class="h5 mb-8 fw-semibold font-heading">Início da Promoção</label>
-                                        {{ form.data_inicio_promocao }}
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                        <label for="id_data_fim_promocao" class="h5 mb-8 fw-semibold font-heading">Fim
-                                            da Promoção</label>
-                                        {{ form.data_fim_promocao }}
-                                    </div>
-
-                                    <!-- Checkboxes -->
-                                    <div class="col-sm-4">
-                                        <label for="id_certificado" class="h5 mb-8 fw-semibold font-heading d-block">
-                                            {{ form.certificado }} Oferece Certificado?
-                                        </label>
-                                    </div>
-
-                                    <div class="col-sm-4">
-                                        <label for="id_destaque" class="h5 mb-8 fw-semibold font-heading d-block">
-                                            {{ form.destaque }} Destacar este curso?
-                                        </label>
-                                    </div>
-
-                                    <div class="col-sm-4">
-                                        <label for="id_publicado" class="h5 mb-8 fw-semibold font-heading d-block">
-                                            {{ form.publicado }} Publicar Curso?
-                                        </label>
-                                    </div>
-
-                                    <!-- Parcelamento -->
-                                    <div class="col-sm-6">
-                                        <label for="id_permite_parcelamento"
-                                            class="h5 mb-8 fw-semibold font-heading d-block">
-                                            {{ form.permite_parcelamento }} Permitir Parcelamento?
-                                        </label>
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                        <label for="id_max_parcelas" class="h5 mb-8 fw-semibold font-heading">Máximo de
-                                            Parcelas</label>
-                                        {{ form.max_parcelas }}
-                                    </div>
-
-                                    <!-- Instrutores -->
-                                    <div class="col-sm-12">
-                                        <label for="id_instrutores" class="h5 mb-8 fw-semibold font-heading">Instrutores
-                                            *</label>
-                                        {{ form.instrutores }}
-                                        {% if not form.instrutores.field.queryset %}
-                                        <div class="alert alert-warning mt-2">
-                                            <small>Nenhum instrutor cadastrado. <a href="#"
-                                                    onclick="alert('Funcionalidade para cadastrar instrutores em breve!')">Cadastre
-                                                    instrutores primeiro</a>.</small>
-                                        </div>
-                                        {% endif %}
-                                    </div>
-
-                                    <!-- Tags -->
-                                    <div class="col-sm-12">
-                                        <label for="id_tags" class="h5 mb-8 fw-semibold font-heading">Tags
-                                            (Palavras-chave)</label>
-                                        {{ form.tags }}
-                                        <small class="text-gray-400">Separe as tags por vírgula</small>
-                                    </div>
-
-                                    <!-- Campos de Conteúdo -->
-                                    <div class="col-sm-12">
-                                        <label for="id_requisitos"
-                                            class="h5 mb-8 fw-semibold font-heading">Pré-requisitos</label>
-                                        {{ form.requisitos }}
-                                    </div>
-
-                                    <div class="col-sm-12">
-                                        <label for="id_objetivo_geral" class="h5 mb-8 fw-semibold font-heading">Objetivo
-                                            Geral</label>
-                                        {{ form.objetivo_geral }}
-                                    </div>
-
-                                    <div class="col-sm-12">
-                                        <label for="id_publico_alvo"
-                                            class="h5 mb-8 fw-semibold font-heading">Público-Alvo</label>
-                                        {{ form.publico_alvo }}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-12">
-                                <div class="flex-align justify-content-end gap-8">
-                                    <a href="{% url 'listar_cursos' %}"
-                                        class="btn btn-outline-main rounded-pill py-9">Cancelar</a>
-                                    <button type="submit" class="btn btn-main rounded-pill py-9">Criar Curso</button>
-                                </div>
-                            </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium text-foreground">{{ form.categoria.label }}</label>
+                            {{ form.categoria }}
                         </div>
-                    </form>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium text-foreground">{{ form.nivel.label }}</label>
+                            {{ form.nivel }}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium text-foreground">{{ form.idioma.label }}</label>
+                            {{ form.idioma }}
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium text-foreground">{{ form.instrutores.label }}</label>
+                            {{ form.instrutores }}
+                            {% if form.instrutores.errors %}<span class="text-xs text-danger">{{ form.instrutores.errors.as_text }}</span>{% endif %}
+                        </div>
+                    </div>
+
                 </div>
             </div>
-            <!-- Course Tab End -->
-        </div>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                // Preview de imagem
-                const imagemInput = document.getElementById('id_imagem');
-                const imagePreview = document.getElementById('imagePreview');
+            <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm">
+                <div class="border-b border-border px-5 py-4">
+                    <h3 class="font-semibold text-base text-foreground">Preços e Promoção</h3>
+                </div>
+                <div class="p-5 flex flex-col gap-6">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium text-foreground">{{ form.preco.label }}</label>
+                            {{ form.preco }}
+                            {% if form.preco.errors %}<span class="text-xs text-danger">{{ form.preco.errors.as_text }}</span>{% endif %}
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium text-foreground">{{ form.preco_inscricao.label }}</label>
+                            {{ form.preco_inscricao }}
+                        </div>
+                    </div>
 
-                if (imagemInput) {
-                    imagemInput.addEventListener('change', function () {
-                        const file = this.files[0];
-                        if (file) {
-                            const reader = new FileReader();
-                            reader.onload = function (e) {
-                                imagePreview.style.backgroundImage = `url(${e.target.result})`;
-                            }
-                            reader.readAsDataURL(file);
-                        }
-                    });
-                }
+                    <h4 class="text-sm font-medium pt-3 mt-3 border-t border-dashed border-border">Campanha Promocional</h4>
 
-                // Contador de caracteres para título
-                const tituloInput = document.getElementById('id_titulo');
-                const currentSpan = document.getElementById('current');
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">{{ form.preco_promocional.label }}</label>
+                        {{ form.preco_promocional }}
+                        {% if form.preco_promocional.errors %}<span class="text-xs text-danger">{{ form.preco_promocional.errors.as_text }}</span>{% endif %}
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium text-foreground">{{ form.data_inicio_promocao.label }}</label>
+                            {{ form.data_inicio_promocao }}
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium text-foreground">{{ form.data_fim_promocao.label }}</label>
+                            {{ form.data_fim_promocao }}
+                        </div>
+                    </div>
+                    {% if form.data_fim_promocao.errors %}<span class="text-xs text-danger block mt-2">{{ form.data_fim_promocao.errors.as_text }}</span>{% endif %}
 
-                if (tituloInput && currentSpan) {
-                    tituloInput.addEventListener('input', function () {
-                        currentSpan.textContent = this.value.length;
-                    });
-
-                    // Inicializar contador
-                    currentSpan.textContent = tituloInput.value.length;
-                }
-
-                // Contador para descrição curta
-                const descricaoCurtaInput = document.getElementById('id_descricao_curta');
-                if (descricaoCurtaInput) {
-                    descricaoCurtaInput.addEventListener('input', function () {
-                        const count = this.value.length;
-                        if (count > 300) {
-                            this.value = this.value.substring(0, 300);
-                        }
-                    });
-                }
-
-                // Salvar como rascunho
-                window.salvarRascunho = function () {
-                    const form = document.getElementById('cursoForm');
-                    const rascunhoInput = document.createElement('input');
-                    rascunhoInput.type = 'hidden';
-                    rascunhoInput.name = 'rascunho';
-                    rascunhoInput.value = 'true';
-                    form.appendChild(rascunhoInput);
-                    form.submit();
-                }
-
-                // Mostrar/ocultar campos de parcelamento
-                const permiteParcelamento = document.getElementById('id_permite_parcelamento');
-                const maxParcelasField = document.querySelector('.col-sm-6:has(#id_max_parcelas)');
-
-                if (permiteParcelamento && maxParcelasField) {
-                    function toggleParcelamento() {
-                        if (permiteParcelamento.checked) {
-                            maxParcelasField.style.display = 'block';
-                        } else {
-                            maxParcelasField.style.display = 'none';
-                        }
-                    }
-
-                    permiteParcelamento.addEventListener('change', toggleParcelamento);
-                    toggleParcelamento(); // Estado inicial
-                }
-            });
-        </script>
-        <div class="dashboard-footer">
-            <div class="flex-between flex-wrap gap-16">
-                <p class="text-gray-300 text-13 fw-normal"> &copy; Copyright Edmate 2024, All Right Reserverd</p>
-                <div class="flex-align flex-wrap gap-16">
-                    <a href="create-course.html#"
-                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">License</a>
-                    <a href="create-course.html#"
-                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">More
-                        Themes</a>
-                    <a href="create-course.html#"
-                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">Documentation</a>
-                    <a href="create-course.html#"
-                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">Support</a>
                 </div>
             </div>
+
         </div>
-    </div>
 
-    {% include 'include/java_gestor.html' %}
+        <!-- Right Column: Settings and Media -->
+        <div class="flex flex-col gap-5 lg:gap-7.5 lg:w-1/3">
 
-</body>
+            <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm">
+                <div class="border-b border-border px-5 py-4">
+                    <h3 class="font-semibold text-base text-foreground">Media</h3>
+                </div>
+                <div class="p-5 flex flex-col gap-5">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">{{ form.imagem.label }}</label>
+                        {{ form.imagem }}
+                        <span class="text-xs text-muted-foreground">O tamanho recomendado é 800x600px.</span>
+                    </div>
+                </div>
+            </div>
 
-</html>
+            <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm">
+                <div class="border-b border-border px-5 py-4">
+                    <h3 class="font-semibold text-base text-foreground">Configurações Gerais</h3>
+                </div>
+                <div class="p-5 flex flex-col gap-5">
+                    
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">{{ form.modalidade.label }}</label>
+                        {{ form.modalidade }}
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">{{ form.duracao.label }}</label>
+                        {{ form.duracao }}
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">{{ form.carga_horaria.label }}</label>
+                        {{ form.carga_horaria }}
+                        {% if form.carga_horaria.errors %}<span class="text-xs text-danger">{{ form.carga_horaria.errors.as_text }}</span>{% endif %}
+                    </div>
+
+                    <div class="pt-3 border-t border-dashed border-border flex flex-col gap-3">
+                        <label class="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                            {{ form.certificado }} {{ form.certificado.label }}
+                        </label>
+                        <label class="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                            {{ form.destaque }} {{ form.destaque.label }}
+                        </label>
+                        <label class="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                            {{ form.publicado }} {{ form.publicado.label }}
+                        </label>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex flex-col gap-3">
+                <button type="submit" class="kt-btn kt-btn-primary w-full justify-center">
+                    <i class="ki-filled ki-check-circle"></i> Salvar Curso
+                </button>
+                <button type="submit" name="rascunho" value="true" class="kt-btn kt-btn-outline kt-btn-light w-full justify-center">
+                    Salvar como Rascunho
+                </button>
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+{% endblock content %}

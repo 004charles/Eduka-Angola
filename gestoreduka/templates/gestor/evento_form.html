@@ -1,72 +1,83 @@
+{% extends 'gestor_base.html' %}
 {% load static %}
 
-{% block title %}{{ action }} Evento - {{ centro.nome }}{% endblock %}
-    {% include 'include/css_gestor.html' %}
-
-
 {% block content %}
-<div class="dashboard-body">
-    <div class="breadcrumb mb-24">
-        <ul class="flex-align gap-4">
-            <li><a href="{% url 'centro_dashboard' %}"
-                    class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
-            <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
-            <li><a href="{% url 'gerenciar_eventos' %}"
-                    class="text-gray-200 fw-normal text-15 hover-text-main-600">Eventos</a></li>
-            <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
-            <li><span class="text-main-600 fw-normal text-15">{{ action }}</span></li>
-        </ul>
+<div class="flex flex-col gap-5 lg:gap-7.5">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-xl font-bold text-foreground">{{ action }} Evento</h1>
+            <p class="text-sm text-secondary-foreground">Preencha os dados do evento que será exibido no perfil da sua instituição.</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="{% url 'gerenciar_eventos' %}" class="kt-btn kt-btn-light">
+                <i class="ki-filled ki-arrow-left"></i> Voltar
+            </a>
+        </div>
     </div>
 
-    <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0">{{ action }} Evento</h5>
-        </div>
-        <div class="card-body">
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="row gy-20">
-                    <div class="col-md-8">
-                        <label class="form-label">Título do Evento *</label>
-                        <input type="text" name="titulo" class="form-control" required>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Tipo *</label>
-                        <select name="tipo" class="form-select" required>
-                            <option value="">Selecione</option>
-                            {% for value, label in tipos %}
-                            <option value="{{ value }}">{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Descrição *</label>
-                        <textarea name="descricao" class="form-control" rows="5" required></textarea>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Data e Hora de Início *</label>
-                        <input type="datetime-local" name="data_inicio" class="form-control" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Data e Hora de Término</label>
-                        <input type="datetime-local" name="data_fim" class="form-control">
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Local *</label>
-                        <input type="text" name="local" class="form-control" placeholder="Ex: Auditório Principal"
-                            required>
-                    </div>
+    {% if messages %}
+        <div class="flex flex-col gap-2">
+            {% for message in messages %}
+                <div class="p-4 rounded-lg text-sm font-medium {% if message.tags == 'success' %}bg-success/10 text-success border border-success/20{% elif message.tags == 'error' %}bg-danger/10 text-danger border border-danger/20{% else %}bg-warning/10 text-warning border border-warning/20{% endif %}">
+                    {{ message }}
                 </div>
-                <div class="flex-align gap-8 mt-24">
-                    <button type="submit" class="btn btn-main px-24 py-12">
-                        <i class="ph ph-floppy-disk me-8"></i> Salvar
-                    </button>
-                    <a href="{% url 'gerenciar_eventos' %}" class="btn btn-outline-gray px-24 py-12">Cancelar</a>
-                </div>
-            </form>
+            {% endfor %}
         </div>
-    </div>
+    {% endif %}
+
+    <form method="POST" class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm overflow-hidden">
+        {% csrf_token %}
+        <div class="p-6 flex flex-col gap-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Título -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Título do Evento *</label>
+                    <input type="text" name="titulo" class="kt-input" placeholder="Ex: Workshop de Marketing Digital" required>
+                </div>
+
+                <!-- Tipo -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Tipo de Evento *</label>
+                    <select name="tipo" class="kt-select" required>
+                        {% for code, name in tipos %}
+                            <option value="{{ code }}">{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-medium text-foreground">Descrição</label>
+                <textarea name="descricao" rows="4" class="kt-input" placeholder="Detalhes sobre o evento, palestrantes, objetivos..."></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Datas -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Data de Início *</label>
+                    <input type="datetime-local" name="data_inicio" class="kt-input" required>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Data de Término</label>
+                    <input type="datetime-local" name="data_fim" class="kt-input">
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-medium text-foreground">Local / Link do Evento *</label>
+                <input type="text" name="local" class="kt-input" placeholder="Ex: Auditório Principal ou Link do Zoom" required>
+            </div>
+
+        </div>
+        <div class="p-6 border-t border-border flex justify-end bg-accent/5">
+            <button type="submit" class="kt-btn kt-btn-primary">
+                <i class="ki-filled ki-check"></i> Salvar Evento
+            </button>
+        </div>
+    </form>
+
 </div>
-{% endblock %}
-
-    {% include 'include/java_gestor.html' %}
+{% endblock content %}

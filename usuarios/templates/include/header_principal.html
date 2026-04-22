@@ -1,5 +1,6 @@
 {% load static %}
 <header class="rbt-header rbt-header-8 rbt-transparent-header">
+        {% include 'include/theme_switcher.html' %}
         <div class="rbt-sticky-placeholder"></div>
         <!-- Start Header Top  -->
         <div class="rbt-header-top rbt-header-top-1 variation-height-60 header-space-betwween bg-color-transparent top-expended-activation">
@@ -423,6 +424,7 @@
                                     </div>
                                     <!-- End Mega Menu  -->
                                 </li>
+                                <li><a href="{% url 'contato' %}">{% trans "Contato" %}</a></li>
                             </ul>
                         </nav>
                     </div>

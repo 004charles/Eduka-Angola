@@ -1,0 +1,32 @@
+{% extends 'aluno_base.html' %}
+{% load static %}
+{% load curso_filters %}
+
+{% block title %}Cursos Favoritos | Edukangola{% endblock %}
+
+{% block dashboard_content %}
+<div class="rbt-dashboard-content bg-color-white rbt-shadow-box">
+    <div class="content">
+        <div class="section-title">
+            <h4 class="rbt-title-style-3">Cursos Favoritos</h4>
+            <p>Seus cursos marcados para ver mais tarde.</p>
+        </div>
+
+        <div class="row g-5">
+            {% if favoritos_lista %}
+                {% for favorito in favoritos_lista %}
+                <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+                    {% include 'components/curso_card.html' with curso=favorito.curso %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center py-5">
+                    <i class="feather-bookmark mb--20" style="font-size: 50px; color: #ccc;"></i>
+                    <p>Você ainda não salvou nenhum curso como favorito.</p>
+                    <a href="{% url 'buscar_centros' %}" class="rbt-btn btn-sm btn-gradient">Explorar Cursos</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

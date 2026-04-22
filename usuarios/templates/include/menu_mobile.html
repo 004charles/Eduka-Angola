@@ -5,14 +5,14 @@
             <div class="content">
                 <div class="logo">
                     <div class="logo logo-dark">
-                        <a href="https://histudy.pixcelsthemes.com/histudy/index.html">
-                            <img src="{% static 'assets/images/logo/logo.png' %}" alt="Education Logo Images">
+                        <a href="{% url 'index' %}">
+                            <img src="{% static 'assets/images/logo/Eduka-removebg-preview.png' %}" alt="EdukaAngola Logo" style="width: 120px;">
                         </a>
                     </div>
 
                     <div class="logo d-none logo-light">
-                        <a href="https://histudy.pixcelsthemes.com/histudy/index.html">
-                            <img src="{% static 'assets/images/dark/logo/logo-light.png' %}" alt="Education Logo Images">
+                        <a href="{% url 'index' %}">
+                            <img src="{% static 'assets/images/logo/Eduka-removebg-preview.png' %}" alt="EdukaAngola Logo" style="width: 120px;">
                         </a>
                     </div>
                 </div>
@@ -493,41 +493,23 @@
                     <!-- End Mega Menu  -->
                 </li>
 
+                {% if request.user.is_authenticated %}
+                {% if request.user.tipo_usuario == 'ALUNO' %}
                 <li class="has-dropdown has-menu-child-item">
-                    <a href="login.html#">Dashboard
+                    <a href="#">Área do Aluno
                         <i class="feather-chevron-down"></i>
                     </a>
                     <ul class="submenu">
-                        <li class="has-dropdown"><a href="login.html#">Instructor Dashboard</a>
-                            <ul class="submenu">
-                                <li><a href="instructor-dashboard.html">Dashboard</a></li>
-                                <li><a href="instructor-profile.html">Profile</a></li>
-                                <li><a href="instructor-enrolled-courses.html">Enrolled Courses</a></li>
-                                <li><a href="instructor-wishlist.html">Wishlist</a></li>
-                                <li><a href="instructor-reviews.html">Reviews</a></li>
-                                <li><a href="instructor-my-quiz-attempts.html">My Quiz Attempts</a></li>
-                                <li><a href="instructor-order-history.html">Order History</a></li>
-                                <li><a href="instructor-course.html">My Course</a></li>
-                                <li><a href="instructor-announcements.html">Announcements</a></li>
-                                <li><a href="instructor-quiz-attempts.html">Quiz Attempts</a></li>
-                                <li><a href="instructor-assignments.html">Assignments</a></li>
-                                <li><a href="instructor-settings.html">Settings</a></li>
-                            </ul>
-                        </li>
-                        <li class="has-dropdown"><a href="login.html#">Student Dashboard</a>
-                            <ul class="submenu">
-                                <li><a href="student-dashboard.html">Dashboard</a></li>
-                                <li><a href="student-profile.html">Profile</a></li>
-                                <li><a href="student-enrolled-courses.html">Enrolled Courses</a></li>
-                                <li><a href="student-wishlist.html">Wishlist</a></li>
-                                <li><a href="student-reviews.html">Reviews</a></li>
-                                <li><a href="student-my-quiz-attempts.html">My Quiz Attempts</a></li>
-                                <li><a href="student-order-history.html">Order History</a></li>
-                                <li><a href="student-settings.html">Settings</a></li>
-                            </ul>
-                        </li>
+                        <li><a href="{% url 'aluno_perfil' %}">Perfil do Aluno</a></li>
+                        <li><a href="{% url 'aluno_cursos' %}">Os Meus Cursos</a></li>
+                        <li><a href="{% url 'aluno_favoritos' %}">Cursos Favoritos</a></li>
+                        <li><a href="{% url 'aluno_depoimento' %}">Meu Depoimento</a></li>
+                        <li><a href="{% url 'aluno_configuracoes' %}">Configurações</a></li>
+                        <li><a href="{% url 'logout' %}">Sair</a></li>
                     </ul>
                 </li>
+                {% endif %}
+                {% endif %}
 
                 <li class="with-megamenu has-menu-child-item position-static">
                     <a href="login.html#">Pages <i class="feather-chevron-down"></i></a>
@@ -582,7 +564,7 @@
                                         <div class="nav-category-item">
                                             <div class="thumbnail">
                                                 <div class="image"><img src="assets/images/course/category-2.png" alt="Course images"></div>
-                                                <a href="course-filter-one-toggle.html">
+                                                <a href="#">
                                                     <span>Online Education</span>
                                                     <i class="feather-chevron-right"></i>
                                                 </a>
@@ -594,7 +576,7 @@
                                         <div class="nav-category-item">
                                             <div class="thumbnail">
                                                 <div class="image"><img src="assets/images/course/category-1.png" alt="Course images"></div>
-                                                <a href="course-filter-one-toggle.html">
+                                                <a href="#">
                                                     <span>Language Club</span>
                                                     <i class="feather-chevron-right"></i>
                                                 </a>
@@ -606,7 +588,7 @@
                                         <div class="nav-category-item">
                                             <div class="thumbnail">
                                                 <div class="image"><img src="assets/images/course/category-4.png" alt="Course images"></div>
-                                                <a href="course-filter-one-toggle.html">
+                                                <a href="#">
                                                     <span>University Status</span>
                                                     <i class="feather-chevron-right"></i>
                                                 </a>
@@ -617,7 +599,7 @@
                                         <!-- Start Single Category  -->
                                         <div class="nav-category-item">
                                             <div class="thumbnail">
-                                                <a href="course-filter-one-toggle.html">
+                                                <a href="#">
                                                     <span>Course School</span>
                                                     <i class="feather-chevron-right"></i>
                                                 </a>
@@ -629,7 +611,7 @@
                                         <div class="nav-category-item">
                                             <div class="thumbnail">
                                                 <div class="image"><img src="assets/images/course/category-9.png" alt="Course images"></div>
-                                                <a href="course-filter-one-toggle.html">
+                                                <a href="#">
                                                     <span>Academy</span>
                                                     <i class="feather-chevron-right"></i>
                                                 </a>

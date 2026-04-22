@@ -1,0 +1,91 @@
+{% extends 'gestor_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="flex flex-col gap-5 lg:gap-7.5">
+    
+    <!-- Cabeçalho da Página -->
+    <div class="flex items-center justify-between">
+        <div class="flex flex-col gap-1">
+            <h1 class="text-xl font-bold text-foreground">Anúncios & Comunicados</h1>
+            <p class="text-sm text-secondary-foreground">Gerencie as novidades que são enviadas para os seus seguidores via Portal, E-mail e WhatsApp.</p>
+        </div>
+        <a href="{% url 'criar_anuncio' %}" class="kt-btn kt-btn-primary flex items-center gap-2">
+            <i class="ki-filled ki-plus text-lg"></i>
+            Novo Comunicado
+        </a>
+    </div>
+
+    <!-- Lista de Anúncios -->
+    <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm overflow-hidden">
+        <div class="border-b border-border px-5 py-4">
+            <h3 class="font-semibold text-base text-foreground">Histórico de Publicações</h3>
+        </div>
+        
+        <div class="p-0">
+            <div class="overflow-x-auto">
+                <table class="table-auto w-full text-left text-sm whitespace-nowrap">
+                    <thead class="text-xs text-muted-foreground border-b border-border bg-accent/30">
+                        <tr>
+                            <th class="px-5 py-3 font-medium">Comunicado</th>
+                            <th class="px-5 py-3 font-medium">Data de Envio</th>
+                            <th class="px-5 py-3 font-medium">Estado</th>
+                            <th class="px-5 py-3 font-medium text-right">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border">
+                        {% for anuncio in anuncios %}
+                        <tr class="hover:bg-accent/20 transition-colors">
+                            <td class="px-5 py-4">
+                                <div class="flex items-center gap-3">
+                                    {% if anuncio.imagem %}
+                                    <img src="{{ anuncio.imagem.url }}" class="size-10 rounded-lg object-cover border border-border" alt="">
+                                    {% else %}
+                                    <div class="size-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                                        <i class="ki-filled ki-notification-on text-xl"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div class="flex flex-col">
+                                        <span class="font-semibold text-foreground">{{ anuncio.titulo }}</span>
+                                        <span class="text-xs text-muted-foreground">{{ anuncio.conteudo|truncatechars:60 }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-5 py-4">
+                                <span class="text-xs text-secondary-foreground">{{ anuncio.data_publicacao|date:"d/m/Y H:i" }}</span>
+                            </td>
+                            <td class="px-5 py-4">
+                                {% if anuncio.ativo %}
+                                <span class="kt-badge kt-badge-sm kt-badge-success kt-badge-outline">Publicado</span>
+                                {% else %}
+                                <span class="kt-badge kt-badge-sm kt-badge-warning kt-badge-outline">Rascunho</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-5 py-4 text-right">
+                                <div class="flex justify-end gap-2">
+                                    <button class="size-8 flex items-center justify-center rounded-lg bg-accent/60 text-secondary-foreground hover:text-primary transition-colors">
+                                        <i class="ki-filled ki-pencil text-sm"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="py-10 text-center">
+                                <div class="flex flex-col items-center gap-3">
+                                    <div class="size-16 rounded-full bg-accent/50 flex items-center justify-center text-muted-foreground">
+                                        <i class="ki-filled ki-notification-on text-3xl"></i>
+                                    </div>
+                                    <p class="text-sm text-muted-foreground">Ainda não enviou nenhum comunicado para os seus seguidores.</p>
+                                    <a href="{% url 'criar_anuncio' %}" class="text-primary font-medium hover:underline">Começar agora →</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

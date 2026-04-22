@@ -46,6 +46,14 @@
         </p>
         {% endif %}
 
+        {% if inscricao.codigo_simulacao %}
+        <div style="margin-top: 24px; padding: 20px; background: #eef2ff; border: 2px dashed var(--primary); border-radius: 12px; text-align: center;">
+          <p style="margin: 0; color: var(--primary); font-weight: bold; font-size: 14px; text-transform: uppercase;">Código de Pagamento</p>
+          <p style="margin: 8px 0 0; font-size: 28px; font-weight: 800; letter-spacing: 4px; color: var(--text);">{{ inscricao.codigo_simulacao }}</p>
+          <p style="margin: 10px 0 0; font-size: 12px; color: var(--muted);">Insira este código na plataforma para validar sua inscrição.</p>
+        </div>
+        {% endif %}
+
         <p class="muted" style="margin-top:18px">
           Você receberá outro e-mail assim que sua inscrição for analisada.
         </p>

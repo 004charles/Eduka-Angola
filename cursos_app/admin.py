@@ -25,37 +25,15 @@ class InstrutorAdmin(admin.ModelAdmin):
         }),
     )
 
-class ModuloInline(admin.TabularInline):
-    model = Modulo
-    extra = 1
-
-class VideoInline(admin.TabularInline):
-    model = Video
-    extra = 1
-    fields = ('titulo', 'url', 'arquivo', 'ordem', 'liberado')
-    readonly_fields = ('duracao',)
-
-class MaterialApoioInline(admin.TabularInline):
-    model = MaterialApoio
-    extra = 1
-    fields = ('titulo', 'arquivo', 'tipo', 'disponivel')
-
-class TopicoCursoInline(admin.TabularInline):
-    model = TopicoCurso
-    extra = 3
 
 class PreRequisitoCursoInline(admin.TabularInline):
     model = PreRequisitoCurso
     extra = 3
 
-class PublicoAlvoCursoInline(admin.TabularInline):
-    model = PublicoAlvoCurso
-    extra = 3
-
 @admin.register(Curso)
 class CursoAdmin(admin.ModelAdmin):
     # ... (restante configurado abaixo)
-    inlines = [ModuloInline, TopicoCursoInline, PreRequisitoCursoInline, PublicoAlvoCursoInline, MaterialApoioInline]
+    inlines = [PreRequisitoCursoInline]
     list_display = [
         'titulo', 
         'centro', 
@@ -72,7 +50,7 @@ class CursoAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Informações Básicas', {
-            'fields': ('centro', 'titulo', 'descricao', 'descricao_curta', 'categoria', 'imagem')
+            'fields': ('centro', 'titulo', 'descricao', 'descricao_curta', 'categoria', 'imagem', 'video_preview_file', 'video_previa_url')
         }),
         ('Configurações do Curso', {
             'fields': ('nivel', 'idioma', 'modalidade', 'carga_horaria', 'certificado')
@@ -91,29 +69,12 @@ class CursoAdmin(admin.ModelAdmin):
         }),
     )
 
-class ModuloAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'curso', 'ordem')
-    list_filter = ('curso',)
-    inlines = [VideoInline]
-    ordering = ('curso', 'ordem')
-
-class VideoAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'modulo', 'ordem', 'liberado')
-    list_filter = ('modulo__curso', 'liberado')
-    search_fields = ('titulo', 'descricao')
-    readonly_fields = ('duracao',)
-
-class MaterialApoioAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'curso', 'tipo', 'disponivel', 'data_adicao')
-    list_filter = ('tipo', 'disponivel', 'curso')
-    search_fields = ('titulo',)
-    readonly_fields = ('data_adicao',)
-
 admin.site.register(Instrutor, InstrutorAdmin)
-admin.site.register(Modulo, ModuloAdmin)
-admin.site.register(Video, VideoAdmin)
-admin.site.register(MaterialApoio, MaterialApoioAdmin)
 admin.site.register(Inscricao)
-admin.site.register(TopicoCurso)
 admin.site.register(PreRequisitoCurso)
-admin.site.register(PublicoAlvoCurso)
+
+@admin.register(Turma)
+class TurmaAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'curso', 'data_inicio', 'data_fim', 'vagas_ocupadas', 'vagas_totais', 'status')
+    list_filter = ('status', 'curso', 'turno')
+    search_fields = ('nome', 'curso__titulo')

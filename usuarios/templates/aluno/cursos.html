@@ -1,0 +1,37 @@
+{% extends 'aluno_base.html' %}
+{% load static %}
+
+{% block title %}Meus Cursos | Edukangola{% endblock %}
+
+{% block dashboard_content %}
+<div class="rbt-dashboard-content bg-color-white rbt-shadow-box">
+    <div class="content">
+        <div class="section-title">
+            <h4 class="rbt-title-style-3">Cursos Inscritos</h4>
+            <p>Seus cursos em andamento e concluídos.</p>
+        </div>
+
+        <div class="row g-5">
+            {% if cursos_inscritos or cursos_videos_inscritos %}
+                {% for curso in cursos_inscritos %}
+                <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+                    {% include 'components/curso_card.html' with curso=curso modo="aluno" %}
+                </div>
+                {% endfor %}
+                
+                {% for curso in cursos_videos_inscritos %}
+                <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+                    {% include 'components/curso_card.html' with curso=curso modo="aluno" %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center py-5">
+                    <i class="feather-book-open mb--20" style="font-size: 50px; color: #ccc;"></i>
+                    <p>Você ainda não se inscreveu em nenhum centro ou curso.</p>
+                    <a href="{% url 'buscar_centros' %}" class="rbt-btn btn-sm btn-gradient">Ver Centros Disponíveis</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -154,6 +154,9 @@ class PerfilAluno(models.Model):
     linkedin = models.URLField(_('LinkedIn'), blank=True, null=True)
     github = models.URLField(_('GitHub'), blank=True, null=True)
     criado_em = models.DateTimeField(default=timezone.now)
+    
+    bilhete_frente = models.FileField(_('BI Frente'), upload_to='documentos/bilhetes/', null=True, blank=True)
+    bilhete_verso = models.FileField(_('BI Verso'), upload_to='documentos/bilhetes/', null=True, blank=True)
 
     from django.conf import settings
     if 'django.contrib.gis' in settings.INSTALLED_APPS and not settings.DATABASES['default']['ENGINE'].endswith('sqlite3'):
@@ -233,3 +236,27 @@ class CodigoVerificacao(models.Model):
     
     def __str__(self):
         return f"Código para {self.email} ({self.tipo})"
+class NotificacaoAluno(models.Model):
+    TIPO_CHOICES = [
+        ('CURSO', 'Novo Curso'),
+        ('EVENTO', 'Novo Evento'),
+        ('ANUNCIO', 'Anúncio Institucional'),
+        ('CHAT', 'Nova Mensagem'),
+        ('SISTEMA', 'Sistema'),
+    ]
+
+    aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, related_name='notificacoes')
+    titulo = models.CharField(_('Título'), max_length=150)
+    mensagem = models.TextField(_('Mensagem'))
+    link = models.CharField(_('Link (opcional)'), max_length=255, blank=True, null=True)
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='SISTEMA')
+    lida = models.BooleanField(default=False)
+    data_criacao = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-data_criacao']
+        verbose_name = 'Notificação do Aluno'
+        verbose_name_plural = 'Notificações dos Alunos'
+
+    def __str__(self):
+        return f"{self.titulo} - {self.aluno.nome}"

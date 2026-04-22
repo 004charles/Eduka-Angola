@@ -5,7 +5,8 @@ from datetime import timedelta
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Avg, Count, Q, Prefetch
+from django.db.models import Avg, Count, Q, Prefetch, Value
+from django.db.models.functions import Coalesce, TruncMonth
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
@@ -17,6 +18,7 @@ from cursos_app.forms import AvaliacaoForm
 from .utils import (
     enviar_email_inscricao, processar_simulacao_pagamento, atribuir_turma_automatica
 )
+from .utils_secoes import filtrar_cursos_por_secao, get_secoes_config
 from cursos_app.models import (
     Curso,
     Categoria,
@@ -24,14 +26,15 @@ from cursos_app.models import (
     Inscricao,
     Favorito,
     Turma,
-    Modulo,
-    Video,
-    MaterialApoio,
+    PreRequisitoCurso,
 )
 
 from usuarios.models import Aluno
 from usuarios.decorators import aluno_logado_e_centros
-from gestoreduka.models import CentroDeFormacao, GaleriaImagem, CentroSeguimento
+from gestoreduka.models import (
+    CentroDeFormacao, GaleriaImagem, CentroSeguimento, 
+    Evento, Parceria, Equipe
+)
 from avaliacoes.models import Comentario
 from cursovideoapp.models import Curso_video
 
@@ -125,6 +128,11 @@ def inscrever_curso(request, curso_id):
     except AttributeError:
         messages.error(request, "Perfil de aluno não encontrado.")
         return redirect('login_aluno')
+
+    perfil = getattr(aluno, 'perfil', None)
+    if not perfil or not perfil.bilhete_frente or not perfil.bilhete_verso:
+        messages.warning(request, "Termine o seu cadastro importando o Bilhete de Identidade antes de se inscrever.")
+        return redirect('aluno_perfil')
     
     # Verificar se já está inscrito
     inscricao_existente = Inscricao.objects.filter(aluno=aluno, curso=curso).first()
@@ -146,6 +154,9 @@ def inscrever_curso(request, curso_id):
     turma_disponivel = curso.get_turma_menos_lotada()
     
     if request.method == 'POST':
+        import random
+        codigo_gerado = str(random.randint(100000000, 999999999))
+        
         # Criar inscrição
         inscricao = Inscricao.objects.create(
             aluno=aluno,
@@ -153,6 +164,7 @@ def inscrever_curso(request, curso_id):
             turma_escolhida=turma_disponivel,
             status='P',
             tipo_inscricao='ONLINE',
+            codigo_simulacao=codigo_gerado,
             observacoes=f"Inscrição realizada em {timezone.now().strftime('%d/%m/%Y %H:%M')}"
         )
         
@@ -167,6 +179,12 @@ def inscrever_curso(request, curso_id):
             
             messages.success(request, "Inscrição realizada com sucesso! Curso gratuito confirmado.")
             return redirect('painel_curso', curso_id=curso_id)
+            
+        from cursos_app.utils import enviar_email_inscricao
+        try:
+            enviar_email_inscricao(inscricao, tipo='pendente')
+        except Exception:
+            pass
         
         # Redirecionar para simulação de pagamento
         return redirect('simular_pagamento', inscricao_id=inscricao.id)
@@ -197,20 +215,22 @@ def simular_pagamento(request, inscricao_id):
         return redirect('painel_curso', curso_id=inscricao.curso.id)
     
     if request.method == 'POST':
-        tipo_simulacao = request.POST.get('tipo_simulacao', 'sucesso')
+        codigo_pagamento = request.POST.get('codigo_pagamento', '')
         
-        if tipo_simulacao == 'sucesso':
+        if codigo_pagamento == inscricao.codigo_simulacao:
+            # Importar localmente ou de utils
+            from cursos_app.utils import processar_simulacao_pagamento, atribuir_turma_automatica
             success, message = processar_simulacao_pagamento(inscricao)
             
             if success:
-                messages.success(request, "Pagamento simulado com sucesso! Inscrição confirmada.")
+                messages.success(request, "Pagamento confirmado com sucesso! Opere o acesso ao curso.")
                 
                 atribuir_turma_automatica(inscricao)
                 
                 if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                     return JsonResponse({
                         'success': True,
-                        'message': 'Pagamento simulado com sucesso!',
+                        'message': 'Pagamento confirmado com sucesso!',
                         'redirect_url': f'/cursos/painel/{inscricao.curso.id}/'
                     })
                 
@@ -218,7 +238,7 @@ def simular_pagamento(request, inscricao_id):
             else:
                 messages.error(request, message)
         else:
-            messages.error(request, "Simulação de pagamento falhou. Tente novamente.")
+            messages.error(request, "Código inválido. Verifique se copiou corretamente do seu e-mail.")
         
         return redirect('simular_pagamento', inscricao_id=inscricao.id)
     
@@ -664,7 +684,6 @@ def curso_detalhe(request, id):
     curso.visualizacoes += 1
     curso.save(update_fields=['visualizacoes'])
     
-    modulos = curso.modulos.all()
     
     comentarios = Comentario.objects.select_related('aluno').filter(
         curso=curso,
@@ -721,6 +740,9 @@ def curso_detalhe(request, id):
     imagem = GaleriaImagem.objects.all()[:6]
     
     video_preview = None
+    
+    # Fetch modules and their videos
+    modulos = curso.modulos.all().prefetch_related('videos')
     
     context = {
         'curso': curso,
@@ -858,6 +880,7 @@ def catalogo_cursos(request):
     preco = request.GET.get('preco')
     busca = request.GET.get('q')
     origem = request.GET.get('origem')  # 'parceiro' ou 'original'
+    centro_id = request.GET.get('centro')
     
     # Novos filtros solicitados
     filtro_tempo = request.GET.get('tempo')  # 'semana'
@@ -885,6 +908,10 @@ def catalogo_cursos(request):
     # Filtro por categoria
     if categoria_id:
         cursos = cursos.filter(categoria_id=categoria_id)
+
+    # Filtro por centro
+    if centro_id:
+        cursos = cursos.filter(centro_id=centro_id)
     
     # Filtro por nível
     if nivel:
@@ -926,7 +953,7 @@ def catalogo_cursos(request):
     if inicio_proximo == 'true':
         cursos = cursos.filter(data_inicio__gte=timezone.now().date()).order_by('data_inicio')
     elif mais_procurados == 'true':
-        cursos = cursos.order_by('-visualizacoes', '-total_inscritos')
+        cursos = cursos.annotate(num_estudantes=Count('inscricoes')).order_by('-visualizacoes', '-num_estudantes')
     else:
         # Priorização por Plano do Centro (Padrão)
         from django.db.models.functions import Coalesce
@@ -955,6 +982,15 @@ def catalogo_cursos(request):
         # Nisto, vamos apenas filtrar o queryset principal para não exibir parceiros.
         cursos = cursos.none()
     
+    # Filtro: Secção Dinâmica (Novo)
+    secao_key = request.GET.get('secao')
+    secao_ativa = None
+    if secao_key:
+        cursos = filtrar_cursos_por_secao(cursos, secao_key)
+        secoes_config = get_secoes_config()
+        if secao_key in secoes_config:
+            secao_ativa = secoes_config[secao_key]
+
     # Paginação
     paginator = Paginator(cursos, 12)  # 12 cursos por página
     page_number = request.GET.get('page')
@@ -971,6 +1007,7 @@ def catalogo_cursos(request):
         'page_obj': page_obj,
         'categorias': categorias,
         'total_cursos': cursos.count(),
+        'secao_ativa': secao_ativa,
         'filtros': {
             'categoria': categoria_id,
             'nivel': nivel,
@@ -979,6 +1016,7 @@ def catalogo_cursos(request):
             'preco': preco,
             'busca': busca,
             'origem': origem,
+            'secao': secao_key,
         }
     }
     
@@ -995,7 +1033,7 @@ def instrutor_detalhes(request, id):
         'cursos': cursos
     }
     
-    return render(request, 'curso_detalhe.html', context)
+    return render(request, 'instrutor_detalhes.html', context)
 
 def cursos_por_centro(request, centro_id):
     context = {
@@ -1013,6 +1051,23 @@ def cursos_por_centro(request, centro_id):
             pass
 
     centro = get_object_or_404(CentroDeFormacao, id=centro_id)
+    
+    # Verificar se o aluno logado segue este centro
+    aluno_segue = False
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
+        from gestoreduka.models import CentroSeguimento
+        try:
+            aluno = request.user.aluno_profile
+            aluno_segue = CentroSeguimento.objects.filter(aluno=aluno, centro=centro).exists()
+        except:
+            pass
+
+    context.update({
+        'centro': centro,
+        'aluno_segue': aluno_segue,
+        'seguidores_count': centro.seguidores.count(),
+        'todos_os_cursos': centro.cursos.filter(publicado=True).order_by('-destaque', '-data_criacao')
+    })
 
     # Cursos por categoria
     categorias = Categoria.objects.filter(
@@ -1040,10 +1095,89 @@ def cursos_por_centro(request, centro_id):
         ativo=True
     ).order_by('nome')
 
+    # Dados Adicionais para o Hub Institucional
+    try:
+        perfil = centro.perfil
+    except:
+        perfil = None
+    
+    galeria = centro.galeria_imagens.all().order_by('ordem')
+    equipe = centro.equipe.all()
+    eventos = centro.eventos.all().order_by('-data_inicio')[:3]
+    parcerias = centro.parcerias.filter(ativa=True)
+    
+    # Seguidores e Estado de Seguimento
+    seguidores_count = centro.seguidores.count()
+    ja_segue = False
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
+        try:
+            aluno = request.user.aluno_profile
+            ja_segue = centro.seguidores.filter(aluno=aluno).exists()
+        except:
+            pass
+
+    # Estatísticas Personalizadas
+    estatisticas = centro.estatisticas.all().order_by('ordem')
+    
+    # Depoimentos (Apenas aprovados e específicos do centro)
+    depoimentos = centro.depoimentos.filter(aprovado=True).order_by('-data')
+
+    # --- Dados para Gráficos de Crescimento (Últimos 6 meses) ---
+    seis_meses_atras = timezone.now() - timedelta(days=180)
+    
+    # 1. Agrupar inscrições e seguidores por mês
+    stats_inscricoes = centro.cursos.all().values('inscricoes__data_inscricao') \
+        .annotate(month=TruncMonth('inscricoes__data_inscricao')) \
+        .filter(month__gte=seis_meses_atras) \
+        .values('month') \
+        .annotate(total=Count('inscricoes')) \
+        .order_by('month')
+
+    seguidores_chart_data = centro.seguidores.all() \
+        .annotate(month=TruncMonth('data_seguimento')) \
+        .filter(month__gte=seis_meses_atras) \
+        .values('month') \
+        .annotate(total=Count('id')) \
+        .order_by('month')
+
+    meses_traduzidos = {
+        1: "Jan", 2: "Fev", 3: "Mar", 4: "Abr", 5: "Mai", 6: "Jun",
+        7: "Jul", 8: "Ago", 9: "Set", 10: "Out", 11: "Nov", 12: "Dez"
+    }
+
+    chart_labels = []
+    chart_alunos_values = []
+    chart_seguidores_values = []
+    
+    for i in range(5, -1, -1):
+        d = timezone.now() - timedelta(days=i*30)
+        m_idx = d.month
+        y_val = d.year
+        label = f"{meses_traduzidos[m_idx]} {y_val}"
+        chart_labels.append(label)
+        
+        val_alunos = next((s['total'] for s in stats_inscricoes if s['month'] and s['month'].month == m_idx), 0)
+        chart_alunos_values.append(val_alunos)
+        
+        val_seg = next((s['total'] for s in seguidores_chart_data if s['month'] and s['month'].month == m_idx), 0)
+        chart_seguidores_values.append(val_seg)
+
     context.update({
+        'chart_labels': chart_labels,
+        'chart_alunos_values': chart_alunos_values,
+        'chart_seguidores_values': chart_seguidores_values,
         'centro': centro,
+        'perfil': perfil,
         'cursos_por_categoria': cursos_por_categoria,
         'instrutores': instrutores,
+        'galeria': galeria,
+        'equipe': equipe,
+        'eventos': eventos,
+        'parcerias': parcerias,
+        'estatisticas': estatisticas,
+        'depoimentos': depoimentos,
+        'seguidores_count': seguidores_count,
+        'ja_segue': ja_segue,
     })
 
     return render(request, 'cursos_por_centro.html', context)
@@ -1158,8 +1292,8 @@ def cursos_por_categoria(request, slug):
         queryset = queryset.order_by('-data_criacao')
     elif ordenar == 'popularidade':
         queryset = queryset.annotate(
-            total_inscritos=Count('inscricoes')
-        ).order_by('-total_inscritos')
+            num_estudantes=Count('inscricoes')
+        ).order_by('-num_estudantes')
     elif ordenar == 'preco_baixo':
         queryset = queryset.order_by('preco')
     elif ordenar == 'preco_alto':
@@ -1174,10 +1308,15 @@ def cursos_por_categoria(request, slug):
 
     cursos = queryset
 
+    # Adicionar secções especiais (Filtros Funcionais por Secção)
     context.update({
         'categoria': categoria,
         'cursos': cursos,
         'imagens': imagens,
+        'cursos_destaque': queryset.filter(destaque=True)[:8],
+        'cursos_recentes': queryset.order_by('-data_criacao')[:8],
+        'cursos_populares': queryset.annotate(num_estudantes=Count('inscricoes')).order_by('-num_estudantes')[:8],
+        'filtros_ativos': any([busca, ordenar, competencia, filtro_em_destaque, filtro_esta_semana, filtro_para_voce, filtro_proximos]),
         'filtros': {
             'ordenar': ordenar,
             'busca': busca,
@@ -1188,6 +1327,16 @@ def cursos_por_categoria(request, slug):
             'proximos': filtro_proximos,
         }
     })
+
+    # Recomendações personalizadas dentro da categoria
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
+        try:
+            from inteligencia.utils import recomendar_cursos
+            recomendados = recomendar_cursos(request.user.aluno_profile, limite=10)
+            # Filtrar recomendações para garantir que são desta categoria
+            context['cursos_recomendados_categoria'] = [c for c in recomendados if c.categoria_id == categoria.id]
+        except Exception:
+            pass
 
     return render(request, 'curso_categoria.html', context)
 
@@ -1226,8 +1375,11 @@ def pagina_categoria(request):
 
 @aluno_logado_e_centros
 def todo_curso(request):
+    pais_selecionado = request.GET.get('pais')
+    
     context = {
         'aluno_logado': False,
+        'pais_selecionado': pais_selecionado
     }
 
     # Verifica se o aluno está logado
@@ -1247,7 +1399,12 @@ def todo_curso(request):
         cursos = Curso.objects.filter(
             categoria=categoria,
             publicado=True
-        ).order_by('-destaque', 'data_inicio')
+        )
+        
+        if pais_selecionado:
+            cursos = cursos.filter(centro__pais=pais_selecionado)
+            
+        cursos = cursos.order_by('-destaque', 'data_inicio')
 
         if cursos.exists():
             categorias_com_cursos.append({
@@ -1488,3 +1645,198 @@ def api_load_more_cursos(request):
         
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+def api_buscar_sugestoes(request):
+    """
+    API para retornar sugestões de cursos em tempo real (autocomplete).
+    """
+    termo = request.GET.get('q', '').strip()
+    if not termo or len(termo) < 1:
+        return JsonResponse({'sugestoes': []})
+    
+    # Busca cursos pelo título ou centro
+    cursos = Curso.objects.filter(
+        publicado=True, 
+        ativo=True
+    ).filter(
+        Q(titulo__icontains=termo) |
+        Q(centro__nome__icontains=termo)
+    ).select_related('centro').only('id', 'titulo', 'centro__nome')[:8]
+    
+    sugestoes = []
+    for curso in cursos:
+        sugestoes.append({
+            'id': curso.id,
+            'titulo': curso.titulo,
+            'centro': curso.centro.nome if curso.centro else '',
+            'url': reverse('curso_detalhe', kwargs={'id': curso.id})
+        })
+    
+    return JsonResponse({'sugestoes': sugestoes})
+
+def lista_centros(request):
+    """
+    Página que lista todos os Centros de Formação ativos.
+    Permite busca por nome e filtro por província.
+    """
+    from gestoreduka.models import CentroDeFormacao, PerfilCentroDeFormacao
+    
+    query = request.GET.get('q', '')
+    provincia = request.GET.get('provincia', '')
+    
+    centros = CentroDeFormacao.objects.filter(ativo=True).select_related('perfil')
+    
+    if query:
+        centros = centros.filter(
+            Q(nome__icontains=query) | 
+            Q(cidade__icontains=query) |
+            Q(endereco__icontains=query)
+        )
+        
+    if provincia:
+        centros = centros.filter(provincia=provincia)
+        
+    # Ordenação: Destaque primeiro, depois por data de criação (os 3 primeiros cadastrados para o banner)
+    centros = centros.order_by('-perfil__destaque', 'data_criacao')
+    
+    # Adicionar contagem de cursos para cada centro
+    centros = centros.annotate(
+        total_cursos=Count('cursos', filter=Q(cursos__publicado=True, cursos__ativo=True))
+    )
+
+    # Os 3 primeiros centros para o banner Swiper (sempre da query sem filtros de pesquisa)
+    centros_banner = CentroDeFormacao.objects.filter(ativo=True).select_related('perfil').annotate(
+        total_cursos=Count('cursos', filter=Q(cursos__publicado=True, cursos__ativo=True))
+    ).order_by('-perfil__destaque', 'data_criacao')[:3]
+    
+    # Paginação
+    paginator = Paginator(centros, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Lista de províncias para o filtro (Hardcoded como padrão Angolano)
+    provincias = [
+        "Bengo", "Benguela", "Bié", "Cabinda", "Cuando Cubango", "Cuanza Norte", 
+        "Cuanza Sul", "Cunene", "Huambo", "Huíla", "Luanda", "Lunda Norte", 
+        "Lunda Sul", "Malanje", "Moxico", "Namibe", "Uíge", "Zaire"
+    ]
+    
+    context = {
+        'page_obj': page_obj,
+        'centros_banner': centros_banner,
+        'q': query,
+        'provincia_selecionada': provincia,
+        'provincias': provincias,
+        'total_centros': centros.count(),
+    }
+    
+    return render(request, 'lista_instituicoes.html', context)
+
+def api_centros_proximos(request):
+    """
+    API que retorna os centros de formação mais próximos (raio de 30km)
+    baseado em latitude e longitude.
+    """
+    import math
+    from gestoreduka.models import CentroDeFormacao
+    
+    try:
+        user_lat = float(request.GET.get('lat'))
+        user_lng = float(request.GET.get('lng'))
+    except (TypeError, ValueError):
+        return JsonResponse({'error': 'Coordenadas inválidas'}, status=400)
+    
+    radius = 30.0 # km
+    centros_proximos = []
+    
+    # Fallback: Cálculos manuais (Haversine) se GeoDjango não estiver em uso
+    # Para performance real em produção com muitos dados, usaríamos GeoDjango PointField + DWithin
+    from gestoreduka.models import HAS_GEODJANGO
+    
+    todos_centros = CentroDeFormacao.objects.filter(ativo=True).select_related('perfil').annotate(
+        total_cursos_count=Count('cursos', filter=Q(cursos__publicado=True, cursos__ativo=True))
+    )
+    
+    def haversine(lat1, lon1, lat2, lon2):
+        # Raio da Terra em km
+        R = 6371.0
+        dlat = math.radians(lat2 - lat1)
+        dlon = math.radians(lon2 - lon1)
+        a = math.sin(dlat / 2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+        return R * c
+
+    for centro in todos_centros:
+        c_lat = centro.latitude
+        c_lng = centro.longitude
+        
+        if c_lat and c_lng:
+            dist = haversine(user_lat, user_lng, c_lat, c_lng)
+            if dist <= radius:
+                centros_proximos.append({
+                    'id': centro.id,
+                    'nome': centro.nome,
+                    'distancia': round(dist, 1),
+                    'cidade': centro.cidade or centro.provincia,
+                    'url': reverse('cursos_por_centro', kwargs={'centro_id': centro.id}),
+                    'banner': centro.perfil.banner.url if centro.perfil and centro.perfil.banner else '/static/assets/images/bg/bg-image-10.jpg',
+                    'imagem': centro.perfil.imagem.url if centro.perfil and centro.perfil.imagem else '/static/assets/images/client/client-01.png',
+                    'verificado': centro.perfil.verificado if centro.perfil else False,
+                    'total_cursos': centro.total_cursos_count
+                })
+    
+    # Ordenar por distância
+    centros_proximos.sort(key=lambda x: x['distancia'])
+    
+    return JsonResponse({'centros': centros_proximos[:6]}) # Top 6 próximos
+
+
+def api_mapa_global(request):
+    """
+    Retorna todos os centros e filiais ativos para visualização no mapa global.
+    """
+    from gestoreduka.models import CentroDeFormacao, Filial
+    from django.db.models import Count, Q
+    
+    pontos = []
+    
+    # 1. Obter Centros Principais
+    centros = CentroDeFormacao.objects.filter(ativo=True).select_related('perfil').annotate(
+        total_cursos_count=Count('cursos', filter=Q(cursos__publicado=True, cursos__ativo=True))
+    )
+    
+    for c in centros:
+        if c.latitude and c.longitude:
+            pontos.append({
+                'id': f"c_{c.id}",
+                'nome': c.nome,
+                'lat': float(c.latitude),
+                'lng': float(c.longitude),
+                'tipo': 'CENTRO',
+                'cidade': c.cidade or c.provincia,
+                'url': reverse('cursos_por_centro', kwargs={'centro_id': c.id}),
+                'imagem': c.perfil.imagem.url if c.perfil and c.perfil.imagem else '/static/assets/images/client/client-01.png',
+                'total_cursos': c.total_cursos_count,
+                'verificado': c.perfil.verificado if c.perfil else False
+            })
+            
+    # 2. Obter Filiais
+    filiais = Filial.objects.filter(ativo=True).select_related('centro_principal', 'centro_principal__perfil')
+    
+    for f in filiais:
+        if f.latitude and f.longitude:
+            pontos.append({
+                'id': f"f_{f.id}",
+                'nome': f.nome,
+                'lat': float(f.latitude),
+                'lng': float(f.longitude),
+                'tipo': 'FILIAL',
+                'cidade': f.endereco.split(',')[-1].strip() if ',' in f.endereco else f.nome,
+                'url': reverse('cursos_por_centro', kwargs={'centro_id': f.centro_principal.id}),
+                'imagem': f.centro_principal.perfil.imagem.url if f.centro_principal.perfil and f.centro_principal.perfil.imagem else '/static/assets/images/client/client-01.png',
+                'total_cursos': 0, # Filiais podem não ter cursos próprios no momento
+                'verificado': f.centro_principal.perfil.verificado if f.centro_principal.perfil else False
+            })
+            
+    return JsonResponse({'pontos': pontos})
+

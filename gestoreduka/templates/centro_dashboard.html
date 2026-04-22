@@ -1,353 +1,210 @@
-{% extends 'base_gestor.html' %}
+{% extends 'gestor_base.html' %}
 {% load static %}
-
-{% block title %}Painel de Gestão — {{ centro.nome }}{% endblock %}
-
-{% block extra_css %}
-/* Stat cards */
-.stat-card {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 18px 20px;
-}
-.stat-card .stat-icon {
-    width: 42px; height: 42px;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
-    flex-shrink: 0;
-}
-.stat-card .stat-info .label { font-size: 12px; font-weight: 500; color: var(--text-secondary); margin: 0; }
-.stat-card .stat-info .value { font-size: 22px; font-weight: 800; color: var(--text-primary); margin: 0; line-height: 1.2; }
-
-/* Table */
-.tbl thead th {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .5px;
-    color: var(--text-muted);
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--card-border);
-    background: #fafafa;
-}
-.tbl tbody td {
-    padding: 12px 16px;
-    font-size: 13px;
-    vertical-align: middle;
-    border-bottom: 1px solid #f3f4f6;
-}
-.tbl tbody tr:last-child td { border-bottom: 0; }
-
-.avatar-sm {
-    width: 30px; height: 30px;
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
-    flex-shrink: 0;
-}
-
-.status-badge {
-    font-size: 11px;
-    font-weight: 700;
-    padding: 3px 10px;
-    border-radius: 20px;
-    letter-spacing: .2px;
-}
-
-/* Quick link */
-.quick-link {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: background .15s;
-    border: 1px solid transparent;
-}
-.quick-link:hover { background: #f9fafb; border-color: var(--card-border); }
-.quick-link .ql-icon {
-    width: 36px; height: 36px;
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
-    flex-shrink: 0;
-}
-.quick-link .ql-text { font-size: 13px; font-weight: 600; color: var(--text-primary); }
-.quick-link .ql-desc { font-size: 11px; color: var(--text-muted); margin: 0; }
-{% endblock %}
+{% load i18n %}
 
 {% block content %}
-<!-- Breadcrumb -->
-<div style="margin-bottom:20px;">
-    <h5 style="font-weight:800;margin:0 0 4px;">Dashboard</h5>
-    <p style="font-size:13px;color:var(--text-secondary);margin:0;">Bem-vindo de volta, <strong>{{ centro.nome|default:"Gestor" }}</strong></p>
-</div>
+<div class="flex flex-col gap-5 lg:gap-7.5">
+    
+    <!-- Painel de Boas-vindas -->
+    <div class="flex flex-col gap-2 mb-2">
+        <h1 class="text-xl font-bold text-foreground">Painel de Comando Estratégico</h1>
+        <p class="text-sm text-secondary-foreground">Monitore o crescimento, a adesão e o impacto educacional do seu centro em tempo real, {{ centro.nome }}.</p>
+    </div>
 
-<!-- Stat cards -->
-<div class="row g-3 mb-4">
-    <div class="col-sm-6 col-xl-3">
-        <div class="adm-card stat-card">
-            <div class="stat-icon" style="background:#ede9fe;color:var(--brand);">
-                <i class="ph ph-graduation-cap"></i>
+    <!-- Estatísticas Principais (Grid de 4 cartões) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-7.5">
+        
+        <!-- Total de Cursos -->
+        <div class="kt-card flex flex-col p-5 bg-background border border-border rounded-xl shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-sm font-medium text-secondary-foreground">Ativos de Formação</span>
+                <div class="flex items-center justify-center size-10 rounded-full bg-primary/10 text-primary">
+                    <i class="ki-filled ki-book-open text-2xl"></i>
+                </div>
             </div>
-            <div class="stat-info">
-                <p class="label">Total de Cursos</p>
-                <p class="value">{{ stats.total_cursos|default:"0" }}</p>
+            <div class="flex flex-col gap-1">
+                <span class="text-3xl font-bold text-foreground">{{ stats.total_cursos }}</span>
+                <span class="text-xs font-medium text-muted-foreground">Limite do plano: {{ stats.limite_cursos }} cursos</span>
             </div>
-        </div>
-    </div>
-    <div class="col-sm-6 col-xl-3">
-        <div class="adm-card stat-card">
-            <div class="stat-icon" style="background:#dbeafe;color:var(--info);">
-                <i class="ph ph-users"></i>
-            </div>
-            <div class="stat-info">
-                <p class="label">Alunos Inscritos</p>
-                <p class="value">{{ stats.total_inscricoes|default:"0" }}</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-6 col-xl-3">
-        <div class="adm-card stat-card">
-            <div class="stat-icon" style="background:#fef3c7;color:var(--warning);">
-                <i class="ph ph-clock-counter-clockwise"></i>
-            </div>
-            <div class="stat-info">
-                <p class="label">Pendentes</p>
-                <p class="value">{{ stats.inscricoes_pendentes|default:"0" }}</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-6 col-xl-3">
-        <div class="adm-card stat-card">
-            <div class="stat-icon" style="background:#d1fae5;color:var(--success);">
-                <i class="ph ph-hand-coins"></i>
-            </div>
-            <div class="stat-info">
-                <p class="label">Receita Total</p>
-                <p class="value">{{ stats.receita_total|default:"0" }} <span style="font-size:12px;font-weight:500;color:var(--text-muted);">KZ</span></p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row g-3">
-    <!-- Chart + Table -->
-    <div class="col-lg-8">
-        <!-- Chart -->
-        <div class="adm-card mb-3">
-            <div class="card-head">
-                <h6>Evolução de Inscrições</h6>
-                <select style="font-size:12px;border:1px solid var(--card-border);border-radius:6px;padding:4px 10px;color:var(--text-secondary);background:#fff;outline:none;">
-                    <option>Este Ano</option>
-                    <option>Último Mês</option>
-                </select>
-            </div>
-            <div class="card-content">
-                <div id="mainChart" style="height:260px;"></div>
+            <!-- Barra de Progresso do Plano -->
+            <div class="mt-4 w-full bg-accent/60 h-2 rounded-full overflow-hidden">
+                <div class="bg-primary h-full" style="width: {{ stats.percentual_cursos }}%;"></div>
             </div>
         </div>
 
-        <!-- Table -->
-        <div class="adm-card">
-            <div class="card-head">
-                <h6>Inscrições Recentes</h6>
-                <a href="{% url 'gerenciar_inscricoes' %}" style="font-size:12px;font-weight:600;color:var(--brand);text-decoration:none;">Ver tudo →</a>
+        <!-- Total de Inscrições -->
+        <div class="kt-card flex flex-col p-5 bg-background border border-border rounded-xl shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-sm font-medium text-secondary-foreground">Alcance de Alunos</span>
+                <div class="flex items-center justify-center size-10 rounded-full bg-success/10 text-success">
+                    <i class="ki-filled ki-people text-2xl"></i>
+                </div>
             </div>
-            <div style="overflow-x:auto;">
-                <table class="tbl" style="width:100%;border-collapse:collapse;">
-                    <thead>
-                        <tr>
-                            <th>Aluno</th>
-                            <th>Curso</th>
-                            <th style="text-align:center;">Data</th>
-                            <th style="text-align:center;">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for insc in inscricoes_recentes %}
-                        <tr>
-                            <td>
-                                <div style="display:flex;align-items:center;gap:10px;">
-                                    <div class="avatar-sm" style="background:var(--brand-50);color:var(--brand);">{{ insc.aluno.nome|slice:":2"|upper }}</div>
-                                    <div>
-                                        <p style="margin:0;font-weight:600;color:var(--text-primary);">{{ insc.aluno.nome }}</p>
-                                        <p style="margin:0;font-size:11px;color:var(--text-muted);">{{ insc.aluno.email }}</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>{{ insc.curso.titulo }}</td>
-                            <td style="text-align:center;color:var(--text-secondary);">{{ insc.data_inscricao|date:"d/m/Y" }}</td>
-                            <td style="text-align:center;">
-                                {% if insc.status == 'A' %}
-                                <span class="status-badge" style="background:#d1fae5;color:#059669;">Activo</span>
+            <div class="flex flex-col gap-1">
+                <span class="text-3xl font-bold text-foreground">{{ stats.total_inscricoes }}</span>
+                <span class="text-xs font-medium text-success flex items-center gap-1">
+                    <i class="ki-filled ki-arrow-up"></i>
+                    Adesão em crescimento profissional
+                </span>
+            </div>
+        </div>
+
+        <!-- Inscrições Pendentes -->
+        <div class="kt-card flex flex-col p-5 bg-background border border-border rounded-xl shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-sm font-medium text-secondary-foreground">Matrículas a Validar</span>
+                <div class="flex items-center justify-center size-10 rounded-full bg-warning/10 text-warning">
+                    <i class="ki-filled ki-time text-2xl"></i>
+                </div>
+            </div>
+            <div class="flex flex-col gap-1">
+                <span class="text-3xl font-bold text-foreground">{{ stats.inscricoes_pendentes }}</span>
+                <span class="text-xs font-medium text-muted-foreground">
+                    Aguardam verificação de liquidação/pagamento
+                </span>
+            </div>
+            <div class="mt-3">
+                <a href="{% url 'gerenciar_inscricoes' %}?status=P" class="text-sm font-medium text-primary hover:text-primary-active">Aceder a Validações →</a>
+            </div>
+        </div>
+
+        <!-- Receita Total -->
+        <div class="kt-card flex flex-col p-5 bg-background border border-border rounded-xl shadow-sm">
+            <div class="items-center justify-between mb-4 flex">
+                <span class="text-sm font-medium text-secondary-foreground">Receita Bruta Confirmada (Kz)</span>
+                <div class="flex items-center justify-center size-10 rounded-full bg-info/10 text-info">
+                    <i class="ki-filled ki-wallet text-2xl"></i>
+                </div>
+            </div>
+            <div class="flex flex-col gap-1">
+                <span class="text-3xl font-bold text-foreground">{{ stats.receita_total|floatformat:2 }} Kz</span>
+                <span class="text-xs font-medium text-muted-foreground">Baseado em matrículas efetivadas</span>
+            </div>
+        </div>
+
+        <!-- Impacto da Comunidade (Seguidores) - NOVO -->
+        <div class="kt-card flex flex-col p-5 bg-background border border-border rounded-xl shadow-sm shadow-blue-100/50">
+            <div class="items-center justify-between mb-4 flex">
+                <span class="text-sm font-medium text-secondary-foreground">Impacto da Comunidade</span>
+                <div class="flex items-center justify-center size-10 rounded-full bg-primary/10 text-primary">
+                    <i class="ki-filled ki-people text-2xl"></i>
+                </div>
+            </div>
+            <div class="flex flex-col gap-1">
+                <span class="text-3xl font-bold text-foreground">{{ stats.total_seguidores|default:0 }}</span>
+                <span class="text-xs font-medium text-primary flex items-center gap-1">
+                    <i class="ki-filled ki-notification-on"></i>
+                    Seguidores ativos no portal
+                </span>
+            </div>
+            <div class="mt-3">
+                <a href="{% url 'listar_anuncios' %}" class="text-sm font-medium text-primary hover:text-primary-active flex items-center gap-1">
+                    Comunicar agora <i class="ki-filled ki-right text-xs"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secção de Tabelas (Grid de 2 colunas) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7.5">
+        
+        <!-- Cursos Populares -->
+        <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm">
+            <div class="flex items-center justify-between border-b border-border px-5 py-4">
+                <h3 class="font-semibold text-base text-foreground">Líderes de Inscrição</h3>
+                <a href="{% url 'listar_cursos' %}" class="kt-btn kt-btn-sm kt-btn-light">Ver Todos</a>
+            </div>
+            <div class="flex flex-col p-0">
+                <div class="divide-y divide-border">
+                    {% for curso in cursos_populares %}
+                    <div class="flex items-center justify-between p-5">
+                        <div class="flex items-center gap-3">
+                            <div class="flex items-center justify-center size-[40px] shrink-0 bg-accent/60 rounded-lg">
+                                <!-- Mostra a imagem do curso se existir, senão usa ícone genérico -->
+                                {% if curso.imagem_destaque %}
+                                    <img src="{{ curso.imagem_destaque.url }}" alt="{{ curso.titulo }}" class="size-full rounded-lg object-cover">
                                 {% else %}
-                                <span class="status-badge" style="background:#fef3c7;color:#d97706;">Pendente</span>
+                                    <i class="ki-filled ki-educare text-lg text-secondary-foreground"></i>
                                 {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" style="text-align:center;padding:30px;color:var(--text-muted);">Nenhuma inscrição recente.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Sidebar widgets -->
-    <div class="col-lg-4">
-        <!-- Ações rápidas -->
-        <div class="adm-card mb-3">
-            <div class="card-head">
-                <h6>Ações Rápidas</h6>
-            </div>
-            <div class="card-content" style="padding:12px;">
-                <a href="{% url 'criar_curso' %}" class="quick-link">
-                    <div class="ql-icon" style="background:var(--brand-50);color:var(--brand);">
-                        <i class="ph ph-plus-circle"></i>
+                            </div>
+                            <div class="flex flex-col">
+                                <a href="{% url 'curso_overview' curso.id %}" class="text-sm font-semibold text-foreground hover:text-primary transition-colors">{{ curso.titulo }}</a>
+                                <span class="text-xs text-secondary-foreground">{{ curso.categoria.nome }}</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end">
+                            <div class="text-sm font-semibold text-foreground">{{ curso.num_alunos }} Inscrições</div>
+                            <span class="text-xs text-{% if curso.ativo %}success{% else %}warning{% endif %}">
+                                {% if curso.ativo %}Ativo{% else %}Inativo{% endif %}
+                            </span>
+                        </div>
                     </div>
-                    <div>
-                        <div class="ql-text">Criar Curso</div>
-                        <p class="ql-desc">Publicar novo conteúdo</p>
-                    </div>
-                </a>
-                <a href="{% url 'gerenciar_inscricoes' %}" class="quick-link">
-                    <div class="ql-icon" style="background:#dbeafe;color:var(--info);">
-                        <i class="ph ph-user-plus"></i>
-                    </div>
-                    <div>
-                        <div class="ql-text">Gerir Matrículas</div>
-                        <p class="ql-desc">Aprovar ou rejeitar inscrições</p>
-                    </div>
-                </a>
-                <a href="{% url 'configuracao_gestor' %}" class="quick-link">
-                    <div class="ql-icon" style="background:#fef3c7;color:var(--warning);">
-                        <i class="ph ph-gear-six"></i>
-                    </div>
-                    <div>
-                        <div class="ql-text">Configurações</div>
-                        <p class="ql-desc">Ajustar perfil e preferências</p>
-                    </div>
-                </a>
-            </div>
-        </div>
-
-        <!-- Engajamento -->
-        <div class="adm-card mb-3">
-            <div class="card-head">
-                <h6>Engajamento</h6>
-            </div>
-            <div class="card-content" style="text-align:center;">
-                <div id="engagementDonut" style="min-height:180px;"></div>
-                <div class="row mt-3 g-0">
-                    <div class="col-6">
-                        <p style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin:0 0 2px;">Conclusão</p>
-                        <p style="font-size:16px;font-weight:800;margin:0;">78%</p>
-                    </div>
-                    <div class="col-6" style="border-left:1px solid var(--card-border);">
-                        <p style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin:0 0 2px;">Aprovação</p>
-                        <p style="font-size:16px;font-weight:800;margin:0;">92%</p>
-                    </div>
+                    {% empty %}
+                    <div class="p-5 text-sm text-center text-muted-foreground">Nenhum curso popular com alunos inscritos até ao momento.</div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
 
-        <!-- Cursos populares -->
-        <div class="adm-card">
-            <div class="card-head">
-                <h6>Top Cursos</h6>
-                <a href="{% url 'listar_cursos' %}" style="font-size:12px;font-weight:600;color:var(--brand);text-decoration:none;">Ver →</a>
+        <!-- Inscrições Recentes -->
+        <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm">
+            <div class="flex items-center justify-between border-b border-border px-5 py-4">
+                <h3 class="font-semibold text-base text-foreground">Inscrições Recentes</h3>
+                <a href="{% url 'gerenciar_inscricoes' %}" class="kt-btn kt-btn-sm kt-btn-light">Ver Lista Completa</a>
             </div>
-            <div class="card-content" style="padding:12px 16px;">
-                {% for curso in centro.cursos.all|slice:":4" %}
-                <div style="display:flex;align-items:center;gap:12px;padding:10px 0;{% if not forloop.last %}border-bottom:1px solid #f3f4f6;{% endif %}">
-                    <div style="width:40px;height:40px;border-radius:8px;overflow:hidden;flex-shrink:0;background:var(--brand-50);display:flex;align-items:center;justify-content:center;">
-                        {% if curso.imagem %}
-                        <img src="{{ curso.imagem.url }}" style="width:100%;height:100%;object-fit:cover;" alt="">
-                        {% else %}
-                        <i class="ph ph-book-open" style="font-size:18px;color:var(--brand);"></i>
-                        {% endif %}
-                    </div>
-                    <div style="flex-grow:1;min-width:0;">
-                        <p style="margin:0;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ curso.titulo }}</p>
-                        <p style="margin:0;font-size:11px;color:var(--text-muted);">{{ curso.num_alunos|default:"0" }} alunos</p>
-                    </div>
+            
+            <div class="px-5 py-2">
+                <div class="overflow-x-auto">
+                    <table class="table-auto w-full text-left text-sm whitespace-nowrap">
+                        <thead class="text-xs text-muted-foreground border-b border-border">
+                            <tr>
+                                <th class="pb-3 font-medium">Estudante</th>
+                                <th class="pb-3 font-medium">Curso</th>
+                                <th class="pb-3 font-medium">Data</th>
+                                <th class="pb-3 font-medium text-right">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-dashed divide-border">
+                            {% for inscricao in recent_enrollments %}
+                            <tr class="hover:bg-accent/20 transition-colors">
+                                <td class="py-3">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="size-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs uppercase">
+                                            {{ inscricao.aluno.usuario.nome|make_list|first }}
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-semibold text-foreground">{{ inscricao.aluno.usuario.nome }}</span>
+                                            <span class="text-xs text-muted-foreground">{{ inscricao.aluno.usuario.email }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3">
+                                    <span class="text-sm text-foreground">{{ inscricao.curso.titulo }}</span>
+                                </td>
+                                <td class="py-3">
+                                    <span class="text-xs text-secondary-foreground">{{ inscricao.data_inscricao|date:"d/m/Y" }}</span>
+                                </td>
+                                <td class="py-3 text-right">
+                                    {% if inscricao.status == 'A' %}
+                                    <span class="kt-badge kt-badge-sm kt-badge-success kt-badge-outline">Aprovado</span>
+                                    {% elif inscricao.status == 'P' %}
+                                    <span class="kt-badge kt-badge-sm kt-badge-warning kt-badge-outline">Pendente</span>
+                                    {% elif inscricao.status == 'R' %}
+                                    <span class="kt-badge kt-badge-sm kt-badge-danger kt-badge-outline">Rejeitado</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="py-5 text-center text-sm text-muted-foreground">Sem inscrições recentes até ao momento.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-                {% empty %}
-                <p style="text-align:center;color:var(--text-muted);font-size:13px;padding:16px 0;">Nenhum curso ainda.</p>
-                {% endfor %}
             </div>
         </div>
+
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Main area chart
-    if(document.querySelector('#mainChart')) {
-        new ApexCharts(document.querySelector('#mainChart'), {
-            series: [{
-                name: 'Inscrições',
-                data: [12, 19, 8, 25, 14, 22, 30, 18, 24, 20, 28, 15]
-            }],
-            chart: { type: 'area', height: 260, toolbar: { show: false }, fontFamily: 'Inter' },
-            colors: ['#6c20f0'],
-            dataLabels: { enabled: false },
-            stroke: { curve: 'smooth', width: 2 },
-            fill: {
-                type: 'gradient',
-                gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.05, stops: [0, 100] }
-            },
-            xaxis: {
-                categories: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
-                labels: { style: { fontSize: '11px', colors: '#9ca3af' } },
-                axisBorder: { show: false },
-                axisTicks: { show: false }
-            },
-            yaxis: { labels: { style: { fontSize: '11px', colors: '#9ca3af' } } },
-            grid: { borderColor: '#f3f4f6', strokeDashArray: 3 },
-            tooltip: { theme: 'light' }
-        }).render();
-    }
-
-    // Engagement donut
-    if(document.querySelector('#engagementDonut')) {
-        new ApexCharts(document.querySelector('#engagementDonut'), {
-            series: [78, 22],
-            chart: { type: 'donut', height: 180 },
-            colors: ['#6c20f0', '#e5e7eb'],
-            dataLabels: { enabled: false },
-            legend: { show: false },
-            stroke: { width: 0 },
-            plotOptions: {
-                pie: {
-                    donut: {
-                        size: '78%',
-                        labels: {
-                            show: true,
-                            total: {
-                                show: true,
-                                label: 'Média',
-                                fontSize: '11px',
-                                color: '#9ca3af',
-                                formatter: () => '78%'
-                            }
-                        }
-                    }
-                }
-            }
-        }).render();
-    }
-});
-</script>
-{% endblock %}
+{% endblock content %}

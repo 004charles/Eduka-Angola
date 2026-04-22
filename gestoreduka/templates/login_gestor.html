@@ -1,306 +1,171 @@
 {% load static %}
+{% load i18n %}
 <!DOCTYPE html>
-<html lang="pt-br">
+<html class="h-full" data-kt-theme="true" data-kt-theme-mode="light" dir="ltr" lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Title -->
-    <title> GestorEduka | Cadastro centro</title>
-    <link rel="stylesheet" href="{% static 'assets1/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'assets1/css/file-upload.css' %}">
-    <link rel="stylesheet" href="{% static 'assets1/css/plyr.css' %}">
-    <!-- DataTables -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
-    <!-- full calendar -->
-    <link rel="stylesheet" href="{% static 'assets1/css/full-calendar.css' %}">
-    <!-- jquery Ui -->
-    <link rel="stylesheet" href="{% static 'assets1/css/jquery-ui.css' %}">
-    <!-- editor quill Ui -->
-    <link rel="stylesheet" href="{% static 'assets1/css/editor-quill.css' %}">
-    <!-- apex charts Css -->
-    <link rel="stylesheet" href="{% static 'assets1/css/apexcharts.css' %}">
-    <!-- calendar Css -->
-    <link rel="stylesheet" href="{% static 'assets1/css/calendar.css' %}">
-    <!-- jvector map Css -->
-    <link rel="stylesheet" href="{% static 'assets1/css/jquery-jvectormap-2.0.5.css' %}">
-    <!-- Main css -->
-    <link rel="stylesheet" href="{% static 'assets1/css/main.css' %}">
-</head> 
+    <title>GestorEduka - {% trans "Acesso Branded" %}</title>
+    <meta charset="utf-8"/>
+    <meta content="follow, index" name="robots"/>
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="{% static 'metronic/assets/vendors/keenicons/styles.bundle.css' %}" rel="stylesheet"/>
+    <link href="{% static 'metronic/assets/css/styles.css' %}" rel="stylesheet"/>
+    
     <style>
-        :root {
-            --primary-color: #0066ff;
-            --secondary-color: #1a237e;
-            --accent-color: #ffc107;
-            --bg-neutral: #f8fafc;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-neutral);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .split-card {
-            background: white;
-            width: 100%;
-            max-width: 950px;
-            min-height: 600px;
-            display: flex;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.1);
-        }
-
-        .split-card__image {
-            flex: 1.1;
-            background-color: var(--secondary-color);
-            background-image: linear-gradient(rgba(26, 35, 126, 0.4), rgba(15, 23, 42, 0.8)), 
-                              url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000');
+        .branded-bg {
+            background-image: url('{% static "gestoreduka/media/app/auth_bg.png" %}');
             background-size: cover;
             background-position: center;
-            display: none;
-            flex-direction: column;
-            justify-content: flex-end;
-            padding: 50px;
-            color: white;
+        }
+        /* Garantir que em modo escuro a imagem mantenha impacto ou use variante se disponível */
+        .dark .branded-bg {
+            background-image: url('{% static "gestoreduka/media/app/auth_bg.png" %}');
+            filter: brightness(0.6);
         }
 
-        @media (min-width: 768px) {
-            .split-card__image { display: flex; }
+        /* Animação personalizada de aparecimento */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-
-        .split-card__form {
-            flex: 1;
-            padding: 60px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+        .animate-appearance {
+            animation: fadeInUp 0.8s ease-out forwards;
+            opacity: 0;
         }
-
-        .brand-logo {
-            font-size: 24px;
-            font-weight: 800;
-            color: var(--secondary-color);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 40px;
-            justify-content: center;
-        }
-
-        .brand-logo i {
-            color: var(--primary-color);
-            font-size: 32px;
-        }
-
-        .form-label {
-            font-size: 13px;
-            font-weight: 600;
-            color: #64748b;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .form-control {
-            border: 2px solid #f1f5f9;
-            padding: 12px 16px 12px 48px;
-            border-radius: 12px;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            background-color: #f8fafc;
-        }
-
-        .form-control:focus {
-            background-color: white;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94a3b8;
-            font-size: 22px;
-        }
-
-        .btn-premium {
-            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
-            border: none;
-            padding: 16px;
-            border-radius: 12px;
-            font-weight: 700;
-            color: white;
-            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.2);
-            transition: all 0.3s ease;
-            margin-top: 10px;
-        }
-
-        .btn-premium:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 25px rgba(0, 102, 255, 0.3);
-            color: white;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #94a3b8;
-            z-index: 10;
-        }
-
-        .auth-footer {
-            margin-top: 40px;
-            text-align: center;
-            font-size: 14px;
-            color: #94a3b8;
-        }
-
-        .alert-custom {
-            border-radius: 12px;
-            border: none;
-            font-size: 14px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
     </style>
+</head>
+<body class="antialiased flex h-full text-base text-foreground bg-background">
+    <!-- Theme Mode Script -->
+    <script>
+        const defaultThemeMode = 'light';
+        let themeMode;
+        if (document.documentElement) {
+            if (localStorage.getItem('kt-theme')) {
+                themeMode = localStorage.getItem('kt-theme');
+            } else {
+                themeMode = defaultThemeMode;
+            }
+            document.documentElement.classList.add(themeMode);
+        }
+    </script>
 
-    <div class="preloader">
-        <div class="loader"></div>
-    </div>
+    <!-- Page Content -->
+    <div class="grid lg:grid-cols-2 grow">
+        <!-- Form Side -->
+        <div class="flex justify-center items-center p-8 lg:p-10 order-2 lg:order-1 bg-background">
+            <div class="kt-card max-w-[370px] w-full shadow-none lg:shadow-none border-none">
+                <form action="{% url 'login_gestor' %}" method="POST" class="kt-card-content flex flex-col gap-5 p-0" id="sign_in_form">
+                    {% csrf_token %}
+                    
+                    <div class="text-center mb-2.5">
+                        <h3 class="text-2xl font-bold text-foreground leading-none mb-3">
+                            {% trans "Entrar" %}
+                        </h3>
+                        <div class="flex items-center justify-center font-medium">
+                            <span class="text-sm text-secondary-foreground me-1.5">
+                                {% trans "Gerencie o seu centro de forma inteligente." %}
+                            </span>
+                        </div>
+                    </div>
 
-    <div class="split-card">
-        <!-- Left Side: Image Content -->
-        <div class="split-card__image">
-            <div class="mb-4">
-                <h2 class="fw-bold text-white mb-2">Painel de Gestão</h2>
-                <p class="opacity-75 mb-0">Gerencie seu centro de formação com dados em tempo real e eficiência administrativa.</p>
-            </div>
-            <div class="d-flex gap-4 mt-4">
-                <div class="text-center">
-                    <h5 class="fw-bold mb-0">Excelência</h5>
-                    <small class="opacity-50">Administrativa</small>
-                </div>
-                <div class="vr opacity-25"></div>
-                <div class="text-center">
-                    <h5 class="fw-bold mb-0">Decisão</h5>
-                    <small class="opacity-50">Data-driven</small>
-                </div>
+                    <!-- Mensagens de Erro -->
+                    {% if messages %}
+                        <div class="flex flex-col gap-2">
+                            {% for message in messages %}
+                                <div class="p-3 rounded-lg text-xs font-medium bg-danger/10 text-danger border border-danger/20 flex items-center gap-2">
+                                    <i class="ki-filled ki-information-2 text-sm"></i>
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="flex flex-col gap-1">
+                        <label class="kt-form-label font-semibold text-gray-700">{% trans "E-mail" %}</label>
+                        <input class="kt-input" name="email" placeholder="email@exemplo.com" type="email" required/>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center justify-between gap-1">
+                            <label class="kt-form-label font-semibold text-gray-700">{% trans "Palavra-passe" %}</label>
+                            <a class="text-sm kt-link shrink-0 font-medium" href="#">
+                                {% trans "Esqueceu a senha?" %}
+                            </a>
+                        </div>
+                        <div class="kt-input relative" data-kt-toggle-password="true">
+                            <input name="senha" placeholder="••••••••" type="password" required/>
+                            <button class="kt-btn kt-btn-sm kt-btn-ghost kt-btn-icon bg-transparent! absolute right-2 top-1/2 -translate-y-1/2" data-kt-toggle-password-trigger="true" type="button">
+                                <span class="kt-toggle-password-active:hidden">
+                                    <i class="ki-filled ki-eye text-muted-foreground"></i>
+                                </span>
+                                <span class="hidden kt-toggle-password-active:block">
+                                    <i class="ki-filled ki-eye-slash text-muted-foreground"></i>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <label class="kt-label flex items-center gap-2 cursor-pointer">
+                            <input class="kt-checkbox kt-checkbox-sm" name="remember" type="checkbox" value="1"/>
+                            <span class="kt-checkbox-label text-sm text-secondary-foreground">{% trans "Lembrar-me" %}</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="kt-btn kt-btn-primary flex justify-center grow py-3 font-bold text-lg shadow-lg shadow-primary/20">
+                        {% trans "Aceder ao Painel" %}
+                    </button>
+
+                    <div class="text-center mt-4">
+                        <p class="text-sm text-muted-foreground">
+                            {% trans "Não tem conta?" %} <a href="{% url 'sobre' %}" class="text-primary font-bold hover:underline">{% trans "Saiba como aderir" %}</a>
+                        </p>
+                    </div>
+                </form>
             </div>
         </div>
 
-        <!-- Right Side: The Form -->
-        <div class="split-card__form">
-            <div class="text-center mb-4">
-                <a href="/" class="text-decoration-none">
-                    <img src="{% static 'assets/images/logo/Eduka-removebg-preview.png' %}" alt="EdukAngola Logo" style="height: 60px; object-fit: contain;">
-                </a>
+        <!-- Branding Side -->
+        <div class="lg:rounded-xl lg:border lg:border-border lg:m-5 order-1 lg:order-2 bg-top xxl:bg-center xl:bg-cover bg-no-repeat branded-bg relative overflow-hidden">
+            <!-- Overlay escuro para melhorar visibilidade das letras -->
+            <div class="absolute inset-0 bg-black/40 lg:bg-black/30"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+            
+            <div class="relative z-10 flex flex-col p-8 lg:p-16 gap-10 h-full justify-between">
+                <div class="flex flex-col gap-6">
+                    <a href="{% url 'index' %}" class="animate-appearance">
+                        <img class="h-[40px] w-auto" src="{% static 'assets/images/logo/logo1-removebg-preview.png' %}" alt="EdukaAngola"/>
+                    </a>
+                    
+                    <div class="flex flex-col gap-4">
+                        <h3 class="text-3xl lg:text-4xl font-bold leading-tight animate-appearance delay-1" style="color: #6C28FD;">
+                            EdukaAngola <br/>
+                            <span>{% trans "Gestão de Centros" %}</span>
+                        </h3>
+                        <div class="text-lg font-semibold animate-appearance delay-2" style="color: #6C28FD;">
+                            {% trans "A gateway profissional para coordenar cursos, instrutores e o sucesso dos seus alunos em um só lugar." %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2 border-l-4 pl-4 py-2 bg-black/10 backdrop-blur-sm rounded-r-lg animate-appearance" style="border-color: #6C28FD; animation-delay: 0.6s;">
+                    <span class="font-bold text-lg" style="color: #6C28FD;">"Educação é o motor do progresso."</span>
+                    <span class="text-sm italic" style="color: #6C28FD; opacity: 0.8;">{% trans "Equipa EdukaAngola" %}</span>
+                </div>
             </div>
-
-            <div class="mb-4 text-center">
-                <h3 class="fw-bold mb-1">Painel Gestor</h3>
-                <p class="text-muted small">Bem-vindo ao centro de comando da sua instituição.</p>
-            </div>
-
-            {% if messages %}
-            <div class="mb-4">
-                {% for message in messages %}
-                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show alert-custom" role="alert">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="ph {% if message.tags == 'error' %}ph-warning-circle{% else %}ph-check-circle{% endif %} h5 mb-0"></i>
-                        <span>{{ message }}</span>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-
-            <form method="post" action="{% url 'login_gestor' %}">
-                {% csrf_token %}
-
-                <div class="mb-3">
-                    <label class="form-label">E-mail Administrativo</label>
-                    <div class="position-relative">
-                        <i class="ph ph-envelope-simple input-icon"></i>
-                        <input type="email" name="email" class="form-control" placeholder="admin@seucentro.com" required value="{{ request.POST.email|default:'' }}">
-                    </div>
-                </div>
-                
-                <div class="mb-4">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <label class="form-label mb-0">Chave de Acesso</label>
-                        <a href="#" class="text-primary small text-decoration-none fw-bold">Recuperar</a>
-                    </div>
-                    <div class="position-relative">
-                        <i class="ph ph-lock-key input-icon"></i>
-                        <input type="password" name="senha" id="senha" class="form-control" placeholder="••••••••" required>
-                        <i class="toggle-password ph ph-eye-slash"></i>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-premium w-100 mb-3 text-uppercase">Entrar no Painel</button>
-
-                <div class="auth-footer">
-                    Ainda não é um parceiro credenciado? <br>
-                    <a href="#" class="text-primary fw-bold text-decoration-none">Candidate sua Instituição</a>
-                </div>
-            </form>
         </div>
     </div>
 
-    <script src="{% static 'assets1/js/jquery-3.7.1.min.js' %}"></script>
-    <script src="{% static 'assets1/js/boostrap.bundle.min.js' %}"></script>
-    <script src="{% static 'assets1/js/phosphor-icon.js' %}"></script>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const togglePassword = document.querySelector('.toggle-password');
-        const passwordInput = document.getElementById('senha');
-        
-        if (togglePassword && passwordInput) {
-            togglePassword.addEventListener('click', function() {
-                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                passwordInput.setAttribute('type', type);
-                this.classList.toggle('ph-eye');
-                this.classList.toggle('ph-eye-slash');
-            });
-        }
-    });
-    </script>
+    <!-- Scripts -->
+    <script src="{% static 'metronic/assets/js/core.bundle.js' %}"></script>
+    <script src="{% static 'metronic/assets/vendors/ktui/ktui.min.js' %}"></script>
 </body>
-</html>
-    </form>
-    </div>
-
-    <script src="{% static 'assets1/js/jquery-3.7.1.min.js' %}"></script>
-    <script src="{% static 'assets1/js/boostrap.bundle.min.js' %}"></script>
-    <script src="{% static 'assets1/js/phosphor-icon.js' %}"></script>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const togglePassword = document.querySelector('.toggle-password');
-        const passwordInput = document.getElementById('senha');
-        
-        if (togglePassword && passwordInput) {
-            togglePassword.addEventListener('click', function() {
-                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                passwordInput.setAttribute('type', type);
-                this.classList.toggle('ph-eye');
-                this.classList.toggle('ph-eye-slash');
-            });
-        }
-    });
-    </script>
-</body>
-</html>
 </html>

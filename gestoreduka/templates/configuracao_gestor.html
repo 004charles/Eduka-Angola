@@ -1,715 +1,375 @@
+{% extends 'gestor_base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
+{% load i18n %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> {{centro.nome}} | Configuracoes  </title>
-
-    {% include 'include/css_gestor.html' %}
-</head>
-
-<body>
-
-    <!--==================== Preloader Start ====================-->
-    <div class="preloader">
-        <div class="loader"></div>
-    </div>
-    <!--==================== Preloader End ====================-->
-
-    <!--==================== Sidebar Overlay End ====================-->
-    <div class="side-overlay"></div>
-
-
-    {% include 'include/header_gestor.html' %}
-
-    <div class="dashboard-main-wrapper">
-    {% include 'include/menu.html' %}
-
-        <div class="dashboard-body">
-            <div class="breadcrumb mb-24 d-flex align-items-center justify-content-between">
-                <ul class="flex-align gap-4">
-                    <li><a href="{% url 'centro_dashboard' %}" class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
-                    <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
-                    <li><span class="text-main-600 fw-bold text-15">Configurações</span></li>
-                </ul>
+{% block content %}
+<main class="grow" role="content">
+    <!-- Toolbar -->
+    <div class="pb-5">
+        <div class="kt-container-fluid flex items-center justify-between flex-wrap gap-3">
+            <div class="flex items-center flex-wrap gap-1 lg:gap-5">
+                <h1 class="font-medium text-base text-mono">
+                    {% trans "Configurações da Conta" %}
+                </h1>
+                <div class="flex items-center flex-wrap gap-1 text-sm">
+                    <a class="text-secondary-foreground hover:text-primary" href="{% url 'centro_dashboard' %}">
+                        Home
+                    </a>
+                    <span class="text-muted-foreground text-sm">/</span>
+                    <span class="text-mono">{% trans "Configurações" %}</span>
+                </div>
             </div>
-            <!-- Breadcrumb End -->
-
-{% load static %}
-
-<!-- Mensagens do Django -->
-{% if messages %}
-<div class="container mt-4">
-    {% for message in messages %}
-    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
-
-<div class="card premium-card border-0 shadow-sm overflow-hidden mb-24">
-    <div class="card-body p-0">
-        <div class="cover-img position-relative aspect-ratio-21-9 overflow-hidden">
-            {% if perfil.banner %}
-            <img src="{{ perfil.banner.url }}" alt="" class="w-100 h-100 object-fit-cover shadow-inner">
-            {% else %}
-            <div class="w-100 h-100 bg-primary-gradient opacity-80 flex-center">
-                <i class="ph ph-image text-white text-6xl opacity-20"></i>
+            <div class="flex items-center flex-wrap gap-3">
+                <a href="{% url 'perfil_institucional_interno' %}" class="kt-btn kt-btn-outline">
+                    <i class="ki-filled ki-eye"></i>
+                    {% trans "Ver Perfil" %}
+                </a>
             </div>
-            {% endif %}
+        </div>
+    </div>
+    <!-- End of Toolbar -->
+
+    <!-- Container -->
+    <div class="kt-container-fluid">
+        <div class="flex flex-col lg:flex-row items-stretch gap-5 lg:gap-7.5 lg:items-start">
             
-            <form id="coverForm" method="post" action="{% url 'upload_banner' %}" enctype="multipart/form-data">
-                {% csrf_token %}
-                <label for="coverImageUpload" class="btn btn-white btn-sm rounded-pill position-absolute top-24 right-24 shadow-sm border-0 px-16 py-8 d-flex align-items-center gap-8 hover-scale-105 transition-all cursor-pointer">
-                    <i class="ph ph-camera text-primary-600"></i>
-                    <span class="fw-bold text-gray-900">Alterar Capa</span>
-                </label>
-                <input type='file' id="coverImageUpload" name="banner" accept=".png, .jpg, .jpeg" style="display: none;" onchange="document.getElementById('coverForm').submit()">
-            </form>
-        </div>
-
-        <div class="setting-profile px-32 mt-n60 position-relative z-2">
-            <div class="d-flex align-items-end flex-wrap mb-32 gap-24">
-                <div class="position-relative">
-                    <form id="profileImageForm" method="post" action="{% url 'upload_imagem_perfil' %}" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <label for="imageUpload" class="cursor-pointer group">
-                            <div class="position-relative overflow-hidden rounded-circle border-4 border-white shadow-lg w-140 h-140">
-                                <img src="{% if perfil.imagem %}{{ perfil.imagem.url }}{% else %}{% static 'assets1/images/thumbs/setting-profile-img.jpg' %}{% endif %}" alt="" class="w-100 h-100 object-fit-cover transition-all group-hover-scale-110">
-                                <div class="position-absolute inset-0 bg-black bg-opacity-40 flex-center opacity-0 group-hover-opacity-100 transition-all">
-                                    <i class="ph ph-camera text-white text-3xl"></i>
-                                </div>
+            <!-- Sidebar (Navegação Interna) -->
+            <div class="lg:w-[280px] shrink-0">
+                <div class="kt-card sticky top-20 shadow-sm border border-border">
+                    <div class="px-5 py-4 border-b border-border">
+                        <h3 class="font-bold text-sm text-foreground uppercase tracking-wider">{% trans "Menu de Definições" %}</h3>
+                    </div>
+                    <div class="kt-menu flex-col gap-0.5 p-2.5" data-kt-menu="true">
+                        <div class="kt-menu-item">
+                            <a href="?tab=details" class="kt-menu-link gap-2.5 px-3 py-3 rounded-lg text-sm font-semibold transition-all {% if active_tab == 'details' or not active_tab %}bg-primary/5 text-primary border border-primary/10{% else %}text-secondary-foreground hover:bg-accent/60 hover:text-foreground{% endif %}">
+                                <span class="kt-menu-icon"><i class="ki-filled ki-setting-2 text-lg"></i></span>
+                                <span class="kt-menu-title">{% trans "Dados Institucionais" %}</span>
+                            </a>
+                        </div>
+                        <div class="kt-menu-item">
+                            <a href="?tab=profile" class="kt-menu-link gap-2.5 px-3 py-3 rounded-lg text-sm font-semibold transition-all {% if active_tab == 'profile' %}bg-primary/5 text-primary border border-primary/10{% else %}text-secondary-foreground hover:bg-accent/60 hover:text-foreground{% endif %}">
+                                <span class="kt-menu-icon"><i class="ki-filled ki-picture text-lg"></i></span>
+                                <span class="kt-menu-title">{% trans "Branding & Social" %}</span>
+                            </a>
+                        </div>
+                        <div class="kt-menu-item">
+                            <a href="?tab=password" class="kt-menu-link gap-2.5 px-3 py-3 rounded-lg text-sm font-semibold transition-all {% if active_tab == 'password' %}bg-primary/5 text-primary border border-primary/10{% else %}text-secondary-foreground hover:bg-accent/60 hover:text-foreground{% endif %}">
+                                <span class="kt-menu-icon"><i class="ki-filled ki-lock-2 text-lg"></i></span>
+                                <span class="kt-menu-title">{% trans "Segurança" %}</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="px-5 py-5 border-t border-border mt-2">
+                        <div class="flex flex-col gap-4">
+                            <div class="flex flex-col gap-1">
+                                <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{% trans "O teu plano" %}</span>
+                                <span class="text-xs font-bold text-foreground">Premium Institutional</span>
                             </div>
-                        </label>
-                        <input type='file' id="imageUpload" name="imagem_perfil" accept=".png, .jpg, .jpeg" style="display: none;" onchange="document.getElementById('profileImageForm').submit()">
-                    </form>
+                            <div class="h-1 w-full bg-muted/20 rounded-full overflow-hidden">
+                                <div class="h-full bg-primary w-3/4"></div>
+                            </div>
+                            <span class="text-[10px] text-muted-foreground italic">75% da quota utilizada</span>
+                        </div>
+                    </div>
                 </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="flex-grow min-w-0">
                 
-                <div class="flex-grow-1 mb-16">
-                    <h3 class="mb-4 fw-bold text-gray-900">{{ centro.nome|default:"Meu Centro" }}</h3>
-                    <div class="d-flex flex-wrap gap-24">
-                        <div class="d-flex align-items-center gap-8">
-                            <i class="ph ph-swatches text-primary-600 text-lg"></i>
-                            <span class="text-15 text-gray-500">{{ perfil.tipo|default:"Gestor de Formação" }}</span>
-                        </div>
-                        <div class="d-flex align-items-center gap-8">
-                            <i class="ph ph-map-pin text-success-600 text-lg"></i>
-                            <span class="text-15 text-gray-500">{{ centro.endereco|truncatechars:35|default:"Luanda, Angola" }}</span>
-                        </div>
-                        <div class="d-flex align-items-center gap-8">
-                            <i class="ph ph-calendar text-warning-600 text-lg"></i>
-                            <span class="text-15 text-gray-500">Membro desde {{ centro.data_criacao|date:"F Y" }}</span>
-                        </div>
+                {% if messages %}
+                <div class="mb-6 space-y-3">
+                    {% for message in messages %}
+                    <div class="flex items-center gap-3 p-4 rounded-xl text-sm font-bold shadow-sm {% if message.tags == 'success' %}bg-success/5 text-success border border-success/20{% elif message.tags == 'error' %}bg-danger/5 text-danger border border-danger/20{% else %}bg-warning/5 text-warning border border-warning/20{% endif %}">
+                        <i class="ki-filled {% if message.tags == 'success' %}ki-check-circle{% elif message.tags == 'error' %}ki-information-2{% else %}ki-warning{% endif %} text-lg"></i>
+                        {{ message }}
                     </div>
+                    {% endfor %}
                 </div>
-            </div>
+                {% endif %}
 
-            <ul class="nav premium-tabs nav-pills gap-16 border-top border-gray-50 pt-16 mt-16" id="pills-tab" role="tablist">
-                <li class="nav-item">
-                    <button class="nav-link {% if active_tab == 'details' %}active{% endif %}" id="pills-details-tab" data-bs-toggle="pill" data-bs-target="#pills-details" type="button" role="tab" aria-selected="true">
-                        <i class="ph ph-user-circle"></i> Meus Dados
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link {% if active_tab == 'profile' %}active{% endif %}" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-selected="false">
-                        <i class="ph ph-buildings"></i> Perfil do Centro
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link {% if active_tab == 'password' %}active{% endif %}" id="pills-password-tab" data-bs-toggle="pill" data-bs-target="#pills-password" type="button" role="tab" aria-selected="false">
-                        <i class="ph ph-lock-key"></i> Segurança
-                    </button>
-                </li>
-                <li class="nav-item border-start border-gray-100 ps-16 ms-8">
-                    <button class="nav-link" id="pills-notification-tab" data-bs-toggle="pill" data-bs-target="#pills-notification" type="button" role="tab" aria-selected="false">
-                        <i class="ph ph-bell"></i> Notificações
-                    </button>
-                </li>
-            </ul>
-        </div>
-    </div>
-</div>
-
-<div class="tab-content" id="pills-tabContent">
-    <!-- My Details Tab start -->
-    <div class="tab-pane fade {% if active_tab == 'details' %}show active{% endif %}" id="pills-details" role="tabpanel" aria-labelledby="pills-details-tab" tabindex="0">
-        <div class="card premium-card border-0 shadow-sm mb-24">
-            <div class="card-header border-bottom border-gray-50 p-24">
-                <h4 class="mb-4 fw-bold text-gray-900">Informações Básicas</h4>
-                <p class="text-gray-500 text-15 mb-0">Mantenha os dados do seu centro sempre atualizados para melhor visibilidade.</p>
-            </div>
-            <div class="card-body p-24">
-                <form method="post" action="{% url 'atualizar_dados_pessoais' %}" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="row g-24">
-                        <div class="col-md-6">
-                            <label for="nome" class="form-label fw-bold text-gray-700 mb-8 text-14">Nome da Instituição</label>
-                            <div class="position-relative">
-                                <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-400"><i class="ph ph-buildings text-lg"></i></span>
-                                <input type="text" class="form-control ps-44 py-12 rounded-12 border-gray-100" id="nome" name="nome" placeholder="Digite o nome oficial" value="{{ centro.nome|default:'' }}">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="dono" class="form-label fw-bold text-gray-700 mb-8 text-14">Diretor / Responsável</label>
-                            <div class="position-relative">
-                                <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-400"><i class="ph ph-user text-lg"></i></span>
-                                <input type="text" class="form-control ps-44 py-12 rounded-12 border-gray-100" id="dono" name="dono" placeholder="Nome do representante" value="{{ perfil.dono|default:'' }}">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="email" class="form-label fw-bold text-gray-700 mb-8 text-14">E-mail Institucional</label>
-                            <div class="position-relative">
-                                <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-400"><i class="ph ph-envelope text-lg"></i></span>
-                                <input type="email" class="form-control ps-44 py-12 rounded-12 border-gray-100 bg-gray-50" id="email" readonly value="{{ centro.email|default:'' }}">
-                            </div>
-                            <small class="text-gray-400 mt-4 d-block"><i class="ph ph-info me-4"></i>O e-mail não pode ser alterado via painel.</small>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="telefone" class="form-label fw-bold text-gray-700 mb-8 text-14">Telefone de Contato</label>
-                            <div class="position-relative">
-                                <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-400"><i class="ph ph-phone text-lg"></i></span>
-                                <input type="text" class="form-control ps-44 py-12 rounded-12 border-gray-100" id="telefone" name="telefone" placeholder="Ex: +244 9XX XXX XXX" value="{{ centro.telefone|default:'' }}">
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <label for="endereco" class="form-label fw-bold text-gray-700 mb-8 text-14">Endereço Completo</label>
-                            <div class="position-relative">
-                                <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-400"><i class="ph ph-map-pin text-lg"></i></span>
-                                <input type="text" class="form-control ps-44 py-12 rounded-12 border-gray-100" id="endereco" name="endereco" placeholder="Rua, Bairro, Cidade..." value="{{ centro.endereco|default:'' }}">
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-4">
-                            <label for="site" class="form-label fw-bold text-gray-700 mb-8 text-14">Website</label>
-                            <input type="url" class="form-control py-12 rounded-12 border-gray-100" id="site" name="site" placeholder="https://..." value="{{ centro.site|default:'' }}">
-                        </div>
-                        <div class="col-md-4">
-                            <label for="tipo" class="form-label fw-bold text-gray-700 mb-8 text-14">Tipo de Instituição</label>
-                            <input type="text" class="form-control py-12 rounded-12 border-gray-100" id="tipo" name="tipo" placeholder="Ex: Escola Técnica" value="{{ perfil.tipo|default:'' }}">
-                        </div>
-                        <div class="col-md-4">
-                            <label for="modalidade" class="form-label fw-bold text-gray-700 mb-8 text-14">Modalidade Principal</label>
-                            <select class="form-select py-12 rounded-12 border-gray-100" id="modalidade" name="modalidade">
-                                <option value="Presencial" {% if perfil.modalidade == 'Presencial' %}selected{% endif %}>Presencial</option>
-                                <option value="Online" {% if perfil.modalidade == 'Online' %}selected{% endif %}>Online</option>
-                                <option value="Híbrido" {% if perfil.modalidade == 'Híbrido' %}selected{% endif %}>Híbrido</option>
-                            </select>
-                        </div>
-
-                        <!-- Localização Geográfica -->
-                        <div class="col-12 mt-16">
-                            <div class="d-flex align-items-center gap-12 mb-24">
-                                <div class="w-40 h-40 rounded-circle bg-primary-100 text-primary-600 flex-center">
-                                    <i class="ph ph-map-trifold text-2xl"></i>
-                                </div>
-                                <h5 class="mb-0 fw-bold text-gray-900 text-lg">Localização Geográfica</h5>
-                            </div>
-                            
-                            <div class="row g-24">
-                                <div class="col-md-6">
-                                    <label for="latitude" class="form-label fw-bold text-gray-700 mb-8 text-14">Latitude</label>
-                                    <input type="number" step="0.000001" class="form-control py-12 rounded-12 border-gray-100" id="latitude" name="latitude" placeholder="Ex: -8.838333" value="{{ centro.latitude|default:'' }}">
-                                    <small class="text-gray-400 mt-4 d-block">Coordenada para o mapa de busca.</small>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="longitude" class="form-label fw-bold text-gray-700 mb-8 text-14">Longitude</label>
-                                    <input type="number" step="0.000001" class="form-control py-12 rounded-12 border-gray-100" id="longitude" name="longitude" placeholder="Ex: 13.234444" value="{{ centro.longitude|default:'' }}">
-                                    <small class="text-gray-400 mt-4 d-block">Coordenada horizontal.</small>
-                                </div>
-                                
-                                <div class="col-12">
-                                    <div class="p-16 rounded-12 bg-blue-50 border border-blue-100 d-flex gap-16 mb-16">
-                                        <i class="ph ph-info text-blue-600 text-2xl"></i>
-                                        <div class="text-14 text-blue-800">
-                                            <strong>Dica:</strong> Você pode clicar no mapa abaixo para definir as coordenadas automaticamente, ou copiar do Google Maps clicando com o botão direito no local.
-                                        </div>
-                                    </div>
-                                    <div id="mapa-localizacao" class="rounded-16 border border-gray-100 shadow-sm" style="height: 350px; overflow: hidden; z-index: 1;"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Vídeo de Apresentação -->
-                        <div class="col-12 mt-16">
-                            <label class="form-label fw-bold text-gray-700 mb-16 text-lg">Vídeo de Apresentação</label>
-                            <div class="row g-24 align-items-center">
-                                {% if perfil.video_apresentacao %}
-                                <div class="col-lg-5">
-                                    <div class="position-relative rounded-16 overflow-hidden shadow-sm aspect-ratio-16-9 bg-black flex-center">
-                                        <video controls class="w-100 h-100">
-                                            <source src="{{ perfil.video_apresentacao.url }}" type="video/mp4">
-                                        </video>
-                                    </div>
-                                </div>
-                                {% endif %}
-                                <div class="{% if perfil.video_apresentacao %}col-lg-7{% else %}col-12{% endif %}">
-                                    <div class="upload-container text-center p-40 rounded-16 border border-2 border-dashed border-gray-200 bg-gray-50 hover-bg-primary-50 hover-border-primary-300 transition-all cursor-pointer position-relative group">
-                                        <input type="file" id="video_apresentacao" name="video_apresentacao" accept="video/*" class="d-none">
-                                        <label for="video_apresentacao" class="stretched-link cursor-pointer"></label>
-                                        <div class="mx-auto w-64 h-64 rounded-circle bg-white shadow-sm flex-center mb-16 group-hover-scale-110 transition-all">
-                                            <i class="ph ph-cloud-arrow-up text-3xl text-primary-600"></i>
-                                        </div>
-                                        <h6 class="fw-bold text-gray-900 mb-8">Envie seu vídeo institucional</h6>
-                                        <p class="text-14 text-gray-500 mb-0">Arraste aqui ou clique para selecionar. Formatos aceitos: MP4, MOV. Máx 50MB.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-12 mt-16">
-                            <label for="descricao" class="form-label fw-bold text-gray-700 mb-8 text-lg">História e Missão do Centro</label>
-                            <textarea class="form-control p-16 rounded-16 border-gray-100" id="descricao" name="descricao" rows="6" placeholder="Fale um pouco sobre a trajetória da instituição, seus valores e diferenciais...">{{ perfil.descricao|default:'' }}</textarea>
-                        </div>
-
-                        <div class="col-12 pt-16 border-top border-gray-50 mt-32">
-                            <div class="d-flex align-items-center justify-content-end gap-16">
-                                <button type="reset" class="btn btn-outline-gray rounded-12 px-32 py-12 fw-bold">Descartar</button>
-                                <button type="submit" class="btn btn-main rounded-12 px-40 py-12 fw-bold shadow-sm">Salvar Alterações</button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <!-- My Details Tab End -->
-
-    <!-- Profile Tab Start -->
-    <div class="tab-pane fade {% if active_tab == 'profile' %}show active{% endif %}" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab" tabindex="0">
-        <div class="row g-24">
-            <div class="col-lg-7">
-                <div class="card premium-card border-0 shadow-sm mb-24">
-                    <div class="card-body p-24">
-                        <div class="d-flex align-items-center gap-12 mb-20">
-                            <div class="w-40 h-40 rounded-circle bg-primary-100 text-primary-600 flex-center">
-                                <i class="ph ph-info text-2xl"></i>
-                            </div>
-                            <h5 class="mb-0 fw-bold text-gray-900">Sobre a Instituição</h5>
-                        </div>
-                        <div class="text-gray-600 text-15 line-height-1_8 p-20 rounded-16 bg-gray-50 border border-gray-100">
-                            {{ perfil.descricao|default:"Nenhuma descrição detalhada disponível no momento. Adicione informações sobre sua história e missão na aba 'Meus Dados'." }}
-                        </div>
-                        
-                        {% if perfil.video_apresentacao %}
-                        <div class="mt-32">
-                            <h6 class="fw-bold text-gray-900 mb-16 d-flex align-items-center gap-8">
-                                <i class="ph ph-presentation-chart text-primary-600"></i> Vídeo Institucional
-                            </h6>
-                            <div class="rounded-16 overflow-hidden border border-gray-100 shadow-sm aspect-ratio-16-9 bg-black">
-                                <video controls class="w-100 h-100">
-                                    <source src="{{ perfil.video_apresentacao.url }}" type="video/mp4">
-                                </video>
-                            </div>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
+                <!-- Content by Tab -->
                 
-                <div class="card premium-card border-0 shadow-sm">
-                    <div class="card-body p-24">
-                        <div class="d-flex align-items-center gap-12 mb-24">
-                            <div class="w-40 h-40 rounded-circle bg-success-100 text-success-600 flex-center">
-                                <i class="ph ph-share-network text-2xl"></i>
-                            </div>
-                            <h5 class="mb-0 fw-bold text-gray-900">Presença Digital</h5>
+                <!-- 1. Dados Institucionais -->
+                {% if active_tab == 'details' or not active_tab %}
+                <div class="flex flex-col gap-6 lg:gap-8">
+                    <!-- Basic Information Card -->
+                    <div class="kt-card border border-border shadow-sm">
+                        <div class="kt-card-header px-6 py-5 border-b border-border">
+                            <h3 class="kt-card-title text-lg font-bold text-foreground">{% trans "Informações Geográficas e Básicas" %}</h3>
                         </div>
-                        
-                        <form method="post" action="{% url 'atualizar_redes_sociais' %}">
+                        <form action="{% url 'atualizar_dados_pessoais' %}" method="POST" class="flex flex-col">
                             {% csrf_token %}
-                            <div class="row g-20">
-                                <div class="col-12">
-                                    <label class="form-label fw-bold text-gray-700 mb-8">Facebook</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-gray-50 border-gray-100 text-blue-600"><i class="ph-fill ph-facebook-logo text-lg"></i></span>
-                                        <input type="url" class="form-control py-12 border-gray-100" name="facebook" placeholder="URL do perfil" value="{{ perfil.facebook|default:'' }}">
+                            <div class="p-6 flex flex-col gap-8 lg:p-8">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                                    <div class="flex flex-col gap-2.5">
+                                        <label class="text-xs font-bold text-secondary-foreground uppercase tracking-widest">{% trans "Nome do Centro de Formação" %} <span class="text-danger">*</span></label>
+                                        <input type="text" name="nome" value="{{ centro.nome|default:'' }}" class="kt-input" required>
+                                    </div>
+                                    <div class="flex flex-col gap-2.5">
+                                        <label class="text-xs font-bold text-secondary-foreground uppercase tracking-widest">{% trans "Contacto Telefónico" %}</label>
+                                        <div class="kt-input-group">
+                                            <span class="kt-input-addon border-e-0"><i class="ki-filled ki-phone text-muted-foreground"></i></span>
+                                            <input type="text" name="telefone" value="{{ centro.telefone|default:'' }}" class="kt-input" placeholder="+244 ...">
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-12">
-                                    <label class="form-label fw-bold text-gray-700 mb-8">Instagram</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-gray-50 border-gray-100 text-danger-600"><i class="ph-fill ph-instagram-logo text-lg"></i></span>
-                                        <input type="url" class="form-control py-12 border-gray-100" name="instagram" placeholder="@usuario" value="{{ perfil.instagram|default:'' }}">
+
+                                <div class="flex flex-col gap-2.5">
+                                    <label class="text-xs font-bold text-secondary-foreground uppercase tracking-widest">{% trans "Endereço da Sede" %}</label>
+                                    <div class="relative">
+                                        <i class="ki-filled ki-geolocation absolute start-4 top-1/2 -translate-y-1/2 text-primary text-lg"></i>
+                                        <input type="text" name="endereco" id="endereco" value="{{ centro.endereco|default:'' }}" class="kt-input ps-12" placeholder="Localize a morada no mapa...">
+                                    </div>
+                                    <p class="text-[10px] text-muted-foreground">{% trans "Insira a morada para que o sistema identifique automaticamente a província e cidade." %}</p>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                                    <div class="flex flex-col gap-2.5">
+                                        <label class="text-xs font-bold text-secondary-foreground uppercase tracking-widest">{% trans "Província" %}</label>
+                                        <input type="text" name="provincia" id="provincia" value="{{ centro.provincia|default:'' }}" class="kt-input bg-muted/20" readonly>
+                                    </div>
+                                    <div class="flex flex-col gap-2.5">
+                                        <label class="text-xs font-bold text-secondary-foreground uppercase tracking-widest">{% trans "Cidade / Município" %}</label>
+                                        <input type="text" name="cidade" id="cidade" value="{{ centro.cidade|default:'' }}" class="kt-input bg-muted/20" readonly>
                                     </div>
                                 </div>
-                                <div class="col-12">
-                                    <label class="form-label fw-bold text-gray-700 mb-8">WhatsApp (Empresarial)</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-gray-50 border-gray-100 text-success-600"><i class="ph-fill ph-whatsapp-logo text-lg"></i></span>
-                                        <input type="text" class="form-control py-12 border-gray-100" name="whatsapp" placeholder="Ex: +244 9XX XXX XXX" value="{{ perfil.whatsapp|default:'' }}">
+
+                                <!-- Hidden coordinates -->
+                                <input type="hidden" name="latitude" id="lat" value="{{ centro.latitude|default:'' }}">
+                                <input type="hidden" name="longitude" id="lng" value="{{ centro.longitude|default:'' }}">
+
+                                <div class="separator separator-dashed border-border mt-2"></div>
+
+                                <div class="flex flex-col gap-6">
+                                    <h4 class="text-sm font-bold text-foreground flex items-center gap-2">
+                                        <span class="size-2 bg-primary rounded-full"></span>
+                                        {% trans "Identidade do Gestor & Perfil" %}
+                                    </h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                                        <div class="flex flex-col gap-2.5">
+                                            <label class="text-xs font-bold text-secondary-foreground uppercase tracking-widest">{% trans "Nome do Diretor / Gestor" %}</label>
+                                            <input type="text" name="dono" value="{{ perfil.dono|default:'' }}" class="kt-input">
+                                        </div>
+                                        <div class="flex flex-col gap-2.5">
+                                            <label class="text-xs font-bold text-secondary-foreground uppercase tracking-widest">{% trans "Website Institucional" %}</label>
+                                            <input type="url" name="site" value="{{ centro.site|default:'' }}" class="kt-input" placeholder="https://...">
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2.5">
+                                        <label class="text-xs font-bold text-secondary-foreground uppercase tracking-widest">{% trans "Descrição Curta (Biografia)" %}</label>
+                                        <textarea name="descricao" rows="4" class="kt-input resize-none" placeholder="Conte-nos um pouco sobre a história e objetivos do centro...">{{ perfil.descricao|default:'' }}</textarea>
                                     </div>
                                 </div>
-                                <div class="col-12 text-end">
-                                    <button type="submit" class="btn btn-main rounded-12 px-32 py-12 fw-bold">Atualizar Links</button>
-                                </div>
+                            </div>
+                            <div class="kt-card-footer bg-muted/5 px-6 py-5 border-t border-border flex justify-end">
+                                <button type="submit" class="kt-btn kt-btn-primary shadow-lg shadow-primary/20">
+                                    <i class="ki-filled ki-check mr-2"></i>
+                                    {% trans "Guardar Dados Institucionais" %}
+                                </button>
                             </div>
                         </form>
                     </div>
                 </div>
-            </div>
-            
-            <div class="col-lg-5">
-                <div class="card premium-card border-0 shadow-sm mb-24">
-                    <div class="card-body p-24">
-                        <h6 class="fw-bold text-gray-900 mb-20">Informações de Contato</h6>
-                        <div class="space-y-16">
-                            <div class="d-flex align-items-start gap-16 p-12 hover-bg-gray-50 rounded-12 transition-all">
-                                <div class="w-40 h-40 rounded-12 bg-primary-50 text-primary-600 flex-center flex-shrink-0">
-                                    <i class="ph ph-phone text-xl"></i>
-                                </div>
-                                <div>
-                                    <span class="text-13 text-gray-400 d-block mb-2">Telefone Oficial</span>
-                                    <span class="fw-bold text-gray-900">{{ centro.telefone|default:"Não informado" }}</span>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-start gap-16 p-12 hover-bg-gray-50 rounded-12 transition-all">
-                                <div class="w-40 h-40 rounded-12 bg-success-50 text-success-600 flex-center flex-shrink-0">
-                                    <i class="ph ph-envelope text-xl"></i>
-                                </div>
-                                <div class="overflow-hidden">
-                                    <span class="text-13 text-gray-400 d-block mb-2">E-mail Institucional</span>
-                                    <span class="fw-bold text-gray-900 text-truncate d-block">{{ centro.email }}</span>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-start gap-16 p-12 hover-bg-gray-50 rounded-12 transition-all">
-                                <div class="w-40 h-40 rounded-12 bg-warning-50 text-warning-600 flex-center flex-shrink-0">
-                                    <i class="ph ph-map-pin text-xl"></i>
-                                </div>
-                                <div>
-                                    <span class="text-13 text-gray-400 d-block mb-2">Endereço Atual</span>
-                                    <span class="fw-bold text-gray-900">{{ centro.endereco|default:"Não informado" }}</span>
-                                </div>
-                            </div>
-                            {% if centro.site %}
-                            <a href="{{ centro.site }}" target="_blank" class="d-flex align-items-start gap-16 p-12 hover-bg-gray-50 rounded-12 transition-all text-decoration-none">
-                                <div class="w-40 h-40 rounded-12 bg-info-50 text-info-600 flex-center flex-shrink-0">
-                                    <i class="ph ph-globe text-xl"></i>
-                                </div>
-                                <div>
-                                    <span class="text-13 text-gray-400 d-block mb-2">Página Web</span>
-                                    <span class="fw-bold text-primary-600">{{ centro.site }}</span>
-                                </div>
-                            </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card premium-card border-0 shadow-sm">
-                    <div class="card-body p-24">
-                        <h6 class="fw-bold text-gray-900 mb-20">Desempenho Geral</h6>
-                        <div class="row g-16">
-                            <div class="col-6">
-                                <div class="p-16 rounded-16 bg-primary-gradient-light border-0 text-center">
-                                    <div class="w-40 h-40 mx-auto rounded-circle bg-white text-primary-600 flex-center mb-12 shadow-sm">
-                                        <i class="ph ph-graduation-cap text-xl"></i>
-                                    </div>
-                                    <h3 class="mb-4 fw-bold text-primary-700">0</h3>
-                                    <span class="text-13 fw-bold text-primary-600 text-uppercase">Cursos</span>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="p-16 rounded-16 bg-success-50 border-0 text-center">
-                                    <div class="w-40 h-40 mx-auto rounded-circle bg-white text-success-600 flex-center mb-12 shadow-sm">
-                                        <i class="ph ph-users-three text-xl"></i>
-                                    </div>
-                                    <h3 class="mb-4 fw-bold text-success-700">0</h3>
-                                    <span class="text-13 fw-bold text-success-600 text-uppercase">Alunos</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-24 p-16 rounded-16 bg-gray-50 border border-gray-100">
-                            <div class="d-flex align-items-center justify-content-between mb-8">
-                                <span class="text-14 text-gray-500">Completude do Perfil</span>
-                                <span class="text-14 fw-bold text-primary-600">75%</span>
-                            </div>
-                            <div class="progress h-8 rounded-pill bg-white shadow-inner">
-                                <div class="progress-bar rounded-pill bg-primary-gradient" style="width: 75%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Profile Tab End -->
+                {% endif %}
 
-    <!-- Password Tab Start -->
-    <div class="tab-pane fade {% if active_tab == 'password' %}show active{% endif %}" id="pills-password" role="tabpanel" aria-labelledby="pills-password-tab" tabindex="0">
-        <div class="card premium-card border-0 shadow-sm">
-            <div class="card-header border-bottom border-gray-50 p-24">
-                <h4 class="mb-4 fw-bold text-gray-900">Segurança da Conta</h4>
-                <p class="text-gray-500 text-15 mb-0">Proteja seu acesso atualizando sua senha periodicamente.</p>
-            </div>
-            <div class="card-body p-24">
-                <form method="post" action="{% url 'atualizar_senha' %}">
-                    {% csrf_token %}
-                    <div class="row g-24">
-                        <div class="col-lg-6">
-                            <div class="space-y-20">
-                                <div>
-                                    <label for="senha_atual" class="form-label fw-bold text-gray-700 mb-8 text-14">Senha Atual</label>
-                                    <div class="position-relative">
-                                        <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-400"><i class="ph ph-key text-lg"></i></span>
-                                        <input type="password" class="form-control ps-44 py-12 rounded-12 border-gray-100" id="senha_atual" name="senha_atual" placeholder="••••••••" required>
-                                        <span class="toggle-password position-absolute top-50 inset-inline-end-0 me-16 translate-middle-y ph ph-eye-slash cursor-pointer text-gray-400" data-target="senha_atual"></span>
+                <!-- 2. Branding & Social -->
+                {% if active_tab == 'profile' %}
+                <div class="flex flex-col gap-6 lg:gap-8">
+                    <!-- Visual Identity Card -->
+                    <div class="kt-card border border-border shadow-sm">
+                        <div class="kt-card-header px-6 py-5 border-b border-border">
+                            <h3 class="kt-card-title text-lg font-bold text-foreground">{% trans "Identidade Visual (Logo & Banner)" %}</h3>
+                        </div>
+                        <div class="p-6 lg:p-8 flex flex-col gap-10">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                                <!-- Logo Upload -->
+                                <div class="flex flex-col gap-5">
+                                    <h5 class="text-xs font-bold text-secondary-foreground uppercase tracking-[0.1em]">{% trans "Logotipo Oficial" %}</h5>
+                                    <div class="flex items-center gap-8">
+                                        <div class="size-28 lg:size-32 rounded-2xl border-2 border-dashed border-primary/20 bg-primary/5 flex items-center justify-center overflow-hidden shrink-0 shadow-inner group relative">
+                                            {% if perfil.imagem %}
+                                                <img src="{{ perfil.imagem.url }}" class="size-full object-cover group-hover:scale-105 transition-transform">
+                                            {% else %}
+                                                <i class="ki-filled ki-bank text-5xl text-primary/30"></i>
+                                            {% endif %}
+                                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer">
+                                                <i class="ki-filled ki-camera text-2xl text-white"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-3">
+                                            <button class="kt-btn kt-btn-primary kt-btn-sm" onclick="document.getElementById('logo_input').click()">
+                                                {% trans "Alterar Logo" %}
+                                            </button>
+                                            <input type="file" id="logo_input" class="hidden">
+                                            <span class="text-[10px] text-muted-foreground leading-tight uppercase">{% trans "Formatos: PNG, JPG ou SVG" %}<br>{% trans "Máx: 2MB" %}</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div>
-                                    <label for="nova_senha" class="form-label fw-bold text-gray-700 mb-8 text-14">Nova Senha</label>
-                                    <div class="position-relative">
-                                        <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-400"><i class="ph ph-lock text-lg"></i></span>
-                                        <input type="password" class="form-control ps-44 py-12 rounded-12 border-gray-100" id="nova_senha" name="nova_senha" placeholder="Mínimo 8 caracteres" required>
-                                        <span class="toggle-password position-absolute top-50 inset-inline-end-0 me-16 translate-middle-y ph ph-eye-slash cursor-pointer text-gray-400" data-target="nova_senha"></span>
+
+                                <!-- Banner Upload -->
+                                <div class="flex flex-col gap-5">
+                                    <h5 class="text-xs font-bold text-secondary-foreground uppercase tracking-[0.1em]">{% trans "Capa do Perfil (Banner)" %}</h5>
+                                    <div class="w-full h-32 rounded-2xl border-2 border-dashed border-primary/20 bg-primary/5 relative overflow-hidden group">
+                                        {% if perfil.banner %}
+                                            <img src="{{ perfil.banner.url }}" class="w-full h-full object-cover">
+                                        {% else %}
+                                            <div class="w-full h-full flex flex-col items-center justify-center text-primary/30">
+                                                <i class="ki-filled ki-image text-4xl"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer">
+                                            <button class="kt-btn kt-btn-light kt-btn-sm">{% trans "Trocar Capa" %}</button>
+                                        </div>
+                                    </div>
+                                    <p class="text-[10px] text-muted-foreground uppercase leading-none mt-1">{% trans "Resolução sugerida: 1200x400px" %}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Social Channels Card -->
+                    <div class="kt-card border border-border shadow-sm">
+                        <div class="kt-card-header px-6 py-5 border-b border-border">
+                            <h3 class="kt-card-title text-lg font-bold text-foreground">{% trans "Canais de Comunicação Digital" %}</h3>
+                        </div>
+                        <form action="{% url 'atualizar_redes_sociais' %}" method="POST" class="flex flex-col">
+                            {% csrf_token %}
+                            <div class="p-6 lg:p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div class="flex flex-col gap-2.5">
+                                    <label class="text-xs font-bold text-secondary-foreground uppercase tracking-widest">{% trans "Página no Facebook" %}</label>
+                                    <div class="relative">
+                                        <i class="ki-filled ki-facebook absolute start-4 top-1/2 -translate-y-1/2 text-blue-600 text-lg"></i>
+                                        <input type="url" name="facebook" value="{{ perfil.facebook|default:'' }}" class="kt-input ps-12" placeholder="https://facebook.com/...">
                                     </div>
                                 </div>
-                                <div>
-                                    <label for="confirmar_senha" class="form-label fw-bold text-gray-700 mb-8 text-14">Confirmar Nova Senha</label>
-                                    <div class="position-relative">
-                                        <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-400"><i class="ph ph-shield-check text-lg"></i></span>
-                                        <input type="password" class="form-control ps-44 py-12 rounded-12 border-gray-100" id="confirmar_senha" name="confirmar_senha" placeholder="Repita a nova senha" required>
-                                        <span class="toggle-password position-absolute top-50 inset-inline-end-0 me-16 translate-middle-y ph ph-eye-slash cursor-pointer text-gray-400" data-target="confirmar_senha"></span>
+                                <div class="flex flex-col gap-2.5">
+                                    <label class="text-xs font-bold text-secondary-foreground uppercase tracking-widest">{% trans "Perfil no Instagram" %}</label>
+                                    <div class="relative">
+                                        <i class="ki-filled ki-instagram absolute start-4 top-1/2 -translate-y-1/2 text-pink-600 text-lg"></i>
+                                        <input type="url" name="instagram" value="{{ perfil.instagram|default:'' }}" class="kt-input ps-12" placeholder="https://instagram.com/...">
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-2.5">
+                                    <label class="text-xs font-bold text-secondary-foreground uppercase tracking-widest">{% trans "WhatsApp Business" %}</label>
+                                    <div class="relative">
+                                        <i class="ki-filled ki-whatsapp absolute start-4 top-1/2 -translate-y-1/2 text-green-600 text-lg"></i>
+                                        <input type="url" name="whatsapp" value="{{ perfil.whatsapp|default:'' }}" class="kt-input ps-12" placeholder="Ex: https://wa.me/...">
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="p-24 rounded-16 bg-gray-50 border border-gray-100 h-100">
-                                <h6 class="fw-bold text-gray-900 mb-16 d-flex align-items-center gap-8">
-                                    <i class="ph ph-shield-star text-warning-600"></i> Recomendações de Segurança
-                                </h6>
-                                <ul class="space-y-12 list-unstyled mb-0">
-                                    <li class="d-flex align-items-start gap-12 text-14 text-gray-600">
-                                        <i class="ph ph-check-circle text-success-600 mt-2"></i>
-                                        <span>Use pelo menos 8 caracteres.</span>
-                                    </li>
-                                    <li class="d-flex align-items-start gap-12 text-14 text-gray-600">
-                                        <i class="ph ph-check-circle text-success-600 mt-2"></i>
-                                        <span>Combine letras maiúsculas, minúsculas e números.</span>
-                                    </li>
-                                    <li class="d-flex align-items-start gap-12 text-14 text-gray-600">
-                                        <i class="ph ph-check-circle text-success-600 mt-2"></i>
-                                        <span>Inclua símbolos especiais (ex: @, #, $, %).</span>
-                                    </li>
-                                    <li class="d-flex align-items-start gap-12 text-14 text-red-500 mt-16">
-                                        <i class="ph ph-warning text-red-500 mt-2"></i>
-                                        <span>Evite usar informações óbvias como seu nome ou data de nascimento.</span>
-                                    </li>
-                                </ul>
+                            <div class="kt-card-footer bg-muted/5 px-6 py-5 border-t border-border flex justify-end">
+                                <button type="submit" class="kt-btn kt-btn-primary">{% trans "Atualizar Canais Sociais" %}</button>
                             </div>
-                        </div>
-                        
-                        <div class="col-12 pt-16 border-top border-gray-50 mt-16 text-end">
-                            <button type="reset" class="btn btn-outline-gray rounded-12 px-32 py-12 fw-bold me-8">Descartar</button>
-                            <button type="submit" class="btn btn-main rounded-12 px-40 py-12 fw-bold shadow-sm">Atualizar Senha</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <!-- Password Tab End -->
-
-    <!-- Plan Tab Start -->
-    <div class="tab-pane fade" id="pills-plan" role="tabpanel" aria-labelledby="pills-plan-tab" tabindex="0">
-        <div class="card premium-card border-0 shadow-sm">
-            <div class="card-body p-40 text-center">
-                <div class="w-80 h-80 rounded-circle bg-primary-50 text-primary-600 flex-center mx-auto mb-24">
-                    <i class="ph ph-crown text-4xl"></i>
-                </div>
-                <h4 class="fw-bold text-gray-900 mb-8">Gestão de Plano</h4>
-                <p class="text-gray-500 mb-32 max-w-400 mx-auto">Esta funcionalidade está sendo preparada para você. Em breve poderá gerenciar sua assinatura aqui.</p>
-                <button class="btn btn-main rounded-12 px-32 py-12 fw-bold disabled">Em breve</button>
-            </div>
-        </div>
-    </div>
-    <!-- Plan Tab End -->
-
-    <!-- Billing Tab Start -->
-    <div class="tab-pane fade" id="pills-billing" role="tabpanel" aria-labelledby="pills-billing-tab" tabindex="0">
-        <div class="card premium-card border-0 shadow-sm">
-            <div class="card-body p-40 text-center">
-                <div class="w-80 h-80 rounded-circle bg-success-50 text-success-600 flex-center mx-auto mb-24">
-                    <i class="ph ph-credit-card text-4xl"></i>
-                </div>
-                <h4 class="fw-bold text-gray-900 mb-8">Faturamento e Recibos</h4>
-                <p class="text-gray-500 mb-32 max-w-400 mx-auto">Histórico de pagamentos e faturas disponíveis em breve.</p>
-                <button class="btn btn-main rounded-12 px-32 py-12 fw-bold disabled">Em breve</button>
-            </div>
-        </div>
-    </div>
-    <!-- Billing Tab End -->
-
-    <!-- Notification Tab Start -->
-    <div class="tab-pane fade" id="pills-notification" role="tabpanel" aria-labelledby="pills-notification-tab" tabindex="0">
-        <div class="card premium-card border-0 shadow-sm">
-            <div class="card-header border-bottom border-gray-50 p-24">
-                <h4 class="mb-4 fw-bold text-gray-900">Preferências de Notificação</h4>
-                <p class="text-gray-500 text-15 mb-0">Escolha como e quando deseja ser alertado sobre as atividades.</p>
-            </div>
-            <div class="card-body p-24">
-                <div class="space-y-24">
-                    <div class="d-flex align-items-center justify-content-between p-16 rounded-16 border border-gray-100 hover-bg-gray-50 transition-all">
-                        <div class="d-flex align-items-center gap-16">
-                            <div class="w-48 h-48 rounded-12 bg-primary-100 text-primary-600 flex-center">
-                                <i class="ph ph-envelope-open text-2xl"></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-4 fw-bold text-gray-900">Notificações por E-mail</h6>
-                                <p class="mb-0 text-14 text-gray-500">Receba resumos semanais e alertas de novos alunos.</p>
-                            </div>
-                        </div>
-                        <div class="form-check form-switch p-0 m-0">
-                            <input class="form-check-input h-24 w-44" type="checkbox" role="switch" checked>
-                        </div>
-                    </div>
-
-                    <div class="d-flex align-items-center justify-content-between p-16 rounded-16 border border-gray-100 hover-bg-gray-50 transition-all">
-                        <div class="d-flex align-items-center gap-16">
-                            <div class="w-48 h-48 rounded-12 bg-success-100 text-success-600 flex-center">
-                                <i class="ph ph-bell-ringing text-2xl"></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-4 fw-bold text-gray-900">Alertas do Sistema</h6>
-                                <p class="mb-0 text-14 text-gray-500">Notificações em tempo real no navegador.</p>
-                            </div>
-                        </div>
-                        <div class="form-check form-switch p-0 m-0">
-                            <input class="form-check-input h-24 w-44" type="checkbox" role="switch" checked>
-                        </div>
-                    </div>
-
-                    <div class="d-flex align-items-center justify-content-between p-16 rounded-16 border border-gray-100 hover-bg-gray-50 transition-all opacity-50">
-                        <div class="d-flex align-items-center gap-16">
-                            <div class="w-48 h-48 rounded-12 bg-info-100 text-info-600 flex-center">
-                                <i class="ph ph-whatsapp-logo text-2xl"></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-4 fw-bold text-gray-900">WhatsApp Marketing <span class="badge bg-gray-200 text-gray-600 ms-8 text-10">EM BREVE</span></h6>
-                                <p class="mb-0 text-14 text-gray-500">Receba métricas e vendas diretamente no seu celular.</p>
-                            </div>
-                        </div>
-                        <div class="form-check form-switch p-0 m-0">
-                            <input class="form-check-input h-24 w-44" type="checkbox" role="switch" disabled>
-                        </div>
+                        </form>
                     </div>
                 </div>
+                {% endif %}
+
+                <!-- 3. Segurança -->
+                {% if active_tab == 'password' %}
+                <div class="flex flex-col gap-6 lg:gap-8 max-w-[700px]">
+                    <div class="kt-card border border-border shadow-sm">
+                        <div class="kt-card-header px-6 py-5 border-b border-border">
+                            <h3 class="kt-card-title text-lg font-bold text-foreground">{% trans "Alterar Password da Instituição" %}</h3>
+                        </div>
+                        <form action="{% url 'atualizar_senha' %}" method="POST" class="flex flex-col">
+                            {% csrf_token %}
+                            <div class="p-6 lg:p-8 flex flex-col gap-8">
+                                <div class="flex flex-col gap-2.5">
+                                    <label class="text-xs font-bold text-secondary-foreground uppercase tracking-widest">{% trans "Password Atual" %}</label>
+                                    <input type="password" name="senha_atual" class="kt-input" required>
+                                </div>
+                                
+                                <div class="separator separator-dashed border-border py-2"></div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="flex flex-col gap-2.5">
+                                        <label class="text-xs font-bold text-secondary-foreground uppercase tracking-widest">{% trans "Nova Password" %}</label>
+                                        <input type="password" name="nova_senha" class="kt-input" minlength="8" required>
+                                    </div>
+                                    <div class="flex flex-col gap-2.5">
+                                        <label class="text-xs font-bold text-secondary-foreground uppercase tracking-widest">{% trans "Confirmar Password" %}</label>
+                                        <input type="password" name="confirmar_senha" class="kt-input" minlength="8" required>
+                                    </div>
+                                </div>
+                                <div class="bg-primary/5 p-4 rounded-xl border border-primary/10">
+                                    <div class="flex items-start gap-3">
+                                        <i class="ki-filled ki-shield-search text-primary text-xl"></i>
+                                        <div class="flex flex-col gap-1">
+                                            <span class="text-xs font-bold text-foreground">{% trans "Dica de Segurança" %}</span>
+                                            <p class="text-[11px] text-secondary-foreground leading-relaxed">
+                                                {% trans "Uma senha forte ajuda a proteger a sua instituição. Recomendamos o uso de pelo menos 8 caracteres, misturando letras (maiúsculas e minúsculas), números e caracteres especiais." %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="kt-card-footer bg-muted/5 px-6 py-5 border-t border-border flex justify-end">
+                                <button type="submit" class="kt-btn kt-btn-primary">
+                                    <i class="ki-filled ki-lock-2 mr-2"></i>
+                                    {% trans "Atualizar Credenciais" %}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+
             </div>
         </div>
     </div>
-    <!-- Notification Tab End -->
-</div>
+</main>
+{% endblock content %}
 
+{% block extra_js %}
+<script src="{% static 'assets/js/google_maps_loader.js' %}"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Toggle password visibility
-    const toggleButtons = document.querySelectorAll('.toggle-password');
-    toggleButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const targetId = this.getAttribute('data-target');
-            const input = document.getElementById(targetId);
-            if (input.type === 'password') {
-                input.type = 'text';
-                this.classList.remove('ph-eye-slash');
-                this.classList.add('ph-eye');
-            } else {
-                input.type = 'password';
-                this.classList.remove('ph-eye');
-                this.classList.add('ph-eye-slash');
-            }
-        });
-    });
+    document.addEventListener("DOMContentLoaded", function() {
+        const apiKey = "{{ GOOGLE_MAPS_API_KEY }}";
+        if (apiKey && window.EdukaMaps) {
+            window.EdukaMaps.load(apiKey).then(maps => {
+                const input = document.getElementById("endereco");
+                const latInput = document.getElementById("lat");
+                const lngInput = document.getElementById("lng");
+                const cidadeInput = document.getElementById("cidade");
+                const provinciaInput = document.getElementById("provincia");
 
-    // Preview de vídeo
-    const videoInput = document.getElementById('video_apresentacao');
-    if (videoInput) {
-        videoInput.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                // Aqui você pode adicionar preview do vídeo se necessário
-                console.log('Vídeo selecionado:', file.name);
-            }
-        });
-    }
-});
-</script>        </div>
-        <div class="dashboard-footer">
-            <div class="flex-between flex-wrap gap-16">
-                <p class="text-gray-300 text-13 fw-normal"> &copy; Copyright Edmate 2024, All Right Reserverd</p>
-                <div class="flex-align flex-wrap gap-16">
-                    <a href="setting.html#"
-                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">License</a>
-                    <a href="setting.html#"
-                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">More
-                        Themes</a>
-                    <a href="setting.html#"
-                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">Documentation</a>
-                    <a href="setting.html#"
-                        class="text-gray-300 text-13 fw-normal hover-text-main-600 hover-text-decoration-underline">Support</a>
-                </div>
-            </div>
-        </div>
-    </div>
+                if (!input) return;
 
-    {% include 'include/java_gestor.html' %}
+                const autocomplete = new maps.places.Autocomplete(input, {
+                    types: [], // Permite endereços, cidades e estabelecimentos para maior flexibilidade
+                    fields: ["address_components", "geometry"],
+                    // Adiciona prioridade (bias) para Angola/Luanda, mantendo pesquisa mundial
+                    locationBias: { radius: 100000, center: { lat: -8.8368, lng: 13.2343 } } 
+                });
 
+                autocomplete.addListener("place_changed", () => {
+                    const place = autocomplete.getPlace();
+                    if (!place.geometry) return;
 
-    <script>
-        // ============================= Avatar Upload js ============================= 
-        function uploadImageFunction(imageId, previewId) {
-            $(imageId).on('change', function () {
-                var input = this; // 'this' is the DOM element here
-                if (input.files && input.files[0]) {
-                    var reader = new FileReader();
-                    reader.onload = function (e) {
-                        $(previewId).css('background-image', 'url(' + e.target.result + ')');
-                        $(previewId).hide();
-                        $(previewId).fadeIn(650);
+                    latInput.value = place.geometry.location.lat();
+                    lngInput.value = place.geometry.location.lng();
+
+                    let cidade = "";
+                    let provincia = "";
+
+                    for (const component of place.address_components) {
+                        const componentType = component.types[0];
+                        if (componentType === "locality" || componentType === "administrative_area_level_2") {
+                            cidade = component.long_name;
+                        }
+                        if (componentType === "administrative_area_level_1") {
+                            provincia = component.long_name;
+                        }
                     }
-                    reader.readAsDataURL(input.files[0]);
-                }
+
+                    if (cidade) cidadeInput.value = cidade;
+                    if (provincia) provinciaInput.value = provincia;
+                });
             });
         }
-        uploadImageFunction('#coverImageUpload', '#coverImagePreview');
-        uploadImageFunction('#imageUpload', '#profileImagePreview');
+    });
+</script>
+{% endblock extra_js %}
 
-
-        // ============================= Initialize Quill editor js Start ============================= 
-        function editorFunction(editorId) {
-            const quill = new Quill(editorId, {
-                theme: 'snow'
-            });
-        }
-        editorFunction('#editor');
-        editorFunction('#editorTwo');
-        // ============================= Initialize Quill editor js End ============================= 
-
-
-        // Table Header Checkbox checked all js Start
-        $('#selectAll').on('change', function () {
-            $('.form-check .form-check-input').prop('checked', $(this).prop('checked'));
-        });
-
-        // Data Tables
-        new DataTable('#studentTable', {
-            searching: false,
-            lengthChange: false,
-            info: false,   // Bottom Left Text => Showing 1 to 10 of 12 entries
-            pagination: false,
-            info: false,   // Bottom Left Text => Showing 1 to 10 of 12 entries
-            paging: false,
-            "columnDefs": [
-                { "orderable": false, "targets": [0, 6] } // Disables sorting on the 1st & 7th column (index 6)
-            ]
-        });
-
-    </script>
-
-</body>
-
-</html>

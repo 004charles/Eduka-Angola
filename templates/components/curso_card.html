@@ -1,0 +1,145 @@
+{% load static %}
+{% load i18n %}
+{% load curso_filters %}
+
+{% comment %}
+  =====================================================================
+  CARD UNIVERSAL DE CURSO (PLATFORM STYLE) — EdukAngola
+  =====================================================================
+  Como usar:
+    {% include 'components/curso_card.html' with curso=curso %}
+
+  Parâmetros:
+    modo="publico"  → Marketplace style (default)
+    modo="gestor"   → Admin style (Gerenciar + Publicar)
+    modo="aluno"    → Learning style (Continuar)
+  =====================================================================
+{% endcomment %}
+
+{% with model_name=curso|model_type modo=modo|default:"publico" %}
+<div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column" data-curso-id="{{ curso.id }}" data-model="{{ model_name }}">
+    <div class="rbt-card-img">
+        {% if model_name == 'Curso_video' %}
+            <a href="{% url 'cursovideoapp:detalhe_curso' slug=curso.slug %}">
+                {% if curso.capa %}
+                    <img src="{{ curso.capa.url }}" alt="{{ curso.titulo }}" style="height: 180px; object-fit: cover;">
+                {% else %}
+                    <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{ curso.titulo }}" style="height: 180px; object-fit: cover;">
+                {% endif %}
+            </a>
+            <div class="rbt-badge-3 bg-gradient text-white" style="position: absolute; top: 10px; left: 10px; z-index: 2; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 10px;">
+                <i class="feather-video"></i> EdukaAngola Original
+            </div>
+        {% else %}
+            <a href="{% url 'curso_detalhe' id=curso.id %}">
+                {% if curso.imagem %}
+                    <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}" style="height: 180px; object-fit: cover;">
+                {% else %}
+                    <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{ curso.titulo }}" style="height: 180px; object-fit: cover;">
+                {% endif %}
+            </a>
+            {% if curso.destaque %}
+                <div class="rbt-badge-3 bg-white text-primary" style="position: absolute; top: 10px; left: 10px; z-index: 2; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 10px;">
+                    <i class="ph ph-star-fill"></i> Destaque
+                </div>
+            {% endif %}
+        {% endif %}
+
+        <!-- Bookmark Button -->
+        {% if user.is_authenticated and user.tipo_usuario == 'ALUNO' %}
+        <div class="rbt-card-top" style="position: absolute; top: 10px; right: 10px; z-index: 3;">
+            <div class="rbt-bookmark-btn">
+                <button class="rbt-round-btn favorite-btn {% if curso|is_favorited_by:user %}favorito-ativo{% endif %}" 
+                        data-curso-id="{{ curso.id }}" 
+                        data-model="{{ model_name }}"
+                        title="Favorito">
+                    <i class="feather-bookmark"></i>
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="rbt-card-body flex-grow-1 d-flex flex-column">
+        {% if model_name == 'Curso_video' %}
+            <div class="rbt-card-top">
+                <div class="rbt-review">
+                    <span class="rating-count">Videoaula</span>
+                </div>
+            </div>
+            <h4 class="rbt-card-title"><a href="{% url 'cursovideoapp:detalhe_curso' slug=curso.slug %}">{{ curso.titulo }}</a></h4>
+            <p class="rbt-card-text" style="font-size: 14px; line-height: 1.5; margin-bottom: 15px;">{{ curso.descricao|truncatewords:15 }}</p>
+        {% else %}
+            <div class="rbt-card-top">
+                <div class="rbt-review">
+                    <span class="rating-count">{% if curso.categoria %}{{ curso.categoria.nome }}{% else %}Geral{% endif %}</span>
+                    {% if model_name == 'Curso' and curso.centro.pais %}
+                        <span class="rbt-badge-5 bg-primary-opacity text-primary" style="margin-left: 10px; font-size: 10px; padding: 2px 6px;">
+                            {% if curso.centro.pais == 'AO' %}🇦🇴 Angola{% elif curso.centro.pais == 'PT' %}🇵🇹 Portugal{% else %}{{ curso.centro.get_pais_display }}{% endif %}
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+            <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}">{{ curso.titulo }}</a></h4>
+            <ul class="rbt-meta">
+                <li><i class="feather-clock"></i>{{ curso.carga_horaria }}h</li>
+                <li><i class="feather-users"></i>{{ curso.vagas_disponiveis|default:"--" }} vagas</li>
+                {% if model_name == 'Curso' %}
+                <li class="font-bold text-primary">
+                    {% if curso.preco > 0 %}
+                        {% if curso.moeda == 'AOA' %}{{ curso.preco }} Kz
+                        {% elif curso.moeda == 'EUR' %}{{ curso.preco }} €
+                        {% elif curso.moeda == 'USD' %}{{ curso.preco }} $
+                        {% else %}{{ curso.preco }} {{ curso.moeda }}{% endif %}
+                    {% else %}
+                        Grátis
+                    {% endif %}
+                </li>
+                {% endif %}
+            </ul>
+        {% endif %}
+
+        <div class="rbt-card-bottom mt-auto">
+            {% if modo == "publico" %}
+                {% if model_name == 'Curso_video' %}
+                    <a class="rbt-btn-link" href="{% url 'cursovideoapp:detalhe_curso' slug=curso.slug %}">Avaliar Programa<i class="feather-arrow-right"></i></a>
+                {% else %}
+                    <a class="rbt-btn-link" href="{% url 'curso_detalhe' id=curso.id %}">Conhecer Formação<i class="feather-arrow-right"></i></a>
+                {% endif %}
+            
+            {% elif modo == "gestor" and model_name == "Curso" %}
+                <div class="d-flex gap-2 w-100">
+                    <a href="{% url 'curso_overview' curso.id %}" class="rbt-btn btn-xs btn-border flex-grow-1 text-center">Gerir</a>
+                    {% if not curso.publicado %}
+                        <form method="post" action="{% url 'publicar_curso' curso.id %}" class="flex-grow-1">
+                            {% csrf_token %}
+                            <button type="submit" class="rbt-btn btn-xs btn-gradient w-100">Publicar</button>
+                        </form>
+                    {% endif %}
+                </div>
+
+            {% elif modo == "aluno" %}
+                {% if model_name == 'Curso_video' %}
+                    <a class="rbt-btn btn-gradient btn-sm w-100 text-center" href="{% url 'cursovideoapp:detalhe_curso' slug=curso.slug %}">Iniciar Transmissão</a>
+                {% else %}
+                    <a class="rbt-btn btn-gradient btn-sm w-100 text-center" href="{% url 'curso_detalhe' id=curso.id %}">Retomar Aprendizagem</a>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .favorite-btn.favorito-ativo i {
+        color: #fff !important;
+    }
+    .favorite-btn.favorito-ativo {
+        background: #6c20f0 !important;
+        border-color: #6c20f0 !important;
+    }
+    .rbt-card.rbt-hover:hover {
+        transform: translateY(-5px);
+        transition: all 0.3s ease;
+    }
+</style>
+{% endwith %}

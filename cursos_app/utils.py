@@ -44,13 +44,72 @@ def enviar_email_inscricao(inscricao, tipo='pendente', link_curso=None):
     msg.attach_alternative(html, "text/html")
     msg.send()
 
-def notificar_seguidores(curso):
+def notificar_seguidores(objeto, tipo_conteudo='CURSO'):
     """
-    Notifica seguidores do centro sobre um novo curso publicado.
+    Hub central para notificar seguidores sobre novas publicações.
+    Canais: Notificação interna (Site), E-mail e WhatsApp (Simulado).
     """
-    # Implementação pendente ou movida de outro lugar
-    # Por enquanto, mantemos a assinatura para não quebrar o modelo
-    pass
+    from usuarios.models import NotificacaoAluno
+    from gestoreduka.models import CentroSeguimento
+    
+    centro = objeto.centro
+    seguidores = CentroSeguimento.objects.filter(centro=centro).select_related('aluno__usuario')
+    
+    # Preparar conteúdo baseado no tipo
+    if tipo_conteudo == 'CURSO':
+        titulo_notif = f"Novo Curso: {objeto.titulo}"
+        msg_base = f"O centro {centro.nome} acabou de publicar o curso '{objeto.titulo}'."
+        link = f"/cursos/{objeto.slug}/"
+    elif tipo_conteudo == 'EVENTO':
+        titulo_notif = f"Novo Evento: {objeto.titulo}"
+        msg_base = f"Fica atento! O centro {centro.nome} tem um novo evento: '{objeto.titulo}'."
+        link = f"/gestoreduka/perfil/" # Link para o perfil onde lista eventos
+    elif tipo_conteudo == 'ANUNCIO':
+        titulo_notif = objeto.titulo
+        msg_base = f"Novidade do centro {centro.nome}: {objeto.titulo}"
+        link = f"/gestoreduka/perfil/"
+
+    for seguimento in seguidores:
+        aluno = seguimento.aluno
+        usuario = aluno.usuario
+        
+        # 1. Notificação Interna (Site)
+        NotificacaoAluno.objects.create(
+            aluno=aluno,
+            titulo=titulo_notif,
+            mensagem=msg_base,
+            link=link,
+            tipo=tipo_conteudo
+        )
+        
+        # 2. Notificação por E-mail
+        try:
+            contexto = {
+                'aluno': aluno,
+                'objeto': objeto,
+                'centro': centro,
+                'titulo': titulo_notif,
+                'mensagem': msg_base,
+                'link': f"{settings.SITE_URL}{link}" if hasattr(settings, 'SITE_URL') else link
+            }
+            html = render_to_string('emails/notificacao_seguidor.html', contexto)
+            txt = strip_tags(html)
+            
+            msg = EmailMultiAlternatives(
+                subject=f"[EdukAngola] {titulo_notif}",
+                body=txt,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[usuario.email],
+            )
+            msg.attach_alternative(html, "text/html")
+            msg.send()
+        except Exception as e:
+            print(f"Erro ao enviar e-mail de notificação: {e}")
+
+        # 3. Notificação por WhatsApp (Simulação/Log)
+        # Aqui integraríamos com uma API como Twilio ou Z-API
+        # Por agora, simulamos o disparo
+        print(f"[WHATSAPP MOCK] Enviando para {aluno.perfil.telefone if hasattr(aluno, 'perfil') else 'N/A'}: {msg_base}")
 
 def processar_simulacao_pagamento(inscricao):
     """
@@ -64,7 +123,8 @@ def processar_simulacao_pagamento(inscricao):
     inscricao.valor_pago = inscricao.curso.preco_atual
     inscricao.data_pagamento = timezone.now()
     inscricao.status = 'A'
-    inscricao.codigo_simulacao = f"SIM_{inscricao.curso.id}_{inscricao.aluno.id}_{timezone.now().strftime('%Y%m%d%H%M%S')}"
+    if not inscricao.codigo_simulacao:
+        inscricao.codigo_simulacao = f"SIM_{inscricao.curso.id}_{inscricao.aluno.id}_{timezone.now().strftime('%Y%m%d%H%M%S')}"
     inscricao.data_simulacao = timezone.now()
     inscricao.data_confirmacao = timezone.now()
 

@@ -1,0 +1,43 @@
+{% if cursos_centro %}
+<div class="welcome-catalog-container mb-5 w-100">
+    <!-- Header de Boas Vindas -->
+    <div class="d-flex align-items-center gap-2 mb-3 px-2">
+        <div class="bg-primary bg-opacity-10 p-2 rounded-circle">
+            <i class="ki-filled ki-shop text-primary fs-4"></i>
+        </div>
+        <div>
+            <h6 class="mb-0 text-dark fw-bold">Catálogo de Cursos</h6>
+            <p class="small text-muted mb-0">Confira nossas ofertas disponíveis:</p>
+        </div>
+    </div>
+
+    <!-- Carrossel de Cursos Simplificado (Sem Imagem) -->
+    <div class="cursos-carousel d-flex overflow-auto pb-2 gap-2 px-2" style="scrollbar-width: none; -webkit-overflow-scrolling: touch;">
+        {% for curso in cursos_centro %}
+        <a href="{{ curso.get_absolute_url }}" target="_blank" 
+           class="curso-item-simple flex-shrink-0 bg-white border border-primary border-opacity-25 rounded-pill px-3 py-2 text-decoration-none shadow-sm hover-elevate d-flex align-items-center gap-2">
+            <i class="ki-filled ki-book-open text-primary fs-7"></i>
+            <span class="text-dark fw-medium small text-truncate" style="max-width: 180px;">{{ curso.titulo }}</span>
+            <i class="ki-filled ki-arrow-right text-muted fs-9"></i>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .cursos-carousel::-webkit-scrollbar { display: none; }
+    .curso-item-simple {
+        min-width: fit-content;
+        transition: all 0.2s ease;
+    }
+    .curso-item-simple:hover {
+        background-color: var(--bs-primary-bg-subtle, #f0f7ff) !important;
+        border-color: var(--bs-primary) !important;
+        transform: translateY(-1px);
+    }
+    .hover-elevate:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05) !important;
+    }
+    .flex-shrink-0 { flex-shrink: 0 !important; }
+</style>
+{% endif %}

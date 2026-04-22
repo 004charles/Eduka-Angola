@@ -369,6 +369,9 @@ def ver_aula(request, curso_slug, pk):
     
     # Obter progresso atual para controle de avanço no player
     progresso_atual, created = ProgressoAula.objects.get_or_create(aluno=aluno, aula=aula_atual)
+
+    # Cursos recomendados para o carrossel no fundo da página
+    cursos_recomendados = Curso_video.objects.exclude(id=curso.id)[:10]
     
     return render(request, 'cursovideo/ver_aula.html', {
         'curso': curso,
@@ -379,6 +382,7 @@ def ver_aula(request, curso_slug, pk):
         'aulas': aulas,
         'progresso_total': progresso_total,
         'progresso_atual': progresso_atual,
+        'cursos_recomendados': cursos_recomendados,
     })
 
 
@@ -440,19 +444,38 @@ def atualizar_progresso(request, aula_id):
         tempo_assistido = int(float(tempo_raw))
         
         concluida_raw = request.POST.get('concluida', '').lower()
-        concluida = concluida_raw in ['true', '1', 'on', 'yes']
+        concluida_solicitada = concluida_raw in ['true', '1', 'on', 'yes']
         
-        # Redundância de segurança no backend
-        if not concluida and aula.duracao_segundos > 0:
-            if (aula.duracao_segundos - tempo_assistido) < 5:
-                concluida = True
+        agora = timezone.now()
         
-        # Atualizar tempo assistido (armazenado em segundos) apenas se for maior
+        # 1. Validar Saltos no Tempo (Anti-Speedhacks e Hacks de Consola)
         if tempo_assistido > progresso.tempo_assistido:
+            if progresso.tempo_assistido > 0:
+                delta_real = (agora - progresso.data_ultimo_acesso).total_seconds()
+                incremento = tempo_assistido - progresso.tempo_assistido
+                
+                # Tolerância de visualização: até 2.5x speed + 15 segundos buffer de atraso de rede
+                limite = (delta_real * 2.5) + 15
+                
+                if incremento > limite:
+                    # Detetado Hack: não guardamos o progresso.
+                    return JsonResponse({
+                        'success': False, 
+                        'error': 'Manipulacão temporal detectada (Anti-Fraude). Por favor assista de forma contínua.',
+                    }, status=403)
+                    
             progresso.tempo_assistido = tempo_assistido
         
-        if concluida:
-            progresso.concluida = True
+        # 2. Ignorar Pedidos de "Concluída" sem ter visto o vídeo
+        if concluida_solicitada and not progresso.concluida:
+            if aula.duracao_segundos > 0:
+                percentagem = (progresso.tempo_assistido / aula.duracao_segundos) * 100
+                if percentagem >= 90:  # Exige mínimo de 90% visto para libertar Certificado
+                    progresso.concluida = True
+            else:
+                # Fallback caso a aula não possua duração cadastrada pelo gestor
+                if progresso.tempo_assistido > 5:
+                    progresso.concluida = True
             
         progresso.save()
         

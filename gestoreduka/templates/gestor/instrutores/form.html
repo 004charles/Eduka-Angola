@@ -1,74 +1,109 @@
-{% extends 'base_gestor.html' %}
+{% extends 'gestor_base.html' %}
 {% load static %}
 
-{% block title %}{{ action }} Instrutor - {{ centro.nome }}{% endblock %}
-
 {% block content %}
-<div class="dashboard-body">
-    <div class="breadcrumb mb-24">
-        <ul class="flex-align gap-4">
-            <li><a href="{% url 'centro_dashboard' %}"
-                    class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
-            <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
-            <li><a href="{% url 'gerenciar_instrutores' %}"
-                    class="text-gray-200 fw-normal text-15 hover-text-main-600">Instrutores</a></li>
-            <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
-            <li><span class="text-main-600 fw-normal text-15">{{ action }}</span></li>
-        </ul>
+<div class="flex flex-col gap-5 lg:gap-7.5">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-xl font-bold text-foreground">{{ action }} Instrutor</h1>
+            <p class="text-sm text-secondary-foreground">
+                {% if action == 'Criar' %}Adicione um novo membro à sua equipa docente.{% else %}Atualize as informações do instrutor "{{ instrutor.nome }}".{% endif %}
+            </p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="{% url 'gerenciar_instrutores' %}" class="kt-btn kt-btn-light">
+                <i class="ki-filled ki-arrow-left"></i> Voltar
+            </a>
+        </div>
     </div>
 
-    <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0">{{ action }} Instrutor</h5>
+    {% if messages %}
+        <div class="flex flex-col gap-2">
+            {% for message in messages %}
+                <div class="p-4 rounded-lg text-sm font-medium {% if message.tags == 'success' %}bg-success/10 text-success border border-success/20{% elif message.tags == 'error' %}bg-danger/10 text-danger border border-danger/20{% else %}bg-warning/10 text-warning border border-warning/20{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
         </div>
-        <div class="card-body">
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="row gy-20">
-                    <div class="col-md-6">
-                        <label class="form-label">Nome Completo *</label>
-                        <input type="text" name="nome" class="form-control" value="{{ instrutor.nome|default:'' }}"
-                            required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">E-mail *</label>
-                        <input type="email" name="email" class="form-control" value="{{ instrutor.email|default:'' }}"
-                            required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Área de Especialização *</label>
-                        <select name="area_especializacao" class="form-select" required>
-                            <option value="">Selecione</option>
-                            {% for value, label in areas %}
-                            <option value="{{ value }}" {% if instrutor and instrutor.area_especializacao == value %}selected{% endif %}>
-                                {{ label }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    {% if instrutor %}
-                    <div class="col-md-6">
-                        <label class="form-label">Status</label>
-                        <div class="form-check form-switch mt-8">
-                            <input class="form-check-input" type="checkbox" name="ativo" {% if instrutor.ativo %}checked{% endif %}>
-                            <label class="form-check-label">Ativo</label>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" class="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-7.5">
+        {% csrf_token %}
+
+        <!-- Coluna Esquerda: Dados Principais -->
+        <div class="lg:col-span-2 flex flex-col gap-5 lg:gap-7.5">
+            <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm">
+                <div class="border-b border-border px-5 py-4">
+                    <h3 class="font-semibold text-base text-foreground">Informações Pessoais</h3>
+                </div>
+                <div class="p-6 flex flex-col gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium text-foreground">Nome Completo *</label>
+                            <input type="text" name="nome" value="{{ instrutor.nome|default:'' }}" class="kt-input" placeholder="Ex: João Manuel" required>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium text-foreground">E-mail de Contacto *</label>
+                            <input type="email" name="email" value="{{ instrutor.email|default:'' }}" class="kt-input" placeholder="exemplo@email.com" required>
                         </div>
                     </div>
-                    {% endif %}
-                    <div class="col-12">
-                        <label class="form-label">Biografia *</label>
-                        <textarea name="biografia" class="form-control" rows="5"
-                            required>{{ instrutor.biografia|default:'' }}</textarea>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">Área de Especialização</label>
+                        <input type="text" name="area_especializacao" value="{{ instrutor.area_especializacao|default:'' }}" class="kt-input" placeholder="Ex: Engenheiro de Software, Design Gráfico...">
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-foreground">Biografia / Currículo Resumido</label>
+                        <textarea name="biografia" rows="6" class="kt-input min-h-[120px]">{{ instrutor.biografia|default:'' }}</textarea>
+                        <span class="text-xs text-muted-foreground">Esta informação será exibida publicamente nos perfis dos cursos.</span>
                     </div>
                 </div>
-                <div class="flex-align gap-8 mt-24">
-                    <button type="submit" class="btn btn-main px-24 py-12">
-                        <i class="ph ph-floppy-disk me-8"></i> Salvar
-                    </button>
-                    <a href="{% url 'gerenciar_instrutores' %}" class="btn btn-outline-gray px-24 py-12">Cancelar</a>
-                </div>
-            </form>
+            </div>
         </div>
-    </div>
+
+        <!-- Coluna Direita: Foto e Status -->
+        <div class="flex flex-col gap-5 lg:gap-7.5">
+            <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm">
+                <div class="border-b border-border px-5 py-4">
+                    <h3 class="font-semibold text-base text-foreground">Foto de Perfil</h3>
+                </div>
+                <div class="p-6 flex flex-col items-center gap-4">
+                    <div class="relative size-32 rounded-full bg-accent/30 border-2 border-dashed border-border flex items-center justify-center overflow-hidden">
+                        {% if instrutor.foto %}
+                            <img src="{{ instrutor.foto.url }}" alt="{{ instrutor.nome }}" class="size-full object-cover">
+                        {% else %}
+                            <i class="ki-filled ki-user text-5xl text-muted-foreground"></i>
+                        {% endif %}
+                    </div>
+                    <div class="w-full">
+                        <input type="file" name="foto" class="kt-input" accept="image/*">
+                        <p class="text-xs text-muted-foreground mt-2">Formatos: JPG, PNG. Recomendado: 400x400px.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm">
+                <div class="border-b border-border px-5 py-4">
+                    <h3 class="font-semibold text-base text-foreground">Configurações</h3>
+                </div>
+                <div class="p-6 flex flex-col gap-4">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" name="ativo" class="kt-checkbox size-4" {% if action == 'Criar' or instrutor.ativo %}checked{% endif %}>
+                        <span class="text-sm font-medium text-foreground">Instrutor Ativo</span>
+                    </label>
+                    <p class="text-xs text-muted-foreground italic">Se inativo, o instrutor não poderá ser associado a novas turmas ou cursos.</p>
+                </div>
+            </div>
+
+            <button type="submit" class="kt-btn kt-btn-primary w-full justify-center">
+                <i class="ki-filled ki-check"></i> {{ action }} Instrutor
+            </button>
+        </div>
+
+    </form>
+
 </div>
-{% endblock %}
+{% endblock content %}

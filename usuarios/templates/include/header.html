@@ -3,6 +3,8 @@
 {% load language_tags %}
 
 <header class="rbt-header rbt-header-4 rbt-header-4-container-var">
+    {% csrf_token %}
+    {% include 'include/theme_switcher.html' %}
     <div class="rbt-sticky-placeholder"></div>
 
     <!-- Start Header Top -->
@@ -29,6 +31,16 @@
                                 <li><a href="#"><i class="fab fa-youtube"></i></a></li>
                             </ul>
                         </div>
+                        {% if request.user.is_authenticated %}
+                        <div class="rbt-separator"></div>
+                        <div class="header-info">
+                            <ul class="rbt-information-list">
+                                <li>
+                                    <a href="#"><i class="feather-user"></i>Bem-vindo, {{ request.user.nome|default:request.user.email }}</a>
+                                </li>
+                            </ul>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -37,7 +49,7 @@
                         <div class="header-info">
                             <ul class="rbt-secondary-menu">
                                 <li><a href="{% url 'sobre' %}">{% trans "Sobre Nós" %}</a></li>
-                                <li><a href="">{% trans "Contato" %}</a></li>
+                                <li><a href="{% url 'contato' %}">{% trans "Contato" %}</a></li>
                                 <li><a href="#">{% trans "Privacidade" %}</a></li>
                             </ul>
                         </div>
@@ -84,7 +96,7 @@
                         <div class="rbt-separator"></div>
                         <div class="header-info">
                             <div class="header-right-btn d-flex">
-                                <a class="rbt-btn rbt-switch-btn btn-gradient btn-xs" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#authModal">
+                                <a class="rbt-btn rbt-switch-btn btn-gradient btn-xs" href="{% url 'login_aluno' %}?next={{ request.path }}">
                                     <span data-text="{% trans 'Entrar' %}">{% trans "Entrar" %}</span>
                                 </a>
                             </div>
@@ -119,6 +131,9 @@
                     <nav class="mainmenu-nav">
                         <ul class="mainmenu">
                             <li><a href="{% url 'index' %}">Home</a></li>
+                            <li><a href="{% url 'lista_centros' %}">{% trans "Instituições" %}</a></li>
+                            <li><a href="#">{% trans "estude no exterior" %}</a></li>
+
 
                             <li class="with-megamenu has-menu-child-item">
                                 <a href="#">{% trans "Explorar" %} <i class="feather-chevron-down"></i></a>
@@ -140,7 +155,10 @@
                                                 <h3 class="rbt-short-title">{% trans "Ensino" %}</h3>
                                                 <ul class="mega-menu-item">
                                                     <li><a href="{% url 'home_cursos' %}">{% trans "Todos os Cursos" %}</a></li>
+                                                    <li><a href="{% url 'lista_centros' %}">{% trans "Instituições Parceiras" %}</a></li>
+
                                                     <li><a href="#">{% trans "Ensino Médio" %}</a></li>
+
                                                     <li><a href="#">{% trans "Ensino Superior" %}</a></li>
                                                 </ul>
                                             </div>
@@ -208,20 +226,33 @@
                                     <ul class="user-list-wrapper">
                                         {% if request.user.tipo_usuario == 'ALUNO' %}
                                         <li>
-                                            <a href="{% url 'aluno' %}">
-                                                <i class="feather-home"></i>
-                                                <span>{% trans "Dashboard Aluno" %}</span>
+                                            <a href="{% url 'aluno_perfil' %}">
+                                                <i class="feather-user"></i>
+                                                <span>{% trans "Perfil do Aluno" %}</span>
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="#">
+                                            <a href="{% url 'aluno_cursos' %}">
                                                 <i class="feather-book-open"></i>
-                                                <span>{% trans "Meus Cursos" %}</span>
+                                                <span>{% trans "Os Meus Cursos" %}</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'aluno_favoritos' %}">
+                                                <i class="feather-bookmark"></i>
+                                                <span>{% trans "Cursos Favoritos" %}</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'aluno_depoimento' %}">
+                                                <i class="feather-message-square"></i>
+                                                <span>{% trans "Meu Depoimento" %}</span>
                                             </a>
                                         </li>
                                         {% elif request.user.tipo_usuario == 'GESTOR' or request.user.tipo_usuario == 'GESTOR_FILIAL' %}
                                         <li>
-                                            <a href="{% url 'gestoreduka:analytics' %}">
+                                            <a href="{% url 'analytics_centro' %}">
+
                                                 <i class="feather-bar-chart-2"></i>
                                                 <span>{% trans "Painel Gestor" %}</span>
                                             </a>
@@ -236,7 +267,7 @@
                                         {% endif %}
 
                                         <li>
-                                            <a href="/perfil">
+                                            <a href="{% url 'aluno_configuracoes' %}">
                                                 <i class="feather-settings"></i>
                                                 <span>{% trans "Configurações" %}</span>
                                             </a>
@@ -256,7 +287,7 @@
                         </li>
                         {% else %}
                         <li class="access-icon d-none d-xl-block">
-                            <a class="rbt-btn btn-border-gradient radius-round btn-sm" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#authModal">
+                            <a class="rbt-btn btn-border-gradient radius-round btn-sm" href="{% url 'login_aluno' %}?next={{ request.path }}">
                                 <span>{% trans 'Entrar' %}</span>
                             </a>
                         </li>
@@ -279,8 +310,9 @@
             <div class="wrapper">
                 <div class="row">
                     <div class="col-lg-12">
-                        <form action="{% url 'buscar_cursos' %}" method="get">
-                            <input type="text" name="q" placeholder="{% trans 'O que você está procurando?' %}">
+                        <form action="{% url 'buscar_cursos' %}" method="get" class="search-form-with-suggestions">
+                            <input type="text" name="q" class="rbt-search-autocomplete" placeholder="{% trans 'O que você está procurando?' %}" autocomplete="off">
+                            <div class="search-suggestions-wrapper"></div>
                             <div class="submit-btn">
                                 <button type="submit" class="rbt-btn btn-gradient btn-md">{% trans "Pesquisar" %}</button>
                             </div>
@@ -321,6 +353,17 @@
     </div>
 </header>
 
+<!-- Global Flash Messages -->
+{% if messages %}
+<div class="container mt-4" style="position: fixed; top: 100px; right: 20px; z-index: 9999; max-width: 400px;">
+    {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show shadow-sm" role="alert" style="border-radius: 8px;">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
 <div class="popup-mobile-menu">
     <div class="inner-wrapper">
         <div class="inner-top">
@@ -342,19 +385,22 @@
             <ul class="mainmenu">
                 <li><a href="{% url 'index' %}">Home</a></li>
                 <li><a href="{% url 'home_cursos' %}">{% trans "Cursos" %}</a></li>
+                <li><a href="{% url 'lista_centros' %}">{% trans "Instituições" %}</a></li>
                 <li><a href="{% url 'cursovideoapp:home_videos' %}">EdukAngola Play</a></li>
                 <li><a href="{% url 'blog:lista_posts' %}">Blog</a></li>
+                <li><a href="{% url 'contato' %}">{% trans "Contato" %}</a></li>
                 {% if request.user.is_authenticated %}
                     {% if request.user.tipo_usuario == 'ALUNO' %}
                         <li><a href="{% url 'aluno' %}">{% trans "Meu Painel" %}</a></li>
                     {% elif request.user.tipo_usuario == 'GESTOR' or request.user.tipo_usuario == 'GESTOR_FILIAL' %}
-                        <li><a href="{% url 'gestoreduka:analytics' %}">{% trans "Painel Gestor" %}</a></li>
+                        <li><a href="{% url 'analytics_centro' %}">{% trans "Painel Gestor" %}</a></li>
+
                     {% elif request.user.is_superuser %}
                         <li><a href="/admin/">{% trans "Administração" %}</a></li>
                     {% endif %}
                     <li><a href="{% url 'logout' %}">{% trans "Sair" %}</a></li>
                 {% else %}
-                <li><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#authModal">{% trans "Entrar" %}</a></li>
+                <li><a href="{% url 'login_aluno' %}?next={{ request.path }}">{% trans "Entrar" %}</a></li>
                 {% endif %}
             </ul>
         </nav>
@@ -383,6 +429,77 @@
     });
 
     document.addEventListener('DOMContentLoaded', () => {
+        // --- Search Suggestions Logic ---
+        const setupAutocomplete = (input) => {
+            const wrapper = input.parentElement.querySelector('.search-suggestions-wrapper');
+            if (!wrapper) return;
+
+            let debounceTimer;
+            
+            input.addEventListener('input', () => {
+                clearTimeout(debounceTimer);
+                const query = input.value.trim();
+                
+                if (query.length < 1) {
+                    wrapper.style.display = 'none';
+                    return;
+                }
+
+                debounceTimer = setTimeout(async () => {
+                    try {
+                        const response = await fetch(`/cursos/api/sugestoes/?q=${encodeURIComponent(query)}`);
+                        const data = await response.json();
+                        renderSuggestions(data.sugestoes, wrapper, input);
+                    } catch (err) {
+                        console.error('Error fetching suggestions:', err);
+                    }
+                }, 300);
+            });
+
+            // Close when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!input.contains(e.target) && !wrapper.contains(e.target)) {
+                    wrapper.style.display = 'none';
+                }
+            });
+        };
+
+        const renderSuggestions = (sugestoes, wrapper, input) => {
+            if (sugestoes.length === 0) {
+                wrapper.style.display = 'none';
+                return;
+            }
+
+            wrapper.innerHTML = `
+                <div class="suggestions-list">
+                    ${sugestoes.map(s => `
+                        <a href="${s.url}" class="suggestion-item">
+                            <div class="info">
+                                <span class="title">${s.titulo}</span>
+                                <span class="subtitle">${s.centro}</span>
+                            </div>
+                            <i class="feather-arrow-up-left"></i>
+                        </a>
+                    `).join('')}
+                    <div class="suggestions-footer">
+                        <button type="submit" class="view-all-btn">
+                            {% trans "Pesquisar por" %} "${input.value}"
+                        </button>
+                    </div>
+                </div>
+            `;
+            wrapper.style.display = 'block';
+
+            // Handle footer click
+            wrapper.querySelector('.view-all-btn').addEventListener('click', () => {
+                input.closest('form').submit();
+            });
+        };
+
+        // Initialize all search fields with autocomplete
+        document.querySelectorAll('.rbt-search-autocomplete').forEach(setupAutocomplete);
+
+
         const trigger = document.getElementById('installAppBtn');
         if (trigger) {
             trigger.addEventListener('click', () => {
@@ -528,6 +645,135 @@
         align-items: center;
         gap: 15px;
     }
+
+    /* Search Suggestions Styles */
+    .search-form-with-suggestions {
+        position: relative;
+    }
+
+    .search-suggestions-wrapper {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--color-white);
+        border: 1px solid var(--color-border);
+        border-radius: 0 0 12px 12px;
+        box-shadow: var(--shadow-2);
+        z-index: 1000;
+        display: none;
+        overflow: hidden;
+        margin-top: -2px;
+    }
+
+    .suggestions-list {
+        padding: 10px 0;
+    }
+
+    .suggestion-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 20px;
+        transition: all 0.2s;
+        border-bottom: 1px solid var(--color-border-2);
+        color: var(--color-heading);
+    }
+
+    .suggestion-item:last-of-type {
+        border-bottom: none;
+    }
+
+    .suggestion-item:hover {
+        background-color: var(--color-primary-lighter);
+        color: var(--color-primary);
+        padding-left: 25px;
+    }
+
+    .suggestion-item .info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .suggestion-item .title {
+        font-weight: 600;
+        font-size: 15px;
+        display: block;
+    }
+
+    .suggestion-item .subtitle {
+        font-size: 12px;
+        color: var(--color-body);
+        opacity: 0.8;
+    }
+
+    .suggestion-item i {
+        font-size: 14px;
+        opacity: 0.5;
+    }
+
+    .suggestions-footer {
+        background: var(--color-gray-light);
+        padding: 10px 20px;
+        border-top: 1px solid var(--color-border);
+    }
+
+    .view-all-btn {
+        background: none;
+        border: none;
+        color: var(--color-primary);
+        font-weight: 600;
+        font-size: 13px;
+        padding: 0;
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+    }
+
+    .view-all-btn:hover {
+        text-decoration: underline;
+    }
+
+    /* Target Dark Mode */
+    .active-dark-mode .suggestion-item:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    .active-dark-mode .suggestions-footer {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    /* DARK MODE MOBILE MENU FIXES */
+    .active-dark-mode .popup-mobile-menu .inner-wrapper {
+        background-color: #1a1a1a !important;
+        color: #ffffff !important;
+    }
+
+    .active-dark-mode .popup-mobile-menu .inner-top .description {
+        color: rgba(255, 255, 255, 0.7) !important;
+    }
+
+    .active-dark-mode .popup-mobile-menu .mainmenu-nav .mainmenu li a {
+        color: #ffffff !important;
+        border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .active-dark-mode .popup-mobile-menu .mainmenu-nav .mainmenu li a:hover {
+        color: var(--color-primary) !important;
+    }
+
+    .active-dark-mode .popup-mobile-menu .rbt-btn-close .close-button {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+    }
+
+    .active-dark-mode .popup-mobile-menu .rbt-btn-close .close-button:hover {
+        background-color: var(--color-primary) !important;
+    }
+
+    .active-dark-mode .popup-mobile-menu .social-share-wrapper .rbt-short-title {
+        color: #ffffff !important;
+    }
 </style>
 
 {% if post %}
@@ -540,6 +786,4 @@
 {% endif %}
 {% endif %}
 
-{% if not request.user.is_authenticated %}
-    {% include "include/auth_modal.html" %}
-{% endif %}
+

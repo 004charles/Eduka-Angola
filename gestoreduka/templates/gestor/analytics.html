@@ -1,169 +1,159 @@
-{% extends 'base_gestor.html' %}
+{% extends 'gestor_base.html' %}
 {% load static %}
 
-{% block title %}Analytics e Métricas - {{ centro.nome }}{% endblock %}
-
 {% block content %}
-<div class="dashboard-body">
-    <div class="breadcrumb mb-24 flex-between flex-wrap gap-16">
-        <div>
-            <h4 class="mb-4">Inteligência de Negócio</h4>
-            <ul class="flex-align gap-4">
-                <li><a href="{% url 'centro_dashboard' %}" class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
-                <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
-                <li><span class="text-main-600 fw-normal text-15">Analytics</span></li>
-            </ul>
-        </div>
-        <div class="flex-align gap-12">
-            <button class="btn btn-outline-gray px-16 py-10 rounded-12 fw-bold d-flex align-items-center gap-8 shadow-sm">
-                <i class="ph ph-calendar text-lg"></i> Últimos 30 dias
-            </button>
-            <button class="btn btn-primary-600 px-20 py-10 rounded-12 fw-bold d-flex align-items-center gap-8 shadow-sm">
-                <i class="ph ph-download-simple text-lg"></i> Exportar PDF
-            </button>
+<div class="flex flex-col gap-5 lg:gap-7.5">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-xl font-bold text-foreground">Analytics e Performance</h1>
+            <p class="text-sm text-secondary-foreground">Consulte métricas detalhadas sobre o crescimento e a receita do seu centro educacional.</p>
         </div>
     </div>
 
-    <!-- Stats Grid -->
-    <div class="row gy-4 mb-32">
-        <div class="col-xxl-3 col-sm-6">
-            <div class="card premium-card border-0 shadow-sm h-100 p-24">
-                <div class="flex-between align-items-start mb-16">
-                    <div class="w-48 h-48 rounded-12 bg-success-50 text-success-600 flex-center shadow-sm">
-                        <i class="ph ph-currency-circle-dollar fw-bold text-2xl"></i>
-                    </div>
-                    <span class="badge bg-success-50 text-success-600 text-11 rounded-pill px-8 py-4">+12.5%</span>
-                </div>
-                <div>
-                    <span class="text-gray-400 text-13 fw-medium uppercase letter-spacing-05">Receita Bruta</span>
-                    <h3 class="mb-4 mt-4 fw-bold text-gray-900">{{ receita_mes|floatformat:2 }} <small class="text-14 fw-normal">KZ</small></h3>
-                    <p class="mb-0 text-12 text-gray-500">Referente aos últimos 30 dias</p>
+    <!-- Overview Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-7.5">
+        
+        <!-- Receita 30 Dias -->
+        <div class="kt-card flex flex-col p-5 bg-background border border-border rounded-xl shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-sm font-medium text-secondary-foreground">Receita (Últimos 30 dias)</span>
+                <div class="flex items-center justify-center size-10 rounded-full bg-success/10 text-success">
+                    <i class="ki-filled ki-wallet text-2xl"></i>
                 </div>
             </div>
-        </div>
-        <div class="col-xxl-3 col-sm-6">
-            <div class="card premium-card border-0 shadow-sm h-100 p-24">
-                <div class="flex-between align-items-start mb-16">
-                    <div class="w-48 h-48 rounded-12 bg-primary-50 text-primary-600 flex-center shadow-sm">
-                        <i class="ph ph-user-plus fw-bold text-2xl"></i>
-                    </div>
-                    <span class="badge bg-primary-50 text-primary-600 text-11 rounded-pill px-8 py-4">+8.2%</span>
-                </div>
-                <div>
-                    <span class="text-gray-400 text-13 fw-medium uppercase letter-spacing-05">Novas Inscrições</span>
-                    <h3 class="mb-4 mt-4 fw-bold text-gray-900">{{ inscricoes_mes }}</h3>
-                    <p class="mb-0 text-12 text-gray-500">Novos alunos matriculados</p>
-                </div>
+            <div class="flex flex-col gap-1">
+                <span class="text-2xl font-bold text-foreground">{{ receita_mes|floatformat:2 }} Kz</span>
+                <span class="text-xs text-muted-foreground">Valor total em pagamentos confirmados.</span>
             </div>
         </div>
-        <div class="col-xxl-3 col-sm-6">
-            <div class="card premium-card border-0 shadow-sm h-100 p-24">
-                <div class="flex-between align-items-start mb-16">
-                    <div class="w-48 h-48 rounded-12 bg-purple-50 text-purple-600 flex-center shadow-sm">
-                        <i class="ph ph-users-three fw-bold text-2xl"></i>
-                    </div>
-                    <span class="badge bg-gray-50 text-gray-600 text-11 rounded-pill px-8 py-4">Estável</span>
-                </div>
-                <div>
-                    <span class="text-gray-400 text-13 fw-medium uppercase letter-spacing-05">Total de Alunos</span>
-                    <h3 class="mb-4 mt-4 fw-bold text-gray-900">{{ total_inscricoes }}</h3>
-                    <p class="mb-0 text-12 text-gray-500">Base histórica da instituição</p>
+
+        <!-- Inscrições 30 Dias -->
+        <div class="kt-card flex flex-col p-5 bg-background border border-border rounded-xl shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-sm font-medium text-secondary-foreground">Novas Inscrições (30 dias)</span>
+                <div class="flex items-center justify-center size-10 rounded-full bg-primary/10 text-primary">
+                    <i class="ki-filled ki-people text-2xl"></i>
                 </div>
             </div>
-        </div>
-        <div class="col-xxl-3 col-sm-6">
-            <div class="card premium-card border-0 shadow-sm h-100 p-24">
-                <div class="flex-between align-items-start mb-16">
-                    <div class="w-48 h-48 rounded-12 bg-amber-50 text-amber-600 flex-center shadow-sm">
-                        <i class="ph ph-graduation-cap fw-bold text-2xl"></i>
-                    </div>
-                </div>
-                <div>
-                    <span class="text-gray-400 text-13 fw-medium uppercase letter-spacing-05">Cursos em Oferta</span>
-                    <h3 class="mb-4 mt-4 fw-bold text-gray-900">{{ centro.cursos.count }}</h3>
-                    <p class="mb-0 text-12 text-gray-500">Catálogo atualizado</p>
-                </div>
+            <div class="flex flex-col gap-1">
+                <span class="text-2xl font-bold text-foreground">+ {{ inscricoes_mes }}</span>
+                <span class="text-xs text-muted-foreground">Novos alunos atraídos este mês.</span>
             </div>
         </div>
+
+        <!-- Total Alunos Ativos -->
+        <div class="kt-card flex flex-col p-5 bg-background border border-border rounded-xl shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-sm font-medium text-secondary-foreground">Total Alunos Ativos</span>
+                <div class="flex items-center justify-center size-10 rounded-full bg-info/10 text-info">
+                    <i class="ki-filled ki-profile-circle text-2xl"></i>
+                </div>
+            </div>
+            <div class="flex flex-col gap-1">
+                <span class="text-2xl font-bold text-foreground">{{ total_inscricoes }}</span>
+                <span class="text-xs text-muted-foreground">Matrículas confirmadas no sistema.</span>
+            </div>
+        </div>
+
+        <!-- Taxa de Conversão (Placeholder) -->
+        <div class="kt-card flex flex-col p-5 bg-background border border-border rounded-xl shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-sm font-medium text-secondary-foreground">Taxa de Conversão</span>
+                <div class="flex items-center justify-center size-10 rounded-full bg-warning/10 text-warning">
+                    <i class="ki-filled ki-chart-line-star text-2xl"></i>
+                </div>
+            </div>
+            <div class="flex flex-col gap-1">
+                <span class="text-2xl font-bold text-foreground">-- %</span>
+                <span class="text-xs text-muted-foreground">Métrica em processamento.</span>
+            </div>
+        </div>
+
     </div>
 
-    <!-- Performance Table -->
-    <div class="card premium-card border-0 shadow-sm overflow-hidden">
-        <div class="card-header bg-white border-bottom border-gray-50 py-20 px-24">
-            <h5 class="mb-0 text-gray-900">Performance por Curso <small class="text-gray-400 fw-normal text-14 ms-8">(Top 5 Populares)</small></h5>
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table style-two mb-0">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="ps-24">Curso / Especialidade</th>
-                            <th>Alunos Ativos</th>
-                            <th>Modalidade</th>
-                            <th>Status no Portal</th>
-                            <th class="text-center pe-24">Engajamento</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for curso in top_cursos %}
-                        <tr class="transition-all hover-bg-gray-50">
-                            <td class="ps-24">
-                                <div class="flex-align gap-12">
-                                    {% if curso.imagem %}
-                                    <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}" class="w-44 h-44 rounded-10 object-fit-cover shadow-sm">
-                                    {% else %}
-                                    <div class="w-44 h-44 rounded-10 bg-primary-50 text-primary-600 flex-center shadow-sm">
-                                        <i class="ph ph-book-open fw-bold text-xl"></i>
+    <!-- Top Cursos e Gráficos -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-7.5">
+        
+        <!-- Lista de Melhores Cursos -->
+        <div class="lg:col-span-2 kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm">
+            <div class="flex items-center justify-between border-b border-border px-5 py-4">
+                <h3 class="font-semibold text-base text-foreground">Top 5 Cursos com Maior Aderência</h3>
+            </div>
+            <div class="p-0">
+                <div class="overflow-x-auto">
+                    <table class="table-auto w-full text-left text-sm whitespace-nowrap">
+                        <thead class="text-xs text-muted-foreground bg-accent/5">
+                            <tr>
+                                <th class="px-5 py-3 font-medium">Curso</th>
+                                <th class="px-5 py-3 font-medium text-center">Matrículas Ativas</th>
+                                <th class="px-5 py-3 font-medium text-right">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border">
+                            {% for curso in top_cursos %}
+                            <tr class="hover:bg-accent/20">
+                                <td class="px-5 py-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="size-8 rounded bg-primary/10 flex items-center justify-center text-[10px] font-bold">
+                                            {{ forloop.counter }}
+                                        </div>
+                                        <span class="font-semibold text-foreground">{{ curso.titulo }}</span>
                                     </div>
-                                    {% endif %}
-                                    <div>
-                                        <h6 class="mb-0 text-15 fw-bold text-gray-900">{{ curso.titulo }}</h6>
-                                        <span class="text-12 text-gray-400">{{ curso.categoria.nome }}</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="d-flex align-items-center gap-8">
-                                    <i class="ph ph-student text-primary-600"></i>
-                                    <span class="text-14 fw-bold text-gray-700">{{ curso.num_alunos }}</span>
-                                </div>
-                            </td>
-                            <td>
-                                <span class="text-13 py-4 px-10 bg-gray-50 text-gray-600 rounded-pill fw-medium border border-gray-100">{{ curso.get_modalidade_display }}</span>
-                            </td>
-                            <td>
-                                {% if curso.publicado %}
-                                <span class="text-12 py-6 px-12 bg-success-50 text-success-600 rounded-pill fw-bold d-inline-flex align-items-center gap-6">
-                                    <span class="w-6 h-6 bg-success-600 rounded-circle animate-pulse"></span> Ativo
-                                </span>
-                                {% else %}
-                                <span class="text-12 py-6 px-12 bg-warning-50 text-warning-600 rounded-pill fw-bold d-inline-flex align-items-center gap-6">
-                                    <span class="w-6 h-6 bg-warning-600 rounded-circle"></span> Rascunho
-                                </span>
-                                {% endif %}
-                            </td>
-                            <td class="text-center pe-24">
-                                <div class="d-flex align-items-center justify-content-center gap-12">
-                                    <div class="progress h-4 w-60 rounded-pill bg-gray-100">
-                                        <div class="progress-bar bg-primary-600" style="width: 85%"></div>
-                                    </div>
-                                    <span class="text-11 fw-bold text-gray-400">85%</span>
-                                </div>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center py-60">
-                                <p class="text-gray-400 mb-0">Dados insuficientes para gerar o ranking.</p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                                </td>
+                                <td class="px-5 py-3 text-center">
+                                    <span class="kt-badge kt-badge-sm kt-badge-primary kt-badge-outline">{{ curso.num_alunos }} alunos</span>
+                                </td>
+                                <td class="px-5 py-3 text-right">
+                                    <a href="{% url 'curso_overview' curso.id %}" class="text-primary hover:text-primary-active text-xs font-semibold">Ver Detalhes</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="px-5 py-10 text-center text-muted-foreground">Sem dados suficientes para gerar o Top 5.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+
+        <!-- Insights -->
+        <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm p-6 bg-primary/[0.02]">
+            <h3 class="font-semibold text-base mb-4 text-foreground">Insights Rápidos</h3>
+            <div class="flex flex-col gap-6">
+                <div class="flex gap-4">
+                    <div class="shrink-0 size-8 rounded-lg bg-info/10 text-info flex items-center justify-center">
+                        <i class="ki-filled ki-information-2"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-sm font-bold text-foreground">Pico de Inscrições</span>
+                        <p class="text-xs text-muted-foreground">As inscrições costumam aumentar nos fins-de-semana.</p>
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <div class="shrink-0 size-8 rounded-lg bg-warning/10 text-warning flex items-center justify-center">
+                        <i class="ki-filled ki-chart-line"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-sm font-bold text-foreground">Tendência</span>
+                        <p class="text-xs text-muted-foreground">O curso mais popular cresceu 15% em relação ao mês anterior.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-auto pt-6">
+                <div class="p-4 rounded-xl bg-primary text-primary-foreground flex flex-col gap-2">
+                    <span class="text-sm font-bold">Queres crescer mais?</span>
+                    <p class="text-xs opacity-90">Crie campanhas de desconto para os cursos com menor aderência.</p>
+                    <a href="{% url 'criar_curso' %}" class="mt-2 text-xs font-bold underline">Criar novo curso →</a>
+                </div>
+            </div>
+        </div>
+
     </div>
+
 </div>
-{% endblock %}
-
-{% include 'include/java_gestor.html' %}
+{% endblock content %}

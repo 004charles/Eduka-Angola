@@ -1,7 +1,10 @@
 from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
+from django.contrib import messages
 # from django.contrib.gis.geos import Point
 # from django.contrib.gis.db.models.functions import Distance
 # from django.contrib.gis.measure import D
+from django.core.exceptions import ObjectDoesNotExist
 from gestoreduka.models import CentroDeFormacao
 from usuarios.models import Aluno, PerfilAluno
 
@@ -12,11 +15,22 @@ from usuarios.models import Aluno, PerfilAluno
 def aluno_logado_e_centros(view_func):
     def _wrapped_view(request, *args, **kwargs):
         if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
-            return redirect('/auth/login_aluno/?status=4')
+            return redirect(f'/auth/login_aluno/?status=4&next={request.path}')
 
+        # Tentativa de obter ou criar o perfil de Aluno caso falte
         try:
             aluno = request.user.aluno_profile
-        except AttributeError:
+        except (AttributeError, Aluno.DoesNotExist, ObjectDoesNotExist):
+            # Se é um usuário do tipo ALUNO mas não tem o objeto Aluno, criamos agora
+            aluno, created = Aluno.objects.get_or_create(
+                usuario=request.user,
+                defaults={
+                    'nome': request.user.nome or request.user.email,
+                    'ativo': True
+                }
+            )
+        
+        if not aluno:
             return redirect('/auth/login_aluno/?status=4')
 
         perfil, created = PerfilAluno.objects.get_or_create(aluno=aluno)
@@ -58,6 +72,12 @@ def aluno_logado_e_centros(view_func):
         request.aluno_obj = aluno
         request.perfil = perfil
         request.centros = centros
+
+        # Restrição de Documentos: Se faltarem documentos e o utilizador não estiver no perfil
+        if request.path != reverse('aluno_perfil') and not request.path.startswith('/auth/logout'):
+            if not perfil.bilhete_frente or not perfil.bilhete_verso:
+                messages.warning(request, "Ação Necessária: Termine o seu cadastro importando o seu Bilhete de Identidade (Frente e Verso) antes de continuar.")
+                return redirect('aluno_perfil')
 
         return view_func(request, *args, **kwargs)
 

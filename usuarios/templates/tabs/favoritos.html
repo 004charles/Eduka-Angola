@@ -1,0 +1,51 @@
+{% load static %}
+<div class="rbt-dashboard-content bg-color-white rbt-shadow-box">
+    <div class="content">
+        <div class="section-title">
+            <h4 class="rbt-title-style-3">Cursos Favoritos</h4>
+            <p>Seus cursos marcados para ver mais tarde.</p>
+        </div>
+
+        <div class="row g-5">
+            {% if favoritos_lista %}
+                {% for favorito in favoritos_lista %}
+                <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+                    <div class="rbt-card variation-01 rbt-hover">
+                        <div class="rbt-card-img">
+                            <a href="{% url 'curso_detalhe' favorito.curso.id %}">
+                                {% if favorito.curso.imagem %}
+                                    <img src="{{ favorito.curso.imagem.url }}" alt="{{ favorito.curso.nome }}">
+                                {% else %}
+                                    <img src="{% static 'assets/images/course/course-online-01.jpg' %}" alt="{{ favorito.curso.nome }}">
+                                {% endif %}
+                            </a>
+                        </div>
+                        <div class="rbt-card-body">
+                            <div class="rbt-card-top">
+                                <div class="rbt-bookmark-btn">
+                                    <button class="rbt-round-btn favorite-btn favorito-ativo" data-id="{{ favorito.curso.id }}" title="Remover dos Favoritos">
+                                        <i class="feather-bookmark"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <h5 class="rbt-card-title"><a href="{% url 'curso_detalhe' favorito.curso.id %}">{{ favorito.curso.nome }}</a></h5>
+                            <div class="rbt-card-bottom">
+                                <div class="rbt-price">
+                                    <span class="current-price">{{ favorito.curso.preco|default:"Grátis" }}</span>
+                                </div>
+                                <a class="rbt-btn-link" href="{% url 'curso_detalhe' favorito.curso.id %}">Ver Mais<i class="feather-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center py-5">
+                    <i class="feather-bookmark mb--20" style="font-size: 50px; color: #ccc;"></i>
+                    <p>Você ainda não salvou nenhum curso como favorito.</p>
+                    <a href="{% url 'buscar_centros' %}" class="rbt-btn btn-sm btn-gradient">Explorar Cursos</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

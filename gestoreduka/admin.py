@@ -53,6 +53,44 @@ def aprovar_depoimentos(modeladmin, request, queryset):
     queryset.update(aprovado=True)
 aprovar_depoimentos.short_description = "Aprovar depoimentos selecionados"
 
+def enviar_convite_centro(modeladmin, request, queryset):
+    from django.core.mail import EmailMultiAlternatives
+    from django.template.loader import render_to_string
+    from django.utils.html import strip_tags
+    from django.conf import settings
+    from .models import ConviteCentro
+    import uuid
+
+    invites_sent = 0
+    for centro in queryset:
+        convite, created = ConviteCentro.objects.get_or_create(centro=centro)
+        # Se já foi usado, não reenviar (opcional, ou gerar novo token se quiser forçar)
+        if convite.usado:
+            continue
+            
+        site_domain = getattr(settings, 'SITE_DOMAIN', 'http://127.0.0.1:8000')
+        link = f"{site_domain}/gestoreduka/cadastro/confirmar/{convite.token}/"
+        
+        subject = 'Convite para EdukAngola - Complete seu Registro'
+        html_content = render_to_string('emails/convite_centro.html', {
+            'link_convite': link,
+            'email_centro': centro.email
+        })
+        text_content = strip_tags(html_content)
+        
+        try:
+            email = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [centro.email])
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+            invites_sent += 1
+        except Exception as e:
+            modeladmin.message_user(request, f"Erro ao enviar para {centro.email}: {str(e)}", level='error')
+    
+    if invites_sent > 0:
+        modeladmin.message_user(request, f"{invites_sent} convites enviados com sucesso.")
+
+enviar_convite_centro.short_description = "Enviar convite de registro por e-mail"
+
 # ========== INLINES ==========
 class CertificacaoInline(admin.TabularInline):
     model = Certificacao
@@ -156,21 +194,23 @@ class CentroDeFormacaoAdmin(admin.ModelAdmin):
     list_filter = [CentroAtivoFilter, 'data_criacao']
     search_fields = ['nome', 'email', 'nif', 'telefone']
     readonly_fields = ['data_criacao', 'senha_hash_display']
-    actions = [ativar_centros, desativar_centros]
+    actions = [ativar_centros, desativar_centros, enviar_convite_centro]
     
+    def get_fields(self, request, obj=None):
+        if obj is None:  # Formulário de Adição
+            return ['email']
+        return ['nome', 'nif', 'email', 'telefone', 'endereco', 'site', 'ativo', 'data_criacao']
+
     fieldsets = (
-        ('Informações Básicas', {
-            'fields': (
-                'nome', 'nif', 'email', 'telefone', 
-                'endereco', 'site', 'ativo'
-            )
+        ('Informações do Convite', {
+            'fields': ('email',)
         }),
-        ('Segurança', {
-            'fields': ('senha_hash_display',),
+        ('Dados Institucionais (Preenchidos pelo Centro)', {
+            'fields': ('nome', 'nif', 'telefone', 'endereco', 'site', 'ativo'),
             'classes': ('collapse',)
         }),
-        ('Metadados', {
-            'fields': ('data_criacao',),
+        ('Segurança e Sistema', {
+            'fields': ('senha_hash_display', 'data_criacao'),
             'classes': ('collapse',)
         }),
     )

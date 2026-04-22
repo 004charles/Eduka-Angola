@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="h-full" data-kt-theme="true" data-kt-theme-mode="light" dir="ltr" lang="pt">
+ <head>
+  <title>
+   GestorEduka - {% block title %}Autenticação{% endblock %}
+  </title>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+  <link href="{% static 'metronic/assets/vendors/keenicons/styles.bundle.css' %}" rel="stylesheet"/>
+  <link href="{% static 'metronic/assets/css/styles.css' %}" rel="stylesheet"/>
+  
+  <style>
+    .page-bg {
+        background-image: url('{% static "gestoreduka/media/app/auth_bg.png" %}');
+        background-size: cover;
+        background-position: center;
+    }
+    .auth-overlay {
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(4px);
+    }
+  </style>
+ </head>
+ <body class="antialiased flex h-full text-base text-foreground bg-background">
+  
+  <div class="flex items-center justify-center grow page-bg relative">
+    <div class="absolute inset-0 auth-overlay"></div>
+    
+    <div class="relative z-10 w-full flex items-center justify-center px-4">
+        {% block content %}{% endblock %}
+    </div>
+  </div>
+
+  <script src="{% static 'metronic/assets/js/core.bundle.js' %}"></script>
+  <script src="{% static 'metronic/assets/vendors/ktui/ktui.min.js' %}"></script>
+ </body>
+</html>

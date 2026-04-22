@@ -1,0 +1,43 @@
+{% for msg in mensagens %}
+<div class="flex {% if msg.remetente_centro %}justify-end{% else %}justify-start{% endif %}" data-message-id="{{ msg.id }}">
+    <div class="flex flex-col gap-1.5 max-w-[75%] {% if msg.remetente_centro %}items-end{% else %}items-start{% endif %}">
+        <div class="px-4 py-3 rounded-2xl text-sm shadow-sm
+            {% if msg.remetente_centro %}
+                bg-primary text-primary-foreground rounded-te-none
+            {% else %}
+                bg-background border border-border text-foreground rounded-ts-none
+            {% endif %}">
+            
+            {% if msg.tipo == 'IMAGEM' and msg.arquivo %}
+                <div class="mb-2">
+                    <a href="{{ msg.arquivo.url }}" target="_blank">
+                        <img src="{{ msg.arquivo.url }}" class="rounded-lg max-w-full max-h-[250px] object-cover hover:opacity-90 transition-opacity" alt="Imagem enviada">
+                    </a>
+                </div>
+            {% elif msg.tipo == 'ARQUIVO' and msg.arquivo %}
+                <div class="flex items-center gap-3 mb-2 p-2 bg-black/5 rounded-lg border border-black/10">
+                    <i class="ki-filled ki-file text-2xl"></i>
+                    <div class="flex flex-col overflow-hidden">
+                        <span class="text-xs font-bold truncate">{{ msg.arquivo.name|truncatechars:20 }}</span>
+                        <a href="{{ msg.arquivo.url }}" class="text-[10px] underline hover:no-underline" target="_blank">Download</a>
+                    </div>
+                </div>
+            {% endif %}
+            
+            {% if msg.mensagem %}
+                <div>{{ msg.mensagem }}</div>
+            {% endif %}
+        </div>
+        <div class="flex items-center gap-1">
+            <span class="text-[10px] text-muted-foreground font-medium">{{ msg.data_envio|date:"H:i" }}</span>
+            {% if msg.remetente_centro %}
+                {% if msg.lida %}
+                    <i class="ki-filled ki-double-check text-[10px] text-success"></i>
+                {% else %}
+                    <i class="ki-filled ki-check text-[10px] text-muted-foreground"></i>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endfor %}

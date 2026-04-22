@@ -1,0 +1,107 @@
+{% load static %}
+<div class="rbt-dashboard-content bg-color-white rbt-shadow-box">
+    <div class="content">
+        <div class="section-title">
+            <h4 class="rbt-title-style-3">Meu Depoimento</h4>
+            <p>Sua opinião é fundamental para melhorarmos nossa plataforma.</p>
+        </div>
+
+        <form action="{% url 'enviar_depoimento' %}" method="POST" class="rbt-default-form row row--15">
+            {% csrf_token %}
+            <div class="col-lg-12">
+                <div class="rbt-form-group">
+                    <label for="tipo_depoimento">Sobre o que é seu depoimento?</label>
+                    <select id="tipo_depoimento" name="tipo" class="w-100" onchange="toggleCentro(this.value)">
+                        <option value="PLATAFORMA">Sobre a Plataforma EdukAngola</option>
+                        <option value="CENTRO">Sobre um Centro de Formação</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-lg-12" id="centro_selection" style="display: none;">
+                <div class="rbt-form-group">
+                    <label for="centro">Escolha o Centro</label>
+                    <select id="centro" name="centro" class="w-100">
+                        <option value="">Selecione um centro...</option>
+                        {% for centro in centros_inscritos %}
+                            <option value="{{ centro.id }}">{{ centro.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-lg-12">
+                <div class="rbt-form-group">
+                    <label for="nota">Nota (1 a 5 estrelas)</label>
+                    <select id="nota" name="nota" class="w-100">
+                        <option value="5">5 estrelas - Excelente</option>
+                        <option value="4">4 estrelas - Muito Bom</option>
+                        <option value="3">3 estrelas - Regular</option>
+                        <option value="2">2 estrelas - Ruim</option>
+                        <option value="1">1 estrela - Péssimo</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="rbt-form-group">
+                    <label for="texto">Seu Depoimento</label>
+                    <textarea id="texto" name="texto" cols="20" rows="5" placeholder="Escreva aqui sua experiência..." required></textarea>
+                </div>
+            </div>
+
+            <div class="col-12 mt--20">
+                <div class="rbt-form-group">
+                    <button type="submit" class="rbt-btn btn-gradient">Enviar Depoimento</button>
+                </div>
+            </div>
+            
+            <p class="mt--10" style="font-size: 14px; color: #777;">* Seu depoimento passará por uma revisão antes de ser publicado.</p>
+        </form>
+
+        {% if meus_depoimentos %}
+        <div class="section-title mt--40">
+            <h4 class="rbt-title-style-3">Meus Depoimentos Enviados</h4>
+        </div>
+        <div class="rbt-dashboard-table table-responsive">
+            <table class="rbt-table table table-borderless">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Tipo</th>
+                        <th>Status</th>
+                        <th>Nota</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dep in meus_depoimentos %}
+                    <tr>
+                        <td>{{ dep.data|date:"d/m/Y" }}</td>
+                        <td>{{ dep.get_tipo_display }}</td>
+                        <td>
+                            {% if dep.aprovado %}
+                                <span class="badge bg-success">Aprovado</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Pendente</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ dep.nota }} ⭐</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function toggleCentro(val) {
+        const div = document.getElementById('centro_selection');
+        if (val === 'CENTRO') {
+            div.style.display = 'block';
+        } else {
+            div.style.display = 'none';
+        }
+    }
+</script>

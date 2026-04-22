@@ -1,27 +1,362 @@
 {% load static %}
 {% load i18n %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Edukangola | home</title>
-    <meta name="robots" content="noindex, follow">
-    <meta name="description" content="">
+    <title>Edukangola | Centros de Formação</title>
+    <meta name="description" content="Descubra os melhores centros de formação profissional em Angola. Qualidade certificada, instrutores experientes e cursos reconhecidos.">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
-    <!-- Ícones -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
-    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-
 
     {% include 'include/css.html' %}
-    
 
+    <style>
+        /* ============================================
+           HERO REFINEMENTS
+        ============================================ */
+        .centro-hero-stats {
+            display: flex;
+            gap: 32px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .centro-hero-stats .stat-item {
+            text-align: center;
+        }
+        .centro-hero-stats .stat-item .num {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--color-primary);
+            line-height: 1;
+        }
+        .centro-hero-stats .stat-item .label {
+            font-size: 0.75rem;
+            color: var(--color-body);
+            margin-top: 4px;
+        }
+
+        /* ============================================
+           SEARCH & FILTER BAR
+        ============================================ */
+        .centro-filter-area {
+            background: var(--color-white);
+            box-shadow: 0 4px 30px rgba(0,0,0,0.08);
+            border-radius: 16px;
+            padding: 28px 32px;
+            margin-top: -40px;
+            position: relative;
+            z-index: 10;
+        }
+        .centro-filter-area .filter-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--color-body);
+            margin-bottom: 12px;
+        }
+        .centro-search-input {
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            padding: 12px 18px;
+            width: 100%;
+            font-size: 0.95rem;
+            transition: border-color 0.2s ease;
+            background: var(--color-lightest);
+        }
+        .centro-search-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            background: var(--color-white);
+        }
+        .centro-filter-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .centro-pill {
+            padding: 7px 18px;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            border: 1.5px solid var(--color-border);
+            background: transparent;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--color-body);
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .centro-pill:hover,
+        .centro-pill.active {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+            color: #fff;
+        }
+
+        /* ============================================
+           INSTITUTION CARDS (PREMIUM STYLE)
+        ============================================ */
+        .centro-card {
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--color-white);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.07);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .centro-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 48px rgba(0,0,0,0.14);
+        }
+        .centro-card-banner {
+            position: relative;
+            height: 160px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+        }
+        .centro-card-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        .centro-card:hover .centro-card-banner img {
+            transform: scale(1.05);
+        }
+        .centro-card-banner-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.4) 100%);
+        }
+        /* Logo circular sobre o banner */
+        .centro-card-logo-wrapper {
+            position: absolute;
+            bottom: -28px;
+            left: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid var(--color-white);
+            overflow: hidden;
+            background: var(--color-white);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+        }
+        .centro-card-logo-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .centro-card-logo-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--color-primary), #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 800;
+            font-size: 1.3rem;
+        }
+        /* Badge verificado */
+        .centro-verified-badge {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(6px);
+            border-radius: 50px;
+            padding: 4px 12px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #059669;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            letter-spacing: 0.3px;
+        }
+        /* Badge destaque */
+        .centro-featured-badge {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            border-radius: 50px;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.3px;
+        }
+        /* Corpo do card */
+        .centro-card-body {
+            padding: 40px 24px 24px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .centro-card-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--color-heading);
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+        .centro-card-name a {
+            color: inherit;
+            text-decoration: none;
+        }
+        .centro-card-name a:hover {
+            color: var(--color-primary);
+        }
+        .centro-card-meta {
+            font-size: 0.8rem;
+            color: var(--color-body);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .centro-card-desc {
+            font-size: 0.85rem;
+            color: var(--color-body);
+            line-height: 1.6;
+            margin-bottom: 16px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex: 1;
+        }
+        /* Categorias */
+        .centro-card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+        .centro-card-tag {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 50px;
+            background: var(--color-lightest);
+            color: var(--color-primary);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+        }
+        /* Stats */
+        .centro-card-stats {
+            display: flex;
+            gap: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--color-border);
+            margin-top: auto;
+        }
+        .centro-card-stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: var(--color-body);
+        }
+        .centro-card-stat i {
+            color: var(--color-primary);
+            font-size: 0.9rem;
+        }
+        .centro-card-stat strong {
+            color: var(--color-heading);
+            font-weight: 700;
+        }
+        /* CTA button on card */
+        .centro-card-cta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            background: var(--color-lightest);
+            border-top: 1px solid var(--color-border);
+            text-decoration: none;
+            color: var(--color-primary);
+            font-size: 0.82rem;
+            font-weight: 600;
+            transition: background 0.2s ease;
+        }
+        .centro-card-cta:hover {
+            background: var(--color-primary);
+            color: #fff;
+        }
+        .centro-card-cta i {
+            transition: transform 0.2s ease;
+        }
+        .centro-card:hover .centro-card-cta i {
+            transform: translateX(4px);
+        }
+
+        /* ============================================
+           EMPTY STATE
+        ============================================ */
+        .centro-empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+        .centro-empty-state i {
+            font-size: 3rem;
+            color: var(--color-border);
+            margin-bottom: 16px;
+            display: block;
+        }
+        .centro-empty-state h4 {
+            font-size: 1.2rem;
+            color: var(--color-heading);
+            margin-bottom: 8px;
+        }
+        .centro-empty-state p {
+            color: var(--color-body);
+            font-size: 0.9rem;
+        }
+
+        /* ============================================
+           SECTION HEADER
+        ============================================ */
+        .centro-section-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .centro-result-count {
+            font-size: 0.85rem;
+            color: var(--color-body);
+            background: var(--color-lightest);
+            padding: 6px 16px;
+            border-radius: 50px;
+        }
+        .centro-result-count strong {
+            color: var(--color-primary);
+        }
+
+        /* ============================================
+           BANNER GRADIENT FALLBACKS
+        ============================================ */
+        .banner-grad-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .banner-grad-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .banner-grad-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .banner-grad-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .banner-grad-5 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .banner-grad-6 { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
+
+        /* ============================================
+           SECTION BG SUBTLE
+        ============================================ */
+        .rbt-section-gapTop { padding-top: 60px; }
+        .rbt-section-gapBottom { padding-bottom: 60px; }
+    </style>
 </head>
 
 <body class="rbt-header-sticky">
@@ -30,33 +365,35 @@
         <ul>
             <li>
                 <a href="javascript: void(0);" data-theme="light" class="setColor light">
-                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode">
-                        Light</span>
+                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode"> Light</span>
                 </a>
             </li>
             <li>
                 <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
-                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span
-                        title="{% trans 'Dark Mode' %}"> {% trans 'Dark' %}</span>
+                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span title="{% trans 'Dark Mode' %}"> {% trans 'Dark' %}</span>
                 </a>
             </li>
         </ul>
     </div>
+
     {% include 'include/header.html' %}
     {% include 'include/loading.html' %}
 
+    <main class="rbt-main-wrapper">
 
-    <main style="margin-top: 13px;" class="rbt-main-wrapper ">
-        <!-- Start Banner Area  -->
+        <!-- ============================
+             HERO / BANNER SECTION
+        ============================= -->
         <div class="rbt-banner-area rbt-banner-19">
             <div class="wrapper">
                 <div class="swiper rbt-banner-activation-2 rbt-slider-animation rbt-arrow-between">
                     <div class="swiper-wrapper">
-                        <!-- Start Single Banner  -->
+
+                        <!-- Slide 1 -->
                         <div class="swiper-slide">
                             <div class="rbt-banner-item bg_image bg_image--24">
                                 <div class="shape-1">
-                                    <img src="{% static 'img/banners/training_center_lab_1_1769959754699.png' %}" alt="Shape">
+                                    <img src="{% static 'img/banners/training_center_lab_1_1769959754699.png' %}" alt="Centros de Formação">
                                 </div>
                                 <div class="container">
                                     <div class="row">
@@ -64,44 +401,31 @@
                                             <div class="inner">
                                                 <h6 class="subtitle">
                                                     <span>
-                                                        <img src="{% static 'assets/images/icons/trustpilot-white.png' %}"
-                                                            alt="trustpilot">
+                                                        <img src="{% static 'assets/images/icons/trustpilot-white.png' %}" alt="trustpilot">
                                                     </span>
-                                                    Centros verificados e avaliados
+                                                    Diretório Oficial EdukaAngola
                                                 </h6>
-                                                <h1 class="title">Centros de Formação de Confiança</h1>
+                                                <h1 class="title">As Melhores Instituições,<br>num Único Lugar.</h1>
                                                 <p class="description">
-                                                    Conectamos estudantes aos melhores centros de formação,
-                                                    com qualidade reconhecida e ensino alinhado ao mercado de trabalho.
+                                                    Aceda a uma rede de centros de formação de excelência em Angola.
+                                                    Qualidade certificada para profissionais que exigem o melhor.
                                                 </p>
                                                 <div class="bottom-content d-flex align-items-center gap-5 flex-wrap">
-                                                    <a class="rbt-btn btn-gradient hover-icon-reverse"
-                                                        href="{% url 'home_cursos' %}">
+                                                    <a class="rbt-btn btn-gradient hover-icon-reverse" href="#centros-lista">
                                                         <span class="icon-reverse-wrapper">
-                                                            <span class="btn-text">Ver Centros</span>
-                                                            <span class="btn-icon"><i
-                                                                    class="feather-arrow-right"></i></span>
-                                                            <span class="btn-icon"><i
-                                                                    class="feather-arrow-right"></i></span>
+                                                            <span class="btn-text">Explorar Instituições</span>
+                                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                                         </span>
                                                     </a>
                                                     <div class="d-flex flex-wrap gap-4 align-items-center">
                                                         <div class="profile-share">
-                                                            <a href="#" class="avatar" data-tooltip="Centro Parceiro">
-                                                                <img src="{% static 'assets/images/shape/art-stu-1.png' %}"
-                                                                    alt="education">
-                                                            </a>
-                                                            <a href="#" class="avatar" data-tooltip="Centro Parceiro">
-                                                                <img src="{% static 'assets/images/shape/art-stu-3.png' %}"
-                                                                    alt="education">
-                                                            </a>
-                                                            <a href="#" class="avatar" data-tooltip="Centro Parceiro">
-                                                                <img src="{% static 'assets/images/shape/art-stu-2.png' %}"
-                                                                    alt="education">
-                                                            </a>
+                                                            <a href="#" class="avatar"><img src="{% static 'assets/images/shape/art-stu-1.png' %}" alt=""></a>
+                                                            <a href="#" class="avatar"><img src="{% static 'assets/images/shape/art-stu-3.png' %}" alt=""></a>
+                                                            <a href="#" class="avatar"><img src="{% static 'assets/images/shape/art-stu-2.png' %}" alt=""></a>
                                                         </div>
                                                         <div>
-                                                            <h6 class="number mb-0">100+</h6>
+                                                            <h6 class="number mb-0">{{ total_centros }}+</h6>
                                                             <p class="number-title">Centros Parceiros</p>
                                                         </div>
                                                     </div>
@@ -112,61 +436,34 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- End Single Banner  -->
 
-                        <!-- Start Single Banner  -->
+                        <!-- Slide 2 -->
                         <div class="swiper-slide">
                             <div class="rbt-banner-item bg_image bg_image--25">
                                 <div class="shape-1">
-                                    <img src="{% static 'assets/images/sala.png' %}" alt="Shape">
+                                    <img src="{% static 'assets/images/sala.png' %}" alt="Laboratório">
                                 </div>
                                 <div class="container">
                                     <div class="row">
                                         <div class="col-12">
                                             <div class="inner">
                                                 <h6 class="subtitle">
-                                                    <span>
-                                                        <img src="{% static 'assets/images/icons/trustpilot-white.png' %}"
-                                                            alt="trustpilot">
-                                                    </span>
-                                                    Formação prática e presencial
+                                                    <span><img src="{% static 'assets/images/icons/trustpilot-white.png' %}" alt="trustpilot"></span>
+                                                    Experiência Prática de Elite
                                                 </h6>
-                                                <h1 class="title">Cursos Presenciais com Qualidade</h1>
+                                                <h1 class="title">Domine o Prático.<br>Torne-se Essencial.</h1>
                                                 <p class="description">
-                                                    Aprenda com instrutores qualificados em centros de formação,
-                                                    com aulas práticas, acompanhamento real e certificação reconhecida.
+                                                    Desenvolva competências críticas em ambientes reais com mentores seniores.
+                                                    Onde a teoria se transforma em autoridade profissional.
                                                 </p>
                                                 <div class="bottom-content d-flex align-items-center gap-5 flex-wrap">
-                                                    <a class="rbt-btn btn-gradient hover-icon-reverse"
-                                                        href="19-modern-university.html#">
+                                                    <a class="rbt-btn btn-gradient hover-icon-reverse" href="#centros-lista">
                                                         <span class="icon-reverse-wrapper">
-                                                            <span class="btn-text">Explorar Cursos</span>
-                                                            <span class="btn-icon"><i
-                                                                    class="feather-arrow-right"></i></span>
-                                                            <span class="btn-icon"><i
-                                                                    class="feather-arrow-right"></i></span>
+                                                            <span class="btn-text">Ver Instituições</span>
+                                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                                         </span>
                                                     </a>
-                                                    <div class="d-flex flex-wrap gap-4 align-items-center">
-                                                        <div class="profile-share">
-                                                            <a href="#" class="avatar" data-tooltip="Estudante">
-                                                                <img src="{% static 'assets/images/shape/art-stu-1.png' %}"
-                                                                    alt="education">
-                                                            </a>
-                                                            <a href="#" class="avatar" data-tooltip="Estudante">
-                                                                <img src="{% static 'assets/images/shape/art-stu-3.png' %}"
-                                                                    alt="education">
-                                                            </a>
-                                                            <a href="#" class="avatar" data-tooltip="Estudante">
-                                                                <img src="{% static 'assets/images/shape/art-stu-2.png' %}"
-                                                                    alt="education">
-                                                            </a>
-                                                        </div>
-                                                        <div>
-                                                            <h6 class="number mb-0">500+</h6>
-                                                            <p class="number-title">Cursos Disponíveis</p>
-                                                        </div>
-                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -174,103 +471,256 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- End Single Banner  -->
 
-                        <!-- Start Single Banner  -->
-                        <div class="swiper-slide">
-                            <div class="rbt-banner-item bg_image bg_image--26">
-                                <div class="shape-1">
-                                    <img src="{% static 'assets/images/video.png' %}" alt="Shape">
-                                </div>
-                                <div class="container">
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="inner">
-                                                <h6 class="subtitle">
-                                                    <span>
-                                                        <img src="{% static 'assets/images/icons/trustpilot-white.png' %}"
-                                                            alt="trustpilot">
-                                                    </span>
-                                                    Aprenda no seu ritmo
-                                                </h6>
-                                                <h1 class="title">Cursos em Vídeo da Plataforma</h1>
-                                                <p class="description">
-                                                    Tenha acesso a cursos em vídeo produzidos pelos centros de formação
-                                                    e especialistas, disponíveis a qualquer hora, em qualquer lugar.
-                                                </p>
-                                                <div class="bottom-content d-flex align-items-center gap-5 flex-wrap">
-                                                    <a class="rbt-btn btn-gradient hover-icon-reverse"
-                                                        href="19-modern-university.html#">
-                                                        <span class="icon-reverse-wrapper">
-                                                            <span class="btn-text">Assistir Aulas</span>
-                                                            <span class="btn-icon"><i
-                                                                    class="feather-arrow-right"></i></span>
-                                                            <span class="btn-icon"><i
-                                                                    class="feather-arrow-right"></i></span>
-                                                        </span>
-                                                    </a>
-                                                    <div class="d-flex flex-wrap gap-4 align-items-center">
-                                                        <div class="profile-share">
-                                                            <a href="#" class="avatar" data-tooltip="Curso em Vídeo">
-                                                                <img src="{% static 'assets/images/shape/art-stu-1.png' %}"
-                                                                    alt="education">
-                                                            </a>
-                                                            <a href="#" class="avatar" data-tooltip="Curso em Vídeo">
-                                                                <img src="{% static 'assets/images/shape/art-stu-3.png' %}"
-                                                                    alt="education">
-                                                            </a>
-                                                            <a href="#" class="avatar" data-tooltip="Curso em Vídeo">
-                                                                <img src="{% static 'assets/images/shape/art-stu-2.png' %}"
-                                                                    alt="education">
-                                                            </a>
-                                                        </div>
-                                                        <div>
-                                                            <h6 class="number mb-0">300+</h6>
-                                                            <p class="number-title">Cursos em Vídeo</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- End Single Banner  -->
                     </div>
 
                     <div class="rbt-slider-control">
                         <div class="rbt-swiper-arrow-2 rbt-arrow-left">
-                            <span class="icon">
-                                <i class="rbt-icon-top feather-arrow-left"></i>
-                            </span>
+                            <span class="icon"><i class="rbt-icon-top feather-arrow-left"></i></span>
                             <span class="text">Anterior</span>
                         </div>
-
                         <div class="rbt-swiper-arrow-2 rbt-arrow-right">
                             <span class="text">Próximo</span>
-                            <span class="icon">
-                                <i class="rbt-icon feather-arrow-right"></i>
-                            </span>
+                            <span class="icon"><i class="rbt-icon feather-arrow-right"></i></span>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
+        <!-- End Banner Area -->
 
-        
+
+        <!-- ============================
+             SEARCH & FILTER AREA
+        ============================= -->
+        <div class="container" id="centros-lista">
+            <div class="centro-filter-area">
+                <form method="GET" action="">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-lg-6">
+                            <p class="filter-title">Pesquisar Instituição</p>
+                            <div class="position-relative">
+                                <input
+                                    type="text"
+                                    name="q"
+                                    value="{{ query }}"
+                                    placeholder="Nome da instituição..."
+                                    class="centro-search-input"
+                                    id="centroSearchInput"
+                                    autocomplete="off"
+                                >
+                                <i class="feather-search" style="position:absolute; right:16px; top:50%; transform:translateY(-50%); color:var(--color-body); pointer-events:none;"></i>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <p class="filter-title">Filtrar por Província</p>
+                            <select name="provincia" class="centro-search-input" id="provinciaSelect" onchange="this.form.submit()">
+                                <option value="">Todas as Províncias</option>
+                                {% for prov in provincias %}
+                                <option value="{{ prov }}" {% if prov == provincia_selecionada %}selected{% endif %}>
+                                    {{ prov }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-lg-2">
+                            <button type="submit" class="rbt-btn btn-gradient w-100" style="height:50px; border-radius:10px;">
+                                <i class="feather-search me-2"></i> Pesquisar
+                            </button>
+                        </div>
+                    </div>
+
+                    {% if provincias %}
+                    <div class="mt-4">
+                        <div class="centro-filter-pills">
+                            <a href="{% url 'lista_centros' %}" class="centro-pill {% if not provincia_selecionada and not query %}active{% endif %}">
+                                Todas
+                            </a>
+                            {% for prov in provincias %}
+                            <a href="?provincia={{ prov }}" class="centro-pill {% if prov == provincia_selecionada %}active{% endif %}">
+                                {{ prov }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+
+
+        <!-- ============================
+             INSTITUTION GRID
+        ============================= -->
+        <div class="rbt-section-gapTop rbt-section-gapBottom">
+            <div class="container">
+
+                <!-- Section Header -->
+                <div class="centro-section-header">
+                    <div class="section-title">
+                        <span class="subtitle bg-primary-opacity">
+                            <i class="feather-grid me-2"></i> Diretório
+                        </span>
+                        <h2 class="title">
+                            {% if query or provincia_selecionada %}
+                                Resultados da Pesquisa
+                            {% else %}
+                                Instituições de Excelência
+                            {% endif %}
+                        </h2>
+                    </div>
+                    <div class="centro-result-count">
+                        <strong>{{ total_centros }}</strong> {% if total_centros == 1 %}instituição encontrada{% else %}instituições encontradas{% endif %}
+                    </div>
+                </div>
+
+                <!-- Cards Grid -->
+                {% if centros %}
+                <div class="row g-4">
+                    {% for centro in centros %}
+                    {% with perfil=centro.perfil forloop_counter=forloop.counter %}
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12">
+                        <div class="centro-card">
+
+                            <!-- Banner -->
+                            <div class="centro-card-banner {% cycle 'banner-grad-1' 'banner-grad-2' 'banner-grad-3' 'banner-grad-4' 'banner-grad-5' 'banner-grad-6' %}">
+                                {% if perfil.banner %}
+                                <img src="{{ perfil.banner.url }}" alt="Banner {{ centro.nome }}">
+                                {% endif %}
+                                <div class="centro-card-banner-overlay"></div>
+
+                                <!-- Logo circular -->
+                                <div class="centro-card-logo-wrapper">
+                                    {% if perfil.imagem %}
+                                    <img src="{{ perfil.imagem.url }}" alt="Logo {{ centro.nome }}">
+                                    {% else %}
+                                    <div class="centro-card-logo-placeholder">
+                                        {{ centro.nome|slice:":1"|upper }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Badges -->
+                                {% if perfil.destaque %}
+                                <span class="centro-featured-badge">
+                                    <i class="feather-star" style="font-size:0.65rem;"></i> Destaque
+                                </span>
+                                {% endif %}
+
+                                {% if perfil.verificado %}
+                                <span class="centro-verified-badge">
+                                    <i class="feather-check-circle" style="font-size:0.75rem;"></i> Verificado
+                                </span>
+                                {% endif %}
+                            </div>
+                            <!-- End Banner -->
+
+                            <!-- Card Body -->
+                            <div class="centro-card-body">
+                                <h5 class="centro-card-name">
+                                    <a href="{% url 'cursos_por_centro' centro.id %}">{{ centro.nome }}</a>
+                                </h5>
+
+                                {% if centro.cidade or centro.provincia %}
+                                <p class="centro-card-meta">
+                                    <i class="feather-map-pin" style="font-size:0.8rem;"></i>
+                                    {{ centro.cidade }}{% if centro.cidade and centro.provincia %}, {% endif %}{{ centro.provincia }}
+                                </p>
+                                {% endif %}
+
+                                {% if perfil.descricao %}
+                                <p class="centro-card-desc">{{ perfil.descricao }}</p>
+                                {% else %}
+                                <p class="centro-card-desc" style="color:var(--color-border);">Sem descrição disponível.</p>
+                                {% endif %}
+
+                                <!-- Categorias -->
+                                {% if centro.categorias.all %}
+                                <div class="centro-card-tags">
+                                    {% for cat in centro.categorias.all|slice:":3" %}
+                                    <span class="centro-card-tag">{{ cat.nome }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+
+                                <!-- Modalidade -->
+                                {% if perfil.modalidade %}
+                                <div class="centro-card-tags">
+                                    <span class="centro-card-tag">
+                                        {% if perfil.modalidade == 'Online' %}
+                                        <i class="feather-wifi" style="font-size:0.65rem;"></i>
+                                        {% elif perfil.modalidade == 'Presencial' %}
+                                        <i class="feather-home" style="font-size:0.65rem;"></i>
+                                        {% else %}
+                                        <i class="feather-layers" style="font-size:0.65rem;"></i>
+                                        {% endif %}
+                                        {{ perfil.modalidade }}
+                                    </span>
+                                </div>
+                                {% endif %}
+
+                                <!-- Stats -->
+                                <div class="centro-card-stats">
+                                    <div class="centro-card-stat">
+                                        <i class="feather-book-open"></i>
+                                        <span><strong>{{ centro.total_cursos }}</strong> Cursos</span>
+                                    </div>
+                                    <div class="centro-card-stat">
+                                        <i class="feather-users"></i>
+                                        <span><strong>{{ perfil.total_seguidores|default:0 }}</strong> Seguidores</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End Card Body -->
+
+                            <!-- CTA -->
+                            <a href="{% url 'cursos_por_centro' centro.id %}" class="centro-card-cta">
+                                <span>Ver Cursos</span>
+                                <i class="feather-arrow-right"></i>
+                            </a>
+
+                        </div>
+                    </div>
+                    {% endwith %}
+                    {% endfor %}
+                </div>
+
+                {% else %}
+                <!-- Empty State -->
+                <div class="centro-empty-state">
+                    <i class="feather-search"></i>
+                    <h4>Nenhuma instituição encontrada</h4>
+                    <p>
+                        {% if query or provincia_selecionada %}
+                            Tente ajustar os filtros ou <a href="{% url 'lista_centros' %}">ver todas as instituições</a>.
+                        {% else %}
+                            Ainda não existem centros de formação registados.
+                        {% endif %}
+                    </p>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+        <!-- End Institution Grid -->
+
+
         {% include 'include/footer.html' %}
-
         {% include 'include/java.html' %}
 
-    </main>   
+    </main>
+
+    <script>
+        // Auto-submit on province select
+        document.getElementById('provinciaSelect')?.addEventListener('change', function() {
+            this.closest('form').submit();
+        });
+
+        // Initialize Feather Icons
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+    </script>
 
 </body>
-
-
-
-
-
-
 </html>

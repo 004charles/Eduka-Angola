@@ -1,190 +1,79 @@
-{% extends 'base_gestor.html' %}
+{% extends 'gestor_base.html' %}
 {% load static %}
 
-{% block title %}Assinaturas e Planos - {{ centro.nome }}{% endblock %}
-
 {% block content %}
-<div class="dashboard-body">
-    <div class="breadcrumb mb-32 flex-between flex-wrap gap-16">
-        <div>
-            <h4 class="mb-4">Gestão de Assinatura</h4>
-            <ul class="flex-align gap-4">
-                <li><a href="{% url 'centro_dashboard' %}" class="text-gray-200 fw-normal text-15 hover-text-main-600">Dashboard</a></li>
-                <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
-                <li><span class="text-main-600 fw-normal text-15">Planos</span></li>
-            </ul>
-        </div>
-        <div class="flex-align gap-8 p-8 bg-white rounded-16 shadow-sm border border-gray-100">
-            <div class="w-40 h-40 rounded-12 bg-amber-50 text-amber-600 flex-center">
-                <i class="ph ph-crown-simple fw-bold text-xl"></i>
-            </div>
-            <div class="pe-16">
-                <p class="mb-0 text-11 text-gray-400 uppercase fw-bold">Status da Conta</p>
-                <p class="mb-0 text-13 fw-bold text-gray-900">{% if assinatura.esta_ativa %}Assinatura Ativa{% else %}Conta Gratuita{% endif %}</p>
-            </div>
+<div class="flex flex-col gap-5 lg:gap-7.5">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-xl font-bold text-foreground">Plano e Assinatura</h1>
+            <p class="text-sm text-secondary-foreground">Gerencie o seu plano de subscrição na plataforma Eduka-Angola e escolha o que melhor se adapta ao seu crescimento.</p>
         </div>
     </div>
 
-    <!-- Current Plan Highlight -->
-    <div class="row mb-40">
-        <div class="col-12">
-            {% if assinatura %}
-            <div class="card premium-card border-0 shadow-lg overflow-hidden position-relative" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
-                <!-- Decorative element -->
-                <div class="position-absolute top-0 end-0 p-0 opacity-10 translate-middle-y mt-40 me-n40" style="font-size: 200px; color: #fff;">
-                    <i class="ph ph-shield-check"></i>
+    <!-- Plano Atual -->
+    <div class="kt-card bg-primary/5 border border-primary/20 rounded-xl overflow-hidden mb-5">
+        <div class="p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="flex items-center gap-5">
+                <div class="size-16 rounded-xl bg-primary flex items-center justify-center text-primary-foreground">
+                    <i class="ki-filled ki-crown text-4xl"></i>
                 </div>
-                <div class="card-body p-40 position-relative z-1">
-                    <div class="row align-items-center">
-                        <div class="col-lg-7">
-                            <span class="badge bg-amber-400 text-gray-900 fw-bold px-16 py-8 rounded-pill mb-24 shadow-sm border border-white border-2">MEU PLANO ATUAL</span>
-                            <h2 class="text-white mb-12 fw-bold">{{ assinatura.plano.nome }}</h2>
-                            <p class="text-gray-400 text-16 mb-32 max-w-500">{{ assinatura.plano.descricao }}</p>
-                            
-                            <div class="row g-3">
-                                <div class="col-sm-6">
-                                    <div class="d-flex align-items-center gap-12 text-white">
-                                        <div class="w-32 h-32 rounded-circle bg-white/10 flex-center text-amber-400">
-                                            <i class="ph ph-check fw-bold"></i>
-                                        </div>
-                                        <span class="text-15 fw-medium">Até {{ assinatura.plano.limite_cursos }} cursos ativos</span>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div class="d-flex align-items-center gap-12 text-white">
-                                        <div class="w-32 h-32 rounded-circle bg-white/10 flex-center text-amber-400">
-                                            <i class="ph ph-check fw-bold"></i>
-                                        </div>
-                                        <span class="text-15 fw-medium">Raio de alcance: {{ assinatura.plano.alcance_km }}km</span>
-                                    </div>
-                                </div>
-                                {% if assinatura.plano.selo_verificacao %}
-                                <div class="col-sm-6">
-                                    <div class="d-flex align-items-center gap-12 text-white">
-                                        <div class="w-32 h-32 rounded-circle bg-white/10 flex-center text-amber-400">
-                                            <i class="ph ph-check fw-bold"></i>
-                                        </div>
-                                        <span class="text-15 fw-medium">Selo de Instituição Verificada</span>
-                                    </div>
-                                </div>
-                                {% endif %}
-                                {% if assinatura.plano.acesso_relatorios %}
-                                <div class="col-sm-6">
-                                    <div class="d-flex align-items-center gap-12 text-white">
-                                        <div class="w-32 h-32 rounded-circle bg-white/10 flex-center text-amber-400">
-                                            <i class="ph ph-check fw-bold"></i>
-                                        </div>
-                                        <span class="text-15 fw-medium">Relatórios e Analytics Pro</span>
-                                    </div>
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="col-lg-5 text-lg-end mt-lg-0 mt-40 border-lg-start border-white/10 ps-lg-40">
-                            <div class="mb-32">
-                                <p class="text-gray-400 text-14 mb-4">Investimento Mensal</p>
-                                <h1 class="text-white mb-0 fw-bold">{{ assinatura.plano.preco|floatformat:2 }} <small class="text-16 fw-normal text-white/50">KZ/mês</small></h1>
-                            </div>
-                            <div class="d-flex flex-wrap justify-content-lg-end gap-12">
-                                <button class="btn btn-white px-24 py-12 rounded-12 fw-bold shadow-sm">
-                                    <i class="ph ph-receipt me-8"></i> Ver Recibos
-                                </button>
-                                <button class="btn btn-outline-white px-24 py-12 rounded-12 fw-bold border-white/20">
-                                    Gerenciar Pagamento
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                <div class="flex flex-col">
+                    <span class="text-xs font-bold text-primary uppercase tracking-widest">Plano Atual</span>
+                    <h2 class="text-2xl font-extrabold text-foreground">{{ assinatura.plano.nome|default:"Demo / Gratuito" }}</h2>
+                    <span class="text-sm text-muted-foreground">Vencimento em: {{ assinatura.data_expiracao|date:"d/m/Y"|default:"Indeterminado" }}</span>
                 </div>
             </div>
-            {% else %}
-            <div class="card premium-card border-0 shadow-sm py-60 text-center bg-white">
-                <div class="card-body">
-                    <div class="w-80 h-80 bg-danger-50 text-danger-600 rounded-circle flex-center mx-auto mb-20 shadow-sm">
-                        <i class="ph ph-warning-circle text-4xl fw-bold"></i>
-                    </div>
-                    <h4 class="text-gray-900 mb-8 fw-bold">Sem plano ativo</h4>
-                    <p class="text-gray-500 mb-0">Sua conta está limitada. Escolha um plano abaixo para liberar todos os recursos.</p>
-                </div>
+            
+            <div class="flex flex-col items-end gap-2">
+                <span class="text-xs text-muted-foreground">Estado da Conta</span>
+                <span class="kt-badge kt-badge-lg {% if assinatura.ativo %}kt-badge-success{% else %}kt-badge-danger{% endif %} kt-badge-outline">
+                    {% if assinatura.ativo %}Ativa e Funcional{% else %}Expirada ou Inativa{% endif %}
+                </span>
             </div>
-            {% endif %}
         </div>
     </div>
 
-    <!-- Pricing Section -->
-    <div class="text-center mb-40">
-        <h3 class="text-gray-900 fw-bold mb-8">Evolua sua Instituição</h3>
-        <p class="text-gray-500">Escolha o plano ideal para as necessidades do seu centro de formação.</p>
+    <!-- Planos Disponíveis -->
+    <div class="flex flex-col gap-4 mb-4">
+        <h3 class="text-lg font-bold text-foreground">Planos Recomendados</h3>
+        <p class="text-sm text-muted-foreground">Escolha um dos planos abaixo para desbloquear novas funcionalidades e aumentar o limite de cursos e alunos.</p>
     </div>
 
-    <div class="row gy-4 justify-content-center">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-7.5">
         {% for plano in planos_disponiveis %}
-        <div class="col-xl-4 col-md-6">
-            <div class="card premium-card border-0 shadow-sm h-100 transition-all hover-translate-y-8 overflow-hidden {% if plano.destaque_home %}border-top border-4 border-primary-600{% endif %}">
-                {% if plano.destaque_home %}
-                <div class="position-absolute top-0 end-0 mt-20 me-n30 rotate-45 bg-primary-600 text-white text-10 fw-bold py-4 px-40 shadow-sm uppercase letter-spacing-1">RECOMENDADO</div>
-                {% endif %}
-                
-                <div class="card-body p-32">
-                    <div class="mb-32">
-                        <h5 class="text-gray-900 fw-bold mb-4">{{ plano.nome }}</h5>
-                        <p class="text-gray-500 text-14 mb-24">{{ plano.descricao|truncatechars:60 }}</p>
-                        <div class="d-flex align-items-baseline gap-4 py-8 border-bottom border-gray-50">
-                            <h2 class="mb-0 fw-bold text-gray-900">{{ plano.preco|floatformat:0 }}</h2>
-                            <span class="text-gray-400 fw-bold">KZ</span>
-                            <span class="text-gray-400 ms-4">/mês</span>
-                        </div>
-                    </div>
-
-                    <ul class="vstack gap-16 mb-40 p-0 m-0" style="list-style: none;">
-                        <li class="d-flex align-items-center gap-12">
-                            <div class="w-24 h-24 rounded-circle bg-primary-50 text-primary-600 flex-center">
-                                <i class="ph ph-check fw-bold text-12"></i>
-                            </div>
-                            <span class="text-14 fw-medium text-gray-700">{{ plano.limite_cursos }} Cursos Disponíveis</span>
-                        </li>
-                        <li class="d-flex align-items-center gap-12">
-                            <div class="w-24 h-24 rounded-circle bg-primary-50 text-primary-600 flex-center">
-                                <i class="ph ph-check fw-bold text-12"></i>
-                            </div>
-                            <span class="text-14 fw-medium text-gray-700">Alcance Local de {{ plano.alcance_km }}km</span>
-                        </li>
-                        <li class="d-flex align-items-center gap-12">
-                            <div class="w-24 h-24 rounded-circle bg-primary-50 text-primary-600 flex-center">
-                                <i class="ph ph-check fw-bold text-12"></i>
-                            </div>
-                            <span class="text-14 fw-medium text-gray-700">Prioridade de Busca: {{ plano.prioridade_busca }}</span>
-                        </li>
-                        {% if plano.selo_verificacao %}
-                        <li class="d-flex align-items-center gap-12">
-                            <div class="w-24 h-24 rounded-circle bg-primary-50 text-primary-600 flex-center">
-                                <i class="ph ph-check fw-bold text-12"></i>
-                            </div>
-                            <span class="text-14 fw-medium text-gray-700">Selo de Confiança Eduka</span>
-                        </li>
-                        {% endif %}
-                        {% if plano.acesso_relatorios %}
-                        <li class="d-flex align-items-center gap-12">
-                            <div class="w-24 h-24 rounded-circle bg-primary-50 text-primary-600 flex-center">
-                                <i class="ph ph-check fw-bold text-12"></i>
-                            </div>
-                            <span class="text-14 fw-medium text-gray-700">Analytics e Exportação</span>
-                        </li>
-                        {% endif %}
-                    </ul>
-
-                    <button class="btn {% if plano.destaque_home %}btn-primary-600 shadow-sm{% else %}btn-outline-primary-600{% endif %} w-100 py-14 rounded-12 fw-bold transition-all" 
-                            onclick="alert('Estamos integrando com Gateways de Pagamento em Angola (Unitel Money/Multicaixa Express).\nEm breve você poderá ativar seu plano instantaneamente!')">
-                        {% if assinatura %}Upgrade para este Plano{% else %}Ativar Plano Agora{% endif %}
-                    </button>
+        <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm overflow-hidden hover:border-primary transition-all hover:shadow-lg">
+            <div class="p-6 flex flex-col items-center text-center">
+                <span class="text-sm font-bold text-primary mb-2 uppercase">{{ plano.nome }}</span>
+                <div class="flex items-baseline gap-1 mb-6">
+                    <span class="text-3xl font-extrabold text-foreground">{{ plano.preco|floatformat:0 }}</span>
+                    <span class="text-sm text-muted-foreground">Kz/mês</span>
                 </div>
+                
+                <ul class="w-full flex flex-col gap-3 mb-8 text-left">
+                    {% for feature in plano.features.all|default:plano.descricao_features_list %}
+                        <li class="flex items-center gap-2 text-sm text-secondary-foreground">
+                            <i class="ki-filled ki-check text-success"></i>
+                            {{ feature }}
+                        </li>
+                    {% endfor %}
+                    <!-- Caso o modelo não tenha lista de features, usamos a descrição -->
+                    {% if not plano.features.all %}
+                        <li class="flex items-start gap-2 text-sm text-secondary-foreground">
+                            <i class="ki-filled ki-information text-info mt-0.5"></i>
+                            <span class="line-clamp-4">{{ plano.descricao|default:"Consultar detalhes comerciais." }}</span>
+                        </li>
+                    {% endif %}
+                </ul>
+
+                <button class="kt-btn kt-btn-primary w-full justify-center">
+                    Alterar para este Plano
+                </button>
             </div>
-        </div>
-        {% empty %}
-        <div class="col-12 py-60 text-center">
-            <p class="text-gray-400">Nenhum plano disponível para contratação no momento.</p>
         </div>
         {% endfor %}
     </div>
+
 </div>
-{% endblock %}
+{% endblock content %}

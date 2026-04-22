@@ -1,4 +1,5 @@
 {% load static %}
+{% load curso_filters %}
 {% load i18n %}
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -365,26 +366,7 @@
                 <div class="swiper-wrapper">
                     {% for video in videos_recentes %}
                     <div class="swiper-slide">
-                        <a href="{% url 'cursovideoapp:detalhe_curso' slug=video.slug %}" class="play-card-link">
-                            <div class="play-card">
-                                {% if video.capa %}
-                                <img src="{{ video.capa.url }}" alt="{{ video.titulo }}" class="play-card-img">
-                                {% else %}
-                                <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{ video.titulo }}" class="play-card-img">
-                                {% endif %}
-                                <div class="play-card-overlay">
-                                    <div class="play-icon-circle"><i class="fas fa-play"></i></div>
-                                </div>
-                                <div class="play-card-body">
-                                    <h3 class="play-card-title">{{ video.titulo }}</h3>
-                                    <div class="play-card-meta">
-                                        <span>{{ video.instrutor.nome }}</span>
-                                        <span>•</span>
-                                        <span>{{ video.duracao_total }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
+                        {% include 'components/curso_card.html' with curso=video %}
                     </div>
                     {% endfor %}
                 </div>
@@ -400,26 +382,7 @@
                 <div class="swiper-wrapper">
                     {% for video in videos_populares %}
                     <div class="swiper-slide">
-                        <a href="{% url 'cursovideoapp:detalhe_curso' slug=video.slug %}" class="play-card-link">
-                            <div class="play-card">
-                                {% if video.capa %}
-                                <img src="{{ video.capa.url }}" alt="{{ video.titulo }}" class="play-card-img">
-                                {% else %}
-                                <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{ video.titulo }}" class="play-card-img">
-                                {% endif %}
-                                <div class="play-card-overlay">
-                                    <div class="play-icon-circle"><i class="fas fa-play"></i></div>
-                                </div>
-                                <div class="play-card-body">
-                                    <h3 class="play-card-title">{{ video.titulo }}</h3>
-                                    <div class="play-card-meta">
-                                        <span>{{ video.instrutor.nome }}</span>
-                                        <span>•</span>
-                                        <span>{{ video.total_inscritos }} alunos</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
+                        {% include 'components/curso_card.html' with curso=video %}
                     </div>
                     {% endfor %}
                 </div>
@@ -456,26 +419,7 @@
                 <div class="swiper-wrapper">
                     {% for video in videos_assistidos %}
                     <div class="swiper-slide">
-                        <a href="{% url 'cursovideoapp:detalhe_curso' slug=video.slug %}" class="play-card-link">
-                            <div class="play-card">
-                                {% if video.capa %}
-                                <img src="{{ video.capa.url }}" alt="{{ video.titulo }}" class="play-card-img">
-                                {% else %}
-                                <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{ video.titulo }}" class="play-card-img">
-                                {% endif %}
-                                <div class="play-card-overlay">
-                                    <div class="play-icon-circle"><i class="fas fa-play"></i></div>
-                                </div>
-                                <div class="play-card-body">
-                                    <h3 class="play-card-title">{{ video.titulo }}</h3>
-                                    <div class="play-card-meta">
-                                        <span>{{ video.instrutor.nome }}</span>
-                                        <span>•</span>
-                                        <span>{{ video.total_visualizacoes }} visualizações</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
+                        {% include 'components/curso_card.html' with curso=video %}
                     </div>
                     {% endfor %}
                 </div>

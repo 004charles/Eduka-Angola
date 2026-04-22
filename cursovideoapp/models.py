@@ -65,9 +65,12 @@ class Curso_video(models.Model):
 class Aula(models.Model):
     curso = models.ForeignKey(Curso_video, on_delete=models.CASCADE, related_name="aulas", null=True)
     titulo = models.CharField(max_length=200)
-    video = models.FileField(
-        upload_to="cursos/aulas/", 
-        validators=[FileExtensionValidator(allowed_extensions=['mp4', 'avi', 'mov', 'mkv'])]
+    video_url = models.URLField(
+        _('URL do Vídeo'), 
+        max_length=500, 
+        blank=True, 
+        null=True,
+        help_text="Link do YouTube, Vimeo ou ficheiro de vídeo externo"
     )
     ordem = models.PositiveIntegerField(default=0)
     duracao_segundos = models.PositiveIntegerField(default=0, help_text="Duração em segundos")
