@@ -1,0 +1,258 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Instrutor | EdukAngola Play{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            /* Default Dark (Play Mode) */
+            --play-bg: #0b0f19;
+            --play-sidebar: #111827;
+            --play-primary: #7c3aed;
+            --play-card: rgba(31, 41, 55, 0.5);
+            --play-border: rgba(255, 255, 255, 0.05);
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+            --glass-bg: rgba(31, 41, 55, 0.5);
+        }
+
+        body.active-light-mode {
+            --play-bg: #f8fafc;
+            --play-sidebar: #ffffff;
+            --play-primary: #7c3aed;
+            --play-card: #ffffff;
+            --play-border: #e2e8f0;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --glass-bg: #ffffff;
+        }
+
+        body {
+            background-color: var(--play-bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            display: flex;
+            transition: background-color 0.3s, color 0.3s;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            background: var(--play-sidebar);
+            border-right: 1px solid var(--play-border);
+            position: fixed;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            transition: 0.3s;
+            z-index: 1000;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                left: -280px;
+                box-shadow: 20px 0 50px rgba(0,0,0,0.5);
+            }
+            .sidebar.active {
+                left: 0;
+            }
+            .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+                padding: 20px !important;
+            }
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-main);
+            text-decoration: none;
+            margin-bottom: 50px;
+            display: block;
+        }
+        .logo span { color: var(--play-primary); }
+
+        .nav-link {
+            color: var(--text-muted);
+            padding: 12px 15px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+            transition: 0.3s;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: rgba(124, 58, 237, 0.1);
+            color: var(--play-primary);
+        }
+        .nav-link.active { color: var(--play-primary); font-weight: 700; }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            width: calc(100% - 280px);
+            padding: 40px;
+            min-height: 100vh;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--play-card);
+            padding: 8px 15px;
+            border-radius: 50px;
+            border: 1px solid var(--play-border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .avatar { width: 35px; height: 35px; border-radius: 50%; background: var(--play-primary); display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--play-border);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .btn-play-sm {
+            background: var(--play-primary);
+            color: white !important;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        
+        .theme-switcher-inline .my_switcher {
+            position: static !important;
+            transform: none !important;
+            margin: 0 !important;
+        }
+        .theme-switcher-inline ul {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            list-style: none;
+            gap: 10px;
+        }
+        .theme-switcher-inline .setColor {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--play-card);
+            border: 1px solid var(--play-border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .theme-switcher-inline .setColor:hover {
+            border-color: var(--play-primary);
+            background: rgba(124, 58, 237, 0.1);
+        }
+        .theme-switcher-inline .setColor img {
+            width: 18px;
+            height: 18px;
+        }
+        .theme-switcher-inline .setColor span { display: none; }
+        
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="d-flex justify-content-between align-items-center mb-4 d-md-none">
+            <span class="fw-bold">Menu</span>
+            <button class="btn text-white p-0" id="closeSidebar"><i class="fas fa-times fs-4"></i></button>
+        </div>
+        <a href="/" class="logo">Eduk<span>Angola</span> Play</a>
+        
+        <nav>
+            <a href="{% url 'instrutores_app:dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <i class="fas fa-chart-pie"></i> Dashboard
+            </a>
+            <a href="{% url 'instrutores_app:listar_cursos' %}" class="nav-link {% if 'curso' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-video"></i> Meus Cursos
+            </a>
+            <a href="{% url 'instrutores_app:listar_questoes' %}" class="nav-link {% if request.resolver_match.url_name == 'listar_questoes' %}active{% endif %}">
+                <i class="fas fa-question-circle"></i> Questões
+            </a>
+            <a href="{% url 'instrutores_app:listar_alunos' %}" class="nav-link {% if request.resolver_match.url_name == 'listar_alunos' %}active{% endif %}">
+                <i class="fas fa-users"></i> Alunos
+            </a>
+            <a href="{% url 'instrutores_app:configuracoes' %}" class="nav-link {% if request.resolver_match.url_name == 'configuracoes' %}active{% endif %}">
+                <i class="fas fa-cog"></i> Configurações
+            </a>
+        </nav>
+
+        <div class="mt-auto">
+            <a href="{% url 'logout' %}" class="nav-link text-danger">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </a>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <!-- Mobile Header -->
+        <div class="d-md-none d-flex justify-content-between align-items-center mb-4">
+            <button class="btn btn-primary" id="openSidebar"><i class="fas fa-bars"></i></button>
+            <a href="/" class="logo mb-0">Eduk<span>Angola</span></a>
+        </div>
+
+        <!-- Theme Switcher e Top Bar -->
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                {% block page_header %}
+                <h2 class="fw-bold mb-0">Olá, {{ request.user.nome }}!</h2>
+                <p class="text-muted small">Bem-vindo ao seu centro de controle.</p>
+                {% endblock %}
+            </div>
+            <div class="d-flex align-items-center gap-4">
+                <!-- Theme Switcher -->
+                <div class="theme-switcher-inline">
+                    {% include 'include/theme_switcher.html' %}
+                </div>
+                
+                <div class="user-profile">
+                    <div class="avatar">{{ request.user.nome|slice:":1" }}</div>
+                    <div class="small fw-bold">{{ request.user.nome }}</div>
+                </div>
+            </div>
+        </div>
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="{% static 'assets/js/vendor/jquery.js' %}"></script>
+    <script src="{% static 'assets/js/vendor/js.cookie.js' %}"></script>
+    <script src="{% static 'assets/js/vendor/jquery.style.switcher.js' %}"></script>
+    <script src="{% static 'assets/js/main.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('openSidebar')?.addEventListener('click', () => {
+            document.getElementById('sidebar').classList.add('active');
+        });
+        document.getElementById('closeSidebar')?.addEventListener('click', () => {
+            document.getElementById('sidebar').classList.remove('active');
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

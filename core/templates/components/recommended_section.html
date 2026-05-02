@@ -1,0 +1,149 @@
+{% load static %}
+{% load i18n %}
+
+<style>
+    .marquee-wrapper {
+        overflow: hidden;
+        padding: 40px 0;
+        position: relative;
+        width: 100%;
+        background: rgba(248, 250, 252, 0.5);
+    }
+    
+    .marquee-container {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .marquee-row {
+        display: flex;
+        gap: 30px;
+        width: max-content;
+    }
+
+    /* Animação para a Esquerda */
+    .row-left {
+        animation: scrollLeft 40s linear infinite;
+    }
+
+    /* Animação para a Direita */
+    .row-right {
+        animation: scrollRight 40s linear infinite;
+    }
+
+    .marquee-row:hover {
+        animation-play-state: paused;
+    }
+
+    @keyframes scrollLeft {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(calc(-50% - 15px)); }
+    }
+
+    @keyframes scrollRight {
+        0% { transform: translateX(calc(-50% - 15px)); }
+        100% { transform: translateX(0); }
+    }
+
+    .marquee-item {
+        width: 320px;
+        flex-shrink: 0;
+    }
+
+    /* Sombra para suavizar as bordas */
+    .marquee-wrapper::before,
+    .marquee-wrapper::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        width: 150px;
+        height: 100%;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .marquee-wrapper::before {
+        left: 0;
+        background: linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0));
+    }
+
+    .marquee-wrapper::after {
+        right: 0;
+        background: linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,0));
+    }
+
+    body.active-dark-mode .marquee-wrapper {
+        background: rgba(15, 23, 42, 0.3);
+    }
+    body.active-dark-mode .marquee-wrapper::before {
+        background: linear-gradient(to right, #0f172a, rgba(15, 23, 42, 0));
+    }
+    body.active-dark-mode .marquee-wrapper::after {
+        background: linear-gradient(to left, #0f172a, rgba(15, 23, 42, 0));
+    }
+</style>
+
+<div class="rbt-course-area bg-color-white rbt-section-gapTop">
+    <div class="container">
+        <div class="row mb--55 align-items-end">
+            <div class="col-lg-6 col-md-6 col-12">
+                <div class="section-title text-start">
+                    <span class="subtitle bg-secondary-opacity">{% trans "Personalizado para Si" %}</span>
+                    <h2 class="title">{% trans "Recomendado para Você" %}</h2>
+                    <p class="description mt--20">
+                        {% trans "Com base nos seus interesses de" %} 
+                        {% for interesse in user.aluno_profile.perfil.interesses.all %}
+                            <span class="badge bg-primary-opacity text-primary">{{ interesse.nome }}</span>
+                        {% endfor %}
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-12 mt_sm--20">
+                <div class="view-all-btn text-start text-md-end">
+                    <a class="rbt-btn-link" href="{% url 'aluno_cursos' %}">{% trans "Ver Minhas Inscrições" %} <i class="feather-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if cursos_recomendados %}
+    <div class="marquee-wrapper">
+        <div class="marquee-container">
+            <!-- Linha 1: Move para a Esquerda -->
+            <div class="marquee-row row-left">
+                {% for i in "12" %} <!-- Duplicar para loop infinito -->
+                    {% for curso in cursos_recomendados %}
+                        {% if forloop.counter|divisibleby:2 %}
+                            <div class="marquee-item">
+                                {% include 'components/curso_card.html' with curso=curso %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+            </div>
+
+            <!-- Linha 2: Move para a Direita -->
+            <div class="marquee-row row-right">
+                {% for i in "12" %} <!-- Duplicar para loop infinito -->
+                    {% for curso in cursos_recomendados %}
+                        {% if not forloop.counter|divisibleby:2 %}
+                            <div class="marquee-item">
+                                {% include 'components/curso_card.html' with curso=curso %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center pb--60">
+                <p class="text-muted">{% trans "Ainda não temos recomendações específicas para si. Continue a explorar!" %}</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>

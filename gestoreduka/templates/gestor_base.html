@@ -153,6 +153,10 @@ License: https://keenthemes.com/metronic/tailwind/docs/getting-started/license
          <span class="kt-menu-icon"><i class="ki-filled ki-messages text-lg"></i></span>
          <span class="kt-tooltip" data-kt-tooltip-content="true">Chat com Alunos</span>
         </a>
+        <a class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&_i]:text-primary hover:border-border [.active&]:bg-background [.active&]:[&_i]:text-primary [.active&]:border-border {% if 'comentario' in request.resolver_match.url_name %}active{% endif %}" data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'gerenciar_comentarios' %}">
+         <span class="kt-menu-icon"><i class="ki-filled ki-message-question text-lg"></i></span>
+         <span class="kt-tooltip" data-kt-tooltip-content="true">Dúvidas & Comentários</span>
+        </a>
         <a class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&amp;_i]:text-primary hover:border-border [.active&amp;]:bg-background [.active&amp;]:[&amp;_i]:text-primary [.active&amp;]:border-border {% if 'financeiro' in request.resolver_match.url_name %}active{% endif %}" data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'gerenciar_financeiro' %}">
          <span class="kt-menu-icon"><i class="ki-filled ki-wallet text-lg"></i></span>
          <span class="kt-tooltip" data-kt-tooltip-content="true">Fluxo Financeiro</span>

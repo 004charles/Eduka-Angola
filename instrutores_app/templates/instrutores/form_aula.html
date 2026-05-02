@@ -1,0 +1,143 @@
+{% extends 'instrutores/base_instrutor.html' %}
+{% load static %}
+
+{% block title %}{{ title }} | {{ curso.titulo }}{% endblock %}
+
+{% block extra_css %}
+    .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--play-border);
+        border-radius: 24px;
+        padding: 40px;
+        max-width: 800px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        margin-bottom: 30px;
+    }
+
+    .form-label { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
+    .form-control {
+        background: rgba(124, 58, 237, 0.02);
+        border: 1px solid var(--play-border);
+        color: var(--text-main);
+        border-radius: 12px;
+        padding: 12px 15px;
+    }
+    .form-control:focus {
+        background: rgba(124, 58, 237, 0.05);
+        border-color: var(--play-primary);
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+        color: var(--text-main);
+    }
+
+    .btn-save {
+        background: var(--play-primary);
+        color: white !important;
+        border: none;
+        padding: 12px 40px;
+        border-radius: 12px;
+        font-weight: 700;
+        transition: 0.3s;
+    }
+    .btn-save:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(124, 58, 237, 0.3); }
+
+    .material-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 15px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+{% endblock %}
+
+{% block page_header %}
+    <a href="{% url 'instrutores_app:detalhe_curso' curso.id %}" class="text-muted text-decoration-none small mb-2 d-block">
+        <i class="fas fa-arrow-left me-2"></i> Voltar para o curso
+    </a>
+    <h2 class="fw-bold mb-0">{{ title }}</h2>
+    <p class="text-muted small">Curso: {{ curso.titulo }}</p>
+{% endblock %}
+
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success bg-success text-white border-0 rounded-4 mb-4 shadow-sm">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="glass-card">
+                <h5 class="fw-bold mb-4">Informações da Aula</h5>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-9 mb-4">
+                            <label class="form-label">Título da Aula</label>
+                            {{ form.titulo }}
+                        </div>
+                        <div class="col-md-3 mb-4">
+                            <label class="form-label">Ordem</label>
+                            {{ form.ordem }}
+                        </div>
+                        <div class="col-md-12 mb-4">
+                            <label class="form-label">URL do Vídeo (YouTube, Vimeo, etc.)</label>
+                            {{ form.video_url }}
+                        </div>
+                        <div class="col-md-12 mb-4">
+                            <label class="form-label">Descrição (Opcional)</label>
+                            {{ form.descricao }}
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn-save">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            {% if form.instance.pk %}
+            <div class="glass-card">
+                <h5 class="fw-bold mb-4"><i class="fas fa-paperclip me-2"></i> Materiais de Apoio</h5>
+                
+                <div class="mb-4">
+                    {% for m in form.instance.materiais.all %}
+                    <div class="material-item">
+                        <div class="small text-truncate me-2">
+                            <i class="fas fa-file-alt me-2 text-primary"></i> {{ m.titulo }}
+                        </div>
+                        <a href="{% url 'instrutores_app:remover_material' m.id %}" class="text-danger small" onclick="return confirm('Remover material?')">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted small">Nenhum material anexado.</p>
+                    {% endfor %}
+                </div>
+
+                <hr class="opacity-10 my-4">
+
+                <h6 class="fw-bold mb-3 small">Adicionar Novo Arquivo</h6>
+                <form action="{% url 'instrutores_app:adicionar_material' form.instance.id %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <input type="text" name="titulo" class="form-control form-control-sm mb-2" placeholder="Nome do arquivo" required>
+                        <input type="file" name="arquivo" class="form-control form-control-sm" required>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary w-100 rounded-3">Fazer Upload</button>
+                </form>
+                <div class="help-text small opacity-50 mt-2" style="font-size: 10px;">
+                    Formatos aceitos: PDF, ZIP, RAR, TXT, DOCX, PPTX.
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-info border-0 rounded-4 small">
+                <i class="fas fa-info-circle me-2"></i> Salve a aula primeiro para poder adicionar materiais de apoio.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

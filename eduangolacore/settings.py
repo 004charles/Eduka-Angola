@@ -12,6 +12,7 @@ DEBUG = config("DEBUG", default=True, cast=bool)
 ALLOWED_HOSTS = ['*']
 
 GOOGLE_MAPS_API_KEY = config("GOOGLE_MAPS_API_KEY", default="")
+YOUTUBE_API_KEY = config("YOUTUBE_API_KEY", default="AIzaSyCphPp1Ps-TE_FlLlkKqBTgpxDLE_cMpZE")
 
 
 
@@ -47,6 +48,7 @@ INSTALLED_APPS = [
     'gestoreduka',
     'blog',
     'cursovideoapp',
+    'instrutores_app',
     'estagio',
     'planos',
     'inteligencia',
@@ -80,6 +82,8 @@ CHANNEL_LAYERS = {
 USE_I18N = True
 USE_L10N = True
 LANGUAGE_CODE = 'pt'
+TIME_ZONE = 'Africa/Luanda'
+USE_TZ = True
 
 LANGUAGES = [
     ('pt', _('Português')),
@@ -108,8 +112,8 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -217,8 +221,8 @@ if 'test' in sys.argv:
 
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
     }
 }
 
@@ -241,13 +245,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 
-LANGUAGE_CODE = 'pt-BR'
-
-TIME_ZONE = 'Africa/Luanda'
-
-USE_I18N = True
-
-USE_TZ = True
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

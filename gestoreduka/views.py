@@ -3305,3 +3305,51 @@ def criar_anuncio(request):
         'form': form,
         'title': 'Novo Anúncio'
     })
+
+@login_required
+def gerenciar_comentarios(request):
+    """Listagem de comentários dos alunos nos cursos do centro"""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
+        
+    from avaliacoes.models import Comentario
+    comentarios = Comentario.objects.filter(curso__centro=centro).select_related('aluno', 'curso').order_by('-data_comentario')
+    
+    return render(request, 'gestor/comentarios/listar.html', {
+        'centro': centro,
+        'comentarios': comentarios
+    })
+
+@login_required
+def responder_comentario(request, comentario_id):
+    """Processa a resposta do gestor a um comentário"""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
+        
+    from avaliacoes.models import Comentario
+    from usuarios.models import NotificacaoAluno
+    comentario = get_object_or_404(Comentario, id=comentario_id, curso__centro=centro)
+    
+    if request.method == 'POST':
+        resposta = request.POST.get('resposta', '').strip()
+        if resposta:
+            comentario.resposta = resposta
+            comentario.resposta_data = timezone.now()
+            comentario.save()
+            
+            # Notificar o aluno que sua dúvida foi respondida
+            NotificacaoAluno.objects.create(
+                aluno=comentario.aluno,
+                titulo=f"Resposta ao seu comentário",
+                mensagem=f"O centro {centro.nome} respondeu à sua dúvida no curso {comentario.curso.titulo}.",
+                link=f"/cursos/curso_detalhe/{comentario.curso.id}/",
+                tipo='CURSO'
+            )
+            
+            messages.success(request, 'Resposta enviada com sucesso! O aluno foi notificado.')
+        else:
+            messages.error(request, 'A resposta não pode estar vazia.')
+            
+    return redirect('gerenciar_comentarios')

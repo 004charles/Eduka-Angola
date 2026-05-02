@@ -12,6 +12,63 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from cursos_app.models import Categoria, Instrutor
 from cursovideoapp.models import Curso_video, FavoritoCursoVideo, Aula, ProgressoAula, Certificado
+from .utils import fetch_playlist_videos
+
+@login_required
+def importar_playlist_youtube(request, curso_id):
+    """
+    Importa todos os vídeos de uma playlist do YouTube como aulas de um curso.
+    """
+    curso = get_object_or_404(Curso_video, id=curso_id)
+    
+    # Verificar se o utilizador é o instrutor do curso ou superuser
+    if not request.user.is_superuser:
+        try:
+            if curso.instrutor.usuario != request.user:
+                return JsonResponse({'status': 'error', 'message': 'Não tens permissão.'}, status=403)
+        except:
+            return JsonResponse({'status': 'error', 'message': 'Erro de permissão.'}, status=403)
+
+    if request.method == 'POST':
+        playlist_url = request.POST.get('playlist_url')
+        if not playlist_url:
+            return JsonResponse({'status': 'error', 'message': 'URL da playlist é obrigatório.'})
+
+        videos = fetch_playlist_videos(playlist_url)
+        if not videos:
+            return JsonResponse({'status': 'error', 'message': 'Nenhum vídeo encontrado ou erro na API.'})
+
+        aulas_criadas = 0
+        for v in videos:
+            # Evitar duplicados se o URL já existir neste curso
+            if not Aula.objects.filter(curso=curso, video_url=v['video_url']).exists():
+                Aula.objects.create(
+                    curso=curso,
+                    titulo=v['titulo'],
+                    video_url=v['video_url'],
+                    duracao_segundos=v['duracao_segundos'],
+                    ordem=v['ordem']
+                )
+                aulas_criadas += 1
+
+        return JsonResponse({
+            'status': 'success', 
+            'message': f'Sucesso! {aulas_criadas} aulas importadas da playlist.',
+            'total': len(videos)
+        })
+
+    return JsonResponse({'status': 'error', 'message': 'Método não permitido.'}, status=405)
+
+@login_required
+def importar_playlist_admin(request, curso_id):
+    """
+    Exibe a página administrativa para importar playlist.
+    """
+    if not request.user.is_staff:
+        return redirect('admin:index')
+    
+    curso = get_object_or_404(Curso_video, id=curso_id)
+    return render(request, 'admin/importar_playlist.html', {'curso': curso})
 
 @login_required
 def emitir_certificado(request, curso_slug):
@@ -54,6 +111,34 @@ def verificar_certificado(request, codigo):
 from avaliacoes.models import Comentario
 from cursos_app.forms import AvaliacaoForm
 
+def sessao_ver_todos(request, sessao_tipo):
+    """
+    Lista todos os cursos de uma sessão específica (recentes, populares, etc).
+    """
+    qs = Curso_video.objects.all()
+    titulo = "Cursos"
+    
+    if sessao_tipo == 'recentes':
+        qs = qs.order_by('-data_publicacao')
+        titulo = "Novos Lançamentos"
+    elif sessao_tipo == 'populares':
+        qs = qs.annotate(num_inscritos=Count('inscritos')).order_by('-num_inscritos')
+        titulo = "Em Alta no EdukAngola"
+    elif sessao_tipo == 'mais_assistidos':
+        qs = qs.annotate(total_views=Sum('aulas__visualizacoes')).order_by('-total_views')
+        titulo = "Cursos Mais Assistidos"
+    elif sessao_tipo == 'tecnologia':
+        qs = qs.filter(categoria__slug='tecnologia').order_by('-data_publicacao')
+        titulo = "Domine a Tecnologia Actual"
+    
+    context = {
+        'cursos': qs,
+        'titulo': titulo,
+        'sessao_tipo': sessao_tipo,
+    }
+    
+    return render(request, 'cursovideo/sessao_lista.html', context)
+
 def home_videos(request):
     """
     Página inicial para cursos em vídeo com diversas seções.
@@ -61,17 +146,67 @@ def home_videos(request):
     agora = timezone.now()
     
     # 1. Newest Videos (Novos Lançamentos)
-    videos_recentes = Curso_video.objects.order_by('-data_publicacao')[:4]
+    videos_recentes = Curso_video.objects.order_by('-data_publicacao')[:12]
     
     # 2. Trending (Em Alta) - based on enrollment count for now
     videos_populares = Curso_video.objects.annotate(
         num_inscritos=Count('inscritos')
-    ).order_by('-num_inscritos')[:4]
+    ).order_by('-num_inscritos')[:12]
     
     # 3. Most Watched (Mais Assistidos) - based on total lesson views
     videos_assistidos = Curso_video.objects.annotate(
         total_views=Sum('aulas__visualizacoes')
-    ).order_by('-total_views')[:4]
+    ).order_by('-total_views')[:12]
+
+    # 4. Continuar a Ver & Recomendados
+    continuar_a_ver = []
+    videos_recomendados = []
+    meus_favoritos_objs = []
+    favoritos_ids = []
+    aluno_logado = False
+    
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
+        try:
+            aluno = request.user.aluno_profile
+            aluno_logado = True
+            
+            # Buscar progressos recentes não concluídos
+            progresso_recente = ProgressoAula.objects.filter(
+                aluno=aluno,
+                concluida=False
+            ).select_related('aula__curso').order_by('-data_ultimo_acesso')
+            
+            vistos_ids = []
+            for p in progresso_recente:
+                if p.aula.curso.id not in vistos_ids:
+                    continuar_a_ver.append(p.aula.curso)
+                    vistos_ids.append(p.aula.curso.id)
+                if len(continuar_a_ver) >= 10: break
+
+            # 5. Recomendados com base em interesses (Onboarding)
+            interesses_ids = list(aluno.perfil.interesses.values_list('id', flat=True))
+            if interesses_ids:
+                videos_recomendados = Curso_video.objects.filter(
+                    categoria_id__in=interesses_ids
+                ).exclude(id__in=vistos_ids).order_by('?')[:12]
+            
+            # Buscar cursos favoritos
+            meus_favoritos_objs = [f.curso for f in FavoritoCursoVideo.objects.filter(aluno=aluno).select_related('curso')[:12]]
+            favoritos_ids = [c.id for c in meus_favoritos_objs]
+        except (ObjectDoesNotExist, AttributeError):
+            pass
+    
+    # Se não houver interesses suficientes ou não logado, preencher recomendações com populares
+    if len(videos_recomendados) < 4:
+        # Converter QuerySet para lista se necessário
+        v_rec_list = list(videos_recomendados) if not isinstance(videos_recomendados, list) else videos_recomendados
+        videos_recomendados = v_rec_list + list(videos_populares[:8])
+        # Remover duplicados mantendo a ordem
+        seen = set()
+        videos_recomendados = [x for x in videos_recomendados if not (x.id in seen or seen.add(x.id))]
+
+    # 6. Tecnologia (Domine a Tecnologia Actual)
+    videos_tecnologia = Curso_video.objects.filter(categoria__slug='tecnologia').order_by('-data_publicacao')[:12]
     
     # Categories for filter
     categorias = Categoria.objects.annotate(
@@ -82,23 +217,16 @@ def home_videos(request):
         'videos_recentes': videos_recentes,
         'videos_populares': videos_populares,
         'videos_assistidos': videos_assistidos,
+        'videos_tecnologia': videos_tecnologia,
+        'continuar_a_ver': continuar_a_ver,
+        'videos_recomendados': videos_recomendados,
+        'meus_favoritos': meus_favoritos_objs,
         'categorias': categorias,
-        'aluno_logado': False,
-        'favoritos': [],
+        'aluno_logado': aluno_logado,
+        'favoritos': favoritos_ids,
         'active_menu': 'cursos_video',
     }
     
-    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
-        try:
-            aluno = request.user.aluno_profile
-            favoritos = FavoritoCursoVideo.objects.filter(aluno=aluno).values_list('curso_id', flat=True)
-            context.update({
-                'aluno_logado': True,
-                'favoritos': list(favoritos),
-            })
-        except (ObjectDoesNotExist, AttributeError):
-            pass
-            
     return render(request, 'cursovideo/home.html', context)
 
 
@@ -212,27 +340,15 @@ def detalhe_curso(request, slug):
         except (ObjectDoesNotExist, AttributeError):
             aluno_logado = False
 
-    # 2. Carregar comentários e avaliações
-    comentarios = Comentario.objects.select_related('aluno').filter(
+    # 2. Carregar comentários e avaliações (Paginados: Top 5 principais)
+    comentarios_all = Comentario.objects.select_related('aluno').filter(
         curso_video=curso,
-        aprovado=True
+        aprovado=True,
+        parent__isnull=True
     ).order_by('-data_comentario')
     
-    media_result = comentarios.aggregate(media=Avg('avaliacao'))
-    media_avaliacoes = media_result['media'] or 0.0
-    
-    rating_counts = {
-        '5': comentarios.filter(avaliacao=5).count(),
-        '4': comentarios.filter(avaliacao=4).count(),
-        '3': comentarios.filter(avaliacao=3).count(),
-        '2': comentarios.filter(avaliacao=2).count(),
-        '1': comentarios.filter(avaliacao=1).count(),
-    }
-    
-    total_comentarios = comentarios.count()
-    rating_percent = {}
-    for key, count in rating_counts.items():
-        rating_percent[key] = (count / total_comentarios) * 100 if total_comentarios > 0 else 0
+    comentarios = comentarios_all[:5]
+    total_principais = comentarios_all.count()
 
     # 3. Verificar comentário existente e formulário
     comentario_existente = None
@@ -270,10 +386,7 @@ def detalhe_curso(request, slug):
         'aluno_inscrito': aluno_inscrito,
         'aulas': aulas,
         'comentarios': comentarios,
-        'media_avaliacoes': round(media_avaliacoes, 1),
-        'rating_counts': rating_counts,
-        'rating_percent': rating_percent,
-        'total_comentarios': total_comentarios,
+        'total_principais': total_principais,
         'avaliacao_form': avaliacao_form,
         'comentario_existente': comentario_existente,
         'total_visualizacoes': curso.aulas.all().count(), # Simplificado para exemplo
@@ -313,27 +426,40 @@ def ver_aula(request, curso_slug, pk):
     curso = get_object_or_404(Curso_video, slug=curso_slug)
     aula_atual = get_object_or_404(Aula, pk=pk, curso=curso)
     
-    # Verificar inscrição
-    try:
-        aluno = request.user.aluno_profile
-    except (ObjectDoesNotExist, AttributeError):
-        return redirect('index')
-        
-    if not curso.inscritos.filter(id=aluno.id).exists():
-        return redirect('cursovideoapp:detalhe_curso', slug=curso_slug)
+    # Verificar se o usuário é o instrutor deste curso
+    is_instrutor = False
+    if request.user.tipo_usuario == 'INSTRUTOR':
+        if hasattr(request.user, 'instrutor_profile') and curso.instrutor == request.user.instrutor_profile:
+            is_instrutor = True
+    
+    aluno = None
+    if not is_instrutor:
+        # Se não for o instrutor, verificar inscrição de aluno
+        try:
+            aluno = request.user.aluno_profile
+        except (ObjectDoesNotExist, AttributeError):
+            return redirect('index')
+            
+        if not curso.inscritos.filter(id=aluno.id).exists():
+            return redirect('cursovideoapp:detalhe_curso', slug=curso_slug)
     
     aulas = curso.aulas.all().order_by('ordem')
     
-    # Lógica de desbloqueio sequencial
-    progressos = ProgressoAula.objects.filter(aluno=aluno, aula__curso=curso)
-    concluidas_ids = set(progressos.filter(concluida=True).values_list('aula_id', flat=True))
+    # Lógica de desbloqueio sequencial e progresso (Apenas para Alunos)
+    concluidas_ids = set()
+    if aluno:
+        progressos = ProgressoAula.objects.filter(aluno=aluno, aula__curso=curso)
+        concluidas_ids = set(progressos.filter(concluida=True).values_list('aula_id', flat=True))
+    else:
+        # Instrutor vê tudo desbloqueado
+        pass
     
     aulas_status = []
     # A primeira aula está sempre desbloqueada
     aula_anterior_concluida = True 
     
     for i, aula in enumerate(aulas):
-        if i == 0 or not aula.requer_conclusao_anterior:
+        if is_instrutor or i == 0 or not aula.requer_conclusao_anterior:
             is_unlocked = True
         else:
             # Desbloqueada se a anterior estiver concluída
@@ -367,8 +493,19 @@ def ver_aula(request, curso_slug, pk):
     aulas_concluidas = sum(1 for item in aulas_status if item['is_completed'])
     progresso_total = int((aulas_concluidas / total_aulas) * 100) if total_aulas > 0 else 0
     
-    # Obter progresso atual para controle de avanço no player
-    progresso_atual, created = ProgressoAula.objects.get_or_create(aluno=aluno, aula=aula_atual)
+    # Obter progresso atual para controle de avanço no player (Apenas Alunos)
+    progresso_atual = None
+    if aluno:
+        progresso_atual, created = ProgressoAula.objects.get_or_create(aluno=aluno, aula=aula_atual)
+
+    # Obter nota atual do aluno para esta aula
+    nota_aula = None
+    if aluno:
+        from .models import NotaAula
+        nota_aula = NotaAula.objects.filter(aluno=aluno, aula=aula_atual).first()
+
+    # Obter comentários principais da aula (sem pai)
+    comentarios = aula_atual.comentarios.filter(parent__isnull=True).select_related('aluno__usuario', 'instrutor').prefetch_related('respostas')
 
     # Cursos recomendados para o carrossel no fundo da página
     cursos_recomendados = Curso_video.objects.exclude(id=curso.id)[:10]
@@ -383,7 +520,80 @@ def ver_aula(request, curso_slug, pk):
         'progresso_total': progresso_total,
         'progresso_atual': progresso_atual,
         'cursos_recomendados': cursos_recomendados,
+        'nota_aula': nota_aula,
+        'comentarios': comentarios,
+        'is_instrutor_preview': is_instrutor,
     })
+
+@require_POST
+@login_required
+def salvar_comentario_aula(request, aula_id):
+    """
+    API para salvar uma nova dúvida/comentário na aula ou responder a um existente.
+    """
+    aula = get_object_or_404(Aula, id=aula_id)
+    texto = request.POST.get('texto', '').strip()
+    parent_id = request.POST.get('parent_id')
+    
+    if not texto:
+        return JsonResponse({'status': 'error', 'message': 'Texto vazio'}, status=400)
+        
+    from .models import ComentarioAula
+    
+    # Identificar autor (pode ser Aluno ou Instrutor)
+    aluno = None
+    instrutor = None
+    if request.user.tipo_usuario == 'ALUNO':
+        aluno = request.user.aluno_profile
+    elif request.user.tipo_usuario == 'INSTRUTOR':
+        instrutor = request.user.instrutor_profile
+        
+    parent = None
+    if parent_id:
+        parent = get_object_or_404(ComentarioAula, id=parent_id)
+        
+    comentario = ComentarioAula.objects.create(
+        aluno=aluno,
+        instrutor=instrutor,
+        aula=aula,
+        texto=texto,
+        parent=parent
+    )
+    
+    nome_autor = aluno.nome if aluno else instrutor.nome
+    is_instrutor = instrutor is not None
+    
+    return JsonResponse({
+        'status': 'success', 
+        'message': 'Enviado!',
+        'id': comentario.id,
+        'nome': nome_autor,
+        'is_instrutor': is_instrutor,
+        'texto': texto,
+        'data': 'Agora mesmo'
+    })
+
+@require_POST
+@login_required
+def salvar_nota_aula(request, aula_id):
+    """
+    API para salvar ou atualizar a nota privada do aluno para uma aula.
+    """
+    if not request.user.tipo_usuario == 'ALUNO':
+        return JsonResponse({'status': 'error', 'message': 'Não autorizado'}, status=403)
+        
+    aula = get_object_or_404(Aula, id=aula_id)
+    aluno = request.user.aluno_profile
+    conteudo = request.POST.get('conteudo', '')
+    
+    from .models import NotaAula
+    nota, created = NotaAula.objects.update_or_create(
+        aluno=aluno,
+        aula=aula,
+        defaults={'conteudo': conteudo}
+    )
+    
+    return JsonResponse({'status': 'success', 'message': 'Nota salva com sucesso!'})
 
 
 @login_required
@@ -403,7 +613,7 @@ def salvar_comentario_video(request, slug):
     
     # 2. Verificar se aluno está inscrito
     if not curso.inscritos.filter(id=aluno.id).exists():
-        return redirect('detalhe_curso', slug=slug)
+        return redirect('cursovideoapp:detalhe_curso', slug=slug)
     
     # 3. Verificar se já avaliou
     comentario_existente = Comentario.objects.filter(aluno=aluno, curso_video=curso).first()
@@ -414,9 +624,26 @@ def salvar_comentario_video(request, slug):
             comentario = form.save(commit=False)
             comentario.aluno = aluno
             comentario.curso_video = curso
-            comentario.save()
             
-    return redirect('detalhe_curso', slug=slug)
+            # Lógica de resposta
+            parent_id = request.POST.get('parent_id')
+            if parent_id:
+                try:
+                    comentario.parent = Comentario.objects.get(id=parent_id)
+                    # Respostas não têm avaliação/nota
+                    comentario.avaliacao = 0 
+                except Comentario.DoesNotExist:
+                    pass
+                    
+            comentario.save()
+            messages.success(request, "Sua interação foi enviada com sucesso!")
+        else:
+            # Exibir erros de validação (ex: comentário muito curto)
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{error}")
+            
+    return redirect('cursovideoapp:detalhe_curso', slug=slug)
 
 @require_POST
 @login_required
@@ -486,3 +713,40 @@ def atualizar_progresso(request, aula_id):
         })
     except (ValueError, TypeError) as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+def api_carregar_comentarios_video(request, curso_id):
+    """Retorna comentários paginados para cursos em vídeo via JSON"""
+    offset = int(request.GET.get('offset', 0))
+    limit = int(request.GET.get('limit', 5))
+    
+    comentarios = Comentario.objects.filter(
+        curso_video_id=curso_id, 
+        aprovado=True,
+        parent__isnull=True
+    ).select_related('aluno').order_by('-data_comentario')[offset:offset+limit]
+    
+    data = []
+    for c in comentarios:
+        respostas = []
+        for r in c.respostas_comunidade.all():
+            respostas.append({
+                'aluno': r.aluno.nome,
+                'comentario': r.comentario,
+                'foto': r.aluno.get_foto_perfil_url() if hasattr(r.aluno, 'get_foto_perfil_url') else None,
+            })
+            
+        data.append({
+            'id': c.id,
+            'aluno': c.aluno.nome,
+            'foto': c.aluno.get_foto_perfil_url() if hasattr(c.aluno, 'get_foto_perfil_url') else None,
+            'avaliacao': c.avaliacao,
+            'comentario': c.comentario,
+            'data': c.data_comentario.strftime('%d/%m/%Y'),
+            'resposta': c.resposta,
+            'resposta_data': c.resposta_data.strftime('%d/%m/%Y') if c.resposta_data else None,
+            'respostas_comunidade': respostas
+        })
+    
+    total_principais = Comentario.objects.filter(curso_video_id=curso_id, aprovado=True, parent__isnull=True).count()
+    return JsonResponse({'comentarios': data, 'has_more': total_principais > offset + limit})

@@ -1,69 +1,89 @@
 {% extends 'aluno_base.html' %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}Configurações de Conta | Edukangola{% endblock %}
+{% block title %}{% trans "Configurações" %} | EdukAngola{% endblock %}
 
-{% block dashboard_content %}
-<div class="rbt-dashboard-content bg-color-white rbt-shadow-box">
-    <div class="content">
-        <div class="section-title">
-            <h4 class="rbt-title-style-3">Configurações de Segurança</h4>
-            <p>Gerencie sua senha e acessos à conta.</p>
+{% block dashboard_content_full %}
+<div class="coursera-style-dashboard">
+    <div class="row g-5">
+        <div class="col-12">
+            <div class="section-title text-start mb--30 mt--30">
+                <h4 class="title">{% trans "Configurações de Segurança" %}</h4>
+                <p class="description">{% trans "Gerencie sua senha e acessos à conta." %}</p>
+            </div>
         </div>
 
-        <div class="tab-content mt--40">
-            <div class="tab-pane fade active show" id="password" role="tabpanel">
-                <form action="{% url 'configuracao_user' %}" method="POST" class="rbt-profile-row rbt-default-form row row--15">
-                    {% csrf_token %}
-                    <input type="hidden" name="form_type" value="password">
-                    
-                    <div class="col-12">
-                        <h5 class="mb--20"><i class="feather-lock me-2"></i>Alterar Senha</h5>
-                        <div class="row g-5">
-                            <div class="col-12">
-                                <div class="rbt-form-group">
-                                    <label for="currentpassword">Senha Atual</label>
-                                    <div class="input-icon-wrapper" style="position: relative;">
-                                        <i class="feather-lock" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #666;"></i>
-                                        <input id="currentpassword" name="currentpassword" type="password" style="padding-left: 45px;" placeholder="Digite sua senha atual" required>
-                                    </div>
-                                </div>
+        <div class="col-12">
+            <form action="{% url 'configuracao_user' %}" method="POST" class="rbt-profile-row rbt-default-form row g-5">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="password">
+                
+                <div class="col-12">
+                    <h5 class="mb--20"><i class="feather-lock me-2"></i>{% trans "Alterar Senha" %}</h5>
+                    <div class="row g-5">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="currentpassword">{% trans "Senha Atual" %}</label>
+                                <input id="currentpassword" name="currentpassword" type="password" placeholder="{% trans 'Digite sua senha atual' %}" required>
                             </div>
-                            <div class="col-lg-6">
-                                <div class="rbt-form-group">
-                                    <label for="newpassword">Nova Senha</label>
-                                    <div class="input-icon-wrapper" style="position: relative;">
-                                        <i class="feather-shield" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #666;"></i>
-                                        <input id="newpassword" name="newpassword" type="password" style="padding-left: 45px;" placeholder="Mínimo 8 caracteres" required>
-                                    </div>
-                                </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="newpassword">{% trans "Nova Senha" %}</label>
+                                <input id="newpassword" name="newpassword" type="password" placeholder="{% trans 'Mínimo 8 caracteres' %}" required>
                             </div>
-                            <div class="col-lg-6">
-                                <div class="rbt-form-group">
-                                    <label for="retypenewpassword">Confirmar Nova Senha</label>
-                                    <div class="input-icon-wrapper" style="position: relative;">
-                                        <i class="feather-check-circle" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #666;"></i>
-                                        <input id="retypenewpassword" name="retypenewpassword" type="password" style="padding-left: 45px;" placeholder="Repita a nova senha" required>
-                                    </div>
-                                </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="retypenewpassword">{% trans "Confirmar Nova Senha" %}</label>
+                                <input id="retypenewpassword" name="retypenewpassword" type="password" placeholder="{% trans 'Repita a nova senha' %}" required>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="col-12 mt--30">
-                        <div class="form-submit-group text-end">
-                            <button type="submit" class="rbt-btn btn-md btn-gradient hover-icon-reverse">
-                                <span class="icon-reverse-wrapper">
-                                    <span class="btn-text">Atualizar Senha</span>
-                                    <span class="btn-icon"><i class="feather-refresh-cw"></i></span>
-                                    <span class="btn-icon"><i class="feather-refresh-cw"></i></span>
-                                </span>
-                            </button>
-                        </div>
+                <div class="col-12 mt--30">
+                    <div class="form-submit-group text-end">
+                        <button type="submit" class="rbt-btn btn-md btn-gradient">
+                            {% trans "Atualizar Senha" %}
+                        </button>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
+<style>
+    .rbt-dashboard-area {
+        background-color: #ffffff !important;
+        padding-top: 60px !important;
+    }
+    
+    body.active-dark-mode .rbt-dashboard-area {
+        background-color: #0f172a !important;
+    }
+
+    .coursera-style-dashboard {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    /* Dark Mode Form Fields */
+    body.active-dark-mode .title, body.active-dark-mode h5 {
+        color: #f8fafc;
+    }
+    body.active-dark-mode .description, body.active-dark-mode label {
+        color: #94a3b8;
+    }
+    body.active-dark-mode input {
+        background: #1e293b !important;
+        border-color: #334155 !important;
+        color: #f8fafc !important;
+    }
+    body.active-dark-mode input:focus {
+        border-color: var(--color-primary) !important;
+    }
+</style>
 {% endblock %}

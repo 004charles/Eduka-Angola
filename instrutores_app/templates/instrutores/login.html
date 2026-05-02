@@ -1,0 +1,191 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>EdukAngola | {% trans "Portal do Instrutor" %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    {% include 'include/css.html' %}
+    
+    <style>
+        :root {
+            --color-primary: #7c3aed;
+            --color-secondary: #ec4899;
+            --glass-bg: rgba(255, 255, 255, 0.9);
+        }
+
+        body.active-dark-mode {
+            --glass-bg: rgba(15, 23, 42, 0.9);
+        }
+
+        .landing-gate-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            overflow: hidden;
+            position: relative;
+        }
+
+        body.active-dark-mode .landing-gate-wrapper {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        .gate-container {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            margin: 20px;
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Lado Esquerdo: Branding e Benefícios */
+        .gate-info-side {
+            flex: 1;
+            padding: 60px;
+            background: linear-gradient(rgba(124, 58, 237, 0.08), rgba(236, 72, 153, 0.08));
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .gate-logo { width: 180px; margin-bottom: 25px; }
+        .gate-headline { font-size: 34px; font-weight: 800; line-height: 1.2; margin-bottom: 30px; color: #1e293b; }
+        body.active-dark-mode .gate-headline { color: #f8fafc; }
+
+        .gate-pillars { display: flex; flex-direction: column; gap: 25px; }
+        .pillar-item { display: flex; gap: 15px; }
+        .pillar-icon { width: 45px; height: 45px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); flex-shrink: 0; }
+        .pillar-content h5 { font-size: 16px; font-weight: 700; margin-bottom: 5px; }
+        .pillar-content p { font-size: 13px; line-height: 1.4; color: #64748b; }
+
+        /* Lado Direito: Formulário */
+        .gate-form-side {
+            flex: 0.8;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: white;
+            border-left: 1px solid rgba(0,0,0,0.05);
+        }
+
+        body.active-dark-mode .gate-form-side { background: #1e293b; border-left: 1px solid rgba(255,255,255,0.05); }
+
+        .login-title { font-size: 24px; font-weight: 700; margin-bottom: 10px; text-align: center; }
+        .login-subtitle { font-size: 14px; color: #64748b; text-align: center; margin-bottom: 35px; }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #475569; }
+        .form-control-custom { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 12px; transition: all 0.3s ease; outline: none; background: transparent; color: inherit; }
+        .form-control-custom:focus { border-color: var(--color-primary); box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1); }
+
+        .btn-gate { width: 100%; padding: 14px; background: linear-gradient(to right, var(--color-primary), var(--color-secondary)); color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; margin-top: 10px; }
+        .btn-gate:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(124, 58, 237, 0.4); }
+
+        .footer-links { margin-top: 30px; text-align: center; font-size: 14px; color: #64748b; }
+        .footer-links a { color: var(--color-primary); font-weight: 700; text-decoration: none; }
+
+        @media (max-width: 991px) {
+            .gate-container { flex-direction: column; max-width: 500px; }
+            .gate-info-side { padding: 40px; text-align: center; }
+            .gate-form-side { padding: 40px; border-left: none; border-top: 1px solid rgba(0,0,0,0.05); }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="landing-gate-wrapper">
+        {% include 'include/theme_switcher.html' %}
+
+        <div class="gate-container">
+            <!-- Esquerda: Branding & Benefícios Instrutor -->
+            <div class="gate-info-side">
+                <img src="{% static 'assets/images/logo/Eduka-removebg-preview.png' %}" alt="Edukangola" class="gate-logo">
+                <h1 class="gate-headline">
+                    Ensine e Impacte o Futuro de Angola.
+                </h1>
+                
+                <div class="gate-pillars">
+                    <div class="pillar-item">
+                        <div class="pillar-icon">📈</div>
+                        <div class="pillar-content">
+                            <h5>Dashboard SaaS</h5>
+                            <p>Gestão completa de cursos, alunos e métricas de desempenho.</p>
+                        </div>
+                    </div>
+                    <div class="pillar-item">
+                        <div class="pillar-icon">💰</div>
+                        <div class="pillar-content">
+                            <h5>Monetização</h5>
+                            <p>Transforme o seu conhecimento em rendimento recorrente.</p>
+                        </div>
+                    </div>
+                    <div class="pillar-item">
+                        <div class="pillar-icon">🎯</div>
+                        <div class="pillar-content">
+                            <h5>Comunidade</h5>
+                            <p>Interaja diretamente com milhares de alunos ávidos por aprender.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Direita: Formulário de Login -->
+            <div class="gate-form-side">
+                <h2 class="login-title">Dashboard do Instrutor</h2>
+                <p class="login-subtitle">Entre para gerir os seus cursos e alunos</p>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-danger" style="font-size: 13px; padding: 12px; border-radius: 12px; margin-bottom: 20px; background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.1);">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label>E-mail Profissional</label>
+                        <input type="email" name="username" class="form-control-custom" placeholder="exemplo@edukangola.com" required>
+                    </div>
+                    <div class="form-group">
+                        <div class="d-flex justify-content-between">
+                            <label>Palavra-passe</label>
+                            <a href="#" style="font-size: 12px; color: var(--color-primary); text-decoration: none;">Esqueceu?</a>
+                        </div>
+                        <input type="password" name="password" class="form-control-custom" placeholder="••••••••" required>
+                    </div>
+
+                    <button type="submit" class="btn-gate">
+                        Aceder ao Dashboard
+                    </button>
+                </form>
+
+                <div class="footer-links">
+                    Ainda não é instrutor? <a href="{% url 'instrutores_app:signup' %}">Candidate-se agora</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'include/java.html' %}
+</body>
+</html>

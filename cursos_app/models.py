@@ -32,11 +32,20 @@ class Instrutor(models.Model):
         ('OUTRO', 'Outro'),
     ]
     
+    usuario = models.OneToOneField(
+        'usuarios.Usuario', 
+        on_delete=models.CASCADE, 
+        related_name='instrutor_profile',
+        null=True, 
+        blank=True
+    )
     centro_de_formacao = models.ForeignKey(
         'gestoreduka.CentroDeFormacao', 
         on_delete=models.CASCADE, 
         related_name='instrutores',
-        verbose_name='Centro de Formação'
+        verbose_name='Centro de Formação',
+        null=True,
+        blank=True
     )
     filial = models.ForeignKey(
         'gestoreduka.Filial', 
@@ -47,6 +56,7 @@ class Instrutor(models.Model):
         blank=True
     )
     nome = models.CharField(max_length=100, validators=[MinLengthValidator(3)])
+    titulo = models.CharField(max_length=100, blank=True, null=True, help_text="Ex: Especialista em Django, Mestre em Economia")
     biografia = models.TextField()
     foto = models.ImageField(upload_to='instrutores/', null=True, blank=True)
     email = models.EmailField(unique=True)
@@ -71,7 +81,9 @@ class Instrutor(models.Model):
         ordering = ['nome']
 
     def __str__(self):
-        return f"{self.nome} - {self.centro_de_formacao.nome}"
+        if self.centro_de_formacao:
+            return f"{self.nome} - {self.centro_de_formacao.nome}"
+        return f"{self.nome} (Independente)"
     
     def get_especializacao_display(self):
         return dict(self.TIPO_CHOICES_ESPECIALIZACAO).get(self.area_especializacao, self.area_especializacao)
@@ -421,9 +433,27 @@ class Curso(models.Model):
 
     @property
     def get_media_avaliacoes(self):
-        """Retorna a média das avaliações do curso"""
-        avg = self.comentarios.aggregate(media=Avg('avaliacao'))['media']
+        """Retorna a média das avaliações do curso (apenas comentários principais)"""
+        avg = self.comentarios.filter(parent__isnull=True).aggregate(media=Avg('avaliacao'))['media']
         return round(avg, 1) if avg else 0.0
+
+    @property
+    def comentarios_principais(self):
+        """Retorna apenas os comentários que não são respostas de outros"""
+        return self.comentarios.filter(parent__isnull=True).order_by('-data_comentario')
+
+    @property
+    def get_distribuicao_avaliacoes(self):
+        """Retorna a porcentagem de cada nota (1-5) para as barras de progresso"""
+        total = self.comentarios.filter(parent__isnull=True).count()
+        if total == 0:
+            return {5:0, 4:0, 3:0, 2:0, 1:0}
+        
+        dist = {}
+        for i in range(1, 6):
+            contagem = self.comentarios.filter(parent__isnull=True, avaliacao=i).count()
+            dist[i] = int((contagem / total) * 100)
+        return dist
     
     @property
     def total_inscritos(self):

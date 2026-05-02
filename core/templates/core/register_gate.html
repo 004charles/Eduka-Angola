@@ -1,0 +1,286 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ request.LANGUAGE_CODE }}">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Edukangola | {% trans "Criar Conta" %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    {% include 'include/css.html' %}
+    
+    <style>
+        :root {
+            --color-primary: #7c3aed;
+            --color-secondary: #ec4899;
+            --glass-bg: rgba(255, 255, 255, 0.9);
+        }
+
+        body.active-dark-mode {
+            --glass-bg: rgba(15, 23, 42, 0.9);
+        }
+
+        .landing-gate-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            position: relative;
+            padding: 20px;
+        }
+
+        body.active-dark-mode .landing-gate-wrapper {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        .gate-container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Lado Esquerdo: Info */
+        .gate-info-side {
+            flex: 1;
+            padding: 60px;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-right: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .gate-logo {
+            width: 160px;
+            margin-bottom: 25px;
+        }
+
+        .gate-headline {
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 30px;
+            color: #1e293b;
+        }
+
+        body.active-dark-mode .gate-headline { color: #f8fafc; }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        body.active-dark-mode .feature-item {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--color-primary);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .feature-text h6 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .feature-text p {
+            margin: 0;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        /* Lado Direito: Formulário */
+        .gate-form-side {
+            flex: 1;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: white;
+        }
+
+        body.active-dark-mode .gate-form-side { background: #1e293b; }
+
+        .form-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .form-subtitle {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #475569;
+        }
+
+        .form-control-custom {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .form-control-custom:focus {
+            border-color: var(--color-primary);
+        }
+
+        .btn-gate {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 991px) {
+            .gate-container { flex-direction: column; }
+            .gate-info-side { display: none; }
+            .gate-form-side { padding: 40px; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="landing-gate-wrapper">
+        <div class="gate-container">
+            <!-- Esquerda: Benefícios -->
+            <div class="gate-info-side">
+                <img src="{% static 'assets/images/logo/Eduka-removebg-preview.png' %}" alt="Edukangola" class="gate-logo">
+                <h1 class="gate-headline">{% trans "Comece a sua jornada de sucesso hoje." %}</h1>
+                
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="feather-video"></i></div>
+                        <div class="feature-text">
+                            <h6>{% trans "Acesso Ilimitado" %}</h6>
+                            <p>{% trans "Centenas de cursos em vídeo e materiais exclusivos." %}</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="feather-award"></i></div>
+                        <div class="feature-text">
+                            <h6>{% trans "Certificados Oficiais" %}</h6>
+                            <p>{% trans "Valide as suas competências com instituições de renome." %}</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="feather-users"></i></div>
+                        <div class="feature-text">
+                            <h6>{% trans "Comunidade Ativa" %}</h6>
+                            <p>{% trans "Conecte-se com instrutores e outros profissionais." %}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Direita: Formulário de Cadastro -->
+            <div class="gate-form-side">
+                <h2 class="form-title">{% trans "Criar Conta Grátis" %}</h2>
+                <p class="form-subtitle">{% trans "Preencha os dados abaixo para se registar no EdukAngola." %}</p>
+                
+                {% if status %}
+                <div class="alert alert-danger" style="font-size: 13px; padding: 10px; border-radius: 8px; margin-bottom: 20px;">
+                    {% if status == "1" %}{% trans "Preencha todos os campos corretamente." %}
+                    {% elif status == "2" %}{% trans "A senha deve ter no mínimo 8 caracteres." %}
+                    {% elif status == "3" %}{% trans "Este e-mail já está registado." %}
+                    {% elif status == "5" %}{% trans "As senhas não coincidem." %}
+                    {% else %}{% trans "Ocorreu um erro. Tente novamente." %}{% endif %}
+                </div>
+                {% endif %}
+
+                <form method="POST" action="{% url 'valida_cadastro_aluno' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label>{% trans "Nome Completo" %}</label>
+                        <input name="nome" type="text" class="form-control-custom" placeholder="{% trans 'Seu nome aqui' %}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "E-mail" %}</label>
+                        <input name="email" type="email" class="form-control-custom" placeholder="exemplo@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Senha" %}</label>
+                        <input name="senha" type="password" class="form-control-custom" placeholder="••••••••" required minlength="8">
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Confirmar Senha" %}</label>
+                        <input name="confirmar_senha" type="password" class="form-control-custom" placeholder="••••••••" required>
+                    </div>
+
+                    <div style="margin-bottom: 25px;">
+                        <label style="display: flex; align-items: flex-start; gap: 10px; font-size: 13px; cursor: pointer; line-height: 1.4;">
+                            <input type="checkbox" name="termos" required style="width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0;"> 
+                            <span>{% trans "Eu li e aceito os" %} <a href="#" style="color: var(--color-primary); font-weight: 700; text-decoration: underline;">{% trans "Termos e Condições" %}</a> {% trans "de uso da plataforma." %}</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-gate">
+                        {% trans "Criar Minha Conta" %}
+                    </button>
+                </form>
+
+                <div style="margin-top: 25px; text-align: center; font-size: 14px; color: #64748b;">
+                    {% trans "Já tem uma conta?" %} <a href="/" style="color: var(--color-primary); font-weight: 700; text-decoration: none;">{% trans "Faça login" %}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

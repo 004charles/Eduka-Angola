@@ -1,0 +1,208 @@
+{% extends 'instrutores/base_instrutor.html' %}
+{% load static %}
+
+{% block title %}Configurações | EdukAngola Play{% endblock %}
+
+{% block extra_css %}
+    .settings-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--play-border);
+        border-radius: 24px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    .form-label { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
+    .form-control, .form-select {
+        background: rgba(124, 58, 237, 0.02);
+        border: 1px solid var(--play-border);
+        color: var(--text-main);
+        border-radius: 12px;
+        padding: 12px 15px;
+    }
+    .form-control:focus, .form-select:focus {
+        background: rgba(124, 58, 237, 0.05);
+        border-color: var(--play-primary);
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+        color: var(--text-main);
+    }
+
+    .profile-preview {
+        width: 120px;
+        height: 120px;
+        border-radius: 20px;
+        object-fit: cover;
+        border: 4px solid var(--play-card);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .nav-settings {
+        border-bottom: 1px solid var(--play-border);
+        margin-bottom: 30px;
+    }
+    .nav-settings .nav-link {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-weight: 600;
+        padding: 12px 25px;
+        border-bottom: 2px solid transparent;
+        transition: 0.3s;
+    }
+    .nav-settings .nav-link.active {
+        color: var(--play-primary);
+        border-bottom-color: var(--play-primary);
+    }
+
+    .btn-update {
+        background: var(--play-primary);
+        color: white !important;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 12px;
+        font-weight: 700;
+        transition: 0.3s;
+    }
+    .btn-update:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(124, 58, 237, 0.3); }
+
+    .help-text { font-size: 11px; color: var(--text-muted); margin-top: 5px; }
+{% endblock %}
+
+{% block page_header %}
+    <h2 class="fw-bold mb-0">Configurações</h2>
+    <p class="text-muted small">Gerencie seu perfil e segurança da conta.</p>
+{% endblock %}
+
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success bg-success text-white border-0 rounded-4 mb-4 shadow-sm">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="nav nav-tabs nav-settings" id="settingsTab" role="tablist">
+        <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab">Meu Perfil</button>
+        <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab">Segurança</button>
+    </div>
+
+    <div class="tab-content" id="settingsTabContent">
+        <!-- Tab: Perfil -->
+        <div class="tab-pane fade show active" id="profile" role="tabpanel">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="settings-card">
+                    <div class="row align-items-center mb-5">
+                        <div class="col-auto">
+                            {% if instrutor.foto %}
+                                <img src="{{ instrutor.foto.url }}" class="profile-preview" alt="Foto de Perfil">
+                            {% else %}
+                                <div class="profile-preview d-flex align-items-center justify-content-center bg-primary text-white fs-1 fw-bold">
+                                    {{ instrutor.nome|slice:":1" }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col">
+                            <h5 class="fw-bold mb-1">Foto de Perfil</h5>
+                            <p class="text-muted small mb-3">Recomendado: 400x400px. JPG ou PNG.</p>
+                            <div style="max-width: 300px;">{{ profile_form.foto }}</div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Nome Completo</label>
+                            {{ profile_form.nome }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Título Profissional</label>
+                            {{ profile_form.titulo }}
+                            <div class="help-text">Ex: Especialista em Backend Django</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Área de Especialização</label>
+                            {{ profile_form.area_especializacao }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Foto de Capa</label>
+                            {{ profile_form.foto_capa }}
+                            <div class="help-text">Aparece no topo do seu perfil público.</div>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Biografia</label>
+                            {{ profile_form.biografia }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h5 class="fw-bold mb-4"><i class="fas fa-share-alt me-2 text-primary"></i> Redes Sociais</h5>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label">LinkedIn</label>
+                            {{ profile_form.linkedin }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Instagram</label>
+                            {{ profile_form.instagram }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Facebook</label>
+                            {{ profile_form.facebook }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Twitter (X)</label>
+                            {{ profile_form.twitter }}
+                        </div>
+                    </div>
+                    
+                    <div class="text-end mt-5">
+                        <button type="submit" name="update_profile" class="btn-update">Salvar Alterações</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tab: Segurança -->
+        <div class="tab-pane fade" id="security" role="tabpanel">
+            <div class="settings-card" style="max-width: 600px;">
+                <h5 class="fw-bold mb-4"><i class="fas fa-lock me-2 text-primary"></i> Alterar Senha</h5>
+                <form method="POST">
+                    {% csrf_token %}
+                    {% for field in password_form %}
+                        <div class="mb-4">
+                            <label class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger small mt-1">{{ field.errors }}</div>
+                            {% endif %}
+                            {% if field.help_text %}
+                                <div class="help-text">{{ field.help_text|safe }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    
+                    <div class="text-end mt-4">
+                        <button type="submit" name="change_password" class="btn-update">Atualizar Senha</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="settings-card bg-danger bg-opacity-5 border-danger border-opacity-20" style="max-width: 600px;">
+                <h5 class="fw-bold text-danger mb-3">Zona de Perigo</h5>
+                <p class="small text-muted mb-4">Ao desativar sua conta, seus cursos continuarão visíveis mas você não poderá gerenciá-los sem intervenção do administrador.</p>
+                <button class="btn btn-outline-danger rounded-3 fw-bold btn-sm">Solicitar Desativação de Conta</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Custom styling for password form fields (Django default fields don't have classes)
+    document.querySelectorAll('#security input').forEach(input => {
+        input.classList.add('form-control');
+    });
+</script>
+{% endblock %}

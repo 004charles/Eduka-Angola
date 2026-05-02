@@ -68,7 +68,11 @@
                 </div>
             </div>
             <h4 class="rbt-card-title"><a href="{% url 'cursovideoapp:detalhe_curso' slug=curso.slug %}">{{ curso.titulo }}</a></h4>
-            <p class="rbt-card-text" style="font-size: 14px; line-height: 1.5; margin-bottom: 15px;">{{ curso.descricao|truncatewords:15 }}</p>
+            <div class="rbt-card-bottom d-flex justify-content-between align-items-center mb--15">
+                <span class="rbt-badge-5 bg-primary-opacity text-primary font-bold">
+                    {% if curso.is_pago %}{{ curso.preco }} Kz{% else %}Grátis{% endif %}
+                </span>
+            </div>
         {% else %}
             <div class="rbt-card-top">
                 <div class="rbt-review">

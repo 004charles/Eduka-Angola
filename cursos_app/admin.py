@@ -69,7 +69,8 @@ class CursoAdmin(admin.ModelAdmin):
         }),
     )
 
-admin.site.register(Instrutor, InstrutorAdmin)
+# Instrutor agora é gerido pelo instrutores_app via Proxy Model
+# admin.site.register(Instrutor, InstrutorAdmin)
 admin.site.register(Inscricao)
 admin.site.register(PreRequisitoCurso)
 

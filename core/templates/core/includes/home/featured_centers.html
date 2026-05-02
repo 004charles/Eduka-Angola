@@ -1,0 +1,41 @@
+
+{% load static %}
+{% load i18n %}
+
+{% if centros_destaque %}
+<!-- Centros em Destaque Section -->
+<div class="rbt-featured-centers-area bg-color-white">
+    <div class="container">
+        <div class="row align-items-center mb--40">
+            <div class="col-lg-12">
+                <div class="section-title text-start">
+                    <span class="subtitle bg-primary-opacity">{% trans "Parceiros" %} ✨</span>
+                    <h2 class="title" style="font-size: 32px; font-weight: 800;">{% trans "Centros em Destaque" %}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="featured-centers-track">
+            {% for centro in centros_destaque %}
+            <a href="{% url 'cursos_por_centro' centro.id %}" class="center-featured-card">
+                <div class="center-banner-bg" style="background-image: url('{{ centro.perfil.banner.url }}');"></div>
+                <div class="center-card-overlay">
+                    {% if centro.perfil.imagem %}
+                    <img src="{{ centro.perfil.imagem.url }}" alt="{{ centro.nome }}" class="center-mini-logo">
+                    {% else %}
+                    <div class="center-mini-logo d-flex align-items-center justify-content-center" style="background: var(--color-primary); color: white; font-weight: bold; border: none;">
+                        {{ centro.nome|slice:":1" }}
+                    </div>
+                    {% endif %}
+                    <div class="center-card-info">
+                        <span class="center-name">{{ centro.nome }}</span>
+                        <span class="center-tag">💎 {% trans "Instituicão" %}</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<!-- End Centros em Destaque Section -->
+{% endif %}

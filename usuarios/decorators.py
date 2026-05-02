@@ -73,11 +73,12 @@ def aluno_logado_e_centros(view_func):
         request.perfil = perfil
         request.centros = centros
 
-        # Restrição de Documentos: Se faltarem documentos e o utilizador não estiver no perfil
-        if request.path != reverse('aluno_perfil') and not request.path.startswith('/auth/logout'):
-            if not perfil.bilhete_frente or not perfil.bilhete_verso:
-                messages.warning(request, "Ação Necessária: Termine o seu cadastro importando o seu Bilhete de Identidade (Frente e Verso) antes de continuar.")
-                return redirect('aluno_perfil')
+        # Prioridade 1: Onboarding (Interesses e Nível)
+        if not perfil.onboarding_completo and request.path != reverse('aluno_onboarding'):
+            return redirect('aluno_onboarding')
+
+        # Restrição de Documentos Removida a pedido do utilizador
+        pass
 
         return view_func(request, *args, **kwargs)
 

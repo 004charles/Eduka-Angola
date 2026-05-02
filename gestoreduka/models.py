@@ -746,3 +746,29 @@ class AnuncioCentro(models.Model):
 
     def __str__(self):
         return f"{self.centro.nome} - {self.titulo}"
+
+
+class NotificacaoGestor(models.Model):
+    """Notificações destinadas aos gestores dos centros de formação"""
+    TIPO_CHOICES = [
+        ('COMENTARIO', _('Novo Comentário/Dúvida')),
+        ('INSCRICAO', _('Nova Inscrição')),
+        ('PAGAMENTO', _('Confirmação de Pagamento')),
+        ('SISTEMA', _('Mensagem do Sistema')),
+    ]
+
+    centro = models.ForeignKey(CentroDeFormacao, on_delete=models.CASCADE, related_name='notificacoes_gestor')
+    titulo = models.CharField(_('Título'), max_length=150)
+    mensagem = models.TextField(_('Mensagem'))
+    link = models.CharField(_('Link (opcional)'), max_length=255, blank=True, null=True)
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='SISTEMA')
+    lida = models.BooleanField(default=False)
+    data_criacao = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-data_criacao']
+        verbose_name = 'Notificação do Gestor'
+        verbose_name_plural = 'Notificações dos Gestores'
+
+    def __str__(self):
+        return f"{self.titulo} - {self.centro.nome}"

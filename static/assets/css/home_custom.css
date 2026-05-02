@@ -1,0 +1,317 @@
+
+.animated-text {
+    display: inline-block;
+    position: relative;
+    background: linear-gradient(45deg, var(--color-primary), var(--color-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 30px rgba(var(--color-primary-rgb), 0.3);
+}
+
+.cursor-pulse {
+    display: inline-block;
+    width: 3px;
+    height: 1.2em;
+    background: linear-gradient(45deg, var(--color-primary), var(--color-secondary));
+    margin-left: 2px;
+    animation: cursor-pulse 1.5s infinite, cursor-float 3s ease-in-out infinite;
+    border-radius: 2px;
+    box-shadow: 0 0 10px var(--color-primary);
+}
+
+@keyframes cursor-pulse {
+    0%, 100% { opacity: 1; transform: scaleY(1); }
+    50% { opacity: 0.7; transform: scaleY(0.7); }
+}
+
+@keyframes cursor-float {
+    0%, 100% { transform: translateY(0px) scaleY(1); }
+    50% { transform: translateY(-2px) scaleY(1.1); }
+}
+
+.banner-title-wrapper {
+    min-height: 140px;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.typing-effect {
+    animation: typing-glow 0.8s ease-out;
+}
+
+@keyframes typing-glow {
+    0% { text-shadow: 0 0 20px var(--color-primary); transform: scale(1.05); }
+    100% { text-shadow: 0 0 30px rgba(var(--color-primary-rgb), 0.3); transform: scale(1); }
+}
+
+.text-change-effect {
+    animation: text-change 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes text-change {
+    0% { opacity: 0; transform: translateY(20px) rotateX(90deg); filter: blur(10px); }
+    50% { opacity: 0.5; transform: translateY(-10px) rotateX(45deg); filter: blur(5px); }
+    100% { opacity: 1; transform: translateY(0) rotateX(0); filter: blur(0); }
+}
+
+.solution-text-effect {
+    animation: solution-appear 2s ease-out;
+}
+
+@keyframes solution-appear {
+    0% { opacity: 0; transform: scale(0.8) translateY(50px); filter: blur(20px); }
+    60% { opacity: 1; transform: scale(1.05) translateY(-10px); filter: blur(5px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+}
+
+/* Efeito de partículas no texto */
+.text-particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: particle-float 2s ease-out forwards;
+}
+
+@keyframes particle-float {
+    0% { opacity: 1; transform: translate(0, 0) scale(1); }
+    100% { opacity: 0; transform: translate(var(--tx, 0), var(--ty, -50px)) scale(0); }
+}
+
+/* Botão com efeito sparkle */
+.btn-sparkle {
+    position: relative;
+    overflow: hidden;
+}
+
+.sparkle-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.sparkle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    border-radius: 50%;
+    opacity: 0;
+    animation: sparkle-pop 2s infinite;
+}
+
+.sparkle:nth-child(1) { top: 20%; left: 20%; animation-delay: 0s; }
+.sparkle:nth-child(2) { top: 60%; left: 80%; animation-delay: 0.7s; }
+.sparkle:nth-child(3) { top: 80%; left: 40%; animation-delay: 1.4s; }
+
+@keyframes sparkle-pop {
+    0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+    50% { opacity: 1; transform: scale(1) rotate(180deg); }
+}
+
+/* Efeito de brilho especial para o texto da solução */
+.solution-glow {
+    position: relative;
+}
+
+.solution-glow::after {
+    content: '';
+    position: absolute;
+    top: -5px; left: -5px; right: -5px; bottom: -5px;
+    background: linear-gradient(45deg, #ff0000, #ff8000, #ffff00, #00ff00, #00ffff, #0000ff, #8000ff, #ff0080);
+    background-size: 400% 400%;
+    border-radius: 10px;
+    z-index: -1;
+    opacity: 0.3;
+    animation: rainbow-glow 3s ease-in-out infinite;
+    filter: blur(15px);
+}
+
+@keyframes rainbow-glow {
+    0%, 100% { background-position: 0% 50%; opacity: 0.3; }
+    50% { background-position: 100% 50%; opacity: 0.6; }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .banner-title-wrapper { min-height: 120px; }
+    .cursor-pulse { height: 1em; }
+    .animated-text { font-size: 0.9em; }
+}
+
+/* Variáveis CSS para cores */
+:root {
+    --color-primary: #7c3aed;
+    --color-secondary: #ec4899;
+    --color-primary-rgb: 124, 58, 237;
+}
+
+body {
+    overflow-x: hidden;
+    width: 100%;
+}
+
+/* Coursera Style Slider Overrides */
+.rbt-banner-area.rbt-banner-19 {
+    padding: 20px 0;
+    background: #fff;
+}
+
+.rbt-banner-activation-2 {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+}
+
+.coursera-slide {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 380px;
+    padding: 30px 40px;
+    position: relative;
+    background-color: #f5f7fa;
+    border-radius: 12px;
+    margin: 10px 0;
+}
+
+.slide-content {
+    flex: 1;
+    max-width: 550px;
+    z-index: 2;
+}
+
+.slide-image-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: 100%;
+    position: relative;
+}
+
+.slide-image-wrapper img {
+    max-height: 380px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.slide-title {
+    font-size: 26px !important;
+    line-height: 1.2 !important;
+    font-weight: 700 !important;
+    color: #1f1f1f !important;
+    margin-bottom: 15px !important;
+    animation: fadeInUp 0.8s ease forwards;
+}
+
+.slide-description {
+    font-size: 15px !important;
+    color: #3d3d3d !important;
+    margin-bottom: 20px !important;
+    line-height: 1.5 !important;
+}
+
+.coursera-btn {
+    background-color: #0056d2 !important;
+    color: #fff !important;
+    padding: 14px 28px !important;
+    border-radius: 4px !important;
+    font-weight: 600 !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    border: none;
+    font-size: 16px;
+}
+
+.coursera-btn:hover {
+    background-color: #00419e !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 86, 210, 0.2);
+}
+
+.bg-slide-1 { background: linear-gradient(135deg, #fffcf5 0%, #fff4e5 100%); }
+.bg-slide-2 { background: linear-gradient(135deg, #f0f7ff 0%, #e1efff 100%); }
+.bg-slide-3 { background: linear-gradient(135deg, #fdf4f8 0%, #f9e1ed 100%); }
+
+.rbt-slider-control .rbt-swiper-arrow-2 {
+    background: #fff !important;
+    color: #0056d2 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 50% !important;
+    border: 1px solid #eee !important;
+}
+
+.rbt-slider-control .rbt-swiper-arrow-2:hover {
+    background: #0056d2 !important;
+    color: #fff !important;
+}
+
+body.active-dark-mode .rbt-banner-area.rbt-banner-19 { background: var(--color-darker) !important; }
+body.active-dark-mode .coursera-slide { background-color: #1a1a2e !important; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3) !important; }
+body.active-dark-mode .slide-title { color: #ffffff !important; }
+body.active-dark-mode .slide-description { color: #b1b1b1 !important; }
+body.active-dark-mode .bg-slide-1 { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important; }
+body.active-dark-mode .bg-slide-2 { background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%) !important; }
+body.active-dark-mode .bg-slide-3 { background: linear-gradient(135deg, #16213e 0%, #0f3460 100%) !important; }
+body.active-dark-mode .rbt-slider-control .rbt-swiper-arrow-2 { background: #1a1a2e !important; border-color: #333 !important; color: #fff !important; }
+
+@media (max-width: 991px) {
+    .coursera-slide { flex-direction: column; padding: 40px 30px; text-align: center; min-height: auto; }
+    .slide-content { max-width: 100%; margin-bottom: 30px; }
+    .slide-image-wrapper { justify-content: center; }
+    .slide-title { font-size: 32px !important; }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.rbt-featured-centers-area { padding: 60px 0 0 0; overflow: hidden; }
+.featured-centers-track {
+    display: flex; gap: 25px; overflow-x: auto; padding: 20px 5px 40px 5px;
+    scroll-snap-type: x mandatory; scrollbar-width: thin; scrollbar-color: var(--color-primary) transparent;
+}
+.featured-centers-track::-webkit-scrollbar { height: 6px; }
+.featured-centers-track::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 10px; }
+.featured-centers-track::-webkit-scrollbar-thumb { background-color: var(--color-primary); border-radius: 10px; }
+
+.center-featured-card {
+    flex: 0 0 350px; height: 220px; position: relative; border-radius: 20px;
+    overflow: hidden; scroll-snap-align: start; box-shadow: var(--shadow-2);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer; border: 1px solid var(--color-border);
+}
+.center-featured-card:hover { transform: scale(1.03) translateY(-5px); }
+.center-banner-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; transition: transform 0.8s ease; }
+.center-featured-card:hover .center-banner-bg { transform: scale(1.1); }
+.center-card-overlay {
+    position: absolute; bottom: 0; left: 0; right: 0; padding: 20px;
+    background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+    display: flex; align-items: center; gap: 15px;
+}
+.center-mini-logo { width: 50px; height: 50px; border-radius: 12px; background: white; padding: 5px; object-fit: contain; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); }
+.center-card-info .center-name { color: white; font-size: 18px; font-weight: 700; margin: 0; display: block; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+.center-card-info .center-tag {
+    color: var(--color-primary); font-size: 11px; font-weight: 700; background: rgba(255, 255, 255, 0.15);
+    padding: 2px 10px; border-radius: 20px; backdrop-filter: blur(5px); text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+    .center-featured-card { flex: 0 0 280px; height: 180px; }
+    .rbt-featured-centers-area { padding: 40px 0 0 0; }
+    .center-card-info .center-name { font-size: 16px; }
+}

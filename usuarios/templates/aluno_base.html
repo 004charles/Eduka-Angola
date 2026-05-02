@@ -17,7 +17,7 @@
 
 
     <!-- Start Dashboard Area -->
-    <div class="rbt-dashboard-area" style="padding-top: 150px; min-height: 100vh; margin-bottom: 60px;">
+    <div class="rbt-dashboard-area" style="padding-top: 80px; min-height: 100vh; margin-bottom: 60px;">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
@@ -38,13 +38,18 @@
                     {% endif %}
 
                     <div class="row g-5">
+                        {% if not hide_sidebar %}
                         <div class="col-lg-3">
                             {% include 'include/sidebar_aluno.html' %}
                         </div>
-
                         <div class="col-lg-9">
                             {% block dashboard_content %}{% endblock %}
                         </div>
+                        {% else %}
+                        <div class="col-lg-12">
+                            {% block dashboard_content_full %}{% endblock %}
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

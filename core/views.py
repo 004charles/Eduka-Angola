@@ -28,9 +28,22 @@ from cursos_app.utils_secoes import get_home_sections_data
 
 def index(request):
     """
-    Página inicial do portal Edukangola.
-    Exibe cursos em destaque, vídeos, posts do blog, estágios e recomendações personalizadas.
+    Página inicial do portal Edukangola com lógica de Landing Gate para visitantes.
     """
+    if not request.user.is_authenticated:
+        return render(request, 'core/landing_gate.html')
+        
+    # Redirecionar para onboarding se for aluno e não completou
+    if request.user.tipo_usuario == 'ALUNO':
+        try:
+            aluno = request.user.aluno_profile
+            # Se não tem perfil ou não completou o onboarding, redireciona
+            if not hasattr(aluno, 'perfil') or not aluno.perfil.onboarding_completo:
+                return redirect('aluno_onboarding')
+        except AttributeError:
+            # Caso o Aluno profile por algum motivo não exista (raro para tipo ALUNO)
+            pass
+        
     agora = timezone.now()
     proximos_dias = agora + timedelta(days=30)
 

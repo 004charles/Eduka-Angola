@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from core import views
@@ -30,6 +30,7 @@ urlpatterns = [
     path('gestoreduka/', include('gestoreduka.urls')),
     path('blog/', include('blog.urls')),
     path('estagio/', include('estagio.urls')), 
+    path('instrutor/', include('instrutores_app.urls')),
     
     # SHARED API ENDPOINTS
     path('api/v1/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -37,7 +38,16 @@ urlpatterns = [
     path('api/v1/', include(router.urls)),
     path('centro/', include('centro_formacao.urls')),
     path('contato/', views.contato, name = 'contato'),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] 
+
+# Adicionar padrões de MEDIA e STATIC
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# CATCH-ALL deve ser o ÚLTIMO
+urlpatterns += [
+    re_path(r'^.*$', views.erro_404_view, kwargs={'exception': Exception("Page not Found")}),
+]
 
 
 handler404 = 'core.views.erro_404_view'

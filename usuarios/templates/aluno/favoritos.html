@@ -1,32 +1,62 @@
 {% extends 'aluno_base.html' %}
 {% load static %}
-{% load curso_filters %}
+{% load i18n %}
 
-{% block title %}Cursos Favoritos | Edukangola{% endblock %}
+{% block title %}{% trans "Meus Favoritos" %} | EdukAngola{% endblock %}
 
-{% block dashboard_content %}
-<div class="rbt-dashboard-content bg-color-white rbt-shadow-box">
-    <div class="content">
-        <div class="section-title">
-            <h4 class="rbt-title-style-3">Cursos Favoritos</h4>
-            <p>Seus cursos marcados para ver mais tarde.</p>
-        </div>
-
-        <div class="row g-5">
-            {% if favoritos_lista %}
-                {% for favorito in favoritos_lista %}
-                <div class="col-lg-4 col-md-6 col-sm-6 col-12">
-                    {% include 'components/curso_card.html' with curso=favorito.curso %}
+{% block dashboard_content_full %}
+<div class="coursera-style-dashboard">
+    <div class="row g-5">
+        {% if favoritos_lista %}
+            <div class="col-12">
+                <div class="section-title text-start mb--30 mt--30">
+                    <h4 class="title">{% trans "Meus Favoritos" %}</h4>
+                    <p class="description">{% trans "Cursos que você marcou para ver mais tarde." %}</p>
                 </div>
-                {% endfor %}
-            {% else %}
-                <div class="col-12 text-center py-5">
-                    <i class="feather-bookmark mb--20" style="font-size: 50px; color: #ccc;"></i>
-                    <p>Você ainda não salvou nenhum curso como favorito.</p>
-                    <a href="{% url 'buscar_centros' %}" class="rbt-btn btn-sm btn-gradient">Explorar Cursos</a>
+            </div>
+            {% for favorito in favoritos_lista %}
+            <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+                {% include 'components/curso_card.html' with curso=favorito.curso modo="aluno" %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12 text-center py-5">
+                <div class="empty-state-v2">
+                    <i class="feather-bookmark mb--20" style="font-size: 80px; color: #e2e8f0; display: block;"></i>
+                    <h2 class="empty-h2">{% trans "Nenhum favorito ainda" %}</h2>
+                    <p class="empty-p">{% trans "Salve os cursos que você mais gosta para encontrá-los facilmente aqui." %}</p>
+                    <div class="mt--30">
+                        <a href="{% url 'index' %}" class="rbt-btn btn-gradient btn-sm">{% trans "Explorar Cursos" %}</a>
+                    </div>
                 </div>
-            {% endif %}
-        </div>
+            </div>
+        {% endif %}
     </div>
 </div>
+
+<style>
+    .rbt-dashboard-area {
+        background-color: #ffffff !important;
+        padding-top: 60px !important;
+    }
+    
+    body.active-dark-mode .rbt-dashboard-area {
+        background-color: #0f172a !important;
+    }
+
+    .coursera-style-dashboard {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    body.active-dark-mode .empty-h2 {
+        color: #f8fafc;
+    }
+    body.active-dark-mode .empty-p {
+        color: #94a3b8;
+    }
+    body.active-dark-mode .title {
+        color: #f8fafc;
+    }
+</style>
 {% endblock %}

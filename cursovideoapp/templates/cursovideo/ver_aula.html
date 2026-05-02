@@ -19,302 +19,478 @@
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 
     <style>
-        /* Estilos Customizados para o Play Mode - Inspirado no Histudy */
+        /* EdukAngola Premium Design System */
         :root {
             --play-primary: #7c3aed;
-            --play-bg: #f5f8fa;
-            --play-sidebar-bg: #ffffff;
-            --play-header-height: 70px;
+            --play-primary-light: #a855f7;
+            --play-bg-dark: #0f172a;
+            --play-card-dark: #1e293b;
+            --play-sidebar-w: 400px;
+            --play-header-h: 80px;
+            --play-bg-light: #f8fafc;
+            --play-text-light: #1e293b;
+            --glass-bg: rgba(15, 23, 42, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.05);
         }
 
         body.play-mode {
-            background-color: var(--play-bg);
             height: 100vh;
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            font-family: 'Outfit', sans-serif;
+            transition: 0.3s;
         }
 
-        /* Header do Player */
+        body.active-dark-mode { background: #070b14; color: #f1f5f9; }
+        body.active-light-mode { background: #f1f5f9; color: #1e293b; }
+
+        /* Header Glassmorphism */
         .rbt-lesson-topbar {
-            height: var(--play-header-height);
-            background: #ffffff;
-            border-bottom: 1px solid #e6e6e6;
+            height: var(--play-header-h);
             display: flex;
             align-items: center;
-            padding: 0 30px;
-            z-index: 1000;
-        }
-
-        .rbt-lesson-topbar .lesson-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 0;
-            color: #1c1d1f;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 50%;
-        }
-
-        /* Layout Principal */
-        .rbt-lesson-content-wrapper {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        /* Sidebar de Conteúdo (Esquerda) */
-        .rbt-lesson-leftsidebar {
-            width: 350px;
-            background: var(--play-sidebar-bg);
-            border-right: 1px solid #e6e6e6;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.3s ease;
-        }
-
-        .rbt-lesson-leftsidebar .section-title {
-            padding: 20px;
-            border-bottom: 1px solid #e6e6e6;
-        }
-
-        .playlist-container {
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        /* Área do Vídeo e Conteúdo (Direita) */
-        .rbt-lesson-rightsidebar {
-            flex: 1;
-            overflow-y: auto;
-            background: #fdfdfd;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .video-player-section {
-            background: #000;
-            width: 100%;
-            position: relative;
-        }
-
-        .plyr--full-ui {
-            max-height: 70vh;
-        }
-
-        /* Estilização da Playlist */
-        .lesson-item {
-            padding: 15px 20px;
-            border-bottom: 1px solid #f1f1f1;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            text-decoration: none !important;
-            color: #444;
-            transition: 0.2s;
-        }
-
-        .lesson-item:hover {
-            background: #f8f9fa;
-        }
-
-        .lesson-item.active {
-            background: rgba(124, 58, 237, 0.05);
-            border-left: 4px solid var(--play-primary);
-        }
-
-        .lesson-item.locked {
-            opacity: 0.6;
-            cursor: not-allowed;
-            background: #f9f9f9;
-        }
-
-        .lesson-item-icon {
-            font-size: 18px;
-            min-width: 24px;
-            text-align: center;
-        }
-
-        .lesson-item-info h6 {
-            margin: 0;
-            font-size: 14px;
-            font-weight: 500;
-            line-height: 1.4;
-        }
-
-        .lesson-item-meta {
-            font-size: 11px;
-            color: #888;
-            margin-top: 2px;
-        }
-
-        /* Abas de Conteúdo */
-        .lesson-bottom-content {
-            padding: 40px;
-            max-width: 1000px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        .nav-tabs-style-1 {
-            border-bottom: 1px solid #e6e6e6;
-        }
-
-        .nav-tabs-style-1 .nav-link {
-            border: none;
-            border-bottom: 3px solid transparent;
-            color: #666;
-            font-weight: 600;
-            padding: 15px 25px;
-            background: transparent;
-            margin-bottom: -1px;
-        }
-
-        .nav-tabs-style-1 .nav-link.active {
-            color: var(--play-primary);
-            border-bottom-color: var(--play-primary);
-        }
-
-        /* Botão Sair */
-        .exit-button {
-            padding: 8px 16px;
-            border-radius: 8px;
-            background: #f0f2f5;
-            color: #1c1d1f;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-right: 20px;
-            transition: 0.2s;
-        }
-
-        .exit-button:hover {
-            background: #e4e6eb;
-            color: #000;
-        }
-
-        /* Navegação Inferior */
-        .lesson-nav-footer {
-            background: #fff;
-            padding: 15px 40px;
-            border-top: 1px solid #e6e6e6;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 0 40px;
+            z-index: 2000;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
             position: sticky;
-            bottom: 0;
+            top: 0;
+            transition: 0.3s;
         }
+        body.active-dark-mode .rbt-lesson-topbar { background: var(--glass-bg); }
+        body.active-light-mode .rbt-lesson-topbar { background: rgba(255, 255, 255, 0.8); border-bottom-color: rgba(0,0,0,0.05); }
 
-        /* Barra de Progresso Circular */
-        .circular-progress {
-            position: relative;
-            height: 45px;
+        .header-logo-section { display: flex; align-items: center; gap: 20px; }
+        
+        .exit-button {
             width: 45px;
-            border-radius: 50%;
-            background: conic-gradient(var(--play-primary) {{ progresso_total }}%, #e6e6e6 0deg);
+            height: 45px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
             display: flex;
             align-items: center;
             justify-content: center;
+            color: inherit !important;
+            transition: 0.3s;
+            text-decoration: none !important;
+        }
+        body.active-light-mode .exit-button { background: rgba(0,0,0,0.05); }
+        .exit-button:hover { background: var(--play-primary); color: #fff !important; transform: translateX(-5px); }
+
+        /* Playlist Sidebar */
+        .rbt-lesson-leftsidebar {
+            width: var(--play-sidebar-w);
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--glass-border);
+            transition: 0.3s;
+        }
+        body.active-light-mode .rbt-lesson-leftsidebar { border-left-color: rgba(0,0,0,0.05); }
+
+        .playlist-header { 
+            padding: 30px; 
+            border-bottom: 1px solid var(--glass-border); 
         }
 
-        .circular-progress::before {
-            content: "";
-            position: absolute;
-            height: 37px;
-            width: 37px;
-            border-radius: 50%;
-            background-color: #fff;
+        .lesson-item {
+            padding: 15px 20px;
+            margin: 8px 20px;
+            border-radius: 16px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none !important;
+            border: 1px solid transparent;
+        }
+        body.active-dark-mode .lesson-item { color: #94a3b8; background: rgba(255,255,255,0.02); }
+        body.active-light-mode .lesson-item { color: #64748b; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+
+        .lesson-item:hover { transform: translateY(-2px); border-color: var(--play-primary); }
+        
+        .lesson-item.active { 
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+            border-color: var(--play-primary);
+            color: var(--play-primary) !important;
         }
 
-        .progress-value {
+        .lesson-thumbnail-box {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: 0.3s;
+            flex-shrink: 0;
+        }
+        .lesson-item.active .lesson-thumbnail-box { background: var(--play-primary); color: #fff; }
+        .lesson-item.locked { opacity: 0.5; cursor: not-allowed; }
+
+        /* Main Content Area */
+        .rbt-lesson-rightsidebar {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        .video-card-premium {
+            background: #000;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 30px 100px rgba(0,0,0,0.4);
+            border: 1px solid var(--glass-border);
+            aspect-ratio: 16 / 10;
             position: relative;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--play-primary);
+            min-height: 500px;
         }
 
-        /* Debug Discreto */
-        #debug-status {
-            position: fixed;
-            bottom: 5px;
-            left: 5px;
-            font-size: 9px;
-            color: #ccc;
-            z-index: 100;
-            pointer-events: none;
-            background: rgba(255,255,255,0.7);
-            padding: 2px 5px;
-            border-radius: 3px;
+        /* Forçar o vídeo a ocupar toda a div sem NENHUM espaço escuro */
+        .video-card-premium .plyr {
+            height: 100% !important;
+            width: 100% !important;
+            background: transparent !important; /* Remover fundo preto para evitar bordas residuais */
+        }
+        .video-card-premium .plyr__video-wrapper {
+            height: 100% !important;
+            width: 100% !important;
+            background: transparent !important;
+        }
+        .video-card-premium iframe {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 101% !important; /* Ligeiramente maior para garantir cobertura total */
+            height: 101% !important;
+            transform: translate(-50%, -50%) scale(1.4); /* Escala agressiva para eliminar molduras */
+            object-fit: cover !important;
+        }
+        /* Garantir que os controlos fiquem por cima */
+        .plyr__controls {
+            z-index: 10;
         }
 
-        @media (max-width: 991px) {
-            .rbt-lesson-leftsidebar {
-                display: none;
-            }
-            .lesson-bottom-content {
-                padding: 20px;
-            }
+        .video-info-header {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding-bottom: 30px;
+            border-bottom: 1px solid var(--glass-border);
         }
+        body.active-light-mode .video-info-header { border-bottom-color: rgba(0,0,0,0.05); }
+
+        /* Tabs Refinadas */
+        .premium-tabs {
+            display: flex;
+            gap: 40px;
+            margin-top: 40px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .premium-tabs button {
+            background: none; border: none; padding: 15px 0;
+            font-weight: 600; color: #64748b; position: relative;
+            transition: 0.3s;
+        }
+        .premium-tabs button.active { color: var(--play-primary); }
+        .premium-tabs button.active::after {
+            content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 3px;
+            background: var(--play-primary); border-radius: 10px 10px 0 0;
+        }
+
+        /* Resume Prompt Glass */
+        #resume-prompt {
+            position: fixed; bottom: 40px; right: 40px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 25px; border-radius: 20px;
+            border: 1px solid var(--play-primary);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            z-index: 3000; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: translateY(150%); opacity: 0;
+        }
+        #resume-prompt.show { transform: translateY(0); opacity: 1; }
     </style>
 </head>
 
 <body class="play-mode rbt-header-sticky">
 
-    <!-- Topbar Histudy Style -->
+    <!-- Header Premium Glassmorphism -->
     <header class="rbt-lesson-topbar">
-        <a href="{% url 'curso_detalhe' id=curso.id %}" class="exit-button text-decoration-none">
-            <i class="feather-x"></i> <span>Sair do Play</span>
-        </a>
-        <h5 class="lesson-title d-none d-md-block">{{ curso.titulo }}</h5>
+        <div class="header-logo-section">
+            <a href="{% url 'cursovideoapp:detalhe_curso' slug=curso.slug %}" class="exit-button" title="Sair do Player">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            <div class="d-none d-lg-block">
+                <img src="{% static 'assets/images/logo/Eduka-removebg-preview.png' %}" alt="EdukAngola" style="height: 50px;">
+            </div>
+            <div class="ms-2 d-flex flex-column">
+                <span class="theme-text-color fw-bold" style="font-size: 16px; line-height: 1;">{{ curso.titulo }}</span>
+                <span style="font-size: 12px; opacity: 0.6;">{{ aula_atual.titulo }}</span>
+            </div>
+        </div>
         
         <div class="ms-auto d-flex align-items-center gap-3">
-             <div class="d-none d-md-flex flex-column align-items-end">
-                <span class="text-muted small">Seu Progresso</span>
-                <span class="fw-bold">{{ progresso_total }}% Concluído</span>
+             <!-- Cinema Mode Toggle -->
+             <button class="exit-button" id="btn-cinema-mode" title="Modo Cinema" style="width: 40px; height: 40px;">
+                <i class="fas fa-expand"></i>
+             </button>
+
+             <!-- Theme Toggle -->
+             <button class="exit-button" id="theme-toggle" title="Alternar Tema" style="width: 40px; height: 40px;">
+                <i class="fas fa-moon"></i>
+             </button>
+
+             <div class="vr mx-2 d-none d-md-block" style="height: 30px; opacity: 0.1;"></div>
+
+             <!-- User Progress Subtile -->
+             <div class="d-none d-md-flex align-items-center gap-3">
+                <div class="text-end">
+                    <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.5;">Teu Progresso</div>
+                    <div class="fw-bold theme-text-color">{{ progresso_total }}%</div>
+                </div>
+                <div class="progress" style="width: 60px; height: 6px; background: rgba(124, 58, 237, 0.1); border-radius: 10px;">
+                    <div class="progress-bar bg-primary" style="width: {{ progresso_total }}%"></div>
+                </div>
              </div>
-             <div class="circular-progress">
-                <span class="progress-value">{{ progresso_total }}%</span>
-             </div>
-             {% if progresso_total >= 100 %}
-             <a href="{% url 'cursovideoapp:emitir_certificado' curso_slug=curso.slug %}" class="btn btn-success btn-sm rounded-pill px-3 shadow-sm d-none d-sm-inline-block" target="_blank">
-                <i class="fas fa-award me-1"></i> Certificado
-             </a>
-             {% endif %}
         </div>
     </header>
 
     <div class="rbt-lesson-content-wrapper">
         
-        <!-- Sidebar Playlist (Left) -->
-        <aside class="rbt-lesson-leftsidebar">
-            <div class="section-title">
-                <h6 class="mb-0">Aulas do Curso</h6>
+        <!-- Área Principal do Vídeo (Esquerda) -->
+        <main class="rbt-lesson-rightsidebar">
+            
+            <!-- Video Card Premium -->
+            <div class="video-card-premium">
+                <div id="player" data-plyr-provider="youtube" data-plyr-embed-id="{{ aula_atual.video_url }}"></div>
             </div>
-            <div class="playlist-container">
+
+            <!-- Informações e Ações da Aula -->
+            <div class="video-info-header">
+                <div>
+                    <h1 class="theme-text-color fw-bold mb-2" style="font-size: 32px; letter-spacing: -1px;">{{ aula_atual.titulo }}</h1>
+                    <div class="d-flex align-items-center gap-4" style="opacity: 0.6; font-size: 14px;">
+                        <span><i class="far fa-clock me-2"></i>{{ aula_atual.duracao_formatada|default:"05:00" }}</span>
+                        <span><i class="far fa-play-circle me-2"></i>Aula {{ aula_atual.ordem }} de {{ aulas|length }}</span>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3">
+                    {% if not progresso_atual.concluida %}
+                    <button class="btn btn-play-gradient px-4 py-3" id="btn-concluir-manual" onclick="saveProgress(true)">
+                        <i class="fas fa-check-circle me-2"></i> Concluir Aula
+                    </button>
+                    {% else %}
+                    <div class="d-flex align-items-center px-4 py-3 rounded-pill bg-success-opacity text-success fw-bold" style="font-size: 14px;">
+                        <i class="fas fa-check-double me-2"></i> Aula Concluída
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Abas de Interação -->
+            <div class="premium-tabs">
+                <button class="active" onclick="switchTab(event, 'tab-descricao')">Descrição</button>
+                <button onclick="switchTab(event, 'tab-materiais')">Materiais ({% with m_count=aula_atual.materiais.count %}{{ m_count }}{% endwith %})</button>
+                <button onclick="switchTab(event, 'tab-avisos')">Avisos ({% with a_count=curso.avisos.count %}{{ a_count }}{% endwith %})</button>
+                <button onclick="switchTab(event, 'tab-notas')">Minhas Notas</button>
+                <button onclick="switchTab(event, 'tab-duvidas')">Dúvidas da Comunidade</button>
+            </div>
+
+            <div class="tab-content-container py-5">
+                <div id="tab-descricao" class="play-tab-content">
+                    <div class="p-4 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border);">
+                        <p style="font-size: 16px; opacity: 0.8; line-height: 1.8; color: inherit;">
+                            {{ aula_atual.descricao|default:"Nenhuma descrição detalhada disponível para esta aula."|linebreaks }}
+                        </p>
+                    </div>
+                </div>
+
+                <div id="tab-materiais" class="play-tab-content d-none">
+                    <div class="row g-4">
+                        {% for m in aula_atual.materiais.all %}
+                        <div class="col-md-6 col-lg-4">
+                            <a href="{{ m.arquivo.url }}" target="_blank" class="d-flex align-items-center p-4 rounded-4 text-decoration-none" style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.1); transition: 0.3s;">
+                                <div class="avatar-sm rounded-3 bg-primary me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                    <i class="fas fa-file-download text-white fs-4"></i>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <h6 class="mb-1 theme-text-color fw-bold text-truncate" style="font-size: 14px;">{{ m.titulo }}</h6>
+                                    <span class="text-muted extra-small" style="font-size: 11px;">Clique para baixar</span>
+                                </div>
+                            </a>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-5 opacity-40">
+                            <i class="fas fa-box-open fa-3x mb-3"></i>
+                            <p>Não há materiais complementares para esta aula.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div id="tab-avisos" class="play-tab-content d-none">
+                    <div class="row g-4">
+                        {% for a in curso.avisos.all %}
+                        <div class="col-12">
+                            <div class="p-4 rounded-4" style="background: rgba(255,165,0,0.05); border: 1px solid rgba(255,165,0,0.1);">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="fw-bold mb-0" style="color: #f59e0b;"><i class="fas fa-bullhorn me-2"></i> {{ a.titulo }}</h6>
+                                    <span class="text-muted extra-small">{{ a.data_criacao|date:"d/m/Y H:i" }}</span>
+                                </div>
+                                <p class="mb-0" style="font-size: 15px; opacity: 0.8; line-height: 1.6;">{{ a.mensagem|linebreaksbr }}</p>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-5 opacity-40">
+                            <i class="fas fa-comment-slash fa-3x mb-3"></i>
+                            <p>O instrutor ainda não publicou avisos para este curso.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div id="tab-notas" class="play-tab-content d-none">
+                    <div class="position-relative">
+                        <textarea class="note-editor" id="note-content" placeholder="Escreve aqui os teus apontamentos privados..." style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 20px; width: 100%; min-height: 200px; padding: 25px; color: inherit; font-size: 16px;">{{ nota_aula.conteudo|default:"" }}</textarea>
+                        <div class="mt-4 d-flex justify-content-between align-items-center">
+                            <span id="note-status" style="font-size: 13px; color: var(--play-primary);"></span>
+                            <button class="btn btn-play-gradient px-5 py-3" onclick="saveNote()">
+                                <i class="fas fa-save me-2"></i> Guardar Apontamentos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-duvidas" class="play-tab-content d-none">
+                    <div class="p-5 rounded-4 mb-5" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%); border: 1px solid var(--glass-border);">
+                        <h5 class="theme-text-color fw-bold mb-4">Tens alguma dúvida?</h5>
+                        <div class="d-flex gap-3">
+                            <textarea class="note-editor" id="question-text" placeholder="Pergunta algo à comunidade..." style="background: #fff; border: none; border-radius: 20px; width: 100%; min-height: 100px; padding: 20px; color: #1e293b; font-size: 15px;"></textarea>
+                            <button class="btn btn-play-gradient" onclick="sendQuestion()" style="width: 60px; height: 60px; border-radius: 20px; flex-shrink: 0;">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="questions-list">
+                        {% for c in comentarios %}
+                        <div class="mb-4 p-4 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border);" id="comment-{{ c.id }}">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="avatar-sm rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; color: #fff; font-weight: bold;">
+                                    {% if c.aluno %}{{ c.aluno.nome|slice:":1" }}{% else %}{{ c.instrutor.nome|slice:":1" }}{% endif %}
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 theme-text-color fw-bold">
+                                        {% if c.aluno %}{{ c.aluno.nome }}{% else %}{{ c.instrutor.nome }}{% endif %}
+                                        {% if c.instrutor %}<span class="badge bg-success ms-2" style="font-size: 10px;">INSTRUTOR</span>{% endif %}
+                                    </h6>
+                                    <span style="font-size: 12px; opacity: 0.5;">{{ c.data_criacao|timesince }} atrás</span>
+                                </div>
+                            </div>
+                            <p class="mb-3" style="font-size: 15px; opacity: 0.8; line-height: 1.6;">{{ c.texto }}</p>
+                            
+                            <div class="ps-4 border-start" style="border-color: rgba(124, 58, 237, 0.2) !important;">
+                                <button class="btn btn-sm text-primary p-0 mb-3 fw-bold" onclick="toggleReplyForm({{ c.id }})" style="font-size: 13px;">
+                                    <i class="fas fa-reply me-1"></i> Responder
+                                </button>
+
+                                <div class="replies-container-{{ c.id }}">
+                                    {% for r in c.respostas.all %}
+                                    <div class="mb-3 p-3 rounded-3" style="background: rgba(255,255,255,0.01);">
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <span class="fw-bold theme-text-color" style="font-size: 14px;">
+                                                {% if r.aluno %}{{ r.aluno.nome }}{% else %}{{ r.instrutor.nome }}{% endif %}
+                                                {% if r.instrutor %}<span class="text-success ms-1" style="font-size: 10px;">● Instrutor</span>{% endif %}
+                                            </span>
+                                            <span style="font-size: 11px; opacity: 0.4;">{{ r.data_criacao|timesince }}</span>
+                                        </div>
+                                        <p class="mb-0" style="font-size: 14px; opacity: 0.7;">{{ r.texto }}</p>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+
+                                <div id="reply-form-{{ c.id }}" class="d-none mt-3">
+                                    <div class="d-flex gap-2">
+                                        <input type="text" class="form-control" id="reply-text-{{ c.id }}" placeholder="Tua resposta..." style="border-radius: 15px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: inherit;">
+                                        <button class="btn btn-play-gradient btn-sm px-4" onclick="sendReply({{ c.id }})">Enviar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-5 opacity-40" id="no-questions">
+                            <i class="fas fa-comments fa-4x mb-3"></i>
+                            <p>Ainda não há perguntas nesta aula.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navegação de Aulas (Fundo) -->
+            <div class="d-flex justify-content-between align-items-center mt-5 mb-5">
+                {% if aula_anterior %}
+                <a href="{% url 'cursovideoapp:ver_aula' curso_slug=curso.slug pk=aula_anterior.pk %}" class="exit-button" style="width: auto; height: auto; padding: 15px 30px; border-radius: 20px;">
+                    <i class="fas fa-arrow-left me-3"></i> Anterior
+                </a>
+                {% else %}
+                <div></div>
+                {% endif %}
+
+                {% if proxima_aula %}
+                <a href="{% url 'cursovideoapp:ver_aula' curso_slug=curso.slug pk=proxima_aula.pk %}" class="btn btn-play-gradient px-5 py-4" style="border-radius: 25px; font-size: 18px;">
+                    Próxima Aula <i class="fas fa-arrow-right ms-3"></i>
+                </a>
+                {% else %}
+                <a href="{% url 'cursovideoapp:detalhe_curso' slug=curso.slug %}" class="btn btn-play-gradient px-5 py-4" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 25px; font-size: 18px;">
+                    Finalizar Curso <i class="fas fa-award ms-3"></i>
+                </a>
+                {% endif %}
+            </div>
+        </main>
+
+        <!-- Sidebar Playlist (Direita) -->
+        <aside class="rbt-lesson-leftsidebar" id="lesson-sidebar">
+            <div class="playlist-header">
+                <h5 class="theme-text-color fw-bold mb-4">Conteúdo do Curso</h5>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span style="font-size: 12px; opacity: 0.6;">{{ progresso_total }}% Concluído</span>
+                    <span style="font-size: 12px; opacity: 0.6;">{{ aulas|length }} Aulas</span>
+                </div>
+                <div class="progress" style="height: 8px; border-radius: 10px; background: rgba(124, 58, 237, 0.1);">
+                    <div class="progress-bar bg-primary" style="width: {{ progresso_total }}%; border-radius: 10px;"></div>
+                </div>
+            </div>
+
+            <div class="playlist-container py-3" style="flex: 1; overflow-y: auto;">
                 {% for item in aulas_status %}
                 <a href="{% if item.is_unlocked %}{% url 'cursovideoapp:ver_aula' curso_slug=curso.slug pk=item.id %}{% else %}javascript:void(0);{% endif %}" 
                    class="lesson-item {% if item.id == aula_atual.id %}active{% endif %} {% if not item.is_unlocked %}locked{% endif %}">
                     
-                    <div class="lesson-item-icon">
+                    <div class="lesson-thumbnail-box">
                         {% if item.is_completed %}
-                            <i class="fas fa-check-circle text-success"></i>
+                            <i class="fas fa-check-circle"></i>
                         {% elif item.id == aula_atual.id %}
-                            <i class="fas fa-play-circle text-primary"></i>
+                            <i class="fas fa-play"></i>
                         {% elif not item.is_unlocked %}
-                            <i class="fas fa-lock text-muted"></i>
+                            <i class="fas fa-lock" style="font-size: 14px;"></i>
                         {% else %}
-                            <i class="far fa-circle text-muted"></i>
+                            <i class="far fa-circle" style="font-size: 14px;"></i>
                         {% endif %}
                     </div>
-                    
-                    <div class="lesson-item-info">
-                        <h6>{{ item.titulo }}</h6>
-                        <div class="lesson-item-meta">
-                            {% if item.duracao_formatada %}
-                            <span><i class="far fa-clock me-1"></i> {{ item.duracao_formatada }}</span>
+
+                    <div class="flex-grow-1">
+                        <div class="fw-bold" style="font-size: 14px; line-height: 1.4;">{{ item.titulo }}</div>
+                        <div class="mt-1 d-flex align-items-center gap-3" style="font-size: 11px; opacity: 0.5;">
+                            <span>{{ item.duracao_formatada|default:"05:00" }}</span>
+                            {% if not item.is_unlocked %}
+                            <span class="text-danger">Bloqueada</span>
                             {% endif %}
                         </div>
                     </div>
@@ -323,131 +499,9 @@
             </div>
         </aside>
 
-        <!-- Player Area (Right) -->
-        <main class="rbt-lesson-rightsidebar">
-            
-            <!-- Video Container -->
-            <section class="video-player-section">
-                <div class="plyr__video-embed" id="player">
-                    <iframe src="{{ aula_atual.video_url }}" allowfullscreen allowtransparency allow="autoplay"></iframe>
-                </div>
-            </section>
-
-            <!-- Metadata Area -->
-            <div class="lesson-bottom-content">
-                <div class="rbt-shadow-box p--30 mb--30 bg-white">
-                    <div class="row align-items-center mb--30">
-                        <div class="col-md-8">
-                            <h3 class="title mb-0">{{ aula_atual.titulo }}</h3>
-                        </div>
-                        <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                             {% if not progresso_atual.concluida %}
-                             <button class="btn btn-primary btn-md rounded-pill px-4" id="btn-concluir-manual" onclick="saveProgress(true)">
-                                <i class="fas fa-check me-2"></i> Concluir Aula
-                             </button>
-                             {% else %}
-                             <span class="badge bg-success-opacity text-success p-3 rounded-pill">
-                                <i class="fas fa-check-double me-2"></i> Aula Concluída
-                             </span>
-                             {% endif %}
-                        </div>
-                    </div>
-
-                    <!-- Tabs Information -->
-                    <ul class="nav nav-tabs nav-tabs-style-1 mb--30" id="lessonTab" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="about-tab" data-bs-toggle="tab" data-bs-target="#about" type="button" role="tab">Sobre o Curso</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="resources-tab" data-bs-toggle="tab" data-bs-target="#resources" type="button" role="tab">Materiais</button>
-                        </li>
-                    </ul>
-                    
-                    <div class="tab-content" id="lessonTabContent">
-                        <div class="tab-pane fade show active" id="about" role="tabpanel">
-                            <div class="content">
-                                <h6 class="mb-3">Informações do Curso</h6>
-                                <div class="course-desc">
-                                    {{ curso.descricao|safe }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tab-pane fade" id="resources" role="tabpanel">
-                            <div class="content">
-                                <p class="text-muted"><i class="feather-info me-2"></i>Não há arquivos de apoio anexados a esta aula.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sticky Lesson Nav -->
-            <footer class="lesson-nav-footer mt-auto">
-                <div>
-                    {% if aula_anterior %}
-                    <a href="{% url 'cursovideoapp:ver_aula' curso_slug=curso.slug pk=aula_anterior.pk %}" class="rbt-btn btn-border btn-sm rounded-pill px-4">
-                        <i class="fas fa-chevron-left me-2"></i> Anterior
-                    </a>
-                    {% endif %}
-                </div>
-                <div class="d-flex align-items-center gap-3 text-center">
-                    <span class="d-none d-lg-block text-muted small">Próxima Aula:<br><strong class="text-dark">{% if proxima_aula %}{{ proxima_aula.titulo }}{% else %}Fim do Curso{% endif %}</strong></span>
-                </div>
-                <div>
-                    {% if proxima_aula %}
-                    <a href="{% url 'cursovideoapp:ver_aula' curso_slug=curso.slug pk=proxima_aula.pk %}" class="rbt-btn btn-gradient btn-sm rounded-pill px-4">
-                        Próxima <i class="fas fa-chevron-right ms-2"></i>
-                    </a>
-                    {% endif %}
-                </div>
-
-                <!-- Secção de Carrossel: Explorar Mais no Play -->
-                <div class="row mt--60" style="padding: 0 40px 60px;">
-                    <div class="col-lg-12">
-                        <div class="section-title">
-                            <h3 class="title" style="color: var(--play-text-dark);">Continue a Explorar no Play</h3>
-                        </div>
-                        <div class="swiper relatedPlaySwiper mt--30">
-                            <div class="swiper-wrapper">
-                                {% for rec in cursos_recomendados %}
-                                <div class="swiper-slide">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-img">
-                                            <a href="{% url 'cursovideoapp:detalhe_curso' slug=rec.slug %}">
-                                                {% if rec.capa %}
-                                                <img src="{{ rec.capa.url }}" alt="{{ rec.titulo }}">
-                                                {% else %}
-                                                <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{ rec.titulo }}">
-                                                {% endif %}
-                                            </a>
-                                        </div>
-                                        <div class="rbt-card-body p-3">
-                                            <h6 class="rbt-card-title mb-2">
-                                                <a href="{% url 'cursovideoapp:detalhe_curso' slug=rec.slug %}" style="font-size: 15px;">{{ rec.titulo }}</a>
-                                            </h6>
-                                            <div class="rbt-card-bottom d-flex justify-content-between align-items-center">
-                                                <span class="small" style="font-size: 11px; opacity: 0.7;">
-                                                    <i class="feather-book-open"></i> {{ rec.aulas.count }} aulas
-                                                </span>
-                                                <span class="badge bg-primary-opacity text-primary" style="font-size: 10px;">{{ rec.get_nivel_display }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                            <!-- Botões de Navegação Customizados -->
-                            <div class="swiper-button-next" style="right: 5px; color: #fff;"></div>
-                            <div class="swiper-button-prev" style="left: 5px; color: #fff;"></div>
-                        </div>
-                    </div>
-                </div>
-
-            </footer>
-
-        </main>
-
     </div>
+
+
 
     <!-- Debug Log Discreto -->
     <div id="debug-status">
@@ -456,92 +510,240 @@
 
     {% include 'include/java.html' %}
     
-    <!-- Plyr JS -->
+    <!-- Script System Premium -->
     <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Player Setup
-            const video = document.getElementById('player');
-            const player = new Plyr(video, {
+            const player = new Plyr('#player', {
                 autoplay: false,
                 invertTime: false,
+                hideControls: false,
+                controls: [
+                    'play-large', 'play', 'progress', 'current-time', 
+                    'mute', 'volume', 'settings', 'fullscreen'
+                ],
+                quality: {
+                    default: 1080,
+                    options: [2160, 1440, 1080, 720, 480, 360]
+                },
+                settings: ['quality', 'speed'],
+                youtube: { 
+                    noCookie: true, 
+                    rel: 0, 
+                    showinfo: 0, 
+                    iv_load_policy: 3, 
+                    modestbranding: 1,
+                    vq: 'hd1080'
+                }
             });
 
-            // Lógica de Progresso
-            let lastSavedTime = parseFloat("{{ progresso_atual.tempo_assistido|default:0 }}");
-            let isAulaCompleted = {{ progresso_atual.concluida|yesno:"true,false" }};
-            const updateUrl = "{% url 'cursovideoapp:atualizar_progresso' aula_id=aula_atual.id %}";
-            const csrfToken = "{{ csrf_token }}";
-
-            // Restore last position
+            // Forçar qualidade máxima via API direta
             player.on('ready', () => {
-                if (lastSavedTime > 5 && !isAulaCompleted) {
-                    player.currentTime = lastSavedTime;
+                player.quality = 1080;
+            });
+
+            player.on('playing', () => {
+                if (player.quality !== 1080) {
+                    player.quality = 1080;
                 }
             });
 
-            // Atualização de tempo e auto-save
-            player.on('timeupdate', () => {
-                const current = Math.floor(player.currentTime);
-                document.getElementById('dbg-time').textContent = current;
+            // --- Gestão de Temas (EdukAngola Standard) ---
+            const themeToggle = document.getElementById('theme-toggle');
+            const body = document.body;
+
+            function setTheme(isDark) {
+                const themeVal = isDark ? 'dark' : 'light';
+                if (isDark) {
+                    body.classList.add('active-dark-mode');
+                    body.classList.remove('active-light-mode');
+                    if (themeToggle) themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                } else {
+                    body.classList.add('active-light-mode');
+                    body.classList.remove('active-dark-mode');
+                    if (themeToggle) themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                }
                 
-                // Salva a cada 30 segundos assistidos
-                if (Math.abs(current - lastSavedTime) >= 30) {
-                    saveProgress();
+                // Persistir usando o padrão do EdukAngola (Cookie + localStorage)
+                if (window.Cookies) {
+                    Cookies.set('styleCookieName', themeVal, { expires: 7, path: '/' });
+                }
+                localStorage.setItem('play-theme', themeVal);
+            }
+
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    setTheme(!body.classList.contains('active-dark-mode'));
+                });
+            }
+
+            // Carregar tema guardado (Cookie prioritário para manter sincronia com o site)
+            let savedTheme = 'dark';
+            if (window.Cookies && Cookies.get('styleCookieName')) {
+                savedTheme = Cookies.get('styleCookieName');
+            } else {
+                savedTheme = localStorage.getItem('play-theme') || 'dark';
+            }
+            setTheme(savedTheme === 'dark');
+
+            // --- Modo Cinema ---
+            const btnCinema = document.getElementById('btn-cinema-mode');
+            if (btnCinema) {
+                btnCinema.addEventListener('click', () => {
+                    body.classList.toggle('cinema-mode');
+                    const isCinema = body.classList.contains('cinema-mode');
+                    btnCinema.innerHTML = isCinema ? '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
+                    btnCinema.title = isCinema ? 'Sair do Modo Cinema' : 'Modo Cinema';
+                });
+            }
+
+            // --- Gestão de Abas ---
+            window.switchTab = function(evt, tabName) {
+                const tabs = document.querySelectorAll('.play-tab-content');
+                const buttons = document.querySelectorAll('.premium-tabs button');
+                tabs.forEach(tab => tab.classList.add('d-none'));
+                buttons.forEach(btn => btn.classList.remove('active'));
+                document.getElementById(tabName).classList.remove('d-none');
+                evt.currentTarget.classList.add('active');
+            }
+
+            // --- Progresso e Retomada ---
+            let lastSavedTime = parseFloat("{{ progresso_atual.tempo_assistido|default:0 }}".replace(',', '.'));
+            let isCompleted = "{{ progresso_atual.concluida }}" === "True";
+
+            player.on('ready', () => {
+                if (lastSavedTime > 10 && !isCompleted) {
+                    const prompt = document.getElementById('resume-prompt');
+                    const timeSpan = document.getElementById('resume-time');
+                    const minutes = Math.floor(lastSavedTime / 60);
+                    const seconds = Math.floor(lastSavedTime % 60);
+                    if (timeSpan) timeSpan.innerText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    if (prompt) prompt.classList.add('show');
                 }
             });
 
-            // Salva ao terminar
+            const btnResumeYes = document.getElementById('btn-resume-yes');
+            if (btnResumeYes) {
+                btnResumeYes.addEventListener('click', () => {
+                    player.currentTime = lastSavedTime;
+                    player.play();
+                    document.getElementById('resume-prompt').classList.remove('show');
+                });
+            }
+
+            const btnResumeNo = document.getElementById('btn-resume-no');
+            if (btnResumeNo) {
+                btnResumeNo.addEventListener('click', () => {
+                    document.getElementById('resume-prompt').classList.remove('show');
+                });
+            }
+
+            // Atualizar progresso a cada 20 segundos
+            setInterval(() => {
+                if (player.playing) {
+                    saveProgress(false);
+                }
+            }, 20000);
+
             player.on('ended', () => {
                 saveProgress(true);
             });
 
-            window.saveProgress = function(isCompleted = false) {
-                const currentTime = Math.floor(player.currentTime);
+            window.saveProgress = function(manual = false) {
+                const currentTime = player.currentTime;
+                const percentage = (currentTime / player.duration) * 100;
+                const completed = manual || percentage > 90;
+
                 const formData = new FormData();
                 formData.append('tempo_assistido', currentTime);
-                formData.append('concluida', isCompleted);
-                formData.append('csrfmiddlewaretoken', csrfToken);
+                formData.append('concluida', completed);
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
-                document.getElementById('dbg-status-text').textContent = "Salvando...";
-
-                fetch(updateUrl, {
-                    method: 'POST',
+                fetch("{% url 'cursovideoapp:atualizar_progresso' aula_id=aula_atual.id %}", {
+                    method: "POST",
                     body: formData,
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
                 })
-                .then(r => r.json())
+                .then(res => res.json())
                 .then(data => {
-                    if (data.success) {
-                        lastSavedTime = currentTime;
-                        document.getElementById('dbg-status-text').textContent = isCompleted ? "Concluído!" : "Progresso salvo";
-                        if (isCompleted) {
-                            setTimeout(() => {
-                                window.location.reload(); 
-                            }, 1000);
-                        }
+                    if (manual && data.status === 'success') {
+                        location.reload();
                     }
-                })
-                .catch(err => {
-                    document.getElementById('dbg-status-text').textContent = "Erro na rede";
                 });
             }
 
-            // Inicializar Carousel de Recomendações
-            new Swiper(".relatedPlaySwiper", {
-                slidesPerView: 1.2,
-                spaceBetween: 15,
-                navigation: {
-                    nextEl: ".swiper-button-next",
-                    prevEl: ".swiper-button-prev",
-                },
-                breakpoints: {
-                    576: { slidesPerView: 2.2 },
-                    992: { slidesPerView: 3.2 },
-                    1200: { slidesPerView: 4.2 }
-                }
-            });
+            // --- Notas ---
+            window.saveNote = function() {
+                const content = document.getElementById('note-content').value;
+                const status = document.getElementById('note-status');
+                status.innerText = "A guardar...";
+
+                const formData = new FormData();
+                formData.append('conteudo', content);
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+                fetch("{% url 'cursovideoapp:salvar_nota_aula' aula_id=aula_atual.id %}", {
+                    method: "POST",
+                    body: formData,
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        status.innerText = "Guardado com sucesso!";
+                        setTimeout(() => status.innerText = "", 3000);
+                    }
+                });
+            }
+
+            // --- Dúvidas e Respostas ---
+            window.sendQuestion = function() {
+                const text = document.getElementById('question-text').value;
+                if (!text.trim()) return;
+
+                const formData = new FormData();
+                formData.append('texto', text);
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+                fetch("{% url 'cursovideoapp:salvar_comentario_aula' aula_id=aula_atual.id %}", {
+                    method: "POST",
+                    body: formData,
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        location.reload();
+                    }
+                });
+            }
+
+            window.toggleReplyForm = function(id) {
+                const form = document.getElementById(`reply-form-${id}`);
+                if (form) form.classList.toggle('d-none');
+            }
+
+            window.sendReply = function(parentId) {
+                const text = document.getElementById(`reply-text-${parentId}`).value;
+                if (!text.trim()) return;
+
+                const formData = new FormData();
+                formData.append('texto', text);
+                formData.append('parent_id', parentId);
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+                fetch("{% url 'cursovideoapp:salvar_comentario_aula' aula_id=aula_atual.id %}", {
+                    method: "POST",
+                    body: formData,
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        location.reload();
+                    }
+                });
+            }
         });
     </script>
 </body>

@@ -1,37 +1,70 @@
 {% extends 'aluno_base.html' %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}Meus Cursos | Edukangola{% endblock %}
+{% block title %}{% trans "Meus Cursos" %} | EdukAngola{% endblock %}
 
-{% block dashboard_content %}
-<div class="rbt-dashboard-content bg-color-white rbt-shadow-box">
-    <div class="content">
-        <div class="section-title">
-            <h4 class="rbt-title-style-3">Cursos Inscritos</h4>
-            <p>Seus cursos em andamento e concluídos.</p>
-        </div>
+{% block dashboard_content_full %}
+<div class="coursera-style-dashboard">
+    <div class="row g-5">
+        {% if cursos_inscritos or cursos_videos_inscritos %}
+            <div class="col-12">
+                <div class="section-title text-start mb--30 mt--30">
+                    <h4 class="title">{% trans "Meus Cursos" %}</h4>
+                    <p class="description">{% trans "Acompanhe seu progresso em todos os cursos inscritos." %}</p>
+                </div>
+            </div>
+            
+            {% for curso in cursos_inscritos %}
+            <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+                {% include 'components/curso_card.html' with curso=curso modo="aluno" %}
+            </div>
+            {% endfor %}
 
-        <div class="row g-5">
-            {% if cursos_inscritos or cursos_videos_inscritos %}
-                {% for curso in cursos_inscritos %}
-                <div class="col-lg-4 col-md-6 col-sm-6 col-12">
-                    {% include 'components/curso_card.html' with curso=curso modo="aluno" %}
+            {% for curso in cursos_videos_inscritos %}
+            <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+                {% include 'components/curso_card.html' with curso=curso modo="aluno" %}
+            </div>
+            {% endfor %}
+            
+        {% else %}
+            <div class="col-12 text-center py-5">
+                <div class="empty-state-v2">
+                    <i class="feather-book-open mb--20" style="font-size: 80px; color: #e2e8f0; display: block;"></i>
+                    <h2 class="empty-h2">{% trans "Nenhuma inscrição ainda" %}</h2>
+                    <p class="empty-p">{% trans "Parece que você ainda não começou nenhum curso. Vamos mudar isso hoje?" %}</p>
+                    <div class="mt--30">
+                        <a href="{% url 'index' %}" class="rbt-btn btn-gradient btn-sm">{% trans "Ver Catálogo de Cursos" %}</a>
+                    </div>
                 </div>
-                {% endfor %}
-                
-                {% for curso in cursos_videos_inscritos %}
-                <div class="col-lg-4 col-md-6 col-sm-6 col-12">
-                    {% include 'components/curso_card.html' with curso=curso modo="aluno" %}
-                </div>
-                {% endfor %}
-            {% else %}
-                <div class="col-12 text-center py-5">
-                    <i class="feather-book-open mb--20" style="font-size: 50px; color: #ccc;"></i>
-                    <p>Você ainda não se inscreveu em nenhum centro ou curso.</p>
-                    <a href="{% url 'buscar_centros' %}" class="rbt-btn btn-sm btn-gradient">Ver Centros Disponíveis</a>
-                </div>
-            {% endif %}
-        </div>
+            </div>
+        {% endif %}
     </div>
 </div>
+
+<style>
+    .rbt-dashboard-area {
+        background-color: #ffffff !important;
+        padding-top: 60px !important;
+    }
+    
+    body.active-dark-mode .rbt-dashboard-area {
+        background-color: #0f172a !important;
+    }
+
+    .coursera-style-dashboard {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    body.active-dark-mode .empty-h2 {
+        color: #f8fafc;
+    }
+    body.active-dark-mode .empty-p {
+        color: #94a3b8;
+    }
+    body.active-dark-mode .title {
+        color: #f8fafc;
+    }
+</style>
 {% endblock %}

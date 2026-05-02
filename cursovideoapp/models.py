@@ -19,6 +19,10 @@ class Curso_video(models.Model):
     slug = models.SlugField(unique=True, blank=True)
     inscritos = models.ManyToManyField('usuarios.Aluno', related_name='cursos_inscritos_video', blank=True)
     destaque = models.BooleanField(default=False)
+    
+    # Novos campos para monetização
+    is_pago = models.BooleanField(default=False, verbose_name=_("Curso Pago?"))
+    preco = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name=_("Preço (KZ)"))
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -59,6 +63,28 @@ class Curso_video(models.Model):
         
         return aulas_concluidas == total_aulas
 
+    @property
+    def get_media_avaliacoes(self):
+        """Retorna a média das avaliações do curso em vídeo (apenas comentários principais)"""
+        from django.db.models import Avg
+        avg = self.comentarios.filter(parent__isnull=True).aggregate(media=Avg('avaliacao'))['media']
+        return round(avg, 1) if avg else 0.0
+
+    @property
+    def get_distribuicao_avaliacoes(self):
+        """Retorna a distribuição percentual das notas de 1 a 5 estrelas"""
+        total = self.comentarios.filter(parent__isnull=True).count()
+        distribuicao = []
+        for i in range(5, 0, -1):
+            count = self.comentarios.filter(parent__isnull=True, avaliacao=i).count()
+            percentagem = (count / total * 100) if total > 0 else 0
+            distribuicao.append({
+                'nota': i,
+                'count': count,
+                'percentagem': int(percentagem)
+            })
+        return distribuicao
+
     def __str__(self):
         return self.titulo
 
@@ -75,10 +101,25 @@ class Aula(models.Model):
     ordem = models.PositiveIntegerField(default=0)
     duracao_segundos = models.PositiveIntegerField(default=0, help_text="Duração em segundos")
     visualizacoes = models.PositiveIntegerField(default=0)
+    descricao = models.TextField(blank=True, null=True, verbose_name=_("Descrição da Aula"))
     requer_conclusao_anterior = models.BooleanField(default=True)
     
-    class Meta:
-        ordering = ["ordem"]
+    def save(self, *args, **kwargs):
+        # Automação via API do YouTube
+        if self.video_url and ("youtube.com" in self.video_url or "youtu.be" in self.video_url):
+            # Só buscar se o título estiver vazio ou a duração for 0
+            if not self.titulo or self.duracao_segundos == 0:
+                from .utils import fetch_youtube_metadata
+                metadata = fetch_youtube_metadata(self.video_url)
+                if metadata:
+                    if not self.titulo:
+                        self.titulo = metadata['titulo']
+                    if not self.descricao:
+                        self.descricao = metadata['descricao']
+                    if self.duracao_segundos == 0:
+                        self.duracao_segundos = metadata['duracao_segundos']
+        
+        super().save(*args, **kwargs)
 
     def duracao_formatada(self):
         if self.duracao_segundos:
@@ -138,7 +179,67 @@ class FavoritoCursoVideo(models.Model):
         verbose_name_plural = 'Favoritos Cursos Vídeo'
         unique_together = ('aluno', 'curso')
         ordering = ['-data_adicao']
+class NotaAula(models.Model):
+    aluno = models.ForeignKey('usuarios.Aluno', on_delete=models.CASCADE, related_name='notas_video')
+    aula = models.ForeignKey(Aula, on_delete=models.CASCADE, related_name='notas_alunos')
+    conteudo = models.TextField(verbose_name=_("Conteúdo da Nota"))
+    data_criacao = models.DateTimeField(auto_now_add=True)
+    data_atualizacao = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('aluno', 'aula')
+        verbose_name = 'Nota de Aula'
+        verbose_name_plural = 'Notas de Aula'
+
+    def __str__(self):
+        return f"Nota: {self.aluno.nome} - {self.aula.titulo}"
+class ComentarioAula(models.Model):
+    aluno = models.ForeignKey('usuarios.Aluno', on_delete=models.CASCADE, related_name='comentarios_aulas', null=True, blank=True)
+    instrutor = models.ForeignKey('cursos_app.Instrutor', on_delete=models.CASCADE, related_name='respostas_aulas', null=True, blank=True)
+    aula = models.ForeignKey(Aula, on_delete=models.CASCADE, related_name='comentarios')
+    texto = models.TextField(verbose_name=_("Dúvida ou Comentário"))
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='respostas')
+    data_criacao = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Comentário de Aula'
+        verbose_name_plural = 'Comentários de Aula'
+        ordering = ['data_criacao'] # Ordem cronológica para conversas
+
+    def __str__(self):
+        autor = self.aluno.nome if self.aluno else self.instrutor.nome
+        return f"{autor} em {self.aula.titulo}"
 
     def __str__(self):
         return f"{self.aluno.nome} - {self.curso.titulo}"
 
+class AvisoCurso(models.Model):
+    curso = models.ForeignKey(Curso_video, on_delete=models.CASCADE, related_name="avisos")
+    titulo = models.CharField(max_length=200, verbose_name=_("Assunto"))
+    mensagem = models.TextField(verbose_name=_("Mensagem"))
+    data_criacao = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Aviso do Curso'
+        verbose_name_plural = 'Avisos do Curso'
+        ordering = ['-data_criacao']
+
+    def __str__(self):
+        return f"Aviso: {self.titulo} - {self.curso.titulo}"
+
+class MaterialAula(models.Model):
+    aula = models.ForeignKey(Aula, on_delete=models.CASCADE, related_name="materiais")
+    titulo = models.CharField(max_length=200, verbose_name=_("Nome do Recurso"))
+    arquivo = models.FileField(
+        upload_to="cursos/materiais/", 
+        verbose_name=_("Arquivo"),
+        validators=[FileExtensionValidator(allowed_extensions=['pdf', 'zip', 'rar', 'txt', 'docx', 'pptx'])]
+    )
+    data_upload = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Material de Aula'
+        verbose_name_plural = 'Materiais de Aula'
+
+    def __str__(self):
+        return f"{self.titulo} ({self.aula.titulo})"

@@ -24,16 +24,6 @@ class UsuarioAdmin(UserAdmin):
     filter_horizontal = ('groups', 'user_permissions',)
 
 
-class EscolaAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'tipo', 'get_email', 'ativo')
-    search_fields = ('nome', 'codigo_escola', 'usuario__email')
-    list_filter = ('tipo', 'ativo')
-    readonly_fields = ('data_criacao',)
-
-    def get_email(self, obj):
-        return obj.usuario.email if obj.usuario else "N/A"
-    get_email.short_description = 'E-mail'
-
 class AlunoAdmin(admin.ModelAdmin):
     list_display = ('nome', 'get_email', 'data_cadastro', 'ativo')
     search_fields = ('nome', 'usuario__email')
@@ -51,5 +41,4 @@ class PerfilAlunoAdmin(admin.ModelAdmin):
 
 # Registro dos modelos
 admin.site.register(Usuario, UsuarioAdmin)
-admin.site.register(Escola, EscolaAdmin)
 admin.site.register(Aluno, AlunoAdmin)

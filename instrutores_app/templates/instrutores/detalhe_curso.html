@@ -1,0 +1,189 @@
+{% extends 'instrutores/base_instrutor.html' %}
+{% load static %}
+
+{% block title %}Gerir Curso | {{ curso.titulo }}{% endblock %}
+
+{% block extra_css %}
+    .lesson-item {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        background: rgba(124, 58, 237, 0.02);
+        border: 1px solid var(--play-border);
+        border-radius: 15px;
+        margin-bottom: 12px;
+        transition: 0.3s;
+    }
+    .lesson-item:hover { background: rgba(124, 58, 237, 0.05); transform: translateX(5px); }
+    .lesson-num { width: 40px; height: 40px; background: rgba(124,58,237,0.1); color: var(--play-primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+    .lesson-title { flex-grow: 1; margin-left: 20px; font-weight: 600; font-size: 15px; color: var(--text-main); }
+    .lesson-duration { color: var(--text-muted); font-size: 13px; margin-right: 30px; }
+
+    .btn-action { color: var(--text-muted); text-decoration: none; transition: 0.3s; font-size: 18px; }
+    .btn-action:hover { color: var(--play-primary); }
+
+    .import-box {
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+        border: 1px solid var(--play-primary);
+        border-radius: 20px;
+        padding: 25px;
+        margin-bottom: 40px;
+    }
+
+    .btn-import { background: var(--play-primary); color: white !important; border: none; padding: 10px 25px; border-radius: 10px; font-weight: 700; transition: 0.3s; }
+    .btn-import:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(124, 58, 237, 0.3); }
+    
+    .nav-tabs-play {
+        border-bottom: 1px solid var(--play-border);
+        margin-bottom: 30px;
+    }
+    .nav-tabs-play .nav-link {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-weight: 600;
+        padding: 12px 25px;
+        border-bottom: 2px solid transparent;
+        transition: 0.3s;
+    }
+    .nav-tabs-play .nav-link.active {
+        color: var(--play-primary);
+        border-bottom-color: var(--play-primary);
+    }
+{% endblock %}
+
+{% block page_header %}
+    <div class="d-flex justify-content-between align-items-end w-100">
+        <div>
+            <a href="{% url 'instrutores_app:listar_cursos' %}" class="text-muted text-decoration-none small mb-2 d-block">
+                <i class="fas fa-arrow-left me-2"></i> Meus Cursos
+            </a>
+            <h2 class="fw-bold mb-0">{{ curso.titulo }}</h2>
+            <div class="badge bg-primary mt-2">{{ curso.categoria.nome }}</div>
+        </div>
+        <div class="d-flex gap-3">
+            <a href="{% url 'cursovideoapp:detalhe_curso' slug=curso.slug %}" target="_blank" class="btn btn-outline-light rounded-3">
+                <i class="fas fa-eye me-2"></i> Ver como Aluno
+            </a>
+            <a href="{% url 'instrutores_app:editar_curso' curso.id %}" class="btn btn-outline-primary rounded-3">
+                <i class="fas fa-edit me-2"></i> Editar Curso
+            </a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success bg-success text-white border-0 rounded-4 mb-4 shadow-sm">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="nav nav-tabs nav-tabs-play" id="nav-tab" role="tablist">
+        <button class="nav-link active" id="nav-lessons-tab" data-bs-toggle="tab" data-bs-target="#nav-lessons" type="button" role="tab">Grade Curricular</button>
+        <button class="nav-link" id="nav-import-tab" data-bs-toggle="tab" data-bs-target="#nav-import" type="button" role="tab">Importação Automática</button>
+    </div>
+
+    <div class="tab-content" id="nav-tabContent">
+        <!-- Tab: Grade Curricular -->
+        <div class="tab-pane fade show active" id="nav-lessons" role="tabpanel">
+            <div class="glass-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0">Aulas Cadastradas ({{ aulas.count }})</h5>
+                    <a href="{% url 'instrutores_app:adicionar_aula' curso.id %}" class="btn-play-sm">
+                        <i class="fas fa-plus-circle me-1"></i> Adicionar Aula
+                    </a>
+                </div>
+
+                <div class="lesson-list">
+                    {% for a in aulas %}
+                    <div class="lesson-item">
+                        <div class="lesson-num">{{ a.ordem }}</div>
+                        <div class="lesson-title">{{ a.titulo }}</div>
+                        <div class="lesson-duration">{{ a.duracao_formatada }}</div>
+                        <div class="d-flex gap-3">
+                            <a href="{% url 'instrutores_app:editar_aula' a.id %}" class="btn-action"><i class="fas fa-edit"></i></a>
+                            <a href="{% url 'instrutores_app:remover_aula' a.id %}" class="btn-action text-danger" onclick="return confirm('Tem certeza que deseja remover esta aula?')"><i class="fas fa-trash"></i></a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-5 opacity-50">
+                        <i class="fas fa-list fa-3x mb-3 text-muted"></i>
+                        <p>Nenhuma aula cadastrada. Adicione sua primeira aula ou use a importação automática.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Importação -->
+        <div class="tab-pane fade" id="nav-import" role="tabpanel">
+            <div class="import-box">
+                <h5 class="fw-bold mb-3"><i class="fab fa-youtube text-danger me-2"></i> Importação via YouTube</h5>
+                <p class="small text-muted mb-4">Cole o link de uma playlist do YouTube e criaremos todas as aulas automaticamente para si.</p>
+                
+                <form id="playlist-form">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-9">
+                            <input type="url" id="playlist_url" class="form-control bg-transparent border-primary border-opacity-25" placeholder="https://www.youtube.com/playlist?list=..." style="color: var(--text-main);">
+                        </div>
+                        <div class="col-md-3">
+                            <button type="button" id="btn-import-playlist" class="btn-import w-100">Importar Playlist</button>
+                        </div>
+                    </div>
+                    <div id="import-status" class="mt-3 small d-none"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        document.getElementById('btn-import-playlist').addEventListener('click', function() {
+            const url = document.getElementById('playlist_url').value;
+            const status = document.getElementById('import-status');
+            const btn = this;
+
+            if (!url) {
+                alert('Por favor, insira um URL de playlist válido.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Processando...';
+            status.classList.remove('d-none');
+            status.className = 'mt-3 small text-info';
+            status.innerHTML = 'Conectando ao YouTube API... Isto pode demorar alguns segundos.';
+
+            const formData = new FormData();
+            formData.append('playlist_url', url);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+            fetch("{% url 'cursovideoapp:importar_playlist_youtube' curso_id=curso.id %}", {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    status.className = 'mt-3 small text-success';
+                    status.innerHTML = data.message + ' Recarregando...';
+                    setTimeout(() => location.reload(), 2000);
+                } else {
+                    status.className = 'mt-3 small text-danger';
+                    status.innerHTML = 'Erro: ' + data.message;
+                    btn.disabled = false;
+                    btn.innerHTML = 'Importar Playlist';
+                }
+            })
+            .catch(err => {
+                status.className = 'mt-3 small text-danger';
+                status.innerHTML = 'Ocorreu um erro de rede.';
+                btn.disabled = false;
+                btn.innerHTML = 'Importar Playlist';
+            });
+        });
+    </script>
+{% endblock %}

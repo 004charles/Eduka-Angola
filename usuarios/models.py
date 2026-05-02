@@ -36,7 +36,7 @@ class UsuarioManager(BaseUserManager):
 class Usuario(AbstractBaseUser, PermissionsMixin):
     """
     Modelo de Usuário Centralizado para todo o projeto.
-    Suporta diferentes funções: ADMIN, ALUNO, GESTOR, BIBLIOTECA, ESCOLA.
+    Suporta diferentes funções: ADMIN, ALUNO, GESTOR, INSTRUTOR.
     Usa o email para autenticação em vez de nome de usuário.
     """
     TIPO_USUARIO_CHOICES = [
@@ -44,7 +44,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         ('ALUNO', 'Aluno'),
         ('GESTOR', 'Gestor de Centro Principal'),
         ('GESTOR_FILIAL', 'Gestor de Filial'),
-        ('ESCOLA', 'Escola'),
+        ('INSTRUTOR', 'Instrutor da Plataforma'),
     ]
 
     nome = models.CharField(_('Nome Completo'), max_length=100, blank=True, null=True)
@@ -89,36 +89,6 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
 
 
-class Escola(models.Model):
-    """
-    Representa uma Instituição de Ensino (Escola).
-    Vinculada a uma conta de Usuario com a função 'ESCOLA'.
-    """
-    TIPO_ESCOLA_CHOICES = [
-        ('PUBLICA', 'Pública'),
-        ('PARTICULAR', 'Particular'),
-        ('COMUNITARIA', 'Comunitária'),
-    ]
-    
-    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='escola_profile', null=True, blank=True)
-    nome = models.CharField(_('Nome da Escola'), max_length=100)
-    codigo_escola = models.CharField(_('Código INEP'), max_length=8, unique=True, blank=True, null=True)
-    tipo = models.CharField(_('Tipo de Escola'), max_length=20, choices=TIPO_ESCOLA_CHOICES)
-    endereco = models.CharField(_('Endereço'), max_length=255)
-    telefone = models.CharField(_('Telefone'), max_length=20)
-    # email is now in usuario
-    site = models.URLField(_('Site'), blank=True, null=True)
-    data_criacao = models.DateTimeField(_('Data de Criação'), auto_now_add=True)
-    ativo = models.BooleanField(_('Ativo'), default=True)
-
-    def __str__(self):
-        return self.nome
-
-    class Meta:
-        verbose_name = 'Escola'
-        verbose_name_plural = 'Escolas'
-        db_table = 'escolas'
-        ordering = ['nome']
 
 
 class Aluno(models.Model):
@@ -135,6 +105,12 @@ class Aluno(models.Model):
     def __str__(self):
         return f"Aluno: {self.nome}"
 
+    def get_foto_perfil_url(self):
+        """Retorna a URL da foto de perfil do aluno se existir."""
+        if hasattr(self, 'perfil'):
+            return self.perfil.get_foto_perfil_url()
+        return None
+
     class Meta:
         verbose_name = 'Aluno'
         verbose_name_plural = 'Alunos'
@@ -146,7 +122,17 @@ class Aluno(models.Model):
         
 
 class PerfilAluno(models.Model):
+    NIVEL_CONHECIMENTO_CHOICES = [
+        ('B', _('Básico - Estou a começar agora')),
+        ('I', _('Intermédio - Já tenho alguma base')),
+        ('A', _('Avançado - Quero aprofundar conhecimentos')),
+    ]
+
     aluno = models.OneToOneField('Aluno', on_delete=models.CASCADE, related_name='perfil')
+    onboarding_completo = models.BooleanField(_('Onboarding Completo'), default=False)
+    nivel_conhecimento = models.CharField(_('Nível de Conhecimento'), max_length=1, choices=NIVEL_CONHECIMENTO_CHOICES, default='B')
+    interesses = models.ManyToManyField('cursos_app.Categoria', blank=True, related_name='alunos_interessados')
+    
     imagem = models.ImageField(_('Imagem de Perfil'), upload_to='perfil_alunos/', null=True, blank=True)
     foto_de_perfil = models.ImageField(_('Foto de Perfil'), upload_to='fotos_perfil/', null=True, blank=True)
     biografia = models.TextField(_('Biografia'), blank=True)
@@ -260,3 +246,10 @@ class NotificacaoAluno(models.Model):
 
     def __str__(self):
         return f"{self.titulo} - {self.aluno.nome}"
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+@receiver(post_save, sender=Aluno)
+def criar_perfil_aluno(sender, instance, created, **kwargs):
+    if created:
+        PerfilAluno.objects.get_or_create(aluno=instance)

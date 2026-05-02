@@ -1,0 +1,127 @@
+{% extends 'instrutores/base_instrutor.html' %}
+{% load static %}
+
+{% block title %}Questões dos Alunos | EdukAngola Play{% endblock %}
+
+{% block extra_css %}
+    .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--play-border);
+        border-radius: 24px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    .question-thread {
+        border-bottom: 1px solid var(--play-border);
+        padding-bottom: 30px;
+        margin-bottom: 30px;
+    }
+    .question-thread:last-child { border: none; margin-bottom: 0; }
+
+    .avatar { width: 45px; height: 45px; border-radius: 50%; background: var(--play-primary); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; color: white; }
+
+    .reply-box {
+        background: rgba(124, 58, 237, 0.02);
+        border: 1px solid var(--play-border);
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 20px;
+        margin-left: 60px;
+    }
+
+    textarea {
+        background: var(--play-sidebar);
+        border: 1px solid var(--play-border);
+        color: var(--text-main);
+        width: 100%;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        resize: none;
+        transition: 0.3s;
+    }
+    textarea:focus { outline: none; border-color: var(--play-primary); box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1); }
+
+    .btn-reply {
+        background: var(--play-primary);
+        color: white !important;
+        border: none;
+        padding: 8px 25px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+    .btn-reply:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(124, 58, 237, 0.3); }
+    
+    .history-item {
+        margin-left: 60px;
+        padding: 15px;
+        background: rgba(124, 58, 237, 0.05);
+        border-radius: 12px;
+        margin-top: 10px;
+        font-size: 14px;
+        border: 1px solid rgba(124, 58, 237, 0.1);
+    }
+{% endblock %}
+
+{% block page_header %}
+    <h2 class="fw-bold mb-0">Dúvidas dos Alunos</h2>
+    <p class="text-muted small">Gerencie as interações e dúvidas dos seus cursos em vídeo.</p>
+{% endblock %}
+
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success bg-success text-white border-0 rounded-4 mb-4 shadow-sm">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="glass-card">
+        {% for q in questoes %}
+        <div class="question-thread">
+            <div class="d-flex gap-3">
+                <div class="avatar">{{ q.aluno.nome|slice:":1" }}</div>
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between">
+                        <h6 class="fw-bold mb-1" style="color: var(--text-main);">{{ q.aluno.nome }}</h6>
+                        <span class="text-muted small">{{ q.data_criacao|timesince }} atrás</span>
+                    </div>
+                    <div class="text-muted extra-small mb-2" style="font-size: 12px;">
+                        Curso: <span class="text-main fw-bold">{{ q.aula.curso.titulo }}</span> • Aula: {{ q.aula.titulo }}
+                    </div>
+                    <p class="mb-0 opacity-90" style="color: var(--text-main);">{{ q.texto }}</p>
+                </div>
+            </div>
+
+            {% for r in q.respostas.all %}
+            <div class="history-item">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="fw-bold text-primary">Você (Instrutor)</span>
+                    <span class="text-muted extra-small">{{ r.data_criacao|timesince }} atrás</span>
+                </div>
+                <p class="mb-0" style="color: var(--text-main);">{{ r.texto }}</p>
+            </div>
+            {% endfor %}
+
+            <div class="reply-box">
+                <form action="{% url 'instrutores_app:responder_questao' q.id %}" method="POST">
+                    {% csrf_token %}
+                    <textarea name="resposta" rows="2" placeholder="Escreva sua resposta aqui..."></textarea>
+                    <div class="text-end">
+                        <button type="submit" class="btn-reply">Enviar Resposta</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-5 text-muted">
+            <i class="fas fa-check-double fa-3x mb-3 opacity-20"></i>
+            <h5 class="fw-bold">Tudo em dia!</h5>
+            <p>Nenhuma dúvida pendente de resposta.</p>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}

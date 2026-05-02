@@ -1,0 +1,173 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>{{ titulo }} | EdukAngola Play</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    {% include 'include/css.html' %}
+    
+    <style>
+        :root {
+            --play-bg-dark: #0f172a;
+            --play-card-bg-dark: #1e293b;
+            --play-text-dark: #ffffff;
+            --play-meta-dark: #94a3b8;
+            --play-primary: #7c3aed;
+        }
+
+        body.play-mode {
+            background-color: var(--play-bg-dark);
+            color: var(--play-text-dark);
+            min-height: 100vh;
+        }
+
+        .list-header {
+            padding: 120px 4% 40px 4%;
+            background: linear-gradient(to bottom, rgba(15, 23, 42, 0) 0%, rgba(15, 23, 42, 1) 100%);
+        }
+
+        .list-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .list-container {
+            padding: 0 4% 80px 4%;
+        }
+
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .play-card {
+            background-color: var(--play-card-bg-dark);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            position: relative;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.05);
+            height: 100%;
+        }
+
+        .play-card:hover {
+            transform: scale(1.05);
+            z-index: 10;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .play-card-img {
+            width: 100%;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+        }
+
+        .play-card-body {
+            padding: 15px;
+        }
+
+        .play-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .play-card-meta {
+            font-size: 13px;
+            color: var(--play-meta-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .play-mode .rbt-header-wrapper {
+            background-color: var(--play-bg-dark) !important;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .play-mode .mainmenu > li > a {
+            color: #fff !important;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--play-meta-dark);
+            margin-bottom: 20px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body class="rbt-header-sticky play-mode">
+
+    {% include 'include/header.html' %}
+
+    <main class="rbt-main-wrapper">
+        
+        <header class="list-header">
+            <a href="{% url 'cursovideoapp:home_videos' %}" class="back-link">
+                <i class="fas fa-arrow-left"></i> Voltar ao Play
+            </a>
+            <h1 class="list-title">{{ titulo }}</h1>
+            <p style="color: var(--play-meta-dark);">Explora todos os cursos disponíveis nesta categoria no EdukAngola Play.</p>
+        </header>
+
+        <section class="list-container">
+            <div class="course-grid">
+                {% for curso in cursos %}
+                <div class="grid-item">
+                    <a href="{% url 'cursovideoapp:detalhe_curso' slug=curso.slug %}" style="text-decoration: none;">
+                        <div class="play-card">
+                            {% if curso.capa %}
+                            <img src="{{ curso.capa.url }}" alt="{{ curso.titulo }}" class="play-card-img">
+                            {% else %}
+                            <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{ curso.titulo }}" class="play-card-img">
+                            {% endif %}
+                            
+                            <div class="play-card-body">
+                                <h3 class="play-card-title">{{ curso.titulo }}</h3>
+                                <div class="play-card-meta">
+                                    <span><i class="fas fa-user"></i> {{ curso.instrutor.nome }}</span>
+                                    {% if curso.duracao_total %}
+                                    <span><i class="fas fa-clock"></i> {{ curso.duracao_total }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <p>Nenhum curso encontrado nesta secção.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+    </main>
+
+    {% include 'include/footer.html' %}
+    {% include 'include/java.html' %}
+
+</body>
+</html>

@@ -1,0 +1,148 @@
+{% extends 'instrutores/base_instrutor.html' %}
+{% load static %}
+
+{% block title %}Meus Alunos | EdukAngola Play{% endblock %}
+
+{% block extra_css %}
+    .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--play-border);
+        border-radius: 24px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    .table { color: var(--text-main); vertical-align: middle; }
+    .table thead th { border: none; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+    .table td { border-bottom: 1px solid var(--play-border); padding: 15px 10px; }
+    
+    .avatar-sm { width: 40px; height: 40px; border-radius: 50%; background: var(--play-primary); display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 14px; }
+    
+    .progress { height: 6px; background: rgba(124, 58, 237, 0.1); border-radius: 10px; overflow: hidden; margin-top: 5px; }
+    .progress-bar { background: var(--play-primary); }
+
+    .btn-action {
+        width: 35px;
+        height: 35px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(124, 58, 237, 0.1);
+        color: var(--play-primary);
+        text-decoration: none;
+        transition: 0.3s;
+        border: none;
+    }
+    .btn-action:hover { background: var(--play-primary); color: white; }
+{% endblock %}
+
+{% block page_header %}
+    <h2 class="fw-bold mb-0">Meus Alunos</h2>
+    <p class="text-muted small">Gerencie e acompanhe o progresso dos estudantes inscritos nos seus cursos.</p>
+{% endblock %}
+
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success bg-success text-white border-0 rounded-4 mb-4 shadow-sm">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="glass-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold mb-0">Lista de Estudantes</h5>
+            <button class="btn-play-sm" data-bs-toggle="modal" data-bs-target="#modalAviso">
+                <i class="fas fa-bullhorn me-1"></i> Enviar Aviso
+            </button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Aluno</th>
+                        <th>Cursos & Progresso</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in alunos %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar-sm">{{ item.aluno.nome|slice:":1" }}</div>
+                                <div>
+                                    <div class="fw-bold">{{ item.aluno.nome }}</div>
+                                    <div class="text-muted extra-small" style="font-size: 11px;">{{ item.aluno.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% for pc in item.cursos_inscritos %}
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between extra-small">
+                                    <span class="text-muted">{{ pc.curso }}</span>
+                                    <span class="fw-bold">{{ pc.progresso }}%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar" style="width: {{ pc.progresso }}%"></div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </td>
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <button class="btn-action" title="Enviar Mensagem"><i class="fas fa-comment"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center py-5 text-muted">Nenhum aluno inscrito ainda.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Enviar Aviso -->
+    <div class="modal fade" id="modalAviso" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4" style="background: var(--play-sidebar); color: var(--text-main);">
+                <div class="modal-header border-bottom border-white border-opacity-10">
+                    <h5 class="modal-title fw-bold">Enviar Comunicado</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{% url 'instrutores_app:enviar_aviso' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Selecionar Curso</label>
+                            <select name="curso_id" class="form-select bg-transparent border-white border-opacity-10 text-white" required>
+                                {% for c in cursos %}
+                                <option value="{{ c.id }}">{{ c.titulo }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Assunto</label>
+                            <input type="text" name="titulo" class="form-control bg-transparent border-white border-opacity-10 text-white" placeholder="Ex: Aula nova disponível!" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mensagem</label>
+                            <textarea name="mensagem" class="form-control bg-transparent border-white border-opacity-10 text-white" rows="4" placeholder="Escreva aqui seu comunicado..." required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top border-white border-opacity-10">
+                        <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary rounded-3 px-4 fw-bold">Enviar Agora</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

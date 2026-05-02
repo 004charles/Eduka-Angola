@@ -1,0 +1,23 @@
+
+{% load static %}
+{% load i18n %}
+
+<div style="margin-top: 40px;" class="container-fluid">
+    <div class="row g-3">
+        {% for img in imagens %}
+        <div class="col-lg-2 col-md-4 col-sm-6 col-6">
+            <div class="instagram-grid">
+                <a href="{{ img.link|default:'#' }}">
+                    <img src="{{ img.imagem.url }}" alt="Social Feed">
+                    {% if img.usuario %}
+                    <span class="user-info">
+                        <span class="icon"><i class="icon-instagram"></i></span>
+                        <span class="user-name">{{ img.usuario }}</span>
+                    </span>
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>

@@ -1,0 +1,65 @@
+
+{% load static %}
+{% load i18n %}
+
+<!-- Start Testimonial Area -->
+<div class="rbt-testimonial-area testimonial-section-02 bg-color-white rbt-section-gap overflow-hidden">
+    <div class="shape-1">
+        <img src="{% static 'assets/images/shape/testimonial-shape-01.png' %}" alt="Shape">
+    </div>
+    <div class="container">
+        <div class="row align-items-center row--30">
+            <div class="col-lg-6">
+                <!-- Start Tab Content  -->
+                {% if depoimentos %}
+                <div class="rbt-testimonial-content tab-content" id="myTabContent">
+                    {% for d in depoimentos %}
+                    <div class="tab-pane fade {% if forloop.first %}active show{% endif %}" id="testimonial-tab{{ forloop.counter }}" role="tabpanel"
+                        aria-labelledby="testimonial-tab{{ forloop.counter }}-tab">
+                        <div class="inner">
+                            <div class="rating mb--30">
+                                {% for i in "12345" %}
+                                    <a href="#"><i class="fa fa-star {% if forloop.counter > d.nota %}text-muted{% endif %}"></i></a>
+                                {% endfor %}
+                            </div>
+                            <p>{{ d.texto }}</p>
+                        </div>
+                        <div class="author-info">
+                            <h6><span>{{ d.nome }}</span> - {% if d.aluno %}{{ d.aluno.nome }}{% else %}{{ d.cargo }}{% endif %}</h6>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <!-- End Tab Content  -->
+            </div>
+            <div class="col-lg-6 mt_md--30 mt_sm--30">
+                <!-- Start Tab Nav  -->
+                {% if depoimentos %}
+                <ul class="testimonial-thumb-wrapper nav nav-tabs" id="myTab" role="tablist">
+                    {% for d in depoimentos %}
+                    <li>
+                        <a class="{% if forloop.first %}active{% endif %}" id="testimonial-tab{{ forloop.counter }}-tab" data-bs-toggle="tab"
+                            data-bs-target="#testimonial-tab{{ forloop.counter }}" role="tab" aria-controls="testimonial-tab{{ forloop.counter }}"
+                            aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                            <div class="testimonial-thumbnai">
+                                <div class="thumb">
+                                    {% if d.foto %}
+                                        <img src="{{ d.foto.url }}" alt="Testimonial Images">
+                                    {% elif d.aluno and d.aluno.usuario.get_foto_perfil_url %}
+                                        <img src="{{ d.aluno.usuario.get_foto_perfil_url }}" alt="Testimonial Images">
+                                    {% else %}
+                                        <img src="{% static 'assets/images/testimonial/testimonial-8.jpg' %}" alt="Testimonial Images">
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Testimonial Area -->

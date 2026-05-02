@@ -1,0 +1,65 @@
+
+{% load static %}
+{% load i18n %}
+
+<!-- Start Blog Area -->
+<div class="rbt-blog-area rbt-sec-cir-shadow-1 rbt-section-gap bg-color-extra2 rbt-section-box">
+    <div class="gradient-shape-top version-02"></div>
+    <div class="gradient-shape-bottom version-02"></div>
+    <div class="container">
+        <div class="row mb--60 g-5 align-items-end">
+            <div class="col-lg-8 col-md-8 col-12">
+                <div class="section-title text-start">
+                    <h6 class="b2 mb--15"><span class="theme-gradient">{% trans "Visão Estratégica & Panorama" %}</span></h6>
+                    <h2 class="title w-600">{% trans "Atualizações de" %} <span class="theme-gradient">{% trans "Impacto no Mercado" %}</span></h2>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-4 col-12">
+                <div class="load-more-btn text-start text-md-end">
+                    <a class="rbt-btn btn-gradient hover-icon-reverse" href="{% url 'blog:lista_posts' %}">
+                        <span class="icon-reverse-wrapper">
+                            <span class="btn-text">{% trans "Ver mais" %}</span>
+                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Start Card Area -->
+        <div class="row g-5">
+            {% for post in posts|slice:":3" %}
+            <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+                <div class="rbt-card variation-02 rbt-hover">
+                    <div class="rbt-card-img">
+                        <a href="{% url 'blog:detalhe_post' slug=post.slug %}">
+                            <img src="{{ post.imagem_capa.url }}" alt="{{ post.titulo }}">
+                        </a>
+                    </div>
+                    <div class="rbt-card-body">
+                        <h5 class="rbt-card-title">
+                            <a href="{% url 'blog:detalhe_post' slug=post.slug %}">{{ post.titulo }}</a>
+                        </h5>
+                        <p class="rbt-card-text">
+                            {{ post.conteudo|truncatewords:20 }}
+                        </p>
+                        <div class="rbt-card-bottom">
+                            <a class="transparent-button" href="{% url 'blog:detalhe_post' slug=post.slug %}">
+                                {% trans "Ler Mais" %}
+                                <i>
+                                    <svg width="17" height="12" xmlns="http://www.w3.org/2000/svg">
+                                        <g stroke="#27374D" fill="none" fill-rule="evenodd">
+                                            <path d="M10.614 0l5.629 5.629-5.63 5.629" />
+                                            <path stroke-linecap="square" d="M.663 5.572h14.594" />
+                                        </g>
+                                    </svg>
+                                </i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

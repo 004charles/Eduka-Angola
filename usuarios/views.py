@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils.translation import gettext as _
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from .models import Usuario, Aluno, Escola, PerfilAluno, CodigoVerificacao
+from .models import Usuario, Aluno, PerfilAluno, CodigoVerificacao
 from gestoreduka.models import CentroDeFormacao, CentroSeguimento
-from cursos_app.models import Curso, Favorito
+from cursos_app.models import Curso, Favorito, Categoria
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout as auth_logout, update_session_auth_hash
 from django.contrib.auth.hashers import check_password
@@ -63,24 +64,24 @@ def adicionar_favorito(request, curso_id):
 
 def login_aluno(request):
     """
-    Renderiza a página de login do aluno com cursos em destaque.
-    Redireciona para o painel se já estiver logado.
+    Redireciona para o novo Portal de Entrada (Landing Gate) na raiz do site.
     """
     if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
-        return redirect('aluno') # Usando o nome da URL para garantir a barra correta
+        return redirect('aluno')
         
-    status = request.GET.get('status')
+    status = request.GET.get('status', '')
     next_url = request.GET.get('next', '')
     
-    cursos_destaque = Curso.objects.filter(
-        destaque=True, publicado=True, ativo=True
-    ).select_related('centro').prefetch_related('instrutores')
-
-    return render(request, 'login_aluno.html', {
-        'status': status, 
-        'cursos_destaque': cursos_destaque,
-        'next': next_url
-    })
+    # Redireciona para a raiz onde está o Landing Gate
+    query = []
+    if status: query.append(f"status={status}")
+    if next_url: query.append(f"next={next_url}")
+    
+    url = "/"
+    if query:
+        url += "?" + "&".join(query)
+        
+    return redirect(url)
 
 
 
@@ -99,6 +100,7 @@ def get_aluno_common_context(request):
         'aluno_obj': aluno,
         'perfil': perfil,
         'inscricoes_reais': inscricoes_reais,
+        'hide_sidebar': True,
     }
 
 @aluno_logado_e_centros
@@ -106,6 +108,10 @@ def aluno_dashboard(request):
     from cursovideoapp.models import ProgressoAula
     context = get_aluno_common_context(request)
     aluno = context['aluno_obj']
+    
+    # Check Onboarding
+    if not hasattr(aluno, 'perfil') or not aluno.perfil.onboarding_completo:
+        return redirect('aluno_onboarding')
     
     inscricoes_com_progresso = []
     
@@ -153,12 +159,24 @@ def aluno_dashboard(request):
     if hasattr(aluno, 'certificados'):
         total_certificados = aluno.certificados.count()
     
+    from cursovideoapp.models import FavoritoCursoVideo
+    
+    favoritos_presencial = Favorito.objects.filter(aluno=request.aluno_obj).select_related('curso')
+    favoritos_video = FavoritoCursoVideo.objects.filter(aluno=request.aluno_obj).select_related('curso')
+    
+    favoritos_dashboard = []
+    for f in favoritos_presencial:
+        favoritos_dashboard.append({'curso': f.curso, 'is_video': False})
+    for f in favoritos_video:
+        favoritos_dashboard.append({'curso': f.curso, 'is_video': True})
+
     context.update({
         'current_page': 'dashboard',
         'total_cursos': context['inscricoes_reais'].count() + cursos_videos.count(),
         'total_cursos_ativos': total_cursos_ativos,
         'total_certificados': total_certificados,
         'inscricoes_com_progresso': inscricoes_com_progresso[:4], 
+        'favoritos_dashboard': favoritos_dashboard,
     })
     return render(request, 'aluno/dashboard.html', context)
 
@@ -172,9 +190,21 @@ def aluno_cursos(request):
 
 @aluno_logado_e_centros
 def aluno_favoritos(request):
+    from cursovideoapp.models import FavoritoCursoVideo
     context = get_aluno_common_context(request)
     context['current_page'] = 'favoritos'
-    context['favoritos_lista'] = Favorito.objects.filter(aluno=request.aluno_obj).select_related('curso')
+    
+    favoritos_presencial = Favorito.objects.filter(aluno=request.aluno_obj).select_related('curso')
+    favoritos_video = FavoritoCursoVideo.objects.filter(aluno=request.aluno_obj).select_related('curso')
+    
+    # Criar uma lista única de cursos para o template
+    lista_unificada = []
+    for f in favoritos_presencial:
+        lista_unificada.append({'curso': f.curso, 'is_video': False})
+    for f in favoritos_video:
+        lista_unificada.append({'curso': f.curso, 'is_video': True})
+        
+    context['favoritos_lista'] = lista_unificada
     return render(request, 'aluno/favoritos.html', context)
 
 @aluno_logado_e_centros
@@ -279,19 +309,19 @@ def valida_cadastro_aluno(request):
     
     if len(nome.strip()) == 0 or len(senha.strip()) == 0:
         if is_ajax: return JsonResponse({'success': False, 'error': 'Nome e senha são obrigatórios.'})
-        return redirect('/auth/registro_aluno?status=1')
+        return redirect('/auth/registro_aluno/?status=1')
     
     if len(senha) < 8:
         if is_ajax: return JsonResponse({'success': False, 'error': 'A senha deve ter pelo menos 8 caracteres.'})
-        return redirect('/auth/registro_aluno?status=2')
+        return redirect('/auth/registro_aluno/?status=2')
     
     if senha != confirmar_senha: 
         if is_ajax: return JsonResponse({'success': False, 'error': 'As senhas não coincidem.'})
-        return redirect('/auth/registro_aluno?status=5')
+        return redirect('/auth/registro_aluno/?status=5')
     
     if Usuario.objects.filter(email=email).exists():
         if is_ajax: return JsonResponse({'success': False, 'error': 'Este e-mail já está registado.'})
-        return redirect('/auth/registro_aluno?status=3')
+        return redirect('/auth/registro_aluno/?status=3')
     
     try:
         # Criar Usuario
@@ -316,13 +346,13 @@ def valida_cadastro_aluno(request):
         request.session['email_verificacao'] = email
         
         if is_ajax:
-            return JsonResponse({'success': True, 'redirect': '/auth/verificar_email'})
+            return JsonResponse({'success': True, 'redirect': '/auth/verificar_email/'})
         return redirect('verificar_email')
     
     except Exception as e:
         print(f"Erro ao cadastrar aluno: {e}")
         if is_ajax: return JsonResponse({'success': False, 'error': 'Erro no servidor. Tente novamente.'})
-        return redirect('/auth/registro_aluno?status=4')
+        return redirect('/auth/registro_aluno/?status=4')
         
 def enviar_email_confirmacao_aluno(nome, email):
     """
@@ -381,14 +411,14 @@ def enviar_codigo_verificacao(email, tipo):
 
 def verificar_email(request):
     """
-    View para a etapa de verificação de e-mail usando o código de 6 dígitos.
+    View para a etapa de verificação de e-mail usando o novo Portal de Verificação.
     """
     if request.method == 'POST':
         codigo = request.POST.get('codigo')
         email = request.session.get('email_verificacao')
         
         if not email:
-            return redirect('/auth/login_aluno')
+            return redirect('/auth/login_aluno/')
             
         try:
             verificacao = CodigoVerificacao.objects.filter(email=email, codigo=codigo, tipo='CADASTRO').latest('criado_em')
@@ -396,7 +426,6 @@ def verificar_email(request):
             usuario.is_active = True
             usuario.save()
             
-            # Update Aluno profile as well if it exists
             try:
                 aluno = Aluno.objects.get(usuario=usuario)
                 aluno.ativo = True
@@ -404,22 +433,33 @@ def verificar_email(request):
             except Aluno.DoesNotExist:
                 pass
             
-            # Limpar códigos
             CodigoVerificacao.objects.filter(email=email).delete()
-            del request.session['email_verificacao']
+            if 'email_verificacao' in request.session:
+                del request.session['email_verificacao']
             
-            # Enviar boas vindas agora que ativou
             enviar_email_confirmacao_aluno(usuario.nome, usuario.email)
-            
-            return redirect('/auth/login_aluno?status=0')
+            return redirect('/auth/login_aluno/?status=0')
         except (CodigoVerificacao.DoesNotExist, Usuario.DoesNotExist):
-            return render(request, 'verificar_codigo.html', {'error': 'Código inválido ou expirado'})
+            return render(request, 'core/verify_gate.html', {'error': _('O código introduzido é inválido ou já expirou. Por favor, tente novamente ou solicite um novo.')})
             
-    return render(request, 'verificar_codigo.html')
+    return render(request, 'core/verify_gate.html')
+
+def reenviar_codigo(request):
+    """
+    View para reenviar o código de verificação para o e-mail na sessão.
+    """
+    email = request.session.get('email_verificacao')
+    if not email:
+        return redirect('/auth/login_aluno/')
+    
+    enviar_codigo_verificacao(email, 'CADASTRO')
+    return render(request, 'core/verify_gate.html', {
+        'message': _('Um novo código foi enviado com sucesso para o seu e-mail.')
+    })
 
 def esqueci_senha(request):
     """
-    Inicia o fluxo de 'Esqueci a Senha' enviando um código.
+    Inicia o fluxo de 'Esqueci a Senha' enviando um código (Gate Premium).
     """
     is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
     
@@ -432,13 +472,13 @@ def esqueci_senha(request):
             return redirect('redefinir_senha')
         else:
             if is_ajax: return JsonResponse({'success': False, 'error': 'E-mail não encontrado.'})
-            return render(request, 'esqueci_senha.html', {'message': 'Se o email existir, um código foi enviado.'})
+            return render(request, 'core/forgot_password_gate.html', {'message': 'Se o email existir, um código foi enviado.'})
              
-    return render(request, 'esqueci_senha.html')
+    return render(request, 'core/forgot_password_gate.html')
 
 def redefinir_senha(request):
     """
-    Valida o código de recuperação e permite definir uma nova senha.
+    Valida o código de recuperação e permite definir uma nova senha (Reset Gate).
     """
     is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
     
@@ -454,17 +494,14 @@ def redefinir_senha(request):
             
         if nova_senha != confirmar_senha:
             if is_ajax: return JsonResponse({'success': False, 'error': 'As senhas não coincidem.'})
-            return render(request, 'redefinir_senha.html', {'error': 'Senhas não conferem'})
+            return render(request, 'core/reset_password_gate.html', {'error': 'Senhas não conferem'})
             
         try:
             verificacao = CodigoVerificacao.objects.filter(email=email, codigo=codigo, tipo='RECUPERACAO').latest('criado_em')
-            
-            # Atualizar senha
             usuario = Usuario.objects.get(email=email)
             usuario.set_password(nova_senha)
             usuario.save()
             
-            # Limpar
             CodigoVerificacao.objects.filter(email=email).delete()
             if 'email_recuperacao' in request.session:
                 del request.session['email_recuperacao']
@@ -474,9 +511,9 @@ def redefinir_senha(request):
             
         except CodigoVerificacao.DoesNotExist:
             if is_ajax: return JsonResponse({'success': False, 'error': 'Código inválido.'})
-            return render(request, 'redefinir_senha.html', {'error': 'Código inválido'})
+            return render(request, 'core/reset_password_gate.html', {'error': 'Código inválido'})
             
-    return render(request, 'redefinir_senha.html')
+    return render(request, 'core/reset_password_gate.html')
 
 def valida_login(request):
     """
@@ -489,7 +526,7 @@ def valida_login(request):
     
     if not email or not senha:
         if is_ajax: return JsonResponse({'success': False, 'error': 'Credenciais em falta.'})
-        return redirect('/auth/login_aluno?status=1')
+        return redirect('/auth/login_aluno/?status=1')
     
     try:
         user = authenticate(request, username=email, password=senha)
@@ -497,22 +534,22 @@ def valida_login(request):
         if user is not None:
             if user.tipo_usuario != 'ALUNO':
                 if is_ajax: return JsonResponse({'success': False, 'error': 'Apenas alunos podem aceder aqui.'})
-                return redirect('/auth/login_aluno?status=1') 
+                return redirect('/auth/login_aluno/?status=1') 
             
             if not user.is_active:
                 if is_ajax: return JsonResponse({'success': False, 'error': 'Conta inativa. Verifique o seu e-mail.'})
-                return redirect('/auth/login_aluno?status=2')
+                return redirect('/auth/login_aluno/?status=2')
                 
             login(request, user)
             
             # Suporte ao parâmetro next
-            next_url = request.POST.get('next') or request.GET.get('next') or '/auth/aluno?status=0'
+            next_url = request.POST.get('next') or request.GET.get('next') or '/auth/aluno/?status=0'
             
             if is_ajax: return JsonResponse({'success': True, 'redirect': next_url})
             return redirect(next_url)
         else:
             if is_ajax: return JsonResponse({'success': False, 'error': 'E-mail ou senha incorretos.'})
-            return redirect('/auth/login_aluno?status=1')
+            return redirect('/auth/login_aluno/?status=1')
             
     except Exception as e:
         print(f"Erro no login: {e}")
@@ -532,12 +569,6 @@ def login_instrutor(request):
     """
     return render(request, 'login_instrutor.html')
 
-def login_escola(request):
-    """
-    REMOVIDO: Página de login da escola.
-    """
-    return redirect('/auth/login_aluno')
-
 def logout_usuario(request):
     """
     View de logout geral para todos os usuários.
@@ -547,23 +578,22 @@ def logout_usuario(request):
   
 def tipo_user(request):
     """
-    Página de seleção do tipo de conta antes do registro.
+    REMOVIDO: Página de seleção de tipo. Redireciona direto para o novo cadastro.
     """
-    status = request.POST.get('status')
-    return render(request, 'logon.html', {'status':status})
+    return redirect('registro_aluno')
 
 def registro_aluno(request):
     """
-    Renderiza a página de registro para novos alunos.
+    Renderiza o novo Portal de Cadastro (Register Gate).
     """
     status = request.GET.get('status')
-    return render(request, 'cadastro_aluno.html')
+    return render(request, 'core/register_gate.html', {'status': status})
 
 def registro_instrutor(request):
     """
-    Renderiza a página de registro de instrutores.
+    Redireciona para o cadastro padrão (simplificação).
     """
-    return render(request, 'cadastro_instrutor.html')
+    return redirect('registro_aluno')
 
 def solicitacao_enviada(request):
     """
@@ -732,3 +762,57 @@ def get_mensagens_aluno_ajax(request, conversa_id):
         'conversa_atual': conversa,
         'cursos_centro': cursos_centro,
     })
+
+@login_required
+def aluno_onboarding(request):
+    """
+    View para o fluxo de onboarding do aluno.
+    Coleta interesses, nível de conhecimento e completa o perfil inicial.
+    """
+    if request.user.tipo_usuario != 'ALUNO':
+        return redirect('index')
+    
+    try:
+        aluno = request.user.aluno_profile
+        perfil = aluno.perfil
+    except (AttributeError, PerfilAluno.DoesNotExist):
+        # Fallback caso o perfil ainda não exista por algum motivo
+        if hasattr(request.user, 'aluno_profile'):
+            perfil = PerfilAluno.objects.create(aluno=request.user.aluno_profile)
+        else:
+            messages.error(request, "Perfil de aluno não encontrado.")
+            return redirect('index')
+
+    if request.method == 'POST':
+        # 1. Processar Interesses
+        categorias_ids = request.POST.getlist('interesses')
+        if categorias_ids:
+            perfil.interesses.set(Categoria.objects.filter(id__in=categorias_ids))
+        
+        # 2. Processar Nível de Conhecimento
+        nivel = request.POST.get('nivel_conhecimento')
+        if nivel in ['B', 'I', 'A']:
+            perfil.nivel_conhecimento = nivel
+        
+        # 3. Processar Bio Opcional
+        biografia = request.POST.get('biografia')
+        if biografia:
+            perfil.biografia = biografia
+            
+        # 4. Foto de Perfil Opcional
+        if 'foto_perfil' in request.FILES:
+            perfil.foto_de_perfil = request.FILES['foto_perfil']
+            
+        perfil.onboarding_completo = True
+        perfil.save()
+        
+        messages.success(request, f"Bem-vindo, {aluno.nome}! Teu perfil foi personalizado.")
+        return redirect('index')
+
+    categorias = Categoria.objects.all()
+    context = {
+        'categorias': categorias,
+        'perfil': perfil,
+        'niveis': PerfilAluno.NIVEL_CONHECIMENTO_CHOICES,
+    }
+    return render(request, 'aluno/onboarding.html', context)

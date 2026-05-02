@@ -1,0 +1,94 @@
+
+{% load static %}
+{% load i18n %}
+
+<div class="rbt-service-area bg-color-white rbt-section-gapBottom">
+    <div class="container">
+        <div class="row row--15 mt_dec--30">
+            <div class="col-lg-4 col-xl-4 col-md-6 col-sm-6 col-12 mt--30">
+                <div class="section-title text-start">
+                    <h2 class="title">{% trans "O Ecossistema da Sua Carreira" %}</h2>
+                    <p class="description mt--20">
+                        {% trans "Do rigor técnico presencial à flexibilidade digital: entregamos o conhecimento oficial que as empresas líderes em Angola procuram nos seus profissionais." %}
+                    </p>
+                    <div class="read-more-btn">
+                        <a class="rbt-btn btn-gradient radius rbt-marquee-btn marquee-text-y" href="#">
+                            <span data-text="{% trans 'Saiba Mais' %}">
+                                {% trans "Saiba Mais" %}
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Start Service Grid -->
+            <div class="col-lg-4 col-xl-4 col-md-6 col-sm-6 col-12 mt--30">
+                <div class="service-card service-card-6 bg-color bg-card-color-1">
+                    <div class="inner">
+                        <div class="icon">
+                            <img src="{% static 'assets/images/shape/service-01.png' %}" alt="Shape Images">
+                            <img class="opacity_image" src="{% static 'assets/images/shape/service-01.png' %}" alt="Shape Images">
+                        </div>
+                        <div class="content">
+                            <h6 class="title"><a href="{% url 'catalogo_cursos' %}">{% trans "Cursos de Centros" %}</a></h6>
+                            <p class="description">
+                                {% trans "Cursos oferecidos por centros de formação reconhecidos, com foco prático e certificação." %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-xl-4 col-md-6 col-sm-6 col-12 mt--30">
+                <div class="service-card service-card-6 bg-color bg-card-color-2">
+                    <div class="inner">
+                        <div class="icon">
+                            <img src="{% static 'assets/images/shape/service-04.png' %}" alt="Shape Images">
+                            <img class="opacity_image" src="{% static 'assets/images/shape/service-04.png' %}" alt="Shape Images">
+                        </div>
+                        <div class="content">
+                            <h6 class="title"><a href="{% url 'lista_centros' %}">{% trans "Centros de Formação" %}</a></h6>
+                            <p class="description">
+                                {% trans "Instituições especializadas que oferecem formação de qualidade para diversas áreas profissionais." %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-xl-4 col-md-6 col-sm-6 col-12 mt--30">
+                <div class="service-card service-card-6 bg-color bg-card-color-3">
+                    <div class="inner">
+                        <div class="icon">
+                            <img src="{% static 'assets/images/shape/service-03.png' %}" alt="Shape Images">
+                            <img class="opacity_image" src="{% static 'assets/images/shape/service-03.png' %}" alt="Shape Images">
+                        </div>
+                        <div class="content">
+                            <h6 class="title"><a href="{% url 'cursovideoapp:home_videos' %}">{% trans "Cursos em Vídeo" %}</a></h6>
+                            <p class="description">
+                                {% trans "Conteúdos em vídeo disponíveis na plataforma para você aprender no seu ritmo." %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-xl-4 col-md-6 col-sm-6 col-12 mt--30">
+                <div class="service-card service-card-6 bg-color bg-card-color-4">
+                    <div class="inner">
+                        <div class="icon">
+                            <img src="{% static 'assets/images/shape/service-02.png' %}" alt="Shape Images">
+                            <img class="opacity_image" src="{% static 'assets/images/shape/service-02.png' %}" alt="Shape Images">
+                        </div>
+                        <div class="content">
+                            <h6 class="title"><a href="#">{% trans "Acervo Técnico Especializado" %}</a></h6>
+                            <p class="description">
+                                {% trans "Fichas, manuais e guias práticos para consolidar o seu domínio técnico total." %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

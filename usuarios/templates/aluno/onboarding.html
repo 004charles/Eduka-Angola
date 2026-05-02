@@ -1,0 +1,347 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ request.LANGUAGE_CODE }}">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Edukangola | {% trans "Personalize sua Experiência" %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    {% include 'include/css.html' %}
+    
+    <style>
+        :root {
+            --color-primary: #7c3aed;
+            --color-secondary: #ec4899;
+            --glass-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        body.active-dark-mode {
+            --glass-bg: rgba(15, 23, 42, 0.95);
+        }
+
+        .onboarding-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            overflow: hidden;
+            position: relative;
+            padding: 20px;
+        }
+
+        body.active-dark-mode .onboarding-wrapper {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        .gate-container {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Lado Esquerdo: Info */
+        .gate-info-side {
+            flex: 1;
+            padding: 60px;
+            background: linear-gradient(rgba(124, 58, 237, 0.05), rgba(236, 72, 153, 0.05));
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-right: 1px solid rgba(0,0,0,0.05);
+        }
+
+        body.active-dark-mode .gate-info-side {
+            border-right: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .gate-logo { width: 150px; margin-bottom: 30px; }
+
+        .gate-headline {
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            color: #1e293b;
+        }
+        body.active-dark-mode .gate-headline { color: #f8fafc; }
+
+        .step-indicator {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        .dot.active {
+            background: var(--color-primary);
+            width: 35px;
+            border-radius: 10px;
+        }
+
+        /* Lado Direito: Formulário */
+        .gate-form-side {
+            flex: 1.2;
+            padding: 60px;
+            background: white;
+            position: relative;
+        }
+        body.active-dark-mode .gate-form-side { background: #1e293b; }
+
+        .onboarding-step {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        .onboarding-step.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .step-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: var(--color-primary);
+        }
+        .step-desc {
+            font-size: 15px;
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+
+        /* Categorias Grid */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .category-item {
+            cursor: pointer;
+            border: 2px solid #f1f5f9;
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+        body.active-dark-mode .category-item { background: #0f172a; border-color: #334155; }
+
+        .category-item:hover, .category-item.selected {
+            border-color: var(--color-primary);
+            background: rgba(124, 58, 237, 0.05);
+            transform: translateY(-3px);
+        }
+
+        .category-item i { font-size: 20px; margin-bottom: 8px; color: var(--color-primary); display: block; }
+
+        /* Level Cards */
+        .level-card {
+            cursor: pointer;
+            border: 2px solid #f1f5f9;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+        body.active-dark-mode .level-card { border-color: #334155; }
+
+        .level-card:hover, .level-card.selected {
+            border-color: var(--color-secondary);
+            background: rgba(236, 72, 153, 0.05);
+        }
+
+        .level-icon {
+            width: 50px; height: 50px; border-radius: 12px;
+            background: white; display: flex; align-items: center; justify-content: center;
+            font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        /* Buttons */
+        .btn-onboarding {
+            padding: 14px 30px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+        .btn-primary-on {
+            background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
+            color: white;
+        }
+        .btn-outline-on {
+            background: transparent;
+            border: 2px solid #e2e8f0;
+            color: #64748b;
+        }
+
+        @media (max-width: 991px) {
+            .gate-container { flex-direction: column; }
+            .gate-info-side { display: none; }
+            .gate-form-side { padding: 40px; }
+        }
+    </style>
+</head>
+
+<body class="{% if request.COOKIES.theme == 'dark' %}active-dark-mode{% endif %}">
+    <div class="onboarding-wrapper">
+        <div class="gate-container">
+            <!-- Esquerda: Info -->
+            <div class="gate-info-side">
+                <img src="{% static 'assets/images/logo/Eduka-removebg-preview.png' %}" alt="Edukangola" class="gate-logo">
+                <h1 class="gate-headline">
+                    {% trans "Quase lá!" %} <br>
+                    {% trans "Vamos ajustar os motores da sua aprendizagem." %}
+                </h1>
+                <p style="color: #64748b;">{% trans "Sua experiência será moldada de acordo com as suas escolhas agora." %}</p>
+                
+                <div class="step-indicator">
+                    <div class="dot active" id="dot-1"></div>
+                    <div class="dot" id="dot-2"></div>
+                    <div class="dot" id="dot-3"></div>
+                </div>
+            </div>
+
+            <!-- Direita: Formulário -->
+            <div class="gate-form-side">
+                <form method="POST" enctype="multipart/form-data" id="onboardingForm">
+                    {% csrf_token %}
+                    
+                    <!-- Passo 1: Áreas -->
+                    <div class="onboarding-step active" id="step-1">
+                        <h2 class="step-title">{% trans "O que quer aprender?" %}</h2>
+                        <p class="step-desc">{% trans "Selecione as áreas que mais lhe despertam curiosidade." %}</p>
+                        
+                        <div class="category-grid">
+                            {% for cat in categorias %}
+                            <label class="category-item {% if cat in perfil.interesses.all %}selected{% endif %}" data-id="{{ cat.id }}">
+                                <input type="checkbox" name="interesses" value="{{ cat.id }}" style="display:none;" {% if cat in perfil.interesses.all %}checked{% endif %}>
+                                <i class="fas fa-rocket"></i>
+                                <span class="fw-bold" style="font-size: 13px;">{{ cat.nome }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="button" class="btn-onboarding btn-primary-on" onclick="nextStep(2)">
+                                {% trans "Continuar" %} <i class="feather-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Passo 2: Nível -->
+                    <div class="onboarding-step" id="step-2">
+                        <h2 class="step-title">{% trans "Qual seu nível atual?" %}</h2>
+                        <p class="step-desc">{% trans "Isto ajuda-nos a sugerir o conteúdo com a dificuldade certa." %}</p>
+
+                        {% for val, label in niveis %}
+                        <label class="level-card w-100 {% if perfil.nivel_conhecimento == val %}selected{% endif %}" data-level="{{ val }}">
+                            <input type="radio" name="nivel_conhecimento" value="{{ val }}" {% if perfil.nivel_conhecimento == val %}checked{% elif forloop.first and not perfil.nivel_conhecimento %}checked{% endif %} style="display:none;">
+                            <div class="level-icon">
+                                {% if val == 'B' %}🌱{% elif val == 'I' %}⛰️{% else %}🚀{% endif %}
+                            </div>
+                            <div class="fw-bold h5 mb-0">{{ label }}</div>
+                        </label>
+                        {% endfor %}
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn-onboarding btn-outline-on" onclick="nextStep(1)">{% trans "Voltar" %}</button>
+                            <button type="button" class="btn-onboarding btn-primary-on" onclick="nextStep(3)">{% trans "Próximo" %}</button>
+                        </div>
+                    </div>
+
+                    <!-- Passo 3: Perfil -->
+                    <div class="onboarding-step" id="step-3">
+                        <h2 class="step-title">{% trans "Finalizar Perfil" %}</h2>
+                        <p class="step-desc">{% trans "Adicione um toque pessoal ao seu espaço de estudante." %}</p>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small">{% trans "Sua Foto de Exibição" %}</label>
+                            <input type="file" name="foto_perfil" class="form-control" style="border-radius: 10px; border: 2px solid #f1f5f9;">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small">{% trans "Conte um pouco sobre si" %}</label>
+                            <textarea name="biografia" class="form-control" rows="4" style="border-radius: 10px; border: 2px solid #f1f5f9;" placeholder="{% trans 'Seus objetivos, hobbies ou experiência...' %}">{{ perfil.biografia|default:'' }}</textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn-onboarding btn-outline-on" onclick="nextStep(2)">{% trans "Voltar" %}</button>
+                            <button type="submit" class="btn-onboarding btn-primary-on">
+                                {% trans "Explorar Plataforma" %} <i class="feather-check-circle ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% include 'include/java.html' %}
+    <script>
+        function nextStep(step) {
+            document.querySelectorAll('.onboarding-step').forEach(el => el.classList.remove('active'));
+            document.getElementById('step-' + step).classList.add('active');
+            
+            document.querySelectorAll('.dot').forEach((el, index) => {
+                if (index + 1 === step) el.classList.add('active');
+                else el.classList.remove('active');
+            });
+        }
+
+        // Função para atualizar o estado visual baseado no input
+        function updateVisualState() {
+            // Categorias (Interesses)
+            document.querySelectorAll('.category-item input').forEach(input => {
+                const parent = input.closest('.category-item');
+                if (input.checked) parent.classList.add('selected');
+                else parent.classList.remove('selected');
+            });
+
+            // Níveis
+            document.querySelectorAll('.level-card input').forEach(input => {
+                const parent = input.closest('.level-card');
+                if (input.checked) parent.classList.add('selected');
+                else parent.classList.remove('selected');
+            });
+        }
+
+        // Ouvir mudanças nos inputs
+        document.querySelectorAll('.category-item input, .level-card input').forEach(input => {
+            input.addEventListener('change', updateVisualState);
+        });
+
+        // Inicializar estado visual ao carregar
+        document.addEventListener('DOMContentLoaded', updateVisualState);
+    </script>
+</body>
+</html>

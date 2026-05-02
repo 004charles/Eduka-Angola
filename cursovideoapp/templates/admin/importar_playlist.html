@@ -1,0 +1,96 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .import-container { padding: 20px; max-width: 800px; }
+    .form-row { margin-bottom: 20px; }
+    .help { color: #666; font-size: 11px; margin-top: 5px; }
+    #import-log { 
+        background: #f8f9fa; 
+        border: 1px solid #ddd; 
+        padding: 15px; 
+        margin-top: 20px; 
+        max-height: 300px; 
+        overflow-y: auto; 
+        font-family: monospace;
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="import-container">
+    <h1>Importar Playlist do YouTube para: {{ curso.titulo }}</h1>
+    
+    <div class="module">
+        <form id="import-form">
+            {% csrf_token %}
+            <div class="form-row">
+                <label for="playlist_url" style="display: block; margin-bottom: 10px; font-weight: bold;">URL da Playlist:</label>
+                <input type="url" name="playlist_url" id="playlist_url" class="vTextField" style="width: 100%;" placeholder="https://www.youtube.com/playlist?list=...">
+                <div class="help">Insira o link completo da playlist. O sistema irá ignorar vídeos já existentes no curso.</div>
+            </div>
+            
+            <div class="submit-row" style="text-align: left; background: none; border: none; padding-left: 0;">
+                <input type="button" value="Começar Importação" class="default" id="start-import">
+                <a href="{% url 'admin:cursovideoapp_curso_video_changelist' %}" class="closelink">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+    <div id="import-status" style="margin-top: 20px; font-weight: bold;"></div>
+    <div id="import-log"></div>
+</div>
+
+<script>
+    document.getElementById('start-import').addEventListener('click', function() {
+        const url = document.getElementById('playlist_url').value;
+        const status = document.getElementById('import-status');
+        const log = document.getElementById('import-log');
+        const btn = this;
+
+        if (!url) {
+            alert('Por favor, insira um URL válido.');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.value = 'Processando...';
+        status.innerHTML = '<span style="color: blue;">Conectando à API do YouTube...</span>';
+        log.style.display = 'block';
+        log.innerHTML = '> Iniciando processo...<br>';
+
+        const formData = new FormData();
+        formData.append('playlist_url', url);
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+        fetch("{% url 'cursovideoapp:importar_playlist_youtube' curso_id=curso.id %}", {
+            method: 'POST',
+            body: formData
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'success') {
+                status.innerHTML = '<span style="color: green;">' + data.message + '</span>';
+                log.innerHTML += '> ' + data.message + '<br>';
+                log.innerHTML += '> A redirecionar para o admin...<br>';
+                setTimeout(() => {
+                    window.location.href = "{% url 'admin:cursovideoapp_curso_video_change' curso.id %}";
+                }, 2000);
+            } else {
+                status.innerHTML = '<span style="color: red;">Erro: ' + data.message + '</span>';
+                log.innerHTML += '> ERRO: ' + data.message + '<br>';
+                btn.disabled = false;
+                btn.value = 'Tentar Novamente';
+            }
+        })
+        .catch(err => {
+            status.innerHTML = '<span style="color: red;">Erro de comunicação com o servidor.</span>';
+            btn.disabled = false;
+            btn.value = 'Tentar Novamente';
+        });
+    });
+</script>
+{% endblock %}

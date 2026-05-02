@@ -4,6 +4,7 @@ from django.contrib.auth import views as auth_views
 
 
 urlpatterns = [
+    path('onboarding/', views.aluno_onboarding, name='aluno_onboarding'),
     path('conta_aluno/', views.conta_aluno, name = 'conta_aluno'),
     path('aluno/', views.aluno_dashboard, name='aluno'),
     path('aluno/dashboard/', views.aluno_dashboard, name='aluno_dashboard'),
@@ -72,6 +73,7 @@ urlpatterns = [
     path('esqueci_senha/', views.esqueci_senha, name='esqueci_senha'),
     path('redefinir_senha/', views.redefinir_senha, name='redefinir_senha'),
     path('verificar_email/', views.verificar_email, name='verificar_email'),
+    path('reenviar_codigo/', views.reenviar_codigo, name='reenviar_codigo'),
 
     #-----------------------------aluno validacoes-----------------------
     path('valida_cadastro_aluno/', views.valida_cadastro_aluno, name = 'valida_cadastro_aluno'),

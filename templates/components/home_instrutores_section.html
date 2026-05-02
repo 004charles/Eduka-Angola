@@ -1,3 +1,4 @@
+{% load i18n %}
 <div class="rbt-team-area bg-color-extra2 rbt-section-gap" style="padding-top: 40px !important; padding-bottom: 40px !important;">
     <div class="container">
         <div class="row mb--60">
@@ -14,19 +15,20 @@
             <div class="swiper-wrapper">
                 {% for instrutor in instrutores_lista %}
                 <div class="swiper-slide">
-                    <div class="rbt-team team-style-default style-three rbt-hover">
+                    <div class="rbt-team team-style-default style-three rbt-hover" style="max-width: 260px; margin: 0 auto;">
                         <div class="inner">
                             <div class="thumbnail">
                                 <a href="{% url 'instrutor_detalhes' instrutor.id %}">
                                     {% if instrutor.foto %}
-                                    <img src="{{ instrutor.foto.url }}" alt="{{ instrutor.nome }}" style="height: 300px; object-fit: cover;">
+                                    <img src="{{ instrutor.foto.url }}" alt="{{ instrutor.nome }}" style="height: 220px; object-fit: cover;">
                                     {% else %}
-                                    <img src="https://via.placeholder.com/400x400/0056D2/FFFFFF?text={{ instrutor.nome }}" alt="{{ instrutor.nome }}">
+                                    <img src="https://via.placeholder.com/400x400/0056D2/FFFFFF?text={{ instrutor.nome }}" alt="{{ instrutor.nome }}" style="height: 220px; object-fit: cover;">
                                     {% endif %}
                                 </a>
                             </div>
-                            <div class="content px-3 py-3 text-center">
-                                <h4 class="title mb-0" style="font-size: 18px;"><a href="{% url 'instrutor_detalhes' instrutor.id %}">{{ instrutor.nome }}</a></h4>
+                            <div class="content px-3 py-2 text-center">
+                                <h4 class="title mb-0" style="font-size: 16px;"><a href="{% url 'instrutor_detalhes' instrutor.id %}">{{ instrutor.nome }}</a></h4>
+                                <span class="subtitle theme-gradient" style="font-size: 12px;">{% trans "Especialista" %}</span>
                             </div>
                         </div>
                     </div>

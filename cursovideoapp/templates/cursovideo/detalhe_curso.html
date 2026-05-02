@@ -27,71 +27,59 @@
             --play-secondary: #ec4899;
         }
 
-        body.play-mode {
-            background-color: var(--play-bg-dark);
-            color: var(--play-text-dark);
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        body.play-mode.active-light-mode {
-            background-color: var(--play-bg-light);
-            color: var(--play-text-light);
-        }
-
         .play-detail-hero {
             position: relative;
-            height: 60vh;
-            min-height: 400px;
+            height: 75vh;
+            min-height: 550px;
             display: flex;
             align-items: flex-end;
-            padding-bottom: 50px;
+            padding-bottom: 80px;
             overflow: hidden;
-            background-size: cover;
-            background-position: center;
+            background-color: var(--play-bg-dark);
         }
         
-        body.play-mode.active-dark-mode .play-detail-hero {
-            background-image: linear-gradient(to top, rgba(15, 23, 42, 1) 0%, rgba(15, 23, 42, 0.4) 50%, rgba(15, 23, 42, 0.2) 100%);
-        }
-        
-        body.play-mode.active-light-mode .play-detail-hero {
-            background-image: linear-gradient(to top, rgba(248, 250, 252, 1) 0%, rgba(248, 250, 252, 0.4) 50%, rgba(248, 250, 252, 0.2) 100%);
-        }
-
         .play-detail-hero-bg {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1;
+            z-index: 1;
             object-fit: cover;
         }
 
-        .play-detail-content {
+        /* Efeito Fusco (Netflix style fade) */
+        .play-detail-hero::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to top, var(--play-bg-dark) 0%, rgba(15, 23, 42, 0.6) 30%, rgba(15, 23, 42, 0) 100%);
             z-index: 2;
         }
 
+        .play-detail-hero .container {
+            position: relative;
+            z-index: 3;
+        }
+
         .play-title {
-            font-size: 56px;
+            font-size: 64px;
             font-weight: 800;
-            margin-bottom: 20px;
-            letter-spacing: -1px;
+            margin-bottom: 15px;
+            color: white;
+            letter-spacing: -1.5px;
+            line-height: 1.1;
         }
 
         .play-meta-info {
             display: flex;
             gap: 20px;
-            font-size: 16px;
+            font-size: 18px;
             color: var(--play-meta-dark);
-            margin-bottom: 30px;
+            margin-bottom: 35px;
             align-items: center;
         }
         
-        body.active-light-mode .play-meta-info {
-            color: var(--play-meta-light);
-        }
-
         .match-score {
             color: #22c55e;
             font-weight: 700;
@@ -112,22 +100,16 @@
             background: #fff;
             color: #000;
         }
-        
-        body.active-dark-mode .play-btn-primary:hover {
-            background: #e2e8f0;
-        }
 
         .play-btn-secondary {
             background: rgba(148, 163, 184, 0.3);
             color: #fff;
             backdrop-filter: blur(10px);
         }
-        
-        body.active-light-mode .play-btn-secondary {
-            color: var(--play-text-light);
-        }
 
         .lessons-section {
+            background-color: var(--play-bg-dark);
+            color: white;
             padding: 50px 0;
         }
 
@@ -141,48 +123,12 @@
             gap: 20px;
             transition: 0.3s;
             border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .play-btn-certificado {
-            background: #22c55e;
-            color: #fff !important;
-            padding: 14px 32px;
-            border-radius: 4px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            transition: 0.3s;
-            text-decoration: none !important;
-            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
-            animation: bounceIn 0.8s ease;
-        }
-
-        .play-btn-certificado:hover {
-            background: #16a34a;
-            transform: translateY(-2px);
-        }
-
-        @keyframes bounceIn {
-            0% { transform: scale(0.3); opacity: 0; }
-            50% { transform: scale(1.05); }
-            70% { transform: scale(0.9); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        
-        body.active-light-mode .lesson-card {
-            background: var(--play-card-bg-light);
-            border: 1px solid rgba(0,0,0,0.05);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            color: white;
         }
 
         .lesson-card:hover {
             background: rgba(255,255,255,0.05);
             transform: translateX(10px);
-        }
-        
-        body.active-light-mode .lesson-card:hover {
-            background: #f1f5f9;
         }
 
         .lesson-num {
@@ -212,79 +158,260 @@
             color: var(--play-primary);
         }
 
-        .instructor-card {
-            background: rgba(124, 58, 237, 0.1);
-            border-radius: 12px;
-            padding: 30px;
-            margin-top: 40px;
+        /* Comentários estilo Play */
+        .comments-section {
+            padding: 50px 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
         }
 
-        .instructor-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
+        .rating-box {
+            background: rgba(124, 58, 237, 0.05);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            height: 100%;
+        }
+
+        .rating-number {
+            font-size: 64px;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 10px;
+            color: var(--play-primary);
+        }
+
+        .rating-stars {
+            color: #ff9d2d;
+            font-size: 20px;
             margin-bottom: 15px;
         }
 
-        /* Adjust Header */
-        .play-mode .rbt-header-wrapper {
-            background-color: transparent !important;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .play-mode.active-light-mode .rbt-header-wrapper {
-            background-color: #fff !important;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
-        
-        .play-mode.active-dark-mode .rbt-header-wrapper {
-            background-color: var(--play-bg-dark) !important;
+        .play-progress {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
         }
 
-        /* Swiper Navigation Custom */
-        .swiper-button-next, .swiper-button-prev {
-            width: 44px;
-            height: 44px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+        .play-progress-fill {
+            height: 100%;
+            background: #ff9d2d;
+        }
+
+        .single-comment {
+            background: var(--play-card-bg-dark);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .comment-avatar {
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
-            color: #fff;
+            object-fit: cover;
+        }
+
+        .replies-container {
+            margin-left: 45px;
+            padding-left: 20px;
+            border-left: 2px solid rgba(124, 58, 237, 0.2);
+            margin-top: 20px;
+        }
+
+        .reply-btn {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--play-primary);
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        #star-rating i {
+            font-size: 28px;
+            cursor: pointer;
+            margin-right: 5px;
+            transition: 0.2s;
+        }
+        
+        .btn-load-more {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: inherit;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: 600;
             transition: 0.3s;
         }
-        .swiper-button-next:hover, .swiper-button-prev:hover {
+        .btn-load-more:hover {
             background: var(--play-primary);
+            color: #fff;
+            border-color: var(--play-primary);
         }
-        .swiper-button-next:after, .swiper-button-prev:after {
-            font-size: 18px;
+
+        /* Ajuste para recomendações no modo escuro */
+        .recommendation-section-title {
+            color: white !important;
+        }
+
+        /* Suporte Dinâmico para Modo Claro e Escuro */
+        body.active-dark-mode {
+            background-color: var(--play-bg-dark) !important;
+            color: white !important;
+        }
+
+        body.active-light-mode {
+            background-color: var(--play-bg-light) !important;
+            color: var(--play-text-light) !important;
+        }
+
+        /* Efeito Fusco adaptativo */
+        body.active-dark-mode .play-detail-hero::after {
+            background: linear-gradient(to top, var(--play-bg-dark) 0%, rgba(15, 23, 42, 0.6) 30%, rgba(15, 23, 42, 0) 100%);
+        }
+
+        body.active-light-mode .play-detail-hero::after {
+            background: linear-gradient(to top, var(--play-bg-light) 0%, rgba(248, 250, 252, 0.6) 30%, rgba(248, 250, 252, 0) 100%);
+        }
+
+        /* Cards e Rodapé adaptativos */
+        body.active-dark-mode .footer-style-1, 
+        body.active-dark-mode .copyright-area, 
+        body.active-dark-mode .rbt-footer-area {
+            background-color: #0b1120 !important;
+        }
+
+        body.active-light-mode .footer-style-1, 
+        body.active-light-mode .copyright-area, 
+        body.active-light-mode .rbt-footer-area {
+            background-color: #ffffff !important;
+        }
+
+        body.active-light-mode .recommendation-section-title {
+            color: var(--play-text-light) !important;
+        }
+
+        body.active-light-mode .recommendationSwiper .rbt-card {
+            background: #ffffff !important;
+            border: 1px solid rgba(0,0,0,0.05) !important;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important;
+        }
+
+        body.active-light-mode .recommendationSwiper .rbt-card-title a, 
+        body.active-light-mode .recommendationSwiper .rbt-card-text,
+        body.active-light-mode .recommendationSwiper .current-price,
+        body.active-light-mode .recommendationSwiper .rbt-view span {
+            color: var(--play-text-light) !important;
+        }
+
+        /* Lições adaptativas */
+        body.active-light-mode .lessons-section {
+            background-color: var(--play-bg-light);
+            color: var(--play-text-light);
+        }
+
+        body.active-light-mode .lesson-card {
+            background: #ffffff;
+            border: 1px solid rgba(0,0,0,0.05);
+            color: var(--play-text-light);
+        }
+
+        body.active-light-mode .lesson-card:hover {
+            background: #f1f5f9;
+        }
+
+        /* Barras de Avaliação (Estilo Presencial) */
+        .play-progress {
+            height: 8px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        body.active-dark-mode .play-progress {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .play-progress-fill {
+            height: 100%;
+            background: #ff9d2d;
+            border-radius: 4px;
+            transition: width 0.6s ease;
+        }
+
+        .rating-box {
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            height: 100%;
+            background: rgba(124, 58, 237, 0.05);
+            border: 1px solid rgba(124, 58, 237, 0.1);
+        }
+        
+        body.active-dark-mode .rating-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        body.active-light-mode .single-comment {
+            background: #ffffff !important;
+            border: 1px solid rgba(0,0,0,0.05) !important;
+            color: var(--play-text-light) !important;
+        }
+
+        /* Estilo para formulários dentro do Play Mode */
+        .single-comment textarea, .single-comment input {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 18px;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 16px;
+            min-height: 140px;
+            line-height: 1.5;
+        }
+
+        .single-comment textarea::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+
+        body.active-light-mode .single-comment textarea, 
+        body.active-light-mode .single-comment input {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: var(--play-text-light);
+        }
+
+        body.active-light-mode .single-comment textarea::placeholder {
+            color: #94a3b8;
+        }
+
+        body.active-light-mode .lesson-title,
+        body.active-light-mode .lesson-duration,
+        body.active-light-mode .lessons-section h3,
+        body.active-light-mode .lessons-section h2,
+        body.active-light-mode .rating-box {
+            color: var(--play-text-light);
+        }
+
+        body.active-light-mode .rating-number {
+            color: var(--play-primary);
         }
     </style>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 </head>
 
-<body class="rbt-header-sticky play-mode active-dark-mode">
 
-    <div id="my_switcher" class="my_switcher">
-        <ul>
-            <li>
-                <a href="javascript: void(0);" data-theme="light" class="setColor light">
-                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode">
-                        Light</span>
-                </a>
-            </li>
-            <li>
-                <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
-                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span
-                        title="{% trans 'Dark Mode' %}"> {% trans 'Dark' %}</span>
-                </a>
-            </li>
-        </ul>
-    </div>
+<body class="rbt-header-sticky">
 
     {% include 'include/header.html' %}
 
     <main class="rbt-main-wrapper">
-        <!-- Hero Section -->
         <section class="play-detail-hero">
             {% if curso.capa %}
             <img src="{{ curso.capa.url }}" alt="{{ curso.titulo }}" class="play-detail-hero-bg">
@@ -293,48 +420,46 @@
             {% endif %}
             
             <div class="container">
-                <div class="play-detail-content">
-                    <h1 class="play-title">{{ curso.titulo }}</h1>
-                    <div class="play-meta-info">
-                        <span class="match-score">98% Relevante</span>
-                        <span>{{ curso.data_publicacao|date:"Y" }}</span>
-                        <span class="badge bg-secondary">{{ curso.get_nivel_display|default:"Geral" }}</span>
-                        <span>{{ curso.duracao_total }}</span>
-                        <span>HD</span>
-                    </div>
-                    
-                    <div class="d-flex gap-3">
-                        {% if user.is_authenticated %}
-                            {% if aluno_inscrito %}
-                                {% if aulas.exists %}
-                                <a href="{% url 'cursovideoapp:ver_aula' curso_slug=curso.slug pk=aulas.first.pk %}" class="play-btn play-btn-primary">
-                                    <i class="fas fa-play"></i> Continuar Assistindo
-                                </a>
+                <div class="row align-items-center">
+                    <div class="col-lg-12">
+                        <div class="play-detail-content">
+                            <h1 class="play-title">{{ curso.titulo }}</h1>
+                            <div class="play-meta-info">
+                                <span class="match-score text-white">98% Relevante</span>
+                                <span>{{ curso.data_publicacao|date:"Y" }}</span>
+                                <span class="badge bg-white text-primary">{{ curso.get_nivel_display|default:"Geral" }}</span>
+                                <span>{{ curso.duracao_total }}</span>
+                                <span><i class="feather-video"></i> Full HD</span>
+                            </div>
+                            
+                            <div class="d-flex gap-3">
+                                {% if user.is_authenticated %}
+                                    {% if aluno_inscrito %}
+                                        {% if aulas.exists %}
+                                        <a href="{% url 'cursovideoapp:ver_aula' curso_slug=curso.slug pk=aulas.first.pk %}" class="play-btn play-btn-primary">
+                                            <i class="fas fa-play me-2"></i> Continuar Assistindo
+                                        </a>
+                                        {% endif %}
+                                        {% if progresso_total == 100 %}
+                                        <a href="{% url 'cursovideoapp:emitir_certificado' curso_slug=curso.slug %}" class="play-btn play-btn-secondary" target="_blank">
+                                            <i class="fas fa-award me-2"></i> Baixar Certificado
+                                        </a>
+                                        {% endif %}
+                                    {% else %}
+                                        <form action="{% url 'cursovideoapp:toggle_inscricao' slug=curso.slug %}" method="POST">
+                                            {% csrf_token %}
+                                            <button type="submit" class="play-btn play-btn-primary">
+                                                <i class="fas fa-plus me-2"></i> Inscrever-se Agora
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                {% else %}
+                                    <a href="{% url 'account_login' %}?next={{ request.path }}" class="play-btn play-btn-primary">
+                                        <i class="fas fa-sign-in-alt me-2"></i> Entrar para Assistir
+                                    </a>
                                 {% endif %}
-                                {% if progresso_total == 100 %}
-                                <a href="{% url 'cursovideoapp:emitir_certificado' curso_slug=curso.slug %}" class="play-btn-certificado" target="_blank">
-                                    <i class="fas fa-award"></i> Baixar Certificado
-                                </a>
-                                {% endif %}
-                            {% else %}
-                                <form action="{% url 'cursovideoapp:toggle_inscricao' slug=curso.slug %}" method="POST">
-                                    {% csrf_token %}
-                                    <button type="submit" class="play-btn play-btn-primary">
-                                        <i class="fas fa-plus"></i> Inscrever-se Agora
-                                    </button>
-                                </form>
-                            {% endif %}
-                        {% else %}
-                            <a href="{% url 'account_login' %}?next={{ request.path }}" class="play-btn play-btn-primary">
-                                <i class="fas fa-sign-in-alt"></i> Entrar para Assistir
-                            </a>
-                        {% endif %}
-                        <button class="play-btn play-btn-secondary">
-                            <i class="fas fa-thumbs-up"></i>
-                        </button>
-                        <button class="play-btn play-btn-secondary">
-                            <i class="fas fa-share-alt"></i>
-                        </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -344,10 +469,13 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-8">
-                        <h2 class="mb--30">Aulas do Curso</h2>
+                        <div class="d-flex justify-content-between align-items-center mb--30">
+                            <h2 class="mb-0">Aulas do Curso</h2>
+                        </div>
                         <div class="lesson-list">
                             {% for aula in aulas %}
-                            <a href="{% if aluno_inscrito %}{% url 'cursovideoapp:ver_aula' curso_slug=curso.slug pk=aula.pk %}{% else %}#{% endif %}" class="text-decoration-none color-inherit">
+                            <a href="{% if aluno_inscrito %}{% url 'cursovideoapp:ver_aula' curso_slug=curso.slug pk=aula.pk %}{% else %}#{% endif %}" 
+                               class="text-decoration-none color-inherit lesson-link {% if forloop.counter > 5 %}d-none{% endif %}">
                                 <div class="lesson-card">
                                     <div class="lesson-num">{{ forloop.counter }}</div>
                                     <div class="lesson-info">
@@ -367,6 +495,34 @@
                             <p>Nenhuma aula disponível ainda.</p>
                             {% endfor %}
                         </div>
+
+                        {% if aulas.count > 5 %}
+                        <div class="text-center mt--30">
+                            <button id="btn-show-all-lessons" class="rbt-btn btn-gradient radius-round btn-md w-100" style="max-width: 400px;">
+                                <i class="fas fa-chevron-down me-2"></i> Ver todas as {{ aulas.count }} aulas
+                            </button>
+                        </div>
+                        {% endif %}
+
+                        <!-- Mural de Avisos -->
+                        {% if curso.avisos.exists %}
+                        <div class="mt--60">
+                            <h3 class="mb--30"><i class="fas fa-bullhorn text-primary me-2"></i> Mural de Avisos</h3>
+                            <div class="row g-4">
+                                {% for aviso in curso.avisos.all %}
+                                <div class="col-12">
+                                    <div class="p-4 rounded-4" style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.1);">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="fw-bold mb-0 text-primary">{{ aviso.titulo }}</h6>
+                                            <small class="opacity-6">{{ aviso.data_criacao|date:"d/m/Y" }}</small>
+                                        </div>
+                                        <p class="mb-0 opacity-8 small">{{ aviso.mensagem|linebreaksbr }}</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
 
                         <div class="mt--50">
                             <h3>Sobre este curso</h3>
@@ -396,34 +552,199 @@
                     </div>
                 </div>
 
+                <!-- Secção de Avaliações e Comentários -->
+                <div class="comments-section mt--60">
+                    <div class="row g-5">
+                        <div class="col-lg-4">
+                            <div class="rating-box">
+                                <div class="rating-number">{{ curso.get_media_avaliacoes }}</div>
+                                <div class="rating-stars">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= curso.get_media_avaliacoes %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <p class="small opacity-7 mb--30">Avaliação baseada em {{ total_principais }} alunos</p>
+                                
+                                <div class="text-start">
+                                    {% for item in curso.get_distribuicao_avaliacoes %}
+                                    <div class="progress-bar-container">
+                                        <div class="progress-label">
+                                            <span>{{ item.nota }} estrelas</span>
+                                            <span class="opacity-7">{{ item.percentagem }}%</span>
+                                        </div>
+                                        <div class="play-progress">
+                                            <div class="play-progress-fill" style="width: {{ item.percentagem }}%"></div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-8">
+                            <div class="d-flex justify-content-between align-items-center mb--30">
+                                <h3 class="mb-0">Comentários</h3>
+                                {% if aluno_inscrito and not comentario_existente %}
+                                <button class="rbt-btn btn-gradient btn-sm py-2 px-4 radius-round" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAvaliacao">
+                                    Avaliar Curso
+                                </button>
+                                {% endif %}
+                            </div>
+
+                            {% if aluno_inscrito %}
+                            <div class="collapse mb--40" id="collapseAvaliacao">
+                                <div class="single-comment border-primary" style="border-width: 2px;">
+                                    <h5 class="mb--20">O que achou deste curso?</h5>
+                                    <form action="{% url 'cursovideoapp:salvar_comentario_video' curso.slug %}" method="POST">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="parent_id" id="id_parent_id" value="">
+                                        
+                                        <div id="replying-to" class="d-none alert alert-info d-flex justify-content-between align-items-center mb-3">
+                                            <span class="small">Respondendo a <strong id="replying-to-name"></strong></span>
+                                            <button type="button" class="btn-close btn-sm" onclick="cancelReply()"></button>
+                                        </div>
+
+                                        <div class="mb--20" id="star-row">
+                                            <label class="d-block small mb-2 opacity-7">Sua nota:</label>
+                                            <div id="star-rating">
+                                                <i class="far fa-star text-muted" data-value="1"></i>
+                                                <i class="far fa-star text-muted" data-value="2"></i>
+                                                <i class="far fa-star text-muted" data-value="3"></i>
+                                                <i class="far fa-star text-muted" data-value="4"></i>
+                                                <i class="far fa-star text-muted" data-value="5"></i>
+                                            </div>
+                                            <input type="hidden" name="avaliacao" id="id_avaliacao" value="5">
+                                        </div>
+
+                                        <div class="mb-3">
+                                            {{ avaliacao_form.comentario }}
+                                        </div>
+                                        <div class="text-end">
+                                            <button type="submit" class="rbt-btn btn-gradient radius-round">Enviar Feedback</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <div id="comments-list">
+                                {% for comentario in comentarios %}
+                                <div class="single-comment shadow-sm">
+                                    <div class="d-flex gap-3">
+                                        <img src="{{ comentario.aluno.get_foto_perfil_url }}" class="comment-avatar" alt="{{ comentario.aluno.nome }}">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <h6 class="mb-0">{{ comentario.aluno.nome }}</h6>
+                                                    <div class="rating-stars small mb-2" style="font-size: 12px;">
+                                                        {% for i in "12345" %}
+                                                            <i class="{% if forloop.counter <= comentario.avaliacao %}fas{% else %}far{% endif %} fa-star"></i>
+                                                        {% endfor %}
+                                                        <span class="ms-2 opacity-7" style="color: inherit;">{{ comentario.data_comentario|date:"d/m/Y" }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <p class="mb--10 opacity-9">{{ comentario.comentario }}</p>
+                                            
+                                            <div class="d-flex gap-3">
+                                                {% if user.is_authenticated %}
+                                                <button class="reply-btn" onclick="prepareReply('{{ comentario.id }}', '{{ comentario.aluno.nome }}')">
+                                                    <i class="fas fa-reply me-1"></i> Responder
+                                                </button>
+                                                {% endif %}
+                                            </div>
+
+                                            {% if comentario.respostas_comunidade.all %}
+                                            <div class="replies-container">
+                                                {% for resposta in comentario.respostas_comunidade.all %}
+                                                <div class="d-flex gap-2 mb-3">
+                                                    <img src="{{ resposta.aluno.get_foto_perfil_url }}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                                                    <div>
+                                                        <h6 class="mb-0 small">{{ resposta.aluno.nome }}</h6>
+                                                        <p class="small mb-0 opacity-8">{{ resposta.comentario }}</p>
+                                                    </div>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                            {% endif %}
+
+                                            {% if comentario.resposta %}
+                                            <div class="mt-3 p-3 rounded" style="background: rgba(124, 58, 237, 0.1); border-left: 3px solid var(--play-primary);">
+                                                <div class="d-flex align-items-center gap-2 mb-1">
+                                                    <i class="fas fa-check-circle text-primary small"></i>
+                                                    <strong class="small">Resposta do EdukAngola</strong>
+                                                </div>
+                                                <p class="mb-0 small italic opacity-9">{{ comentario.resposta }}</p>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="text-center py-5 opacity-5">
+                                    <i class="fas fa-comments fa-3x mb-3"></i>
+                                    <p class="mb-3">Nenhum comentário ainda. Seja o primeiro a avaliar!</p>
+                                    {% if aluno_inscrito %}
+                                        {% if not comentario_existente %}
+                                        <button class="rbt-btn btn-gradient btn-sm py-2 px-4 radius-round" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAvaliacao">
+                                            Avaliar Curso Agora
+                                        </button>
+                                        {% endif %}
+                                    {% elif not user.is_authenticated %}
+                                        <p class="small"><em><a href="{% url 'account_login' %}?next={{ request.path }}" class="text-primary">Faça login</a> para poder avaliar este curso.</em></p>
+                                    {% else %}
+                                        <p class="small"><em>Inscreva-se no curso para poder deixar a sua avaliação.</em></p>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            {% if total_principais > 5 %}
+                            <div class="text-center mt--30">
+                                <button id="btn-load-more" class="btn-load-more" data-offset="5" data-course="{{ curso.id }}">
+                                    Ver mais comentários <i class="fas fa-chevron-down ms-2"></i>
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Nova Secção: Cursos Recomendados (Carrossel) -->
                 <div class="row mt--60">
                     <div class="col-lg-12">
                         <div class="section-title">
-                            <h3 class="title">Recomendados para você</h3>
+                            <h3 class="title recommendation-section-title">Recomendados para você</h3>
                         </div>
                         <div class="swiper recommendationSwiper mt--30 mb--60">
                             <div class="swiper-wrapper">
                                 {% for rec in cursos_recomendados %}
                                 <div class="swiper-slide">
-                                    <div class="play-card">
-                                        <a href="{% url 'cursovideoapp:detalhe_curso' slug=rec.slug %}">
-                                            {% if rec.capa %}
-                                            <img src="{{ rec.capa.url }}" alt="{{ rec.titulo }}" class="play-card-img">
-                                            {% else %}
-                                            <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{ rec.titulo }}" class="play-card-img">
-                                            {% endif %}
-                                            <div class="play-card-overlay">
-                                                <div class="play-icon-circle">
-                                                    <i class="fas fa-play"></i>
+                                    <div class="rbt-card variation-01 rbt-hover">
+                                        <div class="rbt-card-img">
+                                            <a href="{% url 'cursovideoapp:detalhe_curso' slug=rec.slug %}">
+                                                {% if rec.capa %}
+                                                <img src="{{ rec.capa.url }}" alt="{{ rec.titulo }}">
+                                                {% else %}
+                                                <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{ rec.titulo }}">
+                                                {% endif %}
+                                            </a>
+                                        </div>
+                                        <div class="rbt-card-body">
+                                            <h6 class="rbt-card-title">
+                                                <a href="{% url 'cursovideoapp:detalhe_curso' slug=rec.slug %}">{{ rec.titulo }}</a>
+                                            </h6>
+                                            <div class="rbt-card-bottom">
+                                                <div class="rbt-price">
+                                                    <span class="current-price">Grátis</span>
                                                 </div>
-                                            </div>
-                                        </a>
-                                        <div class="play-card-body">
-                                            <h6 class="play-card-title">{{ rec.titulo }}</h6>
-                                            <div class="play-card-meta">
-                                                <span>{{ rec.duracao_total|default:"2h 30min" }}</span>
-                                                <span class="badge bg-primary-opacity text-primary">{{ rec.get_nivel_display }}</span>
+                                                <div class="rbt-view">
+                                                    <span>{{ rec.duracao_total|default:"2h 30min" }}</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -445,6 +766,7 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar Swiper
             new Swiper(".recommendationSwiper", {
                 slidesPerView: 1.2,
                 spaceBetween: 20,
@@ -462,8 +784,214 @@
                     1200: { slidesPerView: 4.2 }
                 }
             });
-        });
-    </script>
 
+            // Lógica de Estrelas
+            const stars = document.querySelectorAll('#star-rating i');
+            const avaliacaoInput = document.getElementById('id_avaliacao');
+
+            function updateStars(value) {
+                stars.forEach((s, index) => {
+                    if (index < value) {
+                        s.classList.remove('far', 'text-muted');
+                        s.classList.add('fas', 'text-warning');
+                        s.style.color = '#ff9d2d';
+                    } else {
+                        s.classList.remove('fas', 'text-warning');
+                        s.classList.add('far', 'text-muted');
+                        s.style.color = '';
+                    }
+                });
+            }
+
+            if (avaliacaoInput) {
+                updateStars(avaliacaoInput.value);
+            }
+
+            stars.forEach(star => {
+                star.addEventListener('mouseover', function() {
+                    updateStars(this.getAttribute('data-value'));
+                });
+
+                star.addEventListener('click', function () {
+                    const value = this.getAttribute('data-value');
+                    avaliacaoInput.value = value;
+                    updateStars(value);
+                    this.parentElement.setAttribute('data-selected', value);
+                });
+            });
+
+            document.getElementById('star-rating')?.addEventListener('mouseleave', function() {
+                const selected = this.getAttribute('data-selected') || avaliacaoInput.value || 0;
+                updateStars(selected);
+            });
+
+            // Carregar mais comentários
+            const btnLoadMore = document.getElementById('btn-load-more');
+            if (btnLoadMore) {
+                btnLoadMore.addEventListener('click', function() {
+                    const offset = this.dataset.offset;
+                    const courseId = this.dataset.course;
+                    
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Carregando...';
+                    
+                    fetch(`/curso_video/api/curso/${courseId}/comentarios/?offset=${offset}`)
+                        .then(r => r.json())
+                        .then(data => {
+                            data.comentarios.forEach(c => {
+                                let starsHtml = '';
+                                for (let i=1; i<=5; i++) {
+                                    starsHtml += `<i class="${i <= c.avaliacao ? 'fas' : 'far'} fa-star"></i> `;
+                                }
+                                
+                                let repliesHtml = '';
+                                if (c.respostas_comunidade && c.respostas_comunidade.length > 0) {
+                                    repliesHtml = '<div class="replies-container">';
+                                    c.respostas_comunidade.forEach(r => {
+                                        repliesHtml += `
+                                            <div class="d-flex gap-2 mb-3">
+                                                <img src="${r.foto || '/static/assets/images/about/aluno.png'}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                                                <div>
+                                                    <h6 class="mb-0 small">${r.aluno}</h6>
+                                                    <p class="small mb-0 opacity-8">${r.comentario}</p>
+                                                </div>
+                                            </div>
+                                        `;
+                                    });
+                                    repliesHtml += '</div>';
+                                }
+                                
+                                let officialReply = '';
+                                if (c.resposta) {
+                                    officialReply = `
+                                        <div class="mt-3 p-3 rounded" style="background: rgba(124, 58, 237, 0.1); border-left: 3px solid var(--play-primary);">
+                                            <div class="d-flex align-items-center gap-2 mb-1">
+                                                <i class="fas fa-check-circle text-primary small"></i>
+                                                <strong class="small">Resposta do EdukAngola</strong>
+                                            </div>
+                                            <p class="mb-0 small italic opacity-9">${c.resposta}</p>
+                                        </div>
+                                    `;
+                                }
+
+                                const html = `
+                                    <div class="single-comment shadow-sm">
+                                        <div class="d-flex gap-3">
+                                            <img src="${c.foto || '/static/assets/images/about/aluno.png'}" class="comment-avatar" alt="${c.aluno}">
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div>
+                                                        <h6 class="mb-0">${c.aluno}</h6>
+                                                        <div class="rating-stars small mb-2" style="font-size: 12px;">
+                                                            ${starsHtml}
+                                                            <span class="ms-2 opacity-7" style="color: inherit;">${c.data}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <p class="mb--10 opacity-9">${c.comentario}</p>
+                                                <button class="reply-btn" onclick="prepareReply('${c.id}', '${c.aluno}')">
+                                                    <i class="fas fa-reply me-1"></i> Responder
+                                                </button>
+                                                ${repliesHtml}
+                                                ${officialReply}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                                document.getElementById('comments-list').insertAdjacentHTML('beforeend', html);
+                            });
+                            
+                            this.dataset.offset = parseInt(offset) + data.comentarios.length;
+                            this.innerHTML = 'Ver mais comentários <i class="fas fa-chevron-down ms-2"></i>';
+                            
+                            if (!data.has_more) {
+                                this.parentElement.remove();
+                            }
+                        });
+                });
+            }
+        });
+
+        // Sistema de Estrelas (Star Rating)
+        const stars = document.querySelectorAll('#star-rating i');
+        const avaliacaoInput = document.getElementById('id_avaliacao');
+
+        if (stars.length > 0) {
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const val = this.getAttribute('data-value');
+                    avaliacaoInput.value = val;
+                    updateStars(val);
+                });
+
+                star.addEventListener('mouseover', function() {
+                    const val = this.getAttribute('data-value');
+                    previewStars(val);
+                });
+
+                star.addEventListener('mouseout', function() {
+                    updateStars(avaliacaoInput.value);
+                });
+            });
+        }
+
+        function updateStars(val) {
+            stars.forEach(s => {
+                const sVal = s.getAttribute('data-value');
+                if (sVal <= val) {
+                    s.classList.remove('far', 'text-muted');
+                    s.classList.add('fas', 'text-warning');
+                } else {
+                    s.classList.remove('fas', 'text-warning');
+                    s.classList.add('far', 'text-muted');
+                }
+            });
+        }
+
+        function previewStars(val) {
+            stars.forEach(s => {
+                const sVal = s.getAttribute('data-value');
+                if (sVal <= val) {
+                    s.classList.add('text-warning');
+                } else {
+                    s.classList.remove('text-warning');
+                }
+            });
+        }
+
+        function prepareReply(commentId, studentName) {
+            document.getElementById('id_parent_id').value = commentId;
+            document.getElementById('replying-to').classList.remove('d-none');
+            document.getElementById('replying-to-name').innerText = studentName;
+            
+            const collapseElement = document.getElementById('collapseAvaliacao');
+            const collapse = new bootstrap.Collapse(collapseElement, { toggle: false });
+            collapse.show();
+
+            const textarea = document.querySelector('textarea[name="comentario"]');
+            textarea.focus();
+            textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            textarea.placeholder = "Escreva sua resposta para " + studentName + "...";
+            
+            document.getElementById('star-row').classList.add('d-none');
+        }
+
+        function cancelReply() {
+            document.getElementById('id_parent_id').value = '';
+            document.getElementById('replying-to').classList.add('d-none');
+            document.getElementById('star-row').classList.remove('d-none');
+            const textarea = document.querySelector('textarea[name="comentario"]');
+            textarea.placeholder = "Compartilhe sua experiência com este curso...";
+        }
+
+        // Mostrar todas as aulas
+        const btnShowAll = document.getElementById('btn-show-all-lessons');
+        if (btnShowAll) {
+            btnShowAll.addEventListener('click', function() {
+                const hiddenLessons = document.querySelectorAll('.lesson-link.d-none');
+                hiddenLessons.forEach(l => l.classList.remove('d-none'));
+                this.parentElement.remove(); // Remove o botão após mostrar tudo
+            });
+        }
+    </script>
 </body>
 </html>

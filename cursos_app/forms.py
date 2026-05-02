@@ -7,7 +7,7 @@ from avaliacoes.models import Comentario
 class AvaliacaoForm(forms.ModelForm):
     class Meta:
         model = Comentario
-        fields = ['avaliacao', 'comentario', 'status_aluno']
+        fields = ['avaliacao', 'comentario']
         widgets = {
             'comentario': forms.Textarea(attrs={
                 'class': 'form-control',
@@ -16,7 +16,6 @@ class AvaliacaoForm(forms.ModelForm):
                 'maxlength': 1000
             }),
             'avaliacao': forms.HiddenInput(),  # Será preenchido via JavaScript
-            'status_aluno': forms.HiddenInput(),  # Será preenchido via formulário
         }
     
     def __init__(self, *args, **kwargs):

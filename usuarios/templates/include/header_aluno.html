@@ -1,43 +1,221 @@
 {% load static %}
-<div class="rbt-dashboard-content-wrapper">
-    <!-- Bem-vindo simplificado -->
-    <div class="rbt-dashboard-welcome mb--40">
-        <div class="section-title">
-            <h2 class="title" style="font-weight: 700;">Bem-vindo de volta, <span class="theme-gradient">{{aluno_nome}}</span>!</h2>
-            <p class="description">Pronto para progredir na sua trajetória?</p>
+{% load i18n %}
+
+<div class="student-dashboard-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <!-- Esquerda: Informações do Perfil -->
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center gap-4">
+                    <!-- Avatar Circular (Dark Blue) -->
+                    <div class="student-avatar-wrapper">
+                        {% if perfil.foto_de_perfil %}
+                            <img src="{{ perfil.foto_de_perfil.url }}" alt="{{ aluno_nome }}" class="student-avatar-img">
+                        {% elif perfil.imagem %}
+                            <img src="{{ perfil.imagem.url }}" alt="{{ aluno_nome }}" class="student-avatar-img">
+                        {% else %}
+                            <div class="student-avatar-initial">{{ aluno_nome.0|upper }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="student-info-content">
+                        <h2 class="greeting-title mb-0" id="greeting-text">
+                            {% trans "Boa tarde" %}, <span class="student-name">{{ aluno_nome }}</span>
+                        </h2>
+                        <div class="career-objective">
+                            <p class="mb-0">
+                                {% if perfil.interesses.all %}
+                                    {% trans "Seu objetivo de carreira é explorar tópicos como" %} 
+                                    {% for interesse in perfil.interesses.all|slice:":3" %}
+                                        <a href="#" class="objective-link">{{ interesse.nome }}</a>{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                    {% if perfil.interesses.all.count > 3 %}
+                                        <span class="text-muted">{% trans "ou mais" %}</span>
+                                    {% endif %}
+                                {% else %}
+                                    {% trans "Defina seus objetivos de carreira para obter recomendações personalizadas." %}
+                                {% endif %}
+                                <a href="{% url 'aluno_onboarding' %}" class="edit-goal-link ms-3">{% trans "Editar meta" %}</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Direita: Ilustração 3D -->
+            <div class="col-lg-4 d-none d-lg-block text-end">
+                <div class="header-illustration">
+                    <img src="{% static 'assets/images/illustrations/student_dashboard_hero_3d.png' %}" alt="Dashboard Illustration" style="max-width: 200px; height: auto;">
+                </div>
+            </div>
         </div>
     </div>
-    
-    <!-- Início da Informação do Aluno - Estilizado como Card -->
-    <div class="rbt-tutor-information bg-color-white rbt-shadow-box mb--40" style="margin-top: 0; padding: 30px;">
-        <div class="rbt-tutor-information-left">
-            <div class="thumbnail rbt-avatars size-lg">
-                {% if perfil.foto_de_perfil %}
-                    <img src="{{ perfil.foto_de_perfil.url }}" alt="Foto de {{ aluno_nome }}">
-                {% elif perfil.imagem %}
-                    <img src="{{ perfil.imagem.url }}" alt="Foto de {{ aluno_nome }}">
-                {% else %}
-                    <img src="{% static 'assets/images/team/avatar-2.jpg' %}" alt="Foto padrão">
-                {% endif %}
-            </div>
-            <div class="tutor-content">
-                <h5 class="title">{{aluno_nome}}</h5>
-                <ul class="rbt-meta mt--5">
-                    <li><i class="feather-book"></i>{{ total_cursos|default:0 }} Cursos Inscritos</li>
-                    <li><i class="feather-award"></i>{{ total_certificados|default:0 }} Certificados</li>
-                </ul>
-            </div>
-        </div>
-        <div class="rbt-tutor-information-right">
-            <div class="tutor-btn">
-                <a class="rbt-btn btn-sm btn-gradient hover-icon-reverse" href="{% url 'aluno_perfil' %}">
-                    <span class="icon-reverse-wrapper">
-                        <span class="btn-text">Editar Perfil</span>
-                        <span class="btn-icon"><i class="feather-edit"></i></span>
-                        <span class="btn-icon"><i class="feather-edit"></i></span>
-                    </span>
-                </a>
-            </div>
-        </div>
+    <!-- Navegação Horizontal (Estilo Coursera) -->
+    <div class="container mt--30">
+        <ul class="nav nav-tabs coursera-tabs-main" id="mainStudentNav">
+            <li class="nav-item">
+                <a class="nav-link {% if current_page == 'dashboard' %}active{% endif %}" href="{% url 'aluno_dashboard' %}">{% trans "Painel" %}</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if current_page == 'meus_cursos' %}active{% endif %}" href="{% url 'aluno_cursos' %}">{% trans "Meus Cursos" %}</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if current_page == 'favoritos' %}active{% endif %}" href="{% url 'aluno_favoritos' %}">{% trans "Favoritos" %}</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if current_page == 'perfil' %}active{% endif %}" href="{% url 'aluno_perfil' %}">{% trans "Perfil" %}</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if current_page == 'configuracoes' %}active{% endif %}" href="{% url 'aluno_configuracoes' %}">{% trans "Configurações" %}</a>
+            </li>
+            <li class="nav-item ms-auto">
+                <a class="nav-link text-danger" href="{% url 'logout' %}"><i class="feather-log-out me-2"></i>{% trans "Sair" %}</a>
+            </li>
+        </ul>
     </div>
 </div>
+
+<style>
+    .student-dashboard-header {
+        background: #fff;
+        padding: 40px 0 0 0; /* Removido padding inferior para colar as tabs */
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    /* Main Navigation Tabs */
+    .coursera-tabs-main {
+        border-bottom: none;
+    }
+
+    .coursera-tabs-main .nav-link {
+        border: none;
+        background: none;
+        color: #636363;
+        font-size: 15px;
+        padding: 15px 0;
+        margin-right: 40px;
+        position: relative;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .coursera-tabs-main .nav-link:hover {
+        color: #000;
+    }
+
+    .coursera-tabs-main .nav-link.active {
+        color: #000;
+        font-weight: 700;
+    }
+
+    .coursera-tabs-main .nav-link.active::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background-color: #000;
+    }
+
+    body.active-dark-mode .student-dashboard-header {
+        background: #1e293b;
+        border-bottom: 1px solid #334155;
+    }
+
+    body.active-dark-mode .greeting-title {
+        color: #f8fafc;
+    }
+
+    body.active-dark-mode .career-objective {
+        color: #94a3b8;
+    }
+
+    body.active-dark-mode .objective-link {
+        color: #f8fafc;
+    }
+
+    body.active-dark-mode .coursera-tabs-main .nav-link {
+        color: #94a3b8;
+    }
+
+    body.active-dark-mode .coursera-tabs-main .nav-link:hover {
+        color: #f8fafc;
+    }
+
+    body.active-dark-mode .coursera-tabs-main .nav-link.active {
+        color: #f8fafc;
+    }
+
+    body.active-dark-mode .coursera-tabs-main .nav-link.active::after {
+        background-color: #f8fafc;
+    }
+
+    .student-avatar-initial {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: #002347; /* Dark Blue from image */
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        font-weight: 600;
+    }
+
+    .student-avatar-img {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .greeting-title {
+        font-size: 28px;
+        font-weight: 600;
+        color: #000;
+        letter-spacing: -0.5px;
+    }
+
+    .career-objective {
+        font-size: 13px;
+        color: #000;
+        margin-top: 4px;
+        line-height: 1.5;
+    }
+
+    .objective-link {
+        color: #000;
+        text-decoration: underline;
+        font-weight: 600;
+    }
+
+    .edit-goal-link {
+        color: #0056d2; /* Coursera Blue */
+        font-weight: 600;
+        font-size: 12px;
+        text-decoration: none;
+    }
+
+    .edit-goal-link:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const hour = new Date().getHours();
+        const greetingEl = document.getElementById('greeting-text');
+        const name = "{{ aluno_nome }}";
+        
+        let greeting = "";
+        if (hour >= 5 && hour < 12) greeting = "{% trans 'Bom dia' %}";
+        else if (hour >= 12 && hour < 18) greeting = "{% trans 'Boa tarde' %}";
+        else greeting = "{% trans 'Boa noite' %}";
+        
+        if (greetingEl) {
+            greetingEl.innerHTML = `${greeting}, <span class="student-name">${name}</span>`;
+        }
+    });
+</script>

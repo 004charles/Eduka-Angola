@@ -74,6 +74,7 @@ class Comentario(models.Model):
     aluno = models.ForeignKey('usuarios.Aluno', on_delete=models.CASCADE, related_name='comentarios')
     curso = models.ForeignKey('cursos_app.Curso', on_delete=models.CASCADE, related_name='comentarios', null=True, blank=True)
     curso_video = models.ForeignKey('cursovideoapp.Curso_video', on_delete=models.CASCADE, related_name='comentarios', null=True, blank=True)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='respostas_comunidade')
     
     comentario = models.TextField(_('Comentário'), max_length=1000)
     avaliacao = models.IntegerField(
@@ -102,21 +103,9 @@ class Comentario(models.Model):
     editado = models.BooleanField(_('Editado'), default=False)
     
     class Meta:
-        verbose_name = 'Comentário'
+        verbose_name = 'Comentario'
         verbose_name_plural = 'Comentários'
         ordering = ['-data_comentario']
-        constraints = [
-            models.UniqueConstraint(
-                fields=['aluno', 'curso'], 
-                name='unique_aluno_curso_comentario',
-                condition=models.Q(curso__isnull=False)
-            ),
-            models.UniqueConstraint(
-                fields=['aluno', 'curso_video'], 
-                name='unique_aluno_curso_video_comentario',
-                condition=models.Q(curso_video__isnull=False)
-            )
-        ]
     
     def __str__(self):
         obj_titulo = self.curso.titulo if self.curso else self.curso_video.titulo if self.curso_video else "N/A"

@@ -12,6 +12,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from cursos_app.forms import AvaliacaoForm
@@ -40,76 +41,6 @@ from cursovideoapp.models import Curso_video
 
 
 
-def home_cursos(request):
-    """
-    Página inicial para cursos presenciais e online.
-    Exibe cursos em destaque, recém-chegados, populares e melhor avaliados.
-    """
-    agora = timezone.now()
-    
-    # 1. Newest Courses (Recém Chegados)
-    cursos_recentes = Curso.objects.filter(
-        publicado=True, ativo=True
-    ).order_by('-data_criacao')[:4]
-    
-    # 2. Most Popular (Mais Populares - based on views/enrollments)
-    cursos_populares = Curso.objects.filter(
-        publicado=True, ativo=True
-    ).order_by('-visualizacoes')[:4]
-    
-    # 3. Top Rated (Melhor Avaliados)
-    # Optimizing: prefetch comments or use annotation if available
-    cursos_avaliados = Curso.objects.filter(
-        publicado=True, ativo=True
-    ).annotate(
-        media_notas=Avg('comentarios__avaliacao')
-    ).order_by('-media_notas')[:4]
-    
-    # 4. Starting Soon (Começam em Breve)
-    proximos_dias = agora + timedelta(days=30)
-    cursos_proximos = Curso.objects.filter(
-        publicado=True, 
-        ativo=True,
-        data_inicio__gte=agora.date(),
-        data_inicio__lte=proximos_dias.date()
-    ).order_by('data_inicio')[:4]
-
-    cursos_destaque = Curso.objects.filter(
-        destaque=True, publicado=True, ativo=True
-    ).select_related('centro').prefetch_related('instrutores')
-
-
-    # Categories for sidebar
-    categorias = Categoria.objects.annotate(
-        num_cursos=Count('curso', filter=Q(curso__publicado=True, curso__ativo=True))
-    ).filter(num_cursos__gt=0).order_by('nome')
-    
-    # Context
-    context = {
-        'cursos_destaque': cursos_destaque,
-        'cursos_recentes': cursos_recentes,
-        'cursos_populares': cursos_populares,
-        'cursos_avaliados': cursos_avaliados,
-        'cursos_proximos': cursos_proximos,
-        'categorias': categorias,
-        'aluno_logado': False,
-        'favoritos': [],
-        'active_menu': 'cursos_presenciais',
-    }
-    
-    # User Context (Favorites)
-    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
-        try:
-            aluno = request.user.aluno_profile
-            favoritos = Favorito.objects.filter(aluno=aluno).values_list('curso_id', flat=True)
-            context.update({
-                'aluno_logado': True,
-                'favoritos': list(favoritos),
-            })
-        except AttributeError:
-            pass
-    
-    return render(request, 'home_cursos.html', context)
 
 
 
@@ -769,6 +700,7 @@ def curso_detalhe(request, id):
 
 @login_required(login_url='login_aluno')
 def adicionar_comentario(request, curso_id):
+    from gestoreduka.models import NotificacaoGestor
     curso = get_object_or_404(Curso, id=curso_id, publicado=True)
     
     # Obter aluno
@@ -782,37 +714,98 @@ def adicionar_comentario(request, curso_id):
         messages.error(request, "Perfil de aluno não encontrado.")
         return redirect('login_aluno')
     
-    # Verificar se aluno está inscrito no curso
-    inscricao = aluno.inscricoes.filter(curso=curso).first()
-    if not inscricao:
-        messages.error(request, "Você precisa estar inscrito no curso para avaliá-lo.")
-        return redirect('curso_detalhe', id=curso_id)
-    
-    # Verificar se já avaliou
-    comentario_existente = Comentario.objects.filter(aluno=aluno, curso=curso).first()
+    # Verificar se já avaliou (Opcional: o usuário pode querer permitir múltiplos comentários se for dúvida)
+    # Por agora, vamos permitir múltiplos comentários se o usuário assim desejar, removendo a trava de "comentario_existente"
+    # ou simplesmente criar um novo sempre.
     
     if request.method == 'POST':
-        form = AvaliacaoForm(request.POST, instance=comentario_existente)
+        form = AvaliacaoForm(request.POST)
         if form.is_valid():
             comentario = form.save(commit=False)
             comentario.aluno = aluno
             comentario.curso = curso
             
-            # Obter status do aluno do formulário
-            status_aluno = request.POST.get('status_aluno', 'AND')
-            comentario.status_aluno = status_aluno
+            # Obter status do aluno
+            inscricao = aluno.inscricoes.filter(curso=curso).first()
+            if inscricao:
+                comentario.status_aluno = 'AND' if inscricao.status == 'A' else 'COM'
+            else:
+                comentario.status_aluno = 'AND' # Visitante/Interessado
             
+            # Verificar se é uma resposta a outro comentário
+            parent_id = request.POST.get('parent_id')
+            if parent_id:
+                from avaliacoes.models import Comentario as ComentarioModel
+                parent_comment = ComentarioModel.objects.filter(id=parent_id).first()
+                if parent_comment:
+                    comentario.parent = parent_comment
+                    
+                    # Notificar o aluno que recebeu a resposta
+                    from usuarios.models import NotificacaoAluno
+                    if parent_comment.aluno != aluno:
+                        NotificacaoAluno.objects.create(
+                            aluno=parent_comment.aluno,
+                            titulo=f"Nova resposta ao seu comentário",
+                            mensagem=f"{aluno.nome} respondeu ao seu comentário no curso {curso.titulo}.",
+                            link=f"/cursos/curso_detalhe/{curso.id}/",
+                            tipo='CURSO'
+                        )
+
             comentario.save()
+
+            # Criar Notificação para o Centro
+            NotificacaoGestor.objects.create(
+                centro=curso.centro,
+                titulo=f"Nova interação em: {curso.titulo}",
+                mensagem=f"O aluno {aluno.nome} deixou um comentário/pergunta: \"{comentario.comentario[:50]}...\"",
+                link=f"/gestoreduka/comentarios/",
+                tipo='COMENTARIO'
+            )
             
-            messages.success(request, "Sua avaliação foi enviada com sucesso!")
+            messages.success(request, "Sua mensagem foi enviada com sucesso!")
             return redirect('curso_detalhe', id=curso_id)
         else:
-            messages.error(request, "Por favor, corrija os erros abaixo.")
-    else:
-        form = AvaliacaoForm(instance=comentario_existente)
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{error}")
     
-    # Re-renderizar a página com o formulário
-    return curso_detalhe(request, curso_id)
+    return redirect('curso_detalhe', id=curso_id)
+
+def api_carregar_comentarios(request, curso_id):
+    """Retorna comentários paginados via JSON"""
+    offset = int(request.GET.get('offset', 0))
+    limit = int(request.GET.get('limit', 5))
+    
+    comentarios = Comentario.objects.filter(
+        curso_id=curso_id, 
+        aprovado=True,
+        parent__isnull=True
+    ).select_related('aluno', 'aluno__perfil').order_by('-data_comentario')[offset:offset+limit]
+    
+    data = []
+    for c in comentarios:
+        respostas = []
+        for r in c.respostas_comunidade.all():
+            respostas.append({
+                'aluno': r.aluno.nome,
+                'comentario': r.comentario,
+                'foto': r.aluno.perfil.get_foto_perfil_url() if hasattr(r.aluno, 'perfil') else None,
+            })
+            
+        data.append({
+            'id': c.id,
+            'aluno': c.aluno.nome,
+            'foto': c.aluno.perfil.get_foto_perfil_url() if hasattr(c.aluno, 'perfil') else None,
+            'avaliacao': c.avaliacao,
+            'comentario': c.comentario,
+            'data': c.data_comentario.strftime('%d/%m/%Y'),
+            'resposta': c.resposta,
+            'resposta_data': c.resposta_data.strftime('%d/%m/%Y') if c.resposta_data else None,
+            'respostas_comunidade': respostas
+        })
+    
+    total_principais = Comentario.objects.filter(curso_id=curso_id, aprovado=True, parent__isnull=True).count()
+    return JsonResponse({'comentarios': data, 'has_more': total_principais > offset + limit})
 
 @login_required
 def excluir_comentario(request, comentario_id):
@@ -1676,45 +1669,76 @@ def api_buscar_sugestoes(request):
 
 def lista_centros(request):
     """
-    Página que lista todos os Centros de Formação ativos.
-    Permite busca por nome e filtro por província.
+    Página que lista todos os Centros de Formação ativos agrupados por sessões.
     """
-    from gestoreduka.models import CentroDeFormacao, PerfilCentroDeFormacao
+    from gestoreduka.models import CentroDeFormacao, CategoriaCentro
     
     query = request.GET.get('q', '')
     provincia = request.GET.get('provincia', '')
     
-    centros = CentroDeFormacao.objects.filter(ativo=True).select_related('perfil')
+    centros_qs = CentroDeFormacao.objects.filter(ativo=True).select_related('perfil').annotate(
+        total_cursos=Count('cursos', filter=Q(cursos__publicado=True, cursos__ativo=True))
+    )
     
     if query:
-        centros = centros.filter(
+        centros_qs = centros_qs.filter(
             Q(nome__icontains=query) | 
             Q(cidade__icontains=query) |
             Q(endereco__icontains=query)
         )
         
     if provincia:
-        centros = centros.filter(provincia=provincia)
-        
-    # Ordenação: Destaque primeiro, depois por data de criação (os 3 primeiros cadastrados para o banner)
-    centros = centros.order_by('-perfil__destaque', 'data_criacao')
-    
-    # Adicionar contagem de cursos para cada centro
-    centros = centros.annotate(
-        total_cursos=Count('cursos', filter=Q(cursos__publicado=True, cursos__ativo=True))
-    )
+        centros_qs = centros_qs.filter(provincia=provincia)
 
-    # Os 3 primeiros centros para o banner Swiper (sempre da query sem filtros de pesquisa)
+    # --- Sessões Temáticas ---
+    sessoes = []
+
+    # 1. Centros de Tecnologia
+    centros_tech = centros_qs.filter(
+        Q(categorias__slug__icontains='tecnologia') | 
+        Q(categorias__slug__icontains='informatica')
+    ).distinct()[:8]
+    if centros_tech.exists():
+        sessoes.append({
+            'titulo': _('Centros de Tecnologia'),
+            'subtitulo': _('As melhores instituições para carreiras digitais'),
+            'centros': centros_tech,
+            'icone': 'feather-monitor'
+        })
+
+    # 2. Centros de Línguas
+    centros_linguas = centros_qs.filter(
+        Q(categorias__slug__icontains='lingua') | 
+        Q(categorias__slug__icontains='idioma')
+    ).distinct()[:8]
+    if centros_linguas.exists():
+        sessoes.append({
+            'titulo': _('Centros de Línguas'),
+            'subtitulo': _('Aprenda novos idiomas com especialistas'),
+            'centros': centros_linguas,
+            'icone': 'feather-globe'
+        })
+
+    # 3. Centros em Destaque (Sessão Geral)
+    centros_destaque = centros_qs.filter(perfil__destaque=True).distinct()[:8]
+    if centros_destaque.exists():
+        sessoes.append({
+            'titulo': _('Instituições em Destaque'),
+            'subtitulo': _('Centros parceiros com alto índice de satisfação'),
+            'centros': centros_destaque,
+            'icone': 'feather-award'
+        })
+
+    # Os 3 primeiros centros para o banner Swiper
     centros_banner = CentroDeFormacao.objects.filter(ativo=True).select_related('perfil').annotate(
         total_cursos=Count('cursos', filter=Q(cursos__publicado=True, cursos__ativo=True))
     ).order_by('-perfil__destaque', 'data_criacao')[:3]
     
-    # Paginação
-    paginator = Paginator(centros, 12)
+    # Paginação para a lista geral (Todos os Centros)
+    paginator = Paginator(centros_qs.order_by('-perfil__destaque', 'data_criacao'), 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    # Lista de províncias para o filtro (Hardcoded como padrão Angolano)
     provincias = [
         "Bengo", "Benguela", "Bié", "Cabinda", "Cuando Cubango", "Cuanza Norte", 
         "Cuanza Sul", "Cunene", "Huambo", "Huíla", "Luanda", "Lunda Norte", 
@@ -1723,11 +1747,12 @@ def lista_centros(request):
     
     context = {
         'page_obj': page_obj,
+        'sessoes': sessoes,
         'centros_banner': centros_banner,
         'q': query,
         'provincia_selecionada': provincia,
         'provincias': provincias,
-        'total_centros': centros.count(),
+        'total_centros': centros_qs.count(),
     }
     
     return render(request, 'lista_instituicoes.html', context)

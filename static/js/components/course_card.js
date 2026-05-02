@@ -45,10 +45,15 @@
             body = JSON.stringify({ 'curso_id': cursoId });
         } else {
             url = `/cursos/favorito/${cursoId}/`;
-            body = JSON.stringify({}); 
+            body = null; // No body needed for regular courses
         }
 
-        const csrfToken = getCookie('csrftoken') || document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+        const csrfToken = getCookie('csrftoken') || (document.querySelector('[name=csrfmiddlewaretoken]') ? document.querySelector('[name=csrfmiddlewaretoken]').value : '');
+
+        if (!csrfToken) {
+            console.error('CSRF Token not found');
+            return;
+        }
 
         // Optimistic UI change (Sync all icons for this course instantly)
         updateAllSyncIcons(cursoId, modelName, !isCurrentlyFavorited);
@@ -57,33 +62,33 @@
             method: 'POST',
             headers: {
                 'X-CSRFToken': csrfToken,
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
             },
             body: body
         })
         .then(response => {
-            if (response.status === 403) {
-                throw new Error('Não autorizado ou falta Token CSRF');
+            if (!response.ok) {
+                console.error('Server response error:', response.status);
+                throw new Error('Falha na comunicação com o servidor');
             }
-            if (!response.ok) throw new Error('Falha na comunicação com o servidor');
             return response.json();
         })
         .then(data => {
+            console.log('Favorite update success:', data);
             // Confirm the actual status from server
-            if (data.status === 'added') {
+            if (data.status === 'added' || data.status === 'success') {
                 updateAllSyncIcons(cursoId, modelName, true);
             } else if (data.status === 'removed') {
                 updateAllSyncIcons(cursoId, modelName, false);
             } else {
+                // Revert if unknown status
                 updateAllSyncIcons(cursoId, modelName, isCurrentlyFavorited);
-                if (data.message) alert(data.message);
             }
         })
         .catch(error => {
             console.error('Error updating favorite:', error);
             updateAllSyncIcons(cursoId, modelName, isCurrentlyFavorited);
-            // alert('Erro ao processar favorito. Por favor, tente novamente.');
         });
     }, true);
 })();

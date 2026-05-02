@@ -48,6 +48,64 @@
             border-color: rgba(255, 255, 255, 0.1) !important;
             background-color: var(--color-darker) !important;
         }
+
+        /* Modern Comment Styles */
+        .rbt-comment-section {
+            background: var(--color-white);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        .active-dark-mode .rbt-comment-section {
+            background: var(--color-darker);
+            box-shadow: none;
+        }
+        .single-comment {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        .active-dark-mode .single-comment {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        .comment-respond {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 12px;
+        }
+        .active-dark-mode .comment-respond {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        #star-rating i {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        #star-rating i:hover {
+            transform: scale(1.2);
+        }
+        .replies-container {
+            border-left: 2px solid var(--color-primary-opacity);
+            margin-left: 25px;
+            padding-left: 20px;
+            margin-top: 15px;
+            position: relative;
+        }
+        .replies-container::before {
+            content: "";
+            position: absolute;
+            left: -2px;
+            top: 0;
+            height: 20px;
+            width: 20px;
+            border-bottom: 2px solid var(--color-primary-opacity);
+            border-left: 2px solid var(--color-primary-opacity);
+            border-bottom-left-radius: 10px;
+            display: none; /* Opcional: curva conectora */
+        }
     </style>
 </head>
 
@@ -72,11 +130,13 @@
                                             <div class="d-flex align-items-center flex-wrap gap-3 mt--20">
                                                 <div class="rbt-review">
                                                     <div class="rating">
-                                                        <i class="fas fa-star text-warning"></i>
-                                                        <i class="fas fa-star text-warning"></i>
-                                                        <i class="fas fa-star text-warning"></i>
-                                                        <i class="fas fa-star text-warning"></i>
-                                                        <i class="fas fa-star-half-alt text-warning"></i>
+                                                        {% for i in "12345" %}
+                                                            {% if forloop.counter <= curso.get_media_avaliacoes %}
+                                                                <i class="fas fa-star text-warning" style="color: #ff9d2d !important;"></i>
+                                                            {% else %}
+                                                                <i class="far fa-star text-muted"></i>
+                                                            {% endif %}
+                                                        {% endfor %}
                                                     </div>
                                                     <span class="rating-count">({{ curso.comentarios.count }} avaliações)</span>
                                                 </div>
@@ -175,51 +235,170 @@
                                 <div class="row g-5">
                                     <div class="col-lg-4">
                                         <div class="rating-box">
-                                            <h2 class="rating-number">4.5</h2>
+                                            <h2 class="rating-number">{{ curso.get_media_avaliacoes }}</h2>
                                             <div class="rating">
-                                                <i class="fas fa-star text-warning"></i>
-                                                <i class="fas fa-star text-warning"></i>
-                                                <i class="fas fa-star text-warning"></i>
-                                                <i class="fas fa-star text-warning"></i>
-                                                <i class="fas fa-star-half-alt text-warning"></i>
+                                                {% for i in "12345" %}
+                                                    {% if forloop.counter <= curso.get_media_avaliacoes %}
+                                                        <i class="fas fa-star text-warning" style="color: #ff9d2d !important;"></i>
+                                                    {% else %}
+                                                        <i class="far fa-star text-muted"></i>
+                                                    {% endif %}
+                                                {% endfor %}
                                             </div>
                                             <span class="sub-title">Pontuação do Curso</span>
                                         </div>
                                     </div>
                                     <div class="col-lg-8">
                                         <div class="review-wrapper">
-                                            {% for rating in "54321" %}
+                                            {% for nota, percent in curso.get_distribuicao_avaliacoes.items reversed %}
                                             <div class="single-progress-bar d-flex align-items-center mb-3">
-                                                <span class="rating-text" style="min-width: 60px;">{{ rating }} estrelas</span>
+                                                <span class="rating-text" style="min-width: 60px;">{{ nota }} estrelas</span>
                                                 <div class="rating-count-bar">
-                                                    <div class="fill" style="width: {% if rating_percent %}{{ rating_percent|get_item:rating }}{% else %}0{% endif %}%"></div>
+                                                    <div class="fill" style="width: {{ percent }}%"></div>
                                                 </div>
-                                                <span class="percent-label">{% if rating_percent %}{{ rating_percent|get_item:rating }}{% else %}0{% endif %}%</span>
+                                                <span class="percent-label">{{ percent }}%</span>
                                             </div>
                                             {% endfor %}
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <div class="comment-wrapper mt--40">
-                                    {% for comentario in curso.comentarios.all %}
-                                    <div class="rbt-comment-box d-flex gap-3 p-4 border-bottom">
-                                        <div class="avatar shadow-sm" style="width: 50px; height: 50px; border-radius: 50%; background: #f0f2f5; display: flex; align-items: center; justify-content: center;">
-                                            <i class="feather-user"></i>
-                                        </div>
-                                        <div class="comment-content">
-                                            <h6 class="mb-1">{{ comentario.aluno.nome }}</h6>
-                                            <div class="rating mb-2">
-                                                {% for i in "12345" %}
-                                                <i class="fas fa-star {% if forloop.counter <= comentario.avaliacao %}text-warning{% else %}text-muted{% endif %} small"></i>
-                                                {% endfor %}
-                                            </div>
-                                            <p class="text-muted small">{{ comentario.texto }}</p>
-                                        </div>
+                                <div class="rbt-comment-section mt--60">
+                                    <div class="section-title text-start mb--30">
+                                        <h4 class="title">Comentários e Dúvidas</h4>
                                     </div>
-                                    {% empty %}
-                                    <p class="text-center text-muted">Ainda não existem avaliações para este curso.</p>
-                                    {% endfor %}
+
+                                    {% if user.is_authenticated and user.tipo_usuario == 'ALUNO' %}
+                                        <div class="rbt-comment-respond mb--60">
+                                            <h5 class="title">Deixe seu Comentário ou Dúvida</h5>
+                                            <form action="{% url 'adicionar_comentario' curso.id %}" method="POST" class="comment-form-style-1">
+                                                {% csrf_token %}
+                                                <div class="row row--10">
+                                                    <div class="col-12 mb--20">
+                                                        <div class="rating-input">
+                                                            <span class="d-block mb-2 text-muted small">Sua Avaliação (opcional):</span>
+                                                            <div id="star-rating" class="mb-3">
+                                                                <i class="far fa-star text-muted pointer" data-value="1"></i>
+                                                                <i class="far fa-star text-muted pointer" data-value="2"></i>
+                                                                <i class="far fa-star text-muted pointer" data-value="3"></i>
+                                                                <i class="far fa-star text-muted pointer" data-value="4"></i>
+                                                                <i class="far fa-star text-muted pointer" data-value="5"></i>
+                                                            </div>
+                                                    <input type="hidden" name="avaliacao" id="id_avaliacao" value="5">
+                                                    <input type="hidden" name="parent_id" id="id_parent_id" value="">
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div id="replying-to" class="mb-2 d-none">
+                                                    <span class="badge bg-light text-dark p-2">
+                                                        Respondendo a <strong id="replying-to-name"></strong>
+                                                        <i class="feather-x ms-2 pointer" onclick="cancelReply()"></i>
+                                                    </span>
+                                                </div>
+                                                <div class="form-group">
+                                                    <textarea name="comentario" id="comentario-textarea" required placeholder=" "></textarea>
+                                                            <label>Sua dúvida ou comentário *</label>
+                                                            <span class="focus-border"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12 mt--20">
+                                                        <div class="form-submit-group">
+                                                            <button type="submit" class="rbt-btn btn-md btn-gradient hover-icon-reverse radius-round">
+                                                                <span class="icon-reverse-wrapper">
+                                                                    <span class="btn-text">Enviar Mensagem</span>
+                                                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                                                </span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    {% elif not user.is_authenticated %}
+                                        <div class="rbt-comment-respond mb--40">
+                                            <div class="alert alert-info text-center radius-round">
+                                                <p class="mb-0">Para deixar um comentário ou tirar uma dúvida, por favor <a href="{% url 'login_aluno' %}" class="fw-bold text-primary">faça login</a>.</p>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+
+                                    <!-- Listagem de Comentários -->
+                                    <div id="comments-list">
+                                        {% for comentario in curso.comentarios_principais|slice:":5" %}
+                                        <div class="single-comment bg-white-override shadow-sm mb--30" id="comment-{{ comentario.id }}">
+                                            <div class="d-flex gap-3">
+                                                <div class="avatar shadow-sm d-flex align-items-center justify-content-center" style="min-width: 50px; height: 50px; border-radius: 50%; background: var(--color-primary-opacity); color: var(--color-primary);">
+                                                    {% if comentario.aluno.perfil.imagem %}
+                                                        <img src="{{ comentario.aluno.perfil.imagem.url }}" alt="{{ comentario.aluno.nome }}" class="rounded-circle w-100 h-100" style="object-fit: cover;">
+                                                    {% else %}
+                                                        <i class="feather-user"></i>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="comment-content flex-grow-1">
+                                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                                        <h6 class="mb-0">{{ comentario.aluno.nome }}</h6>
+                                                        <span class="text-muted" style="font-size: 11px;">{{ comentario.data_comentario|date:"d/m/Y" }}</span>
+                                                    </div>
+                                                    <div class="rating mb-2">
+                                                        {% for i in "12345" %}
+                                                        <i class="fas fa-star {% if forloop.counter <= comentario.avaliacao %}text-warning{% else %}text-muted{% endif %} x-small"></i>
+                                                        {% endfor %}
+                                                    </div>
+                                                    <p class="text-body small mb-2">{{ comentario.comentario }}</p>
+
+                                                    <div class="d-flex gap-3">
+                                                        <a href="javascript:void(0)" onclick="prepareReply({{ comentario.id }}, '{{ comentario.aluno.nome }}')" class="rbt-btn-link small fw-bold">
+                                                            <i class="feather-corner-up-left me-1"></i> Responder
+                                                        </a>
+                                                    </div>
+
+                                                    {% if comentario.resposta %}
+                                                    <div class="reply-box mt-3 p-3 rounded" style="background: var(--color-primary-opacity); border-left: 4px solid var(--color-primary);">
+                                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                                            <i class="feather-corner-down-right text-primary small"></i>
+                                                            <strong class="small text-primary">Resposta do Centro</strong>
+                                                        </div>
+                                                        <p class="mb-0 small italic">{{ comentario.resposta }}</p>
+                                                    </div>
+                                                    {% endif %}
+
+                                                    {% if comentario.respostas_comunidade.all %}
+                                                    <div class="replies-container">
+                                                        {% for resposta in comentario.respostas_comunidade.all %}
+                                                        <div class="single-comment bg-light-opacity p-3 border-0 mb-3">
+                                                            <div class="d-flex gap-2">
+                                                                <div class="avatar d-flex align-items-center justify-content-center" style="min-width: 35px; height: 35px; border-radius: 50%; background: #eee;">
+                                                                    {% if resposta.aluno.perfil.imagem %}
+                                                                        <img src="{{ resposta.aluno.perfil.imagem.url }}" class="rounded-circle w-100 h-100" style="object-fit: cover;">
+                                                                    {% else %}
+                                                                        <i class="feather-user small"></i>
+                                                                    {% endif %}
+                                                                </div>
+                                                                <div class="flex-grow-1">
+                                                                    <h6 class="mb-0 small">{{ resposta.aluno.nome }}</h6>
+                                                                    <p class="text-body x-small mb-0">{{ resposta.comentario }}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% empty %}
+                                        <p class="text-center text-muted">Ainda não existem comentários para este curso. Seja o primeiro a perguntar!</p>
+                                        {% endfor %}
+                                    </div>
+
+                                    {% if curso.comentarios_principais.count > 5 %}
+                                    <div class="text-center mt--30">
+                                        <button id="btn-load-more" class="rbt-btn btn-border btn-sm radius-round" data-offset="5" data-course="{{ curso.id }}">
+                                            Ver mais comentários <i class="feather-chevron-down ms-2"></i>
+                                        </button>
+                                    </div>
+                                    {% endif %}
                                 </div>
                             </div>
 
@@ -291,7 +470,170 @@
     <!-- Scripts -->
     {% include 'include/java.html' %}
     <script>
-        feather.replace();
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+            if (document.getElementById('id_avaliacao')) {
+                updateStars(document.getElementById('id_avaliacao').value);
+            }
+        });
+
+        function prepareReply(commentId, studentName) {
+            document.getElementById('id_parent_id').value = commentId;
+            document.getElementById('replying-to').classList.remove('d-none');
+            document.getElementById('replying-to-name').innerText = studentName;
+            
+            // Focar no textarea e scroll suave
+            const textarea = document.getElementById('comentario-textarea');
+            textarea.focus();
+            textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Mudar placeholder para indicar resposta
+            textarea.placeholder = "Escreva sua resposta para " + studentName + "...";
+        }
+
+        function cancelReply() {
+            document.getElementById('id_parent_id').value = '';
+            document.getElementById('replying-to').classList.add('d-none');
+            const textarea = document.getElementById('comentario-textarea');
+            textarea.placeholder = " ";
+        }
+
+        // Lógica de Estrelas
+        const stars = document.querySelectorAll('#star-rating i');
+        const avaliacaoInput = document.getElementById('id_avaliacao');
+
+        function updateStars(value) {
+            stars.forEach((s, index) => {
+                if (index < value) {
+                    s.classList.remove('far', 'text-muted');
+                    s.classList.add('fas', 'text-warning');
+                    s.style.color = '#ff9d2d';
+                } else {
+                    s.classList.remove('fas', 'text-warning');
+                    s.classList.add('far', 'text-muted');
+                    s.style.color = '';
+                }
+            });
+        }
+
+        stars.forEach(star => {
+            star.style.cursor = 'pointer';
+            star.style.transition = 'color 0.2s, transform 0.2s';
+            
+            star.addEventListener('mouseover', function() {
+                updateStars(this.getAttribute('data-value'));
+            });
+
+            star.addEventListener('click', function () {
+                const value = this.getAttribute('data-value');
+                avaliacaoInput.value = value;
+                updateStars(value);
+                // Fixar a seleção
+                this.parentElement.setAttribute('data-selected', value);
+            });
+        });
+
+        document.getElementById('star-rating').addEventListener('mouseleave', function() {
+            const selected = this.getAttribute('data-selected') || avaliacaoInput.value || 0;
+            updateStars(selected);
+        });
+
+        // Carregar mais comentários
+        const btnLoadMore = document.getElementById('btn-load-more');
+        if (btnLoadMore) {
+            btnLoadMore.addEventListener('click', function() {
+                const offset = this.dataset.offset;
+                const courseId = this.dataset.course;
+                const container = document.getElementById('comments-list');
+                
+                this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Carregando...';
+                
+                fetch(`/cursos/api/curso/${courseId}/comentarios/?offset=${offset}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        data.comentarios.forEach(c => {
+                            let starsHtml = '';
+                            for (let i=1; i<=5; i++) {
+                                starsHtml += `<i class="fas fa-star ${i <= c.avaliacao ? 'text-warning' : 'text-muted'} x-small"></i> `;
+                            }
+                            
+                            let repliesHtml = '';
+                            if (c.respostas_comunidade && c.respostas_comunidade.length > 0) {
+                                repliesHtml = '<div class="replies-container">';
+                                c.respostas_comunidade.forEach(r => {
+                                    repliesHtml += `
+                                        <div class="single-comment bg-light-opacity p-3 border-0 mb-3">
+                                            <div class="d-flex gap-2">
+                                                <div class="avatar d-flex align-items-center justify-content-center" style="min-width: 35px; height: 35px; border-radius: 50%; background: #eee;">
+                                                    ${r.foto ? `<img src="${r.foto}" class="rounded-circle w-100 h-100" style="object-fit: cover;">` : '<i class="feather-user small"></i>'}
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-0 small">${r.aluno}</h6>
+                                                    <p class="text-body x-small mb-0">${r.comentario}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                });
+                                repliesHtml += '</div>';
+                            }
+                            
+                            let replyBoxHtml = '';
+                            if (c.resposta) {
+                                replyBoxHtml = `
+                                    <div class="reply-box mt-3 p-3 rounded" style="background: var(--color-primary-opacity); border-left: 4px solid var(--color-primary);">
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <i class="feather-corner-down-right text-primary small"></i>
+                                            <strong class="small text-primary">Resposta do Centro</strong>
+                                        </div>
+                                        <p class="mb-0 small italic">${c.resposta}</p>
+                                        <div class="text-end mt-1">
+                                            <small class="text-muted" style="font-size: 10px;">${c.resposta_data}</small>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+
+                            const html = `
+                                <div class="single-comment bg-white-override shadow-sm">
+                                    <div class="d-flex gap-3">
+                                        <div class="avatar shadow-sm d-flex align-items-center justify-content-center" style="min-width: 50px; height: 50px; border-radius: 50%; background: var(--color-primary-opacity); color: var(--color-primary);">
+                                            ${c.foto ? `<img src="${c.foto}" class="rounded-circle w-100 h-100" style="object-fit: cover;">` : '<i class="feather-user"></i>'}
+                                        </div>
+                                        <div class="comment-content flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <h6 class="mb-0">${c.aluno}</h6>
+                                                <span class="text-muted" style="font-size: 11px;">${c.data}</span>
+                                            </div>
+                                            <div class="rating mb-2">${starsHtml}</div>
+                                            <p class="text-body small mb-2">${c.comentario}</p>
+                                            
+                                            <div class="d-flex gap-3">
+                                                <a href="javascript:void(0)" onclick="prepareReply(${c.id}, '${c.aluno}')" class="rbt-btn-link small fw-bold">
+                                                    <i class="feather-corner-up-left me-1"></i> Responder
+                                                </a>
+                                            </div>
+
+                                            ${replyBoxHtml}
+                                            ${repliesHtml}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            container.insertAdjacentHTML('beforeend', html);
+                        });
+                        
+                        this.dataset.offset = parseInt(offset) + data.comentarios.length;
+                        this.innerHTML = 'Ver mais comentários <i class="feather-chevron-down ms-2"></i>';
+                        
+                        if (!data.has_more) {
+                            this.parentElement.remove();
+                        }
+                        feather.replace();
+                    });
+            });
+        }
+
         function toggleFavorite(cursoId) {
             fetch(`/cursos/favorito/${cursoId}/`, {
                 method: 'POST',

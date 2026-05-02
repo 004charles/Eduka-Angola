@@ -1,0 +1,126 @@
+{% extends 'instrutores/base_instrutor.html' %}
+{% load static %}
+
+{% block title %}{{ title }} | EdukAngola Play{% endblock %}
+
+{% block extra_css %}
+    .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--play-border);
+        border-radius: 24px;
+        padding: 40px;
+        max-width: 800px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    .form-label { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
+    .form-control, .form-select {
+        background: rgba(124, 58, 237, 0.02);
+        border: 1px solid var(--play-border);
+        color: var(--text-main);
+        border-radius: 12px;
+        padding: 12px 15px;
+    }
+    .form-control:focus, .form-select:focus {
+        background: rgba(124, 58, 237, 0.05);
+        border-color: var(--play-primary);
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+        color: var(--text-main);
+    }
+    
+    select option { background: var(--play-sidebar); color: var(--text-main); }
+
+    .btn-save {
+        background: var(--play-primary);
+        color: white !important;
+        border: none;
+        padding: 12px 40px;
+        border-radius: 12px;
+        font-weight: 700;
+        transition: 0.3s;
+    }
+    .btn-save:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(124, 58, 237, 0.3); }
+
+    .monetization-box {
+        background: rgba(124, 58, 237, 0.05);
+        border: 1px solid rgba(124, 58, 237, 0.1);
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+{% endblock %}
+
+{% block page_header %}
+    <a href="{% url 'instrutores_app:listar_cursos' %}" class="text-muted text-decoration-none small mb-2 d-block">
+        <i class="fas fa-arrow-left me-2"></i> Voltar para lista
+    </a>
+    <h2 class="fw-bold mb-0">{{ title }}</h2>
+{% endblock %}
+
+{% block content %}
+    <div class="glass-card">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="row">
+                <div class="col-md-12 mb-4">
+                    <label class="form-label">Título do Curso</label>
+                    {{ form.titulo }}
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <label class="form-label">Categoria</label>
+                    {{ form.categoria }}
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <label class="form-label">Capa do Curso</label>
+                    {{ form.capa }}
+                </div>
+
+                <div class="col-md-12 mb-4">
+                    <label class="form-label">Descrição do Curso</label>
+                    {{ form.descricao }}
+                </div>
+            </div>
+
+            <div class="monetization-box">
+                <h6 class="fw-bold mb-3"><i class="fas fa-wallet me-2"></i> Configurações de Monetização</h6>
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="form-check form-switch">
+                            {{ form.is_pago }}
+                            <label class="form-check-label ms-2" for="{{ form.is_pago.id_for_label }}">Este é um curso pago</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6" id="preco-container" style="display: {% if form.is_pago.value %}block{% else %}none{% endif %};">
+                        <label class="form-label">Preço (KZ)</label>
+                        {{ form.preco }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-end mt-5">
+                <button type="submit" class="btn-save">Salvar Curso</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const isPagoCheckbox = document.querySelector('input[name="is_pago"]');
+        const precoContainer = document.getElementById('preco-container');
+
+        isPagoCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                precoContainer.style.display = 'block';
+            } else {
+                precoContainer.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

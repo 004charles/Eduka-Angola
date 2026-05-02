@@ -1,0 +1,67 @@
+
+{% load static %}
+{% load i18n %}
+
+<!-- Start Banner Area  -->
+<div class="rbt-banner-area rbt-banner-19">
+    <div class="container">
+        <div class="swiper rbt-banner-activation-2">
+            <div class="swiper-wrapper">
+                <!-- Slide 1: Centros de Formação -->
+                <div class="swiper-slide">
+                    <div class="coursera-slide bg-slide-1">
+                        <div class="slide-content">
+                            <h1 class="slide-title">{% trans "A Sua Próxima Etapa Profissional Começa Aqui" %}</h1>
+                            <p class="slide-description">
+                                {% trans "Conectamos você às instituições mais prestigiadas de Angola. O selo de qualidade que o mercado reconhece e a sua carreira exige." %}
+                            </p>
+                            <a href="{% url 'lista_centros' %}" class="coursera-btn">
+                                {% trans "Especializações" %} <i class="feather-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div class="slide-image-wrapper">
+                            <img src="{% static 'assets/images/centro formacao.png' %}" alt="Centros de Formação">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 2: Cursos Presenciais -->
+                <div class="swiper-slide">
+                    <div class="coursera-slide bg-slide-2">
+                        <div class="slide-content">
+                            <h1 class="slide-title">{% trans "Domine o Prático. Torne-se Essencial." %}</h1>
+                            <p class="slide-description">
+                                {% trans "Formação técnica de elite com mentores experientes. Onde a teoria encontra a exigência real do mundo do trabalho." %}
+                            </p>
+                            <a href="{% url 'catalogo_cursos' %}" class="coursera-btn">
+                                {% trans "Cursos Presenciais" %} <i class="feather-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div class="slide-image-wrapper">
+                            <img src="{% static 'assets/images/sala.png' %}" alt="Cursos Presenciais">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 3: Cursos em Vídeo -->
+                <div class="swiper-slide">
+                    <div class="coursera-slide bg-slide-3">
+                        <div class="slide-content">
+                            <h1 class="slide-title">{% trans "Lidere a Sua Própria Evolução Digital" %}</h1>
+                            <p class="slide-description">
+                                {% trans "Aceda ao conhecimento dos maiores especialistas do país. Aprenda no seu ritmo e assuma o controlo do seu futuro." %}
+                            </p>
+                            <a href="{% url 'cursovideoapp:home_videos' %}" class="coursera-btn">
+                                {% trans "Jornada Online" %} <i class="feather-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div class="slide-image-wrapper">
+                            <img src="{% static 'assets/images/video.png' %}" alt="Cursos Online">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="rbt-swiper-pagination" style="bottom: 20px !important;"></div>
+        </div>
+    </div>
+</div>

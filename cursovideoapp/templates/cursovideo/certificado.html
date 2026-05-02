@@ -410,7 +410,7 @@
     <div class="certificate-wrapper" id="div-certificado">
         
         <!-- Watermark -->
-        <img src="{% static 'assets/images/logo/logo1-removebg-preview.png' %}" class="watermark" alt="Watermark" onerror="this.onerror=null; this.src='{% static 'assets/images/logo/logo.png' %}';">
+        <img src="{% static 'assets/images/logo/logo.png' %}" class="watermark" alt="Watermark">
 
         <div class="frame-outer">
             <!-- decorative corners -->
@@ -422,12 +422,12 @@
             <div class="frame-inner">
                 
                 <div class="cert-header">
-                    <img src="{% if curso.instrutor.usuario.foto_perfil %}{{ curso.instrutor.usuario.foto_perfil.url }}{% else %}{% static 'assets/images/logo/logo.png' %}{% endif %}" onerror="this.src='{% static 'assets/images/logo/logo.png' %}'" alt="Instituição" class="cert-logo">
+                    <img src="{% static 'assets/images/logo/logo.png' %}" alt="EdukAngola" class="cert-logo">
                 </div>
 
                 <div class="cert-title-container">
-                    <h1 class="cert-title">Certificado de Conclusão</h1>
-                    <div class="cert-subtitle">Conferido com Orgulho e Confiança Académica</div>
+                    <h1 class="cert-title">Certificado de Excelência</h1>
+                    <div class="cert-subtitle">Pela Conclusão de Formação Profissional em Vídeo</div>
                 </div>
 
                 <div class="cert-body">

@@ -1,0 +1,120 @@
+{% extends 'gestor_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="flex flex-col gap-5 lg:gap-7.5">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-xl font-bold text-foreground">Dúvidas & Comentários</h1>
+            <p class="text-sm text-secondary-foreground">Responda às interações dos alunos nos seus cursos.</p>
+        </div>
+    </div>
+
+    <!-- Tabela de Comentários -->
+    <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm overflow-hidden">
+        
+        <div class="px-5 py-4 border-b border-border flex items-center justify-between bg-accent/5">
+            <h3 class="font-semibold text-base text-foreground">Interações Recentes</h3>
+            <span class="text-xs text-muted-foreground">{{ comentarios.count }} interações encontradas</span>
+        </div>
+
+        <div class="px-5 py-2">
+            <div class="overflow-x-auto">
+                <table class="table-auto w-full text-left text-sm whitespace-nowrap">
+                    <thead class="text-xs text-muted-foreground border-b border-border uppercase tracking-wider">
+                        <tr>
+                            <th class="pb-3 font-medium">Aluno</th>
+                            <th class="pb-3 font-medium">Curso</th>
+                            <th class="pb-3 font-medium">Mensagem</th>
+                            <th class="pb-3 font-medium text-center">Status</th>
+                            <th class="pb-3 font-medium text-right">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-dashed divide-border">
+                        {% for comentario in comentarios %}
+                        <tr class="hover:bg-accent/20 transition-colors">
+                            <td class="py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="size-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm uppercase">
+                                        {{ comentario.aluno.nome|make_list|first }}
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-semibold text-foreground">{{ comentario.aluno.nome }}</span>
+                                        <span class="text-xs text-muted-foreground">{{ comentario.data_comentario|date:"d/m/Y H:i" }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-4">
+                                <span class="text-sm font-medium text-foreground">{{ comentario.curso.titulo }}</span>
+                            </td>
+                            <td class="py-4">
+                                <div class="flex flex-col max-w-xs overflow-hidden">
+                                    <span class="text-sm text-foreground truncate" title="{{ comentario.comentario }}">{{ comentario.comentario }}</span>
+                                    <div class="flex gap-1 mt-1">
+                                        {% for i in "12345" %}
+                                            <i class="fas fa-star text-[10px] {% if forloop.counter <= comentario.avaliacao %}text-warning{% else %}text-muted{% endif %}"></i>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-4 text-center">
+                                {% if comentario.resposta %}
+                                    <span class="kt-badge kt-badge-sm kt-badge-success kt-badge-outline">Respondido</span>
+                                {% else %}
+                                    <span class="kt-badge kt-badge-sm kt-badge-warning kt-badge-outline">Pendente</span>
+                                {% endif %}
+                            </td>
+                            <td class="py-4 text-right">
+                                <button type="button" class="kt-btn kt-btn-sm kt-btn-primary" data-kt-modal-toggle="#modal-responder-{{ comentario.id }}">
+                                    {% if comentario.resposta %}Ver/Editar{% else %}Responder{% endif %}
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Modal Responder -->
+                        <div class="hidden kt-modal" id="modal-responder-{{ comentario.id }}">
+                            <div class="kt-modal-dialog max-w-[500px]">
+                                <div class="kt-modal-content">
+                                    <div class="kt-modal-header">
+                                        <h3 class="kt-modal-title">Responder a {{ comentario.aluno.nome }}</h3>
+                                        <button class="kt-btn kt-btn-icon kt-btn-sm kt-btn-ghost" data-kt-modal-dismiss="true">
+                                            <i class="ki-filled ki-cross"></i>
+                                        </button>
+                                    </div>
+                                    <form action="{% url 'responder_comentario' comentario.id %}" method="POST">
+                                        {% csrf_token %}
+                                        <div class="kt-modal-body flex flex-col gap-4">
+                                            <div class="bg-accent/10 p-3 rounded-lg">
+                                                <p class="text-xs text-muted-foreground mb-1 uppercase font-bold">Dúvida do Aluno:</p>
+                                                <p class="text-sm text-foreground italic">"{{ comentario.comentario }}"</p>
+                                            </div>
+                                            <div class="flex flex-col gap-2">
+                                                <label class="text-sm font-medium">Sua Resposta</label>
+                                                <textarea name="resposta" rows="5" class="kt-input" placeholder="Escreva aqui a resposta para o aluno..." required>{{ comentario.resposta }}</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="kt-modal-footer">
+                                            <button type="button" class="kt-btn kt-btn-light" data-kt-modal-dismiss="true">Cancelar</button>
+                                            <button type="submit" class="kt-btn kt-btn-primary">Enviar Resposta</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="py-10 text-center text-sm text-muted-foreground">
+                                <p>Nenhum comentário ou dúvida encontrada.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

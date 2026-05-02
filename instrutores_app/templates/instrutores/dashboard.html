@@ -1,0 +1,115 @@
+{% extends 'instrutores/base_instrutor.html' %}
+{% load static %}
+
+{% block title %}Dashboard | EdukAngola Play{% endblock %}
+
+{% block extra_css %}
+    .stat-card {
+        background: var(--play-card);
+        border: 1px solid var(--play-border);
+        border-radius: 20px;
+        padding: 25px;
+        transition: 0.3s;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    .stat-card:hover { border-color: var(--play-primary); transform: translateY(-5px); }
+    .stat-icon { font-size: 24px; color: var(--play-primary); margin-bottom: 15px; }
+    .stat-value { font-size: 28px; font-weight: 800; margin-bottom: 5px; color: var(--text-main); }
+    .stat-label { color: var(--text-muted); font-size: 14px; }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 50px;
+        margin-bottom: 25px;
+    }
+
+    .question-item {
+        display: flex;
+        gap: 15px;
+        padding: 15px 0;
+        border-bottom: 1px solid var(--play-border);
+    }
+    .question-item:last-child { border: none; }
+{% endblock %}
+
+{% block page_header %}
+    <h2 class="fw-bold mb-0">Olá, {{ request.user.nome }}!</h2>
+    <p class="text-muted small">Bem-vindo ao seu centro de controle de instrutor da plataforma.</p>
+{% endblock %}
+
+{% block content %}
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #3b82f6 0%, #2dd4bf 100%);">
+                <div class="stat-icon text-white"><i class="fas fa-star"></i></div>
+                <div class="stat-value text-white">{{ nota_media_geral }}</div>
+                <div class="stat-label text-white opacity-75">Média de Avaliações</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-value">{{ total_alunos }}</div>
+                <div class="stat-label">Total de Alunos</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-fire"></i></div>
+                <div class="stat-value small" style="font-size: 16px;">{{ curso_popular|default:"---"|truncatechars:20 }}</div>
+                <div class="stat-label">Curso Mais Popular</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-play-circle"></i></div>
+                <div class="stat-value">{{ total_cursos }}</div>
+                <div class="stat-label">Cursos Publicados</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-video"></i></div>
+                <div class="stat-value">{{ total_aulas }}</div>
+                <div class="stat-label">Total de Aulas</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-comment-dots"></i></div>
+                <div class="stat-value">{{ total_questoes }}</div>
+                <div class="stat-label">Questões Recebidas</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-header">
+        <h4 class="fw-bold mb-0">Questões Recentes</h4>
+        <a href="{% url 'instrutores_app:listar_questoes' %}" class="btn-play-sm">Ver todas</a>
+    </div>
+
+    <div class="glass-card">
+        {% for q in questoes_recentes %}
+        <div class="question-item">
+            <div class="avatar" style="background: var(--play-primary);">{{ q.aluno.nome|slice:":1" }}</div>
+            <div class="flex-grow-1">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="fw-bold small">{{ q.aluno.nome }}</span>
+                    <span class="text-muted" style="font-size: 11px;">{{ q.data_criacao|timesince }} atrás</span>
+                </div>
+                <p class="small mb-2 opacity-80">{{ q.texto }}</p>
+                <div class="text-muted extra-small" style="font-size: 11px;">
+                    Curso: <span class="text-main">{{ q.aula.curso.titulo }}</span> • Aula: {{ q.aula.titulo }}
+                </div>
+            </div>
+            <div class="align-self-center">
+                <a href="{% url 'instrutores_app:listar_questoes' %}" class="btn btn-sm btn-outline-light border-0"><i class="fas fa-reply"></i></a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-4 text-muted">Nenhuma questão pendente.</div>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -5,7 +5,6 @@ from django.conf.urls.static import static
 from cursos_app import views
 
 urlpatterns = [
-    path('home_cursos/', views.home_cursos, name = 'home_cursos'),
     path('curso_detalhe/<int:id>/', views.curso_detalhe, name='curso_detalhe'),
     path('centro/<int:centro_id>/cursos/', views.cursos_por_centro, name='cursos_por_centro'),
     path('categoria/<slug:slug>/', views.cursos_por_categoria, name='cursos_por_categoria'),
@@ -24,6 +23,7 @@ urlpatterns = [
     path('curso/<int:curso_id>/avaliar/', views.adicionar_comentario, name='adicionar_comentario'),
     path('comentarios/<int:comentario_id>/excluir/', views.excluir_comentario, name='excluir_comentario'),
     path('comentarios/<int:comentario_id>/denunciar/', views.denunciar_comentario, name='denunciar_comentario'),
+    path('api/curso/<int:curso_id>/comentarios/', views.api_carregar_comentarios, name='api_carregar_comentarios'),
     path('', views.catalogo_cursos, name='catalogo_cursos'),
     path('instrutor/<int:id>/', views.instrutor_detalhes, name='instrutor_detalhes'),
     path('api/sugestoes/', views.api_buscar_sugestoes, name='api_buscar_sugestoes'),
