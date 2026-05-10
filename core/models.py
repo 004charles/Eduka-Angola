@@ -58,3 +58,20 @@ class MensagemContato(models.Model):
 
     def __str__(self):
         return f"{self.nome} - {self.assunto}"
+
+class Publicidade(models.Model):
+    titulo = models.CharField("Título", max_length=200, blank=True, null=True)
+    descricao = models.TextField("Descrição", blank=True, null=True)
+    imagem_fundo = models.ImageField("Imagem de Fundo", upload_to="publicidades/")
+    url_destino = models.URLField("URL de Destino", blank=True, null=True)
+    texto_botao = models.CharField("Texto do Botão", max_length=50, default="Saiba Mais", blank=True)
+    ativo = models.BooleanField("Ativo", default=True)
+    data_criacao = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Publicidade"
+        verbose_name_plural = "Publicidades"
+        ordering = ['-data_criacao']
+
+    def __str__(self):
+        return self.titulo or f"Publicidade {self.id}"

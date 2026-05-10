@@ -7,10 +7,13 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.conf.urls.i18n import i18n_patterns
 from rest_framework import routers
 from cursos_app.api_views import CourseViewSet, CategoryViewSet
+from cursovideoapp.api_views import CursoVideoViewSet, ExercicioViewSet
 
 router = routers.DefaultRouter()
 router.register(r'cursos', CourseViewSet)
 router.register(r'categorias', CategoryViewSet)
+router.register(r'video-cursos', CursoVideoViewSet)
+router.register(r'exercicios', ExercicioViewSet)
 
 
 
@@ -25,8 +28,10 @@ urlpatterns = [
     path('auth/', include('usuarios.urls')), 
     path('accounts/', include('allauth.urls')), 
     path('curso_video/', include('cursovideoapp.urls')),
+    path('orientador-ia/', include('cursovideoapp.urls_orientador')), # Atalho limpo
     path('sobre/', views.sobre, name = 'sobre'),
     path('cursos/', include('cursos_app.urls')),
+    path('escolas/', include('escolas.urls')),
     path('gestoreduka/', include('gestoreduka.urls')),
     path('blog/', include('blog.urls')),
     path('estagio/', include('estagio.urls')), 
@@ -38,6 +43,9 @@ urlpatterns = [
     path('api/v1/', include(router.urls)),
     path('centro/', include('centro_formacao.urls')),
     path('contato/', views.contato, name = 'contato'),
+    path('carreira/', include('carreira.urls')),
+    # path('fundo-bolsas/', views.fundo_bolsas, name='fundo_bolsas'),
+    # path('bolsas/', include('bolsas.urls')),
 ] 
 
 # Adicionar padrões de MEDIA e STATIC

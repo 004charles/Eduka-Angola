@@ -13,6 +13,7 @@ ALLOWED_HOSTS = ['*']
 
 GOOGLE_MAPS_API_KEY = config("GOOGLE_MAPS_API_KEY", default="")
 YOUTUBE_API_KEY = config("YOUTUBE_API_KEY", default="AIzaSyCphPp1Ps-TE_FlLlkKqBTgpxDLE_cMpZE")
+GEMINI_API_KEY = config("GEMINI_API_KEY", default="")
 
 
 
@@ -54,6 +55,9 @@ INSTALLED_APPS = [
     'inteligencia',
     'avaliacoes',
     'centro_formacao',
+    'bolsas',
+    'carreira',
+    'escolas',
 
     'crispy_forms',
     'crispy_bootstrap5',

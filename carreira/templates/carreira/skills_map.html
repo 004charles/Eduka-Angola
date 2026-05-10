@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Mapa de Empregabilidade | EdukAngola Skills{% endblock %}
+
+{% block content %}
+<div class="rbt-page-banner-wrapper">
+    <div class="rbt-banner-image"></div>
+    <div class="rbt-banner-content">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="inner text-center">
+                        <h1 class="title">Mapa de Empregabilidade</h1>
+                        <p class="description">Descubra as competências mais procuradas pelo mercado angolano e prepare-se para o sucesso.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="rbt-section-gap bg-color-white">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Estatísticas Rápidas -->
+            <div class="col-lg-4">
+                <div class="rbt-card variation-01 rbt-hover">
+                    <div class="rbt-card-body text-center">
+                        <div class="icon-box mb--20">
+                            <i class="feather-briefcase" style="font-size: 40px; color: var(--color-primary);"></i>
+                        </div>
+                        <h4 class="title">{{ total_vagas }}</h4>
+                        <p class="description">Vagas Abertas Hoje</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="rbt-card variation-01 rbt-hover">
+                    <div class="rbt-card-body text-center">
+                        <div class="icon-box mb--20">
+                            <i class="feather-trending-up" style="font-size: 40px; color: #22c55e;"></i>
+                        </div>
+                        <h4 class="title">{{ top_skills.count }}</h4>
+                        <p class="description">Competências em Alta</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="rbt-card variation-01 rbt-hover">
+                    <div class="rbt-card-body text-center">
+                        <div class="icon-box mb--20">
+                            <i class="feather-alert-circle" style="font-size: 40px; color: #f59e0b;"></i>
+                        </div>
+                        <h4 class="title">{{ critical_skills.count }}</h4>
+                        <p class="description">Lacunas de Mercado</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráfico de Demanda -->
+            <div class="col-lg-8">
+                <div class="rbt-card variation-01">
+                    <div class="rbt-card-body">
+                        <h4 class="title mb--30">Competências mais Procuradas (Top 10)</h4>
+                        <div id="skillsChart" style="min-height: 400px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lacunas Críticas -->
+            <div class="col-lg-4">
+                <div class="rbt-card variation-01">
+                    <div class="rbt-card-body">
+                        <h4 class="title mb--30">Lacunas Críticas</h4>
+                        <p class="description mb--20">Competências com alta procura e pouca oferta de formação.</p>
+                        <div class="critical-list">
+                            {% for skill in critical_skills %}
+                            <div class="critical-item d-flex align-items-center justify-content-between mb--15 p-3" style="background: rgba(245, 158, 11, 0.05); border-left: 4px solid #f59e0b; border-radius: 8px;">
+                                <div>
+                                    <h6 class="mb-0">{{ skill.nome }}</h6>
+                                    <small class="text-muted">{{ skill.get_nivel_demanda_display }}</small>
+                                </div>
+                                <span class="badge bg-warning text-dark">{{ skill.num_cursos }} Cursos</span>
+                            </div>
+                            {% empty %}
+                            <p class="text-center">Nenhuma lacuna crítica identificada no momento.</p>
+                            {% endfor %}
+                        </div>
+                        <div class="mt--30">
+                            <a href="{% url 'carreira:job_board' %}" class="rbt-btn btn-gradient btn-sm w-100">Ver Vagas para estas Skills</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts de Gráficos -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var options = {
+            series: [{
+                name: 'Vagas que exigem esta Skill',
+                data: [{% for skill in top_skills %}{{ skill.num_vagas }}{% if not forloop.last %}, {% endif %}{% endfor %}]
+            }],
+            chart: {
+                type: 'bar',
+                height: 400,
+                toolbar: { show: false }
+            },
+            plotOptions: {
+                bar: {
+                    borderRadius: 8,
+                    horizontal: true,
+                    distributed: true,
+                }
+            },
+            dataLabels: {
+                enabled: true,
+                style: { fontSize: '12px', colors: ['#fff'] }
+            },
+            xaxis: {
+                categories: [{% for skill in top_skills %}'{{ skill.nome }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+            },
+            colors: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316', '#14b8a6', '#6366f1'],
+            legend: { show: false }
+        };
+
+        var chart = new ApexCharts(document.querySelector("#skillsChart"), options);
+        chart.render();
+    });
+</script>
+{% endblock %}

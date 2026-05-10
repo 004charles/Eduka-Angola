@@ -68,3 +68,14 @@ def get_item(dictionary, key):
     if dictionary:
         return dictionary.get(key)
     return None
+
+@register.filter(name='formata_kz')
+def formata_kz(value):
+    """Formata o valor para o padrão Angolano: 10.000 (3 casas após o ponto)"""
+    try:
+        val = float(value)
+        # Formata com separador de milhar sendo vírgula, depois troca por ponto
+        # Isso garante que 10000 vire 10.000
+        return "{:,.0f}".format(val).replace(',', '.')
+    except (ValueError, TypeError):
+        return value

@@ -214,6 +214,59 @@
             transform: translateY(150%); opacity: 0;
         }
         #resume-prompt.show { transform: translateY(0); opacity: 1; }
+
+        /* ============================================
+           RESPONSIVIDADE (MOBILE & TABLET)
+        ============================================ */
+        @media (max-width: 1200px) {
+            :root { --play-sidebar-w: 320px; }
+            .play-title { font-size: 24px; }
+        }
+
+        @media (max-width: 991px) {
+            body.play-mode { height: auto; overflow: auto; }
+            .rbt-lesson-content-wrapper { flex-direction: column; }
+            
+            .rbt-lesson-leftsidebar { 
+                width: 100%; 
+                border-left: none; 
+                border-top: 1px solid var(--glass-border);
+                height: auto;
+            }
+            
+            .rbt-lesson-rightsidebar { 
+                padding: 20px; 
+                overflow: visible;
+            }
+
+            .video-card-premium { 
+                border-radius: 15px; 
+                min-height: 250px;
+                aspect-ratio: 16 / 9;
+            }
+
+            .video-info-header { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                gap: 20px; 
+            }
+
+            .video-info-header .d-flex.gap-3 { width: 100%; }
+            .video-info-header .btn { width: 100%; text-align: center; justify-content: center; }
+
+            .rbt-lesson-topbar { padding: 0 20px; }
+            .premium-tabs { gap: 20px; overflow-x: auto; white-space: nowrap; padding-bottom: 5px; }
+            .premium-tabs::-webkit-scrollbar { display: none; }
+            
+            .rbt-lesson-leftsidebar .playlist-container { max-height: 400px; }
+        }
+
+        @media (max-width: 576px) {
+            .video-card-premium { border-radius: 0; margin: -20px -20px 20px -20px; width: calc(100% + 40px); }
+            .video-info-header h1 { font-size: 24px; }
+            .play-tab-content .p-5 { padding: 25px !important; }
+            .header-logo-section img { height: 35px !important; }
+        }
     </style>
 </head>
 
@@ -293,10 +346,27 @@
                 </div>
             </div>
 
+            <!-- Seção de Avisos do Curso -->
+            {% if curso.avisos.all %}
+            <div class="mt-4">
+                {% for aviso in curso.avisos.all|slice:":2" %}
+                <div class="p-4 rounded-4 mb-3" style="background: rgba(255, 193, 7, 0.05); border: 1px solid rgba(255, 193, 7, 0.2);">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                        <h6 class="fw-bold mb-0 theme-text-color">{{ aviso.titulo }}</h6>
+                        <span class="ms-auto extra-small opacity-50">{{ aviso.data_criacao|date:"d/m/Y" }}</span>
+                    </div>
+                    <p class="mb-0 small opacity-8">{{ aviso.mensagem|linebreaksbr }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
             <!-- Abas de Interação -->
             <div class="premium-tabs">
                 <button class="active" onclick="switchTab(event, 'tab-descricao')">Descrição</button>
-                <button onclick="switchTab(event, 'tab-materiais')">Materiais ({% with m_count=aula_atual.materiais.count %}{{ m_count }}{% endwith %})</button>
+                <button onclick="switchTab(event, 'tab-materiais')">Materiais {% if materiais_gerais %}({{ materiais_gerais|length }}){% endif %}</button>
+                <button onclick="switchTab(event, 'tab-exercicios')">Exercícios {% if aula_atual.exercicio %}<span class="badge bg-primary ms-1">Novo</span>{% endif %}</button>
                 <button onclick="switchTab(event, 'tab-avisos')">Avisos ({% with a_count=curso.avisos.count %}{{ a_count }}{% endwith %})</button>
                 <button onclick="switchTab(event, 'tab-notas')">Minhas Notas</button>
                 <button onclick="switchTab(event, 'tab-duvidas')">Dúvidas da Comunidade</button>
@@ -304,16 +374,53 @@
 
             <div class="tab-content-container py-5">
                 <div id="tab-descricao" class="play-tab-content">
-                    <div class="p-4 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border);">
-                        <p style="font-size: 16px; opacity: 0.8; line-height: 1.8; color: inherit;">
-                            {{ aula_atual.descricao|default:"Nenhuma descrição detalhada disponível para esta aula."|linebreaks }}
-                        </p>
+                    {% if aula_atual.resumo_ia %}
+                    <div class="p-5 rounded-4 mb-5" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%); border: 1px solid rgba(124, 58, 237, 0.2); position: relative;">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold mb-0"><i class="fas fa-magic me-2"></i> Resumo Inteligente</h5>
+                            <button id="btn-audio-summary" class="btn btn-sm btn-primary rounded-pill px-4 py-2 fw-bold" onclick="toggleAudioSummary()">
+                                <i class="fas fa-play me-2"></i> Ouvir Podcast IA
+                            </button>
+                        </div>
+                        <div id="ai-summary-wrapper" style="max-height: 150px; overflow: hidden; position: relative; transition: max-height 0.5s ease;">
+                            <div class="ai-summary-content" style="font-size: 16px; line-height: 1.8; opacity: 0.9;">
+                                {{ aula_atual.resumo_ia|linebreaks }}
+                            </div>
+                            <div id="ai-summary-fade" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 60px; background: linear-gradient(to bottom, transparent, rgba(124, 58, 237, 0.1)); pointer-events: none;"></div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <button id="btn-toggle-summary" class="btn btn-sm fw-bold text-primary" style="background: rgba(124, 58, 237, 0.1); border-radius: 20px; padding: 5px 20px;">
+                                Ver Tudo <i class="fas fa-chevron-down ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="p-4 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); position: relative;">
+                        <h6 class="fw-bold mb-3">Sobre esta aula</h6>
+                        <div id="lesson-desc-wrapper" style="max-height: 120px; overflow: hidden; position: relative; transition: max-height 0.5s ease;">
+                            <p style="font-size: 16px; opacity: 0.8; line-height: 1.8; color: inherit;">
+                                {{ aula_atual.descricao|default:"Nenhuma descrição detalhada disponível para esta aula."|linebreaks }}
+                            </p>
+                            <div id="lesson-desc-fade" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 50px; background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.02)); pointer-events: none;"></div>
+                        </div>
+                        <div class="mt-3">
+                            <button id="btn-toggle-desc" class="btn btn-sm fw-bold text-primary p-0">
+                                Ver descrição completa <i class="fas fa-chevron-down ms-2"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <div id="tab-materiais" class="play-tab-content d-none">
+                    <div class="p-4 rounded-4 mb-4" style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.1);">
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="fas fa-info-circle text-primary"></i>
+                            <p class="mb-0 small">Estes materiais são <strong>gerais do curso</strong> e estão disponíveis em todas as aulas para facilitar o seu estudo.</p>
+                        </div>
+                    </div>
                     <div class="row g-4">
-                        {% for m in aula_atual.materiais.all %}
+                        {% for m in materiais_gerais %}
                         <div class="col-md-6 col-lg-4">
                             <a href="{{ m.arquivo.url }}" target="_blank" class="d-flex align-items-center p-4 rounded-4 text-decoration-none" style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.1); transition: 0.3s;">
                                 <div class="avatar-sm rounded-3 bg-primary me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -321,14 +428,14 @@
                                 </div>
                                 <div class="overflow-hidden">
                                     <h6 class="mb-1 theme-text-color fw-bold text-truncate" style="font-size: 14px;">{{ m.titulo }}</h6>
-                                    <span class="text-muted extra-small" style="font-size: 11px;">Clique para baixar</span>
+                                    <span class="text-muted extra-small" style="font-size: 11px;">Baixar Recurso</span>
                                 </div>
                             </a>
                         </div>
                         {% empty %}
                         <div class="text-center py-5 opacity-40">
                             <i class="fas fa-box-open fa-3x mb-3"></i>
-                            <p>Não há materiais complementares para esta aula.</p>
+                            <p>Não há materiais gerais para este curso.</p>
                         </div>
                         {% endfor %}
                     </div>
@@ -367,6 +474,49 @@
                     </div>
                 </div>
 
+                <div id="tab-exercicios" class="play-tab-content d-none">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+                            {% if aula_atual.exercicio %}
+                            <div class="p-5 rounded-4 text-center" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%); border: 1px solid rgba(124, 58, 237, 0.1);">
+                                <div class="avatar-lg bg-primary rounded-circle mx-auto mb-4 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; font-size: 30px; color: white;">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <h3 class="fw-bold mb-3">Teste seus Conhecimentos</h3>
+                                <p class="text-muted mb-5 px-md-5">Preparamos algumas perguntas baseadas no conteúdo desta aula para ajudar você a fixar o aprendizado.</p>
+                                
+                                {% if resultado_exercicio %}
+                                <div class="p-4 rounded-4 bg-white bg-opacity-5 mb-5 border border-white border-opacity-10">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-6 text-md-start">
+                                            <span class="d-block small text-muted mb-1">Tua Pontuação Anterior</span>
+                                            <h4 class="fw-bold mb-0 {% if resultado_exercicio.pontuacao >= 70 %}text-success{% else %}text-warning{% endif %}">
+                                                {{ resultado_exercicio.pontuacao }}%
+                                            </h4>
+                                        </div>
+                                        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                                            <a href="{% url 'cursovideoapp:detalhes_exercicio' aula_id=aula_atual.id %}" class="btn btn-play-gradient px-4">
+                                                <i class="fas fa-redo me-2"></i> Refazer Quiz
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <a href="{% url 'cursovideoapp:detalhes_exercicio' aula_id=aula_atual.id %}" class="btn btn-play-gradient px-5 py-3 rounded-pill fw-bold" style="font-size: 18px;">
+                                    <i class="fas fa-play-circle me-2"></i> Iniciar Exercício
+                                </a>
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <div class="text-center py-5 opacity-40">
+                                <i class="fas fa-tasks fa-4x mb-3"></i>
+                                <p>O instrutor ainda não preparou exercícios para esta aula.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
                 <div id="tab-duvidas" class="play-tab-content d-none">
                     <div class="p-5 rounded-4 mb-5" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%); border: 1px solid var(--glass-border);">
                         <h5 class="theme-text-color fw-bold mb-4">Tens alguma dúvida?</h5>
@@ -393,6 +543,8 @@
                                     <span style="font-size: 12px; opacity: 0.5;">{{ c.data_criacao|timesince }} atrás</span>
                                 </div>
                             </div>
+
+                        <div class="mt--50">
                             <p class="mb-3" style="font-size: 15px; opacity: 0.8; line-height: 1.6;">{{ c.texto }}</p>
                             
                             <div class="ps-4 border-start" style="border-color: rgba(124, 58, 237, 0.2) !important;">
@@ -699,7 +851,11 @@
             // --- Dúvidas e Respostas ---
             window.sendQuestion = function() {
                 const text = document.getElementById('question-text').value;
+                const btn = document.querySelector('button[onclick="sendQuestion()"]');
                 if (!text.trim()) return;
+
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                btn.disabled = true;
 
                 const formData = new FormData();
                 formData.append('texto', text);
@@ -715,6 +871,10 @@
                     if (data.status === 'success') {
                         location.reload();
                     }
+                })
+                .finally(() => {
+                    btn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+                    btn.disabled = false;
                 });
             }
 
@@ -744,7 +904,76 @@
                     }
                 });
             }
+            // --- Lógica Ver Mais Resumo ---
+            const btnToggleSummary = document.getElementById('btn-toggle-summary');
+            const summaryWrapper = document.getElementById('ai-summary-wrapper');
+            const summaryFade = document.getElementById('ai-summary-fade');
+
+            if (btnToggleSummary && summaryWrapper) {
+                btnToggleSummary.addEventListener('click', function() {
+                    const isExpanded = summaryWrapper.style.maxHeight === 'none' || summaryWrapper.style.maxHeight === '2000px';
+                    
+                    if (isExpanded) {
+                        summaryWrapper.style.maxHeight = '150px';
+                        summaryFade.style.opacity = '1';
+                        this.innerHTML = 'Ver Tudo <i class="fas fa-chevron-down ms-2"></i>';
+                    } else {
+                        summaryWrapper.style.maxHeight = '2000px'; // Altura arbitrária grande para transição suave
+                        summaryFade.style.opacity = '0';
+                        this.innerHTML = 'Ver Menos <i class="fas fa-chevron-up ms-2"></i>';
+                    }
+                });
+            }
+
+            // --- Lógica Ver Mais Descrição ---
+            const btnToggleDesc = document.getElementById('btn-toggle-desc');
+            const descWrapper = document.getElementById('lesson-desc-wrapper');
+            const descFade = document.getElementById('lesson-desc-fade');
+
+            if (btnToggleDesc && descWrapper) {
+                btnToggleDesc.addEventListener('click', function() {
+                    const isExpanded = descWrapper.style.maxHeight === 'none' || descWrapper.style.maxHeight === '2000px';
+                    
+                    if (isExpanded) {
+                        descWrapper.style.maxHeight = '120px';
+                        descFade.style.opacity = '1';
+                        this.innerHTML = 'Ver descrição completa <i class="fas fa-chevron-down ms-2"></i>';
+                    } else {
+                        descWrapper.style.maxHeight = '2000px';
+                        descFade.style.opacity = '0';
+                        this.innerHTML = 'Ver menos <i class="fas fa-chevron-up ms-2"></i>';
+                    }
+                });
+            }
         });
+
+        // Eduka Podcast IA - Web Speech API
+        let speechInstance = null;
+        function toggleAudioSummary() {
+            const btn = document.getElementById('btn-audio-summary');
+            const text = document.querySelector('.ai-summary-content').innerText;
+
+            if (window.speechSynthesis.speaking) {
+                if (window.speechSynthesis.paused) {
+                    window.speechSynthesis.resume();
+                    btn.innerHTML = '<i class="fas fa-pause me-2"></i> Pausar Podcast';
+                } else {
+                    window.speechSynthesis.pause();
+                    btn.innerHTML = '<i class="fas fa-play me-2"></i> Retomar Podcast';
+                }
+            } else {
+                speechInstance = new SpeechSynthesisUtterance(text);
+                speechInstance.lang = 'pt-PT';
+                speechInstance.rate = 1.0;
+                
+                speechInstance.onend = () => {
+                    btn.innerHTML = '<i class="fas fa-play me-2"></i> Ouvir Podcast IA';
+                };
+
+                window.speechSynthesis.speak(speechInstance);
+                btn.innerHTML = '<i class="fas fa-pause me-2"></i> Pausar Podcast';
+            }
+        }
     </script>
 </body>
 </html>

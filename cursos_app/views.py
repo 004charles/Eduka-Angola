@@ -14,6 +14,14 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+try:
+    from weasyprint import HTML
+except ImportError:
+    HTML = None
+
+from django.contrib.staticfiles import finders
 
 from cursos_app.forms import AvaliacaoForm
 from .utils import (
@@ -923,11 +931,11 @@ def catalogo_cursos(request):
         if preco == 'gratuitos':
             cursos = cursos.filter(is_gratuito=True)
         elif preco == 'pagina_100':
-            cursos = cursos.filter(preco_atual__lte=100, is_gratuito=False)
+            cursos = cursos.filter(preco__lte=100, is_gratuito=False)
         elif preco == '100_500':
-            cursos = cursos.filter(preco_atual__gte=100, preco_atual__lte=500, is_gratuito=False)
+            cursos = cursos.filter(preco__gte=100, preco__lte=500, is_gratuito=False)
         elif preco == '500_plus':
-            cursos = cursos.filter(preco_atual__gt=500, is_gratuito=False)
+            cursos = cursos.filter(preco__gt=500, is_gratuito=False)
     
     # Filtro: Cursos da Semana
     if filtro_tempo == 'semana':
@@ -1433,12 +1441,17 @@ def ficha_inscricao(request, curso_id):
         except AttributeError:
             pass
 
+    # Obter turma disponível
+    turma_disponivel = curso.get_turma_menos_lotada()
+
     contexto = {
         'curso': curso,
         'aluno': aluno,
+        'turma_disponivel': turma_disponivel,
+        'valor_total': curso.preco_atual,
     }
 
-    return render(request, 'cursos_app/ficha.html', contexto)
+    return render(request, 'cursos/confirmar_inscricao.html', contexto)
 
 
 def lista_centros(request):
@@ -1765,55 +1778,72 @@ def api_centros_proximos(request):
     import math
     from gestoreduka.models import CentroDeFormacao
     
-    try:
-        user_lat = float(request.GET.get('lat'))
-        user_lng = float(request.GET.get('lng'))
-    except (TypeError, ValueError):
-        return JsonResponse({'error': 'Coordenadas inválidas'}, status=400)
-    
-    radius = 30.0 # km
-    centros_proximos = []
-    
-    # Fallback: Cálculos manuais (Haversine) se GeoDjango não estiver em uso
-    # Para performance real em produção com muitos dados, usaríamos GeoDjango PointField + DWithin
-    from gestoreduka.models import HAS_GEODJANGO
+    user_lat = request.GET.get('lat')
+    user_lng = request.GET.get('lng')
+    provincia = request.GET.get('provincia')
     
     todos_centros = CentroDeFormacao.objects.filter(ativo=True).select_related('perfil').annotate(
         total_cursos_count=Count('cursos', filter=Q(cursos__publicado=True, cursos__ativo=True))
     )
     
-    def haversine(lat1, lon1, lat2, lon2):
-        # Raio da Terra em km
-        R = 6371.0
-        dlat = math.radians(lat2 - lat1)
-        dlon = math.radians(lon2 - lon1)
-        a = math.sin(dlat / 2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
-        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-        return R * c
-
-    for centro in todos_centros:
-        c_lat = centro.latitude
-        c_lng = centro.longitude
+    centros_proximos = []
+    
+    if user_lat and user_lng:
+        try:
+            user_lat = float(user_lat)
+            user_lng = float(user_lng)
+        except (TypeError, ValueError):
+            return JsonResponse({'error': 'Coordenadas inválidas'}, status=400)
+            
+        radius = 30.0 # km
         
-        if c_lat and c_lng:
-            dist = haversine(user_lat, user_lng, c_lat, c_lng)
-            if dist <= radius:
-                centros_proximos.append({
-                    'id': centro.id,
-                    'nome': centro.nome,
-                    'distancia': round(dist, 1),
-                    'cidade': centro.cidade or centro.provincia,
-                    'url': reverse('cursos_por_centro', kwargs={'centro_id': centro.id}),
-                    'banner': centro.perfil.banner.url if centro.perfil and centro.perfil.banner else '/static/assets/images/bg/bg-image-10.jpg',
-                    'imagem': centro.perfil.imagem.url if centro.perfil and centro.perfil.imagem else '/static/assets/images/client/client-01.png',
-                    'verificado': centro.perfil.verificado if centro.perfil else False,
-                    'total_cursos': centro.total_cursos_count
-                })
+        def haversine(lat1, lon1, lat2, lon2):
+            R = 6371.0
+            dlat = math.radians(lat2 - lat1)
+            dlon = math.radians(lon2 - lon1)
+            a = math.sin(dlat / 2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
+            c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+            return R * c
+
+        for centro in todos_centros:
+            c_lat = centro.latitude
+            c_lng = centro.longitude
+            
+            if c_lat and c_lng:
+                dist = haversine(user_lat, user_lng, c_lat, c_lng)
+                if dist <= radius:
+                    centros_proximos.append({
+                        'id': centro.id,
+                        'nome': centro.nome,
+                        'distancia': round(dist, 1),
+                        'cidade': centro.cidade or centro.provincia,
+                        'url': reverse('cursos_por_centro', kwargs={'centro_id': centro.id}),
+                        'banner': centro.perfil.banner.url if centro.perfil and centro.perfil.banner else '/static/assets/images/bg/bg-image-10.jpg',
+                        'imagem': centro.perfil.imagem.url if centro.perfil and centro.perfil.imagem else '/static/assets/images/client/client-01.png',
+                        'verificado': centro.perfil.verificado if centro.perfil else False,
+                        'total_cursos': centro.total_cursos_count
+                    })
+        
+        centros_proximos.sort(key=lambda x: x['distancia'])
+        
+    elif provincia:
+        centros_prov = todos_centros.filter(provincia__icontains=provincia)[:6]
+        for centro in centros_prov:
+            centros_proximos.append({
+                'id': centro.id,
+                'nome': centro.nome,
+                'distancia': None,
+                'cidade': centro.cidade or centro.provincia,
+                'url': reverse('cursos_por_centro', kwargs={'centro_id': centro.id}),
+                'banner': centro.perfil.banner.url if centro.perfil and centro.perfil.banner else '/static/assets/images/bg/bg-image-10.jpg',
+                'imagem': centro.perfil.imagem.url if centro.perfil and centro.perfil.imagem else '/static/assets/images/client/client-01.png',
+                'verificado': centro.perfil.verificado if centro.perfil else False,
+                'total_cursos': centro.total_cursos_count
+            })
+    else:
+        return JsonResponse({'error': 'Coordenadas ou província necessárias'}, status=400)
     
-    # Ordenar por distância
-    centros_proximos.sort(key=lambda x: x['distancia'])
-    
-    return JsonResponse({'centros': centros_proximos[:6]}) # Top 6 próximos
+    return JsonResponse({'centros': centros_proximos[:6]})
 
 
 def api_mapa_global(request):
@@ -1865,3 +1895,48 @@ def api_mapa_global(request):
             
     return JsonResponse({'pontos': pontos})
 
+
+@login_required(login_url='login_aluno')
+def gerar_comprovante_inscricao(request, inscricao_id):
+    """Gera um PDF da ficha de inscrição"""
+    inscricao = get_object_or_404(Inscricao, id=inscricao_id)
+    
+    # Verificar permissão (apenas o próprio aluno ou gestor do centro)
+    if request.user.tipo_usuario == 'ALUNO':
+        if inscricao.aluno.usuario != request.user:
+            messages.error(request, "Você não tem permissão para baixar este comprovante.")
+            return redirect('aluno_dashboard')
+    elif request.user.tipo_usuario == 'GESTOR':
+        if inscricao.curso.centro.usuario != request.user:
+            messages.error(request, "Você não tem permissão para baixar este comprovante.")
+            return redirect('dashboard_gestor')
+    
+    if HTML is None:
+        messages.error(request, "A funcionalidade de PDF não está disponível no servidor.")
+        return redirect('aluno_dashboard')
+
+    # Obter caminho absoluto do logo para o WeasyPrint (versão ícone da tela de carregamento)
+    logo_path = finders.find('assets/images/logo/logo1.png') or finders.find('assets/images/logo/logo1-removebg-preview.png')
+    
+    # Caminho absoluto da imagem do centro
+    centro_logo_path = None
+    if inscricao.curso.centro.perfil and inscricao.curso.centro.perfil.imagem:
+        centro_logo_path = inscricao.curso.centro.perfil.imagem.path
+    
+    # Renderizar HTML
+    html_string = render_to_string('cursos/comprovante_inscricao.html', {
+        'inscricao': inscricao,
+        'request': request,
+        'logo_path': logo_path,
+        'centro_logo_path': centro_logo_path,
+    })
+
+    # Gerar PDF
+    html = HTML(string=html_string, base_url=request.build_absolute_uri())
+    pdf = html.write_pdf()
+
+    # Retornar resposta
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="ficha_inscricao_{inscricao.id}.pdf"'
+    
+    return response

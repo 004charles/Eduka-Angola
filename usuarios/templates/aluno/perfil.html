@@ -73,6 +73,47 @@
                     </div>
                 </div>
 
+                <!-- Identity Documentation Section -->
+                <div class="col-12 mt--40">
+                    <h5 class="mb--20"><i class="feather-file-text me-2"></i>{% trans "Documentação de Identidade" %}</h5>
+                    <p class="description small mb--20">{% trans "O Bilhete de Identidade é obrigatório para a validação oficial das suas inscrições e emissão de certificados." %}</p>
+                    <div class="row g-5">
+                        <div class="col-lg-6">
+                            <div class="form-group document-upload-card">
+                                <label class="d-block mb--10">{% trans "BI Frente (Ficheiro)" %}</label>
+                                <div class="upload-area {% if perfil.bilhete_frente %}has-file{% endif %}" onclick="document.getElementById('bilhete_frente').click()">
+                                    <i class="feather-upload-cloud mb--10"></i>
+                                    <span class="file-name" id="name-frente">
+                                        {% if perfil.bilhete_frente %}
+                                            <i class="feather-check-circle text-success me-2"></i> {{ perfil.bilhete_frente.name|truncatechars:30 }}
+                                        {% else %}
+                                            {% trans "Carregar Frente do BI" %}
+                                        {% endif %}
+                                    </span>
+                                    <input type="file" id="bilhete_frente" name="bilhete_frente" hidden onchange="updateFileName(this, 'name-frente')">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="form-group document-upload-card">
+                                <label class="d-block mb--10">{% trans "BI Verso (Ficheiro)" %}</label>
+                                <div class="upload-area {% if perfil.bilhete_verso %}has-file{% endif %}" onclick="document.getElementById('bilhete_verso').click()">
+                                    <i class="feather-upload-cloud mb--10"></i>
+                                    <span class="file-name" id="name-verso">
+                                        {% if perfil.bilhete_verso %}
+                                            <i class="feather-check-circle text-success me-2"></i> {{ perfil.bilhete_verso.name|truncatechars:30 }}
+                                        {% else %}
+                                            {% trans "Carregar Verso do BI" %}
+                                        {% endif %}
+                                    </span>
+                                    <input type="file" id="bilhete_verso" name="bilhete_verso" hidden onchange="updateFileName(this, 'name-verso')">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Action Buttons -->
                 <div class="col-12 mt--50">
                     <div class="form-submit-group text-end">
@@ -130,6 +171,61 @@
     body.active-dark-mode .avatar-edit-overlay {
         border-color: #1e293b;
     }
+
+    .upload-area {
+        border: 2px dashed #e2e8f0;
+        border-radius: 16px;
+        padding: 30px;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #f8fafc;
+    }
+
+    .upload-area:hover {
+        border-color: var(--color-primary);
+        background: #f1f5f9;
+    }
+
+    .upload-area.has-file {
+        border-style: solid;
+        border-color: #10b981;
+        background: #f0fdf4;
+    }
+
+    .upload-area i {
+        font-size: 32px;
+        color: #94a3b8;
+    }
+
+    .upload-area.has-file i {
+        color: #10b981;
+    }
+
+    .file-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: #475569;
+    }
+
+    body.active-dark-mode .upload-area {
+        background: #1e293b;
+        border-color: #334155;
+    }
+    
+    body.active-dark-mode .upload-area:hover {
+        background: #0f172a;
+        border-color: var(--color-primary);
+    }
+
+    body.active-dark-mode .upload-area.has-file {
+        background: rgba(16, 185, 129, 0.1);
+        border-color: #10b981;
+    }
 </style>
 
 <script>
@@ -141,6 +237,15 @@
                 preview.src = e.target.result;
             }
             reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function updateFileName(input, targetId) {
+        if (input.files && input.files[0]) {
+            const fileName = input.files[0].name;
+            const target = document.getElementById(targetId);
+            target.innerHTML = `<i class="feather-check-circle text-success me-2"></i> ${fileName}`;
+            input.parentElement.classList.add('has-file');
         }
     }
 </script>

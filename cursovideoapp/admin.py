@@ -2,7 +2,8 @@ from django.contrib import admin
 from django.urls import path
 from django.shortcuts import redirect
 from django.utils.html import format_html
-from .models import Curso_video, Aula
+from .models import Curso_video, Aula, Exercicio, Questao, Alternativa
+from inteligencia.ai_utils import gerar_exercicios_ia
 from django.contrib.auth.models import Group
 
 class AulaInline(admin.TabularInline):
@@ -25,9 +26,59 @@ class Curso_videoAdmin(admin.ModelAdmin):
 
 @admin.register(Aula)
 class AulaAdmin(admin.ModelAdmin):
-    list_display = ('ordem', 'titulo', 'curso', 'duracao_formatada')
+    list_display = ('ordem', 'titulo', 'curso', 'duracao_formatada', 'tem_exercicio')
     list_filter = ('curso',)
     search_fields = ('titulo',)
+    actions = ['gerar_exercicios_ia_action']
+
+    def tem_exercicio(self, obj):
+        return hasattr(obj, 'exercicio')
+    tem_exercicio.boolean = True
+    tem_exercicio.short_description = "Exercício?"
+
+    @admin.action(description="Gerar Exercícios com Eduka AI")
+    def gerar_exercicios_ia_action(self, request, queryset):
+        for aula in queryset:
+            if hasattr(aula, 'exercicio'):
+                continue # Evitar sobrescrever se já existir
+            
+            data = gerar_exercicios_ia(aula.titulo, aula.descricao or "")
+            if "error" in data:
+                self.message_user(request, f"Erro na aula {aula.titulo}: {data['error']}", level='error')
+                continue
+            
+            exercicio = Exercicio.objects.create(aula=aula)
+            for q_data in data.get('questoes', []):
+                questao = Questao.objects.create(
+                    exercicio=exercicio,
+                    texto=q_data['texto'],
+                    explicacao=q_data.get('explicacao', '')
+                )
+                for a_data in q_data.get('alternativas', []):
+                    Alternativa.objects.create(
+                        questao=questao,
+                        texto=a_data['texto'],
+                        is_correta=a_data['correta']
+                    )
+        self.message_user(request, "Processamento concluído.")
+
+class AlternativaInline(admin.TabularInline):
+    model = Alternativa
+    extra = 4
+
+@admin.register(Questao)
+class QuestaoAdmin(admin.ModelAdmin):
+    list_display = ('texto', 'exercicio')
+    inlines = [AlternativaInline]
+
+class QuestaoInline(admin.StackedInline):
+    model = Questao
+    extra = 1
+
+@admin.register(Exercicio)
+class ExercicioAdmin(admin.ModelAdmin):
+    list_display = ('aula', 'data_criacao')
+    inlines = [QuestaoInline]
 
 admin.site.site_header = "Edukangola"
 admin.site.site_title = "Edukangola Administração"

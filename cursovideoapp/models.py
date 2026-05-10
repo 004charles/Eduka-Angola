@@ -37,6 +37,8 @@ class Curso_video(models.Model):
 
     def duracao_total(self):
         total_segundos = self.duracao_total_segundos()
+        if total_segundos == 0:
+            return None
         horas, remainder = divmod(total_segundos, 3600)
         minutos, segundos = divmod(remainder, 60)
         
@@ -85,6 +87,37 @@ class Curso_video(models.Model):
             })
         return distribuicao
 
+    @property
+    def get_relevancia(self):
+        """Retorna uma percentagem de relevância baseada nas avaliações e popularidade"""
+        media = self.get_media_avaliacoes
+        total_inscritos = self.total_inscritos()
+        
+        # Base de cálculo: 90% (valor base premium)
+        score = 90
+        
+        # Bónus por média de estrelas
+        if media > 0:
+            score += (media - 3) * 2 # Ex: 4.5 estrelas adiciona 3%
+        
+        # Bónus por popularidade
+        if total_inscritos > 100:
+            score += 2
+        elif total_inscritos > 50:
+            score += 1
+            
+        # Limitar entre 92 e 99
+        return min(max(int(score), 92), 99)
+
+    @property
+    def get_video_quality(self):
+        """Retorna a qualidade do vídeo baseada no curso (simplificado)"""
+        # Por agora retorna Full HD como padrão se houver aulas, 
+        # mas pode ser expandido para verificar metadados reais futuramente.
+        if self.aulas.exists():
+            return "Full HD"
+        return "HD"
+
     def __str__(self):
         return self.titulo
 
@@ -102,6 +135,7 @@ class Aula(models.Model):
     duracao_segundos = models.PositiveIntegerField(default=0, help_text="Duração em segundos")
     visualizacoes = models.PositiveIntegerField(default=0)
     descricao = models.TextField(blank=True, null=True, verbose_name=_("Descrição da Aula"))
+    resumo_ia = models.TextField(blank=True, null=True, verbose_name=_("Resumo da IA"))
     requer_conclusao_anterior = models.BooleanField(default=True)
     
     def save(self, *args, **kwargs):
@@ -155,6 +189,11 @@ class Certificado(models.Model):
     curso = models.ForeignKey(Curso_video, on_delete=models.CASCADE, related_name='certificados_emitidos')
     data_emissao = models.DateTimeField(auto_now_add=True)
     codigo_verificacao = models.CharField(max_length=20, unique=True, blank=True)
+    
+    # Novos campos para avaliação
+    nota_final = models.DecimalField(max_digits=5, decimal_places=2, default=0.00, verbose_name=_("Nota Final"))
+    total_exercicios_concluidos = models.IntegerField(default=0, verbose_name=_("Total de Exercícios Concluídos"))
+    analise_ia_competencias = models.TextField(blank=True, null=True, verbose_name=_("Perfil de Competências (IA)"))
     
     class Meta:
         unique_together = ('aluno', 'curso')
@@ -227,6 +266,23 @@ class AvisoCurso(models.Model):
     def __str__(self):
         return f"Aviso: {self.titulo} - {self.curso.titulo}"
 
+class MaterialCurso(models.Model):
+    curso = models.ForeignKey(Curso_video, on_delete=models.CASCADE, related_name="materiais_gerais")
+    titulo = models.CharField(max_length=200, verbose_name=_("Nome do Recurso"))
+    arquivo = models.FileField(
+        upload_to="cursos/materiais_gerais/", 
+        verbose_name=_("Arquivo"),
+        validators=[FileExtensionValidator(allowed_extensions=['pdf', 'zip', 'rar', 'txt', 'docx', 'pptx'])]
+    )
+    data_upload = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Material do Curso'
+        verbose_name_plural = 'Materiais do Curso'
+
+    def __str__(self):
+        return f"{self.titulo} (Curso: {self.curso.titulo})"
+
 class MaterialAula(models.Model):
     aula = models.ForeignKey(Aula, on_delete=models.CASCADE, related_name="materiais")
     titulo = models.CharField(max_length=200, verbose_name=_("Nome do Recurso"))
@@ -243,3 +299,51 @@ class MaterialAula(models.Model):
 
     def __str__(self):
         return f"{self.titulo} ({self.aula.titulo})"
+
+class Exercicio(models.Model):
+    aula = models.OneToOneField(Aula, on_delete=models.CASCADE, related_name="exercicio")
+    titulo = models.CharField(max_length=200, default="Exercício de Fixação")
+    descricao = models.TextField(blank=True, null=True)
+    data_criacao = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Exercício: {self.aula.titulo}"
+
+class Questao(models.Model):
+    exercicio = models.ForeignKey(Exercicio, on_delete=models.CASCADE, related_name="questoes")
+    texto = models.TextField()
+    explicacao = models.TextField(blank=True, null=True, help_text="Explicada após responder")
+
+    def __str__(self):
+        return f"Questão: {self.texto[:50]}..."
+
+class Alternativa(models.Model):
+    questao = models.ForeignKey(Questao, on_delete=models.CASCADE, related_name="alternativas")
+    texto = models.CharField(max_length=500)
+    is_correta = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.texto
+
+class ResultadoExercicio(models.Model):
+    aluno = models.ForeignKey('usuarios.Aluno', on_delete=models.CASCADE, related_name="resultados_exercicios")
+    exercicio = models.ForeignKey(Exercicio, on_delete=models.CASCADE, related_name="resultados")
+    pontuacao = models.DecimalField(max_digits=5, decimal_places=2, help_text="Percentagem de acerto (0-100)")
+    acertos = models.PositiveIntegerField(default=0)
+    total_questoes = models.PositiveIntegerField(default=0)
+    data_conclusao = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('aluno', 'exercicio')
+
+    def __str__(self):
+        return f"{self.aluno.nome} - {self.exercicio.aula.titulo} ({self.pontuacao}%)"
+
+class RespostaEstudante(models.Model):
+    resultado = models.ForeignKey(ResultadoExercicio, on_delete=models.CASCADE, related_name="respostas")
+    questao = models.ForeignKey(Questao, on_delete=models.CASCADE)
+    alternativa_escolhida = models.ForeignKey(Alternativa, on_delete=models.CASCADE)
+    correta = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Resposta de {self.resultado.aluno.nome} para {self.questao.id}"

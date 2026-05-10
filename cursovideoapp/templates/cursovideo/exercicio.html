@@ -1,0 +1,282 @@
+{% load static %}
+{% load i18n %}
+
+<!DOCTYPE html>
+<html lang="pt-pt">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Exercício | {{ aula.titulo }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% include 'include/css.html' %}
+    
+    <style>
+        :root {
+            --quiz-bg: #0f172a;
+            --quiz-card-bg: #1e293b;
+            --quiz-primary: #7c3aed;
+            --quiz-secondary: #ec4899;
+            --quiz-text: #ffffff;
+            --quiz-meta: #94a3b8;
+        }
+
+        body {
+            background-color: var(--quiz-bg);
+            color: var(--quiz-text);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .quiz-header {
+            padding: 40px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 40px;
+        }
+
+        .back-link {
+            color: var(--quiz-meta);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+
+        .back-link:hover {
+            color: #fff;
+        }
+
+        .quiz-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .question-card {
+            background: var(--quiz-card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .question-num {
+            color: var(--quiz-primary);
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 25px;
+        }
+
+        .alternative-item {
+            margin-bottom: 12px;
+        }
+
+        .alternative-label {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+        }
+
+        .alternative-label:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: var(--quiz-primary);
+        }
+
+        .alternative-input {
+            display: none;
+        }
+
+        .alternative-input:checked + .alternative-label {
+            background: rgba(124, 58, 237, 0.1);
+            border-color: var(--quiz-primary);
+            box-shadow: 0 0 0 2px var(--quiz-primary);
+        }
+
+        .alternative-radio {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .alternative-input:checked + .alternative-label .alternative-radio {
+            border-color: var(--quiz-primary);
+        }
+
+        .alternative-input:checked + .alternative-label .alternative-radio::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: var(--quiz-primary);
+            border-radius: 50%;
+        }
+
+        .submit-container {
+            margin-top: 40px;
+            margin-bottom: 80px;
+            text-align: center;
+        }
+
+        .btn-submit-quiz {
+            background: var(--quiz-primary);
+            color: white;
+            padding: 18px 60px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 18px;
+            border: none;
+            transition: 0.3s;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(124, 58, 237, 0.3);
+        }
+
+        .btn-submit-quiz:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(124, 58, 237, 0.4);
+        }
+
+        .progress-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            z-index: 1000;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--quiz-primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .btn-back-to-lesson {
+             background: rgba(255,255,255,0.05);
+             color: white;
+             border: 1px solid rgba(255,255,255,0.1);
+             padding: 10px 20px;
+             border-radius: 8px;
+             text-decoration: none;
+             font-weight: 600;
+             transition: 0.3s;
+        }
+        .btn-back-to-lesson:hover {
+            background: rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+
+<body class="active-dark-mode">
+
+    <div class="progress-indicator">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <header class="quiz-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <a href="{% url 'cursovideoapp:ver_aula' curso_slug=aula.curso.slug pk=aula.pk %}" class="back-link">
+                        <i class="fas fa-arrow-left"></i> Voltar para a aula
+                    </a>
+                    <h1 class="quiz-title">Avaliação: {{ aula.titulo }}</h1>
+                </div>
+                <div class="text-end d-none d-md-block">
+                    <span class="badge bg-primary px-3 py-2">3 Questões</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <form action="{% url 'cursovideoapp:submeter_exercicio' aula_id=aula.id %}" method="POST" id="quizForm">
+                    {% csrf_token %}
+
+                    {% for questao in questoes %}
+                    <div class="question-card" data-question-id="{{ questao.id }}">
+                        <span class="question-num">Questão {{ forloop.counter }}</span>
+                        <div class="question-text">{{ questao.texto }}</div>
+                        
+                        <div class="alternatives-list">
+                            {% for alternativa in questao.alternativas.all %}
+                            <div class="alternative-item">
+                                <input type="radio" 
+                                       name="questao_{{ questao.id }}" 
+                                       id="alt_{{ alternativa.id }}" 
+                                       value="{{ alternativa.id }}" 
+                                       class="alternative-input"
+                                       required>
+                                <label for="alt_{{ alternativa.id }}" class="alternative-label">
+                                    <div class="alternative-radio"></div>
+                                    <span>{{ alternativa.texto }}</span>
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    <div class="submit-container">
+                        <button type="submit" class="btn-submit-quiz">Finalizar Avaliação</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    {% include 'include/java.html' %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('quizForm');
+            const questions = document.querySelectorAll('.question-card');
+            const progressBar = document.getElementById('progressBar');
+
+            function updateProgress() {
+                const totalQuestions = questions.length;
+                let answeredCount = 0;
+                
+                questions.forEach(card => {
+                    if (card.querySelector('input:checked')) {
+                        answeredCount++;
+                    }
+                });
+
+                const progress = (answeredCount / totalQuestions) * 100;
+                progressBar.style.width = progress + '%';
+            }
+
+            form.addEventListener('change', updateProgress);
+        });
+    </script>
+</body>
+
+</html>

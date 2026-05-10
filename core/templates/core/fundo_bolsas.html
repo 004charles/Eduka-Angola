@@ -1,0 +1,555 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-ao">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Fundo de Bolsas | EdukAngola</title>
+    <meta name="robots" content="index, follow">
+    <meta name="description" content="Iniciativa de impacto social do EdukAngola para democratizar o acesso à educação técnica e superior em Angola através de parcerias público-privadas.">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    {% include 'include/css.html' %}
+    <style>
+        .fundo-bolsas-hero {
+            background: linear-gradient(135deg, #f8faff 0%, #eef2ff 100%);
+            padding: 120px 0 80px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        body.active-dark-mode .fundo-bolsas-hero {
+            background: linear-gradient(135deg, #161a23 0%, #1a2335 100%);
+        }
+        .fundo-bolsas-hero .bg-shape {
+            position: absolute;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        .hero-image-wrapper {
+            position: relative;
+            z-index: 2;
+        }
+        .hero-image-wrapper img {
+            border-radius: 30px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .impact-card-v2 {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            height: 100%;
+        }
+        body.active-dark-mode .impact-card-v2 {
+            background: rgba(30, 36, 50, 0.8);
+            border-color: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .impact-card-v2:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            background: #fff;
+        }
+        body.active-dark-mode .impact-card-v2:hover {
+            background: #1e2432;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .glass-pricing {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 30px;
+            padding: 50px 40px;
+            transition: all 0.4s ease;
+        }
+        body.active-dark-mode .glass-pricing {
+            background: rgba(35, 45, 64, 0.7);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        .glass-pricing.featured {
+            background: #fff;
+            border: 2px solid var(--color-primary);
+            box-shadow: 0 25px 50px rgba(var(--color-primary-rgb), 0.15);
+            transform: scale(1.05);
+        }
+        body.active-dark-mode .glass-pricing.featured {
+            background: #1e2432;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+        }
+        .stat-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: var(--color-primary-opacity);
+            color: var(--color-primary);
+            border-radius: 100px;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+        .animated-title {
+            background: linear-gradient(90deg, #1e3c72, #2a5298, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+        body.active-dark-mode .animated-title {
+            background: linear-gradient(90deg, #6b9fff, #a18fff, #7c3aed);
+            -webkit-background-clip: text;
+        }
+        body.active-dark-mode .v-title,
+        body.active-dark-mode .count-number {
+            color: #b1b1b1 !important;
+        }
+        body.active-dark-mode .bg-color-white,
+        body.active-dark-mode .bg-color-extra2 {
+            background-color: var(--color-darker) !important;
+        }
+        body.active-dark-mode .section-title h2,
+        body.active-dark-mode .section-title p,
+        body.active-dark-mode .impact-card-v2 h4,
+        body.active-dark-mode .impact-card-v2 p,
+        body.active-dark-mode .pricing-header h4,
+        body.active-dark-mode .pricing-body li,
+        body.active-dark-mode .description,
+        body.active-dark-mode .rbt-card-title a,
+        body.active-dark-mode .rbt-card-text {
+            color: #e0e0e0 !important;
+        }
+        body.active-dark-mode .rbt-card {
+            background: #1e2432 !important;
+            border-color: rgba(255, 255, 255, 0.05) !important;
+        }
+    </style>
+</head>
+
+<body class="rbt-header-sticky">
+
+    {% include 'include/header.html' %}
+
+    <!-- Start Hero Area -->
+    <div class="fundo-bolsas-hero">
+        <!-- Decoration Shapes -->
+        <div class="bg-shape" style="top: -10%; left: -5%; width: 400px; opacity: 0.05;">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path fill="#7c3aed" d="M44.7,-76.4C58.3,-69.2,70.1,-58.5,77.4,-45.5C84.7,-32.5,87.4,-16.2,85.2,-0.9C83,14.3,75.9,28.6,67.3,41.4C58.8,54.1,48.8,65.3,36.4,72.4C24.1,79.5,9.4,82.4,-5.2,81.4C-19.8,80.4,-34.2,75.4,-47.5,67.4C-60.8,59.3,-72.9,48.2,-79.8,34.8C-86.7,21.3,-88.4,5.6,-86,-9.3C-83.6,-24.1,-77,-38.1,-67.2,-49.6C-57.5,-61.2,-44.6,-70.3,-31.2,-77.5C-17.8,-84.7,-3.9,-89.9,10.2,-87.9C24.3,-85.9,44.7,-76.4,44.7,-76.4Z" transform="translate(100 100)" /></svg>
+        </div>
+        <div class="bg-shape" style="bottom: 10%; right: 5%; width: 300px; opacity: 0.05;">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path fill="#ec4899" d="M38.1,-65.7C50.2,-58.1,61.4,-49,69.5,-37.4C77.6,-25.7,82.5,-11.5,81.5,2.4C80.5,16.2,73.5,29.7,63.9,40.9C54.3,52.1,42,61.1,28.6,66.8C15.2,72.5,0.7,75,-14.2,72.8C-29.2,70.6,-44.6,63.8,-56.3,53C-68,42.2,-75.9,27.5,-78.9,11.9C-81.9,-3.8,-80,-20.3,-73.4,-34.8C-66.8,-49.4,-55.5,-61.9,-42.2,-68.8C-28.9,-75.8,-13.6,-77.2,0.6,-78.2C14.7,-79.2,38.1,-65.7,38.1,-65.7Z" transform="translate(100 100)" /></svg>
+        </div>
+
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-7 hero-content">
+                    <div class="stat-badge animate-fadeIn">
+                        ✨ Impacto Social & Inovação
+                    </div>
+                    <h1 class="title display-3 animated-title mb--30">Financiamos o Futuro da Educação em Angola</h1>
+                    <p class="description has-medium-font-size mb--40 color-body">
+                        O Fundo de Bolsas EdukAngola conecta jovens talentos às melhores instituições de ensino, eliminando barreiras financeiras e impulsionando a excelência profissional.
+                    </p>
+                    <div class="rbt-button-group justify-content-start">
+                        <a class="rbt-btn btn-gradient radius hover-icon-reverse" href="#investidores">
+                            <span class="icon-reverse-wrapper">
+                                <span class="btn-text">Seja um Patrocinador</span>
+                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                            </span>
+                        </a>
+                        <a class="rbt-btn btn-border radius hover-icon-reverse" href="{% url 'bolsas:candidatar' %}">
+                            <span class="icon-reverse-wrapper">
+                                <span class="btn-text">Solicitar Bolsa</span>
+                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-5 hero-image-wrapper text-center">
+                    <img src="{% static 'assets/images/about/about-01.jpg' %}" alt="EdukAngola Impacto" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Why Section -->
+    <div class="rbt-about-area rbt-section-gap bg-color-white">
+        <div class="container">
+            <div class="row mb--60">
+                <div class="col-lg-12">
+                    <div class="section-title text-center">
+                        <span class="subtitle bg-primary-opacity">O Compromisso</span>
+                        <h2 class="title">Por que investir neste fundo?</h2>
+                        <p class="description mt--20">O Fundo de Bolsas EdukAngola não é apenas caridade; é um investimento estratégico no capital humano da nação.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-5">
+                <div class="col-lg-4 col-md-6 col-12">
+                    <div class="impact-card-v2">
+                        <div class="inner">
+                            <div class="icon mb--30">
+                                <img src="{% static 'assets/images/shape/service-01.png' %}" alt="Icon" style="width: 60px;">
+                            </div>
+                            <div class="content">
+                                <h4 class="title mb--20">Mobilidade Social</h4>
+                                <p class="description">Quebramos o ciclo de pobreza ao capacitar jovens talentos para o mercado de trabalho global e competitivo.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-12">
+                    <div class="impact-card-v2">
+                        <div class="inner">
+                            <div class="icon mb--30">
+                                <img src="{% static 'assets/images/shape/service-02.png' %}" alt="Icon" style="width: 60px;">
+                            </div>
+                            <div class="content">
+                                <h4 class="title mb--20">Pipeline de Talentos</h4>
+                                <p class="description">Patrocinadores têm acesso prioritário a formandos de alto rendimento, prontos para integrar equipas de elite.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-12">
+                    <div class="impact-card-v2">
+                        <div class="inner">
+                            <div class="icon mb--30">
+                                <img src="{% static 'assets/images/shape/service-03.png' %}" alt="Icon" style="width: 60px;">
+                            </div>
+                            <div class="content">
+                                <h4 class="title mb--20">Transparência Total</h4>
+                                <p class="description">Rastreabilidade completa de cada investimento, garantindo que os recursos cheguem diretamente aos beneficiários.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Process Steps Area -->
+    <div class="rbt-service-area bg-color-extra2 rbt-section-gap">
+        <div class="container">
+            <div class="row mb--60">
+                <div class="col-lg-12">
+                    <div class="section-title text-center">
+                        <span class="subtitle bg-primary-opacity">Como Funciona</span>
+                        <h2 class="title">Sua Jornada até a Bolsa</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-5">
+                <div class="col-lg-4 col-md-6">
+                    <div class="text-center p-5 impact-card-v2">
+                        <div class="count-number mb--20" style="font-size: 2rem; font-weight: 800; color: var(--color-primary);">01</div>
+                        <h4 class="title">Escolha seu Curso</h4>
+                        <p class="description">Navegue pelo nosso catálogo e identifique o curso técnico ou profissional que deseja frequentar.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="text-center p-5 impact-card-v2">
+                        <div class="count-number mb--20" style="font-size: 2rem; font-weight: 800; color: var(--color-primary);">02</div>
+                        <h4 class="title">Submeta os Dados</h4>
+                        <p class="description">Preencha o formulário de candidatura anexando os documentos comprovativos de rendimento.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="text-center p-5 impact-card-v2">
+                        <div class="count-number mb--20" style="font-size: 2rem; font-weight: 800; color: var(--color-primary);">03</div>
+                        <h4 class="title">Acompanhe no Dashboard</h4>
+                        <p class="description">Nossa equipa analisará seu perfil e você poderá ver o status em tempo real no seu painel de aluno.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Required Documents Area -->
+    <div class="rbt-about-area rbt-section-gap bg-color-white">
+        <div class="container">
+            <div class="row g-5 align-items-center">
+                <div class="col-lg-6">
+                    <div class="section-title text-start">
+                        <span class="subtitle bg-secondary-opacity">Documentação Necessária</span>
+                        <h2 class="title">O que você precisa preparar?</h2>
+                        <p class="description mt--30">Para que sua candidatura seja validada, os seguintes documentos (legais) devem ser digitalizados e anexados ao formulário:</p>
+                        
+                        <div class="rbt-feature-wrapper mt--40">
+                            <div class="rbt-feature-feature-list mb--20">
+                                <div class="feature-icon bg-primary-opacity"><i class="feather-file-text"></i></div>
+                                <div class="feature-content">
+                                    <h6 class="title">Cópia do Bilhete de Identidade</h6>
+                                    <p class="text">Documento de identificação nacional válido.</p>
+                                </div>
+                            </div>
+                            <div class="rbt-feature-feature-list mb--20">
+                                <div class="feature-icon bg-success-opacity"><i class="feather-home"></i></div>
+                                <div class="feature-content">
+                                    <h6 class="title">Atestado de Pobreza / Residência</h6>
+                                    <p class="text">Emitido pela administração local ou junta de freguesia.</p>
+                                </div>
+                            </div>
+                            <div class="rbt-feature-feature-list mb--20">
+                                <div class="feature-icon bg-pink-opacity"><i class="feather-book-open"></i></div>
+                                <div class="feature-content">
+                                    <h6 class="title">Certificado de Habilitações</h6>
+                                    <p class="text">Comprovativo da última formação concluída.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt--40">
+                            <a class="rbt-btn btn-border btn-sm" href="#">Baixar Regulamento Completo (PDF)</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="thumbnail text-end">
+                        <img class="w-100 rbt-radius" src="{% static 'assets/images/about/about-06.png' %}" alt="Documentação">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Featured Courses Area -->
+    <div class="rbt-course-area bg-color-extra2 rbt-section-gap">
+        <div class="container">
+            <div class="row mb--60">
+                <div class="col-lg-12">
+                    <div class="section-title text-center">
+                        <span class="subtitle bg-primary-opacity">Oportunidades</span>
+                        <h2 class="title">Cursos com Apoio Disponível</h2>
+                        <p class="description mt--20">Estes são alguns dos cursos em destaque que aceitam candidaturas do Fundo de Bolsas.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-5">
+                {% for curso in cursos_disponiveis %}
+                <div class="col-lg-4 col-md-6 col-12">
+                    <div class="rbt-card variation-01 rbt-hover">
+                        <div class="rbt-card-img">
+                            <a href="{% url 'curso_detalhe' curso.id %}">
+                                {% if curso.imagem %}
+                                    <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}">
+                                {% else %}
+                                    <img src="{% static 'assets/images/course/course-online.jpg' %}" alt="{{ curso.titulo }}">
+                                {% endif %}
+                            </a>
+                        </div>
+                        <div class="rbt-card-body">
+                            <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' curso.id %}">{{ curso.titulo }}</a></h4>
+                            <p class="rbt-card-text">{{ curso.descricao|truncatewords:15 }}</p>
+                            <div class="rbt-card-bottom">
+                                <div class="rbt-price">
+                                    <span class="current-price">Bolsa disponível</span>
+                                </div>
+                                <a class="rbt-btn-link" href="{% url 'bolsas:candidatar' %}">Candidatar-me<i class="feather-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="row mt--60">
+                <div class="col-lg-12 text-center">
+                    <a class="rbt-btn btn-gradient radius" href="{% url 'bolsas:candidatar' %}">Solicitar Bolsa para outro Curso</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Partners Area -->
+    <div class="rbt-brand-area bg-color-white rbt-section-gap">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-12">
+                    <div class="section-title text-center mb--40">
+                        <span class="subtitle bg-secondary-opacity">Ecossistema de Parceiros</span>
+                        <h2 class="title h3">Instituições de Ensino Integradas</h2>
+                    </div>
+                    <div class="row g-5">
+                        {% for centro in centros_parceiros %}
+                        <div class="col-lg-3 col-md-4 col-6">
+                            <div class="impact-card-v2 p-4 text-center d-flex align-items-center justify-content-center" style="height: 120px;">
+                                {% if centro.perfil.imagem %}
+                                    <img src="{{ centro.perfil.imagem.url }}" alt="{{ centro.nome }}" style="max-height: 60px; filter: grayscale(1); transition: 0.3s;" onmouseover="this.style.filter='grayscale(0)'" onmouseout="this.style.filter='grayscale(1)'">
+                                {% else %}
+                                    <h6 class="mb-0">{{ centro.nome }}</h6>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Tiers Section -->
+    <div id="investidores" class="rbt-pricing-area rbt-section-gap bg-color-extra2">
+        <div class="container">
+            <div class="row mb--60">
+                <div class="col-lg-12">
+                    <div class="section-title text-center">
+                        <span class="subtitle bg-primary-opacity">Para Instituições</span>
+                        <h2 class="title">Níveis de Parceria e Impacto</h2>
+                        <p class="description mt--20">Escolha como sua organização deseja transformar o futuro de Angola.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-5">
+                <!-- Tier 1 -->
+                <div class="col-lg-4 col-md-6 col-12">
+                    <div class="glass-pricing">
+                        <div class="pricing-header">
+                            <h4 class="title animated-title">Parceiro Bronze</h4>
+                            <span class="rbt-badge-6 bg-primary-opacity mb--20">Impacto Local</span>
+                        </div>
+                        <div class="pricing-body">
+                            <ul class="list-item text-start">
+                                <li><i class="feather-check"></i> 10 Alunos Patrocinados</li>
+                                <li><i class="feather-check"></i> Relatórios de Impacto</li>
+                                <li><i class="feather-check"></i> Visibilidade no Portal</li>
+                            </ul>
+                        </div>
+                        <div class="pricing-footer mt--30">
+                            <a class="rbt-btn btn-border btn-sm w-100" href="{% url 'contato' %}">Saber Mais</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Tier 2 -->
+                <div class="col-lg-4 col-md-6 col-12">
+                    <div class="glass-pricing featured">
+                        <div class="pricing-header">
+                            <div class="rbt-badge-6 bg-primary-opacity mb--10">RECOMENDADO</div>
+                            <h4 class="title animated-title">Parceiro Ouro</h4>
+                            <span class="rbt-badge-6 bg-success-opacity mb--20">Escala Nacional</span>
+                        </div>
+                        <div class="pricing-body">
+                            <ul class="list-item text-start">
+                                <li><i class="feather-check"></i> 100+ Alunos Patrocinados</li>
+                                <li><i class="feather-check"></i> Recrutamento Antecipado</li>
+                                <li><i class="feather-check"></i> Turmas Exclusivas</li>
+                                <li><i class="feather-check"></i> Destaque em Eventos</li>
+                            </ul>
+                        </div>
+                        <div class="pricing-footer mt--30">
+                            <a class="rbt-btn btn-gradient btn-sm w-100" href="{% url 'contato' %}">Seja Parceiro</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Tier 3 -->
+                <div class="col-lg-4 col-md-6 col-12">
+                    <div class="glass-pricing">
+                        <div class="pricing-header">
+                            <h4 class="title animated-title">Pacto de Estado</h4>
+                            <span class="rbt-badge-6 bg-secondary-opacity mb--20">Governo & ONGs</span>
+                        </div>
+                        <div class="pricing-body">
+                            <ul class="list-item text-start">
+                                <li><i class="feather-check"></i> Programas de Inclusão</li>
+                                <li><i class="feather-check"></i> Painel de Dados em Tempo Real</li>
+                                <li><i class="feather-check"></i> Auditoria de Impacto Social</li>
+                            </ul>
+                        </div>
+                        <div class="pricing-footer mt--30">
+                            <a class="rbt-btn btn-border btn-sm w-100" href="{% url 'contato' %}">Solicitar Protocolo</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Testimonial Area -->
+    <div class="rbt-testimonial-area rbt-section-gap bg-color-white">
+        <div class="container">
+            <div class="row mb--60">
+                <div class="col-lg-12">
+                    <div class="section-title text-center">
+                        <span class="subtitle bg-primary-opacity">Vozes do Impacto</span>
+                        <h2 class="title">O que dizem nossos bolseiros</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-5">
+                {% for dep in depoimentos %}
+                <div class="col-lg-6 col-md-6 col-12">
+                    <div class="impact-card-v2">
+                        <div class="inner">
+                            <div class="content">
+                                <div class="rating mb--20">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                </div>
+                                <p class="description mb--30" style="font-style: italic;">"{{ dep.texto }}"</p>
+                                <div class="author-info d-flex align-items-center">
+                                    <div class="thumbnail mr--15">
+                                        <img src="{% static 'assets/images/testimonial/client-01.png' %}" alt="Bolseiro" style="width: 50px; border-radius: 50%;">
+                                    </div>
+                                    <div class="info">
+                                        <h6 class="title mb-0">{{ dep.nome }}</h6>
+                                        <span class="designation">Bolseiro EdukAngola</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-lg-12 text-center">
+                    <p class="description">Histórias de sucesso que inspiram a próxima geração de profissionais angolanos.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Start CTA Area -->
+    <div class="rbt-call-to-action-area rbt-section-gap bg-gradient-7">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8 text-center text-lg-start">
+                    <div class="inner">
+                        <div class="section-title">
+                            <h2 class="title color-white">Pronto para transformar Angola?</h2>
+                            <p class="description color-white mt--20">Junte-se à missão de democratizar o ensino técnico de elite. Cada bolsa é uma semente para um país mais forte.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-center text-lg-end mt_md--30 mt_sm--30">
+                    <a class="rbt-btn btn-white radius hover-icon-reverse" href="{% url 'contato' %}">
+                        <span class="icon-reverse-wrapper">
+                            <span class="btn-text">Conversar com a Direção</span>
+                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'include/footer.html' %}
+    {% include 'include/java.html' %}
+</body>
+
+</html>

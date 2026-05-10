@@ -673,11 +673,21 @@
                             </div>
                             <!-- End Card Body -->
 
-                            <!-- CTA -->
-                            <a href="{% url 'cursos_por_centro' centro.id %}" class="centro-card-cta">
-                                <span>Ver Cursos</span>
-                                <i class="feather-arrow-right"></i>
-                            </a>
+                            <!-- CTA & Share -->
+                            <div class="centro-card-cta-group d-flex border-top">
+                                <a href="{% url 'cursos_por_centro' centro.id %}" class="centro-card-cta border-end flex-grow-1">
+                                    <span>Ver Cursos</span>
+                                    <i class="feather-arrow-right"></i>
+                                </a>
+                                <div class="d-flex align-items-center px-3 gap-2">
+                                    <a href="https://api.whatsapp.com/send?text=Confira o Centro de Formação {{ centro.nome }} na EdukAngola: {{ request.scheme }}://{{ request.get_host }}{% url 'cursos_por_centro' centro.id %}" target="_blank" class="text-muted small" title="WhatsApp">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </a>
+                                    <a href="#" onclick="copyCentroLink(event, '{{ request.scheme }}://{{ request.get_host }}{% url 'cursos_por_centro' centro.id %}')" class="text-muted small" title="Copiar Link">
+                                        <i class="fas fa-link"></i>
+                                    </a>
+                                </div>
+                            </div>
 
                         </div>
                     </div>
@@ -719,6 +729,20 @@
         // Initialize Feather Icons
         if (typeof feather !== 'undefined') {
             feather.replace();
+        }
+
+        // Função para copiar link do centro
+        function copyCentroLink(e, url) {
+            e.preventDefault();
+            navigator.clipboard.writeText(url).then(() => {
+                const icon = e.currentTarget.querySelector('i');
+                const originalClass = icon.className;
+                icon.className = 'fas fa-check text-success';
+                
+                setTimeout(() => {
+                    icon.className = originalClass;
+                }, 2000);
+            });
         }
     </script>
 

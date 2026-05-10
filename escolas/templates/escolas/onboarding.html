@@ -1,0 +1,151 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="utf-8">
+    <title>{% trans 'Orientação Escolar AI - Edukangola' %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% include 'include/css.html' %}
+</head>
+<body class="rbt-header-sticky">
+    {% include 'include/header.html' %}
+    {% include 'include/menu_mobile.html' %}
+
+<main class="rbt-main-wrapper">
+    <div class="rbt-elements-area bg-color-white rbt-section-gap">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="text-center mb--40">
+                        <span class="theme-gradient fw-bold text-uppercase d-block mb--10">{% trans "Orientação Escolar AI" %}</span>
+                        <h2 class="title">Terminaste a 9ª Classe ou Ensino Médio e Não Sabes o Que Seguir?</h2>
+                        <p class="description">Responde a 5 perguntas simples e a nossa inteligência artificial dirá o curso perfeito para ti e mostrará as escolas ideais.</p>
+                    </div>
+                    
+                    <div class="rbt-contact-form contact-form-style-1 max-width-auto">
+                        <form id="orientacao-form" method="POST" action="{% url 'onboarding_escolar' %}" class="max-width-auto">
+                            {% csrf_token %}
+                            <div class="mb--30">
+                                <label for="nivel">1. Qual é a tua situação atual?</label>
+                                <div class="rbt-modern-select bg-transparent height-45">
+                                    <select name="nivel" id="nivel" required class="w-100">
+                                        <option value="" disabled selected>Seleciona uma opção...</option>
+                                        <option value="9_classe">Terminei a 9ª Classe (Quero Ensino Médio)</option>
+                                        <option value="ensino_medio">Terminei o Ensino Médio (Quero Ensino Superior)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb--30">
+                                <label for="gostos">2. O que mais gostas de fazer no teu tempo livre?</label>
+                                <div class="rbt-modern-select bg-transparent height-45">
+                                    <select name="gostos" id="gostos" required class="w-100">
+                                        <option value="" disabled selected>Seleciona uma opção...</option>
+                                        <option value="Ler, escrever, debater ideias">Ler, escrever, debater ideias</option>
+                                        <option value="Fazer contas, resolver quebra-cabeças lógicos">Fazer contas, resolver problemas lógicos</option>
+                                        <option value="Cuidar de animais, plantas, perceber como o corpo funciona">Biologia, cuidar de pessoas/animais</option>
+                                        <option value="Desenhar, pintar, artes manuais">Arte, design e criação</option>
+                                        <option value="Desmontar coisas, eletrônica, computadores">Tecnologia, mexer em computadores</option>
+                                        <option value="Organizar eventos, gerir dinheiro">Gestão, liderança e negócios</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mb--30">
+                                <label for="notas">3. Em que disciplinas tens/tinhas as melhores notas?</label>
+                                <div class="rbt-modern-select bg-transparent height-45">
+                                    <select name="notas" id="notas" required class="w-100">
+                                        <option value="" disabled selected>Seleciona uma opção...</option>
+                                        <option value="Língua Portuguesa, História, Geografia">Português, História, Geografia</option>
+                                        <option value="Matemática, Física">Matemática, Física</option>
+                                        <option value="Biologia, Química">Biologia, Química</option>
+                                        <option value="Educação Visual, Trabalhos Manuais">Artes Visuais</option>
+                                        <option value="Sou mediano em quase todas">Sou equilibrado em todas</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb--30">
+                                <label for="provincia">4. Em que Província resides?</label>
+                                <div class="rbt-modern-select bg-transparent height-45">
+                                    <select name="provincia" id="provincia" required class="w-100">
+                                        <option value="" disabled selected>Seleciona tua província...</option>
+                                        <option value="Luanda">Luanda</option>
+                                        <option value="Benguela">Benguela</option>
+                                        <option value="Huíla">Huíla</option>
+                                        <option value="Huambo">Huambo</option>
+                                        <option value="Cabinda">Cabinda</option>
+                                        <option value="Zaire">Zaire</option>
+                                        <option value="Kwanza Sul">Kwanza Sul</option>
+                                        <option value="Kwanza Norte">Kwanza Norte</option>
+                                        <option value="Bengo">Bengo</option>
+                                        <option value="Malanje">Malanje</option>
+                                        <option value="Lunda Sul">Lunda Sul</option>
+                                        <option value="Lunda Norte">Lunda Norte</option>
+                                        <option value="Moxico">Moxico</option>
+                                        <option value="Uíge">Uíge</option>
+                                        <option value="Bié">Bié</option>
+                                        <option value="Kuando Kubango">Kuando Kubango</option>
+                                        <option value="Cunene">Cunene</option>
+                                        <option value="Namibe">Namibe</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb--30">
+                                <label for="orcamento">5. Preferência de Rede de Ensino?</label>
+                                <div class="rbt-modern-select bg-transparent height-45">
+                                    <select name="orcamento" id="orcamento" required class="w-100">
+                                        <option value="" disabled selected>Seleciona uma opção...</option>
+                                        <option value="Pública">Apenas Escolas Públicas</option>
+                                        <option value="Comparticipada">Escolas Comparticipadas (Preço moderado)</option>
+                                        <option value="Privada">Colégios Privados</option>
+                                        <option value="Qualquer">Qualquer uma (Depende da qualidade)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-submit-group mt--50 text-center">
+                                <button type="submit" class="rbt-btn btn-gradient hover-icon-reverse w-100" id="submit-btn" style="font-size: 18px; padding: 18px; height: auto;">
+                                    <span class="icon-reverse-wrapper">
+                                        <span class="btn-text">Descobrir o Meu Caminho <i class="feather-sparkles ms-2"></i></span>
+                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                    </span>
+                                </button>
+                                <p class="mt--15 text-muted" style="font-size: 14px;">Ao continuar, a Eduka AI irá analisar as tuas respostas para te dar o melhor rumo.</p>
+                                
+                                <div class="mt--30">
+                                    <a href="{% url 'lista_escolas' %}" class="rbt-btn-link">Ou pula esta etapa e vê todas as escolas <i class="feather-arrow-right"></i></a>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <!-- Loading State -->
+                        <div id="loading-state" class="text-center py-5" style="display: none;">
+                            <div class="spinner-border text-primary mb-4" role="status" style="width: 3rem; height: 3rem;">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <h4 class="title">A Eduka AI está a traçar o teu futuro...</h4>
+                            <p>Analisando as tuas habilidades e cruzando com as melhores escolas do país.</p>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    document.getElementById('orientacao-form').addEventListener('submit', function() {
+        this.style.display = 'none';
+        document.getElementById('loading-state').style.display = 'block';
+    });
+</script>
+
+    {% include 'include/footer.html' %}
+    {% include 'include/java.html' %}
+</body>
+</html>

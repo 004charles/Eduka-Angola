@@ -7,7 +7,7 @@
 {% block dashboard_content_full %}
 <div class="coursera-style-dashboard">
     <div class="row g-5">
-        {% if cursos_inscritos or cursos_videos_inscritos %}
+        {% if inscricoes_cursos or cursos_videos_inscritos %}
             <div class="col-12">
                 <div class="section-title text-start mb--30 mt--30">
                     <h4 class="title">{% trans "Meus Cursos" %}</h4>
@@ -15,9 +15,9 @@
                 </div>
             </div>
             
-            {% for curso in cursos_inscritos %}
+            {% for inscricao in inscricoes_cursos %}
             <div class="col-lg-4 col-md-6 col-sm-6 col-12">
-                {% include 'components/curso_card.html' with curso=curso modo="aluno" %}
+                {% include 'components/curso_card.html' with curso=inscricao.curso modo="aluno" inscricao=inscricao %}
             </div>
             {% endfor %}
 

@@ -51,13 +51,33 @@
         </div>
     </div>
     <!-- Navegação Horizontal (Estilo Coursera) -->
-    <div class="container mt--30">
-        <ul class="nav nav-tabs coursera-tabs-main" id="mainStudentNav">
+    <div class="container mt--30 scroll-container-wrapper">
+        <ul class="nav nav-tabs coursera-tabs-main flex-nowrap" id="mainStudentNav">
             <li class="nav-item">
                 <a class="nav-link {% if current_page == 'dashboard' %}active{% endif %}" href="{% url 'aluno_dashboard' %}">{% trans "Painel" %}</a>
             </li>
+            
+            {% if current_page == 'dashboard' %}
+                <!-- Sub-tabs do Dashboard integradas na mesma linha -->
+                <li class="nav-item">
+                    <button class="nav-link" id="ongoing-tab" data-bs-toggle="tab" data-bs-target="#ongoing" style="white-space: nowrap;">{% trans "Em andamento" %}</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" style="white-space: nowrap;">{% trans "Concluído" %}</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="favorites-tab" data-bs-toggle="tab" data-bs-target="#favorites" style="white-space: nowrap;">{% trans "Meus Favoritos" %}</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="certificates-tab" data-bs-toggle="tab" data-bs-target="#certificates" style="white-space: nowrap;">{% trans "Certificados" %}</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="skills-tab" data-bs-toggle="tab" data-bs-target="#skills" style="white-space: nowrap;">{% trans "Competências" %}</button>
+                </li>
+            {% endif %}
+
             <li class="nav-item">
-                <a class="nav-link {% if current_page == 'meus_cursos' %}active{% endif %}" href="{% url 'aluno_cursos' %}">{% trans "Meus Cursos" %}</a>
+                <a class="nav-link {% if current_page == 'cursos' %}active{% endif %}" href="{% url 'aluno_cursos' %}">{% trans "Meus Cursos" %}</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {% if current_page == 'favoritos' %}active{% endif %}" href="{% url 'aluno_favoritos' %}">{% trans "Favoritos" %}</a>
@@ -85,6 +105,14 @@
     /* Main Navigation Tabs */
     .coursera-tabs-main {
         border-bottom: none;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Firefox */
+    }
+    
+    .coursera-tabs-main::-webkit-scrollbar {
+        display: none; /* Chrome/Safari */
     }
 
     .coursera-tabs-main .nav-link {
@@ -108,7 +136,8 @@
         font-weight: 700;
     }
 
-    .coursera-tabs-main .nav-link.active::after {
+    .coursera-tabs-main .nav-link.active::after,
+    .coursera-tabs-main .nav-link[data-bs-toggle="tab"].active::after {
         content: "";
         position: absolute;
         bottom: 0;

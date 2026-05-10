@@ -1,0 +1,287 @@
+{% load static %}
+{% load i18n %}
+
+<!DOCTYPE html>
+<html lang="pt-pt">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Resultado da Avaliação | EdukAngola</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% include 'include/css.html' %}
+    
+    <style>
+        :root {
+            --quiz-bg: #0f172a;
+            --quiz-card-bg: #1e293b;
+            --quiz-primary: #7c3aed;
+            --quiz-success: #22c55e;
+            --quiz-danger: #ef4444;
+            --quiz-text: #ffffff;
+            --quiz-meta: #94a3b8;
+        }
+
+        body {
+            background-color: var(--quiz-bg);
+            color: var(--quiz-text);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        .result-header {
+            padding: 80px 0 40px;
+            text-align: center;
+        }
+
+        .score-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 10px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            background: rgba(124, 58, 237, 0.05);
+            position: relative;
+        }
+
+        .score-circle::after {
+            content: '';
+            position: absolute;
+            top: -10px; left: -10px; right: -10px; bottom: -10px;
+            border-radius: 50%;
+            border: 10px solid var(--quiz-primary);
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); /* Placeholder for progress */
+            transform: rotate(0deg);
+        }
+
+        .score-value {
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .score-label {
+            font-size: 14px;
+            color: var(--quiz-meta);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .result-status {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .result-message {
+            color: var(--quiz-meta);
+            font-size: 18px;
+            margin-bottom: 40px;
+        }
+
+        .review-card {
+            background: var(--quiz-card-bg);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .review-status {
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .status-correct { color: var(--quiz-success); }
+        .status-wrong { color: var(--quiz-danger); }
+
+        .review-question {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .review-option {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .option-selected {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .option-correct {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: var(--quiz-success);
+        }
+
+        .option-wrong {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--quiz-danger);
+        }
+
+        .explanation-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(124, 58, 237, 0.05);
+            border-left: 3px solid var(--quiz-primary);
+            border-radius: 0 8px 8px 0;
+            font-size: 14px;
+        }
+
+        .action-bar {
+            position: sticky;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 20px 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 60px;
+            z-index: 100;
+        }
+
+        .btn-action {
+            padding: 14px 35px;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary-action {
+            background: var(--quiz-primary);
+            color: white;
+            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
+        }
+
+        .btn-secondary-action {
+            background: rgba(255,255,255,0.05);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .btn-primary-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(124, 58, 237, 0.4);
+            color: white;
+        }
+    </style>
+</head>
+
+<body class="active-dark-mode">
+
+    <header class="result-header">
+        <div class="container">
+            <div class="score-circle">
+                <span class="score-value">{{ resultado.pontuacao|floatformat:0 }}%</span>
+                <span class="score-label">Precisão</span>
+            </div>
+
+            {% if resultado.pontuacao >= 70 %}
+                <h2 class="result-status text-success"><i class="fas fa-check-circle me-2"></i> Excelente Trabalho!</h2>
+                <p class="result-message">Você demonstrou um ótimo domínio sobre este conteúdo.</p>
+            {% else %}
+                <h2 class="result-status text-warning"><i class="fas fa-exclamation-circle me-2"></i> Bom esforço!</h2>
+                <p class="result-message">Recomendamos que você revise os pontos onde teve dúvidas.</p>
+            {% endif %}
+            
+            <div class="d-flex justify-content-center gap-4 mb--40">
+                <div class="text-center">
+                    <h4 class="mb-0">{{ resultado.acertos }}</h4>
+                    <small class="opacity-5 text-uppercase fw-bold" style="font-size: 10px;">Acertos</small>
+                </div>
+                <div class="vr opacity-2"></div>
+                <div class="text-center">
+                    <h4 class="mb-0">{{ resultado.total_questoes }}</h4>
+                    <small class="opacity-5 text-uppercase fw-bold" style="font-size: 10px;">Questões</small>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container pb--100">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h3 class="mb--30">Revisão Detalhada</h3>
+                
+                {% for resposta in respostas %}
+                <div class="review-card">
+                    <div class="review-status {% if resposta.correta %}status-correct{% else %}status-wrong{% endif %}">
+                        {% if resposta.correta %}
+                            <i class="fas fa-check"></i> Correto
+                        {% else %}
+                            <i class="fas fa-times"></i> Incorreto
+                        {% endif %}
+                    </div>
+                    
+                    <div class="review-question">{{ resposta.questao.texto }}</div>
+                    
+                    <div class="options-review">
+                        {% for alt in resposta.questao.alternativas.all %}
+                            <div class="review-option 
+                                {% if alt.is_correta %}option-correct{% endif %}
+                                {% if alt == resposta.alternativa_escolhida and not alt.is_correta %}option-wrong{% endif %}
+                                {% if alt == resposta.alternativa_escolhida and alt.is_correta %}option-correct{% endif %}
+                                {% if alt != resposta.alternativa_escolhida and not alt.is_correta %}option-selected opacity-5{% endif %}
+                            ">
+                                <i class="fas {% if alt.is_correta %}fa-check-circle{% elif alt == resposta.alternativa_escolhida %}fa-times-circle{% else %}fa-circle{% endif %}"></i>
+                                <span>{{ alt.texto }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    {% if resposta.questao.explicacao %}
+                    <div class="explanation-box">
+                        <strong>Dica da IA:</strong> {{ resposta.questao.explicacao }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+
+    <div class="action-bar">
+        <div class="container text-center">
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{% url 'cursovideoapp:detalhes_exercicio' aula_id=resultado.exercicio.aula.id %}" class="btn-action btn-secondary-action">
+                    <i class="fas fa-redo"></i> Refazer Teste
+                </a>
+                
+                {% if proxima_aula %}
+                <a href="{% url 'cursovideoapp:ver_aula' curso_slug=resultado.exercicio.aula.curso.slug pk=proxima_aula.pk %}" class="btn-action btn-primary-action">
+                    Próxima Aula <i class="fas fa-arrow-right"></i>
+                </a>
+                {% else %}
+                <a href="{% url 'cursovideoapp:detalhe_curso' slug=resultado.exercicio.aula.curso.slug %}" class="btn-action btn-primary-action">
+                    Concluir Curso <i class="fas fa-trophy"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% include 'include/java.html' %}
+</body>
+
+</html>

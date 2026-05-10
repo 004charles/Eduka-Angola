@@ -107,6 +107,17 @@ class MaterialAulaForm(forms.ModelForm):
             'arquivo': forms.FileInput(attrs={'class': 'form-control'}),
         }
 
+from cursovideoapp.models import MaterialCurso
+
+class MaterialCursoForm(forms.ModelForm):
+    class Meta:
+        model = MaterialCurso
+        fields = ['titulo', 'arquivo']
+        widgets = {
+            'titulo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: Apostila Completa, Guia do Curso'}),
+            'arquivo': forms.FileInput(attrs={'class': 'form-control'}),
+        }
+
 from cursovideoapp.models import AvisoCurso
 
 class AvisoCursoForm(forms.ModelForm):

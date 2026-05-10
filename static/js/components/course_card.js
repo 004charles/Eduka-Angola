@@ -1,4 +1,9 @@
-(function() {
+if (window.CourseCardInitialized) {
+    console.warn('CourseCard already initialized');
+} else {
+    window.CourseCardInitialized = true;
+    (function() {
+
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -45,10 +50,12 @@
             body = JSON.stringify({ 'curso_id': cursoId });
         } else {
             url = `/cursos/favorito/${cursoId}/`;
-            body = null; // No body needed for regular courses
+            body = JSON.stringify({ 'curso_id': cursoId }); // Enviar corpo mesmo para cursos do centro para consistência
         }
 
-        const csrfToken = getCookie('csrftoken') || (document.querySelector('[name=csrfmiddlewaretoken]') ? document.querySelector('[name=csrfmiddlewaretoken]').value : '');
+        const csrfToken = getCookie('csrftoken') || 
+                          (document.querySelector('[name=csrfmiddlewaretoken]') ? document.querySelector('[name=csrfmiddlewaretoken]').value : '') ||
+                          window.csrftoken;
 
         if (!csrfToken) {
             console.error('CSRF Token not found');
@@ -91,4 +98,5 @@
             updateAllSyncIcons(cursoId, modelName, isCurrentlyFavorited);
         });
     }, true);
-})();
+    })();
+}

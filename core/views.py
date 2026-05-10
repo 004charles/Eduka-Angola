@@ -20,7 +20,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
-from .models import Galeria, SobreNos, MensagemContato
+from .models import Galeria, SobreNos, MensagemContato, Publicidade
 from inteligencia.utils import recomendar_cursos
 from avaliacoes.utils import get_centro_da_semana
 from cursos_app.utils_secoes import get_home_sections_data
@@ -142,6 +142,7 @@ def index(request):
         'centro_semana': centro_semana,
         'cursos_recomendados': cursos_recomendados,
         'depoimentos': depoimentos,
+        'publicidades': Publicidade.objects.filter(ativo=True),
     }
 
     # Se houver aluno logado

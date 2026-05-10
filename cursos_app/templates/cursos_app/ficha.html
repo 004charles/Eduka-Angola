@@ -1,273 +1,303 @@
+{% load static %}
+{% load i18n %}
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-br">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ curso.titulo }} | Detalhes do Curso</title>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Inscrição | EdukAngola</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
     {% include 'include/css.html' %}
+    
+    <!-- Metadados de Partilha (Open Graph) -->
+    <meta property="og:title" content="Inscrição: {{ curso.titulo }} | {{ curso.centro.nome }}">
+    <meta property="og:description" content="Garanta sua vaga no curso de {{ curso.titulo }} no centro {{ curso.centro.nome }}. Inscreva-se agora pela EdukAngola.">
+    {% if curso.imagem %}
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ curso.imagem.url }}">
+    {% endif %}
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta name="twitter:card" content="summary_large_image">
     <style>
         :root {
-            --color-primary: #4361ee;
-            --color-secondary: #7209b7;
-            --color-accent: #f72585;
-            --color-light: #f8f9fa;
-            --color-dark: #212529;
-            --color-gray: #6c757d;
-            --color-bg: #ffffff;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --checkout-bg: #f4f7fe;
+            --premium-gradient: linear-gradient(135deg, #6e42e5 0%, #4e27cc 100%);
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --glass-border: rgba(255, 255, 255, 0.3);
         }
 
         body {
-            background-color: var(--color-light);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            color: var(--color-dark);
-            line-height: 1.6;
+            background-color: var(--checkout-bg);
+            font-family: 'Inter', sans-serif;
         }
 
-        .container {
-            max-width: 1140px;
-        }
-
-        /* Card Styles */
-        .card {
-            border: none;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
+        .premium-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
             overflow: hidden;
-            transition: var(--transition);
-            background: var(--color-bg);
+            height: 100%;
         }
 
-        .card:hover {
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-img-top {
-            height: 240px;
-            object-fit: cover;
+        .course-hero-img {
             width: 100%;
+            height: 250px;
+            object-fit: cover;
         }
 
-        .card-body {
-            padding: 2rem;
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            padding: 30px;
         }
 
-        /* Typography */
-        .card-title {
-            color: var(--color-primary);
-            font-weight: 700;
-            font-size: 1.75rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .section-title {
-            font-weight: 600;
-            font-size: 1.5rem;
-            color: var(--color-primary);
-            margin-bottom: 1.5rem;
-            position: relative;
-        }
-
-        .section-title:after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 0;
-            width: 40px;
-            height: 3px;
-            background: var(--color-secondary);
-        }
-
-        /* Info Items */
-        .info-item {
+        .info-pill {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 16px;
             display: flex;
-            margin-bottom: 1rem;
-            align-items: flex-start;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #edf2f7;
         }
 
-        .icon-info {
-            color: var(--color-secondary);
-            margin-right: 12px;
-            font-size: 1.1rem;
-            min-width: 20px;
+        .info-pill i {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(110, 66, 229, 0.1);
+            color: #6e42e5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
         }
 
-        .info-text {
-            flex: 1;
+        .sidebar-premium {
+            background: var(--premium-gradient);
+            color: white;
+            border-radius: 24px;
+            padding: 40px;
+            position: sticky;
+            top: 100px;
         }
 
-        .info-text strong {
-            color: var(--color-dark);
-            font-weight: 600;
+        .sidebar-premium .title {
+            color: white;
+            font-weight: 800;
+            margin-bottom: 25px;
+            font-size: 24px;
         }
 
-        /* Price Highlight */
-        .price-highlight {
-            color: var(--color-accent);
-            font-weight: 700;
-            font-size: 1.4rem;
+        .user-info-box {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
         }
 
-        /* Buttons */
-        .btn-primary {
-            background-color: var(--color-primary);
+        .user-info-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .user-info-item:last-child { margin-bottom: 0; }
+
+        .btn-confirm {
+            background: white;
+            color: #6e42e5;
             border: none;
-            border-radius: var(--border-radius);
-            padding: 12px 24px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            transition: var(--transition);
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            font-weight: 700;
+            font-size: 16px;
+            transition: 0.3s;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
 
-        .btn-primary:hover {
-            background-color: var(--color-secondary);
-            transform: translateY(-2px);
+        .btn-confirm:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            background: #f8fafc;
         }
 
-        .alert-warning {
-            background-color: rgba(247, 37, 133, 0.1);
-            border-left: 4px solid var(--color-accent);
-            color: var(--color-dark);
-            padding: 1rem;
-            border-radius: var(--border-radius);
-            margin-bottom: 1.5rem;
+        .price-tag {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: block;
         }
 
-        .confirmation-message {
-            background-color: rgba(67, 97, 238, 0.1);
-            border-left: 4px solid var(--color-primary);
-            color: var(--color-dark);
-            padding: 1rem;
-            border-radius: var(--border-radius);
-            margin-bottom: 1.5rem;
-            font-size: 0.95rem;
+        .step-dots {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 30px;
         }
 
-        /* Layout */
-        .course-container {
-            margin-top: 3rem;
-            margin-bottom: 3rem;
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
         }
 
-        .student-actions {
-            margin-top: 1.5rem;
-        }
-
-        @media (max-width: 768px) {
-            .card-img-top {
-                height: 200px;
-            }
-
-            .card-body {
-                padding: 1.5rem;
-            }
+        .dot.active {
+            background: white;
+            width: 24px;
+            border-radius: 10px;
         }
     </style>
 </head>
 
-<body>
+<body class="rbt-header-sticky">
+
     {% include 'include/header.html' %}
 
-    <div class="container course-container">
-        <div class="row">
-            <!-- Course Details Column -->
-            <div class="col-lg-7 mb-4">
-                <div class="card h-100">
+    <div class="container mt--60 mb--80">
+        <div class="row g-5">
+            <!-- Detalhes do Curso -->
+            <div class="col-lg-7">
+                <div class="premium-card">
                     {% if curso.imagem %}
-                    <img src="{{ curso.imagem.url }}" class="card-img-top" alt="{{ curso.titulo }}">
+                    <img src="{{ curso.imagem.url }}" class="course-hero-img" alt="{{ curso.titulo }}">
+                    {% else %}
+                    <img src="{% static 'assets/images/course/default-course.jpg' %}" class="course-hero-img" alt="{{ curso.titulo }}">
                     {% endif %}
-                    <div class="card-body">
-                        <h1 class="card-title" style="color: black;">Curso de: {{ curso.titulo }}</h1>
-
-                        <div class="info-item">
-                            <i class="feather-home icon-info"></i>
-                            <div class="info-text" style="color: black;"><strong>Centro:</strong> {{ curso.centro.nome
-                                }}</div>
+                    
+                    <div class="p-5">
+                        <h2 class="fw-bold mb-4" style="color: #1e293b;">{{ curso.titulo }}</h2>
+                        
+                        <div class="info-grid">
+                            <div class="info-pill">
+                                <i class="feather-home"></i>
+                                <div>
+                                    <span class="d-block small text-muted">Instituição</span>
+                                    <strong class="text-dark">{{ curso.centro.nome }}</strong>
+                                </div>
+                            </div>
+                            <div class="info-pill">
+                                <i class="feather-award"></i>
+                                <div>
+                                    <span class="d-block small text-muted">Nível</span>
+                                    <strong class="text-dark">{{ curso.get_nivel_display }}</strong>
+                                </div>
+                            </div>
+                            <div class="info-pill">
+                                <i class="feather-globe"></i>
+                                <div>
+                                    <span class="d-block small text-muted">Idioma</span>
+                                    <strong class="text-dark">{{ curso.get_idioma_display }}</strong>
+                                </div>
+                            </div>
+                            <div class="info-pill">
+                                <i class="feather-clock"></i>
+                                <div>
+                                    <span class="d-block small text-muted">Carga Horária</span>
+                                    <strong class="text-dark">{{ curso.carga_horaria }} Horas</strong>
+                                </div>
+                            </div>
+                            <div class="info-pill">
+                                <i class="feather-calendar"></i>
+                                <div>
+                                    <span class="d-block small text-muted">Modalidade</span>
+                                    <strong class="text-dark">{{ curso.get_modalidade_display }}</strong>
+                                </div>
+                            </div>
+                            <div class="info-pill">
+                                <i class="feather-sun"></i>
+                                <div>
+                                    <span class="d-block small text-muted">Turno</span>
+                                    <strong class="text-dark">{{ curso.get_turno_display|default:"Diurno" }}</strong>
+                                </div>
+                            </div>
                         </div>
 
-
-                        <div class="info-item">
-                            <i class="feather-award icon-info"></i>
-                            <div class="info-text" style="color: black;"><strong>Nível:</strong> {{
-                                curso.get_nivel_display }}</div>
+                        <!-- Botões de Partilha Social -->
+                        <div class="mt-4 px-4 py-3 rounded-4" style="background: #f1f5f9; border: 1px solid #e2e8f0;">
+                            <span class="small text-muted d-block mb-3 fw-bold">PARTILHAR COM AMIGOS:</span>
+                            <div class="d-flex gap-3">
+                                <a href="https://api.whatsapp.com/send?text=Olha este curso presencial no {{ curso.centro.nome }}: {{ curso.titulo }}. Inscreve-te aqui: {{ request.build_absolute_uri }}" target="_blank" class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" title="WhatsApp">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                                <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" target="_blank" class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" title="LinkedIn">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                                <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" title="Facebook">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <button onclick="copyToClipboard(event)" class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" title="Copiar Link">
+                                    <i class="fas fa-link"></i>
+                                </button>
+                            </div>
                         </div>
 
-                        <div class="info-item">
-                            <i class="feather-globe icon-info"></i>
-                            <div class="info-text" style="color: black;"><strong>Idioma:</strong> {{
-                                curso.get_idioma_display }}</div>
-                        </div>
-
-                        <div class="info-item">
-                            <i class="feather-clock icon-info"></i>
-                            <div class="info-text" style="color: black;"><strong>Carga Horária:</strong> {{
-                                curso.carga_horaria }} horas</div>
-                        </div>
-
-                        <div class="info-item">
-                            <i class="feather-tag icon-info"></i>
-                            <div class="info-text" style="color: black;"><strong>Investimento:</strong> <span
-                                    class="price-highlight">{{ curso.preco }} AKZ</span></div>
-                        </div>
-
-                        <div class="info-item">
-                            <i class="feather-sun icon-info"></i>
-                            <div class="info-text" style="color: black;"><strong>Turno:</strong> {{
-                                curso.get_turno_display }}</div>
+                        <div class="mt-4 p-4 rounded-4" style="background: #fff9f0; border: 1px solid #ffe8cc;">
+                            <p class="small text-dark mb-0">
+                                <i class="feather-info text-warning me-2"></i>
+                                Ao clicar em confirmar, você garante a reserva da sua vaga nesta turma. Certifique-se de que os seus dados de perfil estão atualizados.
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Student Info Column -->
-            <div class="col-lg-5 mb-4">
-                <div class="card h-100">
-                    <div class="card-body d-flex flex-column">
-                        <h2 class="section-title">Sua Inscrição</h2>
-
-                        {% if aluno %}
-                        <div class="mb-3">
-                            <div class="info-item">
-                                <i class="feather-user icon-info"></i>
-                                <div class="info-text" style="color: black;"><strong>Nome:</strong> {{ aluno.nome }}
-                                </div>
+            <!-- Coluna de Inscrição -->
+            <div class="col-lg-5">
+                <div class="sidebar-premium">
+                    <div class="step-dots">
+                        <div class="dot active"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                    
+                    <h3 class="title">Confirmar sua Inscrição</h3>
+                    
+                    <span class="price-tag">{{ curso.preco }} Kz</span>
+                    
+                    <div class="user-info-box">
+                        <div class="user-info-item">
+                            <i class="feather-user opacity-50"></i>
+                            <div>
+                                <span class="d-block extra-small opacity-70">NOME COMPLETO</span>
+                                <span class="fw-bold">{{ aluno.nome|default:request.user.nome }}</span>
                             </div>
-
-                            <div class="info-item">
-                                <i class="feather-mail icon-info"></i>
-                                <div class="info-text" style="color: black;"><strong>E-mail:</strong> {{ aluno.email }}
-                                </div>
+                        </div>
+                        <div class="user-info-item">
+                            <i class="feather-mail opacity-50"></i>
+                            <div>
+                                <span class="d-block extra-small opacity-70">E-MAIL</span>
+                                <span class="fw-bold">{{ aluno.email|default:request.user.email }}</span>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="confirmation-message">
-                            <i class="feather-info icon-info"></i>
-                            Por favor, verifique seus dados antes de confirmar a inscrição. Você receberá um e-mail de
-                            confirmação.
-                        </div>
-
-                        <div class="student-actions mt-auto">
-                            <form action="{% url 'inscrever_curso' curso.id %}" method="post">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-primary w-100 py-3">
-                                    Confirmar Inscrição
-                                </button>
-                            </form>
-                        </div>
-                        {% else %}
-                        <div class="alert-warning">
-                            <i class="feather-alert-circle icon-info"></i>
-                            Para se inscrever, faça login na sua conta.
-                        </div>
-                        <div class="student-actions mt-auto">
-                            <a href="/auth/login_aluno/" class="btn btn-primary w-100 py-3">
-                                Acessar Minha Conta
-                            </a>
-                        </div>
-                        {% endif %}
+                    {% if user.is_authenticated %}
+                    <form action="{% url 'inscrever_curso' curso.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-confirm">
+                            Finalizar Inscrição <i class="feather-arrow-right ms-2"></i>
+                        </button>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-light bg-transparent border-white-50 text-white small mb-4">
+                        <i class="feather-alert-circle me-2"></i> Para continuar, é necessário aceder à sua conta de aluno.
+                    </div>
+                    <a href="/auth/login_aluno/" class="btn-confirm text-center d-block text-decoration-none">
+                        Aceder à Minha Conta
+                    </a>
+                    {% endif %}
+                    
+                    <div class="mt-5 text-center">
+                        <p class="extra-small opacity-60">
+                            <i class="feather-lock me-1"></i> Ambiente de inscrição 100% encriptado e seguro pela EdukAngola.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -276,6 +306,23 @@
 
     {% include 'include/footer.html' %}
     {% include 'include/java.html' %}
+    <script>
+        function copyToClipboard(e) {
+            e.preventDefault();
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => {
+                const btn = e.currentTarget;
+                const originalIcon = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                btn.classList.replace('btn-outline-secondary', 'btn-success');
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalIcon;
+                    btn.classList.replace('btn-success', 'btn-outline-secondary');
+                }, 2000);
+            });
+        }
+    </script>
 </body>
 
 </html>

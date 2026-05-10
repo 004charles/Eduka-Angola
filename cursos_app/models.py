@@ -181,8 +181,8 @@ class Curso(models.Model):
     
     preco = models.DecimalField(
         _('Preço do Curso'),
-        max_digits=10,
-        decimal_places=2,
+        max_digits=12,
+        decimal_places=3,
         validators=[MinValueValidator(0)],
         default=0
     )

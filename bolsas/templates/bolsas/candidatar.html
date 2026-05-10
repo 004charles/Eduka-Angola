@@ -1,0 +1,123 @@
+{% load static %}
+{% load crispy_forms_tags %}
+<!DOCTYPE html>
+<html lang="pt-ao">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Candidatura à Bolsa | EdukAngola</title>
+    <meta name="robots" content="noindex, follow">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    {% include 'include/css.html' %}
+    <style>
+        .candidatura-container {
+            background: #f8faff;
+            min-height: 100vh;
+            padding: 80px 0;
+        }
+        body.active-dark-mode .candidatura-container {
+            background: #0f172a;
+        }
+        .form-card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.05);
+            padding: 50px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        body.active-dark-mode .form-card {
+            background: #1e293b;
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+        body.active-dark-mode .title,
+        body.active-dark-mode .description,
+        body.active-dark-mode .help-text,
+        body.active-dark-mode label {
+            color: #e2e8f0 !important;
+        }
+        .form-header {
+            border-bottom: 2px solid #f1f1f1;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+        }
+        body.active-dark-mode .form-header {
+            border-bottom-color: #334155;
+        }
+        .rbt-radius {
+            border-radius: 10px !important;
+        }
+        .help-text {
+            font-size: 13px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body class="rbt-header-sticky">
+
+    {% include 'include/header.html' %}
+
+    <div class="candidatura-container">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 offset-lg-2">
+                    <div class="form-card">
+                        <div class="form-header text-center">
+                            <span class="rbt-badge-6 bg-primary-opacity mb--15">Fundo de Bolsas</span>
+                            <h2 class="title">Formulário de Candidatura</h2>
+                            <p class="description">Preencha os dados abaixo com sinceridade. Sua história é o que mais importa para nós.</p>
+                        </div>
+
+                        <form method="POST" enctype="multipart/form-data" class="rbt-profile-row rbt-default-form">
+                            {% csrf_token %}
+                            
+                            <div class="row g-5">
+                                <div class="col-12">
+                                    {{ form.curso_pretendido|as_crispy_field }}
+                                    <p class="help-text">Selecione o curso para o qual deseja solicitar o subsídio.</p>
+                                </div>
+
+                                <div class="col-12">
+                                    {{ form.justificativa|as_crispy_field }}
+                                    <p class="help-text">Conte-nos por que esta bolsa mudaria sua trajetória profissional.</p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    {{ form.renda_familiar|as_crispy_field }}
+                                    <p class="help-text">Valor total mensal da sua residência (em Kwanzas).</p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    {{ form.documento_comprovativo|as_crispy_field }}
+                                    <p class="help-text">Atestado de pobreza ou declaração de rendimentos (PDF/JPG).</p>
+                                </div>
+
+                                <div class="col-12 mt--40">
+                                    <div class="rbt-button-group justify-content-center">
+                                        <button type="submit" class="rbt-btn btn-gradient hover-icon-reverse w-100">
+                                            <span class="icon-reverse-wrapper">
+                                                <span class="btn-text">Submeter Candidatura</span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            </span>
+                                        </button>
+                                        <a href="{% url 'index' %}" class="rbt-btn btn-border btn-sm w-100 text-center">Voltar</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'include/footer.html' %}
+    {% include 'include/java.html' %}
+</body>
+
+</html>

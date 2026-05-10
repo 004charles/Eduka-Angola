@@ -1,0 +1,166 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="utf-8">
+    <title>{% trans 'Perfil da Escola - Edukangola' %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% include 'include/css.html' %}
+</head>
+<body class="rbt-header-sticky">
+    {% include 'include/header.html' %}
+    {% include 'include/menu_mobile.html' %}
+<main class="rbt-main-wrapper">
+    <!-- Banner da Escola -->
+    <div class="rbt-course-banner-area rbt-page-banner-wrapper bg-color-white" style="padding: 120px 0;">
+        {% if escola.perfil and escola.perfil.banner %}
+        <div class="rbt-banner-image" style="background-image: url('{{ escola.perfil.banner.url }}'); opacity: 0.15;"></div>
+        {% endif %}
+        <div class="rbt-banner-content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        {% if escola.perfil and escola.perfil.logo %}
+                        <div class="mb-4">
+                            <div style="display: inline-block; padding: 6px; background: var(--color-white); border-radius: 50%; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+                                <img src="{{ escola.perfil.logo.url }}" alt="Logo" style="width: 140px; height: 140px; border-radius: 50%; border: 4px solid var(--color-border); object-fit: cover; background: var(--color-white);">
+                            </div>
+                        </div>
+                        {% endif %}
+                        <h1 class="title fw-bold mb--20" style="font-size: 52px; letter-spacing: -1px; color: var(--color-heading);">{{ escola.nome }}</h1>
+                        <ul class="rbt-meta justify-content-center" style="font-size: 18px; color: var(--color-body);">
+                            <li><i class="feather-map-pin"></i> <span>{{ escola.municipio }}, {{ escola.provincia }}</span></li>
+                            <li><i class="feather-flag"></i> <span>{{ escola.get_tipo_rede_display }}</span></li>
+                            {% if escola.telefone %}<li><i class="feather-phone"></i> <span>{{ escola.telefone }}</span></li>{% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo do Perfil -->
+    <div class="rbt-course-details-area rbt-section-gap">
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-lg-8">
+                    <!-- Descrição -->
+                    <div class="course-details-content">
+                        <div class="rbt-course-feature-inner mb--60">
+                            <div class="section-title">
+                                <h4 class="title">Sobre a Escola</h4>
+                            </div>
+                            <p>{{ escola.perfil.descricao|default:"Sem descrição disponível." }}</p>
+                            
+                            {% if escola.perfil.missao %}
+                            <h5 class="mt-4">Missão</h5>
+                            <p>{{ escola.perfil.missao }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Cursos -->
+                        <div class="rbt-course-feature-inner mb--60">
+                            <div class="section-title">
+                                <h4 class="title">Cursos Ministrados</h4>
+                            </div>
+                            <div class="row g-4">
+                                {% for curso in escola.cursos.all %}
+                                <div class="col-md-6">
+                                    <div class="rbt-card variation-01 rbt-hover">
+                                        <div class="rbt-card-body p-4">
+                                            {% if curso.area_formacao %}
+                                            <span class="rbt-badge-6 mb-2 d-inline-block">{{ curso.area_formacao.nome }}</span>
+                                            {% endif %}
+                                            <h5 class="title">{{ curso.nome }}</h5>
+                                            <p class="text-muted mb-2">{{ curso.descricao|truncatewords:15 }}</p>
+                                            <ul class="rbt-meta mb-0">
+                                                <li><i class="feather-clock"></i> {{ curso.duracao_anos }} Anos</li>
+                                                {% if curso.periodos %}<li><i class="feather-sun"></i> {{ curso.periodos }}</li>{% endif %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="col-12">
+                                    <p>Nenhum curso registado.</p>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Galeria -->
+                        {% if escola.galeria.exists %}
+                        <div class="rbt-course-feature-inner">
+                            <div class="section-title">
+                                <h4 class="title">Galeria de Imagens</h4>
+                            </div>
+                            <div class="row g-3">
+                                {% for imagem in escola.galeria.all %}
+                                <div class="col-md-4 col-sm-6">
+                                    <img src="{{ imagem.imagem.url }}" alt="{{ imagem.legenda }}" class="rounded shadow-sm" style="width: 100%; height: 150px; object-fit: cover;">
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Sidebar Informativa -->
+                <div class="col-lg-4">
+                    <div class="course-sidebar sticky-top rbt-shadow-box">
+                        <div class="inner">
+                            <div class="content-item-content">
+                                <div class="rbt-price-wrapper d-flex flex-wrap align-items-center justify-content-between">
+                                    <div class="rbt-price">
+                                        {% if escola.mensalidade_base > 0 %}
+                                            <span class="current-price">{{ escola.mensalidade_base }} Kz/mês</span>
+                                        {% else %}
+                                            <span class="current-price text-success">Gratuito (Ensino Público)</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="rbt-widget-details mt--20">
+                                    <ul class="rbt-course-details-list-wrapper">
+                                        {% if escola.endereco %}
+                                        <li><span>Endereço</span><span class="rbt-feature-value rbt-badge-5">{{ escola.endereco }}</span></li>
+                                        {% endif %}
+                                        {% if escola.telefone %}
+                                        <li><span>Telefone</span><span class="rbt-feature-value rbt-badge-5">{{ escola.telefone }}</span></li>
+                                        {% endif %}
+                                        {% if escola.email %}
+                                        <li><span>E-mail</span><span class="rbt-feature-value rbt-badge-5">{{ escola.email }}</span></li>
+                                        {% endif %}
+                                        {% if escola.perfil.ano_fundacao %}
+                                        <li><span>Fundação</span><span class="rbt-feature-value rbt-badge-5">{{ escola.perfil.ano_fundacao }}</span></li>
+                                        {% endif %}
+                                        {% if escola.perfil.diretor %}
+                                        <li><span>Diretor(a)</span><span class="rbt-feature-value rbt-badge-5">{{ escola.perfil.diretor }}</span></li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+
+                                {% if escola.perfil.facebook or escola.perfil.instagram or escola.perfil.linkedin or escola.site %}
+                                <div class="social-share-wrapper mt--30 text-center">
+                                    <ul class="social-icon social-default transparent-with-border">
+                                        {% if escola.perfil.facebook %}<li><a href="{{ escola.perfil.facebook }}"><i class="feather-facebook"></i></a></li>{% endif %}
+                                        {% if escola.perfil.instagram %}<li><a href="{{ escola.perfil.instagram }}"><i class="feather-instagram"></i></a></li>{% endif %}
+                                        {% if escola.perfil.linkedin %}<li><a href="{{ escola.perfil.linkedin }}"><i class="feather-linkedin"></i></a></li>{% endif %}
+                                        {% if escola.site %}<li><a href="{{ escola.site }}"><i class="feather-globe"></i></a></li>{% endif %}
+                                    </ul>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+    {% include 'include/footer.html' %}
+    {% include 'include/java.html' %}
+</body>
+</html>

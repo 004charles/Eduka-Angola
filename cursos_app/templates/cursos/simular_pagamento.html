@@ -1,4 +1,6 @@
 {% load static %}
+{% load i18n %}
+{% load curso_filters %}
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -10,102 +12,195 @@
 
     {% include 'include/css.html' %}
     <style>
-        .payment-card {
-            border-radius: 20px;
+        :root {
+            --payment-bg: #f4f7fe;
+            --brand-primary: #6e42e5;
+            --brand-secondary: #4e27cc;
+        }
+
+        body {
+            background-color: var(--payment-bg);
+        }
+
+        .payment-gateway-card {
+            background: #fff;
+            border-radius: 30px;
             overflow: hidden;
-            border: 1px solid var(--color-border);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.02);
         }
 
-        .payment-header {
-            background: linear-gradient(135deg, var(--color-primary), #8e70ff);
-            color: white;
+        .gateway-header {
+            background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
             padding: 40px;
             text-align: center;
+            color: #fff;
+            position: relative;
         }
 
-        .payment-body {
-            padding: 40px;
+        .gateway-header::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 20px solid var(--brand-secondary);
         }
 
-        .amount-display {
-            font-size: 36px;
+        .gateway-body {
+            padding: 50px 40px;
+        }
+
+        .amount-hero {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .amount-hero .label {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #718096;
+            font-weight: 700;
+        }
+
+        .amount-hero .value {
+            font-size: 48px;
             font-weight: 800;
-            color: var(--color-primary);
-            text-align: center;
-            margin: 20px 0;
-            letter-spacing: -1px;
+            color: var(--brand-primary);
+            margin-top: 5px;
         }
 
-        .info-list {
-            list-style: none;
-            padding: 0;
-            margin: 30px 0;
+        .payment-method-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(var(--color-primary-rgb), 0.08);
+            color: var(--brand-primary);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 30px;
         }
 
-        .info-list li {
+        .reference-box {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .ref-item {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             padding: 12px 0;
-            border-bottom: 1px dashed var(--color-border);
-            font-size: 15px;
+            border-bottom: 1px solid #edf2f7;
         }
 
-        .info-list li:last-child {
+        .ref-item:last-child {
             border-bottom: none;
         }
 
-        .express-mock {
-            background: rgba(var(--color-primary-rgb), 0.05);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            border: 2px solid var(--color-primary);
-            margin-bottom: 30px;
+        .ref-label {
+            font-size: 13px;
+            color: #718096;
+            font-weight: 600;
+        }
+
+        .ref-value {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 700;
+            font-size: 16px;
+            color: #2d3748;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            color: var(--brand-primary);
+            cursor: pointer;
+            padding: 5px;
+            transition: 0.2s;
+        }
+
+        .copy-btn:hover {
+            transform: scale(1.1);
         }
 
         .step-indicator {
             display: flex;
             justify-content: center;
-            gap: 50px;
+            gap: 40px;
             margin-bottom: 50px;
         }
 
-        .step {
+        .step-pill {
             display: flex;
-            flex-direction: column;
             align-items: center;
             gap: 10px;
-            opacity: 0.5;
+            opacity: 0.4;
         }
 
-        .step.active {
+        .step-pill.active {
             opacity: 1;
         }
 
-        .step-number {
-            width: 40px;
-            height: 40px;
+        .step-dot {
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            background: #6f4ef6;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
+            background: var(--brand-primary);
         }
 
         .step-text {
+            font-weight: 700;
             font-size: 14px;
-            font-weight: 600;
+            color: #2d3748;
         }
 
-        .timer-badge {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 5px 15px;
-            border-radius: 20px;
+        .timer-container {
             font-size: 13px;
-            margin-top: 10px;
+            color: rgba(255,255,255,0.8);
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .express-input-group {
+            background: #fff;
+            border: 2px solid var(--brand-primary);
+            border-radius: 16px;
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .express-input-group input {
+            border: none;
+            background: transparent;
+            font-size: 20px;
+            font-weight: 700;
+            text-align: center;
+            flex-grow: 1;
+            letter-spacing: 4px;
+        }
+
+        .express-input-group input:focus {
+            outline: none;
+        }
+
+        .secure-footer {
+            margin-top: 40px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #edf2f7;
         }
     </style>
 </head>
@@ -115,86 +210,108 @@
     {% include 'include/header.html' %}
     {% include 'include/loading.html' %}
 
-    <main class="rbt-main-wrapper bg-color-extra2 ptb--100">
+    <main class="rbt-main-wrapper ptb--80">
         <div class="container">
-            <!-- Step Indicator -->
+            
             <div class="step-indicator">
-                <div class="step">
-                    <div class="step-number" style="background: #27ae60;"><i class="feather-check"></i></div>
-                    <span class="step-text">Confirmação</span>
+                <div class="step-pill">
+                    <div class="step-dot" style="background: #10b981;"></div>
+                    <span class="step-text">Confirmado</span>
                 </div>
-                <div class="step active">
-                    <div class="step-number">2</div>
+                <div class="step-pill active">
+                    <div class="step-dot"></div>
                     <span class="step-text">Pagamento</span>
                 </div>
-                <div class="step">
-                    <div class="step-number" style="background: #ccc;">3</div>
+                <div class="step-pill">
+                    <div class="step-dot" style="background: #e2e8f0;"></div>
                     <span class="step-text">Acesso</span>
                 </div>
             </div>
 
             <div class="row justify-content-center">
-                <div class="col-lg-6">
-                    <div class="payment-card rbt-shadow-box">
-                        <div class="payment-header">
-                            <h3 class="mb-0 text-white">Pagamento Seguro</h3>
-                            <p class="mb-0 text-white-50">Inscrição #{{ inscricao.id }}</p>
-                            <div class="timer-badge">
-                                <i class="feather-clock me-1"></i> Expira em 14:59
+                <div class="col-lg-5 col-md-8">
+                    <div class="payment-gateway-card">
+                        <div class="gateway-header">
+                            <h4 class="text-white fw-bold mb-0">Portal de Pagamento</h4>
+                            <p class="text-white-50 small mb-0">Inscrição #{{ inscricao.id }}</p>
+                            <div class="timer-container">
+                                <i class="feather-clock"></i>
+                                <span>Expira em <strong id="timer">14:59</strong></span>
                             </div>
                         </div>
 
-                        <div class="payment-body">
-                            <div class="text-center mb--30">
-                                <span class="description d-block">Valor a Pagar:</span>
-                                <div class="amount-display">{{ valor_total|default:"0" }} KZ</div>
+                        <div class="gateway-body">
+                            <div class="amount-hero">
+                                <span class="label">Total a Liquidar</span>
+                                <div class="value">{{ valor_total|formata_kz }} Kz</div>
                             </div>
 
-                            <ul class="info-list">
-                                <li>
-                                    <span class="description">Curso:</span>
-                                    <span class="fw-bold">{{ curso.titulo }}</span>
-                                </li>
-                                <li>
-                                    <span class="description">Centro:</span>
-                                    <span class="fw-bold">{{ curso.centro.nome }}</span>
-                                </li>
-                                <li>
-                                    <span class="description">Turma:</span>
-                                    <span class="fw-bold text-primary">{{ inscricao.turma_escolhida.nome|default:"Geral"
-                                        }}</span>
-                                </li>
-                            </ul>
+                            <div class="text-center">
+                                <div class="payment-method-badge">
+                                    <i class="fas fa-shield-alt"></i> Pagamento por Referência / Express
+                                </div>
+                            </div>
 
-                            <div class="express-mock">
-                                <img src="{% static 'assets/images/payment/express-logo.png' %}" alt="Express"
-                                    style="height: 30px; margin-bottom: 15px; filter: grayscale(1) brightness(0.5);">
-                                <h5>Pagamento por Multicaixa Express</h5>
-                                <p class="small description mb--20">Enviamos um código de pagamento de 9 dígitos para o seu e-mail. Introduza-o abaixo para confirmar o pagamento.</p>
+                            <!-- Dados de Referência -->
+                            <div class="reference-box">
+                                <div class="ref-item">
+                                    <span class="ref-label">Entidade</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="ref-value">00431</span>
+                                        <button class="copy-btn" onclick="copyText('00431')"><i class="feather-copy"></i></button>
+                                    </div>
+                                </div>
+                                <div class="ref-item">
+                                    <span class="ref-label">Referência</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="ref-value">{{ inscricao.id|stringformat:"09d" }}</span>
+                                        <button class="copy-btn" onclick="copyText('{{ inscricao.id|stringformat:"09d" }}')"><i class="feather-copy"></i></button>
+                                    </div>
+                                </div>
+                                <div class="ref-item">
+                                    <span class="ref-label">Montante</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="ref-value">{{ valor_total|formata_kz }} Kz</span>
+                                        <button class="copy-btn" onclick="copyText('{{ valor_total|formata_kz }}')"><i class="feather-copy"></i></button>
+                                    </div>
+                                </div>
+                            </div>
 
+                            <div class="text-center mb-5">
+                                <a href="{% url 'gerar_comprovante_inscricao' inscricao.id %}" class="btn btn-outline-primary btn-sm rounded-pill px-4">
+                                    <i class="feather-printer me-2"></i> Baixar Ficha de Inscrição (PDF)
+                                </a>
+                            </div>
+
+                            <!-- Simulação Express -->
+                            <div class="mt-5">
+                                <h6 class="fw-bold mb-3 text-center">Já pagou? Introduza o código de validação</h6>
+                                <p class="small text-muted text-center mb-4">O código de 9 dígitos foi enviado para o seu e-mail e serve para confirmar a transação na plataforma.</p>
+                                
                                 <form action="{% url 'simular_pagamento' inscricao.id %}" method="POST">
                                     {% csrf_token %}
-                                    <div class="rbt-form-group mb--15">
-                                        <input name="codigo_pagamento" type="text" placeholder="Ex: 123456789" required class="form-control text-center" style="letter-spacing: 2px; font-weight: bold; font-size: 18px;">
+                                    <div class="express-input-group mb-4">
+                                        <input name="codigo_pagamento" type="text" placeholder="000000000" maxlength="9" required autofocus>
                                     </div>
-                                    <button type="submit" class="rbt-btn btn-gradient w-100 btn-sm">
-                                        Validar e Pagar
+                                    <button type="submit" class="rbt-btn btn-gradient w-100 py-4" style="border-radius: 16px;">
+                                        Confirmar Pagamento
                                     </button>
                                 </form>
                             </div>
 
-                            <div class="text-center">
-                                <p class="small description">
-                                    <i class="feather-lock me-1"></i> Seus dados estão protegidos por criptografia de
-                                    ponta a ponta.
-                                </p>
+                            <div class="secure-footer">
+                                <div class="d-flex align-items-center justify-content-center gap-2 text-success mb-2">
+                                    <i class="feather-lock"></i>
+                                    <span class="small fw-bold">Ambiente Seguro EdukAngola</span>
+                                </div>
+                                <p class="extra-small text-muted">Ao clicar em confirmar, a sua matrícula será validada e o acesso ao curso será libertado imediatamente.</p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="text-center mt--30">
-                        <a href="{% url 'curso_detalhe' curso.id %}" class="rbt-btn-link">
-                            <i class="feather-arrow-left me-1"></i> Cancelar e voltar ao curso
+                    <div class="text-center mt-5">
+                        <a href="{% url 'curso_detalhe' curso.id %}" class="text-muted small text-decoration-underline">
+                            <i class="feather-x-circle me-1"></i> Cancelar transação e voltar
                         </a>
                     </div>
                 </div>
@@ -203,6 +320,28 @@
     </main>
 
     {% include 'include/footer.html' %}
+
+    <script>
+        // Simulação de Timer
+        let time = 899; // 15 minutos
+        const timerElement = document.getElementById('timer');
+        
+        setInterval(() => {
+            const minutes = Math.floor(time / 60);
+            let seconds = time % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            timerElement.innerHTML = `${minutes}:${seconds}`;
+            if (time > 0) time--;
+        }, 1000);
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Poderias adicionar um toast aqui
+                alert("Copiado: " + text);
+            });
+        }
+    </script>
+
     {% include 'include/java.html' %}
 </body>
 

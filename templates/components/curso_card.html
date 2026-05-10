@@ -70,7 +70,7 @@
             <h4 class="rbt-card-title"><a href="{% url 'cursovideoapp:detalhe_curso' slug=curso.slug %}">{{ curso.titulo }}</a></h4>
             <div class="rbt-card-bottom d-flex justify-content-between align-items-center mb--15">
                 <span class="rbt-badge-5 bg-primary-opacity text-primary font-bold">
-                    {% if curso.is_pago %}{{ curso.preco }} Kz{% else %}Grátis{% endif %}
+                    {% if curso.is_pago %}{{ curso.preco|formata_kz }} Kz{% else %}Grátis{% endif %}
                 </span>
             </div>
         {% else %}
@@ -91,10 +91,10 @@
                 {% if model_name == 'Curso' %}
                 <li class="font-bold text-primary">
                     {% if curso.preco > 0 %}
-                        {% if curso.moeda == 'AOA' %}{{ curso.preco }} Kz
-                        {% elif curso.moeda == 'EUR' %}{{ curso.preco }} €
-                        {% elif curso.moeda == 'USD' %}{{ curso.preco }} $
-                        {% else %}{{ curso.preco }} {{ curso.moeda }}{% endif %}
+                        {% if curso.moeda == 'AOA' %}{{ curso.preco|formata_kz }} Kz
+                        {% elif curso.moeda == 'EUR' %}{{ curso.preco|formata_kz }} €
+                        {% elif curso.moeda == 'USD' %}{{ curso.preco|formata_kz }} $
+                        {% else %}{{ curso.preco|formata_kz }} {{ curso.moeda }}{% endif %}
                     {% else %}
                         Grátis
                     {% endif %}
@@ -126,7 +126,14 @@
                 {% if model_name == 'Curso_video' %}
                     <a class="rbt-btn btn-gradient btn-sm w-100 text-center" href="{% url 'cursovideoapp:detalhe_curso' slug=curso.slug %}">Iniciar Transmissão</a>
                 {% else %}
-                    <a class="rbt-btn btn-gradient btn-sm w-100 text-center" href="{% url 'curso_detalhe' id=curso.id %}">Retomar Aprendizagem</a>
+                    <div class="d-flex flex-column gap-2">
+                        <a class="rbt-btn btn-gradient btn-sm w-100 text-center" href="{% url 'curso_detalhe' id=curso.id %}">Retomar Aprendizagem</a>
+                        {% if inscricao %}
+                            <a href="{% url 'gerar_comprovante_inscricao' inscricao.id %}" class="rbt-btn btn-border btn-sm w-100 text-center">
+                                <i class="feather-download me-2"></i> Baixar Ficha
+                            </a>
+                        {% endif %}
+                    </div>
                 {% endif %}
             {% endif %}
         </div>

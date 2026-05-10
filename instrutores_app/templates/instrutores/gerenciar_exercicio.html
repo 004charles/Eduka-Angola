@@ -1,0 +1,137 @@
+{% extends 'instrutores/base_instrutor.html' %}
+{% load static %}
+
+{% block title %}Gerenciar Exercício | {{ aula.titulo }}{% endblock %}
+
+{% block extra_css %}
+    .question-review-card {
+        background: var(--play-card);
+        border: 1px solid var(--play-border);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 25px;
+        transition: 0.3s;
+    }
+    .question-review-card:hover {
+        border-color: var(--play-primary);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .alt-item {
+        padding: 12px 15px;
+        border-radius: 10px;
+        margin-bottom: 8px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--play-bg);
+        border: 1px solid var(--play-border);
+    }
+    .alt-correct {
+        background: rgba(34, 197, 94, 0.05);
+        border-color: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+    }
+    .explanation-box {
+        margin-top: 20px;
+        padding: 15px;
+        background: rgba(124, 58, 237, 0.05);
+        border-left: 3px solid var(--play-primary);
+        border-radius: 0 10px 10px 0;
+        font-size: 14px;
+    }
+    .form-control-play {
+        background: var(--play-bg);
+        border: 1px solid var(--play-border);
+        color: var(--text-main);
+    }
+    .form-control-play:focus {
+        background: var(--play-bg);
+        border-color: var(--play-primary);
+        color: var(--text-main);
+        box-shadow: none;
+    }
+{% endblock %}
+
+{% block page_header %}
+    <div class="d-flex justify-content-between align-items-end w-100">
+        <div>
+            <a href="{% url 'instrutores_app:detalhe_curso' curso_id=aula.curso.id %}" class="text-muted text-decoration-none small mb-2 d-block">
+                <i class="fas fa-arrow-left me-2"></i> Voltar ao Curso
+            </a>
+            <h2 class="fw-bold mb-0">Revisão de Exercício</h2>
+            <p class="text-muted mb-0">Aula: {{ aula.titulo }}</p>
+        </div>
+        <div>
+            <a href="{% url 'instrutores_app:gerar_exercicio_aula' aula.id %}" class="btn btn-outline-primary rounded-3" onclick="return confirm('Isso apagará as questões atuais e gerará novas. Continuar?')">
+                <i class="fas fa-redo me-2"></i> Gerar Novamente (IA)
+            </a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success bg-success text-white border-0 rounded-4 mb-4 shadow-sm">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-4 d-flex align-items-center justify-content-between">
+                    <h5 class="fw-bold mb-0">Questões Geradas ({{ exercicio.questoes.count }})</h5>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">
+                        <i class="fas fa-save me-2"></i> Salvar Alterações
+                    </button>
+                </div>
+
+                {% for q in exercicio.questoes.all %}
+                <div class="question-review-card">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="badge bg-primary">Questão {{ forloop.counter }}</span>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label small text-muted">Texto da Pergunta</label>
+                        <input type="text" name="q_{{ q.id }}_texto" value="{{ q.texto }}" class="form-control form-control-play rounded-3">
+                    </div>
+                    
+                    <div class="alternatives-review">
+                        <label class="form-label small text-muted">Alternativas (Marque a correta)</label>
+                        {% for alt in q.alternativas.all %}
+                        <div class="alt-item d-flex align-items-center gap-3">
+                            <input type="radio" name="q_{{ q.id }}_correct" value="{{ alt.id }}" {% if alt.is_correta %}checked{% endif %} class="form-check-input mt-0">
+                            <input type="text" name="alt_{{ alt.id }}_texto" value="{{ alt.texto }}" class="form-control form-control-sm bg-transparent border-0 theme-text-color p-0" style="box-shadow: none;">
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="explanation-box mt-4">
+                        <label class="form-label small text-muted">Explicação (Feedback para o aluno)</label>
+                        <textarea name="q_{{ q.id }}_explicacao" class="form-control bg-transparent border-0 theme-text-color p-0" rows="2" style="box-shadow: none;">{{ q.explicacao }}</textarea>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div class="text-center mt-5 mb-5">
+                    <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5">
+                        <i class="fas fa-check-circle me-2"></i> Finalizar e Salvar Exercício
+                    </button>
+                </div>
+            </form>
+            
+            <div class="alert alert-info rounded-4 border-0 bg-primary bg-opacity-10 text-primary p-4 mt-4">
+                <div class="d-flex gap-3">
+                    <i class="fas fa-info-circle fa-2x"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">Dica de Edição</h6>
+                        <p class="mb-0 small opacity-8">Você pode alterar qualquer texto diretamente nos campos acima. Não esqueça de marcar o botão circular ao lado da resposta que deseja definir como correta antes de salvar.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

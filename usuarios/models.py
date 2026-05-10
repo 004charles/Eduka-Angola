@@ -228,6 +228,7 @@ class NotificacaoAluno(models.Model):
         ('EVENTO', 'Novo Evento'),
         ('ANUNCIO', 'Anúncio Institucional'),
         ('CHAT', 'Nova Mensagem'),
+        ('CARREIRA', 'Carreira e Vagas'),
         ('SISTEMA', 'Sistema'),
     ]
 

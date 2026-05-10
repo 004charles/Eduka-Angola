@@ -216,8 +216,9 @@ def remover_aula(request, aula_id):
     return redirect('instrutores_app:detalhe_curso', curso_id=curso_id)
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
-from .forms import CursoVideoForm, AulaForm, InstrutorProfileForm, MaterialAulaForm, AvisoCursoForm
-from cursovideoapp.models import MaterialAula, AvisoCurso, ProgressoAula
+from .forms import CursoVideoForm, AulaForm, InstrutorProfileForm, MaterialAulaForm, AvisoCursoForm, MaterialCursoForm
+from cursovideoapp.models import MaterialAula, AvisoCurso, ProgressoAula, Exercicio, Questao, Alternativa, MaterialCurso
+from inteligencia.ai_utils import gerar_exercicios_ia
 
 def listar_alunos(request):
     if not request.user.is_authenticated or request.user.tipo_usuario != 'INSTRUTOR':
@@ -275,6 +276,26 @@ def enviar_aviso(request):
     
     return redirect('instrutores_app:listar_alunos')
 
+def adicionar_material_curso(request, curso_id):
+    instrutor = get_instrutor(request.user)
+    curso = get_object_or_404(Curso_video, id=curso_id, instrutor=instrutor)
+    if request.method == 'POST':
+        form = MaterialCursoForm(request.POST, request.FILES)
+        if form.is_valid():
+            material = form.save(commit=False)
+            material.curso = curso
+            material.save()
+            messages.success(request, "Material do curso adicionado com sucesso!")
+    return redirect('instrutores_app:detalhe_curso', curso_id=curso.id)
+
+def remover_material_curso(request, material_id):
+    instrutor = get_instrutor(request.user)
+    material = get_object_or_404(MaterialCurso, id=material_id, curso__instrutor=instrutor)
+    curso_id = material.curso.id
+    material.delete()
+    messages.success(request, "Material do curso removido!")
+    return redirect('instrutores_app:detalhe_curso', curso_id=curso_id)
+
 def adicionar_material(request, aula_id):
     aula = get_object_or_404(Aula, id=aula_id, curso__instrutor=get_instrutor(request.user))
     if request.method == 'POST':
@@ -329,3 +350,141 @@ def configuracoes(request):
         'password_form': password_form,
         'instrutor': instrutor
     })
+
+def gerar_exercicio_aula(request, aula_id):
+    if not request.user.is_authenticated or request.user.tipo_usuario != 'INSTRUTOR':
+        return redirect('instrutores_app:login')
+    
+    instrutor = get_instrutor(request.user)
+    aula = get_object_or_404(Aula, id=aula_id, curso__instrutor=instrutor)
+    
+    # Se a descrição estiver vazia, gera uma via IA primeiro
+    if not aula.descricao or len(aula.descricao.strip()) < 10:
+        from inteligencia.ai_utils import gerar_descricao_aula_ia
+        descricao_ia = gerar_descricao_aula_ia(aula.titulo)
+        if descricao_ia:
+            aula.descricao = descricao_ia
+            aula.save()
+
+    # Gerar exercícios com IA
+    resultado = gerar_exercicios_ia(aula.titulo, aula.descricao)
+    
+    # GERAR RESUMO IA TAMBÉM
+    from inteligencia.ai_utils import gerar_resumo_ia
+    resumo = gerar_resumo_ia(aula.titulo, aula.descricao)
+    if not resumo.startswith("Erro:"):
+        aula.resumo_ia = resumo
+        aula.save()
+    
+    if "error" in resultado:
+        messages.error(request, f"Erro ao gerar exercícios: {resultado['error']}")
+    else:
+        # Criar o Exercício
+        exercicio, created = Exercicio.objects.get_or_create(aula=aula)
+        
+        # Remover questões antigas se houver
+        if not created:
+            exercicio.questoes.all().delete()
+            
+        # Criar Novas Questões
+        for q_data in resultado.get('questoes', []):
+            questao = Questao.objects.create(
+                exercicio=exercicio,
+                texto=q_data['texto'],
+                explicacao=q_data.get('explicacao', '')
+            )
+            for a_data in q_data.get('alternativas', []):
+                Alternativa.objects.create(
+                    questao=questao,
+                    texto=a_data['texto'],
+                    is_correta=a_data['correta']
+                )
+        
+        messages.success(request, f"Foram geradas {len(resultado.get('questoes', []))} questões para a aula '{aula.titulo}' com sucesso!")
+    
+    return redirect('instrutores_app:detalhe_curso', curso_id=aula.curso.id)
+
+def gerenciar_exercicio(request, aula_id):
+    if not request.user.is_authenticated or request.user.tipo_usuario != 'INSTRUTOR':
+        return redirect('instrutores_app:login')
+    
+    instrutor = get_instrutor(request.user)
+    aula = get_object_or_404(Aula, id=aula_id, curso__instrutor=instrutor)
+    exercicio = get_object_or_404(Exercicio, aula=aula)
+    
+    if request.method == 'POST':
+        # Lógica de salvamento manual
+        for q in exercicio.questoes.all():
+            q.texto = request.POST.get(f'q_{q.id}_texto')
+            q.explicacao = request.POST.get(f'q_{q.id}_explicacao')
+            q.save()
+            
+            for alt in q.alternativas.all():
+                alt.texto = request.POST.get(f'alt_{alt.id}_texto')
+                # A lógica de qual é correta vem de um radio button por questão
+                alt.is_correta = (request.POST.get(f'q_{q.id}_correct') == str(alt.id))
+                alt.save()
+        
+        messages.success(request, "Exercício atualizado manualmente com sucesso!")
+        return redirect('instrutores_app:gerenciar_exercicio', aula_id=aula.id)
+
+    return render(request, 'instrutores/gerenciar_exercicio.html', {
+        'aula': aula,
+        'exercicio': exercicio
+    })
+
+def gerar_exercicios_curso(request, curso_id):
+    if not request.user.is_authenticated or request.user.tipo_usuario != 'INSTRUTOR':
+        return redirect('instrutores_app:login')
+    
+    instrutor = get_instrutor(request.user)
+    curso = get_object_or_404(Curso_video, id=curso_id, instrutor=instrutor)
+    aulas = Aula.objects.filter(curso=curso)
+    
+    from inteligencia.ai_utils import gerar_exercicios_ia, gerar_resumo_ia, gerar_descricao_aula_ia
+    
+    import time
+    contador = 0
+    for aula in aulas:
+        # Pausa curta para evitar erro 429 de quota
+        time.sleep(2)
+        
+        # 1. Gerar descrição se vazia
+        if not aula.descricao or len(aula.descricao.strip()) < 10:
+            descricao_ia = gerar_descricao_aula_ia(aula.titulo)
+            if descricao_ia:
+                aula.descricao = descricao_ia
+                aula.save()
+        
+        # 2. Gerar exercícios (apenas se ainda não tiver)
+        if not hasattr(aula, 'exercicio'):
+            resultado = gerar_exercicios_ia(aula.titulo, aula.descricao)
+            if "error" not in resultado:
+                exercicio = Exercicio.objects.create(aula=aula)
+                for q_data in resultado.get('questoes', []):
+                    questao = Questao.objects.create(
+                        exercicio=exercicio,
+                        texto=q_data['texto'],
+                        explicacao=q_data.get('explicacao', '')
+                    )
+                    for a_data in q_data.get('alternativas', []):
+                        Alternativa.objects.create(
+                            questao=questao,
+                            texto=a_data['texto'],
+                            is_correta=a_data['correta']
+                        )
+                contador += 1
+
+        # 3. Gerar resumo se vazio
+        if not aula.resumo_ia:
+            resumo = gerar_resumo_ia(aula.titulo, aula.descricao)
+            if resumo and not resumo.startswith("Erro:"):
+                aula.resumo_ia = resumo
+                aula.save()
+
+    if contador > 0:
+        messages.success(request, f"Sucesso! IA processou {contador} aulas novas com exercícios, resumos e descrições.")
+    else:
+        messages.info(request, "Todas as aulas já possuem conteúdo gerado ou foram atualizadas com novos resumos/descrições.")
+        
+    return redirect('instrutores_app:detalhe_curso', curso_id=curso.id)

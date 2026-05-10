@@ -1,0 +1,397 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Eduka Analytics | Inteligência de Mercado Angola</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% include 'include/css.html' %}
+    
+    <!-- Mermaid & Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --analytics-primary: var(--color-primary);
+            --analytics-accent: #10b981;
+        }
+
+        /* Ajustes para modo escuro nativo da plataforma */
+        .active-dark-mode .analytics-page {
+            background-color: #070b14;
+            color: #f3f4f6;
+        }
+
+        .analytics-hero {
+            padding: 120px 0 80px 0;
+            background: radial-gradient(circle at top right, rgba(124, 58, 237, 0.05), transparent 40%);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .badge-ai {
+            background: linear-gradient(135deg, var(--analytics-primary) 0%, #a855f7 100%);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #fff !important;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .premium-card {
+            background: var(--color-white);
+            border: 1px solid var(--color-border);
+            border-radius: 24px;
+            padding: 30px;
+            transition: 0.4s ease;
+            height: 100%;
+        }
+
+        .active-dark-mode .premium-card {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(20px);
+            border-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .premium-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-1);
+        }
+
+        .skill-bar-container {
+            margin-bottom: 20px;
+        }
+
+        .skill-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .skill-progress-bg {
+            height: 10px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .active-dark-mode .skill-progress-bg {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .skill-progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--analytics-primary), var(--analytics-accent));
+            border-radius: 5px;
+            transition: width 1.5s cubic-bezier(0.1, 0, 0.1, 1);
+        }
+
+        .stat-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(124, 58, 237, 0.1);
+            color: var(--analytics-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .mermaid-container {
+            background: rgba(0,0,0,0.02);
+            border-radius: 20px;
+            padding: 40px;
+            margin-top: 40px;
+            border: 1px dashed var(--color-border);
+        }
+        .active-dark-mode .mermaid-container {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .gemini-insight-box {
+            background: var(--color-primary-lighter);
+            border: 1px solid var(--color-primary);
+            border-radius: 24px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        .active-dark-mode .gemini-insight-box {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+        }
+
+        .gemini-insight-box::before {
+            content: '\f0eb';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            font-size: 150px;
+            opacity: 0.03;
+            color: var(--analytics-primary);
+        }
+
+        /* Swiper-like Card style for recommended courses */
+        .rec-course-card {
+            background: rgba(255,255,255,0.02);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            transition: 0.3s;
+        }
+        .rec-course-card:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        .rec-course-img {
+            width: 100%;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+        }
+
+        @media (max-width: 768px) {
+            .analytics-hero h1 { font-size: 32px !important; }
+        }
+    </style>
+</head>
+
+<body class="analytics-page rbt-header-sticky">
+
+    {% include 'include/header.html' %}
+
+    <main class="rbt-main-wrapper">
+        
+        <!-- Hero Section -->
+        <section class="analytics-hero">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <div class="badge-ai">
+                            <i class="fas fa-robot me-2"></i> {% if is_real_ai %}Live AI Analysis{% else %}AI Projection Mode{% endif %}
+                        </div>
+                        <h1 class="display-3 fw-bold mb-3" style="letter-spacing: -2px;">Eduka <span class="text-primary">Analytics</span></h1>
+                        <p class="lead opacity-7 mb-4" style="font-size: 20px;">Inteligência de mercado cruzando a demanda de Angola com a nossa oferta formativa em tempo real.</p>
+                        
+                        <div class="d-flex gap-4 mt-5">
+                            <div>
+                                <h3 class="fw-bold mb-0">{{ total_cursos }}+</h3>
+                                <span class="small opacity-5">Cursos Analisados</span>
+                            </div>
+                            <div class="vr opacity-1"></div>
+                            <div>
+                                <h3 class="fw-bold mb-0">15.4k</h3>
+                                <span class="small opacity-5">Vagas Mapeadas</span>
+                            </div>
+                            <div class="vr opacity-1"></div>
+                            <div>
+                                <h3 class="fw-bold mb-0">94%</h3>
+                                <span class="small opacity-5">Precisão da IA</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Market Gap Section -->
+        <section class="py-5 mt-5">
+            <div class="container">
+                <div class="row g-5">
+                    <!-- Coluna 1: Competências em Falta -->
+                    <div class="col-lg-6">
+                        <div class="premium-card">
+                            <h4 class="fw-bold mb-4"><i class="fas fa-chart-line text-primary me-2"></i> Competências em Falta (Gaps)</h4>
+                            <p class="small opacity-6 mb-5">Análise baseada em anúncios de emprego e tendências do mercado angolano nos últimos 6 meses.</p>
+                            
+                            {% for gap in market_gaps %}
+                            <div class="skill-bar-container">
+                                <div class="skill-info">
+                                    <span>{{ gap.skill }}</span>
+                                    <span class="text-primary">{{ gap.demanda }}% Demanda</span>
+                                </div>
+                                <div class="skill-progress-bg">
+                                    <div class="skill-progress-fill" style="width: 0%" data-width="{{ gap.demanda }}%"></div>
+                                </div>
+                                <div class="mt-2 d-flex justify-content-between">
+                                    <span class="extra-small opacity-4">Oferta: {{ gap.oferta }}%</span>
+                                    <span class="extra-small text-success"><i class="fas fa-arrow-trend-up"></i> Crescente</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Coluna 2: AI Radar -->
+                    <div class="col-lg-6">
+                        <div class="premium-card">
+                            <h4 class="fw-bold mb-4"><i class="fas fa-radar text-accent me-2"></i> Radar de Relevância</h4>
+                            <div style="height: 350px; position: relative;">
+                                <canvas id="radarChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Diagram Section: Como Conectamos -->
+        <section class="py-5">
+            <div class="container">
+                <div class="premium-card">
+                    <div class="text-center mb-5">
+                        <h2 class="fw-bold">Mapeamento de Ecossistema</h2>
+                        <p class="opacity-6">Como a Eduka AI conecta a necessidade ao centro de formação</p>
+                    </div>
+                    <div class="mermaid-container">
+                        <pre class="mermaid text-center">
+                            graph LR
+                                Market[Empresas Angola] -- "Busca Talentos" --> Gap{Analytics}
+                                Gap -- "Identifica Skill" --> IA(Eduka AI)
+                                IA -- "Filtra Currículo" --> Courses[Cursos Eduka]
+                                Courses -- "Apoia" --> Centers[Centros Parceiros]
+                                Centers -- "Certifica" --> Talent[Profissional Qualificado]
+                                Talent -- "Contratado" --> Market
+                                
+                                style IA fill:#7c3aed,color:#fff
+                                style Talent fill:#10b981,color:#fff
+                                style Market fill:#1e293b,color:#fff
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Insights & Recomendações -->
+        <section class="py-5 mb-5">
+            <div class="container">
+                <div class="row g-5">
+                    <div class="col-lg-12">
+                        <div class="gemini-insight-box">
+                            <div class="d-flex align-items-center gap-3 mb-4">
+                                <div class="stat-circle mb-0">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <div>
+                                    <h3 class="fw-bold mb-0">AI Insight: Angola 2026</h3>
+                                    <span class="small opacity-5">Relatório gerado em {{ hoje|date:"d M Y" }}</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <p style="font-size: 18px; line-height: 1.8; opacity: 0.9;">
+                                        "{{ insight_texto }}"
+                                    </p>
+                                    <button class="btn btn-primary mt-4 px-5 py-3 rounded-pill fw-bold">
+                                        Descarregar Relatório Completo (PDF)
+                                    </button>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="p-4 rounded-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
+                                        <h6 class="fw-bold mb-3">Top Centros em Destaque</h6>
+                                        <ul class="list-unstyled mb-0">
+                                            {% for centro in top_centros %}
+                                            <li class="mb-3 d-flex align-items-center gap-2">
+                                                <i class="fas fa-medal text-warning"></i>
+                                                <span>{{ centro }}</span>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-5">
+                    <div class="col-lg-12">
+                        <h4 class="fw-bold mb-4">Cursos Recomendados para suprir Gaps</h4>
+                        <div class="row g-4">
+                            {% for curso in cursos_sugeridos %}
+                            <div class="col-md-3">
+                                <div class="rec-course-card h-100">
+                                    {% if curso.capa %}
+                                    <img src="{{ curso.capa.url }}" class="rec-course-img">
+                                    {% endif %}
+                                    <div class="p-3">
+                                        <h6 class="fw-bold mb-2">{{ curso.titulo }}</h6>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="extra-small text-accent">Skill Critical</span>
+                                            <a href="{% url 'cursovideoapp:detalhe_curso' slug=curso.slug %}" class="btn btn-sm btn-link text-primary p-0">Ver curso</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    {% include 'include/footer.html' %}
+    {% include 'include/java.html' %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar Mermaid
+            mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+
+            // Animar barras de progresso
+            setTimeout(() => {
+                const bars = document.querySelectorAll('.skill-progress-fill');
+                bars.forEach(bar => {
+                    bar.style.width = bar.getAttribute('data-width');
+                });
+            }, 500);
+
+            // Radar Chart
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['TI', 'Gestão', 'Engenharia', 'Marketing', 'Finanças', 'Idiomas'],
+                    datasets: [{
+                        label: 'Procura do Mercado',
+                        data: [95, 70, 85, 60, 75, 80],
+                        fill: true,
+                        backgroundColor: 'rgba(124, 58, 237, 0.2)',
+                        borderColor: '#7c3aed',
+                        pointBackgroundColor: '#7c3aed',
+                    }, {
+                        label: 'Disponibilidade Local',
+                        data: [40, 60, 30, 80, 45, 50],
+                        fill: true,
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        borderColor: '#10b981',
+                        pointBackgroundColor: '#10b981',
+                    }]
+                },
+                options: {
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255,255,255,0.1)' },
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            pointLabels: { color: '#94a3b8', font: { size: 12 } },
+                            ticks: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#fff', font: { family: 'Outfit' } } }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

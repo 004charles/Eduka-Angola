@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ vaga.titulo }} | EdukAngola Skills{% endblock %}
+
+{% block content %}
+<div class="rbt-breadcrumb-default ptb--100 ptb_md--50 ptb_sm--30 bg-gradient-1">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb-inner text-center">
+                    <h2 class="title">{{ vaga.titulo }}</h2>
+                    <ul class="page-list">
+                        <li class="rbt-breadcrumb-item"><a href="{% url 'carreira:job_board' %}">Vagas</a></li>
+                        <li><div class="icon-right"><i class="feather-chevron-right"></i></div></li>
+                        <li class="rbt-breadcrumb-item active">{{ vaga.titulo }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="rbt-section-gap bg-color-white">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Conteúdo da Vaga -->
+            <div class="col-lg-8">
+                <div class="rbt-course-details-list">
+                    <div class="inner">
+                        
+                        <!-- Análise de Match (Novo) -->
+                        {% if user.is_authenticated and user.tipo_usuario == 'ALUNO' %}
+                        <div class="rbt-card variation-01 rbt-hover p-5 mb--40" style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 20px;">
+                            <h4 class="title mb--20">{% trans "Análise de Compatibilidade" %}</h4>
+                            
+                            {% if skill_gap %}
+                                <div class="alert alert-warning mb--20" style="background: #fffbeb; border-color: #fef3c7; color: #92400e;">
+                                    <i class="feather-alert-circle"></i> 
+                                    {% trans "Para esta vaga, identificamos que você ainda precisa desenvolver algumas competências específicas." %}
+                                </div>
+                                <div class="skill-analysis mb--30">
+                                    {% for skill in vaga.competencias_exigidas.all %}
+                                        <div class="d-flex align-items-center mb--10">
+                                            <i class="feather-{% if skill in skill_gap %}x-circle text-danger{% else %}check-circle text-success{% endif %} mr--10"></i>
+                                            <span style="font-weight: 500; {% if skill in skill_gap %}color: #64748b;{% endif %}">{{ skill.nome }}</span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                {% if sugestoes.cursos_presenciais or sugestoes.cursos_video %}
+                                    <div class="sugestoes-box mt--30">
+                                        <h5 class="mb--20" style="font-size: 16px; font-weight: 700;">{% trans "Cursos recomendados para preencher estas lacunas:" %}</h5>
+                                        <div class="row g-4">
+                                            {% for curso in sugestoes.cursos_presenciais %}
+                                                <div class="col-lg-6">
+                                                    <div class="rbt-card variation-01 rbt-hover p-3" style="background: #fff; border: 1px solid #e2e8f0;">
+                                                        <h6 class="mb-1" style="font-size: 14px;"><a href="{% url 'curso_detalhe' curso.id %}">{{ curso.titulo }}</a></h6>
+                                                        <span class="badge bg-primary-opacity" style="font-size: 10px;">{% trans "Presencial/Híbrido" %}</span>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                            {% for curso in sugestoes.cursos_video %}
+                                                <div class="col-lg-6">
+                                                    <div class="rbt-card variation-01 rbt-hover p-3" style="background: #fff; border: 1px solid #e2e8f0;">
+                                                        <h6 class="mb-1" style="font-size: 14px;"><a href="{% url 'curso_video_detalhe' curso.slug %}">{{ curso.titulo }}</a></h6>
+                                                        <span class="badge bg-secondary-opacity" style="font-size: 10px;">{% trans "Curso Online" %}</span>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <div class="alert alert-success" style="background: #f0fdf4; border-color: #dcfce7; color: #166534;">
+                                    <i class="feather-check-circle"></i> 
+                                    {% trans "Incrível! Você possui todas as competências comprovadas exigidas para esta vaga." %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <div class="section-title text-start">
+                            <h4 class="title">Descrição da Vaga</h4>
+                        </div>
+                        <div class="description-content mb--40">
+                            {{ vaga.descricao|linebreaks }}
+                        </div>
+
+                        <div class="section-title text-start mt--40">
+                            <h4 class="title">Todas as Competências Exigidas</h4>
+                        </div>
+                        <div class="skill-tags mb--40">
+                            {% for skill in vaga.competencias_exigidas.all %}
+                            <div class="rbt-badge-6 bg-primary-opacity mb--10 mr--10 d-inline-flex align-items-center">
+                                <i class="{{ skill.icone }} mr--5"></i> {{ skill.nome }}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar de Info e Empresa -->
+            <div class="col-lg-4">
+                <div class="rbt-sidebar-widget-wrapper">
+                    <!-- Empresa Box -->
+                    <div class="rbt-single-widget rbt-widget-instructor">
+                        <div class="inner">
+                            <h4 class="title">Sobre a Empresa</h4>
+                            <div class="instructor-info d-flex align-items-center mb--20">
+                                {% if vaga.empresa.logo %}
+                                <img src="{{ vaga.empresa.logo.url }}" alt="{{ vaga.empresa.nome }}" style="width: 80px; border-radius: 12px;">
+                                {% endif %}
+                                <div class="ml--20">
+                                    <h6 class="mb-0">{{ vaga.empresa.nome }}</h6>
+                                    <span>{{ vaga.empresa.setor }}</span>
+                                </div>
+                            </div>
+                            <p class="description">{{ vaga.empresa.descricao|truncatewords:30 }}</p>
+                            {% if vaga.empresa.website %}
+                            <a href="{{ vaga.empresa.website }}" class="rbt-btn btn-link" target="_blank">Ver Website</a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Botão Candidatar -->
+                    <div class="rbt-single-widget">
+                        <div class="inner">
+                            <div class="job-summary-list mb--30">
+                                <div class="d-flex justify-content-between mb--10">
+                                    <span><strong>Localização:</strong></span>
+                                    <span>{{ vaga.localizacao }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb--10">
+                                    <span><strong>Tipo:</strong></span>
+                                    <span>{{ vaga.get_tipo_display }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb--10">
+                                    <span><strong>Salário:</strong></span>
+                                    <span>{% if vaga.salario_min %}{{ vaga.salario_min }} - {{ vaga.salario_max }}{% else %}A combinar{% endif %}</span>
+                                </div>
+                            </div>
+                            
+                            {% if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO' %}
+                                {% if ja_candidatou %}
+                                    <button class="rbt-btn btn-gradient w-100 disabled" disabled>
+                                        <i class="feather-check mr--5"></i> Candidatura Enviada
+                                    </button>
+                                {% else %}
+                                    <button class="rbt-btn btn-gradient w-100" data-bs-toggle="modal" data-bs-target="#applyModal">
+                                        Candidatar-me Agora
+                                    </button>
+                                {% endif %}
+                            {% else %}
+                                <a href="{% url 'login_aluno' %}?next={{ request.path }}" class="rbt-btn btn-gradient w-100">
+                                    Login para Candidatar
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Candidatura -->
+{% if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO' %}
+<div class="modal fade" id="applyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Candidatura para {{ vaga.titulo }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'carreira:candidatar_vaga' vaga.slug %}" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label class="form-label" style="font-weight: 600;">Mensagem para a Empresa (Opcional)</label>
+                        <textarea name="mensagem" class="form-control" rows="4" placeholder="Conte por que você é o candidato ideal para esta posição..."></textarea>
+                    </div>
+                    <div class="alert alert-info" style="font-size: 13px; line-height: 1.5;">
+                        <i class="feather-info mr--5"></i> 
+                        Ao confirmar, o seu perfil profissional e a sua lista de <strong>competências comprovadas</strong> serão compartilhados com o recrutador da {{ vaga.empresa.nome }}.
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="rbt-btn btn-gradient btn-sm">Confirmar Candidatura</button>
+                        <button type="button" class="rbt-btn btn-border btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,200 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="utf-8">
+    <title>{% trans 'O Teu Futuro - Edukangola' %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% include 'include/css.html' %}
+</head>
+<body class="rbt-header-sticky">
+    {% include 'include/header.html' %}
+    {% include 'include/menu_mobile.html' %}
+<style>
+    .ai-report-card {
+        background: linear-gradient(145deg, #f8fafc, #ffffff);
+        border: 1px solid rgba(124, 58, 237, 0.1);
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .ai-report-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; height: 4px;
+        background: linear-gradient(90deg, #7c3aed, #0dcaf0);
+    }
+
+    .ai-section {
+        margin-bottom: 30px;
+        padding-bottom: 30px;
+        border-bottom: 1px dashed rgba(0,0,0,0.05);
+    }
+    .ai-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    
+    .ai-title {
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        color: #7c3aed;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .ai-value {
+        font-size: 20px;
+        font-weight: 600;
+        color: #1e293b;
+        line-height: 1.5;
+    }
+
+    .ai-text {
+        font-size: 16px;
+        color: #64748b;
+        line-height: 1.6;
+    }
+    
+    .school-card {
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.05);
+        transition: 0.3s;
+        height: 100%;
+        background: #fff;
+    }
+    .school-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+    }
+    .school-banner {
+        height: 150px;
+        background-color: #e2e8f0;
+        background-size: cover;
+        background-position: center;
+    }
+    .school-body {
+        padding: 25px;
+    }
+    .school-type {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        border-radius: 8px;
+        background: rgba(124, 58, 237, 0.1);
+        color: #7c3aed;
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+</style>
+
+<main class="rbt-main-wrapper">
+    <div class="rbt-section-gapTop pb--50">
+        <div class="container">
+            
+            <div class="row mb--50">
+                <div class="col-lg-12">
+                    <div class="section-title text-center">
+                        <span class="subtitle bg-primary-opacity"><i class="feather-cpu me-2"></i>Eduka AI</span>
+                        <h2 class="title">O Teu Relatório de Orientação</h2>
+                        <p class="description">Analisámos o teu perfil. Eis o caminho ideal para o teu futuro brilhante.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RELATÓRIO DA IA -->
+            <div class="row justify-content-center mb--80">
+                <div class="col-lg-10">
+                    <div class="ai-report-card">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="ai-section">
+                                    <div class="ai-title"><i class="feather-user"></i> Análise do Perfil</div>
+                                    <div class="ai-text">{{ ia.analise_perfil }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="ai-section">
+                                    <div class="ai-title"><i class="feather-book-open"></i> Curso Recomendado (Ensino Médio)</div>
+                                    <div class="ai-value">{{ ia.curso_ensino_medio }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="ai-section">
+                                    <div class="ai-title"><i class="feather-briefcase"></i> Alternativa Profissional</div>
+                                    <div class="ai-value text-primary">{{ ia.alternativa_profissional }}</div>
+                                    <div class="ai-text mt-2" style="font-size: 13px;">Se preferires um curso prático de curta duração.</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="ai-section">
+                                    <div class="ai-title"><i class="feather-award"></i> Futuro na Universidade</div>
+                                    <div class="ai-value">{{ ia.futuro_universidade }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ESCOLAS COMPATÍVEIS -->
+            <div class="row mb--40 align-items-center">
+                <div class="col-lg-8">
+                    <div class="section-title text-start">
+                        <h3 class="title">Escolas Recomendadas em {{ provincia }}</h3>
+                        <p>Estas são as instituições na tua província que se alinham ao teu perfil.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-end">
+                    <a href="{% url 'lista_escolas' %}" class="rbt-btn-link">Ver todas as escolas <i class="feather-arrow-right"></i></a>
+                </div>
+            </div>
+
+            <div class="row g-5">
+                {% for escola in escolas %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="school-card">
+                        <div class="school-banner" style="background-image: url('{% if escola.perfil and escola.perfil.banner %}{{ escola.perfil.banner.url }}{% else %}{% static 'assets/images/bg/bg-image-10.jpg' %}{% endif %}');"></div>
+                        <div class="school-body">
+                            <span class="school-type">{{ escola.get_tipo_rede_display }}</span>
+                            <h4 class="title mb--10"><a href="{% url 'perfil_escola' escola.id %}">{{ escola.nome }}</a></h4>
+                            <div class="d-flex align-items-center text-muted mb--15" style="font-size: 14px;">
+                                <i class="feather-map-pin me-2"></i> {{ escola.municipio }}, {{ escola.provincia }}
+                            </div>
+                            
+                            <hr class="mt--15 mb--15">
+                            
+                            <a href="{% url 'perfil_escola' escola.id %}" class="rbt-btn btn-sm btn-border hover-icon-reverse w-100 text-center">
+                                <span class="icon-reverse-wrapper">
+                                    <span class="btn-text">Ver Perfil</span>
+                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <div class="mb-4"><i class="feather-search text-muted" style="font-size: 40px;"></i></div>
+                    <h4 class="title">Ainda não registámos escolas na tua área</h4>
+                    <p>Apesar do teu perfil ser excelente, de momento não temos escolas registadas em {{ provincia }} que correspondam perfeitamente. Mas não desanimes!</p>
+                    <a href="{% url 'lista_escolas' %}" class="rbt-btn btn-primary mt-3">Explorar todas as escolas do País</a>
+                </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+</main>
+    {% include 'include/footer.html' %}
+    {% include 'include/java.html' %}
+</body>
+</html>

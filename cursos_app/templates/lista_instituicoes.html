@@ -753,7 +753,7 @@
             const nearbyTitle = section.querySelector('.title');
 
             function loadNearby(lat = null, lng = null, province = null) {
-                let url = '/api/centros-proximos/';
+                let url = '/cursos/api/centros-proximos/';
                 if (lat && lng) url += `?lat=${lat}&lng=${lng}`;
                 else if (province) url += `?provincia=${province}`;
 

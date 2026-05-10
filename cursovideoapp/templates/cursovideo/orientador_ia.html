@@ -1,0 +1,281 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Orientador Vocacional IA | EdukAngola</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% include 'include/css.html' %}    <style>
+        .active-dark-mode .orientador-container {
+            background-color: #0f172a;
+            color: #fff;
+        }
+        .active-dark-mode .rbt-contact-form {
+            background-color: #1e293b !important;
+            border-color: rgba(255,255,255,0.1) !important;
+        }
+        .active-dark-mode #resultadoIA {
+            background: rgba(124, 58, 237, 0.05) !important;
+            border-color: #7c3aed !important;
+        }
+        .active-dark-mode #aiResponseText {
+            color: #e2e8f0 !important;
+        }
+        .active-dark-mode #emptyStateIA {
+            background: #1e293b !important;
+        }
+        
+        /* Animation for loading */
+        .ai-pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.5; }
+        }
+    </style>
+</head>
+
+<body class="rbt-header-sticky">
+    {% include 'include/header.html' %}
+
+    <main class="rbt-main-wrapper orientador-container">
+        <div class="rbt-breadcrumb-default ptb--100 ptb_md--50 ptb_sm--30 bg-gradient-1">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="breadcrumb-inner text-center">
+                            <h2 class="title">Orientador Vocacional IA</h2>
+                            <ul class="page-list">
+                                <li class="rbt-breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+                                <li><i class="feather-chevron-right"></i></li>
+                                <li class="rbt-breadcrumb-item active">Orientação IA</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="rbt-section-gapBottom">
+            <div class="container">
+                <div class="row g-5 mt--20">
+                    <div class="col-lg-6 col-md-12 col-12">
+                        <div class="rbt-contact-form contact-form-style-1 max-width-auto">
+                            <div class="section-title text-start">
+                                <span class="subtitle bg-primary-opacity">Descubra o seu futuro</span>
+                                <h4 class="title">Como o Eduka AI pode te ajudar hoje?</h4>
+                            </div>
+                            <form id="vocacionalForm" class="mt--30">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label>Fale um pouco sobre você (O que faz, o que gosta...) <span class="text-danger">*</span></label>
+                                    <textarea name="perfil" id="perfil" required placeholder="Ex: Sou estudante do ensino médio e gosto de tecnologia e desenho..." style="min-height: 120px;"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Quais são os seus maiores interesses profissionais? <span class="text-danger">*</span></label>
+                                    <input type="text" name="interesses" id="interesses" required placeholder="Ex: Programação, Design, Gestão...">
+                                </div>
+                                <div class="form-submit-group">
+                                    <button type="submit" class="rbt-btn btn-gradient w-100" id="btnAnalisar">
+                                        <span class="btn-text">Analisar com Eduka AI</span>
+                                        <span class="rbt-btn-icon"><i class="feather-arrow-right"></i></span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 col-md-12 col-12">
+                        <!-- Resultado -->
+                        <div class="rbt-contact-form contact-form-style-1 max-width-auto" id="resultadoIA" style="display: none; background: #f8fafc; border: 2px dashed #7c3aed; border-radius: 12px; padding: 40px; min-height: 450px;">
+                            <div class="section-title text-start">
+                                <span class="subtitle bg-secondary-opacity">Resultado da IA</span>
+                                <h4 class="title">Sua Trilha Recomendada</h4>
+                            </div>
+                            <div id="aiResponseText" class="mt--20" style="font-size: 18px; line-height: 1.8; color: #1e293b;">
+                                <!-- AI Content goes here -->
+                            </div>
+                            
+                            <!-- Cursos em Vídeo (Eduk Play) -->
+                            <div id="videoContainer" class="mt--40" style="display: none;">
+                                <h5 class="mb--20 text-primary"><i class="fas fa-play-circle me-2"></i> Estude Online (EdukAngola Play):</h5>
+                                <div id="listaVideosIA" class="row g-3"></div>
+                            </div>
+
+                            <!-- Cursos Presenciais (Centros) -->
+                            <div id="presencialContainer" class="mt--40" style="display: none;">
+                                <h5 class="mb--20 text-success"><i class="fas fa-users me-2"></i> Cursos Presenciais nos Centros:</h5>
+                                <div id="listaPresencialIA" class="row g-3"></div>
+                            </div>
+
+                            <!-- Sugestões Externas / Carreiras -->
+                            <div id="externosContainer" class="mt--40" style="display: none;">
+                                <h5 class="mb--20 text-secondary"><i class="fas fa-external-link-alt me-2"></i> Outras Formações Recomendadas:</h5>
+                                <div id="listaExternosIA" class="row g-3"></div>
+                            </div>
+
+                            <div class="mt--40 d-flex gap-3 flex-wrap">
+                                <a href="{% url 'cursovideoapp:home_videos' %}" class="rbt-btn btn-border-gradient">Explorar Todo o Catálogo</a>
+                            </div>
+                        </div>
+
+                        <!-- Estado Vazio / Carregando -->
+                        <div class="h-100 d-flex align-items-center justify-content-center" id="statusIA" style="background: #f9f9f9; border-radius: 12px; min-height: 450px; width: 100%;">
+                            <div class="text-center p-5" id="emptyContent">
+                                <div class="ai-icon-container mb-4">
+                                    <i class="fas fa-robot fa-5x text-primary"></i>
+                                </div>
+                                <p class="h5 fw-bold">Pronto para começar?</p>
+                                <p>Preencha os dados ao lado para receber sua orientação personalizada da Eduka AI.</p>
+                            </div>
+                            
+                            <div class="text-center p-5" id="loadingContent" style="display: none;">
+                                <div class="ai-pulse mb-4">
+                                    <i class="fas fa-brain fa-5x text-secondary"></i>
+                                </div>
+                                <div class="spinner-border text-primary mb-3" role="status"></div>
+                                <p class="h5 fw-bold">A Eduka AI está a analisar o mercado...</p>
+                                <p class="small text-muted">A cruzar os seus interesses com as vagas reais em Angola.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    {% include 'include/footer.html' %}
+    {% include 'include/java.html' %}
+
+    <script>
+    document.getElementById('vocacionalForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const perfil = document.getElementById('perfil').value.trim();
+        const interesses = document.getElementById('interesses').value.trim();
+
+        if (!perfil || !interesses) {
+            alert('Por favor, preencha todos os campos antes de analisar.');
+            return;
+        }
+
+        const btn = document.getElementById('btnAnalisar');
+        const resultDiv = document.getElementById('resultadoIA');
+        const statusIA = document.getElementById('statusIA');
+        const emptyContent = document.getElementById('emptyContent');
+        const loadingContent = document.getElementById('loadingContent');
+        const textDiv = document.getElementById('aiResponseText');
+
+        // Limpar resultados anteriores e preparar UI
+        btn.disabled = true;
+        resultDiv.style.setProperty('display', 'none', 'important');
+        statusIA.style.setProperty('display', 'flex', 'important');
+        emptyContent.style.display = 'none';
+        loadingContent.style.display = 'block';
+
+        const formData = new FormData(this);
+        
+        try {
+            const response = await fetch('{% url "cursovideoapp:api_orientacao_vocacional" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            });
+            const data = await response.json();
+            
+            // ESCONDER CARREGAMENTO E MOSTRAR RESULTADO
+            statusIA.style.setProperty('display', 'none', 'important');
+            resultDiv.style.setProperty('display', 'block', 'important');
+            
+            let formattedText = data.orientacao.replace(/\n/g, '<br>');
+            textDiv.innerHTML = formattedText;
+
+            // Filtrar e Renderizar Cursos
+            const videoContainer = document.getElementById('videoContainer');
+            const listaVideos = document.getElementById('listaVideosIA');
+            const presencialContainer = document.getElementById('presencialContainer');
+            const listaPresencial = document.getElementById('listaPresencialIA');
+            
+            const cursosVideos = data.cursos.filter(c => c.tipo === 'online');
+            const cursosPresenciais = data.cursos.filter(c => c.tipo === 'presencial');
+
+            // Renderizar Vídeos
+            if (cursosVideos.length > 0) {
+                videoContainer.style.display = 'block';
+                listaVideos.innerHTML = cursosVideos.map(c => `
+                    <div class="col-md-4 col-sm-6">
+                        <a href="${c.url}" class="text-decoration-none">
+                            <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius: 10px;">
+                                <img src="${c.capa}" class="card-img-top" style="height: 100px; object-fit: cover;">
+                                <div class="card-body p-2 text-center">
+                                    <h6 class="card-title text-truncate mb-0" style="font-size: 13px;">${c.titulo}</h6>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                `).join('');
+            } else {
+                videoContainer.style.display = 'none';
+            }
+
+            // Renderizar Presenciais
+            if (cursosPresenciais.length > 0) {
+                presencialContainer.style.display = 'block';
+                listaPresencial.innerHTML = cursosPresenciais.map(c => `
+                    <div class="col-md-4 col-sm-6">
+                        <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius: 10px;">
+                            <a href="${c.url}" class="text-decoration-none">
+                                <img src="${c.capa}" class="card-img-top" style="height: 100px; object-fit: cover;">
+                            </a>
+                            <div class="card-body p-2 text-center">
+                                <a href="${c.url}" class="text-decoration-none">
+                                    <h6 class="card-title text-truncate mb-0" style="font-size: 13px; color: #1e293b;">${c.titulo}</h6>
+                                </a>
+                                <p class="small mb-0" style="font-size: 10px;">
+                                    <a href="/cursos/centro/${c.centro_id}/cursos/" class="text-primary fw-bold">${c.centro}</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                presencialContainer.style.display = 'none';
+            }
+
+            // Renderizar Sugestões Externas
+            const externosContainer = document.getElementById('externosContainer');
+            const listaExternos = document.getElementById('listaExternosIA');
+
+            if (data.sugestoes_externas && data.sugestoes_externas.length > 0) {
+                externosContainer.style.display = 'block';
+                listaExternos.innerHTML = data.sugestoes_externas.map(s => `
+                    <div class="col-12">
+                        <div class="p-4 border rounded-3 bg-white shadow-sm mb-3" style="border-left: 5px solid #ec4899 !important;">
+                            <h6 class="mb-2 text-secondary" style="font-size: 16px;">${s.curso}</h6>
+                            <p class="small mb-2 text-muted"><strong>Saídas em Angola:</strong> ${s.saidas}</p>
+                            ${s.instituicoes_referencia ? `<p class="extra-small text-primary mb-0"><i class="fas fa-university me-1"></i> <strong>Onde estudar:</strong> ${s.instituicoes_referencia}</p>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                externosContainer.style.display = 'none';
+            }
+
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Erro ao processar orientação. Tente novamente.');
+            loadingContent.style.display = 'none';
+            emptyContent.style.display = 'block';
+            statusIA.style.setProperty('display', 'flex', 'important');
+        } finally {
+            btn.disabled = false;
+        }
+    });
+    </script>
+</body>
+</html>

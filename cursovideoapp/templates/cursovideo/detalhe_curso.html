@@ -11,6 +11,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     {% include 'include/css.html' %}
     
+    <!-- Metadados de Partilha (Open Graph) -->
+    <meta property="og:title" content="{{ curso.titulo }} | EdukAngola Play">
+    <meta property="og:description" content="{{ curso.descricao|truncatewords:20 }}">
+    {% if curso.capa %}
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ curso.capa.url }}">
+    {% endif %}
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:type" content="video.movie">
+    <meta name="twitter:card" content="summary_large_image">
+    
     <style>
         :root {
             --play-bg-dark: #0f172a;
@@ -425,11 +435,13 @@
                         <div class="play-detail-content">
                             <h1 class="play-title">{{ curso.titulo }}</h1>
                             <div class="play-meta-info">
-                                <span class="match-score text-white">98% Relevante</span>
+                                <span class="match-score text-white">{{ curso.get_relevancia }}% Relevante</span>
                                 <span>{{ curso.data_publicacao|date:"Y" }}</span>
                                 <span class="badge bg-white text-primary">{{ curso.get_nivel_display|default:"Geral" }}</span>
+                                {% if curso.duracao_total %}
                                 <span>{{ curso.duracao_total }}</span>
-                                <span><i class="feather-video"></i> Full HD</span>
+                                {% endif %}
+                                <span><i class="feather-video"></i> {{ curso.get_video_quality }}</span>
                             </div>
                             
                             <div class="d-flex gap-3">
@@ -458,6 +470,25 @@
                                         <i class="fas fa-sign-in-alt me-2"></i> Entrar para Assistir
                                     </a>
                                 {% endif %}
+                            </div>
+
+                            <!-- Botões de Partilha Social -->
+                            <div class="mt--40">
+                                <p class="small text-white opacity-50 mb-2">PARTILHAR ESTE CURSO:</p>
+                                <div class="d-flex gap-3 flex-wrap">
+                                    <a href="https://api.whatsapp.com/send?text=Olha só este curso incrível na EdukAngola: {{ curso.titulo }}. Confira aqui: {{ request.build_absolute_uri }}" target="_blank" class="play-btn-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; font-size: 18px;" title="Partilhar no WhatsApp">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </a>
+                                    <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" target="_blank" class="play-btn-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; font-size: 18px;" title="Partilhar no LinkedIn">
+                                        <i class="fab fa-linkedin-in"></i>
+                                    </a>
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="play-btn-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; font-size: 18px;" title="Partilhar no Facebook">
+                                        <i class="fab fa-facebook-f"></i>
+                                    </a>
+                                    <a href="#" onclick="copyCourseLink(event)" class="play-btn-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; font-size: 18px;" title="Copiar Link">
+                                        <i class="fas fa-link"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -743,7 +774,9 @@
                                                     <span class="current-price">Grátis</span>
                                                 </div>
                                                 <div class="rbt-view">
-                                                    <span>{{ rec.duracao_total|default:"2h 30min" }}</span>
+                                                    {% if rec.duracao_total_segundos > 0 %}
+                                                    <span>{{ rec.duracao_total }}</span>
+                                                    {% endif %}
                                                 </div>
                                             </div>
                                         </div>
@@ -990,6 +1023,22 @@
                 const hiddenLessons = document.querySelectorAll('.lesson-link.d-none');
                 hiddenLessons.forEach(l => l.classList.remove('d-none'));
                 this.parentElement.remove(); // Remove o botão após mostrar tudo
+            });
+        }
+        // Função para copiar o link do curso
+        function copyCourseLink(e) {
+            e.preventDefault();
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => {
+                const btn = e.currentTarget;
+                const originalIcon = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                btn.style.background = '#22c55e';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalIcon;
+                    btn.style.background = '';
+                }, 2000);
             });
         }
     </script>

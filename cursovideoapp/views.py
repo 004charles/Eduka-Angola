@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.db.models import Count, Q, Avg, Sum
 from django.utils import timezone
@@ -11,7 +12,7 @@ from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 
 from cursos_app.models import Categoria, Instrutor
-from cursovideoapp.models import Curso_video, FavoritoCursoVideo, Aula, ProgressoAula, Certificado
+from cursovideoapp.models import Curso_video, FavoritoCursoVideo, Aula, ProgressoAula, Certificado, Exercicio, Questao, Alternativa, ResultadoExercicio, RespostaEstudante
 from .utils import fetch_playlist_videos
 
 @login_required
@@ -88,6 +89,32 @@ def emitir_certificado(request, curso_slug):
     # Obter ou criar o certificado
     certificado, created = Certificado.objects.get_or_create(aluno=aluno, curso=curso)
     
+    if created or not certificado.analise_ia_competencias:
+        from .models import ResultadoExercicio
+        from inteligencia.ai_utils import gerar_perfil_competencias_ia
+        
+        # Calcular métricas para a IA
+        resultados = ResultadoExercicio.objects.filter(aluno=aluno, exercicio__aula__curso=curso)
+        total_ex = resultados.count()
+        media_nota = sum([r.pontuacao for r in resultados]) / total_ex if total_ex > 0 else 0
+        
+        # Preencher dados no certificado
+        certificado.nota_final = media_nota
+        certificado.total_exercicios_concluidos = total_ex
+        
+        # Chamar Gemini para gerar o perfil técnico
+        perfil = gerar_perfil_competencias_ia(aluno.nome, curso.titulo, media_nota, total_ex)
+        certificado.analise_ia_competencias = perfil
+        certificado.save()
+    
+    # Calcular média das notas dos exercícios se ainda não tiver nota ou se for uma nova emissão
+    resultados = ResultadoExercicio.objects.filter(aluno=aluno, exercicio__aula__curso=curso)
+    if resultados.exists():
+        media = resultados.aggregate(media=Avg('pontuacao'))['media']
+        certificado.nota_final = media
+        certificado.total_exercicios_concluidos = resultados.count()
+        certificado.save()
+
     # Gerar link de verificação completo para o QR Code
     verificacao_url = request.build_absolute_uri(
         reverse('cursovideoapp:verificar_certificado', kwargs={'codigo': certificado.codigo_verificacao})
@@ -315,6 +342,50 @@ def api_load_more_videos(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+def analytics_mercado(request):
+    """
+    Página de inteligência de mercado que mostra gaps de competências em Angola
+    e conecta cursos/centros a essas necessidades usando o Gemini.
+    """
+    from inteligencia.ai_utils import analisar_mercado_angola_ia
+    from .models import Curso_video
+    
+    # Preparar contexto dos cursos para a IA
+    cursos_nomes = ", ".join([c.titulo for c in Curso_video.objects.all()[:15]])
+    
+    # Tentar obter análise da IA
+    ai_data = analisar_mercado_angola_ia(cursos_nomes)
+    
+    if ai_data:
+        market_gaps = ai_data.get('gaps', [])
+        insight_texto = ai_data.get('insight_texto', "")
+        top_centros = ai_data.get('top_centros_sugeridos', [])
+        is_real_ai = True
+    else:
+        # Fallback caso a IA falhe ou não haja API Key
+        market_gaps = [
+            {"skill": "Cibersegurança", "demanda": 85, "oferta": 20, "tendencia": "up"},
+            {"skill": "Análise de Dados", "demanda": 92, "oferta": 35, "tendencia": "up"},
+            {"skill": "Energias Renováveis", "demanda": 75, "oferta": 15, "tendencia": "up"},
+            {"skill": "Marketing Digital E-commerce", "demanda": 88, "oferta": 50, "tendencia": "stable"},
+        ]
+        insight_texto = "O mercado angolano está em fase de transição digital, com forte procura por competências técnicas em infraestrutura e serviços digitais."
+        top_centros = ["ISPTEC", "Centro de Formação Angola", "Digital Hub Luanda"]
+        is_real_ai = False
+    
+    cursos_sugeridos = Curso_video.objects.filter(destaque=True)[:4]
+    
+    context = {
+        'market_gaps': market_gaps,
+        'insight_texto': insight_texto,
+        'top_centros': top_centros,
+        'cursos_sugeridos': cursos_sugeridos,
+        'is_real_ai': is_real_ai,
+        'total_cursos': Curso_video.objects.count(),
+        'hoje': timezone.now(),
+    }
+    return render(request, 'cursovideo/analytics.html', context)
+
 # --- Restored Views ---
 
 def lista_cursos(request):
@@ -507,9 +578,15 @@ def ver_aula(request, curso_slug, pk):
     # Obter comentários principais da aula (sem pai)
     comentarios = aula_atual.comentarios.filter(parent__isnull=True).select_related('aluno__usuario', 'instrutor').prefetch_related('respostas')
 
-    # Cursos recomendados para o carrossel no fundo da página
-    cursos_recomendados = Curso_video.objects.exclude(id=curso.id)[:10]
-    
+    # Obter resultado do exercício se houver
+    resultado_exercicio = None
+    if aluno and hasattr(aula_atual, 'exercicio'):
+        resultado_exercicio = ResultadoExercicio.objects.filter(aluno=aluno, exercicio=aula_atual.exercicio).first()
+
+    # Obter materiais gerais do curso (Material Único)
+    from .models import MaterialCurso
+    materiais_gerais = curso.materiais_gerais.all()
+
     return render(request, 'cursovideo/ver_aula.html', {
         'curso': curso,
         'aula_atual': aula_atual,
@@ -519,10 +596,11 @@ def ver_aula(request, curso_slug, pk):
         'aulas': aulas,
         'progresso_total': progresso_total,
         'progresso_atual': progresso_atual,
-        'cursos_recomendados': cursos_recomendados,
         'nota_aula': nota_aula,
         'comentarios': comentarios,
         'is_instrutor_preview': is_instrutor,
+        'resultado_exercicio': resultado_exercicio,
+        'materiais_gerais': materiais_gerais, # Adicionado aqui
     })
 
 @require_POST
@@ -563,6 +641,23 @@ def salvar_comentario_aula(request, aula_id):
     nome_autor = aluno.nome if aluno else instrutor.nome
     is_instrutor = instrutor is not None
     
+    # --- INTEGRAÇÃO EDUKA AI ---
+    resposta_ia = None
+    if aluno and not parent: # Apenas para dúvidas novas de alunos
+        from inteligencia.ai_utils import responder_duvida_ia
+        resposta_texto = responder_duvida_ia(texto, aula.titulo, aula.descricao)
+        
+        # Criar resposta da IA como se fosse um comentário pai
+        if resposta_texto:
+            # Criamos como se fosse um instrutor 'Eduka AI' ou apenas um comentário especial
+            # Por agora, vamos criar como um ComentarioAula sem autor humano
+            ComentarioAula.objects.create(
+                aula=aula,
+                texto=f"🤖 **Eduka AI:** {resposta_texto}",
+                parent=comentario
+            )
+            resposta_ia = resposta_texto
+
     return JsonResponse({
         'status': 'success', 
         'message': 'Enviado!',
@@ -570,7 +665,8 @@ def salvar_comentario_aula(request, aula_id):
         'nome': nome_autor,
         'is_instrutor': is_instrutor,
         'texto': texto,
-        'data': 'Agora mesmo'
+        'data': 'Agora mesmo',
+        'resposta_ia': resposta_ia
     })
 
 @require_POST
@@ -750,3 +846,153 @@ def api_carregar_comentarios_video(request, curso_id):
     
     total_principais = Comentario.objects.filter(curso_video_id=curso_id, aprovado=True, parent__isnull=True).count()
     return JsonResponse({'comentarios': data, 'has_more': total_principais > offset + limit})
+
+@login_required
+def detalhes_exercicio(request, aula_id):
+    """
+    Exibe o exercício/quiz associado a uma aula.
+    """
+    aula = get_object_or_404(Aula, id=aula_id)
+    exercicio = get_object_or_404(Exercicio, aula=aula)
+    aluno = request.user.aluno_profile
+    
+    # Verificar se já respondeu
+    resultado_existente = ResultadoExercicio.objects.filter(aluno=aluno, exercicio=exercicio).first()
+    
+    context = {
+        'aula': aula,
+        'exercicio': exercicio,
+        'questoes': exercicio.questoes.all().prefetch_related('alternativas'),
+        'resultado_existente': resultado_existente,
+    }
+    return render(request, 'cursovideo/exercicio.html', context)
+
+@login_required
+@require_POST
+def submeter_exercicio(request, aula_id):
+    """
+    Processa as respostas do aluno e calcula a nota.
+    """
+    aula = get_object_or_404(Aula, id=aula_id)
+    exercicio = get_object_or_404(Exercicio, aula=aula)
+    aluno = request.user.aluno_profile
+    
+    questoes = exercicio.questoes.all()
+    total_questoes = questoes.count()
+    acertos = 0
+    
+    # Criar ou atualizar o resultado
+    resultado, created = ResultadoExercicio.objects.get_or_create(
+        aluno=aluno,
+        exercicio=exercicio,
+        defaults={'pontuacao': 0, 'acertos': 0, 'total_questoes': total_questoes}
+    )
+    
+    # Limpar respostas anteriores se estiver a repetir
+    resultado.respostas.all().delete()
+    
+    for questao in questoes:
+        alternativa_id = request.POST.get(f'questao_{questao.id}')
+        if alternativa_id:
+            alternativa = get_object_or_404(Alternativa, id=alternativa_id, questao=questao)
+            is_correta = alternativa.is_correta
+            if is_correta:
+                acertos += 1
+            
+            RespostaEstudante.objects.create(
+                resultado=resultado,
+                questao=questao,
+                alternativa_escolhida=alternativa,
+                correta=is_correta
+            )
+            
+    pontuacao = (acertos / total_questoes * 100) if total_questoes > 0 else 0
+    resultado.acertos = acertos
+    resultado.total_questoes = total_questoes
+    resultado.pontuacao = pontuacao
+    resultado.save()
+    
+    return redirect('cursovideoapp:resultado_exercicio', resultado_id=resultado.id)
+
+@login_required
+def resultado_exercicio(request, resultado_id):
+    """
+    Exibe o resultado detalhado de um exercício.
+    """
+    resultado = get_object_or_404(ResultadoExercicio, id=resultado_id, aluno=request.user.aluno_profile)
+    respostas = resultado.respostas.all().select_related('questao', 'alternativa_escolhida')
+    
+    # Pegar próxima aula para o botão de continuar
+    proxima_aula = Aula.objects.filter(
+        curso=resultado.exercicio.aula.curso, 
+        ordem__gt=resultado.exercicio.aula.ordem
+    ).order_by('ordem').first()
+    
+    return render(request, 'cursovideo/resultado_exercicio.html', {
+        'resultado': resultado,
+        'respostas': respostas,
+        'proxima_aula': proxima_aula
+    })
+
+def orientador_ia_view(request):
+    """Renderiza a página do Orientador Vocacional IA."""
+    return render(request, 'cursovideo/orientador_ia.html')
+
+@csrf_exempt
+def api_orientacao_vocacional(request):
+    """Endpoint API para processar a orientação vocacional."""
+    if request.method == 'POST':
+        from inteligencia.ai_utils import orientacao_vocacional_ia
+        from .models import Curso_video
+        from gestoreduka.models import CentroDeFormacao
+        from django.db.models import Q
+        
+        perfil = request.POST.get('perfil', '')
+        interesses = request.POST.get('interesses', '')
+        
+        # Obter lista de centros parceiros para a IA (garantindo que o nome não seja None)
+        centros_qs = CentroDeFormacao.objects.filter(ativo=True).exclude(nome__isnull=True)
+        centros_parceiros = ", ".join([c.nome for c in centros_qs if c.nome])
+        
+        data = orientacao_vocacional_ia(perfil, interesses, centros_parceiros)
+        
+        orientacao = data.get('orientacao', '')
+        keywords = data.get('keywords', [])
+        sugestoes_externas = data.get('sugestoes_externas', [])
+        
+        # Buscar cursos relacionados (Internos - Play)
+        cursos_relacionados = []
+        if keywords:
+            query = Q()
+            for kw in keywords:
+                query |= Q(titulo__icontains=kw) | Q(descricao__icontains=kw) | Q(categoria__nome__icontains=kw)
+            
+            # Cursos de Vídeo (Play)
+            cursos_qs = Curso_video.objects.filter(query).distinct()[:3]
+            for c in cursos_qs:
+                cursos_relacionados.append({
+                    'titulo': c.titulo,
+                    'url': reverse('cursovideoapp:detalhe_curso', kwargs={'slug': c.slug}),
+                    'capa': c.capa.url if c.capa else '/static/assets/images/course/default-course.jpg',
+                    'tipo': 'online'
+                })
+
+            # Cursos dos Centros (Presenciais/Híbridos)
+            from cursos_app.models import Curso as CursoCentro
+            cursos_centros_qs = CursoCentro.objects.filter(query, publicado=True).distinct()[:3]
+            for cc in cursos_centros_qs:
+                cursos_relacionados.append({
+                    'titulo': cc.titulo,
+                    'url': reverse('curso_detalhe', kwargs={'id': cc.id}),
+                    'capa': cc.imagem.url if cc.imagem else '/static/assets/images/course/default-course.jpg',
+                    'tipo': 'presencial',
+                    'centro': cc.centro.nome,
+                    'centro_id': cc.centro.id
+                })
+        
+        return JsonResponse({
+            'orientacao': orientacao,
+            'cursos': cursos_relacionados,
+            'sugestoes_externas': sugestoes_externas
+        })
+    return JsonResponse({'error': 'Método inválido'}, status=400)

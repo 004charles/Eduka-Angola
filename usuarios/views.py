@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import gettext as _
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from .models import Usuario, Aluno, PerfilAluno, CodigoVerificacao
-from gestoreduka.models import CentroDeFormacao, CentroSeguimento
-from cursos_app.models import Curso, Favorito, Categoria
+from gestoreduka.models import CentroDeFormacao, CentroSeguimento, Depoimento
+from cursos_app.models import Curso, Favorito, Categoria, Inscricao
+from bolsas.models import Bolsa, CandidaturaBolsa
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout as auth_logout, update_session_auth_hash
 from django.contrib.auth.hashers import check_password
@@ -13,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from django.db import IntegrityError
+from django.db import IntegrityError, models
 from django.core.exceptions import ValidationError
 from hashlib import sha256
 from .decorators import aluno_logado_e_centros
@@ -85,7 +86,6 @@ def login_aluno(request):
 
 
 
-from gestoreduka.models import Depoimento, CentroDeFormacao
 from cursos_app.models import Favorito, Inscricao
 
 def get_aluno_common_context(request):
@@ -170,6 +170,21 @@ def aluno_dashboard(request):
     for f in favoritos_video:
         favoritos_dashboard.append({'curso': f.curso, 'is_video': True})
 
+    # Dados do Fundo de Bolsas
+    bolsas_aluno = Bolsa.objects.filter(aluno=aluno).select_related('patrocinador', 'curso')
+    candidaturas_aluno = CandidaturaBolsa.objects.filter(aluno=aluno).select_related('curso_pretendido')
+
+    # Competências do Aluno (Skills)
+    from carreira.models import AlunoSkill, Skill
+    minhas_skills = AlunoSkill.objects.filter(aluno=aluno).select_related('skill')
+    skills_comprovadas = minhas_skills.filter(comprovada=True)
+    
+    # Skills sugeridas baseadas nos cursos em andamento
+    skills_em_desenvolvimento = Skill.objects.filter(
+        models.Q(cursos_relacionados__inscricoes__aluno=aluno, cursos_relacionados__inscricoes__status='A') |
+        models.Q(cursos_video_relacionados__inscritos=aluno)
+    ).distinct().exclude(id__in=minhas_skills.values_list('skill_id', flat=True))
+
     context.update({
         'current_page': 'dashboard',
         'total_cursos': context['inscricoes_reais'].count() + cursos_videos.count(),
@@ -177,6 +192,11 @@ def aluno_dashboard(request):
         'total_certificados': total_certificados,
         'inscricoes_com_progresso': inscricoes_com_progresso[:4], 
         'favoritos_dashboard': favoritos_dashboard,
+        'bolsas_aluno': bolsas_aluno,
+        'candidaturas_aluno': candidaturas_aluno,
+        'skills_comprovadas': skills_comprovadas,
+        'skills_em_desenvolvimento': skills_em_desenvolvimento[:5],
+        'total_skills': skills_comprovadas.count(),
     })
     return render(request, 'aluno/dashboard.html', context)
 
@@ -184,7 +204,7 @@ def aluno_dashboard(request):
 def aluno_cursos(request):
     context = get_aluno_common_context(request)
     context['current_page'] = 'cursos'
-    context['cursos_inscritos'] = [i.curso for i in context['inscricoes_reais']]
+    context['inscricoes_cursos'] = context['inscricoes_reais']
     context['cursos_videos_inscritos'] = request.aluno_obj.cursos_inscritos_video.all()
     return render(request, 'aluno/cursos.html', context)
 

@@ -60,6 +60,29 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Slides de Publicidade Dinâmica -->
+                {% for pub in publicidades %}
+                <div class="swiper-slide">
+                    <div class="coursera-slide bg-slide-{{ forloop.counter|add:'3' }}">
+                        <div class="slide-content">
+                            <h1 class="slide-title">{{ pub.titulo|default:"" }}</h1>
+                            <p class="slide-description">
+                                {{ pub.descricao|default:"" }}
+                            </p>
+                            {% if pub.url_destino %}
+                            <a href="{{ pub.url_destino }}" class="coursera-btn">
+                                {{ pub.texto_botao|default:"Saiba Mais" }} <i class="feather-arrow-right"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                        <div class="slide-image-wrapper">
+                            <img src="{{ pub.imagem_fundo.url }}" alt="{{ pub.titulo|default:'Publicidade EdukAngola' }}" style="object-fit: cover;">
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
             </div>
             <div class="rbt-swiper-pagination" style="bottom: 20px !important;"></div>
         </div>

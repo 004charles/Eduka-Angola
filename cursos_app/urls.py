@@ -17,6 +17,7 @@ urlpatterns = [
     path('curso/<int:curso_id>/inscrever/', views.inscrever_curso, name='inscrever_curso'),
     path('inscricao/<int:inscricao_id>/status/<str:status>/', views.alterar_status_inscricao, name='alterar_status_inscricao'),
     path('ficha_inscricao/<int:curso_id>/', views.ficha_inscricao, name='ficha_inscricao'),
+    path('comprovante_inscricao/<int:inscricao_id>/', views.gerar_comprovante_inscricao, name='gerar_comprovante_inscricao'),
     path('favorito/<int:curso_id>/', views.adicionar_favorito, name='adicionar_favorito'),
     path('centro/<int:centro_id>/instrutores/', views.instrutores_do_centro, name='instrutores_centro'),
     path('curso/<int:id>/', views.curso_detalhe, name='curso_detalhe'),

@@ -95,6 +95,7 @@
                         {% if not request.user.is_authenticated %}
                         <div class="rbt-separator"></div>
                         <div class="header-info">
+                            
                             <div class="header-right-btn d-flex">
                                 <a class="rbt-btn rbt-switch-btn btn-gradient btn-xs" href="{% url 'login_aluno' %}?next={{ request.path }}">
                                     <span data-text="{% trans 'Entrar' %}">{% trans "Entrar" %}</span>
@@ -131,10 +132,8 @@
                     <nav class="mainmenu-nav">
                         <ul class="mainmenu">
                             <li><a href="{% url 'index' %}">Home</a></li>
-                            <li><a href="{% url 'lista_centros' %}">{% trans "Instituições" %}</a></li>
-                            <li><a href="">{% trans "estude no exterior" %}</a></li>
-
-
+                            <li><a href="{% url 'lista_centros' %}">{% trans "Centros de Formação" %}</a></li>
+                            <li><a href="{% url 'lista_escolas' %}">{% trans "Escolas e Liceus" %}</a></li>
                             <li class="with-megamenu has-menu-child-item">
                                 <a href="#">{% trans "Explorar" %} <i class="feather-chevron-down"></i></a>
                                 <!-- Start Mega Menu  -->
@@ -157,7 +156,7 @@
                                                     <li><a href="{% url 'catalogo_cursos' %}">{% trans "Todos os Cursos" %}</a></li>
                                                     <li><a href="{% url 'lista_centros' %}">{% trans "Instituições Parceiras" %}</a></li>
 
-                                                    <li><a href="#">{% trans "Ensino Médio" %}</a></li>
+                                                    <li><a href="{% url 'lista_escolas' %}">{% trans "Ensino Médio" %}</a></li>
 
                                                     <li><a href="#">{% trans "Ensino Superior" %}</a></li>
                                                 </ul>
@@ -165,8 +164,8 @@
                                             <div class="col-lg-12 col-xl-6 col-xxl-6 single-mega-item">
                                                 <h3 class="rbt-short-title">{% trans "Carreira" %}</h3>
                                                 <ul class="mega-menu-item">
-                                                    <li><a href="#">{% trans "Estágios" %}</a></li>
-                                                    <li><a href="#">{% trans "Formação Profissional" %}</a></li>
+                                                    <li><a href="{% url 'carreira:job_board' %}">{% trans "Mural de Vagas" %}</a></li>
+                                                    <li><a href="{% url 'carreira:skills_map' %}">{% trans "Mapa de Empregabilidade" %}</a></li>
                                                     <li><a href="{% url 'blog:lista_posts' %}">{% trans "Notícias" %}</a></li>
                                                 </ul>
                                             </div>
@@ -175,8 +174,15 @@
                                 </div>
                             </li>
 
-                            <li><a href="{% url 'cursovideoapp:home_videos' %}">EdukAngola Play</a></li>
-                            <li><a href="{% url 'blog:lista_posts' %}">Blog</a></li>
+                            <li class="has-dropdown has-menu-child-item">
+                                <a href="#">Plataforma <i class="feather-chevron-down"></i></a>
+                                <ul class="submenu">
+                                    <li><a href="{% url 'cursovideoapp:home_videos' %}">EdukAngola Play</a></li>
+                                    <li><a href="{% url 'cursovideoapp:analytics_mercado' %}">Analytics</a></li>
+                                    <li><a href="{% url 'cursovideoapp:orientador_ia' %}">Orientador IA</a></li>
+                                    <li><a href="{% url 'blog:lista_posts' %}">Blog</a></li>
+                                </ul>
+                            </li>
                         </ul>
                     </nav>
                 </div>

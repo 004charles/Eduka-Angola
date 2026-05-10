@@ -1,0 +1,183 @@
+{% extends 'aluno_base.html' %}
+{% load static %}
+{% load i18n %}
+{% load curso_filters %}
+
+{% block title %}{{ curso.titulo }} | EdukAngola{% endblock %}
+
+{% block dashboard_content_full %}
+<div class="learning-panel-wrapper">
+    <!-- Header do Curso -->
+    <div class="learning-header mb--40">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-8">
+                <div class="section-title text-start">
+                    <span class="rbt-badge-5 bg-primary-opacity text-primary mb--10">{{ curso.categoria.nome }}</span>
+                    <h2 class="title h3 mb--10">{{ curso.titulo }}</h2>
+                    <div class="course-meta d-flex gap-4 small text-muted">
+                        <span><i class="feather-book-open me-2"></i>{{ modulos.count }} {% trans "Módulos" %}</span>
+                        <span><i class="feather-user me-2"></i>{{ curso.instrutores.first.nome }}</span>
+                        <span><i class="feather-calendar me-2"></i>{% trans "Inscrito em" %} {{ inscricao.data_inscricao|date:"d/m/Y" }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{% url 'gerar_comprovante_inscricao' inscricao.id %}" class="rbt-btn btn-gradient btn-sm">
+                    <i class="feather-download me-2"></i> {% trans "Baixar Ficha de Inscrição" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-5">
+        <!-- Conteúdo Principal: Módulos -->
+        <div class="col-lg-8">
+            <div class="rbt-accordion-style rbt-accordion-02">
+                <div class="accordion" id="accordionExampleb2">
+                    {% for modulo in modulos %}
+                    <div class="accordion-item card">
+                        <h2 class="accordion-header card-header" id="heading{{ modulo.id }}">
+                            <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ modulo.id }}" aria-expanded="{{ forloop.first|yesno:'true,false' }}" aria-controls="collapse{{ modulo.id }}">
+                                <span class="modulo-count">{{ forloop.counter }}</span>
+                                {{ modulo.titulo }}
+                            </button>
+                        </h2>
+                        <div id="collapse{{ modulo.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading{{ modulo.id }}" data-bs-parent="#accordionExampleb2">
+                            <div class="accordion-body card-body pr--0">
+                                <ul class="rbt-course-main-content">
+                                    {% for video in modulo.videos.all %}
+                                    <li>
+                                        <div class="content">
+                                            <i class="feather-play-circle me-3"></i>
+                                            <span class="lesson-title">{{ video.titulo }}</span>
+                                        </div>
+                                        <div class="meta">
+                                            {% if video.liberado %}
+                                                <span class="rbt-badge-5 bg-success-opacity text-success">{% trans "Disponível" %}</span>
+                                            {% else %}
+                                                <i class="feather-lock text-muted"></i>
+                                            {% endif %}
+                                        </div>
+                                    </li>
+                                    {% empty %}
+                                    <li class="text-muted small">{% trans "Nenhum conteúdo disponível neste módulo ainda." %}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-5 bg-light rounded-3">
+                        <i class="feather-info mb--20" style="font-size: 40px; color: #94a3b8;"></i>
+                        <p>{% trans "O conteúdo deste curso está sendo preparado e será disponibilizado em breve." %}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar: Info do Centro e Aluno -->
+        <div class="col-lg-4">
+            <div class="course-sidebar-widget p--30 rounded-3 border shadow-sm">
+                <h5 class="widget-title mb--20">{% trans "Sua Inscrição" %}</h5>
+                <div class="enrollment-status mb--30">
+                    <div class="d-flex justify-content-between mb--10">
+                        <span class="small">{% trans "Estado" %}:</span>
+                        <span class="badge {% if inscricao.status == 'A' %}bg-success{% else %}bg-warning{% endif %}">
+                            {{ inscricao.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between mb--10">
+                        <span class="small">{% trans "Turma" %}:</span>
+                        <span class="small font-bold text-dark">{{ inscricao.turma_escolhida.nome|default:"A definir" }}</span>
+                    </div>
+                    {% if inscricao.turma_escolhida %}
+                    <div class="d-flex justify-content-between">
+                        <span class="small">{% trans "Horário" %}:</span>
+                        <span class="small text-muted">{{ inscricao.turma_escolhida.horario_formatado }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <hr class="mb--30">
+
+                <h5 class="widget-title mb--20">{% trans "Centro de Formação" %}</h5>
+                <div class="centro-info d-flex align-items-center gap-3">
+                    {% if curso.centro.perfil.imagem %}
+                        <img src="{{ curso.centro.perfil.imagem.url }}" alt="{{ curso.centro.nome }}" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover;">
+                    {% endif %}
+                    <div>
+                        <h6 class="mb-0">{{ curso.centro.nome }}</h6>
+                        <span class="small text-muted">{{ curso.centro.get_provincia_display }}</span>
+                    </div>
+                </div>
+                
+                <div class="mt--30">
+                    <a href="{% url 'aluno_chat' %}?conversa_id={{ inscricao.id }}" class="rbt-btn btn-border btn-sm w-100 text-center">
+                        <i class="feather-message-square me-2"></i> {% trans "Falar com o Centro" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .learning-panel-wrapper {
+        padding: 20px 0;
+    }
+    .modulo-count {
+        background: var(--color-primary);
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        margin-right: 15px;
+        font-weight: bold;
+    }
+    .rbt-course-main-content li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 20px;
+        border-bottom: 1px solid #f1f5f9;
+        transition: background 0.2s;
+    }
+    .rbt-course-main-content li:hover {
+        background: #f8fafc;
+    }
+    .lesson-title {
+        font-size: 14px;
+        color: #475569;
+    }
+    .widget-title {
+        font-size: 18px;
+        font-weight: 700;
+        border-bottom: 2px solid var(--color-primary);
+        display: inline-block;
+        padding-bottom: 5px;
+    }
+    body.active-dark-mode .course-sidebar-widget {
+        background: #1e293b;
+        border-color: #334155 !important;
+    }
+    body.active-dark-mode .text-dark {
+        color: #f8fafc !important;
+    }
+    body.active-dark-mode .accordion-item {
+        background: #1e293b;
+        border-color: #334155;
+    }
+    body.active-dark-mode .accordion-button {
+        background: #1e293b;
+        color: #f8fafc;
+    }
+    body.active-dark-mode .rbt-course-main-content li:hover {
+        background: #0f172a;
+    }
+</style>
+{% endblock %}

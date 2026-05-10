@@ -436,6 +436,23 @@
                     <div class="course-presentation">
                         cumpriu com sucesso todos os requisitos de visualização, participação e superou todas as metas do módulo educacional e intensivo de:
                         <span class="course-name">"{{ curso.titulo }}"</span>
+                        {% if certificado.nota_final > 0 %}
+                        <div style="margin-top: 20px; font-size: 16px; color: var(--text-gray);">
+                            Com um aproveitamento médio de <strong style="color: var(--brand-primary);">{{ certificado.nota_final|floatformat:1 }}%</strong> 
+                            em {{ certificado.total_exercicios_concluidos }} avaliações.
+                        </div>
+                        {% endif %}
+
+                        {% if certificado.analise_ia_competencias %}
+                        <div style="margin-top: 25px; padding: 20px; background: rgba(124, 58, 237, 0.03); border-radius: 12px; border: 1px dashed rgba(124, 58, 237, 0.2);">
+                            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--brand-primary); font-weight: 700; margin-bottom: 8px;">
+                                <i class="fas fa-robot"></i> Perfil de Competências Validado por IA
+                            </div>
+                            <p style="font-size: 14px; color: var(--text-dark); margin: 0; font-style: italic; line-height: 1.5;">
+                                "{{ certificado.analise_ia_competencias }}"
+                            </p>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
 

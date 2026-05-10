@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import SobreNos, MensagemContato, Galeria
+from .models import SobreNos, MensagemContato, Galeria, Publicidade
 
 @admin.register(Galeria)
 class GaleriaAdmin(admin.ModelAdmin):
@@ -25,3 +25,9 @@ class MensagemContatoAdmin(admin.ModelAdmin):
     def marcar_como_lido(self, request, queryset):
         queryset.update(lido=True)
     marcar_como_lido.short_description = "Marcar mensagens selecionadas como lidas"
+
+@admin.register(Publicidade)
+class PublicidadeAdmin(admin.ModelAdmin):
+    list_display = ('titulo', 'ativo', 'data_criacao')
+    list_filter = ('ativo',)
+    search_fields = ('titulo', 'descricao')
