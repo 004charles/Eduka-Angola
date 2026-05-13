@@ -110,6 +110,8 @@ LOCALE_PATHS = [
 CSRF_TRUSTED_ORIGINS = [
     'https://eduka-angola-production.up.railway.app',
     'https://eduka-angola.onrender.com',
+    'https://edukangola.com',
+    'https://www.edukangola.com',
 ]
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
