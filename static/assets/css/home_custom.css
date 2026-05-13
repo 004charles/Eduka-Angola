@@ -269,10 +269,35 @@ body.active-dark-mode .bg-slide-3 { background: linear-gradient(135deg, #16213e 
 body.active-dark-mode .rbt-slider-control .rbt-swiper-arrow-2 { background: #1a1a2e !important; border-color: #333 !important; color: #fff !important; }
 
 @media (max-width: 991px) {
-    .coursera-slide { flex-direction: column; padding: 40px 30px; text-align: center; min-height: auto; }
-    .slide-content { max-width: 100%; margin-bottom: 30px; }
+    .coursera-slide { 
+        flex-direction: column; 
+        padding: 20px 20px; 
+        text-align: center; 
+        min-height: auto; 
+    }
+    .slide-content { max-width: 100%; margin-bottom: 15px; }
     .slide-image-wrapper { justify-content: center; }
-    .slide-title { font-size: 32px !important; }
+    .slide-title { font-size: 22px !important; }
+}
+
+@media (max-width: 767px) {
+    /* No mobile pequeno: esconde título e descrição, mantém só imagem e botão */
+    .slide-title { display: none !important; }
+    .slide-description { display: none !important; }
+    .coursera-slide {
+        padding: 15px 15px;
+        min-height: auto;
+    }
+    .slide-content {
+        margin-bottom: 10px;
+    }
+    .slide-image-wrapper img {
+        max-height: 200px;
+    }
+    .coursera-btn {
+        padding: 10px 20px !important;
+        font-size: 14px !important;
+    }
 }
 
 @keyframes fadeInUp {
