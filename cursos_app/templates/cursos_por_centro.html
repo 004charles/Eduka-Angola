@@ -185,7 +185,7 @@
                                     <img src="{{centro.perfil.imagem.url}}" class="rounded-circle shadow-sm" style="width: 45px; height: 45px; object-fit: cover;">
                                     {% else %}
                                     <div class="rounded-circle bg-main-600 text-white d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 45px; height: 45px;">
-                                        {{ centro.nome|first }}
+                                        {{ centro.nome|default:"C"|first }}
                                     </div>
                                     {% endif %}
                                 </div>
