@@ -11,8 +11,9 @@ from cursos_app.utils import notificar_seguidores
 def criar_convite(sender, instance, created, **kwargs):
     if created:
         convite = ConviteCentro.objects.create(centro=instance)
-        link = f"http://127.0.0.1:8000{reverse('confirmar_cadastro', args=[convite.token])}"
         try:
+            site_domain = getattr(settings, 'SITE_DOMAIN', 'http://127.0.0.1:8000')
+            link = f"{site_domain}{reverse('confirmar_cadastro', args=[convite.token])}"
             send_mail(
                 subject="Convite para completar cadastro no Edukangola",
                 message=f"Olá {instance.nome},\n\nClique no link para completar seu cadastro:\n{link}",

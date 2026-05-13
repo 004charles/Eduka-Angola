@@ -72,13 +72,13 @@ def enviar_convite_centro(modeladmin, request, queryset):
         link = f"{site_domain}/gestoreduka/cadastro/confirmar/{convite.token}/"
         
         subject = 'Convite para EdukAngola - Complete seu Registro'
-        html_content = render_to_string('emails/convite_centro.html', {
-            'link_convite': link,
-            'email_centro': centro.email
-        })
-        text_content = strip_tags(html_content)
-        
         try:
+            html_content = render_to_string('emails/convite_centro.html', {
+                'link_convite': link,
+                'email_centro': centro.email
+            })
+            text_content = strip_tags(html_content)
+            
             email = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [centro.email])
             email.attach_alternative(html_content, "text/html")
             email.send()
