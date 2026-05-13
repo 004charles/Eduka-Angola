@@ -52,8 +52,6 @@
         <!-- Centros em Destaque -->
         {% include 'core/includes/home/featured_centers.html' %}
 
-        <!-- Mapa Global de Oportunidades -->
-        {% include 'core/includes/home/global_map.html' %}
 
         <!-- Categorias de Cursos -->
         {% include 'core/includes/home/categories.html' %}
@@ -89,11 +87,7 @@
     
     <script>
         const csrftoken = '{{ csrf_token }}';
-        window.GOOGLE_MAPS_API_KEY = "{{ GOOGLE_MAPS_API_KEY }}";
     </script>
-    
-    <script src="{% static 'assets/js/google_maps_loader.js' %}"></script>
-    <script src="{% static 'assets/js/home_map_init.js' %}"></script>
     
     <!-- Lógica de Animações e Swipers Customizados -->
     <script>

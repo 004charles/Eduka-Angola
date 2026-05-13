@@ -115,7 +115,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-SITE_DOMAIN = 'http://127.0.0.1:8000'  
+SITE_DOMAIN = config('SITE_DOMAIN', default='https://www.edukangola.com')
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',
