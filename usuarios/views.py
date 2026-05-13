@@ -409,15 +409,20 @@ def enviar_codigo_verificacao(email, tipo):
     Função auxiliar para gerar e enviar códigos de verificação por e-mail.
     """
     import logging
+    from django.template.loader import render_to_string
+    from django.utils.html import strip_tags
     logger = logging.getLogger(__name__)
     
     codigo = ''.join([str(random.randint(0, 9)) for _ in range(6)])
     CodigoVerificacao.objects.create(email=email, codigo=codigo, tipo=tipo)
     
-    assunto = "Código de Verificação - Edukangola"
-    mensagem = f"Seu código de verificação é: {codigo}"
+    assunto = "EdukAngola — Código de Verificação"
     
     from django.conf import settings
+    
+    # Renderizar template HTML
+    html_content = render_to_string('emails/codigo_verificacao.html', {'codigo': codigo})
+    text_content = f"O seu código de verificação EdukAngola é: {codigo}\n\nEste código é válido por 10 minutos."
     
     # Log para diagnóstico em produção
     logger.info(f"[EMAIL] A enviar código para: {email}")
@@ -425,15 +430,18 @@ def enviar_codigo_verificacao(email, tipo):
     
     email_msg = EmailMultiAlternatives(
         subject=assunto,
-        body=mensagem,
+        body=text_content,
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=[email],
     )
+    email_msg.attach_alternative(html_content, "text/html")
+    
     try:
         email_msg.send()
         logger.info(f"[EMAIL] ✅ Código enviado com sucesso para {email}")
     except Exception as e:
         logger.error(f"[EMAIL] ❌ ERRO ao enviar código para {email}: {type(e).__name__}: {e}")
+
 
 
 def verificar_email(request):
