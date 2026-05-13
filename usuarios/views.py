@@ -457,9 +457,13 @@ def verificar_email(request):
             enviar_email_confirmacao_aluno(usuario.nome, usuario.email)
             return redirect('/auth/login_aluno/?status=0')
         except (CodigoVerificacao.DoesNotExist, Usuario.DoesNotExist):
-            return render(request, 'core/verify_gate.html', {'error': _('O código introduzido é inválido ou já expirou. Por favor, tente novamente ou solicite um novo.')})
+            return render(request, 'core/verify_gate.html', {
+                'error': _('O código introduzido é inválido ou já expirou. Por favor, tente novamente ou solicite um novo.'),
+                'email_destino': email,
+            })
             
-    return render(request, 'core/verify_gate.html')
+    email = request.session.get('email_verificacao', '')
+    return render(request, 'core/verify_gate.html', {'email_destino': email})
 
 def reenviar_codigo(request):
     """
@@ -471,7 +475,8 @@ def reenviar_codigo(request):
     
     enviar_codigo_verificacao(email, 'CADASTRO')
     return render(request, 'core/verify_gate.html', {
-        'message': _('Um novo código foi enviado com sucesso para o seu e-mail.')
+        'message': _('Um novo código foi enviado com sucesso para o seu e-mail.'),
+        'email_destino': email,
     })
 
 def esqueci_senha(request):

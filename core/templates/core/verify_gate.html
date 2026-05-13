@@ -101,7 +101,14 @@
         <div class="gate-container">
             <img src="{% static 'assets/images/logo/Eduka-removebg-preview.png' %}" alt="Edukangola" class="gate-logo">
             <h2 class="form-title">{% trans "Verificação" %}</h2>
-            <p class="form-subtitle">{% trans "Introduza o código de 6 dígitos que enviamos para o seu e-mail." %}</p>
+            <p class="form-subtitle">
+                {% trans "Introduza o código de 6 dígitos que enviamos para" %}
+                {% if email_destino %}
+                    <strong style="color: #1e293b;">{{ email_destino }}</strong>.
+                {% else %}
+                    {% trans "o seu e-mail" %}.
+                {% endif %}
+            </p>
             
             {% if error %}
             <div class="alert alert-danger" style="font-size: 13px; border-radius: 8px; margin-bottom: 20px;">
