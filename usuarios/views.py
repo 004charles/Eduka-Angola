@@ -408,6 +408,9 @@ def enviar_codigo_verificacao(email, tipo):
     """
     Função auxiliar para gerar e enviar códigos de verificação por e-mail.
     """
+    import logging
+    logger = logging.getLogger(__name__)
+    
     codigo = ''.join([str(random.randint(0, 9)) for _ in range(6)])
     CodigoVerificacao.objects.create(email=email, codigo=codigo, tipo=tipo)
     
@@ -415,6 +418,11 @@ def enviar_codigo_verificacao(email, tipo):
     mensagem = f"Seu código de verificação é: {codigo}"
     
     from django.conf import settings
+    
+    # Log para diagnóstico em produção
+    logger.info(f"[EMAIL] A enviar código para: {email}")
+    logger.info(f"[EMAIL] Host: {settings.EMAIL_HOST} | Port: {settings.EMAIL_PORT} | User: {settings.EMAIL_HOST_USER}")
+    
     email_msg = EmailMultiAlternatives(
         subject=assunto,
         body=mensagem,
@@ -423,8 +431,10 @@ def enviar_codigo_verificacao(email, tipo):
     )
     try:
         email_msg.send()
+        logger.info(f"[EMAIL] ✅ Código enviado com sucesso para {email}")
     except Exception as e:
-        print(f"Erro ao enviar código: {e}")
+        logger.error(f"[EMAIL] ❌ ERRO ao enviar código para {email}: {type(e).__name__}: {e}")
+
 
 def verificar_email(request):
     """
