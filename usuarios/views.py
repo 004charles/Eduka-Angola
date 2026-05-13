@@ -375,68 +375,43 @@ def enviar_email_confirmacao_aluno(nome, email):
     """
     Envia um email de boas-vindas após o registro bem-sucedido do aluno.
     """
-    import logging
-    logger = logging.getLogger(__name__)
-
-    assunto = "🎓 Bem-vindo ao EdukAngola, {}!".format(nome)
+    from core.email_utils import enviar_email_brevo
     
+    assunto = "🎓 Bem-vindo ao EdukAngola, {}!".format(nome)
     contexto = {'nome': nome}
     html_content = render_to_string('bem_vindo.html', contexto)
     text_content = strip_tags(html_content)
     
-    from django.conf import settings
-    email_msg = EmailMultiAlternatives(
+    enviar_email_brevo(
+        to_email=email,
+        to_name=nome,
         subject=assunto,
-        body=text_content,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[email],
+        html_content=html_content,
+        text_content=text_content
     )
-    email_msg.attach_alternative(html_content, "text/html")
-
-    try:
-        email_msg.send()
-        logger.info(f"[EMAIL] ✅ Boas-vindas enviadas para {email}")
-    except Exception as e:
-        logger.error(f"[EMAIL] ❌ Erro ao enviar boas-vindas para {email}: {type(e).__name__}: {e}")
 
 
 def enviar_codigo_verificacao(email, tipo):
     """
     Função auxiliar para gerar e enviar códigos de verificação por e-mail.
+    Usa Brevo HTTP API (porta 443) para evitar bloqueio SMTP no Render.
     """
-    import logging
+    from core.email_utils import enviar_email_brevo
     from django.template.loader import render_to_string
     from django.utils.html import strip_tags
-    logger = logging.getLogger(__name__)
     
     codigo = ''.join([str(random.randint(0, 9)) for _ in range(6)])
     CodigoVerificacao.objects.create(email=email, codigo=codigo, tipo=tipo)
     
-    assunto = "EdukAngola — Código de Verificação"
-    
-    from django.conf import settings
-    
-    # Renderizar template HTML
     html_content = render_to_string('emails/codigo_verificacao.html', {'codigo': codigo})
     text_content = f"O seu código de verificação EdukAngola é: {codigo}\n\nEste código é válido por 10 minutos."
     
-    # Log para diagnóstico em produção
-    logger.info(f"[EMAIL] A enviar código para: {email}")
-    logger.info(f"[EMAIL] Host: {settings.EMAIL_HOST} | Port: {settings.EMAIL_PORT} | User: {settings.EMAIL_HOST_USER}")
-    
-    email_msg = EmailMultiAlternatives(
-        subject=assunto,
-        body=text_content,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[email],
+    enviar_email_brevo(
+        to_email=email,
+        subject="EdukAngola — Código de Verificação",
+        html_content=html_content,
+        text_content=text_content
     )
-    email_msg.attach_alternative(html_content, "text/html")
-    
-    try:
-        email_msg.send()
-        logger.info(f"[EMAIL] ✅ Código enviado com sucesso para {email}")
-    except Exception as e:
-        logger.error(f"[EMAIL] ❌ ERRO ao enviar código para {email}: {type(e).__name__}: {e}")
 
 
 

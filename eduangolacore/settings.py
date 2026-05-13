@@ -289,7 +289,12 @@ WHITENOISE_AUTOREFRESH = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'usuarios.Usuario' 
 
+# Email via Brevo HTTP API (evita bloqueio de porta SMTP no Render)
+BREVO_API_KEY = config('BREVO_API_KEY', default='')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='info@edukangola.com')
+DEFAULT_FROM_NAME = 'EdukAngola'
 
+# Manter SMTP como fallback para desenvolvimento local
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp-relay.brevo.com'
 EMAIL_PORT = 587
@@ -298,7 +303,6 @@ EMAIL_USE_SSL = False
 EMAIL_TIMEOUT = 15
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='info@edukangola.com')
 
 
 
