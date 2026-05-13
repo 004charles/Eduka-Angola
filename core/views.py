@@ -30,11 +30,8 @@ def index(request):
     """
     Página inicial do portal Edukangola com lógica de Landing Gate para visitantes.
     """
-    if not request.user.is_authenticated:
-        return render(request, 'core/landing_gate.html')
-        
     # Redirecionar para onboarding se for aluno e não completou
-    if request.user.tipo_usuario == 'ALUNO':
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
         try:
             aluno = request.user.aluno_profile
             # Se não tem perfil ou não completou o onboarding, redireciona

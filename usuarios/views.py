@@ -65,7 +65,7 @@ def adicionar_favorito(request, curso_id):
 
 def login_aluno(request):
     """
-    Redireciona para o novo Portal de Entrada (Landing Gate) na raiz do site.
+    Renderiza o Portal de Entrada (Landing Gate) para login e registro.
     """
     if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
         return redirect('aluno')
@@ -73,16 +73,13 @@ def login_aluno(request):
     status = request.GET.get('status', '')
     next_url = request.GET.get('next', '')
     
-    # Redireciona para a raiz onde está o Landing Gate
-    query = []
-    if status: query.append(f"status={status}")
-    if next_url: query.append(f"next={next_url}")
-    
-    url = "/"
-    if query:
-        url += "?" + "&".join(query)
+    context = {}
+    if status:
+        context['status'] = status
+    if next_url:
+        context['next'] = next_url
         
-    return redirect(url)
+    return render(request, 'core/landing_gate.html', context)
 
 
 
