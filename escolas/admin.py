@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CategoriaEscola, Escola, PerfilEscola, CursoEnsinoMedio, GaleriaEscola, AreaFormacao
+from .models import CategoriaEscola, Escola, PerfilEscola, CursoEnsinoMedio, GaleriaEscola, AreaFormacao, Infraestrutura, ParceriaEscola
 
 @admin.register(CategoriaEscola)
 class CategoriaEscolaAdmin(admin.ModelAdmin):
@@ -19,14 +19,23 @@ class GaleriaEscolaInline(admin.TabularInline):
     model = GaleriaEscola
     extra = 1
 
+class ParceriaEscolaInline(admin.TabularInline):
+    model = ParceriaEscola
+    extra = 1
+
 @admin.register(Escola)
 class EscolaAdmin(admin.ModelAdmin):
     list_display = ('nome', 'tipo_rede', 'provincia', 'municipio', 'ativa')
     list_filter = ('tipo_rede', 'provincia', 'ativa')
     search_fields = ('nome', 'municipio')
-    inlines = [PerfilEscolaInline, CursoEnsinoMedioInline, GaleriaEscolaInline]
+    inlines = [PerfilEscolaInline, CursoEnsinoMedioInline, GaleriaEscolaInline, ParceriaEscolaInline]
 
 @admin.register(AreaFormacao)
 class AreaFormacaoAdmin(admin.ModelAdmin):
     list_display = ('nome',)
+    search_fields = ('nome',)
+
+@admin.register(Infraestrutura)
+class InfraestruturaAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'icone')
     search_fields = ('nome',)

@@ -12,145 +12,80 @@
     {% include 'include/header.html' %}
     {% include 'include/menu_mobile.html' %}
 <main class="rbt-main-wrapper">
-    <!-- Banner da Escola -->
-    <div class="rbt-course-banner-area rbt-page-banner-wrapper bg-color-white" style="padding: 120px 0;">
-        {% if escola.perfil and escola.perfil.banner %}
-        <div class="rbt-banner-image" style="background-image: url('{{ escola.perfil.banner.url }}'); opacity: 0.15;"></div>
-        {% endif %}
-        <div class="rbt-banner-content">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12 text-center">
-                        {% if escola.perfil and escola.perfil.logo %}
-                        <div class="mb-4">
-                            <div style="display: inline-block; padding: 6px; background: var(--color-white); border-radius: 50%; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
-                                <img src="{{ escola.perfil.logo.url }}" alt="Logo" style="width: 140px; height: 140px; border-radius: 50%; border: 4px solid var(--color-border); object-fit: cover; background: var(--color-white);">
-                            </div>
-                        </div>
-                        {% endif %}
-                        <h1 class="title fw-bold mb--20" style="font-size: 52px; letter-spacing: -1px; color: var(--color-heading);">{{ escola.nome }}</h1>
-                        <ul class="rbt-meta justify-content-center" style="font-size: 18px; color: var(--color-body);">
-                            <li><i class="feather-map-pin"></i> <span>{{ escola.municipio }}, {{ escola.provincia }}</span></li>
-                            <li><i class="feather-flag"></i> <span>{{ escola.get_tipo_rede_display }}</span></li>
-                            {% if escola.telefone %}<li><i class="feather-phone"></i> <span>{{ escola.telefone }}</span></li>{% endif %}
-                        </ul>
+    <!-- Banner da Escola (Website Hero Style) -->
+    <div class="rbt-breadcrumb-default ptb--100 ptb_md--50 ptb_sm--30 bg-gradient-1" style="position: relative; overflow: hidden; {% if escola.perfil and escola.perfil.banner %}background-image: url('{{ escola.perfil.banner.url }}'); background-size: cover; background-position: center;{% else %}background: var(--color-primary);{% endif %} min-height: 70vh; display: flex; align-items: center;">
+        
+        <!-- Overlay gradiente para contraste perfeito -->
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 100%); z-index: 1;"></div>
+        
+        <div class="container" style="position: relative; z-index: 2;">
+            <div class="row align-items-center">
+                <!-- Logotipo da Escola -->
+                {% if escola.perfil and escola.perfil.logo %}
+                <div class="col-lg-auto col-md-12 col-12 text-center text-lg-start mb-4 mb-lg-0 pe-lg-5">
+                    <div class="d-inline-block rounded-circle" style="padding: 10px; background: rgba(var(--color-white-rgb), 0.1); backdrop-filter: blur(15px); border: 1px solid rgba(var(--color-white-rgb), 0.2); box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
+                        <img src="{{ escola.perfil.logo.url }}" alt="Logo {{ escola.nome }}" style="width: 180px; height: 180px; border-radius: 50%; object-fit: cover; background: var(--color-white);">
                     </div>
+                </div>
+                {% endif %}
+                
+                <!-- Informações e Título -->
+                <div class="col text-center text-lg-start">
+                    <h1 class="title text-white fw-bold mb-4" style="font-size: clamp(40px, 5vw, 64px); letter-spacing: -1.5px; text-shadow: 0 5px 15px rgba(0,0,0,0.4); line-height: 1.1;">
+                        {{ escola.nome }}
+                    </h1>
+                    
+                    <ul class="rbt-meta d-flex flex-wrap justify-content-center justify-content-lg-start align-items-center mb-0" style="gap: 25px; font-size: 18px; margin-left: 0; padding-left: 0;">
+                        <li class="text-white" style="opacity: 0.95;"><i class="feather-map-pin me-2 text-white"></i>{{ escola.municipio }}, {{ escola.provincia }}</li>
+                        <li class="text-white" style="opacity: 0.95;"><i class="feather-award me-2 text-white"></i>{{ escola.get_tipo_rede_display }}</li>
+                        {% if escola.perfil.ano_fundacao %}
+                        <li class="text-white" style="opacity: 0.95;"><i class="feather-calendar me-2 text-white"></i>Fundada em {{ escola.perfil.ano_fundacao }}</li>
+                        {% endif %}
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Conteúdo do Perfil -->
-    <div class="rbt-course-details-area rbt-section-gap">
+    <!-- Barra Flutuante de Contactos Rápidos -->
+    <div class="rbt-counterup-area" style="margin-top: -50px; position: relative; z-index: 10;">
         <div class="container">
-            <div class="row g-5">
-                <div class="col-lg-8">
-                    <!-- Descrição -->
-                    <div class="course-details-content">
-                        <div class="rbt-course-feature-inner mb--60">
-                            <div class="section-title">
-                                <h4 class="title">Sobre a Escola</h4>
+            <div class="row">
+                <div class="col-12">
+                    <div class="rbt-shadow-box bg-color-white p-4 p-md-5 rounded-3 d-flex flex-wrap justify-content-between align-items-center" style="gap: 30px; box-shadow: 0 15px 40px rgba(0,0,0,0.08) !important;">
+                        
+                        <div class="d-flex align-items-center">
+                            <div class="icon bg-primary-opacity rounded-circle d-flex justify-content-center align-items-center me-3" style="width: 60px; height: 60px;">
+                                <i class="feather-navigation text-primary" style="font-size: 24px;"></i>
                             </div>
-                            <p>{{ escola.perfil.descricao|default:"Sem descrição disponível." }}</p>
-                            
-                            {% if escola.perfil.missao %}
-                            <h5 class="mt-4">Missão</h5>
-                            <p>{{ escola.perfil.missao }}</p>
-                            {% endif %}
-                        </div>
-
-                        <!-- Cursos -->
-                        <div class="rbt-course-feature-inner mb--60">
-                            <div class="section-title">
-                                <h4 class="title">Cursos Ministrados</h4>
-                            </div>
-                            <div class="row g-4">
-                                {% for curso in escola.cursos.all %}
-                                <div class="col-md-6">
-                                    <div class="rbt-card variation-01 rbt-hover">
-                                        <div class="rbt-card-body p-4">
-                                            {% if curso.area_formacao %}
-                                            <span class="rbt-badge-6 mb-2 d-inline-block">{{ curso.area_formacao.nome }}</span>
-                                            {% endif %}
-                                            <h5 class="title">{{ curso.nome }}</h5>
-                                            <p class="text-muted mb-2">{{ curso.descricao|truncatewords:15 }}</p>
-                                            <ul class="rbt-meta mb-0">
-                                                <li><i class="feather-clock"></i> {{ curso.duracao_anos }} Anos</li>
-                                                {% if curso.periodos %}<li><i class="feather-sun"></i> {{ curso.periodos }}</li>{% endif %}
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% empty %}
-                                <div class="col-12">
-                                    <p>Nenhum curso registado.</p>
-                                </div>
-                                {% endfor %}
+                            <div>
+                                <span class="d-block text-muted" style="font-size: 13px; text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">Endereço</span>
+                                <span class="fw-bold text-color-body" style="font-size: 16px;">{{ escola.endereco|default:escola.municipio }}</span>
                             </div>
                         </div>
-
-                        <!-- Galeria -->
-                        {% if escola.galeria.exists %}
-                        <div class="rbt-course-feature-inner">
-                            <div class="section-title">
-                                <h4 class="title">Galeria de Imagens</h4>
+                        
+                        <div class="d-flex align-items-center">
+                            <div class="icon bg-primary-opacity rounded-circle d-flex justify-content-center align-items-center me-3" style="width: 60px; height: 60px;">
+                                <i class="feather-phone text-primary" style="font-size: 24px;"></i>
                             </div>
-                            <div class="row g-3">
-                                {% for imagem in escola.galeria.all %}
-                                <div class="col-md-4 col-sm-6">
-                                    <img src="{{ imagem.imagem.url }}" alt="{{ imagem.legenda }}" class="rounded shadow-sm" style="width: 100%; height: 150px; object-fit: cover;">
-                                </div>
-                                {% endfor %}
+                            <div>
+                                <span class="d-block text-muted" style="font-size: 13px; text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">Contactos</span>
+                                <span class="fw-bold text-color-body" style="font-size: 16px;">{{ escola.telefone|default:"Não disponível" }}</span>
                             </div>
                         </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <!-- Sidebar Informativa -->
-                <div class="col-lg-4">
-                    <div class="course-sidebar sticky-top rbt-shadow-box">
-                        <div class="inner">
-                            <div class="content-item-content">
-                                <div class="rbt-price-wrapper d-flex flex-wrap align-items-center justify-content-between">
-                                    <div class="rbt-price">
-                                        {% if escola.mensalidade_base > 0 %}
-                                            <span class="current-price">{{ escola.mensalidade_base }} Kz/mês</span>
-                                        {% else %}
-                                            <span class="current-price text-success">Gratuito (Ensino Público)</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-
-                                <div class="rbt-widget-details mt--20">
-                                    <ul class="rbt-course-details-list-wrapper">
-                                        {% if escola.endereco %}
-                                        <li><span>Endereço</span><span class="rbt-feature-value rbt-badge-5">{{ escola.endereco }}</span></li>
-                                        {% endif %}
-                                        {% if escola.telefone %}
-                                        <li><span>Telefone</span><span class="rbt-feature-value rbt-badge-5">{{ escola.telefone }}</span></li>
-                                        {% endif %}
-                                        {% if escola.email %}
-                                        <li><span>E-mail</span><span class="rbt-feature-value rbt-badge-5">{{ escola.email }}</span></li>
-                                        {% endif %}
-                                        {% if escola.perfil.ano_fundacao %}
-                                        <li><span>Fundação</span><span class="rbt-feature-value rbt-badge-5">{{ escola.perfil.ano_fundacao }}</span></li>
-                                        {% endif %}
-                                        {% if escola.perfil.diretor %}
-                                        <li><span>Diretor(a)</span><span class="rbt-feature-value rbt-badge-5">{{ escola.perfil.diretor }}</span></li>
-                                        {% endif %}
-                                    </ul>
-                                </div>
-
-                                {% if escola.perfil.facebook or escola.perfil.instagram or escola.perfil.linkedin or escola.site %}
-                                <div class="social-share-wrapper mt--30 text-center">
-                                    <ul class="social-icon social-default transparent-with-border">
-                                        {% if escola.perfil.facebook %}<li><a href="{{ escola.perfil.facebook }}"><i class="feather-facebook"></i></a></li>{% endif %}
-                                        {% if escola.perfil.instagram %}<li><a href="{{ escola.perfil.instagram }}"><i class="feather-instagram"></i></a></li>{% endif %}
-                                        {% if escola.perfil.linkedin %}<li><a href="{{ escola.perfil.linkedin }}"><i class="feather-linkedin"></i></a></li>{% endif %}
-                                        {% if escola.site %}<li><a href="{{ escola.site }}"><i class="feather-globe"></i></a></li>{% endif %}
-                                    </ul>
-                                </div>
+                        
+                        <div class="d-flex align-items-center">
+                            <div class="icon bg-primary-opacity rounded-circle d-flex justify-content-center align-items-center me-3" style="width: 60px; height: 60px;">
+                                <i class="feather-info text-primary" style="font-size: 24px;"></i>
+                            </div>
+                            <div>
+                                <span class="d-block text-muted" style="font-size: 13px; text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">Mensalidade Base</span>
+                                {% if escola.tipo_rede == 'PUBLICA' %}
+                                <span class="fw-bold text-success" style="font-size: 18px;">Ensino Gratuito</span>
+                                {% elif escola.mensalidade_base > 0 %}
+                                <span class="fw-bold text-primary" style="font-size: 18px;">{{ escola.mensalidade_base }} Kz</span>
+                                {% else %}
+                                <span class="fw-bold text-color-body" style="font-size: 16px;">Sob consulta</span>
                                 {% endif %}
                             </div>
                         </div>
@@ -159,8 +94,297 @@
             </div>
         </div>
     </div>
+
+    <!-- Secção Inscrições Abertas -->
+    {% if escola.perfil.inscricoes_abertas %}
+    <div class="rbt-section-gapTop">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="p-5 rounded-3 shadow-sm" style="background: linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.05) 0%, rgba(var(--color-secondary-rgb), 0.1) 100%); border-left: 6px solid var(--color-primary);">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="icon bg-primary text-white rounded-circle d-flex justify-content-center align-items-center me-4" style="width: 70px; height: 70px; flex-shrink: 0; box-shadow: 0 10px 20px rgba(var(--color-primary-rgb), 0.3);">
+                                <i class="feather-bell" style="font-size: 32px;"></i>
+                            </div>
+                            <div>
+                                <h2 class="title mb-1 text-primary" style="font-size: 32px; font-weight: 800;">Inscrições Abertas!</h2>
+                                {% if escola.perfil.prazo_inscricoes %}
+                                <p class="mb-0 fw-medium" style="font-size: 18px;">Prazo limite de matrícula: <span class="text-danger fw-bold">{{ escola.perfil.prazo_inscricoes|date:"d \d\e F \d\e Y" }}</span></p>
+                                {% else %}
+                                <p class="mb-0 text-muted" style="font-size: 18px;">A nossa instituição está atualmente a aceitar candidaturas e matrículas.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {% if escola.perfil.requisitos_inscricao %}
+                        <div class="bg-color-white p-5 rounded-3 mt-4" style="border: 1px solid var(--color-border);">
+                            <h5 class="title mb-4" style="font-size: 20px;"><i class="feather-file-text me-2 text-primary"></i>Requisitos e Documentos Necessários:</h5>
+                            <p class="mb-0 text-color-body" style="white-space: pre-wrap; font-size: 16px; line-height: 1.8;">{{ escola.perfil.requisitos_inscricao }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Secção Sobre Nós -->
+    <div class="rbt-about-area rbt-section-gap">
+        <div class="container">
+            <div class="row g-5 align-items-center">
+                <div class="col-lg-6">
+                    <div class="rbt-about-content">
+                        <div class="section-title text-start mb--30">
+                            <span class="subtitle bg-primary-opacity">A Nossa História</span>
+                            <h2 class="title" style="font-weight: 800;">Sobre a Instituição</h2>
+                        </div>
+                        <p class="mb--30" style="font-size: 18px; line-height: 1.8; color: var(--color-body);">
+                            {{ escola.perfil.descricao|default:"Sem descrição disponível." }}
+                        </p>
+                        
+                        {% if escola.perfil.missao %}
+                        <div class="rbt-feature-wrapper mt--40">
+                            <div class="rbt-feature feature-style-1 align-items-start">
+                                <div class="icon bg-primary-opacity mt-2">
+                                    <i class="feather-target text-primary"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h5 class="feature-title" style="font-size: 20px;">A Nossa Missão</h5>
+                                    <p class="feature-description" style="font-size: 16px; line-height: 1.6;">{{ escola.perfil.missao }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    {% if escola.perfil.infraestruturas.exists %}
+                    <div class="row g-4">
+                        {% for infra in escola.perfil.infraestruturas.all|slice:":4" %}
+                        <div class="col-6">
+                            <div class="rbt-flipbox text-center h-100">
+                                <div class="rbt-flipbox-wrap rbt-shadow-box bg-color-white h-100 d-flex flex-column justify-content-center align-items-center" style="padding: 40px 20px; border-radius: 12px; border: 1px solid var(--color-border);">
+                                    <div class="icon mb-4">
+                                        <i class="{{ infra.icone }} text-primary" style="font-size: 48px;"></i>
+                                    </div>
+                                    <h6 class="title mb-0" style="font-size: 18px; font-weight: 700;">{{ infra.nome }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% elif escola.galeria.exists %}
+                    <div class="image-wrapper rounded-3 overflow-hidden shadow-sm">
+                        <img src="{{ escola.galeria.first.imagem.url }}" alt="Sobre Nós" class="w-100" style="height: 500px; object-fit: cover;">
+                    </div>
+                    {% else %}
+                    <div class="rbt-shadow-box bg-color-extra2 rounded-3 h-100 d-flex align-items-center justify-content-center" style="min-height: 400px;">
+                        <img src="{% static 'images/logo/logo.png' %}" alt="Eduka-Angola" style="opacity: 0.1; width: 200px;">
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secção Parceiros (Se houver) -->
+    {% if escola.parcerias.exists %}
+    <div class="rbt-partner-area bg-color-white rbt-section-gapBottom">
+        <div class="container">
+            <div class="row mb--40">
+                <div class="col-12 text-center">
+                    <div class="section-title">
+                        <h4 class="title" style="font-size: 24px;">Parceiros de Estágio e Empregabilidade</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-4 justify-content-center">
+                {% for parceria in escola.parcerias.all %}
+                <div class="col-lg-3 col-md-4 col-sm-6 col-6">
+                    <div class="rbt-card text-center p-4 h-100 d-flex flex-column justify-content-center align-items-center" style="border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-white);">
+                        {% if parceria.logo %}
+                        <img src="{{ parceria.logo.url }}" alt="{{ parceria.nome_empresa }}" style="max-height: 80px; object-fit: contain; margin-bottom: 15px;">
+                        {% else %}
+                        <div class="icon bg-primary-opacity mb-3" style="width: 60px; height: 60px; line-height: 60px; text-align: center; border-radius: 50%;">
+                            <i class="feather-briefcase text-primary" style="font-size: 24px;"></i>
+                        </div>
+                        {% endif %}
+                        <h6 class="title mb-0" style="font-size: 16px; font-weight: 600;">{{ parceria.nome_empresa }}</h6>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Secção Oferta Formativa -->
+    <div class="rbt-course-area bg-color-extra2 rbt-section-gap">
+        <div class="container">
+            <div class="row mb--60">
+                <div class="col-lg-12">
+                    <div class="section-title text-center">
+                        <span class="subtitle bg-primary-opacity">Cursos & Especializações</span>
+                        <h2 class="title" style="font-weight: 800;">Oferta Formativa</h2>
+                        <p class="description mt--20" style="font-size: 18px;">Explore os nossos cursos e encontre o caminho ideal para o seu futuro.</p>
+                    </div>
+                    
+                    <div class="d-flex justify-content-center mt--40">
+                        <div class="search-box" style="width: 100%; max-width: 600px;">
+                            <div class="position-relative bg-color-white shadow-sm rounded-pill border" style="border-color: var(--color-border) !important;">
+                                <input type="text" id="courseSearchInput" placeholder="Pesquisar por curso ou área..." class="form-control form-control-lg border-0 bg-transparent" style="border-radius: 50px; padding-left: 65px; height: 70px; font-size: 16px; font-weight: 500; color: var(--color-body);">
+                                <i class="feather-search position-absolute text-primary" style="left: 25px; top: 50%; transform: translateY(-50%); font-size: 24px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row g-5" id="courseListContainer">
+                {% for curso in escola.cursos.all %}
+                <div class="col-lg-4 col-md-6 col-12 course-item" data-title="{{ curso.nome|lower }}" data-area="{{ curso.area_formacao.nome|lower }}">
+                    <div class="rbt-card variation-01 rbt-hover h-100 shadow-sm border-0 bg-color-white" style="border-radius: 16px;">
+                        <div class="rbt-card-body p-5 d-flex flex-column h-100">
+                            {% if curso.area_formacao %}
+                            <div><span class="rbt-badge-6 mb-3 d-inline-block">{{ curso.area_formacao.nome }}</span></div>
+                            {% endif %}
+                            <h4 class="title mb-3" style="font-size: 22px; font-weight: 700;">{{ curso.nome }}</h4>
+                            <p class="text-muted mb-4 flex-grow-1" style="line-height: 1.6;">{{ curso.descricao|truncatewords:20 }}</p>
+                            
+                            <ul class="rbt-meta mb-0 mt-2 pb-4 border-bottom">
+                                <li><i class="feather-book-open"></i> {{ curso.classes_lecionadas }}</li>
+                                <li><i class="feather-clock"></i> {{ curso.duracao_anos }} Anos</li>
+                            </ul>
+                            
+                            <div class="rbt-price-wrapper mt-4">
+                                {% if escola.tipo_rede == 'PUBLICA' %}
+                                    <span class="rbt-badge-5 bg-success-opacity text-success w-100 text-center py-2" style="font-weight: 700; font-size: 14px;"><i class="feather-check-circle me-1"></i> Curso Gratuito</span>
+                                {% else %}
+                                    {% if curso.mensalidade %}
+                                        <span class="rbt-price current-price text-primary" style="font-size: 24px; font-weight: 800;">{{ curso.mensalidade }} Kz <small class="text-muted" style="font-size: 14px; font-weight: normal;">/mês</small></span>
+                                    {% elif escola.mensalidade_base > 0 %}
+                                        <span class="rbt-price current-price text-primary" style="font-size: 24px; font-weight: 800;">{{ escola.mensalidade_base }} Kz <small class="text-muted" style="font-size: 14px; font-weight: normal;">/mês</small></span>
+                                    {% else %}
+                                        <span class="rbt-price current-price text-primary" style="font-size: 18px; font-weight: 600;">Preço sob consulta</span>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+
+                            {% if curso.exige_exame %}
+                            <div class="mt-4">
+                                <span class="badge bg-danger bg-opacity-10 text-danger p-3 w-100 text-start" style="font-size: 14px; font-weight: 600; border-radius: 8px;">
+                                    <i class="feather-alert-triangle me-2"></i> Exame: {{ curso.disciplinas_exame }}
+                                </span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted" style="font-size: 18px;">Nenhum curso registado de momento.</p>
+                </div>
+                {% endfor %}
+                
+                <!-- Mensagem de Sem Resultados -->
+                <div class="col-12 text-center py-5 d-none" id="noResultsMsg">
+                    <div class="icon bg-color-white shadow-sm rounded-circle d-inline-flex justify-content-center align-items-center mb-4 border" style="width: 80px; height: 80px; border-color: var(--color-border) !important;">
+                        <i class="feather-search text-muted" style="font-size: 32px;"></i>
+                    </div>
+                    <h4 class="title">Nenhum curso encontrado</h4>
+                    <p class="text-muted" style="font-size: 16px;">Tente pesquisar por outros termos.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secção Galeria & Laboratórios -->
+    {% if escola.galeria.exists %}
+    <div class="rbt-gallery-area rbt-section-gap">
+        <div class="container">
+            <div class="row mb--60">
+                <div class="col-lg-12">
+                    <div class="section-title text-center">
+                        <span class="subtitle bg-primary-opacity">O Nosso Espaço</span>
+                        <h2 class="title" style="font-weight: 800;">Campus & Instalações</h2>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row g-3">
+                {% for imagem in escola.galeria.all %}
+                <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                    <div class="rbt-gallery-item rounded-3 overflow-hidden shadow-sm position-relative group" style="height: 180px;">
+                        <img src="{{ imagem.imagem.url }}" alt="{{ imagem.legenda|default:'Foto da Instituição' }}" class="w-100 h-100 object-fit-cover" style="transition: transform 0.5s ease;">
+                        <div class="overlay position-absolute bottom-0 start-0 w-100 p-2" style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); opacity: 1; transition: opacity 0.3s ease;">
+                            {% if imagem.legenda %}
+                            <h6 class="text-white mb-0" style="font-size: 13px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); line-height: 1.2;">{{ imagem.legenda }}</h6>
+                            {% endif %}
+                            <span class="badge bg-primary mt-1" style="font-size: 10px;">{{ imagem.get_categoria_display }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Mini Footer da Instituição -->
+    <div class="rbt-footer-area bg-color-dark text-white ptb--50">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 col-md-6 text-center text-md-start mb-4 mb-md-0">
+                    <h4 class="text-white mb-2" style="font-weight: 700;">{{ escola.nome }}</h4>
+                    <p class="mb-0 text-white opacity-75" style="font-size: 15px;">Desenvolvido pela Plataforma Eduka-Angola.</p>
+                </div>
+                <div class="col-lg-6 col-md-6 text-center text-md-end">
+                    <ul class="social-icon social-default transparent-with-border d-inline-flex">
+                        {% if escola.perfil.facebook %}<li><a href="{{ escola.perfil.facebook }}"><i class="feather-facebook"></i></a></li>{% endif %}
+                        {% if escola.perfil.instagram %}<li><a href="{{ escola.perfil.instagram }}"><i class="feather-instagram"></i></a></li>{% endif %}
+                        {% if escola.perfil.linkedin %}<li><a href="{{ escola.perfil.linkedin }}"><i class="feather-linkedin"></i></a></li>{% endif %}
+                        {% if escola.site %}<li><a href="{{ escola.site }}"><i class="feather-globe"></i></a></li>{% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
-    {% include 'include/footer.html' %}
     {% include 'include/java.html' %}
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const searchInput = document.getElementById('courseSearchInput');
+            const courseItems = document.querySelectorAll('.course-item');
+            const noResultsMsg = document.getElementById('noResultsMsg');
+
+            if (searchInput) {
+                searchInput.addEventListener('keyup', function() {
+                    const term = this.value.toLowerCase().trim();
+                    let found = false;
+
+                    courseItems.forEach(item => {
+                        const title = item.getAttribute('data-title') || '';
+                        const area = item.getAttribute('data-area') || '';
+                        
+                        if (title.includes(term) || area.includes(term)) {
+                            item.classList.remove('d-none');
+                            found = true;
+                        } else {
+                            item.classList.add('d-none');
+                        }
+                    });
+
+                    if (!found && courseItems.length > 0) {
+                        noResultsMsg.classList.remove('d-none');
+                    } else {
+                        noResultsMsg.classList.add('d-none');
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

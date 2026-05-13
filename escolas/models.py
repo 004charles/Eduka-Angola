@@ -57,9 +57,24 @@ class Escola(models.Model):
         return f"{self.nome} ({self.provincia})"
 
 
+class Infraestrutura(models.Model):
+    """Infraestruturas e recursos disponíveis na Escola (Ex: Laboratório de Informática, Biblioteca)"""
+    nome = models.CharField(_('Nome da Infraestrutura'), max_length=150, unique=True)
+    icone = models.CharField(_('Ícone (Feather)'), max_length=50, default='feather-check-circle', help_text="Ex: feather-monitor, feather-book")
+
+    class Meta:
+        verbose_name = _('Infraestrutura')
+        verbose_name_plural = _('Infraestruturas')
+        ordering = ['nome']
+
+    def __str__(self):
+        return self.nome
+
+
 class PerfilEscola(models.Model):
     """Informações estendidas e de branding da Escola."""
     escola = models.OneToOneField(Escola, on_delete=models.CASCADE, related_name='perfil')
+    infraestruturas = models.ManyToManyField(Infraestrutura, blank=True, related_name='escolas_com_infraestrutura')
     
     logo = models.ImageField(_('Logotipo'), upload_to='escolas/logos/', null=True, blank=True)
     banner = models.ImageField(_('Banner/Capa'), upload_to='escolas/banners/', null=True, blank=True)
@@ -77,6 +92,11 @@ class PerfilEscola(models.Model):
     whatsapp = models.CharField(_('WhatsApp'), max_length=50, blank=True)
     
     verificada = models.BooleanField(_('Escola Verificada'), default=False)
+    
+    # Inscrições
+    inscricoes_abertas = models.BooleanField(_('Inscrições Abertas?'), default=False, help_text="Marque se a escola está atualmente a aceitar inscrições.")
+    prazo_inscricoes = models.DateField(_('Prazo das Inscrições'), null=True, blank=True)
+    requisitos_inscricao = models.TextField(_('Requisitos e Documentos'), blank=True, help_text="Ex: Cópia do BI, 4 Fotografias, Certificado de Habilitações, etc.")
     
     def __str__(self):
         return f"Perfil de {self.escola.nome}"
@@ -102,9 +122,18 @@ class CursoEnsinoMedio(models.Model):
     area_formacao = models.ForeignKey(AreaFormacao, on_delete=models.SET_NULL, null=True, blank=True, related_name='cursos')
     nome = models.CharField(_('Nome do Curso'), max_length=150)
     descricao = models.TextField(_('Descrição do Curso'), blank=True)
+    
+    classes_lecionadas = models.CharField(_('Classes Lecionadas'), max_length=100, default='10ª à 12ª Classe', help_text="Ex: 10ª à 12ª Classe, 10ª à 13ª Classe")
     duracao_anos = models.PositiveIntegerField(_('Duração (Anos)'), default=3)
     periodos = models.CharField(_('Períodos (Manhã, Tarde, Noite)'), max_length=100, blank=True)
+    
+    exige_exame = models.BooleanField(_('Exige Exame de Admissão?'), default=False)
+    disciplinas_exame = models.CharField(_('Disciplinas do Exame'), max_length=255, blank=True, help_text="Ex: Matemática e Física")
+    
     vagas_anuais = models.PositiveIntegerField(_('Vagas Anuais Estimadas'), null=True, blank=True)
+    
+    mensalidade = models.DecimalField(_('Mensalidade Específica (Kz)'), max_digits=12, decimal_places=2, null=True, blank=True, help_text="Se vazio, usa a mensalidade base da escola.")
+    taxa_inscricao = models.DecimalField(_('Taxa de Inscrição/Matrícula (Kz)'), max_digits=12, decimal_places=2, null=True, blank=True)
 
     class Meta:
         verbose_name = _('Curso do Ensino Médio')
@@ -117,7 +146,15 @@ class CursoEnsinoMedio(models.Model):
 
 class GaleriaEscola(models.Model):
     """Galeria de imagens da Escola"""
+    CATEGORIAS = [
+        ('GERAL', 'Geral'),
+        ('SALAS', 'Salas de Aula'),
+        ('LABS', 'Laboratórios e Infraestruturas'),
+        ('EVENTOS', 'Eventos'),
+        ('DESPORTO', 'Desporto'),
+    ]
     escola = models.ForeignKey(Escola, on_delete=models.CASCADE, related_name='galeria')
+    categoria = models.CharField(_('Categoria'), max_length=20, choices=CATEGORIAS, default='GERAL')
     imagem = models.ImageField(_('Imagem'), upload_to='escolas/galeria/')
     legenda = models.CharField(_('Legenda'), max_length=200, blank=True)
     data_upload = models.DateTimeField(auto_now_add=True)
@@ -128,3 +165,19 @@ class GaleriaEscola(models.Model):
 
     def __str__(self):
         return f"Imagem de {self.escola.nome}"
+
+
+class ParceriaEscola(models.Model):
+    """Empresas parceiras para estágios e empregabilidade (Especialmente para ensino técnico)"""
+    escola = models.ForeignKey(Escola, on_delete=models.CASCADE, related_name='parcerias')
+    nome_empresa = models.CharField(_('Nome da Empresa/Parceiro'), max_length=150)
+    logo = models.ImageField(_('Logotipo do Parceiro'), upload_to='escolas/parcerias/', blank=True, null=True)
+    descricao = models.TextField(_('Descrição da Parceria (Ex: Estágios para Mecânica)'), blank=True)
+
+    class Meta:
+        verbose_name = _('Parceria de Estágio')
+        verbose_name_plural = _('Parcerias de Estágios')
+        ordering = ['nome_empresa']
+
+    def __str__(self):
+        return f"{self.nome_empresa} - {self.escola.nome}"
