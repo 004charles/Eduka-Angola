@@ -375,19 +375,14 @@ def enviar_email_confirmacao_aluno(nome, email):
     """
     Envia um email de boas-vindas após o registro bem-sucedido do aluno.
     """
-    assunto = "Bem-vindo à Plataforma Edukangola!"
+    import logging
+    logger = logging.getLogger(__name__)
+
+    assunto = "🎓 Bem-vindo ao EdukAngola, {}!".format(nome)
     
-    # Contexto para o template
-    contexto = {
-        'nome': nome,
-        'plataforma': 'Edukangola',
-        'cor_primaria': '#333333',  # Cinza escuro
-        'cor_secundaria': '#000000',  # Preto
-    }
-    
-    # Renderizar o template HTML
+    contexto = {'nome': nome}
     html_content = render_to_string('bem_vindo.html', contexto)
-    text_content = strip_tags(html_content)  # Versão texto simples
+    text_content = strip_tags(html_content)
     
     from django.conf import settings
     email_msg = EmailMultiAlternatives(
@@ -397,12 +392,13 @@ def enviar_email_confirmacao_aluno(nome, email):
         to=[email],
     )
     email_msg.attach_alternative(html_content, "text/html")
-    
 
     try:
         email_msg.send()
+        logger.info(f"[EMAIL] ✅ Boas-vindas enviadas para {email}")
     except Exception as e:
-        print(f"Erro ao enviar e-mail: {e}")
+        logger.error(f"[EMAIL] ❌ Erro ao enviar boas-vindas para {email}: {type(e).__name__}: {e}")
+
 
 def enviar_codigo_verificacao(email, tipo):
     """

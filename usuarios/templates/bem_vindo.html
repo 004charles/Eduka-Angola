@@ -1,85 +1,216 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #ffffff;
-            background-color: #333333; /* Fundo cinza */
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #000000; /* Fundo preto */
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .header {
-            text-align: center;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #444;
-        }
-        .header h1 {
-            color: #ffffff;
-        }
-        .content {
-            padding: 20px 0;
-        }
-        .footer {
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid #444;
-            font-size: 12px;
-            color: #aaaaaa;
-        }
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #333333;
-            color: #ffffff;
-            text-decoration: none;
-            border-radius: 5px;
-            margin: 20px 0;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo ao EdukAngola</title>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Bem-vindo à {{ plataforma }}, {{ nome }}!</h1>
-        </div>
-        
-        <div class="content">
-            <p>Estamos muito felizes por você ter se juntado à nossa plataforma de educação.</p>
-            
-            <p>A Edukangola está comprometida em fornecer os melhores recursos educacionais 
-            para ajudar você a alcançar seus objetivos de aprendizagem.</p>
-            
-            <p>Aqui você encontrará:</p>
-            <ul>
-                <li>Cursos de alta qualidade</li>
-                <li>Materiais didáticos atualizados</li>
-                <li>Suporte de instrutores especializados</li>
-                <li>Comunidade de alunos engajados</li>
-                <li>Instituicoes de ensino</li>
-            </ul>
-            
-            <p>Estamos aqui para apoiar sua jornada educacional. Não hesite em explorar 
-            todos os recursos que disponibilizamos para você.</p>
-            
-            <center>
-                <a href="{% url 'index' %}" class="btn">Acessar Plataforma</a>
-            </center>
-        </div>
-        
-        <div class="footer">
-            <p>© {% now "Y" %} Edukangola. Todos os direitos reservados.</p>
-            <p>Se você não se cadastrou em nossa plataforma, por favor ignore este e-mail.</p>
-        </div>
-    </div>
+<body style="margin:0; padding:0; background-color:#f1f5f9; font-family:'Segoe UI', Arial, sans-serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f1f5f9; padding: 40px 0;">
+    <tr>
+        <td align="center">
+            <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px; width:100%;">
+
+                <!-- Logo -->
+                <tr>
+                    <td align="center" style="padding-bottom: 28px;">
+                        <div style="background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%); border-radius: 16px; padding: 14px 30px; display:inline-block;">
+                            <span style="font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">Eduk<span style="opacity:0.85;">Angola</span></span>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Card Principal -->
+                <tr>
+                    <td style="background:#ffffff; border-radius: 24px; overflow:hidden; box-shadow: 0 4px 30px rgba(0,0,0,0.08);">
+
+                        <!-- Hero Banner -->
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td style="background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%); padding: 50px 40px; text-align:center;">
+                                    <div style="font-size: 56px; margin-bottom: 16px;">🎓</div>
+                                    <h1 style="margin:0 0 10px; color:#ffffff; font-size:28px; font-weight:800; line-height:1.3;">
+                                        Bem-vindo ao EdukAngola,<br>
+                                        <span style="color: #fde68a;">{{ nome }}!</span>
+                                    </h1>
+                                    <p style="margin:0; color:rgba(255,255,255,0.88); font-size:15px; line-height:1.6; max-width:420px; margin:0 auto;">
+                                        A tua conta foi criada com sucesso. A partir de agora, tens acesso ao maior ecossistema de formação profissional de Angola.
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Mensagem de boas-vindas -->
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td style="padding: 36px 40px 0;">
+                                    <p style="margin:0 0 8px; color:#1e293b; font-size:17px; font-weight:700;">Olá, {{ nome }}! 👋</p>
+                                    <p style="margin:0; color:#475569; font-size:14px; line-height:1.8;">
+                                        Estamos muito felizes por teres escolhido o EdukAngola para investir no teu futuro. 
+                                        Juntaste-te a uma comunidade de estudantes e profissionais que estão a transformar as suas carreiras em Angola e no mundo lusófono.
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Divisor -->
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td style="padding: 28px 40px 10px;">
+                                    <p style="margin:0 0 20px; color:#1e293b; font-size:15px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">
+                                        🌟 O que tens ao teu alcance:
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Vantagens - Cards -->
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td style="padding: 0 40px;">
+
+                                    <!-- Vantagem 1 -->
+                                    <table width="100%" cellpadding="0" cellspacing="0" style="background:#faf5ff; border-radius:14px; margin-bottom:14px; border-left: 4px solid #7c3aed;">
+                                        <tr>
+                                            <td style="padding: 16px 20px;">
+                                                <table cellpadding="0" cellspacing="0">
+                                                    <tr>
+                                                        <td style="font-size:28px; width:48px; vertical-align:middle;">🏫</td>
+                                                        <td style="padding-left:14px; vertical-align:middle;">
+                                                            <strong style="color:#1e293b; font-size:14px; display:block; margin-bottom:3px;">Centros de Formação de Prestígio</strong>
+                                                            <span style="color:#64748b; font-size:13px; line-height:1.5;">Acede às melhores instituições de Angola, com certificados reconhecidos pelo mercado de trabalho.</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                    <!-- Vantagem 2 -->
+                                    <table width="100%" cellpadding="0" cellspacing="0" style="background:#fdf4ff; border-radius:14px; margin-bottom:14px; border-left: 4px solid #a855f7;">
+                                        <tr>
+                                            <td style="padding: 16px 20px;">
+                                                <table cellpadding="0" cellspacing="0">
+                                                    <tr>
+                                                        <td style="font-size:28px; width:48px; vertical-align:middle;">🎬</td>
+                                                        <td style="padding-left:14px; vertical-align:middle;">
+                                                            <strong style="color:#1e293b; font-size:14px; display:block; margin-bottom:3px;">EdukAngola Play — Cursos em Vídeo</strong>
+                                                            <span style="color:#64748b; font-size:13px; line-height:1.5;">Aprende no teu ritmo com aulas gravadas pelos melhores especialistas. Sem horários fixos, em qualquer lugar.</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                    <!-- Vantagem 3 -->
+                                    <table width="100%" cellpadding="0" cellspacing="0" style="background:#fdf2f8; border-radius:14px; margin-bottom:14px; border-left: 4px solid #ec4899;">
+                                        <tr>
+                                            <td style="padding: 16px 20px;">
+                                                <table cellpadding="0" cellspacing="0">
+                                                    <tr>
+                                                        <td style="font-size:28px; width:48px; vertical-align:middle;">🏆</td>
+                                                        <td style="padding-left:14px; vertical-align:middle;">
+                                                            <strong style="color:#1e293b; font-size:14px; display:block; margin-bottom:3px;">Certificados Oficiais</strong>
+                                                            <span style="color:#64748b; font-size:13px; line-height:1.5;">Ao concluir formações, recebe certificados digitais partilháveis que validam as tuas competências.</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                    <!-- Vantagem 4 -->
+                                    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4; border-radius:14px; margin-bottom:14px; border-left: 4px solid #22c55e;">
+                                        <tr>
+                                            <td style="padding: 16px 20px;">
+                                                <table cellpadding="0" cellspacing="0">
+                                                    <tr>
+                                                        <td style="font-size:28px; width:48px; vertical-align:middle;">💼</td>
+                                                        <td style="padding-left:14px; vertical-align:middle;">
+                                                            <strong style="color:#1e293b; font-size:14px; display:block; margin-bottom:3px;">Oportunidades de Carreira</strong>
+                                                            <span style="color:#64748b; font-size:13px; line-height:1.5;">Conecta-te com empresas e recrutadores que procuram profissionais qualificados como tu.</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                    <!-- Vantagem 5 -->
+                                    <table width="100%" cellpadding="0" cellspacing="0" style="background:#eff6ff; border-radius:14px; margin-bottom:28px; border-left: 4px solid #3b82f6;">
+                                        <tr>
+                                            <td style="padding: 16px 20px;">
+                                                <table cellpadding="0" cellspacing="0">
+                                                    <tr>
+                                                        <td style="font-size:28px; width:48px; vertical-align:middle;">🎓</td>
+                                                        <td style="padding-left:14px; vertical-align:middle;">
+                                                            <strong style="color:#1e293b; font-size:14px; display:block; margin-bottom:3px;">Bolsas de Estudo</strong>
+                                                            <span style="color:#64748b; font-size:13px; line-height:1.5;">Candidata-te a bolsas e apoios financeiros disponibilizados por parceiros e instituições.</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- CTA Button -->
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td style="padding: 0 40px 36px; text-align:center;">
+                                    <a href="https://www.edukangola.com" style="display:inline-block; background:linear-gradient(135deg, #7c3aed 0%, #ec4899 100%); color:#ffffff; font-size:15px; font-weight:700; padding:16px 40px; border-radius:12px; text-decoration:none; letter-spacing:0.3px;">
+                                        🚀 &nbsp;Começar a minha jornada agora
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Divider -->
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td style="padding: 0 40px;">
+                                    <hr style="border:none; border-top:1px solid #e2e8f0; margin:0;">
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Assinatura -->
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td style="padding: 24px 40px 36px;">
+                                    <p style="margin:0 0 4px; color:#475569; font-size:14px; line-height:1.7;">
+                                        Com orgulho,<br>
+                                        <strong style="color:#7c3aed;">A Equipa EdukAngola</strong>
+                                    </p>
+                                    <p style="margin:10px 0 0; color:#94a3b8; font-size:12px;">
+                                        Dúvidas? Fala connosco: <a href="mailto:info@edukangola.com" style="color:#7c3aed; text-decoration:none;">info@edukangola.com</a>
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                    <td style="padding: 28px 20px; text-align:center;">
+                        <p style="margin:0; color:#94a3b8; font-size:12px; line-height:1.8;">
+                            © 2026 EdukAngola · Todos os direitos reservados<br>
+                            <a href="https://www.edukangola.com" style="color:#7c3aed; text-decoration:none;">www.edukangola.com</a>
+                        </p>
+                    </td>
+                </tr>
+
+            </table>
+        </td>
+    </tr>
+</table>
+
 </body>
 </html>
