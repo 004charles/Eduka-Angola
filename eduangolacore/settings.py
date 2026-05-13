@@ -190,6 +190,8 @@ WSGI_APPLICATION = 'eduangolacore.wsgi.application'
 GDAL_LIBRARY_PATH = config('GDAL_LIBRARY_PATH', default=None)
 GEOS_LIBRARY_PATH = config('GEOS_LIBRARY_PATH', default=None)
 
+import dj_database_url
+
 # Database Configuration
 USE_SQLITE = config('USE_SQLITE', default=False, cast=bool)
 
@@ -201,16 +203,27 @@ if USE_SQLITE:
         }
     }
 else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.contrib.gis.db.backends.postgis',        
-            'NAME': config('DB_NAME', default='eduka_db'),
-            'USER': config('DB_USER', default='db_user'),
-            'PASSWORD': config('DB_PASSWORD', default='db_password'),
-            'HOST': config('DB_HOST', default='localhost'),
-            'PORT': config('DB_PORT', default='5432'),
+    DATABASE_URL = config('DATABASE_URL', default=None)
+    if DATABASE_URL:
+        DATABASES = {
+            'default': dj_database_url.config(
+                default=DATABASE_URL,
+                engine='django.contrib.gis.db.backends.postgis',
+                conn_max_age=600,
+                conn_health_checks=True,
+            )
         }
-    }
+    else:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.contrib.gis.db.backends.postgis',        
+                'NAME': config('DB_NAME', default='eduka_db'),
+                'USER': config('DB_USER', default='db_user'),
+                'PASSWORD': config('DB_PASSWORD', default='db_password'),
+                'HOST': config('DB_HOST', default='localhost'),
+                'PORT': config('DB_PORT', default='5432'),
+            }
+        }
 
 # Override for testing to use SQLite if PostGIS is not available or we are running tests
 import sys
