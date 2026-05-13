@@ -14,7 +14,7 @@ class Command(BaseCommand):
                 "nome": "Ano Novo",
                 "motivo": "Celebração da passagem de ano civil e renovação de esperanças para o futuro."
             },
-            "02-04": {
+            "04-02": {
                 "nome": "Dia do Início da Luta Armada",
                 "motivo": "Homenagem aos heróis que em 1961 iniciaram a luta contra o colonialismo para a libertação de Angola."
             },
