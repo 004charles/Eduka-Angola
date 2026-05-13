@@ -52,10 +52,8 @@ urlpatterns = [
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-# CATCH-ALL deve ser o ÚLTIMO
-urlpatterns += [
-    re_path(r'^.*$', views.erro_404_view, kwargs={'exception': Exception("Page not Found")}),
-]
+# O CATCH-ALL explícito foi removido para não quebrar o APPEND_SLASH do Django.
+# O Django já usa o handler404 definido abaixo automaticamente.
 
 
 handler404 = 'core.views.erro_404_view'
