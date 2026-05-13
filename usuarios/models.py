@@ -166,12 +166,13 @@ class PerfilAluno(models.Model):
         return f"Perfil de {self.aluno.nome}"
 
     def get_foto_perfil_url(self):
-        """Retorna a URL da foto de perfil ou None se não existir"""
+        """Retorna a URL da foto de perfil ou um avatar padrão se não existir"""
         if self.foto_de_perfil:
             return self.foto_de_perfil.url
         elif self.imagem:
             return self.imagem.url
-        return None
+        return '/static/assets/images/client/avatar_default.png'
+
 
     def get_foto_ou_inicial(self):
         """Retorna a foto de perfil ou a inicial do nome"""
