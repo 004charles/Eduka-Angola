@@ -1,0 +1,189 @@
+{% extends 'gestor_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="flex flex-col gap-5 lg:gap-7.5">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-xl font-bold text-foreground">{{ action }} Vaga de Estágio</h1>
+            <p class="text-sm text-secondary-foreground">Preencha os dados da vaga que será exibida para os alunos.</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="{% url 'gerenciar_estagios' %}" class="kt-btn kt-btn-light">
+                <i class="ki-filled ki-arrow-left"></i> Voltar
+            </a>
+        </div>
+    </div>
+
+    {% if messages %}
+        <div class="flex flex-col gap-2">
+            {% for message in messages %}
+                <div class="p-4 rounded-lg text-sm font-medium {% if message.tags == 'success' %}bg-success/10 text-success border border-success/20{% elif message.tags == 'error' %}bg-danger/10 text-danger border border-danger/20{% else %}bg-warning/10 text-warning border border-warning/20{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm overflow-hidden">
+        {% csrf_token %}
+        <div class="p-6 flex flex-col gap-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Título -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Título da Vaga *</label>
+                    <input type="text" name="titulo" value="{{ estagio.titulo|default:'' }}" class="kt-input" placeholder="Ex: Estágio em Desenvolvimento Web" required>
+                </div>
+
+                <!-- Área -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Área do Estágio *</label>
+                    <select name="area" class="kt-select" required>
+                        <option value="">Selecione uma área</option>
+                        {% for area in areas %}
+                            <option value="{{ area.id }}" {% if estagio.area.id == area.id %}selected{% endif %}>{{ area.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-medium text-foreground">Resumo (Max 200 caracteres) *</label>
+                <textarea name="resumo" rows="2" class="kt-input" placeholder="Um pequeno resumo que aparece na listagem..." required>{{ estagio.resumo|default:'' }}</textarea>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-medium text-foreground">Descrição Completa *</label>
+                <textarea name="descricao" rows="6" class="kt-input" placeholder="Detalhes sobre as atividades, empresa, etc..." required>{{ estagio.descricao|default:'' }}</textarea>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Tipo Remuneração -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Tipo de Remuneração *</label>
+                    <select name="tipo_remuneracao" class="kt-select" required>
+                        {% for code, name in tipos_remuneracao %}
+                            <option value="{{ code }}" {% if estagio.tipo_remuneracao == code %}selected{% endif %}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Valor -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Valor (Opcional)</label>
+                    <input type="number" name="valor_remuneracao" value="{{ estagio.valor_remuneracao|default:'' }}" class="kt-input" placeholder="Ex: 50000">
+                </div>
+
+                <!-- Modalidade -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Modalidade *</label>
+                    <select name="modalidade" class="kt-select" required>
+                        {% for code, name in modalidades %}
+                            <option value="{{ code }}" {% if estagio.modalidade == code %}selected{% endif %}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Duração -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Duração *</label>
+                    <select name="duracao_meses" class="kt-select" required>
+                        {% for code, name in duracoes %}
+                            <option value="{{ code }}" {% if estagio.duracao_meses == code %}selected{% endif %}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Carga Horária -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Carga Horária Semanal (horas) *</label>
+                    <input type="number" name="carga_horaria_semanal" value="{{ estagio.carga_horaria_semanal|default:30 }}" class="kt-input" required>
+                </div>
+
+                <!-- Vagas -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Vagas Disponíveis *</label>
+                    <input type="number" name="vagas_disponiveis" value="{{ estagio.vagas_disponiveis|default:1 }}" class="kt-input" required>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Local -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Local de Trabalho *</label>
+                    <input type="text" name="local_trabalho" value="{{ estagio.local_trabalho|default:'' }}" class="kt-input" placeholder="Ex: Escritório Tal ou Remoto" required>
+                </div>
+
+                <!-- Cidade -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Cidade *</label>
+                    <input type="text" name="cidade" value="{{ estagio.cidade|default:'' }}" class="kt-input" required>
+                </div>
+
+                <!-- Província -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Província *</label>
+                    <input type="text" name="provincia" value="{{ estagio.provincia|default:'' }}" class="kt-input" required>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Requisitos -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Requisitos *</label>
+                    <textarea name="requisitos" rows="4" class="kt-input" placeholder="O que o aluno precisa saber ou ter..." required>{{ estagio.requisitos|default:'' }}</textarea>
+                </div>
+
+                <!-- Competências -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Competências Desejadas</label>
+                    <textarea name="competencias_desejadas" rows="4" class="kt-input" placeholder="Diferenciais que o aluno pode ter...">{{ estagio.competencias_desejadas|default:'' }}</textarea>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Datas -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Data de Início *</label>
+                    <input type="date" name="data_inicio" value="{{ estagio.data_inicio|date:'Y-m-d' }}" class="kt-input" required>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-foreground">Data Limite de Inscrição *</label>
+                    <input type="date" name="data_limite_inscricao" value="{{ estagio.data_limite_inscricao|date:'Y-m-d' }}" class="kt-input" required>
+                </div>
+            </div>
+
+            <!-- Imagem -->
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-medium text-foreground">Imagem Principal (Opcional)</label>
+                <input type="file" name="imagem_principal" class="kt-input">
+                {% if estagio.imagem_principal %}
+                    <div class="mt-2">
+                        <img src="{{ estagio.imagem_principal.url }}" alt="Preview" class="w-32 h-32 object-cover rounded-lg">
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if action == 'Editar' %}
+            <!-- Ativo -->
+            <div class="flex items-center gap-2">
+                <input type="checkbox" name="ativo" id="ativo" {% if estagio.ativo %}checked{% endif %} class="rounded border-border text-primary focus:ring-primary">
+                <label for="ativo" class="text-sm font-medium text-foreground">Vaga Ativa</label>
+            </div>
+            {% endif %}
+
+        </div>
+        <div class="p-6 border-t border-border flex justify-end bg-accent/5">
+            <button type="submit" class="kt-btn kt-btn-primary">
+                <i class="ki-filled ki-check"></i> Salvar Vaga
+            </button>
+        </div>
+    </form>
+
+</div>
+{% endblock content %}

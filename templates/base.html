@@ -1,0 +1,29 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="pt-pt">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>EdukAngola | {% block title %}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    {% include 'include/css.html' %}
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="rbt-header-sticky">
+    {% include 'include/header.html' %}
+
+    <main class="rbt-main-wrapper">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'include/footer.html' %}
+    {% include 'include/java.html' %}
+
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

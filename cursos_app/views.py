@@ -1176,6 +1176,7 @@ def cursos_por_centro(request, centro_id):
         'eventos': eventos,
         'parcerias': parcerias,
         'estatisticas': estatisticas,
+        'estagios': centro.estagios.filter(ativo=True).order_by('-data_publicacao'),
         'depoimentos': depoimentos,
         'seguidores_count': seguidores_count,
         'ja_segue': ja_segue,

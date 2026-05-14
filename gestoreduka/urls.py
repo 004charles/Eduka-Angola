@@ -46,6 +46,11 @@ urlpatterns = [
     path('eventos/', views.gerenciar_eventos, name='gerenciar_eventos'),
     path('eventos/criar/', views.criar_evento, name='criar_evento'),
     
+    # Estágios
+    path('estagios/', views.gerenciar_estagios, name='gerenciar_estagios'),
+    path('estagios/criar/', views.criar_estagio, name='criar_estagio'),
+    path('estagios/editar/<int:estagio_id>/', views.editar_estagio, name='editar_estagio'),
+    
     #--------------------------------url chat-------------------------------
     path('chat/', views.chat_centro, name='chat_centro'),
     path('chat/enviar/', views.enviar_mensagem_centro, name='enviar_mensagem_centro'),

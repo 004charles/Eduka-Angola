@@ -1,6 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from estagio.models import Estagio, AreaEstagio
-from ckeditor.fields import RichTextField
+from django.db.models import Q
 
 def estagios_por_area(request, area_slug=None):
     if area_slug:
@@ -21,10 +21,6 @@ def estagios_por_area(request, area_slug=None):
     }
     return render(request, 'seu_template.html', context)
 
-
-from django.shortcuts import render, get_object_or_404
-from .models import Estagio
-
 def estagio_detalhe(request, slug):
     estagio = get_object_or_404(Estagio, slug=slug, ativo=True)
     
@@ -36,3 +32,35 @@ def estagio_detalhe(request, slug):
         'estagio': estagio,
     }
     return render(request, 'estagio/detalhe_estagio.html', context)
+
+def lista_estagios(request):
+    q = request.GET.get('q', '')
+    area_id = request.GET.get('area', '')
+    modalidade = request.GET.get('modalidade', '')
+    
+    estagios = Estagio.objects.filter(ativo=True).order_by('-data_publicacao')
+    
+    if q:
+        estagios = estagios.filter(
+            Q(titulo__icontains=q) | 
+            Q(descricao__icontains=q) | 
+            Q(centro_formacao__nome__icontains=q)
+        )
+        
+    if area_id:
+        estagios = estagios.filter(area_id=area_id)
+        
+    if modalidade:
+        estagios = estagios.filter(modalidade=modalidade)
+        
+    areas = AreaEstagio.objects.filter(ativa=True)
+    
+    context = {
+        'estagios': estagios,
+        'areas': areas,
+        'q': q,
+        'area_selecionada': area_id,
+        'modalidade_selecionada': modalidade,
+        'modalidades': Estagio.MODALIDADE,
+    }
+    return render(request, 'estagio/lista_estagios.html', context)

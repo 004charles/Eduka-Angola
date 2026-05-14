@@ -652,6 +652,169 @@ def criar_evento(request):
     })
 
 
+def gerenciar_estagios(request):
+    """
+    Listagem e gerenciamento de estágios publicados pelo centro.
+    """
+    if not request.user.is_authenticated:
+        return redirect('login_gestor')
+    
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
+        
+    from estagio.models import Estagio
+    
+    estagios_qs = Estagio.objects.filter(centro_formacao=centro)
+    estagios = estagios_qs.order_by('-data_publicacao')
+    
+    from django.core.paginator import Paginator
+    paginator = Paginator(estagios, 15)
+    page_number = request.GET.get('page')
+    estagios_page = paginator.get_page(page_number)
+    
+    return render(request, 'gestor/estagios/listar.html', {
+        'centro': centro,
+        'filial': filial,
+        'estagios': estagios_page
+    })
+
+def criar_estagio(request):
+    """
+    Criação de uma nova vaga de estágio pelo centro.
+    """
+    if not request.user.is_authenticated:
+        return redirect('login_gestor')
+    
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
+        
+    from estagio.models import Estagio, AreaEstagio
+    
+    areas = AreaEstagio.objects.filter(ativa=True)
+    
+    if request.method == 'POST':
+        titulo = request.POST.get('titulo')
+        area_id = request.POST.get('area')
+        descricao = request.POST.get('descricao')
+        resumo = request.POST.get('resumo')
+        tipo_remuneracao = request.POST.get('tipo_remuneracao')
+        valor_remuneracao = request.POST.get('valor_remuneracao') or None
+        modalidade = request.POST.get('modalidade')
+        duracao_meses = request.POST.get('duracao_meses')
+        carga_horaria_semanal = request.POST.get('carga_horaria_semanal')
+        vagas_disponiveis = request.POST.get('vagas_disponiveis')
+        local_trabalho = request.POST.get('local_trabalho')
+        cidade = request.POST.get('cidade')
+        provincia = request.POST.get('provincia')
+        requisitos = request.POST.get('requisitos')
+        competencias_desejadas = request.POST.get('competencias_desejadas')
+        data_inicio = request.POST.get('data_inicio')
+        data_limite_inscricao = request.POST.get('data_limite_inscricao')
+        
+        try:
+            area = AreaEstagio.objects.get(id=area_id) if area_id else None
+            
+            estagio = Estagio.objects.create(
+                centro_formacao=centro,
+                titulo=titulo,
+                area=area,
+                descricao=descricao,
+                resumo=resumo,
+                tipo_remuneracao=tipo_remuneracao,
+                valor_remuneracao=valor_remuneracao,
+                modalidade=modalidade,
+                duracao_meses=int(duracao_meses),
+                carga_horaria_semanal=int(carga_horaria_semanal),
+                vagas_disponiveis=int(vagas_disponiveis),
+                local_trabalho=local_trabalho,
+                cidade=cidade,
+                provincia=provincia,
+                requisitos=requisitos,
+                competencias_desejadas=competencias_desejadas,
+                data_inicio=data_inicio,
+                data_limite_inscricao=data_limite_inscricao
+            )
+            
+            if 'imagem_principal' in request.FILES:
+                estagio.imagem_principal = request.FILES['imagem_principal']
+                estagio.save()
+                
+            messages.success(request, f'Estágio "{estagio.titulo}" criado com sucesso!')
+            return redirect('gerenciar_estagios')
+        except Exception as e:
+            messages.error(request, f'Erro ao criar estágio: {str(e)}')
+            
+    return render(request, 'gestor/estagios/form.html', {
+        'centro': centro,
+        'filial': filial,
+        'areas': areas,
+        'action': 'Criar',
+        'modalidades': Estagio.MODALIDADE,
+        'tipos_remuneracao': Estagio.TIPO_REMUNERACAO,
+        'duracoes': Estagio.DURACAO,
+    })
+
+def editar_estagio(request, estagio_id):
+    """
+    Edição de uma vaga de estágio existente.
+    """
+    if not request.user.is_authenticated:
+        return redirect('login_gestor')
+    
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
+        
+    from estagio.models import Estagio, AreaEstagio
+    
+    estagio = get_object_or_404(Estagio, id=estagio_id, centro_formacao=centro)
+    areas = AreaEstagio.objects.filter(ativa=True)
+    
+    if request.method == 'POST':
+        estagio.titulo = request.POST.get('titulo')
+        area_id = request.POST.get('area')
+        estagio.area = AreaEstagio.objects.get(id=area_id) if area_id else None
+        estagio.descricao = request.POST.get('descricao')
+        estagio.resumo = request.POST.get('resumo')
+        estagio.tipo_remuneracao = request.POST.get('tipo_remuneracao')
+        estagio.valor_remuneracao = request.POST.get('valor_remuneracao') or None
+        estagio.modalidade = request.POST.get('modalidade')
+        estagio.duracao_meses = int(request.POST.get('duracao_meses'))
+        estagio.carga_horaria_semanal = int(request.POST.get('carga_horaria_semanal'))
+        estagio.vagas_disponiveis = int(request.POST.get('vagas_disponiveis'))
+        estagio.local_trabalho = request.POST.get('local_trabalho')
+        estagio.cidade = request.POST.get('cidade')
+        estagio.provincia = request.POST.get('provincia')
+        estagio.requisitos = request.POST.get('requisitos')
+        estagio.competencias_desejadas = request.POST.get('competencias_desejadas')
+        estagio.data_inicio = request.POST.get('data_inicio')
+        estagio.data_limite_inscricao = request.POST.get('data_limite_inscricao')
+        estagio.ativo = request.POST.get('ativo') == 'on'
+        
+        if 'imagem_principal' in request.FILES:
+            estagio.imagem_principal = request.FILES['imagem_principal']
+            
+        try:
+            estagio.save()
+            messages.success(request, f'Estágio "{estagio.titulo}" atualizado com sucesso!')
+            return redirect('gerenciar_estagios')
+        except Exception as e:
+            messages.error(request, f'Erro ao atualizar estágio: {str(e)}')
+            
+    return render(request, 'gestor/estagios/form.html', {
+        'centro': centro,
+        'filial': filial,
+        'estagio': estagio,
+        'areas': areas,
+        'action': 'Editar',
+        'modalidades': Estagio.MODALIDADE,
+        'tipos_remuneracao': Estagio.TIPO_REMUNERACAO,
+        'duracoes': Estagio.DURACAO,
+    })
+
+
 def confirmar_cadastro(request, token):
     convite = get_object_or_404(ConviteCentro, token=token, usado=False)
 

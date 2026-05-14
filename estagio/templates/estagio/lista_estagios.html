@@ -1,0 +1,172 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="pt-pt">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>{% trans "Vagas de Estágio" %} | EdukAngola</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- CSS -->
+    {% include 'include/css.html' %}
+    
+    <style>
+        :root {
+            --estagio-primary: #10b981; /* Verde esmeralda para estágios/carreira */
+            --estagio-bg-light: #f8fafc;
+            --estagio-card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Banner */
+        .estagio-banner {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #065f46 0%, #10b981 100%);
+            color: white;
+            text-align: center;
+        }
+
+        /* Cards */
+        .estagio-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: var(--estagio-card-shadow);
+        }
+        .estagio-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .active-dark-mode .estagio-card {
+            background: #1e293b;
+            border-color: rgba(255,255,255,0.05);
+        }
+
+        .company-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+
+        .badge-modalidade {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body class="rbt-header-sticky">
+
+    {% include 'include/header.html' %}
+
+    <main class="rbt-main-wrapper">
+        
+        <!-- Banner -->
+        <div class="estagio-banner">
+            <div class="container">
+                <h1 class="title text-white" style="font-size: 48px; font-weight: 800;">{% trans "Encontre o Seu Estágio de Sonho" %}</h1>
+                <p class="description text-white-50" style="font-size: 18px;">{% trans "Conectamos talentos às melhores oportunidades do mercado." %}</p>
+            </div>
+        </div>
+
+        <!-- Filtros e Listagem -->
+        <div class="rbt-section-gap">
+            <div class="container">
+                
+                <!-- Barra de Filtros -->
+                <div class="row mb--40">
+                    <div class="col-lg-12">
+                        <form action="." method="GET" class="row g-3 align-items-center">
+                            <div class="col-md-4">
+                                <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="{% trans 'Buscar vagas ou empresas...' %}" style="border-radius: 12px; padding: 12px 20px;">
+                            </div>
+                            <div class="col-md-3">
+                                <select name="area" class="form-select" style="border-radius: 12px; padding: 12px 20px;">
+                                    <option value="">{% trans "Todas as Áreas" %}</option>
+                                    {% for area in areas %}
+                                    <option value="{{ area.id }}" {% if area_selecionada == area.id|stringformat:"s" %}selected{% endif %}>{{ area.nome }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select name="modalidade" class="form-select" style="border-radius: 12px; padding: 12px 20px;">
+                                    <option value="">{% trans "Todas as Modalidades" %}</option>
+                                    {% for mod_key, mod_val in modalidades %}
+                                    <option value="{{ mod_key }}" {% if modalidade_selecionada == mod_key %}selected{% endif %}>{{ mod_val }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="rbt-btn btn-gradient btn-md w-100" style="height: 50px; border-radius: 12px;">{% trans "Filtrar" %}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Listagem -->
+                <div class="row g-5">
+                    {% for estagio in estagios %}
+                    <div class="col-lg-4 col-md-6">
+                        <div class="estagio-card">
+                            <div>
+                                <div class="d-flex align-items-center gap-3 mb--20">
+                                    {% if estagio.centro_formacao.perfil.imagem %}
+                                    <img src="{{ estagio.centro_formacao.perfil.imagem.url }}" alt="{{ estagio.centro_formacao.nome }}" class="company-logo">
+                                    {% else %}
+                                    <div class="company-logo d-flex align-items-center justify-content-center bg-success text-white" style="font-weight: bold; font-size: 24px;">
+                                        {{ estagio.centro_formacao.nome|slice:":1" }}
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <h6 class="mb--0">{{ estagio.centro_formacao.nome }}</h6>
+                                        <span class="text-muted" style="font-size: 12px;"><i class="feather-map-pin me-1"></i>{{ estagio.cidade }}, {{ estagio.provincia }}</span>
+                                    </div>
+                                </div>
+                                <h4 class="title mb--15" style="font-size: 20px; font-weight: 700;">{{ estagio.titulo }}</h4>
+                                <div class="d-flex gap-2 mb--15">
+                                    <span class="badge-modalidade">{{ estagio.get_modalidade_display }}</span>
+                                    <span class="badge bg-light text-dark" style="border-radius: 8px; font-size: 12px; display: flex; align-items: center;">{{ estagio.get_tipo_remuneracao_display }}</span>
+                                </div>
+                                <p class="description" style="font-size: 14px; line-height: 1.6; color: var(--color-body);">
+                                    {{ estagio.resumo|default:estagio.descricao|truncatechars:120 }}
+                                </p>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mt--20 pt--15" style="border-top: 1px solid rgba(0,0,0,0.05);">
+                                <span class="text-muted" style="font-size: 12px;">Publicado em {{ estagio.data_publicacao|date:"d M Y" }}</span>
+                                <a href="{% url 'estagio:estagio_detalhe' estagio.slug %}" class="rbt-btn-link" style="color: #10b981; font-weight: 700;">{% trans "Ver Detalhes" %} <i class="feather-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-lg-12 text-center py-5">
+                        <i class="feather-briefcase display-1 text-muted mb--20"></i>
+                        <h3>{% trans "Nenhuma vaga encontrada" %}</h3>
+                        <p>{% trans "Tente ajustar os termos da sua pesquisa ou filtros." %}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    {% include 'include/footer.html' %}
+    {% include 'include/java.html' %}
+
+</body>
+</html>
