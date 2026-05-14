@@ -32,23 +32,41 @@
             <div class="swiper-wrapper">
                 {% for categoria in categorias %}
                 <div class="swiper-slide">
-                    <div class="rbt-cat-box rbt-cat-box-1 variation-3 text-center">
+                    <div class="rbt-cat-box rbt-cat-box-1 variation-2 text-center">
                         <div class="inner">
                             <div class="thumbnail">
                                 <a href="{% url 'cursos_por_categoria' categoria.slug %}">
-                                    <img src="{{categoria.imagem.url}}" alt="Category Images">
-                                    <div class="read-more-btn">
-                                        <span class="rbt-btn btn-sm btn-white radius-round">
-                                            {% trans "Cursos" %} {{categoria.num_cursos}}
-                                        </span>
-                                    </div>
+                                    {% if categoria.imagem %}
+                                        <img src="{{categoria.imagem.url}}" alt="{{categoria.nome}}">
+                                    {% else %}
+                                        <img src="{% static 'assets/images/category/image/web-design.jpg' %}" alt="{{categoria.nome}}">
+                                    {% endif %}
                                 </a>
+                            </div>
+                            <div class="icons">
+                                {% if 'design' in categoria.slug %}
+                                    <img src="{% static 'assets/images/category/design.png' %}" alt="Icon">
+                                {% elif 'grafico' in categoria.slug %}
+                                    <img src="{% static 'assets/images/category/graphic-designer.png' %}" alt="Icon">
+                                {% elif 'pessoal' in categoria.slug or 'desenvolvimento' in categoria.slug %}
+                                    <img src="{% static 'assets/images/category/personal.png' %}" alt="Icon">
+                                {% elif 'software' in categoria.slug or 'programacao' in categoria.slug or 'ti' in categoria.slug %}
+                                    <img src="{% static 'assets/images/category/server.png' %}" alt="Icon">
+                                {% elif 'mobile' in categoria.slug or 'app' in categoria.slug %}
+                                    <img src="{% static 'assets/images/category/smartphone.png' %}" alt="Icon">
+                                {% else %}
+                                    <img src="{% static 'assets/images/category/web-design.png' %}" alt="Icon">
+                                {% endif %}
                             </div>
                             <div class="content">
                                 <h5 class="title">
                                     <a href="{% url 'cursos_por_categoria' categoria.slug %}">{{categoria.nome}}</a>
                                 </h5>
-                                <p class="description">{% trans "categoria" %}</p>
+                                <div class="read-more-btn">
+                                    <a class="rbt-btn-link" href="{% url 'cursos_por_categoria' categoria.slug %}">
+                                        {{categoria.num_cursos}} {% trans "Cursos" %} <i class="feather-arrow-right"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>

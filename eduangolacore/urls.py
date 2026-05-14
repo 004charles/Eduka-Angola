@@ -43,6 +43,7 @@ urlpatterns = [
     path('api/v1/', include(router.urls)),
     path('centro/', include('centro_formacao.urls')),
     path('contato/', views.contato, name = 'contato'),
+    path('faq/', views.faq, name = 'faq'),
     path('carreira/', include('carreira.urls')),
     # path('fundo-bolsas/', views.fundo_bolsas, name='fundo_bolsas'),
     # path('bolsas/', include('bolsas.urls')),

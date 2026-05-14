@@ -331,3 +331,24 @@ def contato(request):
             pass
 
     return render(request, 'core/contato.html', context)
+
+
+def faq(request):
+    """
+    Página de Perguntas Frequentes (FAQ).
+    """
+    context = {
+        'aluno_logado': False,
+    }
+
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
+        try:
+            aluno = request.user.aluno_profile
+            context.update({
+                'aluno_logado': True,
+                'aluno_nome': aluno.nome,
+            })
+        except AttributeError:
+            pass
+
+    return render(request, 'core/faq.html', context)

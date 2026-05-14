@@ -50,7 +50,7 @@
                             <ul class="rbt-secondary-menu">
                                 <li><a href="{% url 'sobre' %}">{% trans "Sobre Nós" %}</a></li>
                                 <li><a href="{% url 'contato' %}">{% trans "Contato" %}</a></li>
-                                <li><a href="#">{% trans "FAQ" %}</a></li>
+                                <li><a href="{% url 'faq' %}">{% trans "FAQ" %}</a></li>
                             </ul>
                         </div>
                         <div class="rbt-separator"></div>
@@ -116,14 +116,14 @@
                 <div class="header-left">
                     <div class="logo logo-dark">
                         <a href="{% url 'index' %}">
-                            <img src="{% static 'assets/images/logo/logo1.png' %}"
-                                alt="EdukaAngola Logo" style="width: 150px;">
+                            <img src="{% static 'assets/images/logo/logo1.png' %}?v=2"
+                                alt="EdukaAngola Logo" style="max-height: 80px; width: auto; object-fit: contain;">
                         </a>
                     </div>
                     <div class="logo d-none logo-light">
                         <a href="{% url 'index' %}">
-                            <img src="{% static 'assets/images/logo/logo1.png' %}"
-                                alt="EdukaAngola Logo" style="width: 150px;">
+                            <img src="{% static 'assets/images/logo/logo1.png' %}?v=2"
+                                alt="EdukaAngola Logo" style="max-height: 80px; width: auto; object-fit: contain;">
                         </a>
                     </div>
                 </div>

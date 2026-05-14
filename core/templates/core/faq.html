@@ -1,0 +1,182 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Edukangola | Perguntas Frequentes</title>
+    <meta name="robots" content="noindex, follow">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    {% include 'include/css.html' %}
+</head>
+
+<body class="rbt-header-sticky">
+
+    {% include 'include/header.html' %}
+
+    <!-- Start Breadcrumb Area -->
+    <div class="rbt-breadcrumb-default ptb--100 ptb_md--50 ptb_sm--30 bg-gradient-1">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="breadcrumb-inner text-center">
+                        <h2 class="title">Perguntas Frequentes</h2>
+                        <ul class="page-list">
+                            <li class="rbt-breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+                            <li>
+                                <div class="icon-right"><i class="feather-chevron-right"></i></div>
+                            </li>
+                            <li class="rbt-breadcrumb-item active">FAQ</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Breadcrumb Area -->
+
+    <!-- Start Accordion Area  -->
+    <div class="rbt-accordion-area bg-color-white rbt-section-gap">
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-lg-6">
+                    <div class="rbt-accordion-style accordion">
+                        <div class="section-title text-start mb--60">
+                            <h4 class="title">Geral & Inscrições</h4>
+                        </div>
+                        <div class="rbt-accordion-style rbt-accordion-04 accordion">
+                            <div class="accordion" id="accordionExamplec3">
+                                
+                                <div class="accordion-item card">
+                                    <h2 class="accordion-header card-header" id="headingThree1">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree1" aria-expanded="true" aria-controls="collapseThree1">
+                                            O que é o Eduka-Angola?
+                                        </button>
+                                    </h2>
+                                    <div id="collapseThree1" class="accordion-collapse collapse show" aria-labelledby="headingThree1" data-bs-parent="#accordionExamplec3">
+                                        <div class="accordion-body card-body">
+                                            O Eduka-Angola é uma plataforma de agregação de cursos e centros de formação em Angola. Nosso objetivo é facilitar o acesso à educação e formação profissional, permitindo que os estudantes encontrem e se inscrevam nos melhores cursos disponíveis.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item card">
+                                    <h2 class="accordion-header card-header" id="headingThree2">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree2" aria-expanded="false" aria-controls="collapseThree2">
+                                            Como posso me inscrever num curso?
+                                        </button>
+                                    </h2>
+                                    <div id="collapseThree2" class="accordion-collapse collapse" aria-labelledby="headingThree2" data-bs-parent="#accordionExamplec3">
+                                        <div class="accordion-body card-body">
+                                            Para se inscrever num curso, basta criar uma conta como Aluno, navegar pelos cursos disponíveis, escolher o que mais lhe interessa e clicar no botão "Inscrever-se". Você será guiado pelos passos necessários.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item card">
+                                    <h2 class="accordion-header card-header" id="headingThree3">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree3" aria-expanded="false" aria-controls="collapseThree3">
+                                            Os cursos têm certificado?
+                                        </button>
+                                    </h2>
+                                    <div id="collapseThree3" class="accordion-collapse collapse" aria-labelledby="headingThree3" data-bs-parent="#accordionExamplec3">
+                                        <div class="accordion-body card-body">
+                                            Sim, a maioria dos cursos oferecidos pelos centros de formação parceiros confere certificado de conclusão. Os detalhes sobre a certificação podem ser encontrados na página de descrição de cada curso.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item card">
+                                    <h2 class="accordion-header card-header" id="headingThree4">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree4" aria-expanded="false" aria-controls="collapseThree4">
+                                            Como posso obter suporte?
+                                        </button>
+                                    </h2>
+                                    <div id="collapseThree4" class="accordion-collapse collapse" aria-labelledby="headingThree4" data-bs-parent="#accordionExamplec3">
+                                        <div class="accordion-body card-body">
+                                            Você pode entrar em contacto connosco através da nossa página de Contactos, enviando um e-mail para info@edukangola.com ou ligando para o número 923908353.
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="rbt-accordion-style accordion">
+                        <div class="section-title text-start mb--60">
+                            <h4 class="title">Pagamentos & Centros</h4>
+                        </div>
+                        <div class="rbt-accordion-style rbt-accordion-04 accordion">
+                            <div class="accordion" id="faqs-accordionExamplec3">
+                                
+                                <div class="accordion-item card">
+                                    <h2 class="accordion-header card-header" id="faqs-headingThree1">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faqs-collapseThree1" aria-expanded="true" aria-controls="faqs-collapseThree1">
+                                            Quais são as formas de pagamento disponíveis?
+                                        </button>
+                                    </h2>
+                                    <div id="faqs-collapseThree1" class="accordion-collapse collapse show" aria-labelledby="faqs-headingThree1" data-bs-parent="#faqs-accordionExamplec3">
+                                        <div class="accordion-body card-body">
+                                            Os pagamentos podem ser feitos por transferência bancária, depósito ou através dos métodos específicos aceites por cada centro de formação. Os detalhes exatos serão fornecidos no momento da inscrição.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item card">
+                                    <h2 class="accordion-header card-header" id="faqs-headingThree2">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqs-collapseThree2" aria-expanded="false" aria-controls="faqs-collapseThree2">
+                                            Como posso cadastrar o meu Centro de Formação?
+                                        </button>
+                                    </h2>
+                                    <div id="faqs-collapseThree2" class="accordion-collapse collapse" aria-labelledby="faqs-headingThree2" data-bs-parent="#faqs-accordionExamplec3">
+                                        <div class="accordion-body card-body">
+                                            Se você representa um centro de formação e deseja divulgar seus cursos na nossa plataforma, clique em "Cadastrar Centro" no menu ou entre em contacto connosco para obter mais informações sobre os planos de adesão.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item card">
+                                    <h2 class="accordion-header card-header" id="faqs-headingThree3">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqs-collapseThree3" aria-expanded="false" aria-controls="faqs-collapseThree3">
+                                            Os cursos são presenciais ou online?
+                                        </button>
+                                    </h2>
+                                    <div id="faqs-collapseThree3" class="accordion-collapse collapse" aria-labelledby="faqs-headingThree3" data-bs-parent="#faqs-accordionExamplec3">
+                                        <div class="accordion-body card-body">
+                                            Temos ambas as modalidades. Na descrição de cada curso, você encontrará a informação se ele é presencial (com a localização do centro), online ou híbrido.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item card">
+                                    <h2 class="accordion-header card-header" id="faqs-headingThree4">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqs-collapseThree4" aria-expanded="false" aria-controls="faqs-collapseThree4">
+                                            Como posso me tornar um instrutor?
+                                        </button>
+                                    </h2>
+                                    <div id="faqs-collapseThree4" class="accordion-collapse collapse" aria-labelledby="faqs-headingThree4" data-bs-parent="#faqs-accordionExamplec3">
+                                        <div class="accordion-body card-body">
+                                            Se você deseja ministrar cursos, pode se cadastrar como Instrutor na nossa plataforma ou associar-se a um dos centros de formação parceiros.
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Accordion Area  -->
+
+    {% include 'include/footer.html' %}
+    {% include 'include/java.html' %}
+</body>
+</html>
