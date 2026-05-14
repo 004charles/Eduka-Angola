@@ -349,7 +349,7 @@
                         <div class="rbt-card variation-01 rbt-hover">
                             <div class="rbt-card-img" style="height: 80px;">
                                 <a href="{% url 'curso_detalhe' d.id %}">
-                                    <img src="{{ d.imagem.url }}" alt="{{ d.titulo }}" style="height: 100%; object-fit: cover;">
+                                    <img src="{{ d.get_imagem_url }}" alt="{{ d.titulo }}" style="height: 100%; object-fit: cover;">
                                 </a>
                             </div>
                             <div class="rbt-card-body p-3">
