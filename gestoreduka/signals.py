@@ -6,6 +6,13 @@ from django.conf import settings
 from .models import CentroDeFormacao, ConviteCentro, Evento, AnuncioCentro
 from cursos_app.models import Curso
 from cursos_app.utils import notificar_seguidores
+import threading
+
+def _send_mail_async(subject, message, from_email, recipient_list):
+    try:
+        send_mail(subject, message, from_email, recipient_list)
+    except Exception as e:
+        print(f"Erro ao enviar e-mail em background: {e}")
 
 @receiver(post_save, sender=CentroDeFormacao)
 def criar_convite(sender, instance, created, **kwargs):
@@ -14,14 +21,19 @@ def criar_convite(sender, instance, created, **kwargs):
         try:
             site_domain = getattr(settings, 'SITE_DOMAIN', 'http://127.0.0.1:8000')
             link = f"{site_domain}{reverse('confirmar_cadastro', args=[convite.token])}"
-            send_mail(
-                subject="Convite para completar cadastro no Edukangola",
-                message=f"Olá {instance.nome},\n\nClique no link para completar seu cadastro:\n{link}",
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[instance.email],
+            
+            t = threading.Thread(
+                target=_send_mail_async,
+                args=(
+                    "Convite para completar cadastro no Edukangola",
+                    f"Olá {instance.nome},\n\nClique no link para completar seu cadastro:\n{link}",
+                    settings.DEFAULT_FROM_EMAIL,
+                    [instance.email]
+                )
             )
+            t.start()
         except Exception as e:
-            print(f"Erro ao enviar e-mail de convite para {instance.email}: {e}")
+            print(f"Erro ao processar e-mail de convite para {instance.email}: {e}")
 
 @receiver(post_save, sender=Evento)
 def notificar_novo_evento(sender, instance, created, **kwargs):
