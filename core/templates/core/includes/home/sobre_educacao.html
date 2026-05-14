@@ -1,18 +1,59 @@
 {% load i18n %}
 {% load static %}
 
-<div class="rbt-about-area bg-color-white pt-4 pb-4">
+<!-- Start About Area  -->
+<div class="rbt-about-area bg-color-white rbt-section-gapTop pb_md--80 pb_sm--80 about-style-1">
     <div class="container">
-        <div class="row g-5 align-items-center justify-content-center">
-            <div class="col-lg-12">
-                <div class="section-title text-center">
-                    <span class="subtitle bg-primary-opacity">{% trans "O Teu Futuro Começa Aqui" %}</span>
-                    <h2 class="title" style="font-size: 32px; font-weight: 700;">{% trans "A Plataforma que Conecta o Teu Talento ao Sucesso" %}</h2>
-                    <p class="description has-medium-font-size mt--20" style="color: var(--color-body); line-height: 1.8; text-align: justify;">
-                        {% trans "Encontrar o curso certo ou um centro de formação de excelência em Angola nem sempre é uma tarefa fácil. Se queres potenciar o teu talento e abrir portas para o mercado de trabalho, o" %} <strong>EdukAngola</strong> {% trans "veio para te ajudar. Aqui encontras os melhores cursos e centros do país — desde formações presenciais a cursos em vídeo 100% online. Estuda ao teu próprio ritmo e investe em ti, porque a educação é a chave para o teu sucesso." %}
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6">
+                <div class="thumbnail-wrapper">
+                    <div class="thumbnail image-1">
+                        <img data-parallax='{"x": 0, "y": -20}' src="{% static 'assets/images/about/about-01.png' %}" alt="Education Images">
+                    </div>
+                    <div class="thumbnail image-2 d-none d-xl-block">
+                        <img data-parallax='{"x": 0, "y": 60}' src="{% static 'assets/images/about/about-02.png' %}" alt="Education Images">
+                    </div>
+                    <div class="thumbnail image-3 d-none d-md-block">
+                        <img data-parallax='{"x": 0, "y": 80}' src="{% static 'assets/images/about/about-03.png' %}" alt="Education Images">
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="inner pl--50 pl_sm--0 pl_md--0">
+                    <div class="section-title text-start">
+                        <span class="subtitle bg-coral-opacity">{% trans "O Teu Futuro Começa Aqui" %}</span>
+                        <h2 class="title">{% trans "A Plataforma que Conecta o Teu Talento ao Sucesso" %}</h2>
+                    </div>
+
+                    <p class="description mt--30">
+                        {% trans "Encontrar o curso certo ou um centro de formação de excelência em Angola nem sempre é uma tarefa fácil. Se queres potenciar o teu talento e abrir portas para o mercado de trabalho, o" %} <strong>EdukAngola</strong> {% trans "veio para te ajudar. Aqui encontras os melhores cursos e centros do país — desde formações presenciais a cursos em vídeo 100% online." %}
                     </p>
-                    
-                    <div class="about-btn mt--30">
+
+                    <!-- Start Feature List  -->
+                    <div class="rbt-feature-wrapper mt--20 ml_dec_20">
+                        <div class="rbt-feature feature-style-2 rbt-radius">
+                            <div class="icon bg-pink-opacity">
+                                <i class="feather-heart"></i>
+                            </div>
+                            <div class="feature-content">
+                                <h6 class="feature-title">{% trans "Estudo Flexível" %}</h6>
+                                <p class="feature-description">{% trans "Estuda ao teu próprio ritmo e investe em ti, a partir de qualquer lugar." %}</p>
+                            </div>
+                        </div>
+
+                        <div class="rbt-feature feature-style-2 rbt-radius">
+                            <div class="icon bg-primary-opacity">
+                                <i class="feather-book"></i>
+                            </div>
+                            <div class="feature-content">
+                                <h6 class="feature-title">{% trans "Melhores Instituições" %}</h6>
+                                <p class="feature-description">{% trans "Conectamos-te com os melhores centros de formação e escolas do país." %}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Feature List  -->
+
+                    <div class="about-btn mt--40">
                         <a class="rbt-btn btn-gradient hover-icon-reverse" href="{% url 'cursovideoapp:home_videos' %}">
                             <span class="icon-reverse-wrapper">
                                 <span class="btn-text">{% trans "Explorar Cursos" %}</span>
@@ -26,3 +67,4 @@
         </div>
     </div>
 </div>
+<!-- End About Area  -->
