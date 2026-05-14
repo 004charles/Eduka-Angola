@@ -14,8 +14,14 @@
                                     <span class="icon">🎬</span> {% trans "Edukangola play" %}
                                 </span>
                                 <a href="{% url 'cursovideoapp:home_videos' %}" class="rbt-badge-2">
-                                    <div class="image"><img src="{% static 'assets/images/testimonial/client-02.png' %}" alt="Education Images"></div> 
-                                    {% trans "Aprenda com" %} <strong>Fatima Asrafy</strong>
+                                    <div class="image">
+                                        {% if primeiro_instrutor_video and primeiro_instrutor_video.foto %}
+                                            <img src="{{ primeiro_instrutor_video.foto.url }}" alt="{{ primeiro_instrutor_video.nome }}">
+                                        {% else %}
+                                            <img src="{% static 'assets/images/testimonial/client-02.png' %}" alt="Education Images">
+                                        {% endif %}
+                                    </div> 
+                                    {% trans "Aprenda com" %} <strong>{{ primeiro_instrutor_video.nome|default:"Fatima Asrafy" }}</strong>
                                 </a>
                             </div>
                             <h1 style="font-size: 35px;" class="title">{% trans "EdukAngola Play: A Sua Biblioteca Pessoal de Sucesso" %}</h1>

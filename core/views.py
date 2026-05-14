@@ -52,6 +52,9 @@ def index(request):
     # Cursos de vídeo
     cursos = Curso_video.objects.all()[:5]
     cursos_destaque_video = Curso_video.objects.filter(destaque=True)
+    
+    # Primeiro instrutor a dar curso em vídeo
+    primeiro_instrutor_video = Instrutor.objects.filter(cursos_video__isnull=False).order_by('id').first()
 
     # Posts do blog
     posts = Post.objects.filter(status='publicado') \
@@ -124,6 +127,7 @@ def index(request):
     context = {
         'secoes_dinamicas': secoes_dinamicas,
         'instrutores_lista': instrutores,
+        'primeiro_instrutor_video': primeiro_instrutor_video,
         'categorias': categorias,
         'posts': posts,
         'centros': centros,
