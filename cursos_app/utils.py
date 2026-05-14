@@ -3,6 +3,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
 from django.utils import timezone
+import threading
 
 def enviar_email_inscricao(inscricao, tipo='pendente', link_curso=None):
     """
@@ -44,6 +45,12 @@ def enviar_email_inscricao(inscricao, tipo='pendente', link_curso=None):
     msg.attach_alternative(html, "text/html")
     msg.send()
 
+def _enviar_email_async(msg):
+    try:
+        msg.send()
+    except Exception as e:
+        print(f"Erro ao enviar e-mail em background: {e}")
+
 def notificar_seguidores(objeto, tipo_conteudo='CURSO'):
     """
     Hub central para notificar seguidores sobre novas publicações.
@@ -53,20 +60,21 @@ def notificar_seguidores(objeto, tipo_conteudo='CURSO'):
     from gestoreduka.models import CentroSeguimento
     
     centro = objeto.centro
+    centro_nome = centro.nome if centro and centro.nome else "Centro de Formação"
     seguidores = CentroSeguimento.objects.filter(centro=centro).select_related('aluno__usuario')
     
     # Preparar conteúdo baseado no tipo
     if tipo_conteudo == 'CURSO':
         titulo_notif = f"Novo Curso: {objeto.titulo}"
-        msg_base = f"O centro {centro.nome} acabou de publicar o curso '{objeto.titulo}'."
+        msg_base = f"O centro {centro_nome} acabou de publicar o curso '{objeto.titulo}'."
         link = f"/cursos/{objeto.slug}/"
     elif tipo_conteudo == 'EVENTO':
         titulo_notif = f"Novo Evento: {objeto.titulo}"
-        msg_base = f"Fica atento! O centro {centro.nome} tem um novo evento: '{objeto.titulo}'."
+        msg_base = f"Fica atento! O centro {centro_nome} tem um novo evento: '{objeto.titulo}'."
         link = f"/gestoreduka/perfil/" # Link para o perfil onde lista eventos
     elif tipo_conteudo == 'ANUNCIO':
         titulo_notif = objeto.titulo
-        msg_base = f"Novidade do centro {centro.nome}: {objeto.titulo}"
+        msg_base = f"Novidade do centro {centro_nome}: {objeto.titulo}"
         link = f"/gestoreduka/perfil/"
 
     for seguimento in seguidores:
@@ -102,14 +110,23 @@ def notificar_seguidores(objeto, tipo_conteudo='CURSO'):
                 to=[usuario.email],
             )
             msg.attach_alternative(html, "text/html")
-            msg.send()
+            
+            # Enviar em background para não travar a requisição
+            t = threading.Thread(target=_enviar_email_async, args=(msg,))
+            t.start()
+            
         except Exception as e:
-            print(f"Erro ao enviar e-mail de notificação: {e}")
+            print(f"Erro ao processar e-mail de notificação: {e}")
 
         # 3. Notificação por WhatsApp (Simulação/Log)
-        # Aqui integraríamos com uma API como Twilio ou Z-API
-        # Por agora, simulamos o disparo
-        print(f"[WHATSAPP MOCK] Enviando para {aluno.perfil.telefone if hasattr(aluno, 'perfil') else 'N/A'}: {msg_base}")
+        telefone = "N/A"
+        try:
+            perfil = aluno.perfil
+            telefone = perfil.telefone if perfil and perfil.telefone else "N/A"
+        except Exception:
+            pass
+            
+        print(f"[WHATSAPP MOCK] Enviando para {telefone}: {msg_base}")
 
 def processar_simulacao_pagamento(inscricao):
     """
