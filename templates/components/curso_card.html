@@ -152,5 +152,15 @@
         transform: translateY(-5px);
         transition: all 0.3s ease;
     }
+    .rbt-card-title {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 48px; /* Altura para 2 linhas */
+    }
+    .rbt-card {
+        min-height: 380px; /* Altura mínima para o card todo */
+    }
 </style>
 {% endwith %}

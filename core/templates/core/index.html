@@ -38,23 +38,38 @@
         <!-- Banner Principal / Slider -->
         {% include 'core/includes/home/banner.html' %}
 
-        <!-- Sobre Educação / Apresentação -->
-        {% include 'core/includes/home/sobre_educacao.html' %}
+        <!-- Barra de Pesquisa (Netflix Style) -->
+        <div class="rbt-search-area bg-color-white ptb--30">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <form action="{% url 'buscar_cursos' %}" method="get" class="search-form-with-suggestions d-flex gap-2">
+                            <input type="text" name="q" class="rbt-search-autocomplete form-control" placeholder="{% trans 'O que você quer assistir/aprender?' %}" autocomplete="off" style="border-radius: 4px; height: 50px;">
+                            <div class="search-suggestions-wrapper"></div>
+                            <div class="submit-btn">
+                                <button type="submit" class="rbt-btn btn-gradient btn-md" style="height: 50px; border-radius: 4px;">{% trans "Pesquisar" %}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <!-- Recomendações Personalizadas (Apenas para Alunos logados) -->
-        {% if aluno_logado and cursos_recomendados %}
-            {% include 'components/recommended_section.html' %}
-        {% endif %}
-
-        <!-- Ecossistema e Serviços -->
-        {% include 'core/includes/home/services.html' %}
-
-        <!-- EdukAngola Play Teaser -->
-        {% include 'core/includes/home/play_teaser.html' %}
-
-        <!-- Centros em Destaque -->
-        {% include 'core/includes/home/featured_centers.html' %}
-
+        <!-- Texto de Esperança e Estudantil -->
+        <div class="rbt-text-area bg-color-white ptb--20">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8 text-center">
+                        <div class="section-title">
+                            <h2 class="title" style="font-size: 32px; font-weight: 800; background: linear-gradient(to right, #6C28FD, #00D2FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px;">{% trans "Alcance os Seus Objetivos" %}</h2>
+                            <p class="description" style="font-size: 18px; color: var(--color-body); line-height: 1.6;">
+                                {% trans "Acredite no seu potencial. Os cursos abaixo são ministrados pelos melhores centros de formação de Angola para impulsionar o seu futuro." %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Categorias de Cursos -->
         {% include 'core/includes/home/categories.html' %}
@@ -62,21 +77,7 @@
         <!-- Secções Dinâmicas de Cursos (Injetadas via Contexto) -->
         {% for secao in secoes_dinamicas %}
             {% include 'components/home_course_section.html' with secao=secao %}
-            
-            {% if forloop.counter == 4 %}
-                <!-- Secção de Instrutores -->
-                {% include 'components/home_instrutores_section.html' %}
-            {% endif %}
         {% endfor %}
-
-        <!-- Testemunhos e Avaliações -->
-        {% include 'core/includes/home/testimonials.html' %}
-
-        <!-- Blog e Notícias -->
-        {% include 'core/includes/home/blog_area.html' %}
-
-        <!-- Grid de Imagens Sociais -->
-        {% include 'core/includes/home/instagram_grid.html' %}
 
     </main>
 

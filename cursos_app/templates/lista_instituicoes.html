@@ -12,6 +12,7 @@
 
     <!-- CSS -->
     {% include 'include/css.html' %}
+    <link rel="stylesheet" href="{% static 'assets/css/home_custom.css' %}">
     
     <style>
         :root {
@@ -414,147 +415,45 @@
 
     <main class="rbt-main-wrapper">
         
-        <!-- START BANNER AREA (REPLICA DO INDEX) -->
-        <div class="rbt-banner-area rbt-banner-18 bg-color-extra2">
-            <div class="wrapper">
-                <!-- Decorative Shapes (igual ao index) -->
-                <div class="shape-wrap">
-                    <div class="shadow-1"></div>
-                    <div class="shadow-2"></div>
-                    <div class="shadow-3"></div>
-                    <div class="shadow-4"></div>
-                    <div class="glass">
-                        <img src="{% static 'assets/images/shape/i-glass.png' %}" alt="Banner Shape">
-                    </div>
-                    <div class="union">
-                        <img src="{% static 'assets/images/shape/o-union.png' %}" alt="Banner Shape">
-                    </div>
-                </div>
-
-                <div class="container">
-                    <div class="swiper rbt-banner-activation-2 rbt-banner-slider-inst">
-                        <div class="swiper-wrapper">
-                            {% for centro in centros_banner %}
-                            <div class="swiper-slide">
-                                <div class="row align-items-center">
-                                    <!-- Esquerda: Texto e Conteúdo -->
-                                    <div class="col-xl-7 col-lg-7">
-                                            <div class="inner">
-                                                <div class="d-flex align-items-center gap-3 mb--15">
-                                                    <div class="inst-logo-banner">
-                                                        {% if centro.perfil.imagem %}
-                                                        <img src="{{ centro.perfil.imagem.url }}" alt="{{ centro.nome }}">
-                                                        {% else %}
-                                                        <span>{{ centro.nome|slice:":1" }}</span>
-                                                        {% endif %}
-                                                    </div>
-                                                    <div class="d-flex flex-column">
-                                                        {% if centro.perfil.verificado %}
-                                                        <span class="rbt-badge-6 bg-primary-opacity mb--5" style="width: fit-content; font-size: 10px;">
-                                                            <i class="feather-check-circle me-1"></i>{% trans "Verificado" %}
-                                                        </span>
-                                                        {% endif %}
-                                                        {% if centro.perfil.modalidade %}
-                                                        <span class="rbt-badge-6 bg-secondary-opacity" style="width: fit-content; font-size: 10px;">
-                                                            <i class="feather-video me-1"></i>{{ centro.perfil.modalidade }}
-                                                        </span>
-                                                        {% endif %}
-                                                    </div>
-                                                </div>
-
-                                                <h1 class="title" style="font-size: 40px; font-weight: 800; line-height: 1.2; margin-bottom: 15px; letter-spacing: -0.5px;">
-                                                    {{ centro.nome }}
-                                                </h1>
-
-                                                <p class="description mb--25" style="font-size: 16px; line-height: 1.6; color: var(--color-body); max-width: 500px;">
-                                                    {{ centro.perfil.descricao|default:"Instituição de excelência parceira da EdukAngola, focada no desenvolvimento de competências para o mercado atual."|truncatechars:140 }}
-                                                </p>
-
-                                                <div class="d-flex flex-wrap gap-4 mb--35 stats-row">
-                                                    <div class="stat-item-premium">
-                                                        <div class="icon-wrap bg-primary-opacity">
-                                                            <i class="feather-book-open"></i>
-                                                        </div>
-                                                        <div class="stat-info">
-                                                            <span class="h4 mb--0 theme-gradient">{{ centro.total_cursos }}</span>
-                                                            <p class="label">Cursos</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="stat-item-premium">
-                                                        <div class="icon-wrap bg-secondary-opacity">
-                                                            <i class="feather-users"></i>
-                                                        </div>
-                                                        <div class="stat-info">
-                                                            <span class="h4 mb--0 theme-gradient">{{ centro.perfil.total_seguidores|default:0 }}</span>
-                                                            <p class="label">Seguidores</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="stat-item-premium">
-                                                        <div class="icon-wrap bg-pink-opacity">
-                                                            <i class="feather-star"></i>
-                                                        </div>
-                                                        <div class="stat-info">
-                                                            <span class="h4 mb--0 theme-gradient">4.8</span>
-                                                            <p class="label">Avaliação</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="button-group">
-                                                    <a href="{% url 'cursos_por_centro' centro.id %}" class="rbt-btn btn-gradient btn-md hover-icon-reverse" style="padding: 0 25px; height: 50px; line-height: 48px; border-radius: 12px; font-size: 14px;">
-                                                        <span class="icon-reverse-wrapper">
-                                                            <span class="btn-text">Ver Cursos</span>
-                                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                                        </span>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                    </div>
-
-                                    <!-- Direita: Imagem / Banner do centro -->
-                                    <div class="col-xl-5 col-lg-5 mt_md--40 mt_sm--40">
-                                        <div class="banner-image-wrap">
-                                            {% if centro.perfil.banner %}
-                                            <img src="{{ centro.perfil.banner.url }}" alt="{{ centro.nome }}" class="rbt-radius shadow-lg">
-                                            {% else %}
-                                            <div class="placeholder-banner rbt-radius">
-                                                <i class="feather-image"></i>
-                                            </div>
-                                            {% endif %}
-                                            
-                                            <!-- Floating Card (opcional, como no index) -->
-                                            <div class="enrolled-card shadow-lg rbt-radius d-none d-xl-block">
-                                                <div class="inner">
-                                                    <div class="profile-share">
-                                                        <a href="#"><img src="{% static 'assets/images/testimonial/client-01.png' %}" alt="Client"></a>
-                                                        <a href="#"><img src="{% static 'assets/images/testimonial/client-02.png' %}" alt="Client"></a>
-                                                        <a href="#"><img src="{% static 'assets/images/testimonial/client-03.png' %}" alt="Client"></a>
-                                                    </div>
-                                                    <div class="content">
-                                                        <h6 class="title">+1k Alunos</h6>
-                                                        <p class="small mb--0">Formados aqui</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+        <!-- START BANNER AREA -->
+        <div class="rbt-banner-area rbt-banner-19 bg-color-extra2">
+            <div class="container">
+                <div class="swiper rbt-banner-activation-2">
+                    <div class="swiper-wrapper">
+                        {% for centro in centros_banner %}
+                        <div class="swiper-slide">
+                            <div class="coursera-slide bg-slide-{{ forloop.counter }}">
+                                <div class="slide-content">
+                                    <h1 class="slide-title">{{ centro.nome }}</h1>
+                                    <p class="slide-description">
+                                        {{ centro.perfil.descricao|default:"Instituição de excelência parceira da EdukAngola."|truncatechars:100 }}
+                                    </p>
+                                    <a href="{% url 'cursos_por_centro' centro.id %}" class="coursera-btn">
+                                        {% trans "Ver Cursos" %} <i class="feather-arrow-right"></i>
+                                    </a>
+                                </div>
+                                <div class="slide-image-wrapper">
+                                    {% if centro.perfil.banner %}
+                                        <img src="{{ centro.perfil.banner.url }}" alt="{{ centro.nome }}">
+                                    {% else %}
+                                        <img src="{% static 'assets/images/bg/bg-image-10.jpg' %}" alt="{{ centro.nome }}">
+                                    {% endif %}
                                 </div>
                             </div>
-                            {% empty %}
-                            <div class="swiper-slide">
-                                <div class="row align-items-center">
-                                    <div class="col-lg-12 text-center">
-                                        <h1 class="title">Nossas Instituições</h1>
-                                        <p class="description">Descubra os melhores centros de formação de Angola.</p>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
                         </div>
-                        <!-- Swiper Pagination -->
-                        <div class="rbt-swiper-pagination" style="bottom: 0px !important;"></div>
+                        {% empty %}
+                        <div class="swiper-slide">
+                            <div class="coursera-slide bg-slide-1">
+                                <div class="slide-content">
+                                    <h1 class="slide-title">{% trans "Nossas Instituições" %}</h1>
+                                    <p class="slide-description">{% trans "Descubra os melhores centros de formação de Angola." %}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
+                    <!-- Swiper Pagination -->
+                    <div class="rbt-swiper-pagination" style="bottom: 20px !important; z-index: 10;"></div>
                 </div>
             </div>
         </div>
@@ -851,19 +750,19 @@
             });
         }
 
-        /* Swiper — Banner Instituições (mesmo estilo da homepage) */
+        /* Swiper — Banner Principal (Igual ao Index) */
         if (typeof Swiper !== 'undefined') {
-            new Swiper('.rbt-banner-slider-inst', {
+            new Swiper(".rbt-banner-activation-2", {
+                slidesPerView: 2.2,
+                spaceBetween: 20,
                 loop: true,
-                autoplay: {
-                    delay: 5000,
-                    disableOnInteraction: false,
-                },
-                speed: 700,
-                pagination: {
-                    el: '.rbt-banner-slider-inst .rbt-swiper-pagination',
-                    clickable: true,
-                },
+                autoplay: { delay: 5000, disableOnInteraction: false },
+                pagination: { el: '.rbt-swiper-pagination', clickable: true },
+                breakpoints: {
+                    0: { slidesPerView: 1.1, spaceBetween: 10 },
+                    768: { slidesPerView: 1.5, spaceBetween: 15 },
+                    1200: { slidesPerView: 2.2, spaceBetween: 20 }
+                }
             });
         }
     </script>
