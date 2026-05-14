@@ -217,7 +217,7 @@
         <div class="gate-container">
             <!-- Esquerda: Info -->
             <div class="gate-info-side">
-                <img src="{% static 'assets/images/logo/Eduka-removebg-preview.png' %}" alt="Edukangola" class="gate-logo">
+                <img src="{% static 'assets/images/logo/logo1.png' %}" alt="Edukangola" class="gate-logo">
                 <h1 class="gate-headline">
                     {% trans "Quase lá!" %} <br>
                     {% trans "Vamos ajustar os motores da sua aprendizagem." %}
@@ -227,7 +227,6 @@
                 <div class="step-indicator">
                     <div class="dot active" id="dot-1"></div>
                     <div class="dot" id="dot-2"></div>
-                    <div class="dot" id="dot-3"></div>
                 </div>
             </div>
 
@@ -275,27 +274,6 @@
 
                         <div class="d-flex justify-content-between mt-4">
                             <button type="button" class="btn-onboarding btn-outline-on" onclick="nextStep(1)">{% trans "Voltar" %}</button>
-                            <button type="button" class="btn-onboarding btn-primary-on" onclick="nextStep(3)">{% trans "Próximo" %}</button>
-                        </div>
-                    </div>
-
-                    <!-- Passo 3: Perfil -->
-                    <div class="onboarding-step" id="step-3">
-                        <h2 class="step-title">{% trans "Finalizar Perfil" %}</h2>
-                        <p class="step-desc">{% trans "Adicione um toque pessoal ao seu espaço de estudante." %}</p>
-                        
-                        <div class="mb-4">
-                            <label class="form-label fw-bold small">{% trans "Sua Foto de Exibição" %}</label>
-                            <input type="file" name="foto_perfil" class="form-control" style="border-radius: 10px; border: 2px solid #f1f5f9;">
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label fw-bold small">{% trans "Conte um pouco sobre si" %}</label>
-                            <textarea name="biografia" class="form-control" rows="4" style="border-radius: 10px; border: 2px solid #f1f5f9;" placeholder="{% trans 'Seus objetivos, hobbies ou experiência...' %}">{{ perfil.biografia|default:'' }}</textarea>
-                        </div>
-
-                        <div class="d-flex justify-content-between mt-4">
-                            <button type="button" class="btn-onboarding btn-outline-on" onclick="nextStep(2)">{% trans "Voltar" %}</button>
                             <button type="submit" class="btn-onboarding btn-primary-on">
                                 {% trans "Explorar Plataforma" %} <i class="feather-check-circle ms-2"></i>
                             </button>
