@@ -38,6 +38,9 @@
         <!-- Banner Principal / Slider -->
         {% include 'core/includes/home/banner.html' %}
 
+        <!-- Sobre Educação / Apresentação -->
+        {% include 'core/includes/home/sobre_educacao.html' %}
+
         <!-- Recomendações Personalizadas (Apenas para Alunos logados) -->
         {% if aluno_logado and cursos_recomendados %}
             {% include 'components/recommended_section.html' %}

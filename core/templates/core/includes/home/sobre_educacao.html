@@ -1,0 +1,28 @@
+{% load i18n %}
+{% load static %}
+
+<div class="rbt-about-area bg-color-white rbt-section-gapTop pb-5">
+    <div class="container">
+        <div class="row g-5 align-items-center justify-content-center">
+            <div class="col-lg-10">
+                <div class="section-title text-center">
+                    <span class="subtitle bg-primary-opacity">{% trans "O Teu Futuro Começa Aqui" %}</span>
+                    <h2 class="title" style="font-size: 32px; font-weight: 700;">{% trans "A Plataforma que Conecta o Teu Talento ao Sucesso" %}</h2>
+                    <p class="description has-medium-font-size mt--20" style="color: var(--color-body); line-height: 1.8;">
+                        {% trans "Encontrar o curso certo ou um centro de formação de excelência em Angola nem sempre é uma tarefa fácil. Se queres potenciar o teu talento e abrir portas para o mercado de trabalho, o" %} <strong>EdukAngola</strong> {% trans "veio para te ajudar. Aqui encontras os melhores cursos e centros do país — desde formações presenciais a cursos em vídeo 100% online. Estuda ao teu próprio ritmo e investe em ti, porque a educação é a chave para o teu sucesso." %}
+                    </p>
+                    
+                    <div class="about-btn mt--30">
+                        <a class="rbt-btn btn-gradient hover-icon-reverse" href="{% url 'cursovideoapp:home_videos' %}">
+                            <span class="icon-reverse-wrapper">
+                                <span class="btn-text">{% trans "Explorar Cursos" %}</span>
+                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
