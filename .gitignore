@@ -1,20 +1,20 @@
-node_modules/
-npm-debug.log*
-yarn-error.log*
-
-*.log
-*.pot
-*.pyc
-__pycache__/
-local_settings.py
+# === Arquivos Locais e Segurança (NUNCA COMMITAR) ===
+.env
 db.sqlite3
 db.sqlite3-journal
 media/
-
-
+staticfiles/
 venv/
-.env/
 .venv/
+.env/
+__pycache__/
+*.pyc
+*.log
+
+# === Frontend e Logs ===
+node_modules/
+npm-debug.log*
+yarn-error.log*
 
 
 # Ferramentas modernas
