@@ -629,25 +629,40 @@ def curso_detalhe(request, id):
         aprovado=True
     ).order_by('-data_comentario')
     
-    media_result = comentarios.aggregate(media=Avg('avaliacao'))
-    media_avaliacoes = media_result['media'] or 0.0
+    # Otimização: Agrupar agregações em uma única consulta
+    stats = comentarios.aggregate(
+        media=Avg('avaliacao'),
+        total=Count('id'),
+        c5=Count('id', filter=Q(avaliacao=5)),
+        c4=Count('id', filter=Q(avaliacao=4)),
+        c3=Count('id', filter=Q(avaliacao=3)),
+        c2=Count('id', filter=Q(avaliacao=2)),
+        c1=Count('id', filter=Q(avaliacao=1)),
+    )
+    
+    media_avaliacoes = stats['media'] or 0.0
+    total_comentarios = stats['total'] or 0
     
     rating_counts = {
-        '5': comentarios.filter(avaliacao=5).count(),
-        '4': comentarios.filter(avaliacao=4).count(),
-        '3': comentarios.filter(avaliacao=3).count(),
-        '2': comentarios.filter(avaliacao=2).count(),
-        '1': comentarios.filter(avaliacao=1).count(),
+        '5': stats['c5'],
+        '4': stats['c4'],
+        '3': stats['c3'],
+        '2': stats['c2'],
+        '1': stats['c1'],
     }
     
-    total_comentarios = comentarios.count()
     rating_percent = {}
     for key, count in rating_counts.items():
         rating_percent[key] = (count / total_comentarios) * 100 if total_comentarios > 0 else 0
     
-    categorias = Categoria.objects.annotate(
-        num_cursos=Count('curso', filter=Q(curso__publicado=True, curso__ativo=True))
-    )
+    # Cache para categorias (lista global de filtros)
+    from django.core.cache import cache
+    categorias = cache.get('categorias_com_contagem')
+    if not categorias:
+        categorias = list(Categoria.objects.annotate(
+            num_cursos=Count('curso', filter=Q(curso__publicado=True, curso__ativo=True))
+        ))
+        cache.set('categorias_com_contagem', categorias, 3600) # 1 hora
     
     centro = curso.centro
 
@@ -662,21 +677,24 @@ def curso_detalhe(request, id):
     if aluno_logado and aluno_inscricao:
         avaliacao_form = AvaliacaoForm(instance=comentario_existente)
     
-    cursos_relacionados = Curso.objects.filter(
+    cursos_relacionados = list(Curso.objects.filter(
         centro=centro, 
         publicado=True, 
         ativo=True
-    ).exclude(id=curso.id).select_related('centro')[:4]
+    ).exclude(id=curso.id).select_related('centro')[:4])
     
     cursos_relacionados_lista = []
     if curso.categoria:
-        cursos_relacionados_lista = Curso.objects.filter(
+        cursos_relacionados_lista = list(Curso.objects.filter(
             categoria=curso.categoria, 
             publicado=True, 
             ativo=True
-        ).exclude(id=curso.id).select_related('centro')[:4]
+        ).exclude(id=curso.id).select_related('centro')[:4])
     
-    imagem = GaleriaImagem.objects.all()[:6]
+    imagem = cache.get('galeria_detalhe_cache')
+    if not imagem:
+        imagem = list(GaleriaImagem.objects.all()[:6])
+        cache.set('galeria_detalhe_cache', imagem, 1800) # 30 minutos
     
     video_preview = None
     
@@ -1051,7 +1069,12 @@ def cursos_por_centro(request, centro_id):
         except AttributeError:
             pass
 
-    centro = get_object_or_404(CentroDeFormacao, id=centro_id)
+    centro = get_object_or_404(
+        CentroDeFormacao.objects.prefetch_related(
+            'galeria_imagens', 'equipe', 'eventos', 'parcerias', 'estatisticas', 'depoimentos', 'seguidores'
+        ), 
+        id=centro_id
+    )
     
     # Verificar se o aluno logado segue este centro
     aluno_segue = False
@@ -1059,7 +1082,7 @@ def cursos_por_centro(request, centro_id):
         from gestoreduka.models import CentroSeguimento
         try:
             aluno = request.user.aluno_profile
-            aluno_segue = CentroSeguimento.objects.filter(aluno=aluno, centro=centro).exists()
+            aluno_segue = centro.seguidores.filter(aluno=aluno).exists()
         except:
             pass
 
@@ -1070,26 +1093,25 @@ def cursos_por_centro(request, centro_id):
         'todos_os_cursos': centro.cursos.filter(publicado=True).order_by('-destaque', '-data_criacao')
     })
 
-    # Cursos por categoria
-    categorias = Categoria.objects.filter(
-        curso__centro=centro,
-        curso__publicado=True
-    ).annotate(
-        num_cursos=Count('curso')
-    ).distinct().order_by('nome')
-
+    # Cursos por categoria (Otimizado: Uma única consulta + agrupamento em Python)
+    cursos_do_centro = centro.cursos.filter(publicado=True).select_related('categoria').order_by('-destaque', 'data_inicio')
+    
+    from collections import defaultdict
+    grupos = defaultdict(list)
+    for c in cursos_do_centro:
+        grupos[c.categoria].append(c)
+    
     cursos_por_categoria = []
-    for categoria in categorias:
-        cursos = centro.cursos.filter(
-            categoria=categoria,
-            publicado=True
-        ).order_by('-destaque', 'data_inicio') 
-
-        cursos_por_categoria.append({
-            'categoria': categoria,
-            'cursos': cursos,
-            'total_cursos': categoria.num_cursos
-        })
+    for cat, cursos_list in grupos.items():
+        if cat:
+            cursos_por_categoria.append({
+                'categoria': cat,
+                'cursos': cursos_list,
+                'total_cursos': len(cursos_list)
+            })
+    
+    # Ordenar por nome da categoria
+    cursos_por_categoria.sort(key=lambda x: x['categoria'].nome)
 
     instrutores = Instrutor.objects.filter(
         centro_de_formacao=centro, 
@@ -1109,13 +1131,7 @@ def cursos_por_centro(request, centro_id):
     
     # Seguidores e Estado de Seguimento
     seguidores_count = centro.seguidores.count()
-    ja_segue = False
-    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
-        try:
-            aluno = request.user.aluno_profile
-            ja_segue = centro.seguidores.filter(aluno=aluno).exists()
-        except:
-            pass
+    ja_segue = aluno_segue # Já calculado acima
 
     # Estatísticas Personalizadas
     estatisticas = centro.estatisticas.all().order_by('ordem')
@@ -1395,34 +1411,34 @@ def todo_curso(request):
         except AttributeError:
             pass
 
-    # Monta lista de categorias com cursos publicados
-    categorias_com_cursos = []
-    for categoria in Categoria.objects.filter(curso__publicado=True).distinct():
-        cursos = Curso.objects.filter(
-            categoria=categoria,
-            publicado=True
-        )
-        
-        if pais_selecionado:
-            cursos = cursos.filter(centro__pais=pais_selecionado)
+    # Monta lista de categorias com cursos publicados (Otimizado)
+    cursos_qs = Curso.objects.filter(publicado=True).select_related('categoria', 'centro').order_by('-destaque', 'data_inicio')
+    if pais_selecionado:
+        cursos_qs = cursos_qs.filter(centro__pais=pais_selecionado)
+    
+    from collections import defaultdict
+    grupos = defaultdict(list)
+    for c in cursos_qs:
+        if c.categoria:
+            grupos[c.categoria].append(c)
             
-        cursos = cursos.order_by('-destaque', 'data_inicio')
-
-        if cursos.exists():
-            categorias_com_cursos.append({
-                'categoria': categoria,
-                'cursos': cursos,
-                'total_cursos': cursos.count()
-            })
+    categorias_com_cursos = []
+    for cat, cursos_list in grupos.items():
+        categorias_com_cursos.append({
+            'categoria': cat,
+            'cursos': cursos_list,
+            'total_cursos': len(cursos_list)
+        })
+    
+    # Ordenar por nome da categoria
+    categorias_com_cursos.sort(key=lambda x: x['categoria'].nome)
 
     cursos_destaque = Curso.objects.filter(
         destaque=True, publicado=True, ativo=True
     ).select_related('centro').prefetch_related('instrutores')
 
     # Lista simples de cursos para animação
-    cursos_animacao = Curso.objects.filter(
-    publicado=True
-    ).values_list('titulo', flat=True)
+    cursos_animacao = [c.titulo for c in cursos_qs[:50]] # Limitando para performance
 
     # Atualiza o contexto com os dados
     context.update({

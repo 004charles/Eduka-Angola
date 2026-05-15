@@ -97,8 +97,8 @@ class CentroDeFormacao(gis_models.Model):
     telefone = models.CharField(_('Telefone'), max_length=20, blank=True, null=True)
     email = models.EmailField(_('E-mail'), unique=True)
     site = models.URLField(_('Site'), blank=True, null=True)
-    data_criacao = models.DateTimeField(_('Data de Criação'), auto_now_add=True)
-    ativo = models.BooleanField(_('Ativo'), default=True)
+    data_criacao = models.DateTimeField(_('Data de Criação'), auto_now_add=True, db_index=True)
+    ativo = models.BooleanField(_('Ativo'), default=True, db_index=True)
     # senha_hash is removed in favor of centralized auth
 
     def __str__(self):
@@ -403,8 +403,8 @@ class PerfilCentroDeFormacao(models.Model):
     whatsapp = models.CharField(_('WhatsApp'), max_length=20, blank=True, null=True)
     
     # Configurações
-    destaque = models.BooleanField(_('Centro em Destaque'), default=False)
-    verificado = models.BooleanField(_('Centro Verificado'), default=False)
+    destaque = models.BooleanField(_('Centro em Destaque'), default=False, db_index=True)
+    verificado = models.BooleanField(_('Centro Verificado'), default=False, db_index=True)
     slug = models.SlugField(unique=True, null=True, blank=True)
     
     # Métricas (calculadas)
@@ -458,9 +458,9 @@ class ReelCentro(models.Model):
     compartilhamentos = models.PositiveIntegerField(_('Compartilhamentos'), default=0)
     
     # Configurações
-    destaque = models.BooleanField(_('Reel em Destaque'), default=False)
-    publico = models.BooleanField(_('Público'), default=True)
-    data_publicacao = models.DateTimeField(_('Data de Publicação'), auto_now_add=True)
+    destaque = models.BooleanField(_('Reel em Destaque'), default=False, db_index=True)
+    publico = models.BooleanField(_('Público'), default=True, db_index=True)
+    data_publicacao = models.DateTimeField(_('Data de Publicação'), auto_now_add=True, db_index=True)
     data_atualizacao = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -545,7 +545,7 @@ class Evento(models.Model):
     )
     titulo = models.CharField(_('Título'), max_length=200)
     descricao = models.TextField(_('Descrição'))
-    data_inicio = models.DateTimeField(_('Data de Início'))
+    data_inicio = models.DateTimeField(_('Data de Início'), db_index=True)
     data_fim = models.DateTimeField(_('Data de Fim'), blank=True, null=True)
     local = models.CharField(_('Local'), max_length=200)
     tipo = models.CharField(_('Tipo'), max_length=50, choices=[
@@ -554,10 +554,10 @@ class Evento(models.Model):
         ('FEIRA', 'Feira de Carreiras'),
         ('AULA_ABERTA', 'Aula Aberta'),
         ('OUTRO', 'Outro')
-    ])
+    ], db_index=True)
     link_inscricao = models.URLField(_('Link de Inscrição'), blank=True)
     imagem = models.ImageField(_('Imagem'), upload_to='eventos/', blank=True)
-    destaque = models.BooleanField(_('Evento em Destaque'), default=False)
+    destaque = models.BooleanField(_('Evento em Destaque'), default=False, db_index=True)
 
     class Meta:
         ordering = ['-data_inicio']

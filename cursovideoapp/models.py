@@ -14,14 +14,14 @@ class Curso_video(models.Model):
     descricao = models.TextField()
     instrutor = models.ForeignKey(Instrutor, on_delete=models.CASCADE, related_name="cursos_video")
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, related_name="cursos_video")
-    data_publicacao = models.DateTimeField(auto_now_add=True)
+    data_publicacao = models.DateTimeField(auto_now_add=True, db_index=True)
     capa = models.ImageField(upload_to="cursos/capas/", blank=True, null=True)
     slug = models.SlugField(unique=True, blank=True)
     inscritos = models.ManyToManyField('usuarios.Aluno', related_name='cursos_inscritos_video', blank=True)
-    destaque = models.BooleanField(default=False)
+    destaque = models.BooleanField(default=False, db_index=True)
     
     # Novos campos para monetização
-    is_pago = models.BooleanField(default=False, verbose_name=_("Curso Pago?"))
+    is_pago = models.BooleanField(default=False, verbose_name=_("Curso Pago?"), db_index=True)
     preco = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name=_("Preço (KZ)"))
 
     def save(self, *args, **kwargs):
@@ -131,9 +131,9 @@ class Aula(models.Model):
         null=True,
         help_text="Link do YouTube, Vimeo ou ficheiro de vídeo externo"
     )
-    ordem = models.PositiveIntegerField(default=0)
+    ordem = models.PositiveIntegerField(default=0, db_index=True)
     duracao_segundos = models.PositiveIntegerField(default=0, help_text="Duração em segundos")
-    visualizacoes = models.PositiveIntegerField(default=0)
+    visualizacoes = models.PositiveIntegerField(default=0, db_index=True)
     descricao = models.TextField(blank=True, null=True, verbose_name=_("Descrição da Aula"))
     resumo_ia = models.TextField(blank=True, null=True, verbose_name=_("Resumo da IA"))
     requer_conclusao_anterior = models.BooleanField(default=True)
@@ -171,9 +171,9 @@ class Aula(models.Model):
 class ProgressoAula(models.Model):
     aluno = models.ForeignKey('usuarios.Aluno', on_delete=models.CASCADE, null=True)
     aula = models.ForeignKey(Aula, on_delete=models.CASCADE, null=True)
-    concluida = models.BooleanField(default=False)
+    concluida = models.BooleanField(default=False, db_index=True)
     tempo_assistido = models.PositiveIntegerField(default=0, help_text="Tempo assistido em segundos")
-    data_ultimo_acesso = models.DateTimeField(auto_now=True)
+    data_ultimo_acesso = models.DateTimeField(auto_now=True, db_index=True)
     
     class Meta:
         unique_together = ['aluno', 'aula']

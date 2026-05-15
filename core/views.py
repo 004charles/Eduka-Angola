@@ -26,146 +26,134 @@ from avaliacoes.utils import get_centro_da_semana
 from cursos_app.utils_secoes import get_home_sections_data
 
 
+from django.core.cache import cache
+
 def index(request):
     """
-    Página inicial do portal Edukangola com lógica de Landing Gate para visitantes.
+    Página inicial do portal Edukangola com lógica de Landing Gate e cache inteligente.
     """
     # Redirecionar para onboarding se for aluno e não completou
     if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
         try:
             aluno = request.user.aluno_profile
-            # Se não tem perfil ou não completou o onboarding, redireciona
             if not hasattr(aluno, 'perfil') or not aluno.perfil.onboarding_completo:
                 return redirect('aluno_onboarding')
         except AttributeError:
-            # Caso o Aluno profile por algum motivo não exista (raro para tipo ALUNO)
             pass
         
-    agora = timezone.now()
-    proximos_dias = agora + timedelta(days=30)
-
-    # Cursos em destaque
-    cursos_destaque = Curso.objects.filter(
-        destaque=True, publicado=True, ativo=True
-    ).select_related('centro').prefetch_related('instrutores')
-
-    # Cursos de vídeo
-    cursos = Curso_video.objects.all()[:5]
-    cursos_destaque_video = Curso_video.objects.filter(destaque=True)
+    # Tentar obter dados globais do cache (seções que não mudam por user)
+    cache_key = 'home_global_data_v2'
+    global_data = cache.get(cache_key)
     
-    # Primeiro instrutor a dar curso em vídeo
-    primeiro_instrutor_video = Instrutor.objects.filter(cursos_video__isnull=False).order_by('id').first()
+    if global_data is None:
+        # 1. Cursos em destaque
+        cursos_destaque = list(Curso.objects.filter(
+            destaque=True, publicado=True, ativo=True
+        ).select_related('centro').prefetch_related('instrutores')[:10])
 
-    # Posts do blog
-    posts = Post.objects.filter(status='publicado') \
-        .select_related('categoria') \
-        .prefetch_related('tags')
+        # 2. Cursos de vídeo
+        cursos_destaque_video = list(Curso_video.objects.filter(destaque=True).select_related('instrutor')[:5])
+        
+        # 3. Primeiro instrutor a dar curso em vídeo
+        primeiro_instrutor_video = Instrutor.objects.filter(cursos_video__isnull=False).select_related('centro_de_formacao').first()
 
-    # Secções Dinâmicas de Cursos (Novo Sistema)
+        # 4. Posts do blog
+        posts = list(Post.objects.filter(status='publicado').select_related('categoria').prefetch_related('tags')[:3])
+
+        # 5. Instrutores ativos
+        instrutores = list(Instrutor.objects.filter(ativo=True).select_related('centro_de_formacao')[:12])
+
+        # 6. Centros ativos (Otimizado)
+        centros = list(CentroDeFormacao.objects.filter(ativo=True).annotate(
+            priority_home=Coalesce('assinatura__plano__destaque_home', Value(False))
+        ).select_related('perfil').order_by('-priority_home', 'nome')[:12])
+        
+        # 7. Centros para o Trilho de Destaques
+        centros_destaque = list(CentroDeFormacao.objects.filter(
+            ativo=True, 
+            perfil__banner__isnull=False
+        ).exclude(perfil__banner='').select_related('perfil').order_by('id')[:12])
+        
+        # 8. Galeria de imagens
+        imagens = list(Galeria.objects.all()[:6])
+        
+        # 9. Primeiros alunos com foto
+        primeiros_alunos = list(PerfilAluno.objects.filter(
+            foto_de_perfil__isnull=False
+        ).exclude(foto_de_perfil='').select_related('aluno').order_by('aluno__data_cadastro')[:3])
+        
+        # 10. Estágios ativos
+        estagios = list(Estagio.objects.filter(ativo=True).select_related('area', 'centro_formacao')[:6])
+        
+        # 11. Centro da Semana
+        centro_semana = get_centro_da_semana()
+
+        # 12. Categorias principais
+        categorias = list(Categoria.objects.annotate(
+            num_cursos=Count('curso', filter=Q(curso__publicado=True, curso__ativo=True))
+        ).filter(num_cursos__gt=0).order_by('-num_cursos')[:10])
+
+        # 13. Depoimentos
+        depoimentos = list(Depoimento.objects.filter(aprovado=True).order_by('-data')[:8])
+
+        global_data = {
+            'cursos_destaque': cursos_destaque,
+            'cursos_destaque_video': cursos_destaque_video,
+            'primeiro_instrutor_video': primeiro_instrutor_video,
+            'posts': posts,
+            'instrutores': instrutores,
+            'centros': centros,
+            'centros_destaque': centros_destaque,
+            'imagens': imagens,
+            'primeiros_alunos': primeiros_alunos,
+            'sobre': SobreNos.objects.last(),
+            'estagios': estagios,
+            'centro_semana': centro_semana,
+            'categorias': categorias,
+            'depoimentos': depoimentos,
+            'publicidades': list(Publicidade.objects.filter(ativo=True)),
+        }
+        cache.set(cache_key, global_data, 600) # 10 minutos
+
+    # Secções Dinâmicas (Já possui cache interno em get_home_sections_data)
     secoes_dinamicas = get_home_sections_data()
 
-    # Todos os instrutores ativos
-    instrutores = Instrutor.objects.filter(ativo=True).order_by('?')
-
-    # Posts do blog
-    posts = Post.objects.filter(status='publicado') \
-        .select_related('categoria') \
-        .prefetch_related('tags')
-
-    # Centros ativos, priorizando os com destaque na home via plano
-    centros = CentroDeFormacao.objects.filter(ativo=True).annotate(
-        priority_home=Coalesce('assinatura__plano__destaque_home', Value(False))
-    ).order_by('-priority_home', 'nome')
-    
-    # Centros para o Trilho de Destaques (apenas com banner)
-    centros_destaque = CentroDeFormacao.objects.filter(
-        ativo=True, 
-        perfil__banner__isnull=False
-    ).exclude(perfil__banner='').select_related('perfil').order_by('?')[:12]
-    
-    # Galeria de imagens
-    imagens = Galeria.objects.all()[:6]
-    
-    # Primeiros alunos com foto de perfil
-    primeiros_alunos = PerfilAluno.objects.filter(
-        foto_de_perfil__isnull=False
-    ).exclude(foto_de_perfil='').order_by('aluno__data_cadastro')[:3]
-    
-    # Sobre nós
-    sobre_nos = SobreNos.objects.last()  
-    
-    # Estágios ativos
-    estagios = Estagio.objects.filter(ativo=True).select_related('area', 'centro_formacao')
-    
-    # Centro da Semana (IA + Plano)
-    centro_semana = get_centro_da_semana()
-
-    # Recomendações de IA
+    # Dados personalizados do Aluno (Não cacheáveis globalmente)
     cursos_recomendados = []
+    aluno_nome = None
+    favoritos = []
+    favoritos_video = []
+    centros_seguidos = []
+    aluno_logado = False
+
     if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
         try:
             aluno = request.user.aluno_profile
-            cursos_recomendados = recomendar_cursos(aluno, limite=8)
-        except AttributeError:
-            pass
-
-    # Categorias com cursos publicados e ativos
-    categorias = Categoria.objects.prefetch_related(
-        Prefetch(
-            'curso',
-            queryset=Curso.objects.filter(publicado=True, ativo=True).select_related('centro'),
-            to_attr='cursos_ativos'
-        )
-    ).annotate(
-        num_cursos=Count('curso', filter=Q(curso__publicado=True, curso__ativo=True))
-    ).filter(num_cursos__gt=0)
-
-    # Depoimentos para a Home
-    depoimentos = Depoimento.objects.filter(aprovado=True).order_by('-data')[:8]
-
-    # Montagem do contexto
-    context = {
-        'secoes_dinamicas': secoes_dinamicas,
-        'instrutores_lista': instrutores,
-        'primeiro_instrutor_video': primeiro_instrutor_video,
-        'categorias': categorias,
-        'posts': posts,
-        'centros': centros,
-        'centros_destaque': centros_destaque,
-        'imagens': imagens,
-        'primeiros_alunos': primeiros_alunos,
-        'DEBUG': settings.DEBUG,
-        'aluno_logado': request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO',
-        'favoritos': [],
-        'centros_seguidos': [],
-        'sobre': sobre_nos,
-        'estagios': estagios,
-        'centro_semana': centro_semana,
-        'cursos_recomendados': cursos_recomendados,
-        'depoimentos': depoimentos,
-        'publicidades': Publicidade.objects.filter(ativo=True),
-    }
-
-    # Se houver aluno logado
-    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
-        try:
-            aluno = request.user.aluno_profile
-            favoritos = Favorito.objects.filter(aluno=aluno).values_list('curso_id', flat=True)
-            # Add video favorites
-            favoritos_video = FavoritoCursoVideo.objects.filter(aluno=aluno).values_list('curso_id', flat=True)
+            aluno_logado = True
+            aluno_nome = aluno.nome
             
-            centros_seguidos = list(
-                CentroSeguimento.objects.filter(aluno=aluno).values_list('centro_id', flat=True)
-            )
-            context.update({
-                'aluno_logado': True,
-                'aluno_nome': aluno.nome,
-                'favoritos': list(favoritos),
-                'favoritos_video': list(favoritos_video),
-                'centros_seguidos': centros_seguidos,
-            })
+            # Recomendações IA
+            cursos_recomendados = recomendar_cursos(aluno, limite=8)
+            
+            # Favoritos e Seguimentos
+            favoritos = list(Favorito.objects.filter(aluno=aluno).values_list('curso_id', flat=True))
+            favoritos_video = list(FavoritoCursoVideo.objects.filter(aluno=aluno).values_list('curso_id', flat=True))
+            centros_seguidos = list(CentroSeguimento.objects.filter(aluno=aluno).values_list('centro_id', flat=True))
         except AttributeError:
             pass
+
+    context = {
+        **global_data,
+        'secoes_dinamicas': secoes_dinamicas,
+        'instrutores_lista': global_data['instrutores'],
+        'cursos_recomendados': cursos_recomendados,
+        'aluno_logado': aluno_logado,
+        'aluno_nome': aluno_nome,
+        'favoritos': favoritos,
+        'favoritos_video': favoritos_video,
+        'centros_seguidos': centros_seguidos,
+        'DEBUG': settings.DEBUG,
+    }
 
     return render(request, 'core/index.html', context)
 

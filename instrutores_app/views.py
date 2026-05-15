@@ -121,6 +121,10 @@ def listar_cursos(request):
         return redirect('instrutores_app:login')
     
     instrutor = get_instrutor(request.user)
+    if not instrutor:
+        messages.error(request, "Perfil de instrutor não encontrado.")
+        return redirect('index')
+
     cursos = Curso_video.objects.filter(instrutor=instrutor).order_by('-id')
     return render(request, 'instrutores/cursos.html', {'cursos': cursos})
 
@@ -129,6 +133,10 @@ def criar_curso(request):
         return redirect('instrutores_app:login')
     
     instrutor = get_instrutor(request.user)
+    if not instrutor:
+        messages.error(request, "Perfil de instrutor não encontrado. Contacte o suporte.")
+        return redirect('index')
+
     if request.method == 'POST':
         form = CursoVideoForm(request.POST, request.FILES)
         if form.is_valid():
@@ -147,6 +155,10 @@ def editar_curso(request, curso_id):
         return redirect('instrutores_app:login')
     
     instrutor = get_instrutor(request.user)
+    if not instrutor:
+        messages.error(request, "Perfil de instrutor não encontrado.")
+        return redirect('index')
+
     curso = get_object_or_404(Curso_video, id=curso_id, instrutor=instrutor)
     
     if request.method == 'POST':
@@ -165,6 +177,10 @@ def detalhe_curso(request, curso_id):
         return redirect('instrutores_app:login')
     
     instrutor = get_instrutor(request.user)
+    if not instrutor:
+        messages.error(request, "Perfil de instrutor não encontrado.")
+        return redirect('index')
+
     curso = get_object_or_404(Curso_video, id=curso_id, instrutor=instrutor)
     aulas = Aula.objects.filter(curso=curso).order_by('ordem')
     
@@ -176,6 +192,10 @@ def adicionar_aula(request, curso_id):
         return redirect('instrutores_app:login')
     
     instrutor = get_instrutor(request.user)
+    if not instrutor:
+        messages.error(request, "Perfil de instrutor não encontrado.")
+        return redirect('index')
+
     curso = get_object_or_404(Curso_video, id=curso_id, instrutor=instrutor)
     
     if request.method == 'POST':
@@ -195,7 +215,12 @@ def adicionar_aula(request, curso_id):
     return render(request, 'instrutores/form_aula.html', {'form': form, 'curso': curso, 'title': 'Adicionar Aula'})
 
 def editar_aula(request, aula_id):
-    aula = get_object_or_404(Aula, id=aula_id, curso__instrutor=get_instrutor(request.user))
+    instrutor = get_instrutor(request.user)
+    if not instrutor:
+        messages.error(request, "Perfil de instrutor não encontrado.")
+        return redirect('index')
+    
+    aula = get_object_or_404(Aula, id=aula_id, curso__instrutor=instrutor)
     
     if request.method == 'POST':
         form = AulaForm(request.POST, instance=aula)
@@ -209,7 +234,12 @@ def editar_aula(request, aula_id):
     return render(request, 'instrutores/form_aula.html', {'form': form, 'curso': aula.curso, 'title': 'Editar Aula'})
 
 def remover_aula(request, aula_id):
-    aula = get_object_or_404(Aula, id=aula_id, curso__instrutor=get_instrutor(request.user))
+    instrutor = get_instrutor(request.user)
+    if not instrutor:
+        messages.error(request, "Perfil de instrutor não encontrado.")
+        return redirect('index')
+    
+    aula = get_object_or_404(Aula, id=aula_id, curso__instrutor=instrutor)
     curso_id = aula.curso.id
     aula.delete()
     messages.success(request, "Aula removida com sucesso!")
@@ -225,6 +255,10 @@ def listar_alunos(request):
         return redirect('instrutores_app:login')
     
     instrutor = get_instrutor(request.user)
+    if not instrutor:
+        messages.error(request, "Perfil de instrutor não encontrado.")
+        return redirect('index')
+
     cursos = Curso_video.objects.filter(instrutor=instrutor)
     
     # Pegar todos os alunos únicos inscritos em qualquer curso deste instrutor
@@ -319,6 +353,9 @@ def configuracoes(request):
         return redirect('instrutores_app:login')
     
     instrutor = get_instrutor(request.user)
+    if not instrutor:
+        messages.error(request, "Perfil de instrutor não encontrado.")
+        return redirect('index')
     
     if request.method == 'POST':
         # Identificar qual formulário foi enviado
@@ -356,6 +393,10 @@ def gerar_exercicio_aula(request, aula_id):
         return redirect('instrutores_app:login')
     
     instrutor = get_instrutor(request.user)
+    if not instrutor:
+        messages.error(request, "Perfil de instrutor não encontrado.")
+        return redirect('index')
+
     aula = get_object_or_404(Aula, id=aula_id, curso__instrutor=instrutor)
     
     # Se a descrição estiver vazia, gera uma via IA primeiro
@@ -409,6 +450,10 @@ def gerenciar_exercicio(request, aula_id):
         return redirect('instrutores_app:login')
     
     instrutor = get_instrutor(request.user)
+    if not instrutor:
+        messages.error(request, "Perfil de instrutor não encontrado.")
+        return redirect('index')
+
     aula = get_object_or_404(Aula, id=aula_id, curso__instrutor=instrutor)
     exercicio = get_object_or_404(Exercicio, aula=aula)
     
@@ -438,6 +483,10 @@ def gerar_exercicios_curso(request, curso_id):
         return redirect('instrutores_app:login')
     
     instrutor = get_instrutor(request.user)
+    if not instrutor:
+        messages.error(request, "Perfil de instrutor não encontrado.")
+        return redirect('index')
+
     curso = get_object_or_404(Curso_video, id=curso_id, instrutor=instrutor)
     aulas = Aula.objects.filter(curso=curso)
     

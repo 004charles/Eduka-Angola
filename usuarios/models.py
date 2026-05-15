@@ -49,10 +49,10 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
     nome = models.CharField(_('Nome Completo'), max_length=100, blank=True, null=True)
     email = models.EmailField(_('E-mail'), unique=True)
-    tipo_usuario = models.CharField(_('Tipo de Usuário'), max_length=20, choices=TIPO_USUARIO_CHOICES, default='ALUNO')
-    is_active = models.BooleanField(_('Ativo'), default=True)
+    tipo_usuario = models.CharField(_('Tipo de Usuário'), max_length=20, choices=TIPO_USUARIO_CHOICES, default='ALUNO', db_index=True)
+    is_active = models.BooleanField(_('Ativo'), default=True, db_index=True)
     is_staff = models.BooleanField(_('Equipe'), default=False)
-    data_criacao = models.DateTimeField(_('Data de Criação'), auto_now_add=True)
+    data_criacao = models.DateTimeField(_('Data de Criação'), auto_now_add=True, db_index=True)
     data_atualizacao = models.DateTimeField(_('Data de Atualização'), auto_now=True)
 
     USERNAME_FIELD = 'email'
@@ -99,8 +99,8 @@ class Aluno(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='aluno_profile', null=True, blank=True)
     nome = models.CharField(_('Nome Completo'), max_length=100)
     # email and senha are now in usuario
-    data_cadastro = models.DateTimeField(_('Data de Cadastro'), default=timezone.now)
-    ativo = models.BooleanField(_('Ativo'), default=True)
+    data_cadastro = models.DateTimeField(_('Data de Cadastro'), default=timezone.now, db_index=True)
+    ativo = models.BooleanField(_('Ativo'), default=True, db_index=True)
     
     def __str__(self):
         return f"Aluno: {self.nome}"
@@ -238,8 +238,8 @@ class NotificacaoAluno(models.Model):
     mensagem = models.TextField(_('Mensagem'))
     link = models.CharField(_('Link (opcional)'), max_length=255, blank=True, null=True)
     tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='SISTEMA')
-    lida = models.BooleanField(default=False)
-    data_criacao = models.DateTimeField(auto_now_add=True)
+    lida = models.BooleanField(default=False, db_index=True)
+    data_criacao = models.DateTimeField(auto_now_add=True, db_index=True)
 
     class Meta:
         ordering = ['-data_criacao']

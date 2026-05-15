@@ -163,8 +163,8 @@ class Curso(models.Model):
     titulo = models.CharField(_('Título do Curso'), max_length=200, validators=[MinLengthValidator(3)])
     descricao = models.TextField(_('Descrição Completa'))
     descricao_curta = models.CharField(_('Descrição Curta'), max_length=300, blank=True, help_text="Descrição resumida para cards e listagens")
-    nivel = models.CharField(_('Nível'), max_length=1, choices=NIVEL_CHOICES, default='B')
-    idioma = models.CharField(_('Idioma do Curso'), max_length=5, choices=IDIOMA_CHOICES, default='PT')
+    nivel = models.CharField(_('Nível'), max_length=1, choices=NIVEL_CHOICES, default='B', db_index=True)
+    idioma = models.CharField(_('Idioma do Curso'), max_length=5, choices=IDIOMA_CHOICES, default='PT', db_index=True)
     categoria = models.ForeignKey('Categoria', on_delete=models.SET_NULL, null=True, related_name='curso')
     certificado = models.BooleanField(_('Fornece Certificado'), default=True)
     instrutores = models.ManyToManyField('Instrutor', related_name='cursos', verbose_name=_('Instrutores'))
@@ -174,6 +174,7 @@ class Curso(models.Model):
     is_gratuito = models.BooleanField(
         _('Curso Gratuito'),
         default=False,
+        db_index=True,
         help_text='Define se o curso é gratuito ou pago'
     )
     
@@ -213,14 +214,14 @@ class Curso(models.Model):
     data_inicio_inscricoes = models.DateTimeField(_('Início das Inscrições'), default=timezone.now)
     data_fim_inscricoes = models.DateTimeField(_('Fim das Inscrições'), null=True, blank=True)
     
-    modalidade = models.CharField(_('Modalidade'), max_length=10, choices=MODALIDADE_CHOICES, default='PRESENCIAL')
+    modalidade = models.CharField(_('Modalidade'), max_length=10, choices=MODALIDADE_CHOICES, default='PRESENCIAL', db_index=True)
     duracao = models.CharField(_('Duração'), max_length=20, choices=DURACAO_CHOICES, blank=True, null=True)
-    ativo = models.BooleanField(_('Curso Ativo'), default=True)
-    publicado = models.BooleanField(_('Publicado'), default=False)
+    ativo = models.BooleanField(_('Curso Ativo'), default=True, db_index=True)
+    publicado = models.BooleanField(_('Publicado'), default=False, db_index=True)
     imagem = models.ImageField(_('Imagem do Curso'), upload_to='cursos/', null=True, blank=True)
     requisitos = models.TextField(_('Pré-requisitos'), blank=True, null=True)
     objetivo_geral = models.TextField(_('Objetivo Geral'), blank=True)
-
+    
     video_preview_file = models.FileField(
         _('Ficheiro de Vídeo de Prévia'),
         upload_to='cursos/previews/',
@@ -238,16 +239,16 @@ class Curso(models.Model):
 )
 
     
-    destaque = models.BooleanField(_('Curso em Destaque'), default=False)
+    destaque = models.BooleanField(_('Curso em Destaque'), default=False, db_index=True)
     permite_parcelamento = models.BooleanField(_('Permite Parcelamento'), default=False)
     max_parcelas = models.PositiveIntegerField(_('Máximo de Parcelas'), default=1)
     slug = models.SlugField(_('Slug'), unique=True, blank=True, help_text="URL amigável (preenchido automaticamente)")
     tags = models.CharField(_('Tags'), max_length=500, blank=True, help_text="Palavras-chave separadas por vírgula")
     
-    visualizacoes = models.PositiveIntegerField(_('Visualizações'), default=0)
-    data_criacao = models.DateTimeField(_('Data de Criação'), auto_now_add=True)
+    visualizacoes = models.PositiveIntegerField(_('Visualizações'), default=0, db_index=True)
+    data_criacao = models.DateTimeField(_('Data de Criação'), auto_now_add=True, db_index=True)
     data_atualizacao = models.DateTimeField(_('Data de Atualização'), auto_now=True)
-    data_inicio = models.DateField(null=True, blank=True)
+    data_inicio = models.DateField(null=True, blank=True, db_index=True)
 
 
     def clean(self):
@@ -535,7 +536,7 @@ class Turma(models.Model):
     local = models.CharField(_('Local das Aulas'), max_length=200, blank=True)
     sala = models.CharField(_('Sala'), max_length=50, blank=True)
     
-    status = models.CharField(_('Status'), max_length=20, choices=STATUS_CHOICES, default='ABERTA')
+    status = models.CharField(_('Status'), max_length=20, choices=STATUS_CHOICES, default='ABERTA', db_index=True)
     observacoes = models.TextField(_('Observações'), blank=True)
     
     instrutor_principal = models.ForeignKey(
@@ -656,9 +657,9 @@ class Inscricao(models.Model):
         related_name='inscricoes_turma'
     )
     
-    data_inscricao = models.DateTimeField(_('Data de Inscrição'), default=timezone.now)
-    status = models.CharField(_('Status'), max_length=1, choices=STATUS_CHOICES, default='P')
-    tipo_inscricao = models.CharField(_('Tipo de Inscrição'), max_length=10, choices=TIPO_INSCRICAO_CHOICES, default='ONLINE')
+    data_inscricao = models.DateTimeField(_('Data de Inscrição'), default=timezone.now, db_index=True)
+    status = models.CharField(_('Status'), max_length=1, choices=STATUS_CHOICES, default='P', db_index=True)
+    tipo_inscricao = models.CharField(_('Tipo de Inscrição'), max_length=10, choices=TIPO_INSCRICAO_CHOICES, default='ONLINE', db_index=True)
     
     forma_pagamento = models.CharField(_('Forma de Pagamento'), max_length=20, choices=FORMA_PAGAMENTO_CHOICES, blank=True)
     valor_pago = models.DecimalField(_('Valor Pago'), max_digits=10, decimal_places=3, validators=[MinValueValidator(0)], null=True, blank=True)

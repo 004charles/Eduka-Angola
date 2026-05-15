@@ -107,11 +107,19 @@ def filtrar_cursos_por_secao(queryset, secao_key):
     
     return qs
 
+from django.core.cache import cache
+
 def get_home_sections_data():
     """
     Retorna uma lista de dicionários contendo os dados de cada secção para a Home.
-    Formato: [{'config': {...}, 'cursos': queryset}, ...]
+    Utiliza cache para evitar múltiplas consultas pesadas em cada refresh.
     """
+    cache_key = 'home_sections_data'
+    cached_data = cache.get(cache_key)
+    
+    if cached_data is not None:
+        return cached_data
+
     config = get_secoes_config()
     sections_order = ['destaque', 'novos', 'desconto', 'semana', 'gratuitos', 'tecnologia', 'negocios', 'linguas', 'populares']
     
@@ -119,10 +127,15 @@ def get_home_sections_data():
     
     for key in sections_order:
         qs = filtrar_cursos_por_secao(Curso.objects.all(), key)
-        if qs.exists():
+        # Otimização: Pegamos apenas o que precisamos e usamos select_related para evitar N+1
+        cursos = list(qs.select_related('centro', 'categoria')[:15])
+        
+        if cursos:
             sections_data.append({
                 'config': config[key],
-                'cursos': qs.select_related('centro', 'categoria')[:15] # Limite generoso para o scroll
+                'cursos': cursos
             })
             
+    # Cache por 15 minutos (900 segundos)
+    cache.set(cache_key, sections_data, 900)
     return sections_data

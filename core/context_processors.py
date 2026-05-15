@@ -7,17 +7,26 @@ def languages(request):
         'CURRENT_LANGUAGE': request.LANGUAGE_CODE,
     }
 
+from django.core.cache import cache
+
 def destaques(request):
     """
     Disponibiliza os cursos em destaque em todos os templates.
     Útil para componentes globais como o modal de pesquisa do cabeçalho.
     """
-    return {
-        'destaques_global': Curso.objects.filter(
+    cache_key = 'destaques_global'
+    destaques_data = cache.get(cache_key)
+    
+    if destaques_data is None:
+        destaques_data = list(Curso.objects.filter(
             destaque=True, 
             publicado=True, 
             ativo=True
-        ).select_related('centro')[:5]
+        ).select_related('centro')[:5])
+        cache.set(cache_key, destaques_data, 900)  # 15 minutos
+        
+    return {
+        'destaques_global': destaques_data
     }
 
 def google_maps_key(request):

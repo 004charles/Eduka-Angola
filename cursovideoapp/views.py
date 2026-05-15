@@ -13,6 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from cursos_app.models import Categoria, Instrutor
 from cursovideoapp.models import Curso_video, FavoritoCursoVideo, Aula, ProgressoAula, Certificado, Exercicio, Questao, Alternativa, ResultadoExercicio, RespostaEstudante
+from django.core.cache import cache
 from .utils import fetch_playlist_videos
 
 @login_required
@@ -168,24 +169,35 @@ def sessao_ver_todos(request, sessao_tipo):
 
 def home_videos(request):
     """
-    Página inicial para cursos em vídeo com diversas seções.
+    Página inicial para cursos em vídeo com diversas seções com cache inteligente.
     """
-    agora = timezone.now()
+    # 1. Tentar obter do cache as seções globais (iguais para todos)
+    cache_key_global = 'home_videos_global_sections'
+    global_data = cache.get(cache_key_global)
     
-    # 1. Newest Videos (Novos Lançamentos)
-    videos_recentes = Curso_video.objects.order_by('-data_publicacao')[:12]
-    
-    # 2. Trending (Em Alta) - based on enrollment count for now
-    videos_populares = Curso_video.objects.annotate(
-        num_inscritos=Count('inscritos')
-    ).order_by('-num_inscritos')[:12]
-    
-    # 3. Most Watched (Mais Assistidos) - based on total lesson views
-    videos_assistidos = Curso_video.objects.annotate(
-        total_views=Sum('aulas__visualizacoes')
-    ).order_by('-total_views')[:12]
+    if global_data is None:
+        videos_recentes = list(Curso_video.objects.select_related('instrutor', 'categoria').order_by('-data_publicacao')[:12])
+        videos_populares = list(Curso_video.objects.select_related('instrutor', 'categoria').annotate(
+            num_inscritos=Count('inscritos')
+        ).order_by('-num_inscritos')[:12])
+        videos_assistidos = list(Curso_video.objects.select_related('instrutor', 'categoria').annotate(
+            total_views=Sum('aulas__visualizacoes')
+        ).order_by('-total_views')[:12])
+        videos_tecnologia = list(Curso_video.objects.select_related('instrutor', 'categoria').filter(categoria__slug='tecnologia').order_by('-data_publicacao')[:12])
+        categorias = list(Categoria.objects.annotate(
+            num_cursos=Count('cursos_video')
+        ).filter(num_cursos__gt=0).order_by('nome'))
+        
+        global_data = {
+            'videos_recentes': videos_recentes,
+            'videos_populares': videos_populares,
+            'videos_assistidos': videos_assistidos,
+            'videos_tecnologia': videos_tecnologia,
+            'categorias': categorias,
+        }
+        cache.set(cache_key_global, global_data, 900) # 15 minutos
 
-    # 4. Continuar a Ver & Recomendados
+    # 2. Lógica personalizada por aluno (Não cacheada globalmente)
     continuar_a_ver = []
     videos_recomendados = []
     meus_favoritos_objs = []
@@ -198,10 +210,10 @@ def home_videos(request):
             aluno_logado = True
             
             # Buscar progressos recentes não concluídos
-            progresso_recente = ProgressoAula.objects.filter(
+            progresso_recente = list(ProgressoAula.objects.filter(
                 aluno=aluno,
                 concluida=False
-            ).select_related('aula__curso').order_by('-data_ultimo_acesso')
+            ).select_related('aula__curso').order_by('-data_ultimo_acesso')[:30])
             
             vistos_ids = []
             for p in progresso_recente:
@@ -210,12 +222,12 @@ def home_videos(request):
                     vistos_ids.append(p.aula.curso.id)
                 if len(continuar_a_ver) >= 10: break
 
-            # 5. Recomendados com base em interesses (Onboarding)
-            interesses_ids = list(aluno.perfil.interesses.values_list('id', flat=True))
+            # 3. Recomendados com base em interesses (Onboarding)
+            interesses_ids = list(aluno.perfil.interesses.values_list('id', flat=True)) if hasattr(aluno, 'perfil') else []
             if interesses_ids:
-                videos_recomendados = Curso_video.objects.filter(
+                videos_recomendados = list(Curso_video.objects.select_related('instrutor', 'categoria').filter(
                     categoria_id__in=interesses_ids
-                ).exclude(id__in=vistos_ids).order_by('?')[:12]
+                ).exclude(id__in=vistos_ids).order_by('-data_publicacao')[:12])
             
             # Buscar cursos favoritos
             meus_favoritos_objs = [f.curso for f in FavoritoCursoVideo.objects.filter(aluno=aluno).select_related('curso')[:12]]
@@ -223,32 +235,22 @@ def home_videos(request):
         except (ObjectDoesNotExist, AttributeError):
             pass
     
-    # Se não houver interesses suficientes ou não logado, preencher recomendações com populares
+    # Fallback para recomendações
     if len(videos_recomendados) < 4:
-        # Converter QuerySet para lista se necessário
-        v_rec_list = list(videos_recomendados) if not isinstance(videos_recomendados, list) else videos_recomendados
-        videos_recomendados = v_rec_list + list(videos_populares[:8])
-        # Remover duplicados mantendo a ordem
+        v_rec_list = list(videos_recomendados)
+        videos_recomendados = v_rec_list + list(global_data['videos_populares'][:8])
         seen = set()
         videos_recomendados = [x for x in videos_recomendados if not (x.id in seen or seen.add(x.id))]
 
-    # 6. Tecnologia (Domine a Tecnologia Actual)
-    videos_tecnologia = Curso_video.objects.filter(categoria__slug='tecnologia').order_by('-data_publicacao')[:12]
-    
-    # Categories for filter
-    categorias = Categoria.objects.annotate(
-        num_cursos=Count('cursos_video')
-    ).filter(num_cursos__gt=0).order_by('nome')
-    
     context = {
-        'videos_recentes': videos_recentes,
-        'videos_populares': videos_populares,
-        'videos_assistidos': videos_assistidos,
-        'videos_tecnologia': videos_tecnologia,
+        'videos_recentes': global_data['videos_recentes'],
+        'videos_populares': global_data['videos_populares'],
+        'videos_assistidos': global_data['videos_assistidos'],
+        'videos_tecnologia': global_data['videos_tecnologia'],
+        'categorias': global_data['categorias'],
         'continuar_a_ver': continuar_a_ver,
         'videos_recomendados': videos_recomendados,
         'meus_favoritos': meus_favoritos_objs,
-        'categorias': categorias,
         'aluno_logado': aluno_logado,
         'favoritos': favoritos_ids,
         'active_menu': 'cursos_video',
@@ -397,7 +399,7 @@ def detalhe_curso(request, slug):
     """
     Exibe os detalhes de um curso em vídeo, incluindo aulas e avaliações.
     """
-    curso = get_object_or_404(Curso_video, slug=slug)
+    curso = get_object_or_404(Curso_video.objects.select_related('instrutor', 'categoria'), slug=slug)
     
     # 1. Verificar se o aluno está inscrito e logado
     aluno_logado = request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO'
