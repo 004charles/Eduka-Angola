@@ -615,7 +615,7 @@ def curso_detalhe(request, id):
     
     curso = get_object_or_404(
         Curso.objects.select_related('centro')
-                    .prefetch_related('instrutores'),
+                    .prefetch_related('instrutores', 'pre_requisitos'),
         id=id,
         publicado=True
     )

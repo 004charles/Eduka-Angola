@@ -168,6 +168,21 @@
                                 </div>
                             </div>
 
+                            <!-- Pré-requisitos Section -->
+                            {% if curso.pre_requisitos.all %}
+                            <div class="rbt-course-details-feature mt--60">
+                                <h4 class="title">Pré-requisitos</h4>
+                                <ul class="plan-offer-list" style="list-style: none; padding: 0;">
+                                    {% for req in curso.pre_requisitos.all %}
+                                    <li class="d-flex align-items-center mb--10">
+                                        <i class="feather-check-circle text-primary me-2" style="min-width: 20px;"></i>
+                                        <span>{{ req.texto }}</span>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+
                             <!-- Curriculum Section -->
                             <div id="coursecontent" class="rbt-course-details-feature mt--60">
                                 <div class="section-title text-start mb--20">
