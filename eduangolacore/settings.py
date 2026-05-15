@@ -282,8 +282,18 @@ STATICFILES_DIRS = [
 
 CKEDITOR_UPLOAD_PATH = 'ckeditor/uploads/'
 
+# Configuração de Armazenamento (Django 4.2+)
+STORAGES = {
+    "default": {
+        "BACKEND": config('DEFAULT_FILE_STORAGE', default='cloudinary_storage.storage.MediaCloudinaryStorage'),
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Verificação de Storage no Log
+print(f"DEBUG: Armazenamento de mídia configurado para: {STORAGES['default']['BACKEND']}")
 
 WHITENOISE_AUTOREFRESH = True
 
@@ -355,11 +365,7 @@ LOGGING = {
 
 # Configuração do Cloudinary
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': config('CLOUDINARY_API_KEY'),
-    'API_SECRET': config('CLOUDINARY_API_SECRET'),
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=""),
+    'API_KEY': config('CLOUDINARY_API_KEY', default=""),
+    'API_SECRET': config('CLOUDINARY_API_SECRET', default=""),
 }
-
-# Usar o Cloudinary para ficheiros de média (uploads)
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
