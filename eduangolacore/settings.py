@@ -199,37 +199,24 @@ GEOS_LIBRARY_PATH = config('GEOS_LIBRARY_PATH', default=None)
 import dj_database_url
 
 # Database Configuration
-USE_SQLITE = config('USE_SQLITE', default=False, cast=bool)
+DATABASE_URL = config('DATABASE_URL', default=None)
 
-if USE_SQLITE:
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+else:
+    # Fallback para SQLite em desenvolvimento local
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-else:
-    DATABASE_URL = config('DATABASE_URL', default=None)
-    if DATABASE_URL:
-        DATABASES = {
-            'default': dj_database_url.config(
-                default=DATABASE_URL,
-                engine='django.contrib.gis.db.backends.postgis',
-                conn_max_age=600,
-                conn_health_checks=True,
-            )
-        }
-    else:
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.contrib.gis.db.backends.postgis',        
-                'NAME': config('DB_NAME', default='eduka_db'),
-                'USER': config('DB_USER', default='db_user'),
-                'PASSWORD': config('DB_PASSWORD', default='db_password'),
-                'HOST': config('DB_HOST', default='localhost'),
-                'PORT': config('DB_PORT', default='5432'),
-            }
-        }
 
 # Override for testing to use SQLite if PostGIS is not available or we are running tests
 import sys
@@ -285,16 +272,18 @@ CKEDITOR_UPLOAD_PATH = 'ckeditor/uploads/'
 # Configuração de Armazenamento (Django 4.2+)
 STORAGES = {
     "default": {
-        "BACKEND": config('DEFAULT_FILE_STORAGE', default='cloudinary_storage.storage.MediaCloudinaryStorage'),
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.StaticFilesStorage",
     },
 }
 
-# Legado para compatibilidade com django-cloudinary-storage
+# Legado para compatibilidade com django-cloudinary-storage (evita erro no collectstatic)
 DEFAULT_FILE_STORAGE = STORAGES["default"]["BACKEND"]
 STATICFILES_STORAGE = STORAGES["staticfiles"]["BACKEND"]
+
+WHITENOISE_AUTOREFRESH = True
 
 
 # Verificação de Storage no Log
@@ -368,6 +357,7 @@ LOGGING = {
         },
     },
 }
+
 
 # Configuração do Cloudinary
 CLOUDINARY_STORAGE = {
