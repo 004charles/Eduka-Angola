@@ -288,14 +288,20 @@ STORAGES = {
         "BACKEND": config('DEFAULT_FILE_STORAGE', default='cloudinary_storage.storage.MediaCloudinaryStorage'),
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.StaticFilesStorage",
     },
 }
+
+# Legado para compatibilidade com django-cloudinary-storage
+DEFAULT_FILE_STORAGE = STORAGES["default"]["BACKEND"]
+STATICFILES_STORAGE = STORAGES["staticfiles"]["BACKEND"]
+
 
 # Verificação de Storage no Log
 print(f"DEBUG: Armazenamento de mídia configurado para: {STORAGES['default']['BACKEND']}")
 
 WHITENOISE_AUTOREFRESH = True
+WHITENOISE_MANIFEST_STRICT = False
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
