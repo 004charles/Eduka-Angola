@@ -1,32 +1,7 @@
 {% load static %}
 <!-- Loading Screen -->
 <div class="eduka-loading-screen" id="edukaLoading">
-    <div class="loading-container">
-        <!-- Logo centralizada -->
-        <div class="logo-container">
-            <img src="{% static 'assets/images/logo/logo1.png' %}" alt="EdukaAngola Logo" class="logo-image">
-        </div>
-        
-        <!-- Texto animado -->
-        <div class="loading-text">
-            <h3 class="loading-title">Eduk<span class="gradient-text">Angola</span></h3>
-            <p class="loading-subtitle">Preparando sua experiência de aprendizado</p>
-        </div>
-        
-        <!-- Barra de progresso -->
-        <div class="progress-container">
-            <div class="progress-bar">
-                <div class="progress-fill" id="loadingProgress"></div>
-            </div>
-            <span class="progress-text" id="progressText">0%</span>
-        </div>
-        
-        <!-- Dica de carregamento -->
-        <div class="loading-tip">
-            <i class="fas fa-lightbulb"></i>
-            <span id="loadingTip">Inicializando plataforma...</span>
-        </div>
-    </div>
+    <img src="{% static 'assets/images/logo/logo1.png' %}" alt="EdukAngola" class="loading-logo">
 </div>
 
 <style>
@@ -41,336 +16,40 @@
     align-items: center;
     justify-content: center;
     z-index: 9999;
-    opacity: 1;
-    transition: opacity 0.5s ease, visibility 0.5s ease;
+    transition: opacity 0.3s ease;
 }
 
 .eduka-loading-screen.hidden {
     opacity: 0;
-    visibility: hidden;
+    pointer-events: none;
 }
 
-.loading-container {
-    text-align: center;
-    color: #333;
-    max-width: 400px;
-    width: 90%;
+.loading-logo {
+    width: 140px;
+    height: auto;
+    animation: logoPulse 1.2s ease-in-out infinite;
 }
 
-/* Logo Container */
-.logo-container {
-    position: relative;
-    width: 180px;
-    height: 180px;
-    margin: 0 auto 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.logo-image {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    animation: pulse 1.5s ease-in-out infinite;
-}
-
-/* Texto */
-.loading-text {
-    margin-bottom: 30px;
-}
-
-.loading-title {
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin-bottom: 15px;
-    letter-spacing: 2px;
-    animation: fadeInUp 0.8s ease;
-    color: #1a1a4a;
-}
-
-.gradient-text {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.loading-subtitle {
-    color: rgba(26, 26, 74, 0.7);
-    font-size: 1.1rem;
-    margin: 0;
-    animation: fadeInUp 0.8s ease 0.2s both;
-}
-
-/* Barra de Progresso */
-.progress-container {
-    margin-bottom: 25px;
-    animation: fadeInUp 0.8s ease 0.4s both;
-}
-
-.progress-bar {
-    width: 100%;
-    height: 8px;
-    background: rgba(26, 26, 74, 0.1);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 15px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-.progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
-    background-size: 200% 100%;
-    border-radius: 4px;
-    width: 0%;
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    animation: gradientShift 2s ease infinite;
-}
-
-.progress-fill::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    animation: shimmer 2s infinite;
-}
-
-.progress-text {
-    font-size: 14px;
-    color: rgba(26, 26, 74, 0.9);
-    font-weight: 600;
-    font-family: 'Courier New', monospace;
-}
-
-/* Dica */
-.loading-tip {
-    background: rgba(26, 26, 74, 0.05);
-    padding: 15px 25px;
-    border-radius: 30px;
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(26, 26, 74, 0.1);
-    animation: fadeInUp 0.8s ease 0.6s both;
-    transition: all 0.3s ease;
-    color: rgba(26, 26, 74, 0.8);
-}
-
-.loading-tip:hover {
-    background: rgba(26, 26, 74, 0.08);
-    transform: translateY(-2px);
-}
-
-.loading-tip i {
-    color: #f59e0b;
-    font-size: 18px;
-}
-
-/* Animações */
-@keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-}
-
-@keyframes pulse {
-    0%, 100% { 
-        transform: scale(1);
-        opacity: 1;
-    }
-    50% { 
-        transform: scale(1.05);
-        opacity: 0.9;
-    }
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes gradientShift {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-}
-
-/* Efeito de partículas sutis no fundo branco */
-.eduka-loading-screen::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: 
-        radial-gradient(2px 2px at 20px 30px, rgba(102, 126, 234, 0.05), transparent),
-        radial-gradient(2px 2px at 40px 70px, rgba(118, 75, 162, 0.05), transparent),
-        radial-gradient(1px 1px at 90px 40px, rgba(102, 126, 234, 0.03), transparent),
-        radial-gradient(1px 1px at 120px 80px, rgba(118, 75, 162, 0.03), transparent);
-    background-repeat: repeat;
-    background-size: 200px 100px;
-    animation: twinkle 4s ease-in-out infinite alternate;
-}
-
-@keyframes twinkle {
-    0% { opacity: 0.2; }
-    100% { opacity: 0.4; }
-}
-
-/* Responsivo */
-@media (max-width: 768px) {
-    .loading-title {
-        font-size: 2rem;
-    }
-    
-    .loading-subtitle {
-        font-size: 1rem;
-    }
-    
-    .logo-container {
-        width: 150px;
-        height: 150px;
-        margin-bottom: 25px;
-    }
-    
-    .loading-tip {
-        padding: 12px 20px;
-        font-size: 14px;
-    }
+@keyframes logoPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.04); }
 }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const loadingScreen = document.getElementById('edukaLoading');
-    const progressFill = document.getElementById('loadingProgress');
-    const progressText = document.getElementById('progressText');
-    const loadingTip = document.getElementById('loadingTip');
-    
-    // Dicas de carregamento profissionais
-    const tips = [
-        "Inicializando plataforma...",
-        "Carregando biblioteca digital...",
-        "Preparando conteúdos exclusivos...",
-        "Otimizando interface de usuário...",
-        "Sincronizando dados de aprendizado...",
-        "Carregando recomendações personalizadas...",
-        "Preparando recursos multimídia...",
-        "Quase pronto para explorar..."
-    ];
-    
-    let progress = 0;
-    let currentTip = 0;
-    let tipInterval;
-    
-    // Função para atualizar dicas
-    function updateTip() {
-        currentTip = (currentTip + 1) % tips.length;
-        loadingTip.style.opacity = '0';
-        
-        setTimeout(() => {
-            loadingTip.textContent = tips[currentTip];
-            loadingTip.style.opacity = '1';
-        }, 200);
+window.addEventListener('load', function() {
+    var el = document.getElementById('edukaLoading');
+    if (el) {
+        el.classList.add('hidden');
+        setTimeout(function() { el.remove(); }, 350);
     }
-    
-    // Simula o carregamento mais rápido
-    function simulateLoading() {
-        const totalTime = 2000; // Reduzido para 2 segundos totais
-        const steps = 15;
-        const stepTime = totalTime / steps;
-        
-        let step = 0;
-        
-        const interval = setInterval(() => {
-            step++;
-            
-            // Progresso não linear (mais rápido no meio)
-            if (step <= steps * 0.3) {
-                // Primeiros 30% - mais rápido
-                progress += (70 / (steps * 0.3)) * 0.9;
-            } else if (step <= steps * 0.8) {
-                // Meio - velocidade máxima
-                progress += (25 / (steps * 0.5)) * 1.5;
-            } else {
-                // Fim - mais lento
-                progress += (5 / (steps * 0.2)) * 0.8;
-            }
-            
-            // Garante que não passe de 100%
-            progress = Math.min(progress, 100);
-            
-            // Atualiza progresso visual
-            progressFill.style.width = progress + '%';
-            progressText.textContent = Math.round(progress) + '%';
-            
-            // Muda dica a cada 20% de progresso
-            if (step % 3 === 0) {
-                updateTip();
-            }
-            
-            // Finaliza quando chegar a 100%
-            if (progress >= 100) {
-                clearInterval(interval);
-                clearInterval(tipInterval);
-                
-                // Pausa mínima no 100%
-                setTimeout(() => {
-                    loadingScreen.classList.add('hidden');
-                    
-                    // Remove completamente após animação
-                    setTimeout(() => {
-                        loadingScreen.remove();
-                        document.body.style.overflow = '';
-                    }, 500);
-                }, 300);
-            }
-            
-        }, stepTime);
-        
-        // Intervalo para mudar dicas automaticamente
-        tipInterval = setInterval(updateTip, 1200);
-    }
-    
-    // Inicia o carregamento imediatamente
-    setTimeout(simulateLoading, 300);
-    
-    // Fallback mais rápido: esconde o loading se demorar
-    let fallbackTimeout = setTimeout(() => {
-        if (progress < 100) {
-            progress = 100;
-            progressFill.style.width = '100%';
-            progressText.textContent = '100%';
-            loadingTip.textContent = 'Pronto!';
-            
-            setTimeout(() => {
-                loadingScreen.classList.add('hidden');
-                setTimeout(() => {
-                    loadingScreen.remove();
-                    document.body.style.overflow = '';
-                }, 500);
-            }, 400);
-        }
-    }, 4000); // Máximo de 4 segundos (reduzido)
-    
-    // Limpa o fallback se carregar normalmente
-    window.addEventListener('load', function() {
-        clearTimeout(fallbackTimeout);
-    });
 });
-
-// Previne scroll durante o loading
-document.body.style.overflow = 'hidden';
+// Fallback: remove after 2s max
+setTimeout(function() {
+    var el = document.getElementById('edukaLoading');
+    if (el) {
+        el.classList.add('hidden');
+        setTimeout(function() { el.remove(); }, 350);
+    }
+}, 2000);
 </script>
