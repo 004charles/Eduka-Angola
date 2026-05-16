@@ -145,7 +145,8 @@ class PerfilAluno(models.Model):
     bilhete_verso = models.FileField(_('BI Verso'), upload_to='documentos/bilhetes/', null=True, blank=True)
 
     from django.conf import settings
-    if 'django.contrib.gis' in settings.INSTALLED_APPS and not settings.DATABASES['default']['ENGINE'].endswith('sqlite3'):
+    if ('django.contrib.gis' in settings.INSTALLED_APPS and 
+        'gis' in settings.DATABASES['default']['ENGINE']):
         from django.contrib.gis.db import models as gis_models
         localizacao = gis_models.PointField(
             _('Localização Geográfica'),

@@ -76,7 +76,11 @@ class CentroDeFormacao(gis_models.Model):
     # Novas Categorias
     categorias = models.ManyToManyField(CategoriaCentro, related_name='centros_principais', blank=True)
     
-    if HAS_GEODJANGO and not settings.DATABASES['default']['ENGINE'].endswith('sqlite3'):
+    # Só utiliza PointField se o GIS estiver nos INSTALLED_APPS e o banco de dados suportar (não for sqlite e for postgis)
+    if (HAS_GEODJANGO and 
+        'django.contrib.gis' in settings.INSTALLED_APPS and 
+        'gis' in settings.DATABASES['default']['ENGINE']):
+        
         localizacao = gis_models.PointField(
             _('Localização Geográfica'),
             geography=True,
