@@ -51,12 +51,22 @@
             overflow: hidden;
         }
         
-        body.play-mode.active-dark-mode .play-hero {
+        body.play-mode.active-dark-mode .play-hero::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: linear-gradient(to right, rgba(15, 23, 42, 1) 30%, rgba(15, 23, 42, 0.4) 70%, rgba(15, 23, 42, 0.1) 100%);
+            z-index: 1;
+            pointer-events: none;
         }
         
-        body.play-mode.active-light-mode .play-hero {
+        body.play-mode.active-light-mode .play-hero::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: linear-gradient(to right, rgba(248, 250, 252, 1) 30%, rgba(248, 250, 252, 0.4) 70%, rgba(248, 250, 252, 0.1) 100%);
+            z-index: 1;
+            pointer-events: none;
         }
 
         .play-hero-bg {
@@ -65,7 +75,7 @@
             right: 0;
             width: 70%;
             height: 100%;
-            z-index: -1;
+            z-index: 0;
             object-fit: cover;
             mask-image: linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0));
             -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0));
