@@ -279,18 +279,29 @@ STORAGES = {
     },
 }
 
-# Legado para compatibilidade com django-cloudinary-storage (evita erro no collectstatic)
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.StaticFilesStorage",
+    },
+}
+
+# Legado para compatibilidade
 DEFAULT_FILE_STORAGE = STORAGES["default"]["BACKEND"]
 STATICFILES_STORAGE = STORAGES["staticfiles"]["BACKEND"]
 
-WHITENOISE_AUTOREFRESH = True
+# Configuração do Cloudinary
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=""),
+    'API_KEY': config('CLOUDINARY_API_KEY', default=""),
+    'API_SECRET': config('CLOUDINARY_API_SECRET', default=""),
+    'SECURE': True,
+}
 
-
-# Verificação de Storage no Log
-print(f"DEBUG: Armazenamento de mídia configurado para: {STORAGES['default']['BACKEND']}")
-
-WHITENOISE_AUTOREFRESH = True
-WHITENOISE_MANIFEST_STRICT = False
+MEDIA_URL = '/media/'  # O django-cloudinary-storage cuidará de mapear isto para a nuvem
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -359,9 +370,3 @@ LOGGING = {
 }
 
 
-# Configuração do Cloudinary
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=""),
-    'API_KEY': config('CLOUDINARY_API_KEY', default=""),
-    'API_SECRET': config('CLOUDINARY_API_SECRET', default=""),
-}
