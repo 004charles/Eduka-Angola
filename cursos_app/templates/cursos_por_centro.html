@@ -10,6 +10,33 @@
     <meta name="robots" content="noindex, follow">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Metadados de Compartilhamento (Open Graph / Redes Sociais) -->
+    <meta property="og:title" content="{{ centro.nome }} - Eduka Angola">
+    <meta property="og:description" content="{% if centro.perfil.biografia %}{{ centro.perfil.biografia|striptags|truncatechars:160 }}{% else %}Explore os cursos e formações do centro {{ centro.nome }} no Eduka Angola.{% endif %}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    {% if centro.perfil.banner %}
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ centro.perfil.banner.url }}">
+    {% elif centro.perfil.imagem %}
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ centro.perfil.imagem.url }}">
+    {% else %}
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'assets/images/logo/logo1.png' %}">
+    {% endif %}
+    <meta property="og:site_name" content="Eduka Angola">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ centro.nome }} - Eduka Angola">
+    <meta name="twitter:description" content="{% if centro.perfil.biografia %}{{ centro.perfil.biografia|striptags|truncatechars:160 }}{% else %}Explore os cursos e formações do centro {{ centro.nome }} no Eduka Angola.{% endif %}">
+    {% if centro.perfil.banner %}
+    <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ centro.perfil.banner.url }}">
+    {% elif centro.perfil.imagem %}
+    <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ centro.perfil.imagem.url }}">
+    {% else %}
+    <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'assets/images/logo/logo1.png' %}">
+    {% endif %}
+
     <!-- Swiper CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
@@ -154,6 +181,63 @@
         }
         .active-dark-mode .chat-info h6 {
             color: #ffffff !important;
+        }
+
+        /* Custom Share Dropdown Styles */
+        .share-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #fff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 8px;
+            min-width: 220px;
+            z-index: 1000;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            margin-top: 8px;
+        }
+
+        .share-dropdown-menu.show {
+            display: block;
+            animation: slideUp 0.2s ease-out;
+        }
+
+        .share-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            color: var(--color-body);
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+        }
+
+        .share-dropdown-item:hover {
+            background-color: rgba(var(--color-primary-rgb), 0.08);
+            color: var(--color-primary);
+        }
+
+        .active-dark-mode .share-dropdown-menu {
+            background: #1c2132 !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .active-dark-mode .share-dropdown-item {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        .active-dark-mode .share-dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            color: #fff !important;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
@@ -351,6 +435,26 @@
                         <i class="fa fa-whatsapp"></i> WhatsApp
                     </a>
                     {% endif %}
+
+                    <!-- Partilhar Dropdown -->
+                    <div class="position-relative d-inline-block share-dropdown-container">
+                        <button class="rbt-btn btn-sm btn-border share-toggle-btn" type="button" style="padding: 0 16px; height: 40px; display: inline-flex; align-items: center; gap: 8px;">
+                            <i class="feather-share-2"></i> {% trans "Partilhar" %}
+                        </button>
+                        <div class="share-dropdown-menu">
+                            <a class="share-dropdown-item" href="https://api.whatsapp.com/send?text=Confira%20o%20perfil%20do%20centro%20{{ centro.nome|urlencode }}%20no%20Eduka-Angola:%20{{ request.build_absolute_uri|urlencode }}" target="_blank">
+                                <i class="fa fa-whatsapp text-success" style="font-size: 16px;"></i> WhatsApp
+                            </a>
+                            <a class="share-dropdown-item" href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri|urlencode }}" target="_blank">
+                                <i class="fa fa-facebook-f text-primary" style="font-size: 16px; width: 16px; text-align: center;"></i> Facebook
+                            </a>
+                            <hr class="my-1" style="opacity: 0.08; border-top: 1px solid currentColor;">
+                            <button class="share-dropdown-item btn-copy-link" onclick="copyProfileLink(this, '{{ request.build_absolute_uri }}')">
+                                <i class="feather-copy text-secondary icon-copy" style="font-size: 16px;"></i>
+                                <span class="text-copy">Copiar Link</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -696,6 +800,72 @@
                 }
             })
             .catch(error => console.error('Error:', error));
+        }
+
+        // Share Dropdown Toggle
+        document.addEventListener('DOMContentLoaded', () => {
+            const shareContainer = document.querySelector('.share-dropdown-container');
+            if (shareContainer) {
+                const toggleBtn = shareContainer.querySelector('.share-toggle-btn');
+                const menu = shareContainer.querySelector('.share-dropdown-menu');
+
+                toggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    menu.classList.toggle('show');
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!shareContainer.contains(e.target)) {
+                        menu.classList.remove('show');
+                    }
+                });
+            }
+        });
+
+        // Copy Profile Link function
+        function copyProfileLink(button, url) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(showSuccess, showError);
+            } else {
+                // Fallback for older browsers or non-HTTPS
+                const input = document.createElement('input');
+                input.value = url;
+                document.body.appendChild(input);
+                input.select();
+                try {
+                    document.execCommand('copy');
+                    showSuccess();
+                } catch (err) {
+                    showError();
+                }
+                document.body.removeChild(input);
+            }
+
+            function showSuccess() {
+                const textSpan = button.querySelector('.text-copy');
+                const iconI = button.querySelector('.icon-copy');
+                
+                const originalText = textSpan.innerText;
+                const originalIconClass = iconI.className;
+                
+                textSpan.innerText = 'Link Copiado!';
+                textSpan.classList.add('text-success');
+                iconI.className = 'feather-check text-success icon-copy';
+                
+                // Premium micro-animation
+                button.style.transform = 'scale(1.05)';
+                setTimeout(() => button.style.transform = 'scale(1)', 150);
+
+                setTimeout(() => {
+                    textSpan.innerText = originalText;
+                    textSpan.classList.remove('text-success');
+                    iconI.className = originalIconClass;
+                }, 2000);
+            }
+
+            function showError() {
+                alert('Não foi possível copiar o link automaticamente.');
+            }
         }
     </script>
 
