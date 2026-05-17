@@ -12,6 +12,28 @@
     <meta name="description" content="{{ curso.descricao_curta }}">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     
+    <!-- Metadados de Compartilhamento (Open Graph / Redes Sociais) -->
+    <meta property="og:title" content="{{ curso.titulo }} - Eduka Angola">
+    <meta property="og:description" content="{% if curso.descricao_curta %}{{ curso.descricao_curta }}{% else %}{{ curso.descricao|striptags|truncatechars:160 }}{% endif %}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    {% if curso.imagem %}
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ curso.imagem.url }}">
+    {% else %}
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'assets/images/logo/logo1.png' %}">
+    {% endif %}
+    <meta property="og:site_name" content="Eduka Angola">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ curso.titulo }} - Eduka Angola">
+    <meta name="twitter:description" content="{% if curso.descricao_curta %}{{ curso.descricao_curta }}{% else %}{{ curso.descricao|striptags|truncatechars:160 }}{% endif %}">
+    {% if curso.imagem %}
+    <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ curso.imagem.url }}">
+    {% else %}
+    <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'assets/images/logo/logo1.png' %}">
+    {% endif %}
+    
     <!-- Ícones e CSS Base -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
