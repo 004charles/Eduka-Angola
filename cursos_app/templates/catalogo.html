@@ -56,79 +56,120 @@
                 <div class="row g-5">
                     <!-- Sidebar de Filtros (Esquerda) -->
                     <div class="col-lg-3">
-                        <aside class="rbt-sidebar-widget-wrapper rbt-gradient-border bg-color-white" style="padding: 25px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.03); border: 1px solid var(--color-border);">
+                        <aside class="rbt-sidebar-widget-wrapper">
                             {% if filtros.secao %}
                                 <input type="hidden" name="secao" value="{{ filtros.secao }}">
                             {% endif %}
                             
                             <!-- Pesquisa Central -->
-                            <div class="rbt-single-widget mb--40">
-                                <h5 class="title mb--20" style="color: var(--color-heading); font-size: 18px;">{% trans 'Pesquisar' %}</h5>
-                                <div class="rbt-search-style-1 search-form-with-suggestions">
-                                    <input type="text" name="q" class="rbt-search-autocomplete bg-color-white" placeholder="O que pretende aprender?" value="{{ filtros.busca|default:'' }}" style="border-radius: 10px; border: 1px solid var(--color-border); color: var(--color-heading); padding: 15px 20px; font-size: 16px;" autocomplete="off">
-                                    <div class="search-suggestions-wrapper"></div>
-                                    <button class="search-btn" style="right: 15px; color: var(--color-body);"><i class="feather-search"></i></button>
+                            <div class="rbt-single-widget rbt-widget-search">
+                                <div class="inner">
+                                    <div class="rbt-search-style-1 search-form-with-suggestions">
+                                        <input type="text" name="q" class="rbt-search-autocomplete" placeholder="{% trans 'O que pretende aprender?' %}" value="{{ filtros.busca|default:'' }}" autocomplete="off">
+                                        <div class="search-suggestions-wrapper"></div>
+                                        <button class="search-btn"><i class="feather-search"></i></button>
+                                    </div>
                                 </div>
                             </div>
 
                             <!-- Filtros Rápidos -->
-                            <div class="rbt-single-widget mb--40">
-                                <h5 class="title mb--20" style="color: var(--color-heading); font-size: 18px;">{% trans 'Filtros Dinâmicos' %}</h5>
-                                <div class="rbt-checkbox-group">
-                                    <div class="rbt-checkbox-wrapper mb--15">
-                                        <input id="check-semana" type="checkbox" name="tempo" value="semana" {% if filtros.tempo == "semana" %}checked{% endif %}>
-                                        <label for="check-semana" style="color: var(--color-body); font-size: 16px; margin-left: 10px;">{% trans 'Novidades da Semana' %}</label>
-                                    </div>
-                                    <div class="rbt-checkbox-wrapper mb--15">
-                                        <input id="check-proximos" type="checkbox" name="proximos" value="true" {% if filtros.proximos == "true" or filtros.proximos == 'true' %}checked{% endif %}>
-                                        <label for="check-proximos" style="color: var(--color-body); font-size: 16px; margin-left: 10px;">{% trans "A começar brevemente" %}</label>
-                                    </div>
-                                    <div class="rbt-checkbox-wrapper mb--15">
-                                        <input id="check-destaque" type="checkbox" name="destaque" value="true" {% if filtros.destaque == "true" or filtros.destaque == 'true' %}checked{% endif %}>
-                                        <label for="check-destaque" style="color: var(--color-body); font-size: 16px; margin-left: 10px;">{% trans 'Cursos em Destaque' %}</label>
-                                    </div>
-                                    {% if user.is_authenticated and user.tipo_usuario == 'ALUNO' %}
-                                    <div class="rbt-checkbox-wrapper mb--15">
-                                        <input id="check-ia" type="checkbox" name="para_voce" value="true" {% if filtros.para_voce == "true" or filtros.para_voce == 'true' %}checked{% endif %}>
-                                        <label for="check-ia" class="text-primary fw-bold" style="font-size: 16px; margin-left: 10px;"> ✨ {% trans 'Para Mim (IA)' %}</label>
-                                    </div>
-                                    {% endif %}
+                            <div class="rbt-single-widget rbt-widget-categories">
+                                <div class="inner">
+                                    <h4 class="rbt-widget-title">{% trans 'Filtros Dinâmicos' %}</h4>
+                                    <ul class="rbt-sidebar-list-wrapper categories-list-check">
+                                        <li class="rbt-check-group">
+                                            <input id="check-semana" type="checkbox" name="tempo" value="semana" {% if filtros.tempo == "semana" %}checked{% endif %}>
+                                            <label for="check-semana">{% trans 'Novidades da Semana' %}</label>
+                                        </li>
+                                        <li class="rbt-check-group">
+                                            <input id="check-proximos" type="checkbox" name="proximos" value="true" {% if filtros.proximos == "true" or filtros.proximos == 'true' %}checked{% endif %}>
+                                            <label for="check-proximos">{% trans "A começar brevemente" %}</label>
+                                        </li>
+                                        <li class="rbt-check-group">
+                                            <input id="check-destaque" type="checkbox" name="destaque" value="true" {% if filtros.destaque == "true" or filtros.destaque == 'true' %}checked{% endif %}>
+                                            <label for="check-destaque">{% trans 'Cursos em Destaque' %}</label>
+                                        </li>
+                                        {% if user.is_authenticated and user.tipo_usuario == 'ALUNO' %}
+                                        <li class="rbt-check-group">
+                                            <input id="check-ia" type="checkbox" name="para_voce" value="true" {% if filtros.para_voce == "true" or filtros.para_voce == 'true' %}checked{% endif %}>
+                                            <label for="check-ia">✨ {% trans 'Para Mim (IA)' %}</label>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
                                 </div>
                             </div>
 
-                            <!-- Seletores Premium -->
-                            <div class="rbt-single-widget mb--40">
-                                <div class="filter-select-group mb--25">
-                                    <label class="form-label fw-bold mb--12" style="font-size: 16px; color: var(--color-body);">{% trans 'Categoria' %}</label>
-                                    <select name="categoria" class="form-select bg-color-white" style="border-radius: 10px; border: 1px solid var(--color-border); color: var(--color-heading); padding: 10px 15px; font-size: 15px;">
-                                        <option value="">{% trans 'Todas as categorias' %}</option>
+                            <!-- Categorias -->
+                            <div class="rbt-single-widget rbt-widget-categories has-show-more">
+                                <div class="inner">
+                                    <h4 class="rbt-widget-title">{% trans 'Categoria' %}</h4>
+                                    <ul class="rbt-sidebar-list-wrapper categories-list-check has-show-more-inner-content">
+                                        <li class="rbt-check-group">
+                                            <input id="cat-all" type="radio" name="categoria" value="" {% if not filtros.categoria %}checked{% endif %}>
+                                            <label for="cat-all">{% trans 'Todas as categorias' %}</label>
+                                        </li>
                                         {% for cat in categorias %}
-                                        <option value="{{ cat.id }}" {% if filtros.categoria|stringformat:"s" == cat.id|stringformat:"s" %}selected{% endif %}>
-                                            {{ cat.nome }}
-                                        </option>
+                                        <li class="rbt-check-group">
+                                            <input id="cat-{{ cat.id }}" type="radio" name="categoria" value="{{ cat.id }}" {% if filtros.categoria|stringformat:"s" == cat.id|stringformat:"s" %}checked{% endif %}>
+                                            <label for="cat-{{ cat.id }}">{{ cat.nome }}</label>
+                                        </li>
                                         {% endfor %}
-                                    </select>
+                                    </ul>
                                 </div>
+                                <div class="rbt-show-more-btn">{% trans 'Mostrar Mais' %}</div>
+                            </div>
 
-                                <div class="filter-select-group mb--25">
-                                    <label class="form-label fw-bold mb--12" style="font-size: 16px; color: var(--color-body);">{% trans 'Nível' %}</label>
-                                    <select name="nivel" class="form-select bg-color-white" style="border-radius: 10px; border: 1px solid var(--color-border); color: var(--color-heading); padding: 10px 15px; font-size: 15px;">
-                                        <option value="">{% trans 'Todos os níveis' %}</option>
-                                        <option value="B" {% if filtros.nivel == 'B' %}selected{% endif %}>{% trans 'Básico' %}</option>
-                                        <option value="I" {% if filtros.nivel == 'I' %}selected{% endif %}>{% trans 'Intermediário' %}</option>
-                                        <option value="A" {% if filtros.nivel == 'A' %}selected{% endif %}>{% trans 'Avançado' %}</option>
-                                    </select>
+                            <!-- Nível -->
+                            <div class="rbt-single-widget rbt-widget-lavels">
+                                <div class="inner">
+                                    <h4 class="rbt-widget-title">{% trans 'Nível' %}</h4>
+                                    <ul class="rbt-sidebar-list-wrapper lavels-list-check">
+                                        <li class="rbt-check-group">
+                                            <input id="nivel-all" type="radio" name="nivel" value="" {% if not filtros.nivel %}checked{% endif %}>
+                                            <label for="nivel-all">{% trans 'Todos os níveis' %}</label>
+                                        </li>
+                                        <li class="rbt-check-group">
+                                            <input id="nivel-b" type="radio" name="nivel" value="B" {% if filtros.nivel == 'B' %}checked{% endif %}>
+                                            <label for="nivel-b">{% trans 'Básico' %}</label>
+                                        </li>
+                                        <li class="rbt-check-group">
+                                            <input id="nivel-i" type="radio" name="nivel" value="I" {% if filtros.nivel == 'I' %}checked{% endif %}>
+                                            <label for="nivel-i">{% trans 'Intermediário' %}</label>
+                                        </li>
+                                        <li class="rbt-check-group">
+                                            <input id="nivel-a" type="radio" name="nivel" value="A" {% if filtros.nivel == 'A' %}checked{% endif %}>
+                                            <label for="nivel-a">{% trans 'Avançado' %}</label>
+                                        </li>
+                                    </ul>
                                 </div>
+                            </div>
 
-                                <div class="filter-select-group">
-                                    <label class="form-label fw-bold mb--12" style="font-size: 16px; color: var(--color-body);">{% trans 'Preço' %}</label>
-                                    <select name="preco" class="form-select bg-color-white" style="border-radius: 10px; border: 1px solid var(--color-border); color: var(--color-heading); padding: 10px 15px; font-size: 15px;">
-                                        <option value="">{% trans 'Qualquer preço' %}</option>
-                                        <option value="gratuitos" {% if filtros.preco == 'gratuitos' %}selected{% endif %}>{% trans 'Gratuitos' %}</option>
-                                        <option value="pagina_100" {% if filtros.preco == 'pagina_100' %}selected{% endif %}>{% trans 'Até 100 KZ' %}</option>
-                                        <option value="100_500" {% if filtros.preco == '100_500' %}selected{% endif %}>{% trans '100 - 500 KZ' %}</option>
-                                        <option value="500_plus" {% if filtros.preco == '500_plus' %}selected{% endif %}>{% trans 'Acima de 500 KZ' %}</option>
-                                    </select>
+                            <!-- Preço -->
+                            <div class="rbt-single-widget rbt-widget-prices">
+                                <div class="inner">
+                                    <h4 class="rbt-widget-title">{% trans 'Preço' %}</h4>
+                                    <ul class="rbt-sidebar-list-wrapper prices-list-check">
+                                        <li class="rbt-check-group">
+                                            <input id="preco-all" type="radio" name="preco" value="" {% if not filtros.preco %}checked{% endif %}>
+                                            <label for="preco-all">{% trans 'Qualquer preço' %}</label>
+                                        </li>
+                                        <li class="rbt-check-group">
+                                            <input id="preco-gratis" type="radio" name="preco" value="gratuitos" {% if filtros.preco == 'gratuitos' %}checked{% endif %}>
+                                            <label for="preco-gratis">{% trans 'Gratuitos' %}</label>
+                                        </li>
+                                        <li class="rbt-check-group">
+                                            <input id="preco-100" type="radio" name="preco" value="pagina_100" {% if filtros.preco == 'pagina_100' %}checked{% endif %}>
+                                            <label for="preco-100">{% trans 'Até 100 KZ' %}</label>
+                                        </li>
+                                        <li class="rbt-check-group">
+                                            <input id="preco-100-500" type="radio" name="preco" value="100_500" {% if filtros.preco == '100_500' %}checked{% endif %}>
+                                            <label for="preco-100-500">{% trans '100 - 500 KZ' %}</label>
+                                        </li>
+                                        <li class="rbt-check-group">
+                                            <input id="preco-500plus" type="radio" name="preco" value="500_plus" {% if filtros.preco == '500_plus' %}checked{% endif %}>
+                                            <label for="preco-500plus">{% trans 'Acima de 500 KZ' %}</label>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
 
@@ -146,27 +187,31 @@
                     <!-- Conteúdo Principal (Direita) -->
                     <div class="col-lg-9">
                         <!-- Cabeçalho de Ordenação -->
-                        <div class="rbt-sorting-area d-flex flex-wrap align-items-center justify-content-between mb--30 p-4 bg-color-white" style="border-radius: 12px; border: 1px solid var(--color-border); box-shadow: 0 2px 15px rgba(0,0,0,0.02);">
-                            <div class="sorting-left">
-                                <h4 class="title mb--0" style="font-size: 18px; color: var(--color-heading);">
+                        <div class="rbt-sorting-list d-flex flex-wrap align-items-center justify-content-between mb--30">
+                            <div class="rbt-short-item">
+                                <span class="course-index fw-bold">
                                     {% if cursos %}
                                         {{ total_cursos }} {% trans "Cursos Encontrados" %}
                                     {% else %}
                                         {% trans "Eduka-Angola: Conectando Talento e Conhecimento" %}
                                     {% endif %}
-                                </h4>
+                                </span>
                                 {% if filtros.busca %}
-                                    <span class="small text-muted">{% trans 'Resultados para' %}: <strong>"{{ filtros.busca }}"</strong></span>
+                                    <span class="course-index ms-2">{% trans 'Resultados para' %}: <strong>"{{ filtros.busca }}"</strong></span>
                                 {% endif %}
                             </div>
 
-                            <div class="sorting-right d-flex align-items-center gap-3">
-                                <span class="small fw-bold text-muted text-uppercase" style="letter-spacing: 1px;">{% trans 'Ordenar por:' %}</span>
-                                <select name="order" class="form-select w-auto border-0 bg-transparent fw-bold text-primary" onchange="this.form.submit()" style="cursor: pointer; font-size: 15px;">
-                                    <option value="">{% trans 'Mais Recentes' %}</option>
-                                    <option value="mais_procurados" {% if request.GET.order == 'mais_procurados' %}selected{% endif %}>{% trans 'Mais Populares' %}</option>
-                                    <option value="inicio_proximo" {% if request.GET.order == 'inicio_proximo' %}selected{% endif %}>{% trans 'Início Próximo' %}</option>
-                                </select>
+                            <div class="rbt-short-item">
+                                <div class="filter-select">
+                                    <span class="select-label d-block">{% trans 'Ordenar por' %}</span>
+                                    <div class="filter-select rbt-modern-select search-by-category">
+                                        <select name="order" data-size="7" onchange="this.form.submit()">
+                                            <option value="">{% trans 'Mais Recentes' %}</option>
+                                            <option value="mais_procurados" {% if request.GET.order == 'mais_procurados' %}selected{% endif %}>{% trans 'Mais Populares' %}</option>
+                                            <option value="inicio_proximo" {% if request.GET.order == 'inicio_proximo' %}selected{% endif %}>{% trans 'Início Próximo' %}</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
