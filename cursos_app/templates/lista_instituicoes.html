@@ -48,6 +48,9 @@
             background: #1e293b !important;
             border-color: rgba(255,255,255,0.05);
         }
+        .active-dark-mode .rbt-sorting-area .title {
+            color: #ffffff !important;
+        }
 
         .filter-form {
             display: flex;
@@ -459,35 +462,53 @@
         </div>
         <!-- END BANNER AREA -->
 
-        <!-- START TEXT SECTION (ABOUT CENTERS & EDUCATION) -->
-        <div class="rbt-about-area rbt-section-gapTop bg-color-white">
+        <!-- Texto de Esperança e Instituições -->
+        <div class="rbt-text-area bg-color-white ptb--40">
             <div class="container">
-                <div class="row g-5 align-items-center">
-                    <div class="col-lg-6">
-                        <div class="thumbnail">
-                            <img src="{% static 'assets/images/about/about-01.jpg' %}" alt="{% trans 'Educação em Angola' %}" class="w-100 rounded-4 shadow-lg" style="border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.15);">
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="inner pl--50 pl_sm--0 pl_md--0">
-                            <div class="section-title text-start">
-                                <span class="subtitle bg-primary-opacity">✨ {% trans "Educação & Futuro" %}</span>
-                                <h2 class="title" style="font-size: 36px; font-weight: 800; line-height: 1.2;">
-                                    {% trans "Transformando Angola Através do Conhecimento" %}
-                                </h2>
-                            </div>
-                            <p class="description mt--20" style="font-size: 16px; line-height: 1.8; color: var(--color-body);">
-                                {% trans "Os centros de formação profissional e as instituições de ensino desempenham um papel vital no desenvolvimento socioeconómico de Angola. Mais do que salas de aula, estes espaços são verdadeiros incubadores de talento, capacitando a nossa juventude com as competências técnicas e práticas mais procuradas pelo mercado de trabalho atual." %}
+                <div class="row justify-content-center">
+                    <div class="col-lg-8 text-center">
+                        <div class="section-title">
+                            <h2 class="title" style="font-size: 32px; font-weight: 800; background: linear-gradient(to right, #6C28FD, #00D2FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px;">{% trans "O Ponto de Partida do Seu Sucesso" %}</h2>
+                            <p class="description" style="font-size: 18px; color: var(--color-body); line-height: 1.6;">
+                                {% trans "Acreditamos que o conhecimento transforma vidas. Descubra as melhores instituições e centros de formação parceiros da EdukAngola e encontre o lugar ideal para construir a sua carreira." %}
                             </p>
-                            <p class="description mt--10" style="font-size: 16px; line-height: 1.8; color: var(--color-body);">
-                                {% trans "Na EdukAngola, acreditamos que ligar os estudantes às melhores instituições parceiras é o caminho mais rápido para impulsionar carreiras de sucesso e construir uma nação próspera e inovadora. Explore as opções de instituições parceiras, conheça os seus cursos e comece a desenhar o seu futuro profissional hoje mesmo!" %}
-                            </p>
-                            <div class="about-btn mt--30">
-                                <a class="rbt-btn btn-gradient" href="#all-institutions">{% trans "Explorar Instituições" %}</a>
-                            </div>
                         </div>
                     </div>
                 </div>
+                
+                <div class="row justify-content-center mt--40">
+                    <div class="col-lg-10">
+                        <!-- NEW PLATFORM-STANDARD FILTER BAR -->
+                        <div class="rbt-sorting-area">
+                            <div class="section-title">
+                                <h4 class="title mb--0" style="font-size: 18px; color: var(--color-heading);">{{ total_centros }} {% trans "Instituições Registadas" %}</h4>
+                            </div>
+                            
+                            <form action="." method="GET" class="filter-form search-form-with-suggestions">
+                                <div class="search-icon-wrapper">
+                                    <i class="feather-search"></i>
+                                    <input type="text" name="q" value="{{ q }}" placeholder="{% trans 'Buscar instituição...' %}" class="custom-search-input rbt-search-autocomplete" autocomplete="off" data-search-type="centro">
+                                    <div class="search-suggestions-wrapper"></div>
+                                </div>
+                                <div class="d-flex align-items-center gap-3">
+                                    <input type="hidden" name="provincia" id="provincia-input" value="{{ provincia_selecionada }}">
+                                    <div class="custom-dropdown" id="provincia-dropdown">
+                                        <button type="button" class="custom-dropdown-btn" id="provincia-btn">
+                                            <span id="provincia-label">{% if provincia_selecionada %}{{ provincia_selecionada }}{% else %}{% trans "Província" %}{% endif %}</span>
+                                            <i class="feather-chevron-down"></i>
+                                        </button>
+                                        <div class="custom-dropdown-menu" id="provincia-menu">
+                                            <div class="custom-dropdown-item" data-value="">{% trans "Todas as Províncias" %}</div>
+                                            {% for p in provincias %}<div class="custom-dropdown-item" data-value="{{ p }}">{{ p }}</div>{% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="filter-submit-btn">{% trans "Filtrar" %}</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
         <!-- END TEXT SECTION -->
@@ -578,33 +599,7 @@
                     </div>
                 </div>
                 
-                <!-- NEW PLATFORM-STANDARD FILTER BAR -->
-                <div class="rbt-sorting-area mb--50">
-                    <div class="section-title">
-                        <h4 class="title mb--0" style="font-size: 18px; color: var(--color-heading);">{{ total_centros }} {% trans "Instituições Registadas" %}</h4>
-                    </div>
-                    
-                    <form action="." method="GET" class="filter-form">
-                        <div class="search-icon-wrapper">
-                            <i class="feather-search"></i>
-                            <input type="text" name="q" value="{{ q }}" placeholder="{% trans 'Buscar instituição...' %}" class="custom-search-input">
-                        </div>
-                        <div class="d-flex align-items-center gap-3">
-                            <input type="hidden" name="provincia" id="provincia-input" value="{{ provincia_selecionada }}">
-                            <div class="custom-dropdown" id="provincia-dropdown">
-                                <button type="button" class="custom-dropdown-btn" id="provincia-btn">
-                                    <span id="provincia-label">{% if provincia_selecionada %}{{ provincia_selecionada }}{% else %}{% trans "Província" %}{% endif %}</span>
-                                    <i class="feather-chevron-down"></i>
-                                </button>
-                                <div class="custom-dropdown-menu" id="provincia-menu">
-                                    <div class="custom-dropdown-item" data-value="">{% trans "Todas as Províncias" %}</div>
-                                    {% for p in provincias %}<div class="custom-dropdown-item" data-value="{{ p }}">{{ p }}</div>{% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                        <button type="submit" class="filter-submit-btn">{% trans "Filtrar" %}</button>
-                    </form>
-                </div>
+                <!-- Filter bar moved to the top -->
 
                 <div class="row g-5">
                     {% for centro in page_obj %}

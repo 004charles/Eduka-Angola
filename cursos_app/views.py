@@ -1676,29 +1676,45 @@ def api_load_more_cursos(request):
 
 def api_buscar_sugestoes(request):
     """
-    API para retornar sugestões de cursos em tempo real (autocomplete).
+    API para retornar sugestões de cursos ou centros em tempo real (autocomplete).
     """
     termo = request.GET.get('q', '').strip()
+    tipo = request.GET.get('tipo', 'curso')
     if not termo or len(termo) < 1:
         return JsonResponse({'sugestoes': []})
     
-    # Busca cursos pelo título ou centro
-    cursos = Curso.objects.filter(
-        publicado=True, 
-        ativo=True
-    ).filter(
-        Q(titulo__icontains=termo) |
-        Q(centro__nome__icontains=termo)
-    ).select_related('centro').only('id', 'titulo', 'centro__nome')[:8]
-    
     sugestoes = []
-    for curso in cursos:
-        sugestoes.append({
-            'id': curso.id,
-            'titulo': curso.titulo,
-            'centro': curso.centro.nome if curso.centro else '',
-            'url': reverse('curso_detalhe', kwargs={'id': curso.id})
-        })
+    
+    if tipo == 'centro':
+        from gestoreduka.models import CentroDeFormacao
+        centros = CentroDeFormacao.objects.filter(ativo=True).filter(
+            Q(nome__icontains=termo) |
+            Q(cidade__icontains=termo) |
+            Q(provincia__icontains=termo)
+        )[:8]
+        for c in centros:
+            sugestoes.append({
+                'id': c.id,
+                'titulo': c.nome,
+                'centro': c.cidade or c.provincia,
+                'url': reverse('cursos_por_centro', kwargs={'centro_id': c.id})
+            })
+    else:
+        cursos = Curso.objects.filter(
+            publicado=True, 
+            ativo=True
+        ).filter(
+            Q(titulo__icontains=termo) |
+            Q(centro__nome__icontains=termo)
+        ).select_related('centro').only('id', 'titulo', 'centro__nome')[:8]
+        
+        for curso in cursos:
+            sugestoes.append({
+                'id': curso.id,
+                'titulo': curso.titulo,
+                'centro': curso.centro.nome if curso.centro else '',
+                'url': reverse('curso_detalhe', kwargs={'id': curso.id})
+            })
     
     return JsonResponse({'sugestoes': sugestoes})
 

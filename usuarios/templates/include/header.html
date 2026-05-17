@@ -449,6 +449,7 @@
             if (!wrapper) return;
 
             let debounceTimer;
+            const searchType = input.dataset.searchType || 'curso';
             
             input.addEventListener('input', () => {
                 clearTimeout(debounceTimer);
@@ -461,7 +462,7 @@
 
                 debounceTimer = setTimeout(async () => {
                     try {
-                        const response = await fetch(`/cursos/api/sugestoes/?q=${encodeURIComponent(query)}`);
+                        const response = await fetch(`/cursos/api/sugestoes/?q=${encodeURIComponent(query)}&tipo=${searchType}`);
                         const data = await response.json();
                         renderSuggestions(data.sugestoes, wrapper, input);
                     } catch (err) {
@@ -749,12 +750,24 @@
     }
 
     /* Target Dark Mode */
+    .active-dark-mode .search-suggestions-wrapper {
+        background: #1e293b;
+        border-color: rgba(255,255,255,0.1);
+    }
+    .active-dark-mode .suggestion-item {
+        border-bottom-color: rgba(255,255,255,0.05);
+        color: #fff;
+    }
+    .active-dark-mode .suggestion-item .subtitle {
+        color: rgba(255,255,255,0.7);
+    }
     .active-dark-mode .suggestion-item:hover {
         background-color: rgba(255, 255, 255, 0.05);
     }
     
     .active-dark-mode .suggestions-footer {
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(0, 0, 0, 0.2);
+        border-top-color: rgba(255,255,255,0.1);
     }
 
     /* DARK MODE MOBILE MENU FIXES */
