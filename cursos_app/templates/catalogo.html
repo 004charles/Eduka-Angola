@@ -56,7 +56,7 @@
                 <div class="row g-5">
                     <!-- Sidebar de Filtros (Esquerda) -->
                     <div class="col-lg-3">
-                        <aside class="rbt-sidebar-widget-wrapper rbt-gradient-border" style="background: var(--color-white); padding: 25px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.03); border: 1px solid var(--color-border);">
+                        <aside class="rbt-sidebar-widget-wrapper rbt-gradient-border bg-color-white" style="padding: 25px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.03); border: 1px solid var(--color-border);">
                             {% if filtros.secao %}
                                 <input type="hidden" name="secao" value="{{ filtros.secao }}">
                             {% endif %}
@@ -65,7 +65,7 @@
                             <div class="rbt-single-widget mb--40">
                                 <h5 class="title mb--20" style="color: var(--color-heading); font-size: 18px;">{% trans 'Pesquisar' %}</h5>
                                 <div class="rbt-search-style-1 search-form-with-suggestions">
-                                    <input type="text" name="q" class="rbt-search-autocomplete" placeholder="O que pretende aprender?" value="{{ filtros.busca|default:'' }}" style="border-radius: 10px; border: 1px solid var(--color-border); background-color: var(--color-white); color: var(--color-heading); padding: 15px 20px; font-size: 16px;" autocomplete="off">
+                                    <input type="text" name="q" class="rbt-search-autocomplete bg-color-white" placeholder="O que pretende aprender?" value="{{ filtros.busca|default:'' }}" style="border-radius: 10px; border: 1px solid var(--color-border); color: var(--color-heading); padding: 15px 20px; font-size: 16px;" autocomplete="off">
                                     <div class="search-suggestions-wrapper"></div>
                                     <button class="search-btn" style="right: 15px; color: var(--color-body);"><i class="feather-search"></i></button>
                                 </div>
@@ -100,7 +100,7 @@
                             <div class="rbt-single-widget mb--40">
                                 <div class="filter-select-group mb--25">
                                     <label class="form-label fw-bold mb--12" style="font-size: 16px; color: var(--color-body);">{% trans 'Categoria' %}</label>
-                                    <select name="categoria" class="form-select" style="border-radius: 10px; border: 1px solid var(--color-border); background-color: var(--color-white); color: var(--color-heading); padding: 10px 15px; font-size: 15px;">
+                                    <select name="categoria" class="form-select bg-color-white" style="border-radius: 10px; border: 1px solid var(--color-border); color: var(--color-heading); padding: 10px 15px; font-size: 15px;">
                                         <option value="">{% trans 'Todas as categorias' %}</option>
                                         {% for cat in categorias %}
                                         <option value="{{ cat.id }}" {% if filtros.categoria|stringformat:"s" == cat.id|stringformat:"s" %}selected{% endif %}>
@@ -112,7 +112,7 @@
 
                                 <div class="filter-select-group mb--25">
                                     <label class="form-label fw-bold mb--12" style="font-size: 16px; color: var(--color-body);">{% trans 'Nível' %}</label>
-                                    <select name="nivel" class="form-select" style="border-radius: 10px; border: 1px solid var(--color-border); background-color: var(--color-white); color: var(--color-heading); padding: 10px 15px; font-size: 15px;">
+                                    <select name="nivel" class="form-select bg-color-white" style="border-radius: 10px; border: 1px solid var(--color-border); color: var(--color-heading); padding: 10px 15px; font-size: 15px;">
                                         <option value="">{% trans 'Todos os níveis' %}</option>
                                         <option value="B" {% if filtros.nivel == 'B' %}selected{% endif %}>{% trans 'Básico' %}</option>
                                         <option value="I" {% if filtros.nivel == 'I' %}selected{% endif %}>{% trans 'Intermediário' %}</option>
@@ -122,7 +122,7 @@
 
                                 <div class="filter-select-group">
                                     <label class="form-label fw-bold mb--12" style="font-size: 16px; color: var(--color-body);">{% trans 'Preço' %}</label>
-                                    <select name="preco" class="form-select" style="border-radius: 10px; border: 1px solid var(--color-border); background-color: var(--color-white); color: var(--color-heading); padding: 10px 15px; font-size: 15px;">
+                                    <select name="preco" class="form-select bg-color-white" style="border-radius: 10px; border: 1px solid var(--color-border); color: var(--color-heading); padding: 10px 15px; font-size: 15px;">
                                         <option value="">{% trans 'Qualquer preço' %}</option>
                                         <option value="gratuitos" {% if filtros.preco == 'gratuitos' %}selected{% endif %}>{% trans 'Gratuitos' %}</option>
                                         <option value="pagina_100" {% if filtros.preco == 'pagina_100' %}selected{% endif %}>{% trans 'Até 100 KZ' %}</option>
@@ -146,7 +146,7 @@
                     <!-- Conteúdo Principal (Direita) -->
                     <div class="col-lg-9">
                         <!-- Cabeçalho de Ordenação -->
-                        <div class="rbt-sorting-area d-flex flex-wrap align-items-center justify-content-between mb--30 p-4" style="background: var(--color-white); border-radius: 12px; border: 1px solid var(--color-border); box-shadow: 0 2px 15px rgba(0,0,0,0.02);">
+                        <div class="rbt-sorting-area d-flex flex-wrap align-items-center justify-content-between mb--30 p-4 bg-color-white" style="border-radius: 12px; border: 1px solid var(--color-border); box-shadow: 0 2px 15px rgba(0,0,0,0.02);">
                             <div class="sorting-left">
                                 <h4 class="title mb--0" style="font-size: 18px; color: var(--color-heading);">
                                     {% if cursos %}
