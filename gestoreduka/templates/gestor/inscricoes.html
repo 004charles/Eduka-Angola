@@ -64,11 +64,11 @@
                             <td class="py-4">
                                 <div class="flex items-center gap-3">
                                     <div class="size-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm uppercase">
-                                        {{ inscricao.aluno.usuario.nome|make_list|first }}
+                                        {{ inscricao.aluno.nome|make_list|first|default:"A" }}
                                     </div>
                                     <div class="flex flex-col">
-                                        <span class="text-sm font-semibold text-foreground">{{ inscricao.aluno.usuario.nome }}</span>
-                                        <span class="text-xs text-muted-foreground">{{ inscricao.aluno.usuario.email }}</span>
+                                        <span class="text-sm font-semibold text-foreground">{{ inscricao.aluno.nome|default:"Nome não disponível" }}</span>
+                                        <span class="text-xs text-muted-foreground">{{ inscricao.aluno.usuario.email|default:"Sem e-mail registado" }}</span>
                                     </div>
                                 </div>
                             </td>

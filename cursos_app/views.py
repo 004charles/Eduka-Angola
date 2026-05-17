@@ -1448,15 +1448,20 @@ def todo_curso(request):
 
     return render(request, 'todo_curso.html', context)
     
+@login_required(login_url='login_aluno')
 def ficha_inscricao(request, curso_id):
+    if request.user.tipo_usuario != 'ALUNO':
+        messages.error(request, "Você precisa estar logado como aluno.")
+        return redirect('login_aluno')
+
     curso = get_object_or_404(Curso, id=curso_id)
 
     aluno = None
-    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
-        try:
-            aluno = request.user.aluno_profile
-        except AttributeError:
-            pass
+    try:
+        aluno = request.user.aluno_profile
+    except AttributeError:
+        messages.error(request, "Perfil de aluno não encontrado.")
+        return redirect('login_aluno')
 
     # Obter turma disponível
     turma_disponivel = curso.get_turma_menos_lotada()

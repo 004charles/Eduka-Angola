@@ -252,11 +252,11 @@
                             <div class="data-grid">
                                 <div class="form-group">
                                     <label class="small fw-bold text-uppercase mb-2">Nome Completo</label>
-                                    <input type="text" value="{{ request.user.nome|default:aluno.nome }}" disabled class="form-control bg-light border-0">
+                                    <input type="text" value="{% if request.user.is_authenticated %}{{ aluno.nome|default:request.user.nome }}{% endif %}" readonly class="form-control bg-light border-0 text-dark fw-medium">
                                 </div>
                                 <div class="form-group">
                                     <label class="small fw-bold text-uppercase mb-2">E-mail de Acesso</label>
-                                    <input type="email" value="{{ request.user.email }}" disabled class="form-control bg-light border-0">
+                                    <input type="email" value="{% if request.user.is_authenticated %}{{ request.user.email|default:aluno.usuario.email }}{% endif %}" readonly class="form-control bg-light border-0 text-dark fw-medium">
                                 </div>
                             </div>
                         </div>
