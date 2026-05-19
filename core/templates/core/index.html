@@ -71,11 +71,18 @@
             </div>
         </div>
 
+        <!-- Recomendados para si -->
+        {% include 'core/includes/home/recommended_courses.html' %}
+
         <!-- Categorias de Cursos -->
         {% include 'core/includes/home/categories.html' %}
 
         <!-- Secções Dinâmicas de Cursos (Injetadas via Contexto) -->
         {% for secao in secoes_dinamicas %}
+            {% if secao.config.slug == 'tecnologia' %}
+                <!-- Retome sua exploração (Histórico) -->
+                {% include 'core/includes/home/recently_viewed.html' %}
+            {% endif %}
             {% include 'components/home_course_section.html' with secao=secao %}
         {% endfor %}
 

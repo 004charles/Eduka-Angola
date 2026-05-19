@@ -205,9 +205,11 @@ def centro_dashboard(request):
         messages.error(request, "Esta conta não tem permissões de Gestor ou o perfil não foi encontrado.")
         return redirect('login_gestor')
         
+    from datetime import timedelta
     # Estatísticas Gerais (Filtrar por filial se aplicável)
     cursos_qs = filial.cursos.all() if filial else centro.cursos.all()
     total_cursos = cursos_qs.count()
+    total_cursos_ativos = cursos_qs.filter(ativo=True).count()
     
     inscricoes_qs = Inscricao.objects.filter(curso__centro=centro)
     if filial:
@@ -220,6 +222,80 @@ def centro_dashboard(request):
     receita_total = inscricoes_qs.filter(
         status='A'
     ).aggregate(total=Sum('valor_pago'))['total'] or 0
+
+    # Módulo 1.1: Total de inscrições do mês actual, com comparação percentual face ao mês anterior
+    hoje = timezone.now()
+    primeiro_dia_mes = hoje.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    if primeiro_dia_mes.month == 1:
+        primeiro_dia_mes_anterior = primeiro_dia_mes.replace(year=primeiro_dia_mes.year - 1, month=12)
+    else:
+        primeiro_dia_mes_anterior = primeiro_dia_mes.replace(month=primeiro_dia_mes.month - 1)
+
+    inscricoes_mes_atual = inscricoes_qs.filter(data_inscricao__gte=primeiro_dia_mes).count()
+    inscricoes_mes_anterior = inscricoes_qs.filter(
+        data_inscricao__gte=primeiro_dia_mes_anterior, 
+        data_inscricao__lt=primeiro_dia_mes
+    ).count()
+
+    if inscricoes_mes_anterior > 0:
+        crescimento_inscricoes = ((inscricoes_mes_atual - inscricoes_mes_anterior) / inscricoes_mes_anterior) * 100
+    else:
+        crescimento_inscricoes = 100.0 if inscricoes_mes_atual > 0 else 0.0
+
+    # Receita total gerada via plataforma no mês corrente, com comparação percentual
+    receita_mes_atual = inscricoes_qs.filter(
+        status='A', 
+        data_confirmacao__gte=primeiro_dia_mes
+    ).aggregate(total=Sum('valor_pago'))['total'] or 0
+
+    receita_mes_anterior = inscricoes_qs.filter(
+        status='A', 
+        data_confirmacao__gte=primeiro_dia_mes_anterior, 
+        data_confirmacao__lt=primeiro_dia_mes
+    ).aggregate(total=Sum('valor_pago'))['total'] or 0
+
+    if receita_mes_anterior > 0:
+        crescimento_receita = ((receita_mes_atual - receita_mes_anterior) / receita_mes_anterior) * 100
+    else:
+        crescimento_receita = 100.0 if receita_mes_atual > 0 else 0.0
+
+    # Total de vagas ainda disponíveis e taxa de ocupação média
+    vagas_totais_disponiveis = 0
+    vagas_ocupadas_totais = 0
+    vagas_capacidade_total = 0
+    
+    for c in cursos_qs.filter(ativo=True):
+        vagas_totais_disponiveis += c.total_vagas_disponiveis
+        vagas_ocupadas_totais += c.vagas_ocupadas
+        vagas_capacidade_total += c.total_vagas_totais
+
+    if vagas_capacidade_total > 0:
+        taxa_ocupacao_media = (vagas_ocupadas_totais / vagas_capacidade_total) * 100
+    else:
+        taxa_ocupacao_media = 0.0
+
+    # Avaliação média do centro (sistema de estrelas baseado nos reviews dos alunos)
+    from django.db.models import Avg
+    from avaliacoes.models import Comentario
+    comentarios_centro = Comentario.objects.filter(
+        Q(curso__centro=centro) | Q(curso_video__instrutor__centro_de_formacao=centro)
+    )
+    if filial:
+        comentarios_centro = comentarios_centro.filter(
+            Q(curso__filial=filial) | Q(curso_video__instrutor__filial=filial)
+        )
+    avaliacao_media = comentarios_centro.aggregate(media=Avg('avaliacao'))['media'] or 0.0
+    avaliacao_media = round(avaliacao_media, 1)
+
+    # Número de certificados emitidos no mês
+    from cursovideoapp.models import Certificado
+    certificados_mes = Certificado.objects.filter(
+        curso__instrutor__centro_de_formacao=centro,
+        data_emissao__gte=primeiro_dia_mes
+    )
+    if filial:
+        certificados_mes = certificados_mes.filter(curso__instrutor__filial=filial)
+    total_certificados_mes = certificados_mes.count()
     
     # Meta de cursos (exemplo baseado no plano)
     assinatura = getattr(centro, 'assinatura', None)
@@ -232,6 +308,81 @@ def centro_dashboard(request):
     
     # Inscrições Recentes
     recent_enrollments = inscricoes_qs.select_related('aluno', 'curso').order_by('-data_inscricao')[:6]
+
+    # Módulo 1.2: Alertas activos (Ex: Inscrições pendentes há mais de 48h, vagas em níveis críticos, ou novos comentários não respondidos)
+    alertas = []
+    # 1. Inscrições pendentes há mais de 48h
+    limite_48h = hoje - timedelta(hours=48)
+    pendentes_criticas = inscricoes_qs.filter(status='P', data_inscricao__lt=limite_48h).count()
+    if pendentes_criticas > 0:
+        alertas.append({
+            'tipo': 'danger',
+            'titulo': 'Matrículas Atrasadas',
+            'mensagem': f'Tens {pendentes_criticas} inscrições pendentes há mais de 48 horas aguardando verificação.',
+            'link': reverse('gerenciar_inscricoes') + '?status=P'
+        })
+    
+    # 2. Vagas em níveis críticos (ex: lotação > 90% ou vagas disponíveis < 3 em turmas abertas)
+    turmas_criticas = Turma.objects.filter(curso__centro=centro, status='ABERTA')
+    if filial:
+        turmas_criticas = turmas_criticas.filter(curso__filial=filial)
+    
+    count_turmas_criticas = 0
+    for t in turmas_criticas:
+        if t.vagas_disponiveis <= 3:
+            count_turmas_criticas += 1
+            
+    if count_turmas_criticas > 0:
+        alertas.append({
+            'tipo': 'warning',
+            'titulo': 'Capacidade Crítica',
+            'mensagem': f'Tens {count_turmas_criticas} turma(s) com 3 ou menos vagas disponíveis. Considera abrir novas turmas!',
+            'link': reverse('gerenciar_turmas')
+        })
+
+    # 3. Novos comentários ou dúvidas não respondidos
+    from avaliacoes.models import Comentario
+    comentarios_nao_respondidos = Comentario.objects.filter(
+        Q(curso__centro=centro) | Q(curso_video__instrutor__centro_de_formacao=centro),
+        resposta__isnull=True
+    )
+    if filial:
+        comentarios_nao_respondidos = comentarios_nao_respondidos.filter(
+            Q(curso__filial=filial) | Q(curso_video__instrutor__filial=filial)
+        )
+    count_comentarios_nao_respondidos = comentarios_nao_respondidos.count()
+    if count_comentarios_nao_respondidos > 0:
+        alertas.append({
+            'tipo': 'info',
+            'titulo': 'Dúvidas Pendentes',
+            'mensagem': f'Tens {count_comentarios_nao_respondidos} novos comentários/dúvidas de alunos sem resposta.',
+            'link': reverse('gerenciar_comentarios')
+        })
+
+    # Gráfico do desempenho mensal (últimos 6 meses)
+    dados_grafico = []
+    for i in range(5, -1, -1):
+        # Mês a calcular
+        mes_data = hoje - timedelta(days=i*30)
+        # Obter primeiro e último dia desse mês
+        m_start = mes_data.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        if m_start.month == 12:
+            m_end = m_start.replace(year=m_start.year + 1, month=1, day=1)
+        else:
+            m_end = m_start.replace(month=m_start.month + 1, day=1)
+            
+        inscs = inscricoes_qs.filter(data_inscricao__gte=m_start, data_inscricao__lt=m_end).count()
+        rev = inscricoes_qs.filter(status='A', data_confirmacao__gte=m_start, data_confirmacao__lt=m_end).aggregate(total=Sum('valor_pago'))['total'] or 0
+        
+        # Nome do mês em português
+        meses_nomes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
+        nome_mes = meses_nomes[m_start.month - 1]
+        
+        dados_grafico.append({
+            'mes': f"{nome_mes} {m_start.year}",
+            'inscricoes': inscs,
+            'receita': float(rev)
+        })
     
     context = {
         'centro': centro,
@@ -239,16 +390,29 @@ def centro_dashboard(request):
         'is_filial': filial is not None,
         'stats': {
             'total_cursos': total_cursos,
+            'total_cursos_ativos': total_cursos_ativos,
             'total_inscricoes': total_inscricoes,
             'inscricoes_pendentes': inscricoes_pendentes,
             'receita_total': receita_total,
             'limite_cursos': limite_cursos,
             'percentual_cursos': (total_cursos / limite_cursos * 100) if limite_cursos > 0 else 0,
-            'total_seguidores': centro.seguidores.count()
+            'total_seguidores': centro.seguidores.count(),
+            
+            # Novos campos Módulo 1.1
+            'inscricoes_mes_atual': inscricoes_mes_atual,
+            'crescimento_inscricoes': crescimento_inscricoes,
+            'receita_mes_atual': receita_mes_atual,
+            'crescimento_receita': crescimento_receita,
+            'vagas_totais_disponiveis': vagas_totais_disponiveis,
+            'taxa_ocupacao_media': round(taxa_ocupacao_media, 1),
+            'avaliacao_media': avaliacao_media,
+            'total_certificados_mes': total_certificados_mes
         },
         'cursos_populares': cursos_populares,
         'recent_enrollments': recent_enrollments,
-        'assinatura': assinatura
+        'assinatura': assinatura,
+        'alertas': alertas,
+        'dados_grafico': json.dumps(dados_grafico)
     }
     
     return render(request, 'centro_dashboard.html', context)
@@ -264,16 +428,43 @@ def gerenciar_inscricoes(request):
     if not centro:
         return redirect('login_gestor')
         
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        inscricao_id = request.POST.get('inscricao_id')
+        if action and inscricao_id:
+            from django.shortcuts import get_object_or_404
+            from django.contrib import messages
+            inscricoes_qs = Inscricao.objects.filter(curso__centro=centro)
+            if filial:
+                inscricoes_qs = inscricoes_qs.filter(curso__filial=filial)
+            inscricao = get_object_or_404(inscricoes_qs, id=inscricao_id)
+            if action == 'approve':
+                inscricao.status = 'A'
+                inscricao.save()
+                messages.success(request, f"Inscrição de {inscricao.aluno.nome} aprovada com sucesso!")
+            elif action == 'reject':
+                inscricao.status = 'N'
+                inscricao.save()
+                messages.success(request, f"Inscrição de {inscricao.aluno.nome} rejeitada com sucesso!")
+            return redirect(request.path_info + ('?' + request.META.get('QUERY_STRING', '') if request.META.get('QUERY_STRING') else ''))
+
     inscricoes_qs = Inscricao.objects.filter(curso__centro=centro)
     if filial:
         inscricoes_qs = inscricoes_qs.filter(curso__filial=filial)
+
+    # Calculate statistics before filtering
+    total_count = inscricoes_qs.count()
+    pendentes_count = inscricoes_qs.filter(status='P').count()
+    aprovadas_count = inscricoes_qs.filter(status='A').count()
+    rejeitadas_count = inscricoes_qs.filter(status='N').count()
         
     inscricoes_list = inscricoes_qs.select_related('aluno', 'curso', 'turma_escolhida').order_by('-data_inscricao')
     
     # Filtros
     status = request.GET.get('status')
     if status:
-        inscricoes_list = inscricoes_list.filter(status=status)
+        db_status = 'N' if status == 'R' else status
+        inscricoes_list = inscricoes_list.filter(status=db_status)
     
     paginator = Paginator(inscricoes_list, 15)
     page_number = request.GET.get('page')
@@ -283,7 +474,11 @@ def gerenciar_inscricoes(request):
         'centro': centro,
         'filial': filial,
         'inscricoes': inscricoes,
-        'selected_status': status
+        'selected_status': status,
+        'total_count': total_count,
+        'pendentes_count': pendentes_count,
+        'aprovadas_count': aprovadas_count,
+        'rejeitadas_count': rejeitadas_count,
     })
 
 def gerenciar_assinatura(request):

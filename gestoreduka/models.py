@@ -718,11 +718,12 @@ class AnuncioCentro(models.Model):
     Anúncios/Novidades publicados pelos centros na sua dashboard para os seguidores.
     """
     centro = models.ForeignKey(CentroDeFormacao, on_delete=models.CASCADE, related_name='anuncios')
-    titulo = models.CharField(_('Título do Anúncio'), max_length=200)
+    titulo = models.CharField(_('Título'), max_length=200)
     conteudo = models.TextField(_('Conteúdo'))
-    imagem = models.ImageField(_('Imagem (opcional)'), upload_to='anuncios/', null=True, blank=True)
-    data_publicacao = models.DateTimeField(auto_now_add=True)
+    imagem = models.ImageField(_('Imagem'), upload_to='anuncios/', null=True, blank=True)
+    data_publicacao = models.DateTimeField(_('Data de Publicação'), auto_now_add=True)
     importante = models.BooleanField(_('Anúncio Urgente/Importante'), default=False)
+    ativo = models.BooleanField(_('Ativo'), default=True)
     
     class Meta:
         ordering = ['-data_publicacao']
@@ -731,25 +732,6 @@ class AnuncioCentro(models.Model):
 
     def __str__(self):
         return f"{self.titulo} - {self.centro.nome}"
-
-
-
-class AnuncioCentro(models.Model):
-    """Novidades e comunicados gerais dos centros para seus seguidores"""
-    centro = models.ForeignKey(CentroDeFormacao, on_delete=models.CASCADE, related_name='anuncios')
-    titulo = models.CharField(_('Título'), max_length=200)
-    conteudo = models.TextField(_('Conteúdo'))
-    imagem = models.ImageField(_('Imagem'), upload_to='anuncios/', blank=True, null=True)
-    data_publicacao = models.DateTimeField(_('Data de Publicação'), auto_now_add=True)
-    ativo = models.BooleanField(_('Ativo'), default=True)
-
-    class Meta:
-        verbose_name = _('Anúncio de Centro')
-        verbose_name_plural = _('Anúncios de Centros')
-        ordering = ['-data_publicacao']
-
-    def __str__(self):
-        return f"{self.centro.nome} - {self.titulo}"
 
 
 class NotificacaoGestor(models.Model):

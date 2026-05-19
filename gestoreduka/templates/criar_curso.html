@@ -2,194 +2,267 @@
 {% load static %}
 
 {% block content %}
-<div class="flex flex-col gap-5 lg:gap-7.5">
+<div class="flex flex-col gap-6 lg:gap-8">
 
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
-        <div class="flex flex-col gap-2">
-            <h1 class="text-xl font-bold text-foreground">{% if is_edit %}Editar Curso{% else %}Criar Novo Curso{% endif %}</h1>
-            <p class="text-sm text-secondary-foreground">
-                {% if is_edit %}Altere as configurações, programa ou detalhes financeiros.{% else %}Preencha os detalhes para lançar um novo curso na sua instituição.{% endif %}
-            </p>
-        </div>
-        <div class="flex items-center gap-2">
-            <a href="{% url 'listar_cursos' %}" class="kt-btn kt-btn-light">
-                <i class="ki-filled ki-arrow-left"></i> Voltar
-            </a>
-            <!-- Note: The save buttons are within the form -->
+    <!-- Header Glassmorphic Panel -->
+    <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md shadow-xl">
+        <div class="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-primary/20 blur-3xl"></div>
+        
+        <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex flex-col gap-1.5">
+                <div class="flex items-center gap-2">
+                    <a href="{% url 'listar_cursos' %}" class="inline-flex items-center justify-center size-9 rounded-xl border border-white/10 bg-white/5 text-muted-foreground hover:text-foreground hover:bg-white/10 transition-all duration-300">
+                        <i class="ki-filled ki-arrow-left text-lg"></i>
+                    </a>
+                    <h1 class="text-2xl font-bold text-foreground tracking-tight">Criar Novo Curso</h1>
+                </div>
+                <p class="text-sm text-muted-foreground max-w-xl">
+                    Preencha os detalhes para lançar um novo curso de alta qualidade na sua instituição de formação.
+                </p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="{% url 'listar_cursos' %}" class="kt-btn kt-btn-light border-white/10 hover:bg-white/10 text-foreground transition-colors">
+                    Cancelar
+                </a>
+            </div>
         </div>
     </div>
 
     {% if messages %}
-        <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-3">
             {% for message in messages %}
-                <div class="p-4 rounded-lg text-sm font-medium {% if message.tags == 'success' %}bg-success/10 text-success border border-success/20{% elif message.tags == 'error' %}bg-danger/10 text-danger border border-danger/20{% else %}bg-warning/10 text-warning border border-warning/20{% endif %}">
-                    {{ message }}
+                <div class="p-4 rounded-xl text-sm font-medium backdrop-blur-md transition-all duration-300 flex items-center gap-3 {% if message.tags == 'success' %}bg-success/10 text-success border border-success/20 shadow-sm shadow-success/5{% elif message.tags == 'error' %}bg-danger/10 text-danger border border-danger/20 shadow-sm shadow-danger/5{% else %}bg-warning/10 text-warning border border-warning/20 shadow-sm shadow-warning/5{% endif %}">
+                    <span class="size-2 rounded-full {% if message.tags == 'success' %}bg-success animate-pulse{% elif message.tags == 'error' %}bg-danger animate-pulse{% else %}bg-warning animate-pulse{% endif %}"></span>
+                    <span class="flex-1">{{ message }}</span>
                 </div>
             {% endfor %}
         </div>
     {% endif %}
 
-    <form method="POST" enctype="multipart/form-data" class="flex flex-col lg:flex-row gap-5 lg:gap-7.5">
+    <form method="POST" enctype="multipart/form-data" class="flex flex-col lg:flex-row gap-6 lg:gap-8">
         {% csrf_token %}
 
-        <!-- Left Column: Main form data -->
-        <div class="flex flex-col gap-5 lg:gap-7.5 lg:w-2/3">
+        <!-- Left Column: Main form data (Glassmorphic Cards) -->
+        <div class="flex flex-col gap-6 lg:gap-8 lg:w-2/3">
             
-            <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm">
-                <div class="border-b border-border px-5 py-4">
-                    <h3 class="font-semibold text-base text-foreground">Informações Básicas</h3>
+            <!-- Informações Básicas Card -->
+            <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-xl flex flex-col">
+                <div class="border-b border-white/10 px-6 py-5 bg-white/[0.02] flex items-center gap-2">
+                    <i class="ki-filled ki-notepad-bookmark text-primary text-xl"></i>
+                    <h3 class="font-bold text-base text-foreground">Informações Básicas</h3>
                 </div>
-                <div class="p-5 flex flex-col gap-6">
+                <div class="p-6 flex flex-col gap-6">
                     
                     <div class="flex flex-col gap-2">
-                        <label class="text-sm font-medium text-foreground">{{ form.titulo.label }}</label>
+                        <label class="text-sm font-semibold text-foreground flex items-center gap-1">
+                            {{ form.titulo.label }} <span class="text-danger">*</span>
+                        </label>
                         {{ form.titulo }}
-                        {% if form.titulo.errors %}<span class="text-xs text-danger">{{ form.titulo.errors.as_text }}</span>{% endif %}
+                        {% if form.titulo.errors %}
+                            <span class="text-xs text-danger">{{ form.titulo.errors.as_text }}</span>
+                        {% endif %}
                         <span class="text-xs text-muted-foreground">{{ form.titulo.help_text }}</span>
                     </div>
 
                     <div class="flex flex-col gap-2">
-                        <label class="text-sm font-medium text-foreground">{{ form.descricao_curta.label }}</label>
+                        <label class="text-sm font-semibold text-foreground">{{ form.descricao_curta.label }}</label>
                         {{ form.descricao_curta }}
-                        {% if form.descricao_curta.errors %}<span class="text-xs text-danger">{{ form.descricao_curta.errors.as_text }}</span>{% endif %}
+                        {% if form.descricao_curta.errors %}
+                            <span class="text-xs text-danger">{{ form.descricao_curta.errors.as_text }}</span>
+                        {% endif %}
                     </div>
 
                     <div class="flex flex-col gap-2">
-                        <label class="text-sm font-medium text-foreground">{{ form.descricao.label }}</label>
+                        <label class="text-sm font-semibold text-foreground flex items-center gap-1">
+                            {{ form.descricao.label }} <span class="text-danger">*</span>
+                        </label>
                         {{ form.descricao }}
-                        {% if form.descricao.errors %}<span class="text-xs text-danger">{{ form.descricao.errors.as_text }}</span>{% endif %}
+                        {% if form.descricao.errors %}
+                            <span class="text-xs text-danger">{{ form.descricao.errors.as_text }}</span>
+                        {% endif %}
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="flex flex-col gap-2">
-                            <label class="text-sm font-medium text-foreground">{{ form.categoria.label }}</label>
+                            <label class="text-sm font-semibold text-foreground">{{ form.categoria.label }}</label>
                             {{ form.categoria }}
                         </div>
                         <div class="flex flex-col gap-2">
-                            <label class="text-sm font-medium text-foreground">{{ form.nivel.label }}</label>
+                            <label class="text-sm font-semibold text-foreground">{{ form.nivel.label }}</label>
                             {{ form.nivel }}
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="flex flex-col gap-2">
-                            <label class="text-sm font-medium text-foreground">{{ form.idioma.label }}</label>
+                            <label class="text-sm font-semibold text-foreground">{{ form.idioma.label }}</label>
                             {{ form.idioma }}
                         </div>
                         <div class="flex flex-col gap-2">
-                            <label class="text-sm font-medium text-foreground">{{ form.instrutores.label }}</label>
+                            <label class="text-sm font-semibold text-foreground">{{ form.instrutores.label }}</label>
                             {{ form.instrutores }}
-                            {% if form.instrutores.errors %}<span class="text-xs text-danger">{{ form.instrutores.errors.as_text }}</span>{% endif %}
+                            {% if form.instrutores.errors %}
+                                <span class="text-xs text-danger">{{ form.instrutores.errors.as_text }}</span>
+                            {% endif %}
                         </div>
                     </div>
 
                 </div>
             </div>
 
-            <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm">
-                <div class="border-b border-border px-5 py-4">
-                    <h3 class="font-semibold text-base text-foreground">Preços e Promoção</h3>
+            <!-- Preços e Promoção Card -->
+            <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-xl flex flex-col">
+                <div class="border-b border-white/10 px-6 py-5 bg-white/[0.02] flex items-center gap-2">
+                    <i class="ki-filled ki-wallet text-success text-xl"></i>
+                    <h3 class="font-bold text-base text-foreground">Preços & Financiamento</h3>
                 </div>
-                <div class="p-5 flex flex-col gap-6">
+                <div class="p-6 flex flex-col gap-6">
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="flex flex-col gap-2">
-                            <label class="text-sm font-medium text-foreground">{{ form.preco.label }}</label>
+                            <label class="text-sm font-semibold text-foreground">{{ form.preco.label }} (AOA) *</label>
                             {{ form.preco }}
-                            {% if form.preco.errors %}<span class="text-xs text-danger">{{ form.preco.errors.as_text }}</span>{% endif %}
+                            {% if form.preco.errors %}
+                                <span class="text-xs text-danger">{{ form.preco.errors.as_text }}</span>
+                            {% endif %}
                         </div>
                         <div class="flex flex-col gap-2">
-                            <label class="text-sm font-medium text-foreground">{{ form.preco_inscricao.label }}</label>
+                            <label class="text-sm font-semibold text-foreground">{{ form.preco_inscricao.label }} (AOA)</label>
                             {{ form.preco_inscricao }}
                         </div>
                     </div>
 
-                    <h4 class="text-sm font-medium pt-3 mt-3 border-t border-dashed border-border">Campanha Promocional</h4>
+                    <!-- Campanha Promocional Glass Panel -->
+                    <div class="rounded-xl border border-dashed border-white/10 bg-white/[0.02] p-5 mt-4">
+                        <div class="flex items-center gap-2 mb-4">
+                            <i class="ki-solid ki-gift text-warning text-lg"></i>
+                            <h4 class="text-sm font-bold text-foreground">Campanha Promocional (Opcional)</h4>
+                        </div>
 
-                    <div class="flex flex-col gap-2">
-                        <label class="text-sm font-medium text-foreground">{{ form.preco_promocional.label }}</label>
-                        {{ form.preco_promocional }}
-                        {% if form.preco_promocional.errors %}<span class="text-xs text-danger">{{ form.preco_promocional.errors.as_text }}</span>{% endif %}
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div class="flex flex-col gap-2">
-                            <label class="text-sm font-medium text-foreground">{{ form.data_inicio_promocao.label }}</label>
-                            {{ form.data_inicio_promocao }}
+                        <div class="flex flex-col gap-6">
+                            <div class="flex flex-col gap-2">
+                                <label class="text-sm font-semibold text-foreground">{{ form.preco_promocional.label }} (AOA)</label>
+                                {{ form.preco_promocional }}
+                                {% if form.preco_promocional.errors %}
+                                    <span class="text-xs text-danger">{{ form.preco_promocional.errors.as_text }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="flex flex-col gap-2">
+                                    <label class="text-sm font-semibold text-foreground">{{ form.data_inicio_promocao.label }}</label>
+                                    {{ form.data_inicio_promocao }}
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <label class="text-sm font-semibold text-foreground">{{ form.data_fim_promocao.label }}</label>
+                                    {{ form.data_fim_promocao }}
+                                </div>
+                            </div>
+                            {% if form.data_fim_promocao.errors %}
+                                <span class="text-xs text-danger block mt-2">{{ form.data_fim_promocao.errors.as_text }}</span>
+                            {% endif %}
                         </div>
-                        <div class="flex flex-col gap-2">
-                            <label class="text-sm font-medium text-foreground">{{ form.data_fim_promocao.label }}</label>
-                            {{ form.data_fim_promocao }}
-                        </div>
                     </div>
-                    {% if form.data_fim_promocao.errors %}<span class="text-xs text-danger block mt-2">{{ form.data_fim_promocao.errors.as_text }}</span>{% endif %}
 
                 </div>
             </div>
 
         </div>
 
-        <!-- Right Column: Settings and Media -->
-        <div class="flex flex-col gap-5 lg:gap-7.5 lg:w-1/3">
+        <!-- Right Column: Settings, Media and Actions -->
+        <div class="flex flex-col gap-6 lg:gap-8 lg:w-1/3">
 
-            <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm">
-                <div class="border-b border-border px-5 py-4">
-                    <h3 class="font-semibold text-base text-foreground">Media</h3>
+            <!-- Imagem Destacada Card -->
+            <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-xl flex flex-col">
+                <div class="border-b border-white/10 px-6 py-5 bg-white/[0.02] flex items-center gap-2">
+                    <i class="ki-filled ki-picture text-info text-xl"></i>
+                    <h3 class="font-bold text-base text-foreground">Imagem de Capa</h3>
                 </div>
-                <div class="p-5 flex flex-col gap-5">
-                    <div class="flex flex-col gap-2">
-                        <label class="text-sm font-medium text-foreground">{{ form.imagem.label }}</label>
-                        {{ form.imagem }}
-                        <span class="text-xs text-muted-foreground">O tamanho recomendado é 800x600px.</span>
+                <div class="p-6 flex flex-col gap-4">
+                    
+                    <div class="flex flex-col gap-4">
+                        <div class="relative w-full aspect-video rounded-xl bg-white/5 border border-dashed border-white/20 flex flex-col items-center justify-center p-4 transition-all duration-300 hover:bg-white/[0.08]" id="dropZone">
+                            <i class="ki-filled ki-cloud-change text-4xl text-muted-foreground mb-2" id="uploadIcon"></i>
+                            <p class="text-xs text-muted-foreground text-center" id="uploadText">Escolha um ficheiro ou arraste-o aqui.</p>
+                            <div class="hidden size-full absolute inset-0 overflow-hidden rounded-xl" id="previewContainer">
+                                <img src="" alt="Live Preview" class="size-full object-cover" id="imgPreview">
+                                <button type="button" class="absolute top-2 right-2 size-8 bg-black/60 backdrop-blur-md rounded-full text-white flex items-center justify-center hover:bg-black/80 transition-colors" id="btnRemoveImage">
+                                    <i class="ki-filled ki-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="hidden">
+                            {{ form.imagem }}
+                        </div>
+                        <button type="button" class="kt-btn kt-btn-sm kt-btn-light border-white/10 w-full justify-center" id="btnTriggerUpload">
+                            Selecionar Imagem
+                        </button>
+                        <span class="text-[10px] text-muted-foreground text-center">Tamanho recomendado: 800x600px (Máx: 2MB).</span>
                     </div>
+
                 </div>
             </div>
 
-            <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm">
-                <div class="border-b border-border px-5 py-4">
-                    <h3 class="font-semibold text-base text-foreground">Configurações Gerais</h3>
+            <!-- Configurações Gerais Card -->
+            <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-xl flex flex-col">
+                <div class="border-b border-white/10 px-6 py-5 bg-white/[0.02] flex items-center gap-2">
+                    <i class="ki-filled ki-setting-2 text-primary text-xl"></i>
+                    <h3 class="font-bold text-base text-foreground">Configurações</h3>
                 </div>
-                <div class="p-5 flex flex-col gap-5">
+                <div class="p-6 flex flex-col gap-6">
                     
                     <div class="flex flex-col gap-2">
-                        <label class="text-sm font-medium text-foreground">{{ form.modalidade.label }}</label>
+                        <label class="text-sm font-semibold text-foreground">{{ form.modalidade.label }}</label>
                         {{ form.modalidade }}
                     </div>
 
                     <div class="flex flex-col gap-2">
-                        <label class="text-sm font-medium text-foreground">{{ form.duracao.label }}</label>
+                        <label class="text-sm font-semibold text-foreground">{{ form.duracao.label }}</label>
                         {{ form.duracao }}
                     </div>
 
                     <div class="flex flex-col gap-2">
-                        <label class="text-sm font-medium text-foreground">{{ form.carga_horaria.label }}</label>
+                        <label class="text-sm font-semibold text-foreground">{{ form.carga_horaria.label }} (horas)</label>
                         {{ form.carga_horaria }}
-                        {% if form.carga_horaria.errors %}<span class="text-xs text-danger">{{ form.carga_horaria.errors.as_text }}</span>{% endif %}
+                        {% if form.carga_horaria.errors %}
+                            <span class="text-xs text-danger">{{ form.carga_horaria.errors.as_text }}</span>
+                        {% endif %}
                     </div>
 
-                    <div class="pt-3 border-t border-dashed border-border flex flex-col gap-3">
-                        <label class="flex items-center gap-2 text-sm font-medium cursor-pointer">
-                            {{ form.certificado }} {{ form.certificado.label }}
+                    <!-- Custom Glassmorphic Checkboxes -->
+                    <div class="pt-4 border-t border-dashed border-white/10 flex flex-col gap-4">
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <div class="relative flex items-center justify-center">
+                                {{ form.certificado }}
+                            </div>
+                            <span class="text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors">{{ form.certificado.label }}</span>
                         </label>
-                        <label class="flex items-center gap-2 text-sm font-medium cursor-pointer">
-                            {{ form.destaque }} {{ form.destaque.label }}
+                        
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <div class="relative flex items-center justify-center">
+                                {{ form.destaque }}
+                            </div>
+                            <span class="text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors">{{ form.destaque.label }}</span>
                         </label>
-                        <label class="flex items-center gap-2 text-sm font-medium cursor-pointer">
-                            {{ form.publicado }} {{ form.publicado.label }}
+                        
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <div class="relative flex items-center justify-center">
+                                {{ form.publicado }}
+                            </div>
+                            <span class="text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors">{{ form.publicado.label }}</span>
                         </label>
                     </div>
 
                 </div>
             </div>
 
-            <!-- Actions -->
+            <!-- Actions Card -->
             <div class="flex flex-col gap-3">
-                <button type="submit" class="kt-btn kt-btn-primary w-full justify-center">
+                <button type="submit" class="kt-btn kt-btn-primary w-full justify-center shadow-lg shadow-primary/20 hover:scale-[1.01] transition-all duration-300">
                     <i class="ki-filled ki-check-circle"></i> Salvar Curso
                 </button>
-                <button type="submit" name="rascunho" value="true" class="kt-btn kt-btn-outline kt-btn-light w-full justify-center">
-                    Salvar como Rascunho
+                <button type="submit" name="rascunho" value="true" class="kt-btn kt-btn-outline border-white/10 w-full justify-center hover:bg-white/5 transition-all duration-300">
+                    <i class="ki-filled ki-notepad"></i> Salvar como Rascunho
                 </button>
             </div>
 
@@ -198,4 +271,102 @@
     </form>
 
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.querySelector('input[type="file"]');
+        const triggerBtn = document.getElementById('btnTriggerUpload');
+        const dropZone = document.getElementById('dropZone');
+        const imgPreview = document.getElementById('imgPreview');
+        const previewContainer = document.getElementById('previewContainer');
+        const uploadIcon = document.getElementById('uploadIcon');
+        const uploadText = document.getElementById('uploadText');
+        const btnRemove = document.getElementById('btnRemoveImage');
+
+        // Apply premium styling to django elements dynamically
+        const inputs = document.querySelectorAll('input:not([type="checkbox"]):not([type="file"]):not([type="radio"]), select, textarea');
+        inputs.forEach(el => {
+            el.className = "kt-input w-full bg-white/5 border border-white/10 rounded-xl text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all duration-300";
+            if (el.tagName === 'SELECT') {
+                el.className = "kt-select w-full bg-white/5 border border-white/10 rounded-xl text-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all duration-300";
+            }
+        });
+
+        // Apply clean styles for standard checkbox styling
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(chk => {
+            chk.className = "size-5 rounded border border-white/20 bg-white/5 text-primary focus:ring-primary/50 focus:ring-offset-0 focus:ring-1 transition-all duration-300 cursor-pointer";
+        });
+
+        // File upload trigger
+        if (triggerBtn && fileInput) {
+            triggerBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+        }
+
+        if (fileInput) {
+            fileInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imgPreview.src = e.target.result;
+                        previewContainer.classList.remove('hidden');
+                        uploadIcon.classList.add('hidden');
+                        uploadText.classList.add('hidden');
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        if (btnRemove) {
+            btnRemove.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (fileInput) {
+                    fileInput.value = '';
+                    imgPreview.src = '';
+                    previewContainer.classList.add('hidden');
+                    uploadIcon.classList.remove('hidden');
+                    uploadText.classList.remove('hidden');
+                }
+            });
+        }
+
+        // Drag and drop events
+        if (dropZone) {
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    dropZone.classList.add('border-primary/50', 'bg-white/[0.08]');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove('border-primary/50', 'bg-white/[0.08]');
+                }, false);
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (fileInput && files.length > 0) {
+                    fileInput.files = files;
+                    const file = files[0];
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imgPreview.src = e.target.result;
+                        previewContainer.classList.remove('hidden');
+                        uploadIcon.classList.add('hidden');
+                        uploadText.classList.add('hidden');
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    });
+</script>
 {% endblock content %}

@@ -401,6 +401,14 @@ def detalhe_curso(request, slug):
     """
     curso = get_object_or_404(Curso_video.objects.select_related('instrutor', 'categoria'), slug=slug)
     
+    # Atualizar histórico de visualizações recentes
+    viewed = request.session.get('viewed_video_cursos', [])
+    if curso.id in viewed:
+        viewed.remove(curso.id)
+    viewed.insert(0, curso.id)
+    request.session['viewed_video_cursos'] = viewed[:3]
+
+    
     # 1. Verificar se o aluno está inscrito e logado
     aluno_logado = request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO'
     aluno_obj = None
@@ -498,6 +506,13 @@ def ver_aula(request, curso_slug, pk):
     """
     curso = get_object_or_404(Curso_video, slug=curso_slug)
     aula_atual = get_object_or_404(Aula, pk=pk, curso=curso)
+    
+    # Atualizar histórico de visualizações recentes
+    viewed = request.session.get('viewed_video_cursos', [])
+    if curso.id in viewed:
+        viewed.remove(curso.id)
+    viewed.insert(0, curso.id)
+    request.session['viewed_video_cursos'] = viewed[:3]
     
     # Verificar se o usuário é o instrutor deste curso
     is_instrutor = False

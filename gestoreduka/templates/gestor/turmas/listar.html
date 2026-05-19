@@ -2,105 +2,125 @@
 {% load static %}
 
 {% block content %}
-<div class="flex flex-col gap-5 lg:gap-7.5">
+<div class="flex flex-col gap-6 lg:gap-8">
 
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
-        <div class="flex flex-col gap-2">
-            <h1 class="text-xl font-bold text-foreground">Gerenciar Turmas</h1>
-            <p class="text-sm text-secondary-foreground">Crie e acompanhe as turmas ativas, horários e instrutores responsáveis.</p>
-        </div>
-        <div class="flex items-center gap-2">
-            <a href="{% url 'criar_turma' %}" class="kt-btn kt-btn-primary">
-                <i class="ki-filled ki-plus"></i> Nova Turma
-            </a>
+    <!-- Header Glassmorphic Panel -->
+    <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md shadow-xl">
+        <div class="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-primary/20 blur-3xl"></div>
+        
+        <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex flex-col gap-1.5">
+                <h1 class="text-2xl font-bold text-foreground tracking-tight">Gerenciar Turmas</h1>
+                <p class="text-sm text-muted-foreground max-w-xl">
+                    Monitore os horários, as vagas, as datas de início e os instrutores de todas as suas turmas em tempo real.
+                </p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="{% url 'criar_turma' %}" class="kt-btn kt-btn-primary shadow-lg shadow-primary/20 hover:scale-[1.01] transition-all duration-300">
+                    <i class="ki-filled ki-plus"></i> Nova Turma
+                </a>
+            </div>
         </div>
     </div>
 
-    <!-- Tabela de Turmas -->
-    <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm overflow-hidden">
+    <!-- Active Turmas Card Grid / Table -->
+    <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-xl flex flex-col">
         
-        <div class="px-5 py-4 border-b border-border flex items-center justify-between bg-accent/5">
-            <h3 class="font-semibold text-base text-foreground">Todas as Turmas</h3>
-            <span class="text-xs text-muted-foreground">{{ turmas.paginator.count }} turmas encontradas</span>
+        <div class="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+            <h3 class="font-bold text-base text-foreground flex items-center gap-2">
+                <i class="ki-filled ki-profile-circle text-primary text-lg"></i>
+                Lista de Turmas Cadastradas
+            </h3>
+            <span class="text-xs font-semibold text-muted-foreground bg-white/5 px-2.5 py-1 rounded-lg border border-white/10">
+                {{ turmas.paginator.count|default:turmas|length }} Turmas Ativas
+            </span>
         </div>
 
-        <div class="px-5 py-2">
-            <div class="overflow-x-auto">
-                <table class="table-auto w-full text-left text-sm whitespace-nowrap">
-                    <thead class="text-xs text-muted-foreground border-b border-border uppercase tracking-wider">
-                        <tr>
-                            <th class="pb-3 font-medium">Turma</th>
-                            <th class="pb-3 font-medium">Curso Relacionado</th>
-                            <th class="pb-3 font-medium">Instrutor</th>
-                            <th class="pb-3 font-medium">Período</th>
-                            <th class="pb-3 font-medium text-center">Vagas</th>
-                            <th class="pb-3 font-medium text-right">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-dashed divide-border">
-                        {% for turma in turmas %}
-                        <tr class="hover:bg-accent/20 transition-colors">
-                            <td class="py-4">
-                                <span class="text-sm font-semibold text-foreground">{{ turma.nome }}</span>
-                            </td>
-                            <td class="py-4">
-                                <span class="text-sm text-foreground">{{ turma.curso.titulo }}</span>
-                            </td>
-                            <td class="py-4">
-                                <div class="flex items-center gap-2">
-                                    <div class="size-6 rounded-full bg-accent/60 flex items-center justify-center text-[10px] font-bold">
-                                        {{ turma.instrutor_principal.nome|make_list|first }}
-                                    </div>
-                                    <span class="text-xs">{{ turma.instrutor_principal.nome|default:"-" }}</span>
+        <div class="p-6 overflow-x-auto">
+            <table class="table-auto w-full text-left text-sm whitespace-nowrap">
+                <thead class="text-[10px] text-muted-foreground uppercase tracking-widest border-b border-white/10">
+                    <tr>
+                        <th class="pb-3 font-semibold">Turma / Código</th>
+                        <th class="pb-3 font-semibold">Curso Associado</th>
+                        <th class="pb-3 font-semibold">Instrutor Principal</th>
+                        <th class="pb-3 font-semibold">Duração & Calendário</th>
+                        <th class="pb-3 font-semibold text-center">Vagas Preenchidas</th>
+                        <th class="pb-3 font-semibold text-right">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                    {% for turma in turmas %}
+                    <tr class="group hover:bg-white/[0.02] transition-colors">
+                        <td class="py-4">
+                            <div class="flex flex-col gap-0.5">
+                                <span class="text-sm font-bold text-foreground group-hover:text-primary transition-colors">{{ turma.nome }}</span>
+                                <span class="text-[10px] text-muted-foreground font-mono">{{ turma.codigo|default:"COD-TURMA" }}</span>
+                            </div>
+                        </td>
+                        <td class="py-4">
+                            <span class="text-sm font-medium text-foreground">{{ turma.curso.titulo }}</span>
+                        </td>
+                        <td class="py-4">
+                            <div class="flex items-center gap-2.5">
+                                <div class="size-7 rounded-full bg-primary/10 border border-white/10 flex items-center justify-center text-xs font-bold text-primary">
+                                    {{ turma.instrutor_principal.nome|make_list|first|default:"I" }}
                                 </div>
-                            </td>
-                            <td class="py-4">
-                                <div class="flex flex-col">
-                                    <span class="text-xs text-foreground">{{ turma.data_inicio|date:"d/m/Y" }} - {{ turma.data_fim|date:"d/m/Y" }}</span>
-                                    <span class="text-[10px] text-muted-foreground">{{ turma.horario|default:"Horário não definido" }}</span>
+                                <span class="text-xs font-semibold text-foreground">{{ turma.instrutor_principal.nome|default:"Não atribuído" }}</span>
+                            </div>
+                        </td>
+                        <td class="py-4">
+                            <div class="flex flex-col gap-0.5">
+                                <span class="text-xs text-foreground font-semibold">
+                                    {{ turma.data_inicio|date:"d/m/Y" }} - {{ turma.data_fim|date:"d/m/Y" }}
+                                </span>
+                                <span class="text-[10px] text-muted-foreground flex items-center gap-1">
+                                    <i class="ki-filled ki-time text-xs"></i>
+                                    {{ turma.turno|default:"Horário Geral" }}
+                                </span>
+                            </div>
+                        </td>
+                        <td class="py-4">
+                            <div class="flex flex-col items-center gap-1.5">
+                                <span class="text-xs font-bold text-foreground">{{ turma.vagas_ocupadas }} / {{ turma.vagas_totais }}</span>
+                                <div class="w-24 bg-white/10 h-1.5 rounded-full overflow-hidden border border-white/5 relative">
+                                    <div class="bg-gradient-to-r from-primary to-primary-active h-full rounded-full" style="width: {% if turma.vagas_totais > 0 %}{{ turma.vagas_ocupadas|multiply:100|divide:turma.vagas_totais }}{% else %}0{% endif %}%;"></div>
                                 </div>
-                            </td>
-                            <td class="py-4 text-center">
-                                <div class="flex flex-col items-center">
-                                    <span class="text-sm font-medium">{{ turma.vagas_ocupadas }} / {{ turma.vagas_totais }}</span>
-                                    <div class="w-16 bg-accent h-1.5 rounded-full mt-1 overflow-hidden">
-                                        <div class="bg-primary h-full" style="width: {{ turma.percentual_ocupacao }}%;"></div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="py-4 text-right">
-                                <div class="flex items-center justify-end gap-1">
-                                    <a href="{% url 'editar_turma' turma.id %}" class="kt-btn kt-btn-sm kt-btn-icon kt-btn-ghost hover:bg-warning/10 hover:text-warning" title="Editar Turma">
-                                        <i class="ki-filled ki-pencil text-lg"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="py-10 text-center text-sm text-muted-foreground">
-                                <p>Nenhuma turma cadastrada.</p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                            </div>
+                        </td>
+                        <td class="py-4 text-right">
+                            <div class="flex items-center justify-end gap-1.5">
+                                <a href="{% url 'editar_turma' turma.id %}" class="inline-flex items-center justify-center size-8 rounded-lg border border-white/10 bg-white/5 text-muted-foreground hover:text-warning hover:bg-warning/10 hover:border-warning/20 transition-all duration-300" title="Editar Turma">
+                                    <i class="ki-filled ki-pencil text-base"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="py-12 text-center text-sm text-muted-foreground">
+                            <div class="flex flex-col items-center justify-center gap-3">
+                                <i class="ki-filled ki-profile-circle text-4xl text-muted-foreground/30"></i>
+                                <p class="text-xs">Nenhuma turma cadastrada neste centro.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
 
         {% if turmas.has_other_pages %}
-        <div class="px-5 py-4 border-t border-border flex items-center justify-center">
+        <div class="px-6 py-4 border-t border-white/10 flex items-center justify-center bg-white/[0.01]">
             <div class="flex items-center gap-1">
                 {% if turmas.has_previous %}
-                    <a href="?page={{ turmas.previous_page_number }}" class="kt-btn kt-btn-sm kt-btn-icon kt-btn-light">
-                        <i class="ki-filled ki-left"></i>
+                    <a href="?page={{ turmas.previous_page_number }}" class="inline-flex items-center justify-center size-8 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-foreground transition-all">
+                        <i class="ki-filled ki-left text-sm"></i>
                     </a>
                 {% endif %}
-                <span class="text-sm font-medium px-4">Página {{ turmas.number }} de {{ turmas.paginator.num_pages }}</span>
+                <span class="text-xs font-semibold px-4 text-muted-foreground">Página {{ turmas.number }} de {{ turmas.paginator.num_pages }}</span>
                 {% if turmas.has_next %}
-                    <a href="?page={{ turmas.next_page_number }}" class="kt-btn kt-btn-sm kt-btn-icon kt-btn-light">
-                        <i class="ki-filled ki-right"></i>
+                    <a href="?page={{ turmas.next_page_number }}" class="inline-flex items-center justify-center size-8 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-foreground transition-all">
+                        <i class="ki-filled ki-right text-sm"></i>
                     </a>
                 {% endif %}
             </div>

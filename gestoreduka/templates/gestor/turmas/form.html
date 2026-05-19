@@ -2,124 +2,148 @@
 {% load static %}
 
 {% block content %}
-<div class="flex flex-col gap-5 lg:gap-7.5">
+<div class="flex flex-col gap-6 lg:gap-8">
 
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
-        <div class="flex flex-col gap-2">
-            <h1 class="text-xl font-bold text-foreground">{{ action }} Turma</h1>
-            <p class="text-sm text-secondary-foreground">
-                {% if action == 'Criar' %}Defina as configurações da nova turma para um curso específico.{% else %}Atualize os dados da turma "{{ turma.nome }}".{% endif %}
-            </p>
-        </div>
-        <div class="flex items-center gap-2">
-            <a href="{% url 'gerenciar_turmas' %}" class="kt-btn kt-btn-light">
-                <i class="ki-filled ki-arrow-left"></i> Voltar
-            </a>
+    <!-- Header Glassmorphic Panel -->
+    <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md shadow-xl">
+        <div class="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-primary/20 blur-3xl"></div>
+        
+        <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex flex-col gap-1.5">
+                <h1 class="text-2xl font-bold text-foreground tracking-tight">{{ action }} Turma</h1>
+                <p class="text-sm text-muted-foreground max-w-xl">
+                    {% if action == 'Criar' %}Configure a capacidade, datas, horários e equipe instrutiva da nova turma.{% else %}Atualize os parâmetros operacionais da turma "{{ turma.nome }}".{% endif %}
+                </p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="{% url 'gerenciar_turmas' %}" class="kt-btn kt-btn-light border-white/10 hover:bg-white/10 text-foreground transition-all">
+                    <i class="ki-filled ki-arrow-left"></i> Voltar
+                </a>
+            </div>
         </div>
     </div>
 
     {% if messages %}
-        <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-3">
             {% for message in messages %}
-                <div class="p-4 rounded-lg text-sm font-medium {% if message.tags == 'success' %}bg-success/10 text-success border border-success/20{% elif message.tags == 'error' %}bg-danger/10 text-danger border border-danger/20{% else %}bg-warning/10 text-warning border border-warning/20{% endif %}">
-                    {{ message }}
+                <div class="p-4 rounded-xl text-sm font-medium backdrop-blur-md transition-all duration-300 flex items-center gap-3 {% if message.tags == 'success' %}bg-success/10 text-success border border-success/20 shadow-sm shadow-success/5{% elif message.tags == 'error' %}bg-danger/10 text-danger border border-danger/20 shadow-sm shadow-danger/5{% else %}bg-warning/10 text-warning border border-warning/20 shadow-sm shadow-warning/5{% endif %}">
+                    <span class="size-2 rounded-full {% if message.tags == 'success' %}bg-success animate-pulse{% elif message.tags == 'error' %}bg-danger animate-pulse{% else %}bg-warning animate-pulse{% endif %}"></span>
+                    <span class="flex-1">{{ message }}</span>
                 </div>
             {% endfor %}
         </div>
     {% endif %}
 
-    <form method="POST" class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm overflow-hidden">
+    <form method="POST" class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-xl flex flex-col">
         {% csrf_token %}
-        <div class="p-6 flex flex-col gap-6">
+        <div class="p-6 md:p-8 flex flex-col gap-6 lg:gap-8">
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Curso -->
-                <div class="flex flex-col gap-2">
-                    <label class="text-sm font-medium text-foreground">Curso Relacionado *</label>
-                    <select name="curso" class="kt-select" required>
-                        <option value="">Selecione o curso</option>
-                        {% for curso in cursos %}
-                            <option value="{{ curso.id }}" {% if turma.curso.id == curso.id %}selected{% endif %}>{{ curso.titulo }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <!-- Nome da Turma -->
-                <div class="flex flex-col gap-2">
-                    <label class="text-sm font-medium text-foreground">Nome da Turma *</label>
-                    <input type="text" name="nome" value="{{ turma.nome|default:'' }}" class="kt-input" placeholder="Ex: Turma Manhã 2024" required>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Código -->
-                <div class="flex flex-col gap-2">
-                    <label class="text-sm font-medium text-foreground">Código Interno</label>
-                    <input type="text" name="codigo" value="{{ turma.codigo|default:'' }}" class="kt-input" placeholder="Ex: PY24-01">
-                </div>
-
-                <!-- Instrutor -->
-                <div class="flex flex-col gap-2">
-                    <label class="text-sm font-medium text-foreground">Instrutor Responsável</label>
-                    <select name="instrutor_principal" class="kt-select">
-                        <option value="">Nenhum instrutor selecionado</option>
-                        {% for instrutor in instrutores %}
-                            <option value="{{ instrutor.id }}" {% if turma.instrutor_principal.id == instrutor.id %}selected{% endif %}>{{ instrutor.nome }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <!-- Vagas -->
-                <div class="flex flex-col gap-2">
-                    <label class="text-sm font-medium text-foreground">Vagas Totais *</label>
-                    <input type="number" name="vagas_totais" value="{{ turma.vagas_totais|default:'30' }}" class="kt-input" min="1" required>
-                </div>
-            </div>
-
-            <div class="border-t border-dashed border-border pt-6 mt-2">
-                <h4 class="text-sm font-semibold mb-4">Datas e Horários</h4>
+            <!-- Sessão 1: Informações Gerais -->
+            <div class="flex flex-col gap-5">
+                <h3 class="text-sm font-bold text-foreground uppercase tracking-widest flex items-center gap-2">
+                    <i class="ki-filled ki-bookmark text-primary"></i>
+                    Informações Principais
+                </h3>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Curso -->
                     <div class="flex flex-col gap-2">
-                        <label class="text-sm font-medium text-foreground">Data de Início *</label>
-                        <input type="date" name="data_inicio" value="{{ turma.data_inicio|date:'Y-m-d' }}" class="kt-input" required>
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <label class="text-sm font-medium text-foreground">Data de Término *</label>
-                        <input type="date" name="data_fim" value="{{ turma.data_fim|date:'Y-m-d' }}" class="kt-input" required>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div class="flex flex-col gap-2">
-                        <label class="text-sm font-medium text-foreground">Turno *</label>
-                        <select name="turno" class="kt-select" required>
-                            <option value="M" {% if turma.turno == 'M' %}selected{% endif %}>Manhã</option>
-                            <option value="T" {% if turma.turno == 'T' %}selected{% endif %}>Tarde</option>
-                            <option value="N" {% if turma.turno == 'N' %}selected{% endif %}>Noite</option>
-                            <option value="I" {% if turma.turno == 'I' %}selected{% endif %}>Integral</option>
+                        <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Curso Relacionado *</label>
+                        <select name="curso" class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:bg-white/[0.07] focus:outline-none focus:ring-1 focus:ring-primary transition-all duration-300" required>
+                            <option value="" class="bg-slate-900 text-foreground">Selecione o curso</option>
+                            {% for curso in cursos %}
+                                <option value="{{ curso.id }}" {% if turma.curso.id == curso.id %}selected{% endif %} class="bg-slate-900 text-foreground">{{ curso.titulo }}</option>
+                            {% endfor %}
                         </select>
                     </div>
+
+                    <!-- Nome da Turma -->
                     <div class="flex flex-col gap-2">
-                        <label class="text-sm font-medium text-foreground">H. Início</label>
-                        <input type="time" name="horario_inicio" value="{{ turma.horario_inicio|time:'H:i' }}" class="kt-input">
+                        <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Nome da Turma *</label>
+                        <input type="text" name="nome" value="{{ turma.nome|default:'' }}" class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:bg-white/[0.07] focus:outline-none focus:ring-1 focus:ring-primary transition-all duration-300" placeholder="Ex: Turma Manhã 2026" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Código -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Código Interno</label>
+                        <input type="text" name="codigo" value="{{ turma.codigo|default:'' }}" class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:bg-white/[0.07] focus:outline-none focus:ring-1 focus:ring-primary transition-all duration-300" placeholder="Ex: PY26-A">
+                    </div>
+
+                    <!-- Instrutor -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Instrutor Responsável</label>
+                        <select name="instrutor_principal" class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:bg-white/[0.07] focus:outline-none focus:ring-1 focus:ring-primary transition-all duration-300">
+                            <option value="" class="bg-slate-900 text-foreground">Nenhum selecionado</option>
+                            {% for instrutor in instrutores %}
+                                <option value="{{ instrutor.id }}" {% if turma.instrutor_principal.id == instrutor.id %}selected{% endif %} class="bg-slate-900 text-foreground">{{ instrutor.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Vagas -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vagas Totais *</label>
+                        <input type="number" name="vagas_totais" value="{{ turma.vagas_totais|default:'30' }}" class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:bg-white/[0.07] focus:outline-none focus:ring-1 focus:ring-primary transition-all duration-300" min="1" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sessão 2: Cronograma -->
+            <div class="border-t border-white/10 pt-6 flex flex-col gap-5">
+                <h3 class="text-sm font-bold text-foreground uppercase tracking-widest flex items-center gap-2">
+                    <i class="ki-filled ki-time text-primary"></i>
+                    Horários e Calendário
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Data de Início *</label>
+                        <input type="date" name="data_inicio" value="{{ turma.data_inicio|date:'Y-m-d' }}" class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:bg-white/[0.07] focus:outline-none focus:ring-1 focus:ring-primary transition-all duration-300" required>
                     </div>
                     <div class="flex flex-col gap-2">
-                        <label class="text-sm font-medium text-foreground">H. Fim</label>
-                        <input type="time" name="horario_fim" value="{{ turma.horario_fim|time:'H:i' }}" class="kt-input">
+                        <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Data de Término *</label>
+                        <input type="date" name="data_fim" value="{{ turma.data_fim|date:'Y-m-d' }}" class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:bg-white/[0.07] focus:outline-none focus:ring-1 focus:ring-primary transition-all duration-300" required>
                     </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Turno -->
                     <div class="flex flex-col gap-2">
-                        <label class="text-sm font-medium text-foreground">Dias da Semana</label>
-                        <input type="text" name="dias_semana" value="{{ turma.dias_semana|default:'' }}" class="kt-input" placeholder="Ex: Seg, Qua, Sex">
+                        <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Turno *</label>
+                        <select name="turno" class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:bg-white/[0.07] focus:outline-none focus:ring-1 focus:ring-primary transition-all duration-300" required>
+                            <option value="M" {% if turma.turno == 'M' %}selected{% endif %} class="bg-slate-900 text-foreground">Manhã</option>
+                            <option value="T" {% if turma.turno == 'T' %}selected{% endif %} class="bg-slate-900 text-foreground">Tarde</option>
+                            <option value="N" {% if turma.turno == 'N' %}selected{% endif %} class="bg-slate-900 text-foreground">Noite</option>
+                            <option value="I" {% if turma.turno == 'I' %}selected{% endif %} class="bg-slate-900 text-foreground">Integral</option>
+                        </select>
+                    </div>
+
+                    <!-- Horário Início -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">H. de Início</label>
+                        <input type="time" name="horario_inicio" value="{{ turma.horario_inicio|time:'H:i' }}" class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:bg-white/[0.07] focus:outline-none focus:ring-1 focus:ring-primary transition-all duration-300">
+                    </div>
+
+                    <!-- Horário Término -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">H. de Término</label>
+                        <input type="time" name="horario_fim" value="{{ turma.horario_fim|time:'H:i' }}" class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:bg-white/[0.07] focus:outline-none focus:ring-1 focus:ring-primary transition-all duration-300">
+                    </div>
+
+                    <!-- Dias da Semana -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Dias da Semana</label>
+                        <input type="text" name="dias_semana" value="{{ turma.dias_semana|default:'' }}" class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:bg-white/[0.07] focus:outline-none focus:ring-1 focus:ring-primary transition-all duration-300" placeholder="Ex: Seg, Qua, Sex">
                     </div>
                 </div>
             </div>
 
         </div>
-        <div class="p-6 border-t border-border flex justify-end bg-accent/5">
-            <button type="submit" class="kt-btn kt-btn-primary">
-                <i class="ki-filled ki-check"></i> {{ action }} Turma
+        <div class="p-6 border-t border-white/10 flex justify-end bg-white/[0.02] gap-3">
+            <button type="submit" class="kt-btn kt-btn-primary shadow-lg shadow-primary/20 hover:scale-[1.01] transition-all">
+                <i class="ki-filled ki-check"></i> Salvar Turma
             </button>
         </div>
     </form>

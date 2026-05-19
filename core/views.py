@@ -142,8 +142,35 @@ def index(request):
         except AttributeError:
             pass
 
+    # Recuperar histórico de visualizações recentes
+    viewed_cursos_ids = request.session.get('viewed_cursos', [])
+    viewed_video_cursos_ids = request.session.get('viewed_video_cursos', [])
+    viewed_centros_ids = request.session.get('viewed_centros', [])
+
+    viewed_cursos = []
+    if viewed_cursos_ids:
+        # Recuperar e ordenar conforme a sessão (mais recente primeiro)
+        cursos_dict = Curso.objects.in_bulk(viewed_cursos_ids)
+        viewed_cursos = [cursos_dict[id] for id in viewed_cursos_ids if id in cursos_dict]
+        
+    viewed_video_cursos = []
+    if viewed_video_cursos_ids:
+        video_cursos_dict = Curso_video.objects.in_bulk(viewed_video_cursos_ids)
+        viewed_video_cursos = [video_cursos_dict[id] for id in viewed_video_cursos_ids if id in video_cursos_dict]
+        
+    viewed_centros = []
+    if viewed_centros_ids:
+        centros_dict = CentroDeFormacao.objects.in_bulk(viewed_centros_ids)
+        viewed_centros = [centros_dict[id] for id in viewed_centros_ids if id in centros_dict]
+        
+    show_recently_viewed = bool(viewed_cursos or viewed_video_cursos or viewed_centros)
+
     context = {
         **global_data,
+        'viewed_cursos': viewed_cursos,
+        'viewed_video_cursos': viewed_video_cursos,
+        'viewed_centros': viewed_centros,
+        'show_recently_viewed': show_recently_viewed,
         'secoes_dinamicas': secoes_dinamicas,
         'instrutores_lista': global_data['instrutores'],
         'cursos_recomendados': cursos_recomendados,

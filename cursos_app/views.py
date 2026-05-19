@@ -620,6 +620,13 @@ def curso_detalhe(request, id):
         publicado=True
     )
     
+    # Atualizar histórico de visualizações recentes
+    viewed = request.session.get('viewed_cursos', [])
+    if id in viewed:
+        viewed.remove(id)
+    viewed.insert(0, id)
+    request.session['viewed_cursos'] = viewed[:3]
+    
     curso.visualizacoes += 1
     curso.save(update_fields=['visualizacoes'])
     
@@ -1075,6 +1082,13 @@ def cursos_por_centro(request, centro_id):
         ), 
         id=centro_id
     )
+    
+    # Atualizar histórico de visualizações recentes
+    viewed = request.session.get('viewed_centros', [])
+    if centro_id in viewed:
+        viewed.remove(centro_id)
+    viewed.insert(0, centro_id)
+    request.session['viewed_centros'] = viewed[:3]
     
     # Verificar se o aluno logado segue este centro
     aluno_segue = False

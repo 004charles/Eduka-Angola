@@ -2,171 +2,249 @@
 {% load static %}
 
 {% block content %}
-<div class="flex flex-col gap-5 lg:gap-7.5">
+<div class="flex flex-col gap-6 lg:gap-8">
 
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
-        <div class="flex flex-col gap-2">
-            <h1 class="text-xl font-bold text-foreground">Gestão de Cursos</h1>
-            <p class="text-sm text-secondary-foreground">Acompanhe, crie e administre todos os cursos disponibilizados pela sua instituição.</p>
-        </div>
-        <div class="flex items-center gap-2">
-            <a href="{% url 'criar_curso' %}" class="kt-btn kt-btn-primary">
-                <i class="ki-filled ki-plus"></i> Novo Curso
-            </a>
+    <!-- Header Glassmorphic Panel -->
+    <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md shadow-xl">
+        <div class="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-primary/20 blur-3xl"></div>
+        <div class="absolute -left-20 -bottom-20 h-40 w-40 rounded-full bg-info/20 blur-3xl"></div>
+        
+        <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex flex-col gap-1.5">
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center justify-center size-8 rounded-lg bg-primary/10 border border-primary/20 text-primary">
+                        <i class="ki-filled ki-book-open text-lg"></i>
+                    </span>
+                    <h1 class="text-2xl font-bold text-foreground tracking-tight">Gestão de Cursos</h1>
+                </div>
+                <p class="text-sm text-muted-foreground max-w-xl">
+                    Acompanhe, crie e administre todos os cursos disponibilizados pela sua instituição com controle total de campanhas, turmas e matrículas.
+                </p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="{% url 'criar_curso' %}" class="kt-btn kt-btn-primary shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300 hover:scale-[1.02]">
+                    <i class="ki-filled ki-plus"></i> Novo Curso
+                </a>
+            </div>
         </div>
     </div>
 
     {% if messages %}
-        <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-3">
             {% for message in messages %}
-                <div class="p-4 rounded-lg text-sm font-medium {% if message.tags == 'success' %}bg-success/10 text-success border border-success/20{% elif message.tags == 'error' %}bg-danger/10 text-danger border border-danger/20{% else %}bg-warning/10 text-warning border border-warning/20{% endif %}">
-                    {{ message }}
+                <div class="p-4 rounded-xl text-sm font-medium backdrop-blur-md transition-all duration-300 flex items-center gap-3 {% if message.tags == 'success' %}bg-success/10 text-success border border-success/20 shadow-sm shadow-success/5{% elif message.tags == 'error' %}bg-danger/10 text-danger border border-danger/20 shadow-sm shadow-danger/5{% else %}bg-warning/10 text-warning border border-warning/20 shadow-sm shadow-warning/5{% endif %}">
+                    <span class="size-2 rounded-full {% if message.tags == 'success' %}bg-success animate-pulse{% elif message.tags == 'error' %}bg-danger animate-pulse{% else %}bg-warning animate-pulse{% endif %}"></span>
+                    <span class="flex-1">{{ message }}</span>
                 </div>
             {% endfor %}
         </div>
     {% endif %}
 
-    <!-- Container com Tabs de Navegação -->
-    <div class="flex flex-col border-b border-border mb-2">
-        <ul class="flex items-center gap-5 text-sm font-medium text-muted-foreground overflow-x-auto">
+    <!-- Container com Tabs de Navegação Estilo Metronic 9 Glass -->
+    <div class="flex flex-col border-b border-white/10 mb-2">
+        <ul class="flex items-center gap-6 text-sm font-semibold text-muted-foreground overflow-x-auto pb-1 scrollbar-thin">
             <li>
-                <a href="?tab=all" class="flex items-center gap-2 py-3 border-b-2 transition-colors whitespace-nowrap {% if not request.GET.tab or request.GET.tab == 'all' %}border-primary text-primary{% else %}border-transparent hover:text-foreground{% endif %}">
+                <a href="?tab=all" class="flex items-center gap-2 py-3.5 border-b-2 transition-all duration-300 whitespace-nowrap {% if not request.GET.tab or request.GET.tab == 'all' %}border-primary text-primary active-tab-glow{% else %}border-transparent hover:text-foreground hover:border-white/10{% endif %}">
+                    <i class="ki-filled ki-category text-base"></i>
                     Todos
-                    <span class="kt-badge kt-badge-sm {% if not request.GET.tab or request.GET.tab == 'all' %}kt-badge-primary{% else %}kt-badge-light{% endif %} kt-badge-outline">{{ cursos|length }}</span>
+                    <span class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold rounded-full {% if not request.GET.tab or request.GET.tab == 'all' %}bg-primary/20 text-primary border border-primary/30{% else %}bg-white/5 text-muted-foreground border border-white/10{% endif %}">{{ cursos|length }}</span>
                 </a>
             </li>
             <li>
-                <a href="?tab=published" class="flex items-center gap-2 py-3 border-b-2 transition-colors whitespace-nowrap {% if request.GET.tab == 'published' %}border-primary text-primary{% else %}border-transparent hover:text-foreground{% endif %}">
+                <a href="?tab=published" class="flex items-center gap-2 py-3.5 border-b-2 transition-all duration-300 whitespace-nowrap {% if request.GET.tab == 'published' %}border-primary text-primary active-tab-glow{% else %}border-transparent hover:text-foreground hover:border-white/10{% endif %}">
+                    <i class="ki-filled ki-check-circle text-base"></i>
                     Publicados
-                    <span class="kt-badge kt-badge-sm {% if request.GET.tab == 'published' %}kt-badge-primary{% else %}kt-badge-light{% endif %} kt-badge-outline">{{ cursos_publicados|length }}</span>
+                    <span class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold rounded-full {% if request.GET.tab == 'published' %}bg-primary/20 text-primary border border-primary/30{% else %}bg-white/5 text-muted-foreground border border-white/10{% endif %}">{{ cursos_publicados|length }}</span>
                 </a>
             </li>
             <li>
-                <a href="?tab=drafts" class="flex items-center gap-2 py-3 border-b-2 transition-colors whitespace-nowrap {% if request.GET.tab == 'drafts' %}border-primary text-primary{% else %}border-transparent hover:text-foreground{% endif %}">
+                <a href="?tab=drafts" class="flex items-center gap-2 py-3.5 border-b-2 transition-all duration-300 whitespace-nowrap {% if request.GET.tab == 'drafts' %}border-primary text-primary active-tab-glow{% else %}border-transparent hover:text-foreground hover:border-white/10{% endif %}">
+                    <i class="ki-filled ki-notepad text-base"></i>
                     Rascunhos
-                    <span class="kt-badge kt-badge-sm {% if request.GET.tab == 'drafts' %}kt-badge-primary{% else %}kt-badge-light{% endif %} kt-badge-outline">{{ cursos_rascunhos|length }}</span>
+                    <span class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold rounded-full {% if request.GET.tab == 'drafts' %}bg-primary/20 text-primary border border-primary/30{% else %}bg-white/5 text-muted-foreground border border-white/10{% endif %}">{{ cursos_rascunhos|length }}</span>
                 </a>
             </li>
             <li>
-                <a href="?tab=featured" class="flex items-center gap-2 py-3 border-b-2 transition-colors whitespace-nowrap {% if request.GET.tab == 'featured' %}border-primary text-primary{% else %}border-transparent hover:text-foreground{% endif %}">
+                <a href="?tab=featured" class="flex items-center gap-2 py-3.5 border-b-2 transition-all duration-300 whitespace-nowrap {% if request.GET.tab == 'featured' %}border-primary text-primary active-tab-glow{% else %}border-transparent hover:text-foreground hover:border-white/10{% endif %}">
+                    <i class="ki-filled ki-star text-base"></i>
                     Destaques
-                    <span class="kt-badge kt-badge-sm {% if request.GET.tab == 'featured' %}kt-badge-primary{% else %}kt-badge-light{% endif %} kt-badge-outline">{{ cursos_destaque|length }}</span>
+                    <span class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold rounded-full {% if request.GET.tab == 'featured' %}bg-primary/20 text-primary border border-primary/30{% else %}bg-white/5 text-muted-foreground border border-white/10{% endif %}">{{ cursos_destaque|length }}</span>
                 </a>
             </li>
         </ul>
     </div>
 
-    <!-- Lista de Cursos (Tabela / Grid) -->
-    <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm overflow-hidden">
+    <!-- Lista de Cursos (Tabela Premium Glassmorphic) -->
+    <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-xl flex flex-col">
         
         <!-- Toolbar interna -->
-        <div class="flex items-center justify-between border-b border-border px-5 py-4">
-            <div class="relative max-w-xs w-full">
-                <i class="ki-filled ki-magnifier absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-lg"></i>
-                <input type="text" class="kt-input ps-10" placeholder="Pesquisar curso...">
+        <div class="flex flex-col sm:flex-row items-center justify-between border-b border-white/10 px-6 py-5 gap-4 bg-white/[0.02]">
+            <div class="relative max-w-sm w-full">
+                <i class="ki-filled ki-magnifier absolute start-3.5 top-1/2 -translate-y-1/2 text-muted-foreground text-lg"></i>
+                <input type="text" id="cursoSearch" class="kt-input ps-11 bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/50 rounded-xl" placeholder="Pesquisar curso por título ou categoria...">
             </div>
-            <div class="flex items-center gap-2">
-                <button class="kt-btn kt-btn-sm kt-btn-light">
+            <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+                <button class="kt-btn kt-btn-sm kt-btn-light border-white/10 hover:bg-white/10 transition-colors">
                     <i class="ki-filled ki-filter"></i> Filtrar
                 </button>
             </div>
         </div>
 
-        <div class="px-5 py-2">
-            <div class="overflow-x-auto">
-                <table class="table-auto w-full text-left text-sm whitespace-nowrap">
-                    <thead class="text-xs text-muted-foreground border-b border-border">
-                        <tr>
-                            <th class="pb-3 font-medium">Curso</th>
-                            <th class="pb-3 font-medium">Categoria / Nível</th>
-                            <th class="pb-3 font-medium">Preço</th>
-                            <th class="pb-3 font-medium text-center">Inscritos</th>
-                            <th class="pb-3 font-medium text-center">Status</th>
-                            <th class="pb-3 font-medium text-right">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-dashed divide-border">
-                        {% with tab=request.GET.tab|default:'all' %}
-                        {% for curso in cursos %}
-                        
-                        {% if tab == 'all' or tab == 'published' and curso.publicado or tab == 'drafts' and not curso.publicado or tab == 'featured' and curso.destaque %}
-                        <tr class="hover:bg-accent/20 transition-colors">
-                            <td class="py-3">
-                                <div class="flex items-center gap-3">
-                                    <div class="size-[50px] shrink-0 bg-accent/60 rounded-lg overflow-hidden border border-border flex items-center justify-center">
-                                        {% if curso.imagem_destaque %}
-                                            <img src="{{ curso.imagem_destaque.url }}" alt="{{ curso.titulo }}" class="size-full object-cover">
-                                        {% else %}
-                                            <i class="ki-filled ki-book text-2xl text-secondary-foreground"></i>
-                                        {% endif %}
-                                    </div>
-                                    <div class="flex flex-col">
-                                        <a href="{% url 'curso_overview' curso.id %}" class="text-sm font-semibold text-foreground hover:text-primary transition-colors max-w-[250px] truncate" title="{{ curso.titulo }}">{{ curso.titulo }}</a>
-                                        <span class="text-xs text-muted-foreground flex items-center gap-1">
-                                            <i class="ki-filled ki-time"></i> {{ curso.data_criacao|date:"d M Y" }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="py-3">
-                                <div class="flex flex-col">
-                                    <span class="text-sm text-foreground">{{ curso.categoria.nome|default:"-" }}</span>
-                                    <span class="text-xs text-secondary-foreground">{{ curso.get_nivel_display|default:"Geral" }}</span>
-                                </div>
-                            </td>
-                            <td class="py-3">
-                                <div class="flex flex-col">
-                                    {% if curso.preco_promocional and curso.preco_promocional < curso.preco %}
-                                        <span class="text-sm font-semibold text-foreground">{{ curso.preco_promocional|floatformat:2 }} Kz</span>
-                                        <span class="text-xs text-muted-foreground line-through">{{ curso.preco|floatformat:2 }} Kz</span>
+        <!-- Tabela -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+                <thead>
+                    <tr class="text-xs text-muted-foreground uppercase tracking-wider border-b border-white/10 bg-white/[0.01]">
+                        <th class="px-6 py-4 font-semibold">Curso</th>
+                        <th class="px-6 py-4 font-semibold">Categoria / Nível</th>
+                        <th class="px-6 py-4 font-semibold">Preço</th>
+                        <th class="px-6 py-4 font-semibold text-center">Inscritos</th>
+                        <th class="px-6 py-4 font-semibold text-center">Status</th>
+                        <th class="px-6 py-4 font-semibold text-right">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5" id="cursoTableBody">
+                    {% with tab=request.GET.tab|default:'all' %}
+                    {% for curso in cursos %}
+                    
+                    {% if tab == 'all' or tab == 'published' and curso.publicado or tab == 'drafts' and not curso.publicado or tab == 'featured' and curso.destaque %}
+                    <tr class="curso-row hover:bg-white/[0.03] transition-all duration-200">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-4">
+                                <div class="relative size-12 shrink-0 bg-white/5 rounded-xl overflow-hidden border border-white/10 flex items-center justify-center group">
+                                    {% if curso.imagem %}
+                                        <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}" class="size-full object-cover transition-transform duration-300 group-hover:scale-110">
                                     {% else %}
-                                        <span class="text-sm font-semibold text-foreground">{{ curso.preco|floatformat:2 }} Kz</span>
+                                        <div class="size-full bg-gradient-to-br from-primary/10 to-info/10 flex items-center justify-center">
+                                            <i class="ki-filled ki-book text-xl text-primary/70"></i>
+                                        </div>
                                     {% endif %}
                                 </div>
-                            </td>
-                            <td class="py-3 text-center">
-                                <!-- Assumindo que curso tem método ou propriedade inscritos. Se não, mostramos 0 para o layout -->
-                                <span class="text-sm font-medium">{{ curso.num_alunos|default:0 }}</span>
-                            </td>
-                            <td class="py-3 text-center">
-                                {% if curso.publicado %}
-                                    <span class="kt-badge kt-badge-sm kt-badge-success kt-badge-outline">Publicado</span>
+                                <div class="flex flex-col gap-0.5">
+                                    <a href="{% url 'curso_overview' curso.id %}" class="text-sm font-bold text-foreground hover:text-primary transition-colors max-w-[280px] truncate block" title="{{ curso.titulo }}">{{ curso.titulo }}</a>
+                                    <span class="text-xs text-muted-foreground flex items-center gap-1">
+                                        <i class="ki-filled ki-time text-xs"></i> Criado em {{ curso.data_criacao|date:"d M Y" }}
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex flex-col gap-0.5">
+                                <span class="text-sm font-medium text-foreground">{{ curso.categoria.nome|default:"Sem Categoria" }}</span>
+                                <span class="inline-flex items-center text-[10px] font-bold text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded max-w-max">
+                                    {{ curso.get_nivel_display|default:"Básico" }}
+                                </span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex flex-col gap-0.5">
+                                {% if curso.preco_promocional and curso.preco_promocional < curso.preco %}
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-sm font-bold text-success">{{ curso.preco_promocional|floatformat:2 }} Kz</span>
+                                        <span class="text-[10px] font-semibold text-success bg-success/10 border border-success/20 px-1 py-0.2 rounded">PROMO</span>
+                                    </div>
+                                    <span class="text-xs text-muted-foreground line-through opacity-60">{{ curso.preco|floatformat:2 }} Kz</span>
                                 {% else %}
-                                    <span class="kt-badge kt-badge-sm kt-badge-warning kt-badge-outline">Rascunho</span>
+                                    {% if curso.is_gratuito or curso.preco == 0 %}
+                                        <span class="text-sm font-bold text-success">Gratuito</span>
+                                    {% else %}
+                                        <span class="text-sm font-bold text-foreground">{{ curso.preco|floatformat:2 }} Kz</span>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <div class="inline-flex flex-col items-center">
+                                <span class="text-sm font-bold text-foreground">{{ curso.total_inscritos|default:0 }}</span>
+                                <span class="text-[10px] text-muted-foreground">alunos</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <div class="flex items-center justify-center gap-1.5">
+                                {% if curso.publicado %}
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-success bg-success/10 border border-success/20 rounded-full shadow-sm shadow-success/5">
+                                        <span class="size-1.5 rounded-full bg-success animate-pulse"></span>
+                                        Publicado
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-warning bg-warning/10 border border-warning/20 rounded-full shadow-sm shadow-warning/5">
+                                        <span class="size-1.5 rounded-full bg-warning"></span>
+                                        Rascunho
+                                    </span>
                                 {% endif %}
                                 
                                 {% if curso.destaque %}
-                                    <span class="kt-badge kt-badge-sm kt-badge-primary kt-badge-outline ml-1"><i class="ki-solid ki-star text-xs"></i></span>
+                                    <span class="inline-flex items-center justify-center size-6 rounded-full bg-primary/20 border border-primary/30 text-primary" data-kt-tooltip="true" title="Curso em Destaque">
+                                        <i class="ki-solid ki-star text-xs"></i>
+                                    </span>
                                 {% endif %}
-                            </td>
-                            <td class="py-3 text-right">
-                                <div class="flex items-center justify-end gap-1">
-                                    <a href="{% url 'curso_overview' curso.id %}" class="kt-btn kt-btn-sm kt-btn-icon kt-btn-ghost hover:bg-info/10 hover:text-info" data-kt-tooltip="true" title="Visão Geral">
-                                        <i class="ki-filled ki-eye text-lg"></i>
-                                    </a>
-                                    <a href="{% url 'editar_curso' curso.id %}" class="kt-btn kt-btn-sm kt-btn-icon kt-btn-ghost hover:bg-warning/10 hover:text-warning" data-kt-tooltip="true" title="Editar Corso">
-                                        <i class="ki-filled ki-pencil text-lg"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endif %}
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="py-10 text-center text-sm text-muted-foreground">
-                                <i class="ki-filled ki-book-open text-4xl mb-3 opacity-30"></i>
-                                <p>Nenhum curso encontrado.</p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                        {% endwith %}
-                    </tbody>
-                </table>
-            </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <div class="flex items-center justify-end gap-1.5">
+                                <a href="{% url 'curso_overview' curso.id %}" class="inline-flex items-center justify-center size-8 rounded-lg border border-white/10 hover:border-info/30 hover:bg-info/10 text-muted-foreground hover:text-info transition-all duration-200" data-kt-tooltip="true" title="Visão Geral">
+                                    <i class="ki-filled ki-eye text-lg"></i>
+                                </a>
+                                <a href="{% url 'editar_curso' curso.id %}" class="inline-flex items-center justify-center size-8 rounded-lg border border-white/10 hover:border-warning/30 hover:bg-warning/10 text-muted-foreground hover:text-warning transition-all duration-200" data-kt-tooltip="true" title="Editar Curso">
+                                    <i class="ki-filled ki-pencil text-lg"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-16 text-center">
+                            <div class="flex flex-col items-center justify-center gap-3">
+                                <span class="inline-flex items-center justify-center size-14 rounded-2xl bg-white/5 border border-white/10 text-muted-foreground mb-2">
+                                    <i class="ki-filled ki-book-open text-3xl opacity-50"></i>
+                                </span>
+                                <h4 class="text-base font-bold text-foreground">Nenhum curso encontrado</h4>
+                                <p class="text-sm text-muted-foreground max-w-sm">
+                                    Comece criando seu primeiro curso para atrair novos alunos e expandir sua marca na Angola.
+                                </p>
+                                <a href="{% url 'criar_curso' %}" class="kt-btn kt-btn-sm kt-btn-primary mt-2">
+                                    Criar Curso
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% endwith %}
+                </tbody>
+            </table>
         </div>
         
     </div>
 
 </div>
+
+<script>
+    // Search implementation
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('cursoSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase().trim();
+                const rows = document.querySelectorAll('.curso-row');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(query)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
+</script>
+
+<style>
+    .active-tab-glow {
+        text-shadow: 0 0 10px rgba(var(--primary-rgb), 0.3);
+        box-shadow: 0 2px 0 0 rgb(var(--primary));
+    }
+</style>
 {% endblock content %}
