@@ -84,6 +84,11 @@
                 {% include 'core/includes/home/recently_viewed.html' %}
             {% endif %}
             {% include 'components/home_course_section.html' with secao=secao %}
+            
+            {% if secao.config.slug == 'negocios' %}
+                <!-- Publicidade 10% Desconto -->
+                {% include 'core/includes/home/promo_banner.html' %}
+            {% endif %}
         {% endfor %}
 
         <!-- Centros em Destaque / Centros Próximos de Ti (Dinâmico) -->
