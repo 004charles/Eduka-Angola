@@ -1,0 +1,225 @@
+{% load static %}
+{% load i18n %}
+
+<style>
+    /* Carreiras Style */
+    .career-column-bg {
+        background-color: #eef3f8;
+        border-radius: 12px;
+        padding: 20px;
+        height: 100%;
+        border: 1px solid transparent;
+    }
+    .career-col-title {
+        color: #1e293b;
+        font-size: 16px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        cursor: pointer;
+    }
+    .career-col-title:hover {
+        text-decoration: underline;
+    }
+    .career-card {
+        background: #ffffff;
+        border-radius: 8px;
+        padding: 12px;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+        text-decoration: none !important;
+    }
+    .career-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        border-color: rgba(0,0,0,0.1);
+    }
+    .career-img {
+        width: 60px;
+        height: 60px;
+        border-radius: 6px;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+    .career-meta {
+        font-size: 11px;
+        color: #64748b;
+        margin-bottom: 2px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .career-meta img {
+        width: 14px;
+        height: 14px;
+        border-radius: 2px;
+    }
+    .career-title {
+        font-size: 13px;
+        font-weight: 700;
+        margin: 0 0 4px 0;
+        color: #1e293b;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .career-rating {
+        font-size: 11px;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    /* Dark Mode Suporte para o EdukAngola Play */
+    body.active-dark-mode .career-column-bg {
+        background-color: #1e293b;
+        border-color: rgba(255,255,255,0.05);
+    }
+    body.active-dark-mode .career-col-title {
+        color: #ffffff;
+    }
+    body.active-dark-mode .career-card {
+        background: var(--play-bg-dark);
+        border-color: rgba(255,255,255,0.05);
+    }
+    body.active-dark-mode .career-card:hover {
+        border-color: var(--play-primary);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+    }
+    body.active-dark-mode .career-title {
+        color: #ffffff;
+    }
+    body.active-dark-mode .career-meta,
+    body.active-dark-mode .career-rating {
+        color: #94a3b8;
+    }
+</style>
+
+<!-- Row: Carreiras em Alta Demanda -->
+<section class="play-section" style="padding-left: 4%; padding-right: 4%; margin-top: 20px; margin-bottom: 30px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="play-section-title mb-0" style="padding-left: 0;">{% trans "Prepare-se para uma carreira em alta demanda" %}</h2>
+    </div>
+    <div class="row g-4">
+        <!-- Coluna 1 -->
+        <div class="col-lg-4 col-md-6 col-12">
+            <div class="career-column-bg">
+                <h5 class="career-col-title">
+                    <span>{% trans "Funções Empresariais" %}</span>
+                    <i class="feather-arrow-right"></i>
+                </h5>
+                <div class="d-flex flex-column gap-3">
+                    {% for curso in carreiras_empresariais %}
+                    <a href="{% url 'cursovideoapp:detalhe_curso' curso.slug %}" class="career-card">
+                        {% if curso.capa %}
+                            <img src="{{ curso.capa.url }}" class="career-img" alt="{{ curso.titulo }}">
+                        {% else %}
+                            <img src="{% static 'assets/images/course/default-course.jpg' %}" class="career-img" alt="{{ curso.titulo }}">
+                        {% endif %}
+                        <div>
+                            <div class="career-meta">
+                                {% if curso.instrutor.usuario.foto %}
+                                    <img src="{{ curso.instrutor.usuario.foto.url }}" alt="Logo">
+                                {% else %}
+                                    <img src="{% static 'assets/images/logo/logo1.png' %}" alt="Logo">
+                                {% endif %}
+                                {{ curso.instrutor.usuario.nome|default:"EdukAngola" }}
+                            </div>
+                            <h6 class="career-title">{{ curso.titulo }}</h6>
+                            <div class="career-rating">
+                                Certificado Profissional • <i class="fas fa-star" style="color: #f59e0b;"></i> {{ curso.media_avaliacoes|default:"4.5" }}
+                            </div>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <p class="text-muted small">Sem cursos disponíveis de momento.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Coluna 2 -->
+        <div class="col-lg-4 col-md-6 col-12">
+            <div class="career-column-bg">
+                <h5 class="career-col-title">
+                    <span>{% trans "Funções de dados" %}</span>
+                    <i class="feather-arrow-right"></i>
+                </h5>
+                <div class="d-flex flex-column gap-3">
+                    {% for curso in carreiras_dados %}
+                    <a href="{% url 'cursovideoapp:detalhe_curso' curso.slug %}" class="career-card">
+                        {% if curso.capa %}
+                            <img src="{{ curso.capa.url }}" class="career-img" alt="{{ curso.titulo }}">
+                        {% else %}
+                            <img src="{% static 'assets/images/course/default-course.jpg' %}" class="career-img" alt="{{ curso.titulo }}">
+                        {% endif %}
+                        <div>
+                            <div class="career-meta">
+                                {% if curso.instrutor.usuario.foto %}
+                                    <img src="{{ curso.instrutor.usuario.foto.url }}" alt="Logo">
+                                {% else %}
+                                    <img src="{% static 'assets/images/logo/logo1.png' %}" alt="Logo">
+                                {% endif %}
+                                {{ curso.instrutor.usuario.nome|default:"EdukAngola" }}
+                            </div>
+                            <h6 class="career-title">{{ curso.titulo }}</h6>
+                            <div class="career-rating">
+                                Certificado Profissional • <i class="fas fa-star" style="color: #f59e0b;"></i> {{ curso.media_avaliacoes|default:"4.5" }}
+                            </div>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <p class="text-muted small">Sem cursos disponíveis de momento.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Coluna 3 -->
+        <div class="col-lg-4 col-md-6 col-12">
+            <div class="career-column-bg">
+                <h5 class="career-col-title">
+                    <span>{% trans "Funções na área de tecnologia" %}</span>
+                    <i class="feather-arrow-right"></i>
+                </h5>
+                <div class="d-flex flex-column gap-3">
+                    {% for curso in carreiras_tecnologia %}
+                    <a href="{% url 'cursovideoapp:detalhe_curso' curso.slug %}" class="career-card">
+                        {% if curso.capa %}
+                            <img src="{{ curso.capa.url }}" class="career-img" alt="{{ curso.titulo }}">
+                        {% else %}
+                            <img src="{% static 'assets/images/course/default-course.jpg' %}" class="career-img" alt="{{ curso.titulo }}">
+                        {% endif %}
+                        <div>
+                            <div class="career-meta">
+                                {% if curso.instrutor.usuario.foto %}
+                                    <img src="{{ curso.instrutor.usuario.foto.url }}" alt="Logo">
+                                {% else %}
+                                    <img src="{% static 'assets/images/logo/logo1.png' %}" alt="Logo">
+                                {% endif %}
+                                {{ curso.instrutor.usuario.nome|default:"EdukAngola" }}
+                            </div>
+                            <h6 class="career-title">{{ curso.titulo }}</h6>
+                            <div class="career-rating">
+                                Certificado Profissional • <i class="fas fa-star" style="color: #f59e0b;"></i> {{ curso.media_avaliacoes|default:"4.5" }}
+                            </div>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <p class="text-muted small">Sem cursos disponíveis de momento.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

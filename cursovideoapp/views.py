@@ -184,6 +184,15 @@ def home_videos(request):
             total_views=Sum('aulas__visualizacoes')
         ).order_by('-total_views')[:12])
         videos_tecnologia = list(Curso_video.objects.select_related('instrutor', 'categoria').filter(categoria__slug='tecnologia').order_by('-data_publicacao')[:12])
+        
+        # Dados para a secção de Carreiras
+        carreiras_empresariais = list(Curso_video.objects.select_related('instrutor', 'categoria').filter(categoria__slug='gestao-negocios-e-administracao').order_by('-data_publicacao')[:3])
+        carreiras_dados = list(Curso_video.objects.select_related('instrutor', 'categoria').filter(categoria__slug='artes-oficios-e-formacao-profissional').order_by('-data_publicacao')[:3])
+        if not carreiras_dados:
+            carreiras_dados = videos_populares[:3] # Fallback
+            
+        carreiras_tecnologia = list(Curso_video.objects.select_related('instrutor', 'categoria').filter(categoria__slug='tecnologia').order_by('-data_publicacao')[:3])
+
         categorias = list(Categoria.objects.annotate(
             num_cursos=Count('cursos_video')
         ).filter(num_cursos__gt=0).order_by('nome'))
@@ -193,6 +202,9 @@ def home_videos(request):
             'videos_populares': videos_populares,
             'videos_assistidos': videos_assistidos,
             'videos_tecnologia': videos_tecnologia,
+            'carreiras_empresariais': carreiras_empresariais,
+            'carreiras_dados': carreiras_dados,
+            'carreiras_tecnologia': carreiras_tecnologia,
             'categorias': categorias,
         }
         cache.set(cache_key_global, global_data, 900) # 15 minutos
@@ -247,6 +259,9 @@ def home_videos(request):
         'videos_populares': global_data['videos_populares'],
         'videos_assistidos': global_data['videos_assistidos'],
         'videos_tecnologia': global_data['videos_tecnologia'],
+        'carreiras_empresariais': global_data['carreiras_empresariais'],
+        'carreiras_dados': global_data['carreiras_dados'],
+        'carreiras_tecnologia': global_data['carreiras_tecnologia'],
         'categorias': global_data['categorias'],
         'continuar_a_ver': continuar_a_ver,
         'videos_recomendados': videos_recomendados,

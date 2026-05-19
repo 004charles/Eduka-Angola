@@ -1,0 +1,116 @@
+{% load static %}
+{% load i18n %}
+
+{% if aluno_logado and videos_recomendados %}
+<section class="play-section" style="padding-left: 4%; padding-right: 4%; margin-top: 20px; margin-bottom: 30px;">
+    <!-- Cabeçalho da Seção -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="play-section-title mb-0" style="padding-left: 0; display: flex; align-items: center; gap: 10px;">
+            <span>{% trans "Recomendado para Si" %}</span>
+            <i class="feather-target" style="font-size: 18px; color: var(--play-primary);"></i>
+        </h2>
+    </div>
+
+    <div class="row g-4">
+        <!-- Coluna 1 -->
+        <div class="col-lg-4 col-md-6 col-12">
+            <div class="career-column-bg">
+                <h5 class="mb-3 career-col-title" style="font-size: 14px; font-weight: 700;">{% trans "Baseado no seu perfil" %}</h5>
+                <div class="d-flex flex-column gap-3">
+                    {% for curso in videos_recomendados|slice:":3" %}
+                    <a href="{% url 'cursovideoapp:detalhe_curso' curso.slug %}" class="career-card">
+                        {% if curso.capa %}
+                            <img src="{{ curso.capa.url }}" class="career-img" alt="{{ curso.titulo }}">
+                        {% else %}
+                            <img src="{% static 'assets/images/course/default-course.jpg' %}" class="career-img" alt="{{ curso.titulo }}">
+                        {% endif %}
+                        <div>
+                            <div class="career-meta">
+                                {% if curso.instrutor.usuario.foto %}
+                                    <img src="{{ curso.instrutor.usuario.foto.url }}" alt="Logo">
+                                {% else %}
+                                    <img src="{% static 'assets/images/logo/logo1.png' %}" alt="Logo">
+                                {% endif %}
+                                {{ curso.instrutor.usuario.nome|default:"EdukAngola" }}
+                            </div>
+                            <h6 class="career-title">{{ curso.titulo }}</h6>
+                            <div class="career-rating">
+                                Curso em Vídeo • <i class="fas fa-star" style="color: #f59e0b;"></i> {{ curso.media_avaliacoes|default:"4.5" }}
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Coluna 2 -->
+        {% if videos_recomendados|length > 3 %}
+        <div class="col-lg-4 col-md-6 col-12">
+            <div class="career-column-bg">
+                <h5 class="mb-3 career-col-title" style="font-size: 14px; font-weight: 700;">{% trans "Semelhante à sua atividade" %}</h5>
+                <div class="d-flex flex-column gap-3">
+                    {% for curso in videos_recomendados|slice:"3:6" %}
+                    <a href="{% url 'cursovideoapp:detalhe_curso' curso.slug %}" class="career-card">
+                        {% if curso.capa %}
+                            <img src="{{ curso.capa.url }}" class="career-img" alt="{{ curso.titulo }}">
+                        {% else %}
+                            <img src="{% static 'assets/images/course/default-course.jpg' %}" class="career-img" alt="{{ curso.titulo }}">
+                        {% endif %}
+                        <div>
+                            <div class="career-meta">
+                                {% if curso.instrutor.usuario.foto %}
+                                    <img src="{{ curso.instrutor.usuario.foto.url }}" alt="Logo">
+                                {% else %}
+                                    <img src="{% static 'assets/images/logo/logo1.png' %}" alt="Logo">
+                                {% endif %}
+                                {{ curso.instrutor.usuario.nome|default:"EdukAngola" }}
+                            </div>
+                            <h6 class="career-title">{{ curso.titulo }}</h6>
+                            <div class="career-rating">
+                                Curso em Vídeo • <i class="fas fa-star" style="color: #f59e0b;"></i> {{ curso.media_avaliacoes|default:"4.5" }}
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Coluna 3 -->
+        {% if videos_recomendados|length > 6 %}
+        <div class="col-lg-4 col-md-6 col-12">
+            <div class="career-column-bg">
+                <h5 class="mb-3 career-col-title" style="font-size: 14px; font-weight: 700;">{% trans "Para alavancar sua carreira" %}</h5>
+                <div class="d-flex flex-column gap-3">
+                    {% for curso in videos_recomendados|slice:"6:9" %}
+                    <a href="{% url 'cursovideoapp:detalhe_curso' curso.slug %}" class="career-card">
+                        {% if curso.capa %}
+                            <img src="{{ curso.capa.url }}" class="career-img" alt="{{ curso.titulo }}">
+                        {% else %}
+                            <img src="{% static 'assets/images/course/default-course.jpg' %}" class="career-img" alt="{{ curso.titulo }}">
+                        {% endif %}
+                        <div>
+                            <div class="career-meta">
+                                {% if curso.instrutor.usuario.foto %}
+                                    <img src="{{ curso.instrutor.usuario.foto.url }}" alt="Logo">
+                                {% else %}
+                                    <img src="{% static 'assets/images/logo/logo1.png' %}" alt="Logo">
+                                {% endif %}
+                                {{ curso.instrutor.usuario.nome|default:"EdukAngola" }}
+                            </div>
+                            <h6 class="career-title">{{ curso.titulo }}</h6>
+                            <div class="career-rating">
+                                Curso em Vídeo • <i class="fas fa-star" style="color: #f59e0b;"></i> {{ curso.media_avaliacoes|default:"4.5" }}
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endif %}

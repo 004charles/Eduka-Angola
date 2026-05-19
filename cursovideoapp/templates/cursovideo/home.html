@@ -408,25 +408,8 @@
         </section>
         {% endif %}
 
-        {% if aluno_logado and videos_recomendados %}
-        <!-- Row: Recomendados para Você -->
-        <section class="play-section">
-            <div class="d-flex justify-content-between align-items-center mb-3 pr-5" style="padding-right: 5%;">
-                <h2 class="play-section-title mb-0">Recomendados para Você</h2>
-            </div>
-            <div class="swiper playSwiper">
-                <div class="swiper-wrapper">
-                    {% for video in videos_recomendados %}
-                    <div class="swiper-slide">
-                        {% include 'components/curso_card.html' with curso=video %}
-                    </div>
-                    {% endfor %}
-                </div>
-                <div class="swiper-button-next"></div>
-                <div class="swiper-button-prev"></div>
-            </div>
-        </section>
-        {% endif %}
+        <!-- Carreiras em Alta Demanda -->
+        {% include 'cursovideo/includes/career_paths.html' %}
 
         {% if aluno_logado and meus_favoritos %}
         <!-- Row: A Minha Lista -->
@@ -468,6 +451,9 @@
                 <div class="swiper-button-prev"></div>
             </div>
         </section>
+
+        <!-- Row: Recomendados para Você (Novo Estilo) -->
+        {% include 'cursovideo/includes/recommended_courses.html' %}
 
         <!-- Row 2: Populares -->
         <section class="play-section">
