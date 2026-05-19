@@ -239,6 +239,109 @@
             background-color: rgba(255, 255, 255, 0.05) !important;
             color: #fff !important;
         }
+
+        /* --- Estilos do Chat com suporte total ao Tema Escuro --- */
+        #chatModal .modal-content {
+            border: none !important;
+            overflow: hidden;
+            border-radius: 16px;
+            background: #ffffff !important;
+            transition: all 0.3s ease;
+        }
+        .active-dark-mode #chatModal .modal-content {
+            background: #1c2132 !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+        #chatModal .modal-header {
+            background: var(--color-primary) !important;
+            color: white !important;
+            padding: 20px;
+            border: none !important;
+        }
+        #chatModal .chat-header {
+            background: #ffffff !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+            transition: all 0.3s ease;
+        }
+        .active-dark-mode #chatModal .chat-header {
+            background: #1c2132 !important;
+            border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+        }
+        #chatModal .chat-info h6 {
+            color: #1c2132 !important;
+            font-weight: 700;
+        }
+        .active-dark-mode #chatModal .chat-info h6 {
+            color: #ffffff !important;
+        }
+        #chatModal .chat-messages {
+            background-color: #f5f7fa !important;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .active-dark-mode #chatModal .chat-messages {
+            background-color: #0f172a !important;
+        }
+        #chatModal .chat-input {
+            background: #ffffff !important;
+            border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
+            box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.03) !important;
+            transition: all 0.3s ease;
+        }
+        .active-dark-mode #chatModal .chat-input {
+            background: #1c2132 !important;
+            border-top-color: rgba(255, 255, 255, 0.08) !important;
+            box-shadow: none !important;
+        }
+        #chatModal #chat-input {
+            background: #f0f2f5 !important;
+            color: #1c2132 !important;
+            border: 1px solid transparent !important;
+            transition: all 0.3s ease;
+        }
+        .active-dark-mode #chatModal #chat-input {
+            background: #0f172a !important;
+            color: #ffffff !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+        #chatModal #chat-input::placeholder {
+            color: rgba(0, 0, 0, 0.4) !important;
+        }
+        .active-dark-mode #chatModal #chat-input::placeholder {
+            color: rgba(255, 255, 255, 0.4) !important;
+        }
+
+        /* Balões de Mensagem */
+        .message-bubble {
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 70%;
+            margin-bottom: 15px;
+            font-size: 15px;
+            line-height: 1.5;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+        }
+        .message-bubble.sent {
+            background: var(--color-primary) !important;
+            color: #ffffff !important;
+            margin-left: auto;
+            border-radius: 18px 18px 4px 18px;
+        }
+        .message-bubble.received {
+            background: #ffffff !important;
+            color: #1c2132 !important;
+            margin-right: auto;
+            border-radius: 18px 18px 18px 4px;
+            border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        }
+        .active-dark-mode .message-bubble.received {
+            background: #1e293b !important;
+            color: #ffffff !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
@@ -251,8 +354,8 @@
     {% if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO' %}
     <div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content rbt-shadow-box rbt-gradient-border" style="border: none; overflow: hidden; border-radius: 16px; background: var(--color-white);">
-                <div class="modal-header" style="background: var(--color-primary); color: white; padding: 20px; border: none;">
+            <div class="modal-content rbt-shadow-box rbt-gradient-border">
+                <div class="modal-header">
                     <h5 class="modal-title" id="chatModalLabel">
                         <i class="feather-message-circle me-2"></i>
                         Chat com <span id="centro-chat-nome">{{centro.nome}}</span>
@@ -262,7 +365,7 @@
                 <div class="modal-body p-0">
                     <div class="chat-container" style="height: 550px; display: flex; flex-direction: column;">
                         <!-- Header do Chat -->
-                        <div class="chat-header p-3 border-bottom d-flex align-items-center justify-content-between" style="background: var(--color-white);">
+                        <div class="chat-header p-3 border-bottom d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center">
                                 <div class="chat-avatar me-3">
                                     {% if centro.perfil.imagem %}
@@ -274,27 +377,27 @@
                                     {% endif %}
                                 </div>
                                 <div class="chat-info">
-                                    <h6 class="mb-0" style="color: #1c2132; font-weight: 700;">{{centro.nome}}</h6>
+                                    <h6 class="mb-0">{{centro.nome}}</h6>
                                     <small class="text-success fw-bold" style="font-size: 11px;">Especialista Online</small>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Área de Mensagens -->
-                        <div class="chat-messages p-4 flex-grow-1" id="chat-messages" style="overflow-y: auto; background-color: #f0f2f5;">
+                        <div class="chat-messages p-4 flex-grow-1" id="chat-messages" style="overflow-y: auto;">
                             <div class="text-center py-5" id="loading-messages">
                                 <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
                             </div>
                         </div>
 
                         <!-- Input -->
-                        <div class="chat-input p-3 bg-white border-top shadow-lg">
+                        <div class="chat-input p-3 border-top">
                             <form id="chat-form" class="d-flex align-items-center gap-3">
                                 <input type="hidden" id="conversa-id">
                                 <div class="flex-grow-1">
-                                    <input type="text" id="chat-input" class="form-control rounded-pill border-0 px-4 py-3" style="background: #f0f2f5;" placeholder="Escreva a sua mensagem..." autocomplete="off">
+                                    <input type="text" id="chat-input" class="form-control rounded-pill border-0 px-4 py-3" placeholder="Escreva a sua mensagem..." autocomplete="off">
                                 </div>
-                                <button type="submit" class="btn btn-primary rounded-circle shadow-lg" style="width: 50px; height: 50px;">
+                                <button type="submit" class="btn btn-primary rounded-circle" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
                                     <i class="feather-send"></i>
                                 </button>
                             </form>
@@ -356,12 +459,9 @@
                     container.innerHTML = '';
                     
                     data.mensagens.forEach(msg => {
-                        const styleSent = "background: var(--color-primary); color: white; margin-left: auto; padding: 12px 16px; border-radius: 18px 18px 4px 18px; max-width: 70%; margin-bottom: 15px;";
-                        const styleReceived = "background: var(--color-white); color: var(--color-heading); margin-right: auto; padding: 12px 16px; border-radius: 18px 18px 18px 4px; border: 1px solid var(--color-border); max-width: 70%; margin-bottom: 15px;";
-                        
                         const div = document.createElement('div');
-                        div.style.cssText = msg.is_centro ? styleReceived : styleSent;
-                        div.innerHTML = `<div>${msg.mensagem}</div><small style="font-size:10px; opacity:0.7;">${msg.data_envio}</small>`;
+                        div.className = `message-bubble ${msg.is_centro ? 'received' : 'sent'}`;
+                        div.innerHTML = `<div>${msg.mensagem}</div><small style="font-size:10px; opacity:0.7; margin-top: 5px; align-self: flex-end;">${msg.data_envio}</small>`;
                         container.appendChild(div);
                     });
                     container.scrollTop = container.scrollHeight;
