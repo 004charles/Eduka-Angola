@@ -36,28 +36,6 @@ def candidatar_vaga(request, slug):
         
     return redirect('carreira:job_board')
 
-def skills_map(request):
-    """
-    Dashboard visual do Mapa de Empregabilidade.
-    Mostra estatísticas de competências em alta demanda.
-    """
-    total_vagas = Vaga.objects.filter(status='ABERTA').count()
-    
-    top_skills = Skill.objects.annotate(
-        num_vagas=Count('vagas', filter=Q(vagas__status='ABERTA'))
-    ).order_by('-num_vagas')[:10]
-    
-    critical_skills = Skill.objects.filter(nivel_demanda='CRITICA').annotate(
-        num_cursos=Count('cursos_relacionados')
-    ).order_by('num_cursos')[:5]
-    
-    context = {
-        'total_vagas': total_vagas,
-        'top_skills': top_skills,
-        'critical_skills': critical_skills,
-    }
-    return render(request, 'carreira/skills_map.html', context)
-
 def job_board(request):
     """
     Listagem de vagas de emprego.
