@@ -95,14 +95,6 @@ LANGUAGES = [
     ('pt', _('Português')),
     ('en', _('Inglês')),
     ('fr', _('Francês')),
-    ('es', _('Espanhol')),
-    ('it', _('Italiano')),
-    ('ro', _('Romeno')),
-    ('ar', _('Árabe')),
-    ('umb', _('Umbundo')),
-    ('kik', _('Kikongo')),
-    ('kmb', _('Kimbundu')),
-    ('cok', _('Chokwe')),
 ]
 
 LOCALE_PATHS = [

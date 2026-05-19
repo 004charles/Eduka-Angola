@@ -730,24 +730,8 @@
                                 
                                 <div class="row g-4">
                                     {% for estagio in estagios %}
-                                    <div class="col-lg-6 col-md-6 col-12">
-                                        <div class="rbt-card card-list-2 bg-white border border-color-light rbt-radius p-4 h-100 d-flex flex-column justify-content-between">
-                                            <div>
-                                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                                    <span class="badge bg-primary-opacity text-primary">{{ estagio.get_modalidade_display }}</span>
-                                                    <span class="text-muted small"><i class="feather-clock me-1"></i>{{ estagio.data_publicacao|date:"d M Y" }}</span>
-                                                </div>
-                                                <h5 class="title mb-2" style="font-size: 18px; font-weight: 700;">{{ estagio.titulo }}</h5>
-                                                <p class="text-muted small mb-3">{{ estagio.resumo|default:estagio.descricao|truncatechars:100 }}</p>
-                                                <div class="d-flex gap-3 text-muted small mb-3">
-                                                    <span><i class="feather-map-pin me-1"></i>{{ estagio.cidade }}</span>
-                                                    <span><i class="feather-briefcase me-1"></i>{{ estagio.get_tipo_remuneracao_display }}</span>
-                                                </div>
-                                            </div>
-                                            <div class="text-end">
-                                                <a href="{% url 'estagio:estagio_detalhe' estagio.slug %}" class="rbt-btn-link text-primary fw-bold">Ver Detalhes <i class="feather-arrow-right"></i></a>
-                                            </div>
-                                        </div>
+                                    <div class="col-lg-4 col-md-6 col-12">
+                                        {% include 'components/estagio_card.html' with estagio=estagio %}
                                     </div>
                                     {% empty %}
                                     <div class="col-12 text-center py-5">

@@ -1,6 +1,8 @@
-from django.shortcuts import render, get_object_or_404
-from estagio.models import Estagio, AreaEstagio
+from django.shortcuts import render, get_object_or_404, redirect
+from estagio.models import Estagio, AreaEstagio, InscricaoEstagio
 from django.db.models import Q
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 def estagios_por_area(request, area_slug=None):
     if area_slug:
@@ -28,10 +30,46 @@ def estagio_detalhe(request, slug):
     estagio.visualizacoes += 1
     estagio.save()
     
+    ja_candidatou = False
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
+        aluno = getattr(request.user, 'aluno_profile', None)
+        if aluno:
+            ja_candidatou = InscricaoEstagio.objects.filter(estagio=estagio, aluno=aluno).exists()
+            
     context = {
         'estagio': estagio,
+        'ja_candidatou': ja_candidatou,
     }
     return render(request, 'estagio/detalhe_estagio.html', context)
+
+@login_required
+def candidatar_estagio(request, slug):
+    if request.method == 'POST':
+        estagio = get_object_or_404(Estagio, slug=slug, ativo=True)
+        aluno = getattr(request.user, 'aluno_profile', None)
+        
+        if not aluno:
+            messages.error(request, "Apenas alunos podem se candidatar a vagas de estágio.")
+            return redirect('estagio:estagio_detalhe', slug=slug)
+            
+        if InscricaoEstagio.objects.filter(estagio=estagio, aluno=aluno).exists():
+            messages.warning(request, "Você já se candidatou a este estágio.")
+            return redirect('estagio:estagio_detalhe', slug=slug)
+            
+        carta_motivacao = request.POST.get('carta_motivacao', '')
+        curriculo = request.FILES.get('curriculo')
+        
+        InscricaoEstagio.objects.create(
+            estagio=estagio,
+            aluno=aluno,
+            carta_motivacao=carta_motivacao,
+            curriculo=curriculo
+        )
+        
+        messages.success(request, "Sua candidatura foi enviada com sucesso! O centro entrará em contacto.")
+        return redirect('estagio:estagio_detalhe', slug=slug)
+        
+    return redirect('estagio:lista_estagios')
 
 def lista_estagios(request):
     q = request.GET.get('q', '')

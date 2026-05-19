@@ -119,37 +119,8 @@
                 <!-- Listagem -->
                 <div class="row g-5">
                     {% for estagio in estagios %}
-                    <div class="col-lg-4 col-md-6">
-                        <div class="estagio-card">
-                            <div>
-                                <div class="d-flex align-items-center gap-3 mb--20">
-                                    {% if estagio.centro_formacao.perfil.imagem %}
-                                    <img src="{{ estagio.centro_formacao.perfil.imagem.url }}" alt="{{ estagio.centro_formacao.nome }}" class="company-logo">
-                                    {% else %}
-                                    <div class="company-logo d-flex align-items-center justify-content-center bg-success text-white" style="font-weight: bold; font-size: 24px;">
-                                        {{ estagio.centro_formacao.nome|slice:":1" }}
-                                    </div>
-                                    {% endif %}
-                                    <div>
-                                        <h6 class="mb--0">{{ estagio.centro_formacao.nome }}</h6>
-                                        <span class="text-muted" style="font-size: 12px;"><i class="feather-map-pin me-1"></i>{{ estagio.cidade }}, {{ estagio.provincia }}</span>
-                                    </div>
-                                </div>
-                                <h4 class="title mb--15" style="font-size: 20px; font-weight: 700;">{{ estagio.titulo }}</h4>
-                                <div class="d-flex gap-2 mb--15">
-                                    <span class="badge-modalidade">{{ estagio.get_modalidade_display }}</span>
-                                    <span class="badge bg-light text-dark" style="border-radius: 8px; font-size: 12px; display: flex; align-items: center;">{{ estagio.get_tipo_remuneracao_display }}</span>
-                                </div>
-                                <p class="description" style="font-size: 14px; line-height: 1.6; color: var(--color-body);">
-                                    {{ estagio.resumo|default:estagio.descricao|truncatechars:120 }}
-                                </p>
-                            </div>
-                            
-                            <div class="d-flex justify-content-between align-items-center mt--20 pt--15" style="border-top: 1px solid rgba(0,0,0,0.05);">
-                                <span class="text-muted" style="font-size: 12px;">Publicado em {{ estagio.data_publicacao|date:"d M Y" }}</span>
-                                <a href="{% url 'estagio:estagio_detalhe' estagio.slug %}" class="rbt-btn-link" style="color: #10b981; font-weight: 700;">{% trans "Ver Detalhes" %} <i class="feather-arrow-right"></i></a>
-                            </div>
-                        </div>
+                    <div class="col-lg-4 col-md-6 col-12">
+                        {% include 'components/estagio_card.html' with estagio=estagio %}
                     </div>
                     {% empty %}
                     <div class="col-lg-12 text-center py-5">

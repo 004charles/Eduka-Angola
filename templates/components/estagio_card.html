@@ -1,0 +1,65 @@
+{% load static %}
+{% load i18n %}
+{% load curso_filters %}
+
+{% comment %}
+  =====================================================================
+  CARD UNIVERSAL DE ESTÁGIO (PLATFORM STYLE) — EdukAngola
+  =====================================================================
+  Como usar:
+    {% include 'components/estagio_card.html' with estagio=estagio %}
+  =====================================================================
+{% endcomment %}
+
+<div class="rbt-card variation-01 rbt-hover h-100 d-flex flex-column" data-estagio-id="{{ estagio.id }}">
+    <div class="rbt-card-img">
+        <a href="{% url 'estagio:estagio_detalhe' slug=estagio.slug %}">
+            {% if estagio.imagem_principal %}
+                <img src="{{ estagio.imagem_principal.url }}" alt="{{ estagio.titulo }}" style="height: 180px; object-fit: cover; width: 100%;">
+            {% else %}
+                <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{ estagio.titulo }}" style="height: 180px; object-fit: cover; width: 100%;">
+            {% endif %}
+        </a>
+        <div class="rbt-badge-3 bg-gradient text-white" style="position: absolute; top: 10px; left: 10px; z-index: 2; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 10px;">
+            <i class="feather-briefcase"></i> {{ estagio.get_modalidade_display }}
+        </div>
+        {% if estagio.destaque %}
+            <div class="rbt-badge-3 bg-white text-primary" style="position: absolute; top: 10px; right: 10px; z-index: 2; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 10px;">
+                <i class="feather-star"></i> Destaque
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="rbt-card-body flex-grow-1 d-flex flex-column">
+        <div class="rbt-card-top">
+            <div class="rbt-review">
+                <span class="rating-count">{% if estagio.area %}{{ estagio.area.nome }}{% else %}Geral{% endif %}</span>
+                <span class="rbt-badge-5 bg-primary-opacity text-primary" style="margin-left: 10px; font-size: 10px; padding: 2px 6px;">
+                    <i class="feather-map-pin"></i> {{ estagio.cidade }}
+                </span>
+            </div>
+        </div>
+        
+        <h4 class="rbt-card-title">
+            <a href="{% url 'estagio:estagio_detalhe' slug=estagio.slug %}">{{ estagio.titulo }}</a>
+        </h4>
+
+        <ul class="rbt-meta mb--20">
+            <li><i class="feather-clock"></i>{{ estagio.duracao_meses }} meses</li>
+            <li><i class="feather-users"></i>{{ estagio.vagas_restantes }} vagas</li>
+            <li class="font-bold text-primary">
+                {% if estagio.tipo_remuneracao == 'remunerado' or estagio.tipo_remuneracao == 'bolsa_auxilio' %}
+                    {% if estagio.valor_remuneracao %}{{ estagio.valor_remuneracao|formata_kz }} Kz{% else %}Bolsa Auxílio{% endif %}
+                {% else %}
+                    {{ estagio.get_tipo_remuneracao_display }}
+                {% endif %}
+            </li>
+        </ul>
+
+        <div class="rbt-card-bottom mt-auto">
+            <a class="rbt-btn-link text-primary fw-bold" href="{% url 'estagio:estagio_detalhe' slug=estagio.slug %}">
+                Ver Vaga de Estágio<i class="feather-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</div>

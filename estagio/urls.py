@@ -6,4 +6,5 @@ app_name = 'estagio'
 urlpatterns = [
     path('estagios/', views.lista_estagios, name='lista_estagios'),
     path('estagio/<slug:slug>/', views.estagio_detalhe, name='estagio_detalhe'),
+    path('estagio/<slug:slug>/candidatar/', views.candidatar_estagio, name='candidatar_estagio'),
 ]
