@@ -47,12 +47,23 @@ def notificar_novo_anuncio(sender, instance, created, **kwargs):
     if created:
         notificar_seguidores(instance, tipo_conteudo='ANUNCIO')
 
+from django.db.models.signals import pre_save
+
+@receiver(pre_save, sender=Curso)
+def pre_salvar_curso(sender, instance, **kwargs):
+    """Rastreia se o estado de publicação do curso mudou"""
+    if instance.id:
+        try:
+            old_instance = Curso.objects.get(id=instance.id)
+            instance._was_publicado = old_instance.publicado
+        except Curso.DoesNotExist:
+            instance._was_publicado = False
+    else:
+        instance._was_publicado = False
+
 @receiver(post_save, sender=Curso)
 def notificar_novo_curso(sender, instance, created, **kwargs):
     """Notifica seguidores quando um novo curso é publicado (e marcado como publicado)"""
-    if created and instance.publicado:
+    was_publicado = getattr(instance, '_was_publicado', False)
+    if (created and instance.publicado) or (not created and instance.publicado and not was_publicado):
         notificar_seguidores(instance, tipo_conteudo='CURSO')
-    elif not created and instance.publicado:
-        # Aqui poderíamos checar se o estado 'publicado' mudou de False para True
-        # mas para simplificar, vamos notificar seguidores.
-        pass

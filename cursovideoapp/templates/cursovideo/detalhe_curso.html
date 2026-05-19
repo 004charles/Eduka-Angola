@@ -476,7 +476,7 @@
                             <div class="mt--40">
                                 <p class="small text-white opacity-50 mb-2">PARTILHAR ESTE CURSO:</p>
                                 <div class="d-flex gap-3 flex-wrap">
-                                    <a href="https://api.whatsapp.com/send?text=Olha%20s%C3%B3%20este%20curso%20incr%C3%ADvel%20na%20EdukAngola:%20{{ curso.titulo|urlencode }}.%20Confira%20aqui:%20{{ request.build_absolute_uri|urlencode }}{% if curso.capa %}%20-%20Imagem%20do%20Curso:%20{{ request.scheme }}://{{ request.get_host }}{{ curso.capa.url|urlencode }}{% endif %}" target="_blank" class="play-btn-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; font-size: 18px;" title="Partilhar no WhatsApp">
+                                    <a href="https://api.whatsapp.com/send?text=Olha%20s%C3%B3%20este%20curso%20incr%C3%ADvel%20na%20EdukAngola:%20{{ curso.titulo|urlencode }}.%20Confira%20aqui:%20{{ request.build_absolute_uri|urlencode }}" target="_blank" class="play-btn-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; font-size: 18px;" title="Partilhar no WhatsApp">
                                         <i class="fab fa-whatsapp"></i>
                                     </a>
                                     <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" target="_blank" class="play-btn-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; font-size: 18px;" title="Partilhar no LinkedIn">

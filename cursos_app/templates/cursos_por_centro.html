@@ -442,7 +442,7 @@
                             <i class="feather-share-2"></i> {% trans "Partilhar" %}
                         </button>
                         <div class="share-dropdown-menu">
-                            <a class="share-dropdown-item" href="https://api.whatsapp.com/send?text=Confira%20o%20perfil%20do%20centro%20{{ centro.nome|urlencode }}%20no%20Eduka-Angola:%20{{ request.build_absolute_uri|urlencode }}{% if centro.perfil.banner %}%20-%20Imagem%20da%20capa:%20{{ request.scheme }}://{{ request.get_host }}{{ centro.perfil.banner.url|urlencode }}{% elif centro.perfil.imagem %}%20-%20Logotipo:%20{{ request.scheme }}://{{ request.get_host }}{{ centro.perfil.imagem.url|urlencode }}{% endif %}" target="_blank">
+                            <a class="share-dropdown-item" href="https://api.whatsapp.com/send?text=Confira%20o%20perfil%20do%20centro%20{{ centro.nome|urlencode }}%20no%20Eduka-Angola:%20{{ request.build_absolute_uri|urlencode }}" target="_blank">
                                 <i class="fa fa-whatsapp text-success" style="font-size: 16px;"></i> WhatsApp
                             </a>
                             <a class="share-dropdown-item" href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri|urlencode }}" target="_blank">

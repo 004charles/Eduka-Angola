@@ -407,8 +407,22 @@ def analytics_mercado(request):
 
 def lista_cursos(request):
     """
-    Exibe a lista de todos os cursos em vídeo, incluindo destaques.
+    Exibe a lista de todos os cursos em vídeo, com suporte a busca.
     """
+    query = request.GET.get('q', '')
+    qs = Curso_video.objects.select_related('instrutor', 'categoria').all()
+    titulo = "Todos os Cursos"
+    
+    if query:
+        qs = qs.filter(Q(titulo__icontains=query) | Q(descricao__icontains=query))
+        titulo = f"Resultados para: '{query}'"
+        
+    context = {
+        'cursos': qs,
+        'titulo': titulo,
+        'query': query,
+    }
+    return render(request, 'cursovideo/sessao_lista.html', context)
 
 def detalhe_curso(request, slug):
     """

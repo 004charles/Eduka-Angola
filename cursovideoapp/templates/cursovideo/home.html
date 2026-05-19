@@ -85,6 +85,7 @@
             padding-left: 10%;
             max-width: 600px;
             z-index: 2;
+            margin-top: 150px; /* Push content down to avoid being covered by the absolute/sticky header */
         }
 
         .play-badge {
@@ -334,6 +335,56 @@
         body.active-dark-mode .logo-light {
             display: block !important;
         }
+
+        /* Styles for the new Search Bar */
+        .play-search-input {
+            width: 100%;
+            padding: 16px 20px 16px 70px !important;
+            background-color: var(--play-card-bg-dark);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: 50px;
+            color: #fff !important;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        body.active-light-mode .play-search-input {
+            background-color: var(--play-card-bg-light);
+            border: 2px solid rgba(0,0,0,0.08);
+            color: var(--play-text-light) !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        .play-search-input:focus {
+            outline: none;
+            border-color: var(--play-primary);
+            box-shadow: 0 0 15px rgba(124, 58, 237, 0.3);
+        }
+
+        .play-search-btn {
+            position: relative;
+            background-color: var(--play-primary);
+            border: none;
+            border-radius: 50px;
+            color: #fff;
+            padding: 16px 36px;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.3);
+            white-space: nowrap;
+        }
+
+        .play-search-btn:hover {
+            background-color: #6d28d9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(124, 58, 237, 0.5);
+        }
     </style>
 </head>
 
@@ -387,6 +438,25 @@
         </section>
         {% endwith %}
         {% endif %}
+
+        <!-- Barra de Pesquisa de Cursos -->
+        <section class="play-section" style="padding-top: 35px; padding-bottom: 25px;">
+            <div class="container-fluid" style="padding-left: 4%; padding-right: 4%;">
+                <form action="{% url 'cursovideoapp:lista_cursos' %}" method="GET">
+                    <div class="d-flex align-items-center gap-3" style="max-width: 750px; margin: 0 auto; width: 100%;">
+                        <div class="position-relative flex-grow-1">
+                            <input type="text" name="q" placeholder="O que queres aprender hoje? Busca por cursos em vídeo..." 
+                                   value="{{ query|default:'' }}"
+                                   class="play-search-input">
+                            <i class="feather-search position-absolute" style="left: 28px; top: 50%; transform: translateY(-50%); font-size: 20px; color: var(--play-meta-dark); pointer-events: none;"></i>
+                        </div>
+                        <button type="submit" class="play-search-btn">
+                            {% trans "Pesquisar" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
 
         {% if aluno_logado and continuar_a_ver %}
         <!-- Row: Continuar a Ver -->
