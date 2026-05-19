@@ -11,6 +11,11 @@ __pycache__/
 *.pyc
 *.log
 
+# === Templates e Exemplos Estáticos (Ignorados) ===
+static/edukangola exemplo/
+gestoreduka/templates/gestoreduka template/
+
+
 # === Frontend e Logs ===
 node_modules/
 npm-debug.log*
