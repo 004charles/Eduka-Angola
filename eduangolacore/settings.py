@@ -271,18 +271,10 @@ STORAGES = {
     },
 }
 
-STORAGES = {
-    "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.StaticFilesStorage",
-    },
-}
+
 
 # Legado para compatibilidade
-DEFAULT_FILE_STORAGE = STORAGES["default"]["BACKEND"]
-STATICFILES_STORAGE = STORAGES["staticfiles"]["BACKEND"]
+
 
 # Configuração do Cloudinary
 CLOUDINARY_STORAGE = {
@@ -293,7 +285,7 @@ CLOUDINARY_STORAGE = {
 }
 
 MEDIA_URL = '/media/'  # O django-cloudinary-storage cuidará de mapear isto para a nuvem
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
