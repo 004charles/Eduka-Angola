@@ -108,6 +108,11 @@ class CentroDeFormacao(gis_models.Model):
         default='MARKUP'
     )
     
+    # Dados Bancários (Repasse)
+    banco_nome = models.CharField(_('Nome do Banco'), max_length=100, blank=True, null=True, help_text="Ex: BAI, BFA, BIC...")
+    banco_iban = models.CharField(_('IBAN'), max_length=50, blank=True, null=True, help_text="AO06.0000.0000...")
+    banco_titular = models.CharField(_('Titular da Conta'), max_length=150, blank=True, null=True)
+    
     # Só utiliza PointField se o GIS estiver nos INSTALLED_APPS e o banco de dados suportar (não for sqlite e for postgis)
     if (HAS_GEODJANGO and 
         'django.contrib.gis' in settings.INSTALLED_APPS and 

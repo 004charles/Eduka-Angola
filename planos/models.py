@@ -15,6 +15,10 @@ class Plano(models.Model):
     destaque_home = models.BooleanField(_('Destaque na Página Principal'), default=False)
     acesso_relatorios = models.BooleanField(_('Acesso a Relatórios'), default=False)
     
+    # Novas Permissões
+    permite_inscricao_manual = models.BooleanField(_('Permite Inscrição Manual'), default=False)
+    permite_gerar_certificado = models.BooleanField(_('Permite Gerar Certificados'), default=False)
+    
     ativo = models.BooleanField(default=True)
     data_criacao = models.DateTimeField(auto_now_add=True)
 
@@ -52,6 +56,11 @@ class AssinaturaMembro(models.Model):
 
     @property
     def esta_ativa(self):
+        # Lógica preguiçosa de expiração
+        if self.status == 'ATIVO' and self.data_fim and self.data_fim <= timezone.now():
+            self.status = 'EXPIRADO'
+            self.save(update_fields=['status'])
+            
         return self.status == 'ATIVO' and (self.data_fim is None or self.data_fim > timezone.now())
 
     class Meta:

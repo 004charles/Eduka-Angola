@@ -336,27 +336,49 @@ def valida_cadastro_aluno(request):
         if is_ajax: return JsonResponse({'success': False, 'error': 'As senhas não coincidem.'})
         return redirect('/auth/registro_aluno/?status=5')
     
-    if Usuario.objects.filter(email=email).exists():
-        if is_ajax: return JsonResponse({'success': False, 'error': 'Este e-mail já está registado.'})
-        return redirect('/auth/registro_aluno/?status=3')
+    usuario_existente = Usuario.objects.filter(email=email).first()
     
+    if usuario_existente:
+        # Se o usuário já existe mas está INATIVO (ex: criado via inscrição manual no centro)
+        if not usuario_existente.is_active:
+            usuario_existente.nome = nome
+            usuario_existente.set_password(senha)
+            usuario_existente.save()
+            
+            # Garante que o Aluno existe e atualiza o nome
+            aluno, created = Aluno.objects.get_or_create(usuario=usuario_existente, defaults={'nome': nome, 'ativo': False})
+            if not created:
+                aluno.nome = nome
+                aluno.save()
+                
+            usuario = usuario_existente
+        else:
+            if is_ajax: return JsonResponse({'success': False, 'error': 'Este e-mail já está registado e ativo na plataforma.'})
+            return redirect('/auth/registro_aluno/?status=3')
+    else:
+        try:
+            # Criar Usuario Novo
+            usuario = Usuario.objects.create_user(
+                email=email,
+                nome=nome,
+                password=senha,
+                tipo_usuario='ALUNO'
+            )
+            usuario.is_active = False # Desativar até verificação de email
+            usuario.save()
+    
+            # Criar perfil de Aluno
+            aluno = Aluno.objects.create(
+                usuario=usuario,
+                nome=nome,
+                ativo=False
+            )
+        except Exception as e:
+            print(f"Erro ao cadastrar aluno: {e}")
+            if is_ajax: return JsonResponse({'success': False, 'error': 'Erro no servidor. Tente novamente.'})
+            return redirect('/auth/registro_aluno/?status=4')
+            
     try:
-        # Criar Usuario
-        usuario = Usuario.objects.create_user(
-            email=email,
-            nome=nome,
-            password=senha,
-            tipo_usuario='ALUNO'
-        )
-        usuario.is_active = False # Desativar até verificação de email
-        usuario.save()
-
-        # Criar perfil de Aluno
-        aluno = Aluno.objects.create(
-            usuario=usuario,
-            nome=nome,
-            ativo=False
-        )
         
         # Enviar código de verificação
         enviar_codigo_verificacao(email, 'CADASTRO')

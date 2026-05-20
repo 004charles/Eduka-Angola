@@ -191,6 +191,33 @@
                                                 <p class="text-xs text-secondary-foreground ps-7">O aluno paga apenas o valor do curso. Recebe o valor - taxa da plataforma.</p>
                                             </label>
                                         </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="h-px bg-border my-2 w-full"></div>
+
+                                    <!-- Bank Info -->
+                                    <h4 class="text-sm font-semibold text-foreground flex items-center gap-2">
+                                        <i class="ki-filled ki-wallet text-xl text-primary"></i>
+                                        {% trans "Informações Bancárias para Repasse" %}
+                                    </h4>
+                                    
+                                    <div class="flex flex-col gap-3">
+                                        <label class="text-xs font-bold text-secondary-foreground uppercase tracking-widest">Para onde devemos enviar o seu dinheiro?</label>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                            <div class="flex flex-col gap-2">
+                                                <label class="text-sm font-semibold text-foreground">Nome do Banco</label>
+                                                <input type="text" name="banco_nome" class="kt-input" placeholder="Ex: BAI, BFA, BIC..." value="{{ centro.banco_nome|default_if_none:'' }}">
+                                            </div>
+                                            <div class="flex flex-col gap-2">
+                                                <label class="text-sm font-semibold text-foreground">IBAN</label>
+                                                <input type="text" name="banco_iban" class="kt-input" placeholder="AO06.0000.0000..." value="{{ centro.banco_iban|default_if_none:'' }}">
+                                            </div>
+                                            <div class="flex flex-col gap-2 md:col-span-2">
+                                                <label class="text-sm font-semibold text-foreground">Titular da Conta</label>
+                                                <input type="text" name="banco_titular" class="kt-input" placeholder="Nome exato associado à conta" value="{{ centro.banco_titular|default_if_none:'' }}">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -885,7 +885,22 @@ class PreRequisitoCurso(models.Model):
         return self.texto
 
 
-# PublicoAlvoCurso removido conforme solicitação
+import uuid
 
+class CertificadoCurso(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    inscricao = models.OneToOneField('Inscricao', on_delete=models.CASCADE, related_name='certificado_emitido')
+    data_emissao = models.DateTimeField(_('Data de Emissão'), auto_now_add=True)
+    codigo_verificacao = models.CharField(_('Código de Verificação'), max_length=20, unique=True, blank=True)
+    
+    class Meta:
+        verbose_name = _('Certificado de Curso')
+        verbose_name_plural = _('Certificados de Cursos')
+        
+    def save(self, *args, **kwargs):
+        if not self.codigo_verificacao:
+            self.codigo_verificacao = str(uuid.uuid4()).split('-')[0].upper()
+        super().save(*args, **kwargs)
 
-
+    def __str__(self):
+        return f"Certificado - {self.inscricao.aluno.nome} - {self.inscricao.curso.titulo}"

@@ -479,7 +479,126 @@ def gerenciar_inscricoes(request):
         'pendentes_count': pendentes_count,
         'aprovadas_count': aprovadas_count,
         'rejeitadas_count': rejeitadas_count,
+        'cursos_ativos': Curso.objects.filter(centro=centro, status='PUBLICADO') if not filial else Curso.objects.filter(filial=filial, status='PUBLICADO')
     })
+
+from django.views.decorators.http import require_POST
+from usuarios.models import Aluno
+from django.contrib.auth import get_user_model
+
+@require_POST
+def matricular_aluno_manual(request):
+    """
+    Permite ao Gestor matricular manualmente um aluno num curso (venda offline).
+    O aluno fica registado na base de dados mas inativo para login na plataforma Eduka.
+    """
+    if not request.user.is_authenticated:
+        return redirect('login_gestor')
+        
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
+        
+    # Validar Assinatura e Permissão do Plano
+    assinatura = getattr(centro, 'assinatura', None)
+    if not assinatura or not assinatura.esta_ativa:
+        messages.error(request, "A sua assinatura não está ativa. Impossível realizar inscrições.")
+        return redirect('gerenciar_inscricoes')
+        
+    if not assinatura.plano or not assinatura.plano.permite_inscricao_manual:
+        messages.error(request, "O seu plano atual não permite realizar inscrições manuais.")
+        return redirect('gerenciar_assinatura')
+        
+    curso_id = request.POST.get('curso_id')
+    email = request.POST.get('email')
+    nome = request.POST.get('nome')
+    telefone = request.POST.get('telefone', '')
+    
+    try:
+        curso = Curso.objects.get(id=curso_id, centro=centro)
+        if filial and curso.filial != filial:
+            messages.error(request, "Permissão negada.")
+            return redirect('gerenciar_inscricoes')
+            
+        User = get_user_model()
+        user, user_created = User.objects.get_or_create(email=email, defaults={
+            'nome': nome,
+            'is_active': False, # Fica restrito apenas ao banco de dados do centro
+            'tipo_usuario': 'ALUNO',
+        })
+        
+        # Se o utilizador já existia e estava ativo, mantemos ativo.
+        # Se foi criado agora, ele nasce inativo para não subir na plataforma global.
+        
+        aluno, aluno_created = Aluno.objects.get_or_create(usuario=user, defaults={
+            'nome': nome,
+        })
+        
+        if Inscricao.objects.filter(aluno=aluno, curso=curso).exists():
+            messages.warning(request, f"O aluno {nome} já está matriculado neste curso.")
+        else:
+            Inscricao.objects.create(
+                aluno=aluno,
+                curso=curso,
+                status='A',
+                tipo_inscricao='PRESENCIAL' if curso.modalidade == 'PRESENCIAL' else 'ONLINE',
+                forma_pagamento='DINHEIRO',
+                valor_pago=0.00,
+                data_confirmacao=timezone.now(),
+                observacoes="Inscrição manual via Gestor (Offline)"
+            )
+            messages.success(request, f"Aluno {nome} matriculado com sucesso no curso {curso.titulo}!")
+            
+    except Exception as e:
+        messages.error(request, f"Erro ao matricular aluno: {str(e)}")
+        
+    return redirect('gerenciar_inscricoes')
+
+from cursos_app.models import CertificadoCurso
+
+@require_POST
+def emitir_certificado_manual(request, inscricao_id):
+    """
+    Gera um certificado para uma inscrição aprovada.
+    """
+    if not request.user.is_authenticated:
+        return redirect('login_gestor')
+        
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
+        
+    # Validar Assinatura e Permissão do Plano
+    assinatura = getattr(centro, 'assinatura', None)
+    if not assinatura or not assinatura.esta_ativa:
+        messages.error(request, "A sua assinatura não está ativa. Impossível emitir certificados.")
+        return redirect('gerenciar_inscricoes')
+        
+    if not assinatura.plano or not assinatura.plano.permite_gerar_certificado:
+        messages.error(request, "O seu plano atual não permite gerar certificados.")
+        return redirect('gerenciar_assinatura')
+        
+    try:
+        inscricoes_qs = Inscricao.objects.filter(curso__centro=centro, status='A')
+        if filial:
+            inscricoes_qs = inscricoes_qs.filter(curso__filial=filial)
+            
+        inscricao = inscricoes_qs.get(id=inscricao_id)
+        
+        # Cria ou devolve o existente
+        certificado, created = CertificadoCurso.objects.get_or_create(inscricao=inscricao)
+        
+        if created:
+            messages.success(request, f"Certificado para {inscricao.aluno.nome} gerado com sucesso!")
+        else:
+            messages.info(request, f"O certificado para {inscricao.aluno.nome} já estava emitido.")
+            
+    except Inscricao.DoesNotExist:
+        messages.error(request, "Inscrição não encontrada ou não está aprovada.")
+    except Exception as e:
+        messages.error(request, f"Erro ao emitir certificado: {str(e)}")
+        
+    return redirect('gerenciar_inscricoes')
 
 def gerenciar_assinatura(request):
     """
@@ -1312,6 +1431,14 @@ def atualizar_dados_pessoais(request):
             
             if 'metodo_precificacao' in request.POST:
                 centro.metodo_precificacao = request.POST.get('metodo_precificacao')
+                
+            # Dados Bancários
+            if 'banco_nome' in request.POST:
+                centro.banco_nome = request.POST.get('banco_nome')
+            if 'banco_iban' in request.POST:
+                centro.banco_iban = request.POST.get('banco_iban')
+            if 'banco_titular' in request.POST:
+                centro.banco_titular = request.POST.get('banco_titular')
             
             # Processar localização geográfica
             latitude = request.POST.get('latitude')
@@ -2606,6 +2733,22 @@ def criar_curso(request):
     centro, filial = get_gestor_context(request.user)
     if not centro:
         return redirect('login_gestor')
+        
+    # Verificação de Limite de Cursos do Plano Atual
+    try:
+        assinatura = centro.assinatura
+        if not assinatura.esta_ativa:
+            messages.warning(request, "O seu plano expirou! Por favor, renove a sua assinatura para criar novos cursos.")
+            return redirect('gerenciar_assinatura')
+            
+        limite = assinatura.plano.limite_cursos
+        total_cursos = centro.cursos.count()
+        if total_cursos >= limite:
+            messages.warning(request, f"Atingiu o limite de cursos do seu plano atual ({limite}). Antes de criar um novo curso, precisa de atualizar o seu plano.")
+            return redirect('gerenciar_assinatura')
+    except Exception:
+        messages.warning(request, "Não possui um plano ativo associado ao seu centro. Subscreva a um plano para criar cursos.")
+        return redirect('gerenciar_assinatura')
     
     if request.method == 'POST':
         form = CursoForm(request.POST, request.FILES, centro=centro)
@@ -2688,6 +2831,15 @@ def publicar_curso_final(request, curso_id):
         if filial and curso.filial != filial:
             messages.error(request, "Permissão negada.")
             return redirect('listar_cursos')
+            
+        try:
+            assinatura = centro.assinatura
+            if not assinatura.esta_ativa:
+                messages.warning(request, "Atenção: O seu plano expirou. Antes de publicar este curso, tem que renovar a sua assinatura.")
+                return redirect('gerenciar_assinatura')
+        except Exception:
+            messages.warning(request, "Atenção: Precisa de um plano ativo para publicar cursos.")
+            return redirect('gerenciar_assinatura')
             
         # Validações finais antes de publicar
         if not curso.titulo:
