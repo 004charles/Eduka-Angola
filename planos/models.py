@@ -57,3 +57,18 @@ class AssinaturaMembro(models.Model):
     class Meta:
         verbose_name = _('Assinatura de Membro')
         verbose_name_plural = _('Assinaturas de Membros')
+
+class VoucherPlano(models.Model):
+    codigo = models.CharField(_('Código de Ativação'), max_length=20, unique=True)
+    plano = models.ForeignKey(Plano, on_delete=models.CASCADE, related_name='vouchers')
+    centro = models.ForeignKey('gestoreduka.CentroDeFormacao', on_delete=models.CASCADE, related_name='vouchers')
+    usado = models.BooleanField(_('Usado'), default=False)
+    data_criacao = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = _('Voucher de Plano')
+        verbose_name_plural = _('Vouchers de Planos')
+        ordering = ['-data_criacao']
+
+    def __str__(self):
+        return f"{self.codigo} - {self.plano.nome} ({'Usado' if self.usado else 'Livre'})"

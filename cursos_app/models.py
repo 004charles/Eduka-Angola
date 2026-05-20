@@ -351,7 +351,8 @@ class Curso(models.Model):
         return len(turmas_insuficientes)
 
     @property
-    def preco_atual(self):
+    def preco_base_atual(self):
+        """Retorna o preço base definido pelo centro, sem aplicação de taxas"""
         agora = timezone.now()
         if (self.preco_promocional and 
             self.data_inicio_promocao and 
@@ -359,6 +360,36 @@ class Curso(models.Model):
             self.data_inicio_promocao <= agora <= self.data_fim_promocao):
             return self.preco_promocional
         return self.preco
+
+    @property
+    def preco_atual(self):
+        """Retorna o preço final exibido ao aluno (com Markup se aplicável)"""
+        preco_base = self.preco_base_atual
+        
+        if hasattr(self.centro, 'metodo_precificacao') and self.centro.metodo_precificacao == 'MARKUP':
+            from gestoreduka.models import ConfiguracaoPlataforma
+            from decimal import Decimal
+            try:
+                conf = ConfiguracaoPlataforma.load()
+                return preco_base * (Decimal('1.00') + (conf.taxa_markup / Decimal('100.00')))
+            except Exception:
+                pass
+        return preco_base
+
+    @property
+    def valor_repasse(self):
+        """Retorna o valor líquido que o Centro recebe (com Comissão descontada se aplicável)"""
+        preco_base = self.preco_base_atual
+        
+        if hasattr(self.centro, 'metodo_precificacao') and self.centro.metodo_precificacao == 'COMISSAO':
+            from gestoreduka.models import ConfiguracaoPlataforma
+            from decimal import Decimal
+            try:
+                conf = ConfiguracaoPlataforma.load()
+                return preco_base * (Decimal('1.00') - (conf.taxa_comissao / Decimal('100.00')))
+            except Exception:
+                pass
+        return preco_base
 
     @property
     def em_promocao(self):

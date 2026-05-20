@@ -65,6 +65,33 @@
                         </label>
                     </div>
                 </div>
+
+                <div class="separator separator-dashed border-border my-2"></div>
+
+                <div class="flex flex-col gap-3">
+                    <label class="text-xs font-semibold text-foreground uppercase tracking-wider">Método de Precificação <span class="text-danger">*</span></label>
+                    <p class="text-xs text-muted-foreground mb-1">Como deseja que as taxas da plataforma sejam cobradas?</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Opção Markup -->
+                        <label class="relative flex flex-col p-4 border border-border rounded-xl cursor-pointer hover:border-primary transition-all has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+                            <div class="flex items-center gap-3 mb-2">
+                                <input type="radio" name="metodo_precificacao" value="MARKUP" class="kt-radio kt-radio-primary" checked>
+                                <span class="font-bold text-foreground">Markup (Recomendado)</span>
+                            </div>
+                            <p class="text-xs text-secondary-foreground ps-7">O sistema adiciona a taxa (20%) ao valor do seu curso. O aluno paga a taxa, você recebe 100% do valor que definiu.</p>
+                        </label>
+
+                        <!-- Opção Comissão -->
+                        <label class="relative flex flex-col p-4 border border-border rounded-xl cursor-pointer hover:border-primary transition-all has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+                            <div class="flex items-center gap-3 mb-2">
+                                <input type="radio" name="metodo_precificacao" value="COMISSAO" class="kt-radio kt-radio-primary">
+                                <span class="font-bold text-foreground">Comissão</span>
+                            </div>
+                            <p class="text-xs text-secondary-foreground ps-7">O sistema desconta a taxa (20%) do repasse. O aluno vê apenas o valor base, mas você recebe o valor menos a comissão.</p>
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
 

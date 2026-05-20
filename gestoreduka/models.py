@@ -25,6 +25,27 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
 from django.contrib.auth.hashers import make_password, check_password
 
+class ConfiguracaoPlataforma(models.Model):
+    """
+    Configurações globais da plataforma, como taxas e comissões.
+    Implementado como Singleton (apenas um registo ativo).
+    """
+    taxa_markup = models.DecimalField(_('Taxa de Markup (%)'), max_digits=5, decimal_places=2, default=20.00)
+    taxa_comissao = models.DecimalField(_('Taxa de Comissão (%)'), max_digits=5, decimal_places=2, default=20.00)
+
+    class Meta:
+        verbose_name = _('Configuração da Plataforma')
+        verbose_name_plural = _('Configurações da Plataforma')
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
 class CategoriaCentro(models.Model):
     """Categorias globais para centros de formação (Tecnologia, Línguas, etc.)"""
     nome = models.CharField(_('Nome'), max_length=100, unique=True)
@@ -75,6 +96,17 @@ class CentroDeFormacao(gis_models.Model):
     
     # Novas Categorias
     categorias = models.ManyToManyField(CategoriaCentro, related_name='centros_principais', blank=True)
+    
+    METODO_PRECIFICACAO_CHOICES = [
+        ('MARKUP', 'Markup (Acréscimo no valor do curso)'),
+        ('COMISSAO', 'Comissão (Desconto no repasse)')
+    ]
+    metodo_precificacao = models.CharField(
+        _('Método de Precificação'), 
+        max_length=10, 
+        choices=METODO_PRECIFICACAO_CHOICES, 
+        default='MARKUP'
+    )
     
     # Só utiliza PointField se o GIS estiver nos INSTALLED_APPS e o banco de dados suportar (não for sqlite e for postgis)
     if (HAS_GEODJANGO and 

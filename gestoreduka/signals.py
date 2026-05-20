@@ -6,6 +6,7 @@ from django.conf import settings
 from .models import CentroDeFormacao, ConviteCentro, Evento, AnuncioCentro
 from cursos_app.models import Curso
 from cursos_app.utils import notificar_seguidores
+from planos.models import Plano, AssinaturaMembro
 import threading
 
 def _send_mail_async(subject, message, from_email, recipient_list):
@@ -18,6 +19,15 @@ def _send_mail_async(subject, message, from_email, recipient_list):
 def criar_convite(sender, instance, created, **kwargs):
     if created:
         convite = ConviteCentro.objects.create(centro=instance)
+        
+        # Atribuir Plano Gratuito (Preço 0) automaticamente
+        plano_gratuito = Plano.objects.filter(preco=0, ativo=True).first()
+        if plano_gratuito:
+            AssinaturaMembro.objects.create(
+                centro=instance,
+                plano=plano_gratuito,
+                status='ATIVO'
+            )
         try:
             site_domain = getattr(settings, 'SITE_DOMAIN', 'http://127.0.0.1:8000')
             link = f"{site_domain}{reverse('confirmar_cadastro', args=[convite.token])}"

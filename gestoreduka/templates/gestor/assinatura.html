@@ -35,7 +35,22 @@
         </div>
     </div>
 
-    <!-- Planos Disponíveis -->
+    <!-- Formulário de Ativação via Voucher -->
+    <div class="kt-card bg-background border border-border rounded-xl overflow-hidden mb-8">
+        <div class="p-6">
+            <h3 class="text-lg font-bold text-foreground mb-2">Tem um código de ativação?</h3>
+            <p class="text-sm text-muted-foreground mb-4">Insira o código recebido no seu e-mail para ativar o seu novo plano imediatamente.</p>
+            
+            <form action="{% url 'ativar_voucher' %}" method="POST" class="flex flex-col sm:flex-row gap-3">
+                {% csrf_token %}
+                <input type="text" name="codigo_voucher" class="kt-input flex-1 uppercase" placeholder="Ex: PLANO-15000-X7A9" required>
+                <button type="submit" class="kt-btn kt-btn-primary">
+                    <i class="ki-filled ki-check-circle"></i>
+                    Ativar Plano
+                </button>
+            </form>
+        </div>
+    </div>
     <div class="flex flex-col gap-4 mb-4">
         <h3 class="text-lg font-bold text-foreground">Planos Recomendados</h3>
         <p class="text-sm text-muted-foreground">Escolha um dos planos abaixo para desbloquear novas funcionalidades e aumentar o limite de cursos e alunos.</p>
@@ -52,24 +67,49 @@
                 </div>
                 
                 <ul class="w-full flex flex-col gap-3 mb-8 text-left">
-                    {% for feature in plano.features.all|default:plano.descricao_features_list %}
-                        <li class="flex items-center gap-2 text-sm text-secondary-foreground">
-                            <i class="ki-filled ki-check text-success"></i>
-                            {{ feature }}
-                        </li>
-                    {% endfor %}
-                    <!-- Caso o modelo não tenha lista de features, usamos a descrição -->
-                    {% if not plano.features.all %}
-                        <li class="flex items-start gap-2 text-sm text-secondary-foreground">
-                            <i class="ki-filled ki-information text-info mt-0.5"></i>
-                            <span class="line-clamp-4">{{ plano.descricao|default:"Consultar detalhes comerciais." }}</span>
-                        </li>
+                    <li class="flex items-center gap-2 text-sm text-secondary-foreground">
+                        <i class="ki-filled ki-check text-success"></i>
+                        Até {{ plano.limite_cursos }} cursos ativos
+                    </li>
+                    <li class="flex items-center gap-2 text-sm text-secondary-foreground">
+                        <i class="ki-filled ki-check text-success"></i>
+                        Alcance geográfico de {{ plano.alcance_km }} km
+                    </li>
+                    
+                    {% if plano.selo_verificacao %}
+                    <li class="flex items-center gap-2 text-sm text-secondary-foreground">
+                        <i class="ki-filled ki-check text-success"></i>
+                        Selo de Verificação
+                    </li>
                     {% endif %}
+                    
+                    {% if plano.destaque_home %}
+                    <li class="flex items-center gap-2 text-sm text-secondary-foreground">
+                        <i class="ki-filled ki-check text-success"></i>
+                        Destaque na Página Principal
+                    </li>
+                    {% endif %}
+                    
+                    {% if plano.acesso_relatorios %}
+                    <li class="flex items-center gap-2 text-sm text-secondary-foreground">
+                        <i class="ki-filled ki-check text-success"></i>
+                        Acesso a Relatórios Avançados
+                    </li>
+                    {% endif %}
+                    
+                    <li class="flex items-start gap-2 text-sm text-secondary-foreground pt-2 border-t border-border mt-2">
+                        <i class="ki-filled ki-information text-info mt-0.5"></i>
+                        <span class="line-clamp-4">{{ plano.descricao|default:"Consultar detalhes comerciais." }}</span>
+                    </li>
                 </ul>
 
-                <button class="kt-btn kt-btn-primary w-full justify-center">
-                    Alterar para este Plano
-                </button>
+                <form action="{% url 'solicitar_voucher' plano.id %}" method="POST" class="w-full">
+                    {% csrf_token %}
+                    <button type="submit" class="kt-btn kt-btn-primary w-full justify-center">
+                        <i class="ki-filled ki-wallet"></i>
+                        Alterar para este Plano
+                    </button>
+                </form>
             </div>
         </div>
         {% endfor %}

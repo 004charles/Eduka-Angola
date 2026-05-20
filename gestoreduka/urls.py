@@ -28,6 +28,8 @@ urlpatterns = [
     path('cursos/<int:curso_id>/publicar-final/', views.publicar_curso_final, name='publicar_curso_final'),
     path('inscricoes/', views.gerenciar_inscricoes, name='gerenciar_inscricoes'),
     path('assinatura/', views.gerenciar_assinatura, name='gerenciar_assinatura'),
+    path('assinatura/solicitar-voucher/<int:plano_id>/', views.solicitar_voucher, name='solicitar_voucher'),
+    path('assinatura/ativar-voucher/', views.ativar_voucher, name='ativar_voucher'),
     
     # Analytics
     path('analytics/', views.analytics_centro, name='analytics_centro'),
