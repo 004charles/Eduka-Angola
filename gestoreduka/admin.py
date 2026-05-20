@@ -59,6 +59,7 @@ def enviar_convite_centro(modeladmin, request, queryset):
     from django.utils.html import strip_tags
     from django.conf import settings
     from .models import ConviteCentro
+    from core.email_utils import enviar_email_brevo
     import uuid
 
     invites_sent = 0
@@ -79,10 +80,17 @@ def enviar_convite_centro(modeladmin, request, queryset):
             })
             text_content = strip_tags(html_content)
             
-            email = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [centro.email])
-            email.attach_alternative(html_content, "text/html")
-            email.send()
-            invites_sent += 1
+            sucesso = enviar_email_brevo(
+                to_email=centro.email,
+                subject=subject,
+                html_content=html_content,
+                text_content=text_content
+            )
+            
+            if sucesso:
+                invites_sent += 1
+            else:
+                modeladmin.message_user(request, f"Erro ao enviar para {centro.email}: falha na API do Brevo. Verifique os logs.", level='error')
         except Exception as e:
             modeladmin.message_user(request, f"Erro ao enviar para {centro.email}: {str(e)}", level='error')
     
