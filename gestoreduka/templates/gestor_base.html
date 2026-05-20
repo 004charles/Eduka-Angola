@@ -104,8 +104,12 @@ License: https://keenthemes.com/metronic/tailwind/docs/getting-started/license
     <!-- Container -->
     <div class="kt-container-fluid flex items-center justify-between flex-wrap gap-3">
      <a href="{% url 'centro_dashboard' %}">
+      {% if centro and centro.perfil.imagem %}
+      <img class="min-h-[30px] max-w-[40px] rounded-md object-contain" src="{{ centro.perfil.imagem.url }}"/>
+      {% else %}
       <img class="dark:hidden min-h-[30px]" src="{% static 'metronic/assets/media/app/mini-logo-gray.svg' %}"/>
       <img class="hidden dark:block min-h-[30px]" src="{% static 'metronic/assets/media/app/mini-logo-gray-dark.svg' %}"/>
+      {% endif %}
      </a>
      <button class="kt-btn kt-btn-icon kt-btn-ghost -me-2" data-kt-drawer-toggle="#sidebar">
       <i class="ki-filled ki-menu">
@@ -123,8 +127,12 @@ License: https://keenthemes.com/metronic/tailwind/docs/getting-started/license
      <div class="flex flex-col items-stretch shrink-0 gap-5 py-5 w-[70px] border-e border-input" id="sidebar_primary">
       <div class="hidden lg:flex items-center justify-center shrink-0" id="sidebar_primary_header">
        <a href="{% url 'centro_dashboard' %}">
+        {% if centro and centro.perfil.imagem %}
+        <img class="min-h-[30px] max-w-[40px] rounded-md object-contain" src="{{ centro.perfil.imagem.url }}"/>
+        {% else %}
         <img class="dark:hidden min-h-[30px]" src="{% static 'metronic/assets/media/app/mini-logo-gray.svg' %}"/>
         <img class="hidden dark:block min-h-[30px]" src="{% static 'metronic/assets/media/app/mini-logo-gray-dark.svg' %}"/>
+        {% endif %}
        </a>
       </div>
       <div class="flex grow shrink-0" id="sidebar_primary_content">
