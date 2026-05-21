@@ -3928,6 +3928,25 @@ def editar_anuncio(request, anuncio_id):
     })
 
 @login_required
+def excluir_anuncio(request, anuncio_id):
+    """Excluir um anúncio institucional existente"""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
+        
+    from gestoreduka.models import AnuncioCentro
+    anuncio = get_object_or_404(AnuncioCentro, id=anuncio_id, centro=centro)
+    
+    if request.method == 'POST':
+        anuncio.delete()
+        messages.success(request, 'Anúncio eliminado com sucesso!')
+        return redirect('listar_anuncios')
+        
+    # Se for GET, podemos redirecionar para listar ou mostrar página de confirmação
+    return redirect('listar_anuncios')
+
+
+@login_required
 def gerenciar_comentarios(request):
     """Listagem de comentários dos alunos nos cursos do centro"""
     centro, filial = get_gestor_context(request.user)

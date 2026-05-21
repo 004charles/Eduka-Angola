@@ -87,6 +87,7 @@ urlpatterns = [
     path('dashboard/anuncios/', views.listar_anuncios, name='listar_anuncios'),
     path('dashboard/anuncios/criar/', views.criar_anuncio, name='criar_anuncio'),
     path('dashboard/anuncios/editar/<int:anuncio_id>/', views.editar_anuncio, name='editar_anuncio'),
+    path('dashboard/anuncios/excluir/<int:anuncio_id>/', views.excluir_anuncio, name='excluir_anuncio'),
     
     # Comentários e Dúvidas
     path('comentarios/', views.gerenciar_comentarios, name='gerenciar_comentarios'),
