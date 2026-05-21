@@ -173,6 +173,10 @@ License: https://keenthemes.com/metronic/tailwind/docs/getting-started/license
          <span class="kt-menu-icon"><i class="ki-filled ki-notification-on text-lg"></i></span>
          <span class="kt-tooltip" data-kt-tooltip-content="true">Comunicados & Seguidores</span>
         </a>
+        <a title="Comunidade: Ver alunos que seguem o centro" class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&_i]:text-primary hover:border-border [.active&]:bg-background [.active&]:[&_i]:text-primary [.active&]:border-border {% if 'seguidores' in request.resolver_match.url_name %}active{% endif %}" data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'listar_seguidores' %}">
+         <span class="kt-menu-icon"><i class="ki-filled ki-people text-lg"></i></span>
+         <span class="kt-tooltip" data-kt-tooltip-content="true">Seguidores do Centro</span>
+        </a>
         <a title="Chat com Alunos: Conversas privadas" class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&_i]:text-primary hover:border-border [.active&]:bg-background [.active&]:[&_i]:text-primary [.active&]:border-border {% if 'chat_centro' in request.resolver_match.url_name %}active{% endif %}" data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'chat_centro' %}">
          <span class="kt-menu-icon"><i class="ki-filled ki-messages text-lg"></i></span>
          <span class="kt-tooltip" data-kt-tooltip-content="true">Chat com Alunos</span>

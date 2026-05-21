@@ -417,6 +417,40 @@ def centro_dashboard(request):
     
     return render(request, 'centro_dashboard.html', context)
 
+@login_required
+def listar_seguidores(request):
+    """
+    Lista os alunos que seguem o centro de formação.
+    """
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
+        
+    from gestoreduka.models import CentroSeguimento
+    seguidores = CentroSeguimento.objects.filter(centro=centro).select_related('aluno__usuario', 'aluno__perfil').order_by('-data_seguimento')
+    
+    # Pesquisa simples
+    q = request.GET.get('q', '')
+    if q:
+        seguidores = seguidores.filter(
+            Q(aluno__usuario__nome__icontains=q) | 
+            Q(aluno__usuario__email__icontains=q)
+        )
+        
+    # Paginação
+    paginator = Paginator(seguidores, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'gestor/seguidores.html', {
+        'centro': centro,
+        'filial': filial,
+        'page_obj': page_obj,
+        'q': q,
+        'total_seguidores': seguidores.count()
+    })
+
+@login_required
 def gerenciar_inscricoes(request):
     """
     View para o gestor gerenciar todas as inscrições do centro ou filial.
@@ -427,6 +461,7 @@ def gerenciar_inscricoes(request):
     centro, filial = get_gestor_context(request.user)
     if not centro:
         return redirect('login_gestor')
+
         
     if request.method == 'POST':
         action = request.POST.get('action')

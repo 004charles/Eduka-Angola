@@ -4,6 +4,7 @@ from gestoreduka import views
 
 urlpatterns = [
     path('dashboard/centro/', views.centro_dashboard, name='centro_dashboard'),
+    path('dashboard/seguidores/', views.listar_seguidores, name='listar_seguidores'),
     path('perfil/', views.perfil_institucional_interno, name='perfil_institucional_interno'),
     path("cadastro/confirmar/<uuid:token>/", views.confirmar_cadastro, name="confirmar_cadastro"),
     path('login_gestor/', views.login_gestor, name='login_gestor'),
