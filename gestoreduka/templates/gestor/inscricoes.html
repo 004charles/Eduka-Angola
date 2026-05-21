@@ -4,271 +4,290 @@
 {% block title %}Inscrições - {{ centro.nome }}{% endblock %}
 
 {% block content %}
-<div class="d-flex flex-column flex-column-fluid">
-    <!-- Toolbar -->
-    <div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
-        <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
-            <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
-                <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
-                    Gestão de Inscrições
-                </h1>
-                <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
-                    <li class="breadcrumb-item text-muted">
-                        <a href="{% url 'centro_dashboard' %}" class="text-muted text-hover-primary">Dashboard</a>
-                    </li>
-                    <li class="breadcrumb-item"><span class="bullet bg-gray-500 w-5px h-2px"></span></li>
-                    <li class="breadcrumb-item text-muted">Inscrições</li>
-                </ul>
-            </div>
-        </div>
+<div class="flex flex-col gap-5 lg:gap-7.5">
+
+  <!-- Toolbar / Breadcrumb -->
+  <div class="flex items-center justify-between gap-3 flex-wrap">
+    <div>
+      <h1 class="text-xl font-semibold text-mono">Controlo de Matrículas</h1>
+      <div class="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+        <a href="{% url 'centro_dashboard' %}" class="hover:text-primary">Painel</a>
+        <i class="ki-filled ki-right text-xs"></i>
+        <span>Inscrições</span>
+      </div>
+    </div>
+    <!-- Botão Matricular Manualmente -->
+    <button class="kt-btn kt-btn-primary kt-btn-sm gap-2"
+            onclick="document.getElementById('modal_matricula').classList.remove('hidden')">
+      <i class="ki-filled ki-plus-squared text-base"></i>
+      Matricular Aluno
+    </button>
+  </div>
+
+  <!-- Cards de Resumo -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Total -->
+    <div class="kt-card p-5 flex flex-col gap-2">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total</span>
+        <span class="inline-flex items-center justify-center size-8 rounded-lg bg-accent/60">
+          <i class="ki-filled ki-people text-foreground text-base"></i>
+        </span>
+      </div>
+      <span class="text-2xl font-bold text-mono">{{ total_count }}</span>
+    </div>
+    <!-- Pendentes -->
+    <div class="kt-card p-5 flex flex-col gap-2">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Pendentes</span>
+        <span class="inline-flex items-center justify-center size-8 rounded-lg bg-yellow-500/10">
+          <i class="ki-filled ki-time text-yellow-500 text-base"></i>
+        </span>
+      </div>
+      <span class="text-2xl font-bold text-yellow-500">{{ pendentes_count }}</span>
+    </div>
+    <!-- Aprovadas -->
+    <div class="kt-card p-5 flex flex-col gap-2">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Aprovadas</span>
+        <span class="inline-flex items-center justify-center size-8 rounded-lg bg-green-500/10">
+          <i class="ki-filled ki-check-circle text-green-500 text-base"></i>
+        </span>
+      </div>
+      <span class="text-2xl font-bold text-green-500">{{ aprovadas_count }}</span>
+    </div>
+    <!-- Rejeitadas -->
+    <div class="kt-card p-5 flex flex-col gap-2">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Rejeitadas</span>
+        <span class="inline-flex items-center justify-center size-8 rounded-lg bg-red-500/10">
+          <i class="ki-filled ki-cross-circle text-red-500 text-base"></i>
+        </span>
+      </div>
+      <span class="text-2xl font-bold text-red-500">{{ rejeitadas_count }}</span>
+    </div>
+  </div>
+
+  <!-- Tabela Principal -->
+  <div class="kt-card">
+    <div class="kt-card-header flex items-center justify-between gap-3 flex-wrap px-5 py-4 border-b border-border">
+      <!-- Filtros de Status -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <a href="?" class="kt-btn kt-btn-sm {% if not selected_status %}kt-btn-primary{% else %}kt-btn-outline{% endif %}">Todas</a>
+        <a href="?status=P" class="kt-btn kt-btn-sm {% if selected_status == 'P' %}kt-btn-warning{% else %}kt-btn-outline{% endif %}">Pendentes</a>
+        <a href="?status=A" class="kt-btn kt-btn-sm {% if selected_status == 'A' %}kt-btn-success{% else %}kt-btn-outline{% endif %}">Aprovadas</a>
+        <a href="?status=R" class="kt-btn kt-btn-sm {% if selected_status == 'R' %}kt-btn-danger{% else %}kt-btn-outline{% endif %}">Rejeitadas</a>
+      </div>
+      <!-- Pesquisa -->
+      <div class="relative">
+        <i class="ki-filled ki-magnifier absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm"></i>
+        <input type="text" class="kt-input ps-9 h-9 w-52" placeholder="Pesquisar inscrição..." id="searchInput">
+      </div>
     </div>
 
-    <!-- Content -->
-    <div id="kt_app_content" class="app-content flex-column-fluid">
-        <div id="kt_app_content_container" class="app-container container-xxl">
-            <!-- Glassmorphic Card for Inscrições -->
-            <div class="card glass-card border-0 shadow-sm mb-5 mb-xl-10">
-                <div class="card-header border-0 pt-6">
-                    <div class="card-title">
-                        <div class="d-flex align-items-center position-relative my-1">
-                            <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-5">
-                                <span class="path1"></span><span class="path2"></span>
-                            </i>
-                            <input type="text" data-kt-inscricoes-table-filter="search" class="form-control form-control-solid w-250px ps-13 glass-input" placeholder="Pesquisar inscrição..." />
-                        </div>
-                    </div>
-                    <div class="card-toolbar">
-                        <!-- Status Tabs/Filters -->
-                        <div class="d-flex align-items-center gap-2 gap-lg-3">
-                            <a href="?status=" class="btn btn-sm {% if not selected_status %}btn-primary{% else %}btn-light-primary glass-btn{% endif %} fw-bold">Todas</a>
-                            <a href="?status=P" class="btn btn-sm {% if selected_status == 'P' %}btn-warning{% else %}btn-light-warning glass-btn{% endif %} fw-bold">Pendentes</a>
-                            <a href="?status=A" class="btn btn-sm {% if selected_status == 'A' %}btn-success{% else %}btn-light-success glass-btn{% endif %} fw-bold">Aprovadas</a>
-                            <a href="?status=R" class="btn btn-sm {% if selected_status == 'R' %}btn-danger{% else %}btn-light-danger glass-btn{% endif %} fw-bold">Rejeitadas</a>
-                        </div>
-                    </div>
+    <div class="kt-card-body p-0">
+      <div class="kt-scrollable-x-auto">
+        <table class="kt-table kt-table-border align-middle" id="tabelaInscricoes">
+          <thead>
+            <tr>
+              <th class="min-w-[220px] px-5 py-3.5">Aluno</th>
+              <th class="min-w-[180px] px-5 py-3.5">Curso</th>
+              <th class="min-w-[120px] px-5 py-3.5">Data</th>
+              <th class="min-w-[100px] px-5 py-3.5">Estado</th>
+              <th class="min-w-[120px] px-5 py-3.5 text-end">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for inscricao in inscricoes %}
+            <tr>
+              <!-- Aluno -->
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="size-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shrink-0 border border-primary/20 uppercase">
+                    {{ inscricao.aluno.nome|slice:":1" }}
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-sm font-semibold text-mono">{{ inscricao.aluno.nome }}</span>
+                    <span class="text-xs text-muted-foreground">{{ inscricao.aluno.usuario.email }}</span>
+                  </div>
                 </div>
-
-                <div class="card-body py-4">
-                    <div class="table-responsive">
-                        <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_table_inscricoes">
-                            <thead>
-                                <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                    <th class="min-w-250px">Aluno</th>
-                                    <th class="min-w-150px">Curso / Turma</th>
-                                    <th class="min-w-125px">Data</th>
-                                    <th class="min-w-125px">Status</th>
-                                    <th class="text-end min-w-100px">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-gray-600 fw-semibold">
-                                {% for inscricao in inscricoes %}
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="symbol symbol-45px me-5">
-                                                {% if inscricao.aluno.user.foto %}
-                                                    <img src="{{ inscricao.aluno.user.foto.url }}" alt="Avatar" class="rounded-circle shadow-sm object-fit-cover">
-                                                {% else %}
-                                                    <div class="symbol-label rounded-circle bg-light-primary text-primary fs-3 fw-bold glass-avatar">
-                                                        {{ inscricao.aluno.user.first_name|first|upper }}
-                                                    </div>
-                                                {% endif %}
-                                            </div>
-                                            <div class="d-flex flex-column">
-                                                <a href="{% url 'dossie_aluno' centro.slug inscricao.aluno.id %}" class="text-gray-900 text-hover-primary fs-6 fw-bold mb-1">
-                                                    {{ inscricao.aluno.user.get_full_name }}
-                                                </a>
-                                                <span class="text-muted fs-7">{{ inscricao.aluno.user.email }}</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex flex-column">
-                                            <span class="text-gray-900 fw-bold">{{ inscricao.turma.curso.titulo }}</span>
-                                            <span class="text-muted fs-7">{{ inscricao.turma.nome }}</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="badge badge-light fw-bold glass-badge text-gray-700">
-                                            {{ inscricao.data_inscricao|date:"d M Y" }}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        {% if inscricao.status == 'P' %}
-                                            <div class="badge badge-light-warning fw-bold fs-7 glass-badge-warning pulse pulse-warning">
-                                                <span class="pulse-ring"></span>
-                                                Pendente
-                                            </div>
-                                        {% elif inscricao.status == 'A' %}
-                                            <div class="badge badge-light-success fw-bold fs-7 glass-badge-success">Aprovada</div>
-                                        {% else %}
-                                            <div class="badge badge-light-danger fw-bold fs-7 glass-badge-danger">Rejeitada</div>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-end">
-                                        <a href="{% url 'dossie_aluno' centro.slug inscricao.aluno.id %}" class="btn btn-light btn-active-light-primary btn-sm glass-btn shadow-sm">
-                                            Ver Dossiê
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="5" class="text-center text-muted py-10 fs-5">
-                                        <div class="d-flex flex-column align-items-center">
-                                            <i class="ki-duotone ki-information-5 fs-3x text-muted mb-3"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
-                                            Nenhuma inscrição encontrada.
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <!-- Pagination -->
-                    {% if inscricoes.has_other_pages %}
-                    <div class="d-flex justify-content-between align-items-center flex-wrap pt-5">
-                        <div class="fs-6 fw-semibold text-gray-700">
-                            Página {{ inscricoes.number }} de {{ inscricoes.paginator.num_pages }}
-                        </div>
-                        <ul class="pagination glass-pagination">
-                            {% if inscricoes.has_previous %}
-                                <li class="page-item previous">
-                                    <a href="?page={{ inscricoes.previous_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}" class="page-link"><i class="previous"></i></a>
-                                </li>
-                            {% else %}
-                                <li class="page-item previous disabled"><span class="page-link"><i class="previous"></i></span></li>
-                            {% endif %}
-                            
-                            {% for i in inscricoes.paginator.page_range %}
-                                {% if inscricoes.number == i %}
-                                    <li class="page-item active"><span class="page-link">{{ i }}</span></li>
-                                {% else %}
-                                    <li class="page-item"><a href="?page={{ i }}{% if selected_status %}&status={{ selected_status }}{% endif %}" class="page-link">{{ i }}</a></li>
-                                {% endif %}
-                            {% endfor %}
-                            
-                            {% if inscricoes.has_next %}
-                                <li class="page-item next">
-                                    <a href="?page={{ inscricoes.next_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}" class="page-link"><i class="next"></i></a>
-                                </li>
-                            {% else %}
-                                <li class="page-item next disabled"><span class="page-link"><i class="next"></i></span></li>
-                            {% endif %}
-                        </ul>
-                    </div>
-                    {% endif %}
+              </td>
+              <!-- Curso -->
+              <td class="px-5 py-4">
+                <div class="flex flex-col">
+                  <span class="text-sm font-medium text-mono">{{ inscricao.curso.titulo }}</span>
+                  {% if inscricao.turma_escolhida %}
+                    <span class="text-xs text-muted-foreground">{{ inscricao.turma_escolhida.nome }}</span>
+                  {% else %}
+                    <span class="text-xs text-muted-foreground">Sem turma</span>
+                  {% endif %}
                 </div>
-            </div>
-        </div>
+              </td>
+              <!-- Data -->
+              <td class="px-5 py-4">
+                <span class="text-sm text-secondary-foreground">{{ inscricao.data_inscricao|date:"d M Y" }}</span>
+              </td>
+              <!-- Status -->
+              <td class="px-5 py-4">
+                {% if inscricao.status == 'P' %}
+                  <span class="kt-badge kt-badge-warning kt-badge-outline kt-badge-sm">Pendente</span>
+                {% elif inscricao.status == 'A' %}
+                  <span class="kt-badge kt-badge-success kt-badge-outline kt-badge-sm">Aprovada</span>
+                {% elif inscricao.status == 'N' %}
+                  <span class="kt-badge kt-badge-danger kt-badge-outline kt-badge-sm">Rejeitada</span>
+                {% else %}
+                  <span class="kt-badge kt-badge-secondary kt-badge-outline kt-badge-sm">{{ inscricao.get_status_display }}</span>
+                {% endif %}
+              </td>
+              <!-- Ações -->
+              <td class="px-5 py-4 text-end">
+                <div class="flex items-center justify-end gap-2">
+                  {% if inscricao.status == 'P' %}
+                  <form method="post" class="inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="inscricao_id" value="{{ inscricao.id }}">
+                    <input type="hidden" name="action" value="approve">
+                    <button type="submit" class="kt-btn kt-btn-success kt-btn-sm kt-btn-icon" title="Aprovar">
+                      <i class="ki-filled ki-check text-base"></i>
+                    </button>
+                  </form>
+                  <form method="post" class="inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="inscricao_id" value="{{ inscricao.id }}">
+                    <input type="hidden" name="action" value="reject">
+                    <button type="submit" class="kt-btn kt-btn-danger kt-btn-sm kt-btn-icon" title="Rejeitar">
+                      <i class="ki-filled ki-cross text-base"></i>
+                    </button>
+                  </form>
+                  {% endif %}
+                  {% if inscricao.status == 'A' %}
+                  <form method="post" action="{% url 'emitir_certificado_manual' inscricao.id %}" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="kt-btn kt-btn-outline kt-btn-sm gap-1.5" title="Emitir Certificado">
+                      <i class="ki-filled ki-medal-star text-sm"></i>
+                      Certificado
+                    </button>
+                  </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="px-5 py-12 text-center">
+                <div class="flex flex-col items-center gap-3">
+                  <div class="size-14 rounded-full bg-accent/60 flex items-center justify-center">
+                    <i class="ki-filled ki-people text-2xl text-muted-foreground"></i>
+                  </div>
+                  <p class="text-sm font-medium text-muted-foreground">Nenhuma inscrição encontrada.</p>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
+
+    <!-- Paginação -->
+    {% if inscricoes.has_other_pages %}
+    <div class="kt-card-footer flex items-center justify-between gap-3 px-5 py-4 border-t border-border">
+      <span class="text-sm text-muted-foreground">
+        Página {{ inscricoes.number }} de {{ inscricoes.paginator.num_pages }}
+      </span>
+      <div class="flex items-center gap-1">
+        {% if inscricoes.has_previous %}
+          <a href="?page={{ inscricoes.previous_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}"
+             class="kt-btn kt-btn-icon kt-btn-ghost kt-btn-sm">
+            <i class="ki-filled ki-left text-xs"></i>
+          </a>
+        {% else %}
+          <button class="kt-btn kt-btn-icon kt-btn-ghost kt-btn-sm" disabled>
+            <i class="ki-filled ki-left text-xs"></i>
+          </button>
+        {% endif %}
+
+        {% for i in inscricoes.paginator.page_range %}
+          {% if inscricoes.number == i %}
+            <button class="kt-btn kt-btn-primary kt-btn-sm size-9">{{ i }}</button>
+          {% else %}
+            <a href="?page={{ i }}{% if selected_status %}&status={{ selected_status }}{% endif %}"
+               class="kt-btn kt-btn-ghost kt-btn-sm size-9">{{ i }}</a>
+          {% endif %}
+        {% endfor %}
+
+        {% if inscricoes.has_next %}
+          <a href="?page={{ inscricoes.next_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}"
+             class="kt-btn kt-btn-icon kt-btn-ghost kt-btn-sm">
+            <i class="ki-filled ki-right text-xs"></i>
+          </a>
+        {% else %}
+          <button class="kt-btn kt-btn-icon kt-btn-ghost kt-btn-sm" disabled>
+            <i class="ki-filled ki-right text-xs"></i>
+          </button>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
 </div>
 
-<style>
-/* Glassmorphism Additions */
-.glass-card {
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.5) !important;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07) !important;
-}
+<!-- Modal Matricular Aluno Manualmente -->
+<div id="modal_matricula" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+  <div class="kt-card w-full max-w-md mx-4">
+    <div class="kt-card-header px-5 py-4 border-b border-border flex items-center justify-between">
+      <h3 class="text-base font-semibold text-mono">Matricular Aluno Manualmente</h3>
+      <button class="kt-btn kt-btn-icon kt-btn-ghost kt-btn-sm"
+              onclick="document.getElementById('modal_matricula').classList.add('hidden')">
+        <i class="ki-filled ki-cross text-base"></i>
+      </button>
+    </div>
+    <form method="post" action="{% url 'matricular_aluno_manual' %}">
+      {% csrf_token %}
+      <div class="kt-card-body px-5 py-5 flex flex-col gap-4">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium text-mono">Nome completo</label>
+          <input type="text" name="nome" class="kt-input" placeholder="Nome do aluno" required>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium text-mono">Email</label>
+          <input type="email" name="email" class="kt-input" placeholder="email@exemplo.com" required>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium text-mono">Telefone (opcional)</label>
+          <input type="tel" name="telefone" class="kt-input" placeholder="+244 9xx xxx xxx">
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium text-mono">Curso</label>
+          <select name="curso_id" class="kt-select" required>
+            <option value="">Selecionar curso...</option>
+            {% for curso in cursos_ativos %}
+              <option value="{{ curso.id }}">{{ curso.titulo }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="kt-card-footer px-5 py-4 border-t border-border flex items-center justify-end gap-3">
+        <button type="button" class="kt-btn kt-btn-outline kt-btn-sm"
+                onclick="document.getElementById('modal_matricula').classList.add('hidden')">Cancelar</button>
+        <button type="submit" class="kt-btn kt-btn-primary kt-btn-sm">
+          <i class="ki-filled ki-check text-sm"></i>
+          Matricular
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
 
-[data-bs-theme="dark"] .glass-card {
-    background: rgba(30, 30, 35, 0.65);
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
-}
-
-.glass-input {
-    background: rgba(255, 255, 255, 0.6) !important;
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(0,0,0,0.05) !important;
-}
-[data-bs-theme="dark"] .glass-input {
-    background: rgba(0, 0, 0, 0.2) !important;
-    border: 1px solid rgba(255,255,255,0.05) !important;
-    color: #fff !important;
-}
-
-.glass-btn {
-    background: rgba(255, 255, 255, 0.8) !important;
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(0,0,0,0.05) !important;
-    transition: all 0.3s ease;
-}
-[data-bs-theme="dark"] .glass-btn {
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(255,255,255,0.05) !important;
-    color: #cdcdde !important;
-}
-.glass-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-.glass-avatar {
-    background: linear-gradient(135deg, rgba(241, 241, 249, 0.8), rgba(255, 255, 255, 0.4));
-    border: 1px solid rgba(255, 255, 255, 0.6);
-}
-[data-bs-theme="dark"] .glass-avatar {
-    background: linear-gradient(135deg, rgba(43, 43, 64, 0.8), rgba(30, 30, 42, 0.4));
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.glass-badge {
-    background: rgba(241, 241, 249, 0.8);
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(0,0,0,0.03);
-}
-[data-bs-theme="dark"] .glass-badge {
-    background: rgba(43, 43, 64, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.glass-badge-warning {
-    background: rgba(255, 199, 0, 0.15) !important;
-    border: 1px solid rgba(255, 199, 0, 0.3) !important;
-    color: #f1bc00 !important;
-}
-.glass-badge-success {
-    background: rgba(80, 205, 137, 0.15) !important;
-    border: 1px solid rgba(80, 205, 137, 0.3) !important;
-    color: #50cd89 !important;
-}
-.glass-badge-danger {
-    background: rgba(241, 65, 108, 0.15) !important;
-    border: 1px solid rgba(241, 65, 108, 0.3) !important;
-    color: #f1416c !important;
-}
-
-.glass-pagination .page-item .page-link {
-    background: rgba(255,255,255,0.6);
-    backdrop-filter: blur(5px);
-    border-radius: 8px;
-    margin: 0 4px;
-    border: 1px solid rgba(0,0,0,0.05);
-}
-.glass-pagination .page-item.active .page-link {
-    background: #009ef7;
-    color: white;
-    border: none;
-    box-shadow: 0 4px 10px rgba(0, 158, 247, 0.3);
-}
-[data-bs-theme="dark"] .glass-pagination .page-item .page-link {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.05);
-}
-
-.table tr {
-    transition: background-color 0.2s ease;
-}
-.table tr:hover {
-    background-color: rgba(0, 0, 0, 0.015);
-}
-[data-bs-theme="dark"] .table tr:hover {
-    background-color: rgba(255, 255, 255, 0.015);
-}
-</style>
-
+<script>
+  // Pesquisa rápida na tabela
+  document.getElementById('searchInput').addEventListener('input', function() {
+    const query = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#tabelaInscricoes tbody tr');
+    rows.forEach(row => {
+      const text = row.innerText.toLowerCase();
+      row.style.display = text.includes(query) ? '' : 'none';
+    });
+  });
+</script>
 {% endblock %}
