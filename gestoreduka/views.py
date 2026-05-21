@@ -479,7 +479,7 @@ def gerenciar_inscricoes(request):
         'pendentes_count': pendentes_count,
         'aprovadas_count': aprovadas_count,
         'rejeitadas_count': rejeitadas_count,
-        'cursos_ativos': Curso.objects.filter(centro=centro, status='PUBLICADO') if not filial else Curso.objects.filter(filial=filial, status='PUBLICADO')
+        'cursos_ativos': Curso.objects.filter(centro=centro, publicado=True, ativo=True) if not filial else Curso.objects.filter(filial=filial, publicado=True, ativo=True)
     })
 
 from django.views.decorators.http import require_POST
