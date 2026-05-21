@@ -201,6 +201,15 @@
                                 <i class="feather-search"></i>
                             </a>
                         </li>
+                        
+                        {% if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO' %}
+                        <li class="access-icon">
+                            <a class="rbt-round-btn relative" href="{% url 'aluno_chat' %}" style="position: relative;">
+                                <i class="feather-bell"></i>
+                                <span class="badge-count hidden" style="position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white;">0</span>
+                            </a>
+                        </li>
+                        {% endif %}
 
                         {% if request.user.is_authenticated %}
                         <li class="access-icon rbt-user-wrapper right-align-dropdown">
@@ -812,4 +821,116 @@
 {% endif %}
 {% endif %}
 
+{% if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO' %}
+<!-- Notification Toast Container para Aluno -->
+<div id="toast-container-aluno" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;"></div>
 
+<script>
+    let ultimaContagemAluno = 0;
+    
+    function verificarNotificacoesAluno() {
+        fetch('/api/notificacoes/nao-lidas/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.count > ultimaContagemAluno) {
+                    const novas = data.count - ultimaContagemAluno;
+                    if (data.notificacoes && data.notificacoes.length > 0) {
+                        const ult = data.notificacoes[0];
+                        mostrarToastAluno(ult.titulo, ult.mensagem, ult.link);
+                    }
+                    tocarSomNotificacaoAluno();
+                }
+                ultimaContagemAluno = data.count;
+                
+                const badges = document.querySelectorAll('.badge-count');
+                badges.forEach(badge => {
+                    if (data.count > 0) {
+                        badge.textContent = data.count > 9 ? '9+' : data.count;
+                        badge.classList.remove('hidden');
+                        badge.style.display = 'flex';
+                    } else {
+                        badge.classList.add('hidden');
+                        badge.style.display = 'none';
+                    }
+                });
+            })
+            .catch(error => console.error('Erro ao verificar notificações:', error));
+    }
+
+    function mostrarToastAluno(titulo, mensagem, link) {
+        const container = document.getElementById('toast-container-aluno');
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            background: #fff;
+            border-left: 4px solid var(--color-primary);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 6px;
+            padding: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            max-width: 320px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            transform: translateY(20px);
+            opacity: 0;
+        `;
+        
+        toast.innerHTML = `
+            <div style="color: var(--color-primary); font-size: 20px;">
+                <i class="feather-bell"></i>
+            </div>
+            <div style="flex: 1; overflow: hidden;">
+                <h4 style="margin: 0; font-size: 14px; font-weight: bold; color: #333;">${titulo}</h4>
+                <p style="margin: 4px 0 0; font-size: 12px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${mensagem}</p>
+            </div>
+            <button style="background: none; border: none; color: #999; cursor: pointer; padding: 0;" onclick="event.stopPropagation(); this.parentElement.remove();">
+                <i class="feather-x"></i>
+            </button>
+        `;
+        
+        toast.onclick = () => {
+            window.location.href = link;
+        };
+
+        container.appendChild(toast);
+        
+        requestAnimationFrame(() => {
+            toast.style.transform = 'translateY(0)';
+            toast.style.opacity = '1';
+        });
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 5000);
+    }
+
+    function tocarSomNotificacaoAluno() {
+        try {
+            const context = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = context.createOscillator();
+            const gainNode = context.createGain();
+            
+            osc.connect(gainNode);
+            gainNode.connect(context.destination);
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, context.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1200, context.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0, context.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.1, context.currentTime + 0.05);
+            gainNode.gain.linearRampToValueAtTime(0, context.currentTime + 0.2);
+            
+            osc.start(context.currentTime);
+            osc.stop(context.currentTime + 0.2);
+        } catch(e) {}
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        verificarNotificacoesAluno();
+        setInterval(verificarNotificacoesAluno, 30000);
+    });
+</script>
+{% endif %}

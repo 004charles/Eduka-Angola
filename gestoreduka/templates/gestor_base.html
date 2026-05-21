@@ -169,16 +169,18 @@ License: https://keenthemes.com/metronic/tailwind/docs/getting-started/license
          <span class="kt-menu-icon"><i class="ki-filled ki-chart-pie-4 text-lg"></i></span>
          <span class="kt-tooltip" data-kt-tooltip-content="true">Métricas de Impacto</span>
         </a>
-        <a title="Comunicados & Seguidores: Anúncios para os alunos" class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&_i]:text-primary hover:border-border [.active&]:bg-background [.active&]:[&_i]:text-primary [.active&]:border-border {% if 'anuncio' in request.resolver_match.url_name %}active{% endif %}" data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'listar_anuncios' %}">
+        <a id="nav-comunicados" title="Comunicados & Seguidores: Anúncios para os alunos" class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&_i]:text-primary hover:border-border [.active&]:bg-background [.active&]:[&_i]:text-primary [.active&]:border-border relative {% if 'anuncio' in request.resolver_match.url_name %}active{% endif %}" data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'listar_anuncios' %}">
          <span class="kt-menu-icon"><i class="ki-filled ki-notification-on text-lg"></i></span>
+         <span class="badge-count hidden absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-red-500 text-white rounded-full text-[10px] w-4 h-4 flex items-center justify-center">0</span>
          <span class="kt-tooltip" data-kt-tooltip-content="true">Comunicados & Seguidores</span>
         </a>
         <a title="Comunidade: Ver alunos que seguem o centro" class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&_i]:text-primary hover:border-border [.active&]:bg-background [.active&]:[&_i]:text-primary [.active&]:border-border {% if 'seguidores' in request.resolver_match.url_name %}active{% endif %}" data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'listar_seguidores' %}">
          <span class="kt-menu-icon"><i class="ki-filled ki-people text-lg"></i></span>
          <span class="kt-tooltip" data-kt-tooltip-content="true">Seguidores do Centro</span>
         </a>
-        <a title="Chat com Alunos: Conversas privadas" class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&_i]:text-primary hover:border-border [.active&]:bg-background [.active&]:[&_i]:text-primary [.active&]:border-border {% if 'chat_centro' in request.resolver_match.url_name %}active{% endif %}" data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'chat_centro' %}">
+        <a id="nav-chat" title="Chat com Alunos: Conversas privadas" class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&_i]:text-primary hover:border-border [.active&]:bg-background [.active&]:[&_i]:text-primary [.active&]:border-border relative {% if 'chat_centro' in request.resolver_match.url_name %}active{% endif %}" data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'chat_centro' %}">
          <span class="kt-menu-icon"><i class="ki-filled ki-messages text-lg"></i></span>
+         <span class="badge-count hidden absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-red-500 text-white rounded-full text-[10px] w-4 h-4 flex items-center justify-center">0</span>
          <span class="kt-tooltip" data-kt-tooltip-content="true">Chat com Alunos</span>
         </a>
         <a title="Dúvidas & Comentários: Responder perguntas nos fóruns" class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&_i]:text-primary hover:border-border [.active&]:bg-background [.active&]:[&_i]:text-primary [.active&]:border-border {% if 'comentario' in request.resolver_match.url_name %}active{% endif %}" data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'gerenciar_comentarios' %}">
@@ -2081,6 +2083,108 @@ License: https://keenthemes.com/metronic/tailwind/docs/getting-started/license
   <script src="{% static 'metronic/assets/vendors/apexcharts/apexcharts.min.js' %}">
   </script>
   <script src="{% static 'metronic/assets/js/widgets/general.js' %}">
+  </script>
+  <!-- Notification Toast Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-[9999] flex flex-col gap-2"></div>
+
+  <script>
+    // Polling de Notificações
+    let ultimaContagem = 0;
+    
+    function verificarNotificacoes() {
+        fetch('/api/notificacoes/nao-lidas/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.count > ultimaContagem) {
+                    // Nova notificação recebida
+                    const novas = data.count - ultimaContagem;
+                    if (data.notificacoes && data.notificacoes.length > 0) {
+                        const ult = data.notificacoes[0];
+                        mostrarToast(ult.titulo, ult.mensagem, ult.link);
+                    }
+                    tocarSomNotificacao();
+                }
+                ultimaContagem = data.count;
+                
+                // Atualizar badges
+                const badges = document.querySelectorAll('.badge-count');
+                badges.forEach(badge => {
+                    if (data.count > 0) {
+                        badge.textContent = data.count > 9 ? '9+' : data.count;
+                        badge.classList.remove('hidden');
+                    } else {
+                        badge.classList.add('hidden');
+                    }
+                });
+            })
+            .catch(error => console.error('Erro ao verificar notificações:', error));
+    }
+
+    function mostrarToast(titulo, mensagem, link) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-lg p-4 flex items-start gap-3 transform transition-all duration-300 translate-y-10 opacity-0 max-w-sm cursor-pointer';
+        
+        toast.innerHTML = `
+            <div class="flex-shrink-0 text-primary">
+                <i class="ki-filled ki-notification-on text-2xl"></i>
+            </div>
+            <div class="flex-1">
+                <h4 class="text-sm font-bold text-gray-900 dark:text-gray-100">${titulo}</h4>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">${mensagem}</p>
+            </div>
+            <button class="text-gray-400 hover:text-gray-600 focus:outline-none" onclick="event.stopPropagation(); this.parentElement.remove();">
+                <i class="ki-filled ki-cross"></i>
+            </button>
+        `;
+        
+        toast.onclick = () => {
+            window.location.href = link;
+        };
+
+        container.appendChild(toast);
+        
+        // Animate in
+        requestAnimationFrame(() => {
+            toast.classList.remove('translate-y-10', 'opacity-0');
+        });
+
+        // Remove after 5 seconds
+        setTimeout(() => {
+            toast.classList.add('opacity-0');
+            setTimeout(() => toast.remove(), 300);
+        }, 5000);
+    }
+
+    function tocarSomNotificacao() {
+        // Toca um som muito leve e agradável (opcional). 
+        // No navegador moderno pode requerer interação prévia do usuário.
+        try {
+            const context = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = context.createOscillator();
+            const gainNode = context.createGain();
+            
+            osc.connect(gainNode);
+            gainNode.connect(context.destination);
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, context.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1200, context.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0, context.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.1, context.currentTime + 0.05);
+            gainNode.gain.linearRampToValueAtTime(0, context.currentTime + 0.2);
+            
+            osc.start(context.currentTime);
+            osc.stop(context.currentTime + 0.2);
+        } catch(e) {}
+    }
+
+    // Iniciar polling a cada 30 segundos
+    document.addEventListener('DOMContentLoaded', () => {
+        verificarNotificacoes();
+        setInterval(verificarNotificacoes, 30000);
+    });
   </script>
   <!-- End of Scripts -->
   {% block extra_js %}{% endblock %}

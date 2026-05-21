@@ -22,6 +22,56 @@ import random
 import json
 
 
+@login_required
+def api_notificacoes_nao_lidas(request):
+    """Retorna o número de notificações não lidas e as últimas 5 notificações para o polling do frontend."""
+    user = request.user
+    dados = {
+        'count': 0,
+        'notificacoes': []
+    }
+    
+    if user.tipo_usuario in ['GESTOR', 'GESTOR_FILIAL']:
+        from gestoreduka.models import NotificacaoGestor, Filial
+        centro = None
+        if user.tipo_usuario == 'GESTOR':
+            centro = getattr(user, 'centro_formacao', None)
+        else:
+            filial = Filial.objects.filter(usuario=user).first()
+            if filial:
+                centro = filial.centro_principal
+                
+        if centro:
+            nao_lidas = NotificacaoGestor.objects.filter(centro=centro, lida=False)
+            dados['count'] = nao_lidas.count()
+            for notif in nao_lidas.order_by('-data_criacao')[:5]:
+                dados['notificacoes'].append({
+                    'id': notif.id,
+                    'titulo': notif.titulo,
+                    'mensagem': notif.mensagem,
+                    'link': notif.link or '#',
+                    'tipo': notif.tipo,
+                    'data': notif.data_criacao.strftime('%d/%m/%Y %H:%M')
+                })
+                
+    elif user.tipo_usuario == 'ALUNO':
+        from usuarios.models import NotificacaoAluno
+        aluno = getattr(user, 'aluno_profile', None)
+        if aluno:
+            nao_lidas = NotificacaoAluno.objects.filter(aluno=aluno, lida=False)
+            dados['count'] = nao_lidas.count()
+            for notif in nao_lidas.order_by('-data_criacao')[:5]:
+                dados['notificacoes'].append({
+                    'id': notif.id,
+                    'titulo': notif.titulo,
+                    'mensagem': notif.mensagem,
+                    'link': notif.link or '#',
+                    'tipo': notif.tipo,
+                    'data': notif.data_criacao.strftime('%d/%m/%Y %H:%M')
+                })
+                
+    return JsonResponse(dados)
+
 
 def conta_aluno(request):
     """

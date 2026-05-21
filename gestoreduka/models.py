@@ -223,6 +223,19 @@ class CentroSeguimento(models.Model):
     def __str__(self):
         return f"{self.aluno.nome} segue {self.centro.nome}"
 
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        if is_new:
+            from gestoreduka.models import NotificacaoGestor
+            NotificacaoGestor.objects.create(
+                centro=self.centro,
+                titulo=f"Novo Seguidor: {self.aluno.nome}",
+                mensagem=f"O aluno {self.aluno.nome} começou a seguir o seu centro.",
+                link="/gestoreduka/inscricoes/", # Pode ser o link para listar seguidores no futuro
+                tipo='SEGUIMENTO'
+            )
+
 
 class ConviteCentro(models.Model):
     """
@@ -721,21 +734,31 @@ class Mensagem(models.Model):
         is_new = self.pk is None
         super().save(*args, **kwargs)
         
-        # Notificar o aluno se a mensagem for do centro e for uma nova mensagem real
-        if is_new and self.remetente_centro and not self.digitando:
-            from cursos_app.utils import notificar_seguidores
-            # Usamos o hub mas com lógica específica para conversa
-            from usuarios.models import NotificacaoAluno
-            NotificacaoAluno.objects.create(
-                aluno=self.conversa.aluno,
-                titulo=f"Nova mensagem de {self.remetente_centro.nome}",
-                mensagem=self.mensagem[:100] + ("..." if len(self.mensagem) > 100 else ""),
-                link="/usuarios/aluno/chat/", # Link genérico para o chat do aluno
-                tipo='CHAT'
-            )
+        if is_new and not self.digitando:
             # Atualizar timestamp da conversa
             self.conversa.ultima_mensagem = timezone.now()
             self.conversa.save(update_fields=['ultima_mensagem'])
+            
+            if self.remetente_centro:
+                # Notificar o aluno se a mensagem for do centro
+                from usuarios.models import NotificacaoAluno
+                NotificacaoAluno.objects.create(
+                    aluno=self.conversa.aluno,
+                    titulo=f"Nova mensagem de {self.remetente_centro.nome}",
+                    mensagem=self.mensagem[:100] + ("..." if len(self.mensagem) > 100 else ""),
+                    link="/usuarios/aluno_chat/",
+                    tipo='CHAT'
+                )
+            elif self.remetente_aluno:
+                # Notificar o Gestor se a mensagem for do aluno
+                from gestoreduka.models import NotificacaoGestor
+                NotificacaoGestor.objects.create(
+                    centro=self.conversa.centro,
+                    titulo=f"Nova mensagem de {self.remetente_aluno.nome}",
+                    mensagem=self.mensagem[:100] + ("..." if len(self.mensagem) > 100 else ""),
+                    link="/gestoreduka/chat/", 
+                    tipo='MENSAGEM'
+                )
 
     def __str__(self):
         return f"Mensagem de {self.remetente} - {self.mensagem[:20]}"
@@ -778,6 +801,8 @@ class NotificacaoGestor(models.Model):
         ('INSCRICAO', _('Nova Inscrição')),
         ('PAGAMENTO', _('Confirmação de Pagamento')),
         ('SISTEMA', _('Mensagem do Sistema')),
+        ('MENSAGEM', _('Nova Mensagem')),
+        ('SEGUIMENTO', _('Novo Seguidor')),
     ]
 
     centro = models.ForeignKey(CentroDeFormacao, on_delete=models.CASCADE, related_name='notificacoes_gestor')
