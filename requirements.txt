@@ -77,3 +77,4 @@ zope.interface==8.3
 zopfli==0.4.1
 cloudinary==1.44.2
 django-cloudinary-storage==0.3.0
+django-anymail[brevo]
