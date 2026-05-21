@@ -16,9 +16,7 @@ urlpatterns = [
     path('enviar_depoimento/', views.enviar_depoimento, name='enviar_depoimento'),
     path('editar_perfil/', views.editar_perfil, name='editar_perfil'),
     path('atualizar_localizacao/', views.atualizar_localizacao, name='atualizar_localizacao'),
-    path('aluno_chat/', views.aluno_chat, name='aluno_chat'),
-    path('aluno_chat/mensagens/<int:conversa_id>/ajax/', views.get_mensagens_aluno_ajax, name='get_mensagens_aluno_ajax'),
-    
+
     # API de Notificações
     path('api/notificacoes/nao-lidas/', views.api_notificacoes_nao_lidas, name='api_notificacoes_nao_lidas'),
 

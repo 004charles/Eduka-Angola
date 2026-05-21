@@ -783,68 +783,6 @@ def configuracao_user(request):
             
         return redirect('aluno_configuracoes')
 
-from gestoreduka.models import Conversa, Mensagem
-
-@aluno_logado_e_centros
-def aluno_chat(request):
-    """
-    Renderiza a interface de chat para o aluno.
-    """
-    aluno = getattr(request.user, 'aluno_profile', None)
-    if not aluno:
-        return redirect('/auth/login_aluno')
-        
-    conversas = Conversa.objects.filter(aluno=aluno).order_by('-ultima_mensagem')
-    
-    conversa_id = request.GET.get('conversa_id')
-    conversa_atual = None
-    mensagens = []
-    
-    if conversa_id:
-        try:
-            conversa_atual = conversas.get(id=conversa_id)
-            mensagens = conversa_atual.mensagens.all().order_by('data_envio')
-        except Conversa.DoesNotExist:
-            pass
-            
-    cursos_centro = []
-    if conversa_atual:
-        cursos_centro = conversa_atual.centro.cursos.filter(ativo=True, publicado=True).order_by('-destaque', '-data_criacao')[:6]
-            
-    return render(request, 'aluno_chat.html', {
-        'aluno_logado': True,
-        'aluno_nome': request.aluno_obj.nome if hasattr(request, 'aluno_obj') else aluno.nome,
-        'perfil': getattr(request, 'perfil', None),
-        'centros': getattr(request, 'centros', []),
-        'conversas': conversas,
-        'conversa_atual': conversa_atual,
-        'mensagens': mensagens,
-        'cursos_centro': cursos_centro,
-    })
-
-@login_required
-def get_mensagens_aluno_ajax(request, conversa_id):
-    """
-    Retorna apenas o fragmento HTML das mensagens para o polling do portal do aluno.
-    """
-    aluno = getattr(request.user, 'aluno_profile', None)
-    if not aluno:
-        return JsonResponse({'error': 'Acesso negado'}, status=403)
-        
-    conversa = get_object_or_404(Conversa, id=conversa_id, aluno=aluno)
-    mensagens = conversa.mensagens.all().order_by('data_envio')
-    
-    # NOVO: Carregar cursos para o catálogo inicial
-    cursos_centro = conversa.centro.cursos.filter(ativo=True, publicado=True).order_by('-destaque', '-data_criacao')[:6]
-    
-    # Marcar mensagens recebidas do centro como lidas
-    mensagens.filter(remetente_centro__isnull=False, lida=False).update(lida=True)
-    
-    return render(request, 'include/aluno_messages_fragment.html', {
-        'mensagens': mensagens,
-        'conversa_atual': conversa,
-        'cursos_centro': cursos_centro,
-    })
 
 @login_required
 def aluno_onboarding(request):
