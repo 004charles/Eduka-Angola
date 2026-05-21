@@ -1,0 +1,234 @@
+{% load i18n %}
+{% load static %}
+
+<div class="app-sidebar-inner">
+    <!-- Informação Rápida do Aluno no Topo do Menu -->
+    <div class="sidebar-user-area text-center mt--20 mb--20">
+        <div class="thumbnail rbt-avatars size-lg mx-auto mb-2">
+            {% if perfil.foto_de_perfil %}
+                <img src="{{ perfil.foto_de_perfil.url }}" alt="{{ aluno_nome }}">
+            {% elif perfil.imagem %}
+                <img src="{{ perfil.imagem.url }}" alt="{{ aluno_nome }}">
+            {% else %}
+                <div class="student-avatar-initial" style="width:60px; height:60px; border-radius:50%; background:var(--color-primary); color:white; display:flex; align-items:center; justify-content:center; font-size:24px; margin:0 auto;">{{ aluno_nome.0|upper }}</div>
+            {% endif %}
+        </div>
+        <h6 class="title mb-0 sidebar-student-name">{{ aluno_nome }}</h6>
+        <span class="rbt-badge-5 bg-primary-opacity mt--5" style="font-size: 12px; padding: 2px 8px;">{% trans "Aluno" %}</span>
+    </div>
+
+
+
+    <div class="rbt-default-sidebar-wrapper">
+        <div class="section-title mb--10 px-4 text-start">
+            <h6 class="rbt-title-style-2" style="font-size: 13px; text-transform: uppercase; color: var(--color-body);">{% trans "Menu" %}</h6>
+        </div>
+        
+        <nav class="mainmenu-nav">
+            <ul class="dashboard-mainmenu rbt-default-sidebar-list nav nav-tabs d-block border-0" id="sidebar-tabs" role="tablist">
+                
+                {% if current_page == 'dashboard' %}
+                    <!-- Modo Abas no Painel -->
+                    <li class="nav-item" role="presentation">
+                        <a href="#" class="nav-link active" id="ongoing-tab" data-bs-toggle="tab" data-bs-target="#ongoing" type="button" role="tab" aria-controls="ongoing" aria-selected="true">
+                            <i class="feather-home"></i><span>{% trans "Visão Geral" %}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a href="#" class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab" aria-controls="completed" aria-selected="false">
+                            <i class="feather-check-circle"></i><span>{% trans "Concluídos" %}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a href="#" class="nav-link" id="favorites-tab" data-bs-toggle="tab" data-bs-target="#favorites" type="button" role="tab" aria-controls="favorites" aria-selected="false">
+                            <i class="feather-bookmark"></i><span>{% trans "Favoritos" %}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a href="#" class="nav-link" id="certificates-tab" data-bs-toggle="tab" data-bs-target="#certificates" type="button" role="tab" aria-controls="certificates" aria-selected="false">
+                            <i class="feather-award"></i><span>{% trans "Certificados" %}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a href="#" class="nav-link" id="skills-tab" data-bs-toggle="tab" data-bs-target="#skills" type="button" role="tab" aria-controls="skills" aria-selected="false">
+                            <i class="feather-target"></i><span>{% trans "Competências" %}</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <!-- Link simples se estiver fora do painel com hash navigation -->
+                    <li class="nav-item">
+                        <a href="{% url 'aluno_dashboard' %}#ongoing" class="nav-link">
+                            <i class="feather-home"></i><span>{% trans "Visão Geral" %}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'aluno_dashboard' %}#completed" class="nav-link">
+                            <i class="feather-check-circle"></i><span>{% trans "Concluídos" %}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'aluno_dashboard' %}#favorites" class="nav-link">
+                            <i class="feather-bookmark"></i><span>{% trans "Favoritos" %}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'aluno_dashboard' %}#certificates" class="nav-link">
+                            <i class="feather-award"></i><span>{% trans "Certificados" %}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'aluno_dashboard' %}#skills" class="nav-link">
+                            <i class="feather-target"></i><span>{% trans "Competências" %}</span>
+                        </a>
+                    </li>
+                {% endif %}
+                
+                <li>
+                    <a href="{% url 'aluno_cursos' %}" class="{% if current_page == 'cursos' %}active{% endif %}">
+                        <i class="feather-book-open"></i><span>{% trans "Meus Cursos" %}</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="section-title mt--30 mb--10 px-4 text-start">
+            <h6 class="rbt-title-style-2" style="font-size: 13px; text-transform: uppercase; color: var(--color-body);">{% trans "Conta" %}</h6>
+        </div>
+
+        <nav class="mainmenu-nav">
+            <ul class="dashboard-mainmenu rbt-default-sidebar-list">
+                <li>
+                    <a href="{% url 'aluno_perfil' %}" class="{% if current_page == 'perfil' %}active{% endif %}">
+                        <i class="feather-user"></i><span>{% trans "Meu Perfil" %}</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'aluno_configuracoes' %}" class="{% if current_page == 'configuracoes' %}active{% endif %}">
+                        <i class="feather-settings"></i><span>{% trans "Configurações" %}</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'logout' %}">
+                        <i class="feather-log-out"></i><span>{% trans "Terminar Sessão" %}</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<style>
+    /* Estilos base para os links do menu lateral no modo App */
+    .app-sidebar-inner {
+        padding: 0;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .dashboard-mainmenu.nav-tabs .nav-link {
+        border: none !important;
+        background: transparent;
+        text-align: left;
+        width: 100%;
+        margin-bottom: 0;
+        color: var(--color-body);
+        font-weight: 500;
+        transition: 0.3s;
+        border-radius: 0;
+        padding: 12px 25px; /* Mais fino que o original (30px) */
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+    }
+    
+    .dashboard-mainmenu.nav-tabs .nav-link i,
+    .dashboard-mainmenu li a i {
+        margin-right: 15px;
+        font-size: 18px;
+    }
+    
+    /* Mostrar o texto dos menus novamente */
+    .dashboard-mainmenu li a span, 
+    .dashboard-mainmenu.nav-tabs .nav-link span {
+        display: inline-block;
+    }
+
+    /* Estilos do avatar na sidebar */
+    .sidebar-user-area h6.title.sidebar-student-name {
+        display: block;
+        margin-top: 0px !important;
+        font-size: 17px !important;
+        font-weight: 700;
+        color: var(--color-heading);
+    }
+    
+    body.active-dark-mode .sidebar-user-area h6.title.sidebar-student-name {
+        color: #ffffff !important;
+    }
+    
+    .sidebar-user-area span.rbt-badge-5 {
+        display: inline-block;
+    }
+    .sidebar-user-area .student-avatar-initial {
+        width: 60px !important;
+        height: 60px !important;
+        font-size: 24px !important;
+    }
+    .thumbnail.rbt-avatars.size-lg img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+    }
+    
+    .dashboard-mainmenu.nav-tabs .nav-link.active,
+    .dashboard-mainmenu.nav-tabs .nav-link:hover,
+    .dashboard-mainmenu li a.active,
+    .dashboard-mainmenu li a:hover {
+        color: var(--color-primary);
+        background: var(--color-primary-opacity);
+        border-right: 3px solid var(--color-primary) !important;
+    }
+    
+    .dashboard-mainmenu li a {
+        padding: 12px 25px;
+        border-radius: 0;
+        border-right: 3px solid transparent;
+        text-align: left;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+    }
+    
+    .active-dark-mode .dashboard-mainmenu.nav-tabs .nav-link.active,
+    .active-dark-mode .dashboard-mainmenu.nav-tabs .nav-link:hover,
+    .active-dark-mode .dashboard-mainmenu li a.active,
+    .active-dark-mode .dashboard-mainmenu li a:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: #fff !important;
+        border-right-color: #fff !important;
+    }
+    
+    /* Esconder o indicador nativo do bootstrap tab */
+    .dashboard-mainmenu.nav-tabs .nav-link::after {
+        display: none !important;
+    }
+    
+    .rbt-default-sidebar-wrapper {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding-top: 20px;
+    }
+    
+    /* Custom Scrollbar for sidebar */
+    .rbt-default-sidebar-wrapper::-webkit-scrollbar {
+        width: 4px;
+    }
+    .rbt-default-sidebar-wrapper::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .rbt-default-sidebar-wrapper::-webkit-scrollbar-thumb {
+        background: var(--color-primary-opacity);
+        border-radius: 10px;
+    }
+</style>
