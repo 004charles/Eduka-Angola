@@ -101,13 +101,13 @@
                         </div>
 
                         <!-- Mensagens -->
-                        <div id="messages-container" class="chat-messages p--20 flex-grow-1 scroll-sm bg_color--1"
+                        <div id="messages-container" class="chat-messages p--20 flex-grow-1 scroll-sm"
                             style="overflow-y: auto;">
                             {% include 'include/aluno_messages_fragment.html' %}
                         </div>
 
                         <!-- Input -->
-                        <div class="chat-footer p--20 border-top bg_color--1">
+                        <div class="chat-footer p--20 border-top bg-color-white" style="border-color: var(--color-border-2) !important;">
                             <form id="chat-form" class="d-flex align-items-center gap-3">
                                 <input type="hidden" id="conversa_id" value="{{ conversa_atual.id }}">
                                 
@@ -145,13 +145,20 @@
     </div>
 
     <style>
-        .bg-primary-opacity { background-color: rgba(107, 76, 230, 0.1); }
-        .hover-bg-light:hover { background-color: #f8f9fa; }
+        .bg-primary-opacity { background-color: rgba(var(--color-primary-rgb), 0.1); }
+        .hover-bg-light:hover { background-color: var(--color-light); }
         .scroll-sm::-webkit-scrollbar { width: 4px; }
         .scroll-sm::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
-        .rbt-chat-window { border-radius: 10px; overflow: hidden; background: #fff; box-shadow: 0 5px 25px rgba(0,0,0,0.05); }
-        .message-content { position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .text-dark { color: #333 !important; }
+        .rbt-chat-window { border-radius: 10px; overflow: hidden; background: var(--color-white); box-shadow: var(--shadow-1); border: 1px solid var(--color-border-2); }
+        .chat-messages { background-color: var(--color-body-white); }
+        .message-content { position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.02); word-wrap: break-word; }
+        .message-wrapper { width: 100%; }
+        
+        /* Ajuste para Dark Mode */
+        .active-dark-mode .rbt-chat-window { background: var(--color-black); }
+        .active-dark-mode .chat-messages { background: var(--color-darker); }
+        .active-dark-mode .message-content.bg-color-light { background: #1a1a1a !important; color: #fff !important; }
+        .active-dark-mode .message-content.bg-color-light p { color: #fff !important; }
     </style>
 
     <script>
