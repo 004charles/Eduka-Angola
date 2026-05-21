@@ -1,34 +1,103 @@
 {% load static %}
 {% load i18n %}
 
-{% if aluno_logado %}
-<!-- Centros Próximos de Ti Section (Exclusivo para Alunos Logados) -->
-<div class="rbt-featured-centers-area bg-color-white">
+<style>
+    .center-cta-card {
+        background-color: #2d2f31; /* Cor escura do card na imagem */
+        border-radius: 12px;
+        padding: 15px;
+        transition: transform 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    .center-cta-card:hover {
+        transform: translateY(-5px);
+        background-color: #3e4143;
+    }
+    .center-cta-card .banner-img {
+        width: 100%;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+    .center-cta-card .title {
+        color: #fff;
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+    .center-cta-card .desc {
+        color: #d1d7dc;
+        font-size: 12px;
+        line-height: 1.4;
+    }
+</style>
+
+<div class="rbt-callto-action-area rbt-section-gapBottom mt--50">
     <div class="container">
-        <div class="row align-items-center mb--40">
-            <div class="col-lg-12">
-                <div class="section-title text-start">
-                    <span class="subtitle bg-primary-opacity">✨ {% trans "Exclusivo para Si" %}</span>
-                    <h2 class="title" style="font-size: 32px; font-weight: 800;">{% trans "Centros Próximos de Ti" %}</h2>
-                    <p class="description" style="font-size: 15px; color: var(--color-body); margin-top: 5px;">{% trans "Instituições parceiras localizadas na sua área para facilitar o seu aprendizado." %}</p>
+        <div class="rbt-callto-action" style="background-color: #1c1d1f; border-radius: 16px; padding: 40px 30px;">
+            <div class="row g-5 align-items-center">
+                <!-- Coluna da Esquerda (Texto) -->
+                <div class="col-lg-4 col-md-12">
+                    <div class="content text-start">
+                        {% if aluno_logado %}
+                        <h3 class="title" style="color: #fff; font-size: 28px; font-weight: 700; line-height: 1.2;">
+                            {% trans "Estude perto de si e fique à frente na sua carreira." %}
+                        </h3>
+                        <p class="description mt--20" style="color: #d1d7dc; font-size: 15px;">
+                            {% trans "Instituições parceiras localizadas na sua área com cursos completos, presenciais e online, desenhados para o seu sucesso." %}
+                        </p>
+                        {% else %}
+                        <h3 class="title" style="color: #fff; font-size: 28px; font-weight: 700; line-height: 1.2;">
+                            {% trans "Obtenha um certificado e fique à frente na sua carreira." %}
+                        </h3>
+                        <p class="description mt--20" style="color: #d1d7dc; font-size: 15px;">
+                            {% trans "Prepare-se para o mercado com os melhores centros de formação. Cursos completos, práticos e ofertas exclusivas." %}
+                        </p>
+                        {% endif %}
+                        <div class="call-to-btn mt--30">
+                            <a class="rbt-btn-link" href="#" style="color: #fff; font-weight: 700; text-decoration: none;">
+                                {% trans "Explore os nossos parceiros" %} <i class="feather-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        
-        <div class="featured-centers-track" id="nearby-homepage-centers">
-            <!-- Loading Spinner / skeleton -->
-            <div class="d-flex align-items-center justify-content-center py-5 w-100" id="nearby-homepage-loading">
-                <div class="spinner-border text-primary me-3" role="status" style="width: 2.5rem; height: 2.5rem; border-color: var(--color-primary) transparent var(--color-primary) transparent;"></div>
-                <span style="font-size: 16px; font-weight: 600; color: var(--color-body);">{% trans "A procurar instituições na sua área..." %}</span>
+
+                <!-- Coluna da Direita (Cartões) -->
+                <div class="col-lg-8 col-md-12">
+                    <div class="row g-4" id="centers-cta-container">
+                        {% if not aluno_logado %}
+                            {% for centro in centros_destaque|slice:":3" %}
+                            <div class="col-lg-4 col-md-4 col-sm-6 col-12">
+                                <a href="{% url 'cursos_por_centro' centro.id %}" class="center-cta-card">
+                                    <img src="{% if centro.perfil.banner %}{{ centro.perfil.banner.url }}{% else %}{% static 'assets/images/bg/bg-image-10.jpg' %}{% endif %}" alt="{{ centro.nome }}" class="banner-img">
+                                    <h4 class="title">{{ centro.nome }}</h4>
+                                    <span class="desc">{% if centro.perfil.sobre %}{{ centro.perfil.sobre|truncatechars:60 }}{% else %}Formação de excelência para o seu futuro.{% endif %}</span>
+                                </a>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <!-- Loading / Fallback para alunos logados será preenchido via JS -->
+                            <div class="col-12 text-center" id="nearby-loading-cta" style="color: #fff; padding: 40px 0;">
+                                <div class="spinner-border text-light me-3" role="status" style="width: 2rem; height: 2rem;"></div>
+                                <span>{% trans "A procurar instituições na sua área..." %}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
+{% if aluno_logado %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const nearbyTrack = document.getElementById('nearby-homepage-centers');
-        const nearbyLoading = document.getElementById('nearby-homepage-loading');
+        const ctaContainer = document.getElementById('centers-cta-container');
+        const loadingCta = document.getElementById('nearby-loading-cta');
         
         function loadNearbyCenters(lat = null, lng = null, province = null) {
             let url = '/cursos/api/centros-proximos/';
@@ -41,58 +110,47 @@
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    if (nearbyLoading) nearbyLoading.remove();
+                    if (loadingCta) loadingCta.remove();
                     
                     if (data.centros && data.centros.length > 0) {
-                        nearbyTrack.innerHTML = '';
-                        data.centros.forEach(centro => {
+                        ctaContainer.innerHTML = '';
+                        // Limitar a 3 centros para caber bem no layout
+                        data.centros.slice(0, 3).forEach(centro => {
                             const card = `
-                                <a href="${centro.url}" class="center-featured-card">
-                                    <div class="center-banner-bg" style="background-image: url('${centro.banner}');"></div>
-                                    <div class="center-card-overlay">
-                                        <img src="${centro.imagem}" alt="${centro.nome}" class="center-mini-logo">
-                                        <div class="center-card-info">
-                                            <span class="center-name">${centro.nome}</span>
-                                            <span class="center-tag">📍 ${centro.cidade} ${centro.distancia ? `• ${centro.distancia} km` : ''}</span>
-                                        </div>
-                                    </div>
-                                </a>
+                                <div class="col-lg-4 col-md-4 col-sm-6 col-12">
+                                    <a href="${centro.url}" class="center-cta-card">
+                                        <img src="${centro.banner}" alt="${centro.nome}" class="banner-img">
+                                        <h4 class="title">${centro.nome}</h4>
+                                        <span class="desc">📍 ${centro.cidade} ${centro.distancia ? `• ${centro.distancia} km` : ''}</span>
+                                    </a>
+                                </div>
                             `;
-                            nearbyTrack.insertAdjacentHTML('beforeend', card);
+                            ctaContainer.insertAdjacentHTML('beforeend', card);
                         });
                     } else {
-                        loadFallbackFeatured();
+                        loadFallback();
                     }
                 })
                 .catch(error => {
-                    console.error('Erro ao buscar centros próximos:', error);
-                    loadFallbackFeatured();
+                    console.error('Erro ao buscar centros:', error);
+                    loadFallback();
                 });
         }
         
-        function loadFallbackFeatured() {
-            if (nearbyLoading) nearbyLoading.remove();
-            nearbyTrack.innerHTML = `
-                {% for centro in centros_destaque %}
-                <a href="{% url 'cursos_por_centro' centro.id %}" class="center-featured-card">
-                    <div class="center-banner-bg" style="background-image: url('{{ centro.perfil.banner.url }}');"></div>
-                    <div class="center-card-overlay">
-                        {% if centro.perfil.imagem %}
-                        <img src="{{ centro.perfil.imagem.url }}" alt="{{ centro.nome }}" class="center-mini-logo">
-                        {% else %}
-                        <div class="center-mini-logo d-flex align-items-center justify-content-center" style="background: var(--color-primary); color: white; font-weight: bold; border: none;">
-                            {{ centro.nome|slice:":1" }}
-                        </div>
-                        {% endif %}
-                        <div class="center-card-info">
-                            <span class="center-name">{{ centro.nome }}</span>
-                            <span class="center-tag">💎 {% trans "Destaque" %}</span>
-                        </div>
-                    </div>
-                </a>
+        function loadFallback() {
+            if (loadingCta) loadingCta.remove();
+            ctaContainer.innerHTML = `
+                {% for centro in centros_destaque|slice:":3" %}
+                <div class="col-lg-4 col-md-4 col-sm-6 col-12">
+                    <a href="{% url 'cursos_por_centro' centro.id %}" class="center-cta-card">
+                        <img src="{% if centro.perfil.banner %}{{ centro.perfil.banner.url }}{% else %}{% static 'assets/images/bg/bg-image-10.jpg' %}{% endif %}" alt="{{ centro.nome }}" class="banner-img">
+                        <h4 class="title">{{ centro.nome }}</h4>
+                        <span class="desc">💎 {% trans "Centro em Destaque" %}</span>
+                    </a>
+                </div>
                 {% empty %}
-                <div class="text-center py-4 w-100">
-                    <p>{% trans "Nenhum centro em destaque disponível no momento." %}</p>
+                <div class="col-12 text-center" style="color: #fff;">
+                    <p>{% trans "Nenhum centro disponível no momento." %}</p>
                 </div>
                 {% endfor %}
             `;
@@ -104,7 +162,6 @@
                     loadNearbyCenters(position.coords.latitude, position.coords.longitude);
                 },
                 function(error) {
-                    // Fallback para província padrão (Luanda)
                     loadNearbyCenters(null, null, 'Luanda');
                 },
                 { timeout: 10000 }
@@ -114,46 +171,4 @@
         }
     });
 </script>
-
-{% else %}
-
-{% if centros_destaque %}
-<!-- Centros em Destaque Section (Visível para Visitantes) -->
-<div class="rbt-featured-centers-area bg-color-white">
-    <div class="container">
-        <div class="row align-items-center mb--40">
-            <div class="col-lg-12">
-                <div class="section-title text-start">
-                    <span class="subtitle bg-primary-opacity">{% trans "Parceiros" %} ✨</span>
-                    <h2 class="title" style="font-size: 32px; font-weight: 800;">{% trans "Centros em Destaque" %}</h2>
-                    <p class="description" style="font-size: 15px; color: var(--color-body); margin-top: 5px;">{% trans "Conheça as principais instituições de formação parceiras da nossa plataforma." %}</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="featured-centers-track">
-            {% for centro in centros_destaque %}
-            <a href="{% url 'cursos_por_centro' centro.id %}" class="center-featured-card">
-                <div class="center-banner-bg" style="background-image: url('{{ centro.perfil.banner.url }}');"></div>
-                <div class="center-card-overlay">
-                    {% if centro.perfil.imagem %}
-                    <img src="{{ centro.perfil.imagem.url }}" alt="{{ centro.nome }}" class="center-mini-logo">
-                    {% else %}
-                    <div class="center-mini-logo d-flex align-items-center justify-content-center" style="background: var(--color-primary); color: white; font-weight: bold; border: none;">
-                        {{ centro.nome|slice:":1" }}
-                    </div>
-                    {% endif %}
-                    <div class="center-card-info">
-                        <span class="center-name">{{ centro.nome }}</span>
-                        <span class="center-tag">💎 {% trans "Destaque" %}</span>
-                    </div>
-                </div>
-            </a>
-            {% endfor %}
-        </div>
-    </div>
-</div>
-<!-- End Centros em Destaque Section -->
-{% endif %}
-
 {% endif %}

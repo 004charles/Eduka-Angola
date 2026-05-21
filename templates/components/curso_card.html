@@ -27,9 +27,7 @@
                     <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{ curso.titulo }}" style="height: 180px; object-fit: cover;">
                 {% endif %}
             </a>
-            <div class="rbt-badge-3 bg-gradient text-white" style="position: absolute; top: 10px; left: 10px; z-index: 2; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 10px;">
-                <i class="feather-video"></i> EdukaAngola Original
-            </div>
+
         {% else %}
             <a href="{% url 'curso_detalhe' id=curso.id %}">
                 {% if curso.imagem %}
@@ -38,11 +36,7 @@
                     <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{ curso.titulo }}" style="height: 180px; object-fit: cover;">
                 {% endif %}
             </a>
-            {% if curso.destaque %}
-                <div class="rbt-badge-3 bg-white text-primary" style="position: absolute; top: 10px; left: 10px; z-index: 2; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 10px;">
-                    <i class="ph ph-star-fill"></i> Destaque
-                </div>
-            {% endif %}
+
         {% endif %}
 
         <!-- Bookmark Button -->
@@ -68,39 +62,16 @@
                 </div>
             </div>
             <h4 class="rbt-card-title"><a href="{% url 'cursovideoapp:detalhe_curso' slug=curso.slug %}">{{ curso.titulo }}</a></h4>
-            <div class="rbt-card-bottom d-flex justify-content-between align-items-center mb--15">
-                <span class="rbt-badge-5 bg-primary-opacity text-primary font-bold">
-                    {% if curso.is_pago %}{{ curso.preco|formata_kz }} Kz{% else %}Grátis{% endif %}
-                </span>
-            </div>
+
         {% else %}
             <div class="rbt-card-top">
                 <div class="rbt-review">
                     <span class="rating-count">{% if curso.categoria %}{{ curso.categoria.nome }}{% else %}Geral{% endif %}</span>
-                    {% if model_name == 'Curso' and curso.centro.pais %}
-                        <span class="rbt-badge-5 bg-primary-opacity text-primary" style="margin-left: 10px; font-size: 10px; padding: 2px 6px;">
-                            {% if curso.centro.pais == 'AO' %}🇦🇴 Angola{% elif curso.centro.pais == 'PT' %}🇵🇹 Portugal{% else %}{{ curso.centro.get_pais_display }}{% endif %}
-                        </span>
-                    {% endif %}
+
                 </div>
             </div>
             <h4 class="rbt-card-title"><a href="{% url 'curso_detalhe' id=curso.id %}">{{ curso.titulo }}</a></h4>
-            <ul class="rbt-meta">
-                <li><i class="feather-clock"></i>{{ curso.carga_horaria }}h</li>
-                <li><i class="feather-users"></i>{{ curso.vagas_disponiveis|default:"--" }} vagas</li>
-                {% if model_name == 'Curso' %}
-                <li class="font-bold text-primary">
-                    {% if curso.preco > 0 %}
-                        {% if curso.moeda == 'AOA' %}{{ curso.preco|formata_kz }} Kz
-                        {% elif curso.moeda == 'EUR' %}{{ curso.preco|formata_kz }} €
-                        {% elif curso.moeda == 'USD' %}{{ curso.preco|formata_kz }} $
-                        {% else %}{{ curso.preco|formata_kz }} {{ curso.moeda }}{% endif %}
-                    {% else %}
-                        Grátis
-                    {% endif %}
-                </li>
-                {% endif %}
-            </ul>
+
         {% endif %}
 
         <div class="rbt-card-bottom mt-auto">
@@ -160,7 +131,7 @@
         min-height: 48px; /* Altura para 2 linhas */
     }
     .rbt-card {
-        min-height: 380px; /* Altura mínima para o card todo */
+        min-height: 320px; /* Altura mínima para o card todo */
     }
 </style>
 {% endwith %}

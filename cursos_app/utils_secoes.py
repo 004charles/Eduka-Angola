@@ -11,52 +11,52 @@ def get_secoes_config():
         'destaque': {
             'titulo': 'Cursos em Destaque',
             'slug': 'destaque',
-            'descricao': 'Os cursos mais recomendados pelos nossos centros.'
+            'descricao': 'Os cursos mais recomendados pelos nossos centros de formação. A EdukAngola ajuda-o a desenvolver as competências mais procuradas pelo mercado de trabalho, com rapidez e eficácia. Avance na sua carreira de forma segura.'
         },
         'desconto': {
             'titulo': 'Cursos com Desconto',
             'slug': 'desconto',
-            'descricao': 'Aproveite as melhores ofertas para o seu bolso.'
+            'descricao': 'Aproveite as melhores ofertas para o seu bolso e inicie já a sua qualificação. Uma excelente oportunidade para impulsionar o seu currículo sem comprometer o orçamento.'
         },
         'promocao': {
             'titulo': 'Cursos em Promoção',
             'slug': 'promocao',
-            'descricao': 'Ofertas por tempo limitado. Não perca!'
+            'descricao': 'Ofertas exclusivas por tempo limitado. Não perca a oportunidade de aprender novas habilidades com os melhores profissionais do país, pagando muito menos do valor habitual.'
         },
         'gratuitos': {
             'titulo': 'Cursos Gratuitos',
             'slug': 'gratuitos',
-            'descricao': 'Aprenda sem custos com os nossos parceiros.'
+            'descricao': 'Aprenda sem custos com os nossos parceiros educacionais. Desenvolvemos parcerias estratégicas para garantir que o conhecimento chegue a todos, independentemente da condição financeira.'
         },
         'novos': {
             'titulo': 'Cursos Recém-Chegados',
             'slug': 'novos',
-            'descricao': 'As últimas novidades na nossa plataforma.'
+            'descricao': 'As últimas novidades a chegar à nossa plataforma. Mantenha-se atualizado com as metodologias mais recentes e descubra formações acabadas de lançar pelos centros de excelência.'
         },
         'semana': {
             'titulo': 'Cursos da Semana',
             'slug': 'semana',
-            'descricao': 'Cursos com início previsto para os próximos 7 dias.'
+            'descricao': 'Cursos com início previsto para os próximos 7 dias. Não deixe para amanhã o que pode começar hoje: garanta já o seu lugar nestas turmas que estão prestes a arrancar.'
         },
         'tecnologia': {
             'titulo': 'Tecnologia e Programação',
             'slug': 'tecnologia',
-            'descricao': 'Desenvolva as competências digitais do futuro.'
+            'descricao': 'Desenvolva as competências digitais do futuro. Numa era dominada pela tecnologia, dominar estas ferramentas é o passo certo para garantir evolução no mercado de trabalho atual.'
         },
         'negocios': {
             'titulo': 'Gestão e Negócios',
             'slug': 'negocios',
-            'descricao': 'Potencialize a sua carreira e o seu empreendimento.'
+            'descricao': 'Potencialize a sua carreira e o seu espírito empreendedor. Aprenda com especialistas as melhores táticas de gestão, liderança e marketing para levar os seus resultados ao próximo nível.'
         },
         'linguas': {
             'titulo': 'Línguas e Comunicação',
             'slug': 'linguas',
-            'descricao': 'Domine novos idiomas e conecte-se com o mundo.'
+            'descricao': 'Domine novos idiomas e conecte-se com o mundo globalizado. A fluência em línguas estrangeiras é o passaporte mais importante para alcançar oportunidades internacionais de sucesso.'
         },
         'populares': {
             'titulo': 'Mais Populares',
             'slug': 'populares',
-            'descricao': 'Os cursos com maior procura na nossa plataforma.'
+            'descricao': 'Os cursos com maior procura na nossa plataforma. Descubra o que milhares de estudantes angolanos estão a aprender neste momento e junte-se a esta comunidade incrível.'
         }
     }
 

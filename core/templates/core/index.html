@@ -33,22 +33,20 @@
     {% include 'include/header.html' %}
     {% include 'include/loading.html' %}
 
-    <main style="margin-top: 13px;" class="rbt-main-wrapper">
+    <main class="rbt-main-wrapper">
         
         <!-- Banner Principal / Slider -->
         {% include 'core/includes/home/banner.html' %}
 
-        <!-- Barra de Pesquisa (Netflix Style) -->
-        <div class="rbt-search-area bg-color-white ptb--30">
+        <!-- Barra de Pesquisa -->
+        <div class="rbt-search-area ptb--60">
             <div class="container">
                 <div class="row justify-content-center">
                     <div class="col-lg-8">
-                        <form action="{% url 'buscar_cursos' %}" method="get" class="search-form-with-suggestions d-flex gap-2">
-                            <input type="text" name="q" class="rbt-search-autocomplete form-control" placeholder="{% trans 'O que você quer assistir/aprender?' %}" autocomplete="off" style="border-radius: 4px; height: 50px;">
+                        <form action="{% url 'buscar_cursos' %}" method="get" class="search-form-with-suggestions d-flex align-items-center gap-3">
+                            <input type="text" name="q" class="rbt-search-autocomplete w-100" placeholder="{% trans 'O que você quer assistir/aprender?' %}" autocomplete="off">
                             <div class="search-suggestions-wrapper"></div>
-                            <div class="submit-btn">
-                                <button type="submit" class="rbt-btn btn-gradient btn-md" style="height: 50px; border-radius: 4px;">{% trans "Pesquisar" %}</button>
-                            </div>
+                            <button type="submit" class="rbt-btn btn-gradient btn-md">{% trans "Pesquisar" %}</button>
                         </form>
                     </div>
                 </div>
@@ -56,13 +54,13 @@
         </div>
 
         <!-- Texto de Esperança e Estudantil -->
-        <div class="rbt-text-area bg-color-white ptb--20">
+        <div class="rbt-text-area ptb--40">
             <div class="container">
                 <div class="row justify-content-center">
                     <div class="col-lg-8 text-center">
                         <div class="section-title">
-                            <h2 class="title" style="font-size: 32px; font-weight: 800; background: linear-gradient(to right, #6C28FD, #00D2FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px;">{% trans "Alcance os Seus Objetivos" %}</h2>
-                            <p class="description" style="font-size: 18px; color: var(--color-body); line-height: 1.6;">
+                            <h2 class="title">{% trans "Alcance os Seus Objetivos" %}</h2>
+                            <p class="description mt--20">
                                 {% trans "Acredite no seu potencial. Os cursos abaixo são ministrados pelos melhores centros de formação de Angola para impulsionar o seu futuro." %}
                             </p>
                         </div>
@@ -129,7 +127,7 @@
 
             // Categorias
             new Swiper(".category-activation-four", {
-                slidesPerView: 4,
+                slidesPerView: 3,
                 spaceBetween: 20,
                 loop: true,
                 watchOverflow: true,
@@ -138,21 +136,32 @@
                     0: { slidesPerView: 1.2 },
                     576: { slidesPerView: 2 },
                     992: { slidesPerView: 3 },
-                    1200: { slidesPerView: 4 }
+                    1200: { slidesPerView: 3.2 }
                 }
             });
 
             // Secções Dinâmicas
-            new Swiper(".dynamicCourseSwiper", {
-                slidesPerView: 4,
-                spaceBetween: 25,
-                loop: true,
-                watchOverflow: true,
-                breakpoints: {
-                    0: { slidesPerView: 1.2 },
-                    992: { slidesPerView: 3 },
-                    1200: { slidesPerView: 4 }
-                }
+            document.querySelectorAll('[class*="dynamicCourseSwiper-"]').forEach(function(swiperContainer) {
+                let classList = Array.from(swiperContainer.classList);
+                let swiperClass = classList.find(c => c.startsWith('dynamicCourseSwiper-'));
+                let slug = swiperClass.replace('dynamicCourseSwiper-', '');
+
+                new Swiper("." + swiperClass, {
+                    slidesPerView: 3,
+                    spaceBetween: 25,
+                    loop: true,
+                    watchOverflow: true,
+                    navigation: { 
+                        nextEl: '.swiper-next-' + slug, 
+                        prevEl: '.swiper-prev-' + slug 
+                    },
+                    breakpoints: {
+                        0: { slidesPerView: 1.2 },
+                        768: { slidesPerView: 2 },
+                        992: { slidesPerView: 3 },
+                        1200: { slidesPerView: 3.2 }
+                    }
+                });
             });
 
             // Instrutores
@@ -172,7 +181,7 @@
             });
         });
     </script>
-    <script src="{% static 'assets/js/home_animations.js' %}"></script>
     
+
 </body>
 </html>

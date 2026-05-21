@@ -4,15 +4,15 @@
 
 <div class="rbt-categories-area rbt-section-gap bg-color-white">
     <div class="container">
-        <div class="row g-5 align-items-center mb--50">
-            <div class="col-lg-8 col-md-7 col-12">
-                <div class="section-title">
-                    <h3 class="title" style="font-size: 24px; font-weight: 700; color: var(--color-heading);">{% trans "Qual o Rumo da Sua" %} <span><img src="{% static 'assets/images/shape/o-icon-2.png' %}" alt="Cap Icon"></span> {% trans "Próxima Vitória?" %}</h3>
-                    <p class="description" style="font-size: 15px;">{% trans "Escolha a especialização que abrirá as portas do seu futuro." %}</p>
+        <div class="row g-5 align-items-center">
+            <!-- Coluna da Esquerda (Título) -->
+            <div class="col-lg-3 col-md-12">
+                <div class="section-title text-start mb--30">
+                    <h2 class="title">{% trans "Aprenda habilidades" %} <em>{% trans "essenciais" %}</em> {% trans "para sua carreira e vida" %}</h2>
+                    <p class="description mt--20">{% trans "A EdukAngola ajuda você a desenvolver habilidades em alta com rapidez e avançar na sua carreira em um mercado de trabalho dinâmico." %}</p>
                 </div>
-            </div>
-            <div class="col-lg-4 col-md-5 col-12">
-                <div class="d-flex justify-content-end gap-3 rbt-arrow-between">
+                <!-- Setas de controlo -->
+                <div class="d-flex justify-content-start gap-3 rbt-arrow-between mt--40">
                     <div class="rbt-swiper-arrow style_2 rbt-arrow-left">
                         <div class="custom-overfolow">
                             <i class="rbt-icon feather-arrow-left"></i>
@@ -27,51 +27,32 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="category-activation-four swiper">
-            <div class="swiper-wrapper">
-                {% for categoria in categorias %}
-                <div class="swiper-slide">
-                    <div class="rbt-cat-box rbt-cat-box-1 variation-2 text-center">
-                        <div class="inner">
-                            <div class="thumbnail">
-                                <a href="{% url 'cursos_por_categoria' categoria.slug %}">
-                                    {% if categoria.imagem %}
-                                        <img src="{{categoria.imagem.url}}" alt="{{categoria.nome}}">
-                                    {% else %}
-                                        <img src="{% static 'assets/images/category/image/web-design.jpg' %}" alt="{{categoria.nome}}">
-                                    {% endif %}
-                                </a>
-                            </div>
-                            <div class="icons">
-                                {% if 'design' in categoria.slug %}
-                                    <img src="{% static 'assets/images/category/design.png' %}" alt="Icon">
-                                {% elif 'grafico' in categoria.slug %}
-                                    <img src="{% static 'assets/images/category/graphic-designer.png' %}" alt="Icon">
-                                {% elif 'pessoal' in categoria.slug or 'desenvolvimento' in categoria.slug %}
-                                    <img src="{% static 'assets/images/category/personal.png' %}" alt="Icon">
-                                {% elif 'software' in categoria.slug or 'programacao' in categoria.slug or 'ti' in categoria.slug %}
-                                    <img src="{% static 'assets/images/category/server.png' %}" alt="Icon">
-                                {% elif 'mobile' in categoria.slug or 'app' in categoria.slug %}
-                                    <img src="{% static 'assets/images/category/smartphone.png' %}" alt="Icon">
-                                {% else %}
-                                    <img src="{% static 'assets/images/category/web-design.png' %}" alt="Icon">
-                                {% endif %}
-                            </div>
-                            <div class="content">
-                                <h5 class="title">
-                                    <a href="{% url 'cursos_por_categoria' categoria.slug %}">{{categoria.nome}}</a>
-                                </h5>
-                                <div class="read-more-btn">
-                                    <a class="rbt-btn-link" href="{% url 'cursos_por_categoria' categoria.slug %}">
-                                        {{categoria.num_cursos}} {% trans "Cursos" %} <i class="feather-arrow-right"></i>
-                                    </a>
+
+            <!-- Coluna da Direita (Swiper) -->
+            <div class="col-lg-9 col-md-12">
+                <div class="category-activation-four swiper">
+                    <div class="swiper-wrapper">
+                        {% for categoria in categorias %}
+                        <div class="swiper-slide">
+                            <a class="rbt-cat-box rbt-cat-box-1 image-overlaping-content" href="{% url 'cursos_por_categoria' categoria.slug %}">
+                                <div class="inner">
+                                    <div class="thumbnail">
+                                        {% if categoria.imagem %}
+                                            <img src="{{categoria.imagem.url}}" alt="{{categoria.nome}}">
+                                        {% else %}
+                                            <img src="{% static 'assets/images/category/image/web-design.jpg' %}" alt="{{categoria.nome}}">
+                                        {% endif %}
+                                    </div>
+                                    <div class="content" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                        <h5 class="title m-0">{{categoria.nome}}</h5>
+                                        <i class="feather-arrow-right" style="font-size: 20px;"></i>
+                                    </div>
                                 </div>
-                            </div>
+                            </a>
                         </div>
+                        {% endfor %}
                     </div>
                 </div>
-                {% endfor %}
             </div>
         </div>
     </div>

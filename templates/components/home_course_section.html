@@ -1,30 +1,50 @@
+{% load static %}
 <div class="rbt-course-area rbt-section-gapBottom bg-color-white" style="padding-bottom: 20px !important;">
     <div class="container">
-        <div class="row g-5 align-items-center mb--20">
-            <div class="col-lg-12">
-                <div class="section-title text-start d-flex justify-content-between align-items-end flex-wrap gap-2">
-                    <div>
-                        <h3 class="title" style="font-size: 24px; font-weight: 700; margin-bottom: 5px; color: var(--color-heading);">{{ secao.config.titulo }}</h3>
-                        <p class="description" style="margin-bottom: 0; font-size: 15px;">{{ secao.config.descricao }}</p>
-                    </div>
+        <div class="row g-5 align-items-center">
+            <!-- Coluna da Esquerda (Título e Texto) -->
+            <div class="col-lg-3 col-md-12">
+                <div class="section-title text-start mb--30">
+                    <h3 class="title" style="font-size: 24px; font-weight: 700;">{{ secao.config.titulo }}</h3>
+                    <p class="description mt--20" style="font-size: 15px;">{{ secao.config.descricao }}</p>
+                </div>
+                <!-- Setas e Botão Ver Tudo -->
+                <div class="d-flex justify-content-between align-items-center mt--30">
                     <div class="view-all-btn">
                         <a class="rbt-btn-link" href="{% url 'catalogo_cursos' %}?secao={{ secao.config.slug }}">
                             Saber Mais <i class="feather-arrow-right"></i>
                         </a>
                     </div>
+                    <div class="d-flex justify-content-start gap-3 rbt-arrow-between">
+                        <!-- Navigation set in JS -->
+                        <div class="rbt-swiper-arrow style_2 swiper-prev-{{ secao.config.slug }}">
+                            <div class="custom-overfolow">
+                                <i class="rbt-icon feather-arrow-left"></i>
+                                <i class="rbt-icon-top feather-arrow-left"></i>
+                            </div>
+                        </div>
+                        <div class="rbt-swiper-arrow style_2 swiper-next-{{ secao.config.slug }}">
+                            <div class="custom-overfolow">
+                                <i class="rbt-icon feather-arrow-right"></i>
+                                <i class="rbt-icon-top feather-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="swiper dynamicCourseSwiper mb--40">
-            <div class="swiper-wrapper">
-                {% for curso in secao.cursos %}
-                <div class="swiper-slide p-2">
-                    {% include 'components/curso_card.html' with curso=curso %}
+
+            <!-- Coluna da Direita (Swiper com cartões de Cursos Padrão) -->
+            <div class="col-lg-9 col-md-12">
+                <div class="swiper dynamicCourseSwiper-{{ secao.config.slug }} mb--40">
+                    <div class="swiper-wrapper">
+                        {% for curso in secao.cursos %}
+                        <div class="swiper-slide p-2">
+                            {% include 'components/curso_card.html' with curso=curso %}
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
-                {% endfor %}
             </div>
-            <div class="rbt-swiper-pagination" style="bottom: -15px;"></div>
         </div>
     </div>
 </div>
