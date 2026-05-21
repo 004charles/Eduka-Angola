@@ -11,6 +11,10 @@ __pycache__/
 *.pyc
 *.log
 
+# Shims locais (não enviar para produção)
+decouple.py
+dj_database_url.py
+
 # === Templates e Exemplos Estáticos (Ignorados) ===
 static/edukangola exemplo/
 gestoreduka/templates/gestoreduka template/
