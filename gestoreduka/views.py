@@ -3897,6 +3897,36 @@ def criar_anuncio(request):
         'title': 'Novo Anúncio'
     })
 
+from django.shortcuts import get_object_or_404
+
+@login_required
+def editar_anuncio(request, anuncio_id):
+    """Edição de um anúncio institucional existente"""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
+        
+    from gestoreduka.models import AnuncioCentro
+    anuncio = get_object_or_404(AnuncioCentro, id=anuncio_id, centro=centro)
+        
+    if request.method == 'POST':
+        from .forms import AnuncioForm
+        form = AnuncioForm(request.POST, request.FILES, instance=anuncio)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Anúncio atualizado com sucesso!')
+            return redirect('listar_anuncios')
+    else:
+        from .forms import AnuncioForm
+        form = AnuncioForm(instance=anuncio)
+        
+    return render(request, 'gestor/anuncios/form.html', {
+        'centro': centro,
+        'form': form,
+        'title': 'Editar Anúncio',
+        'anuncio': anuncio
+    })
+
 @login_required
 def gerenciar_comentarios(request):
     """Listagem de comentários dos alunos nos cursos do centro"""
