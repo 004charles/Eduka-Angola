@@ -261,10 +261,28 @@ STATICFILES_DIRS = [
 
 CKEDITOR_UPLOAD_PATH = 'ckeditor/uploads/'
 
-# Configuração de Armazenamento (formato legado – exigido pelo django-cloudinary-storage)
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
+# Configuração de Armazenamento (Django 4.2+)
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.StaticFilesStorage",
+    },
+}
 
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.StaticFilesStorage",
+    },
+}
+
+# Legado para compatibilidade
+DEFAULT_FILE_STORAGE = STORAGES["default"]["BACKEND"]
+STATICFILES_STORAGE = STORAGES["staticfiles"]["BACKEND"]
 
 # Configuração do Cloudinary
 CLOUDINARY_STORAGE = {
@@ -275,6 +293,7 @@ CLOUDINARY_STORAGE = {
 }
 
 MEDIA_URL = '/media/'  # O django-cloudinary-storage cuidará de mapear isto para a nuvem
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
 
