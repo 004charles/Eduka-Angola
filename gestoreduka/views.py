@@ -3354,8 +3354,8 @@ def iniciar_conversa_centro(request, centro_id):
             }
         )
         
-        # Redirecionar para a página de chat do aluno com a conversa selecionada
-        return redirect(f'{reverse("aluno_chat")}?conversa_id={conversa.id}')
+        # Redirecionar para a página de perfil do centro
+        return redirect('cursos_por_centro', centro_id=centro.id)
         
     except Aluno.DoesNotExist:
         messages.error(request, 'Aluno não encontrado. Faça login novamente.')
