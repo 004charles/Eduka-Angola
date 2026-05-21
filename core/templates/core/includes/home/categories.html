@@ -1,4 +1,3 @@
-
 {% load static %}
 {% load i18n %}
 
@@ -33,19 +32,21 @@
                 <div class="category-activation-four swiper">
                     <div class="swiper-wrapper">
                         {% for categoria in categorias %}
-                        <div class="swiper-slide">
-                            <a class="rbt-cat-box rbt-cat-box-1 image-overlaping-content" href="{% url 'cursos_por_categoria' categoria.slug %}">
+                        <div class="swiper-slide p-2" style="height: auto;">
+                            <a class="rbt-cat-box rbt-cat-box-1 text-center h-100 category-box-equal" href="{% url 'cursos_por_categoria' categoria.slug %}">
                                 <div class="inner">
-                                    <div class="thumbnail">
+                                    <div class="icons">
                                         {% if categoria.imagem %}
                                             <img src="{{categoria.imagem.url}}" alt="{{categoria.nome}}">
                                         {% else %}
-                                            <img src="{% static 'assets/images/category/image/web-design.jpg' %}" alt="{{categoria.nome}}">
+                                            <img src="{% static 'assets/images/category/web-design.png' %}" alt="{{categoria.nome}}">
                                         {% endif %}
                                     </div>
-                                    <div class="content" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                                        <h5 class="title m-0">{{categoria.nome}}</h5>
-                                        <i class="feather-arrow-right" style="font-size: 20px;"></i>
+                                    <div class="content">
+                                        <h5 class="title">{{categoria.nome}}</h5>
+                                        <div class="read-more-btn">
+                                            <span class="rbt-btn-link">{% trans "Ver Cursos" %} <i class="feather-arrow-right"></i></span>
+                                        </div>
                                     </div>
                                 </div>
                             </a>
@@ -57,3 +58,50 @@
         </div>
     </div>
 </div>
+
+<style>
+    /* Garantir que todos os cartões de categoria tenham exatamente o mesmo tamanho */
+    .category-activation-four .swiper-slide {
+        height: auto !important;
+        display: flex;
+    }
+    
+    .category-box-equal {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .category-box-equal .inner {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 30px 15px; /* Preenchimento padronizado */
+    }
+    
+    /* Garantir que os ícones fiquem todos do mesmo tamanho independentemente do upload */
+    .category-box-equal .icons {
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 80px; /* Altura fixa reservada para o ícone */
+    }
+    
+    .category-box-equal .icons img {
+        width: auto;
+        height: 100%;
+        max-width: 80px;
+        object-fit: contain;
+    }
+    
+    .category-box-equal .content .title {
+        font-size: 16px;
+        margin-bottom: 10px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
