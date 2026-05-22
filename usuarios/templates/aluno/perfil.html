@@ -19,6 +19,28 @@
             <form action="{% url 'editar_perfil' %}" method="POST" enctype="multipart/form-data" class="rbt-profile-row rbt-default-form row g-5">
                 {% csrf_token %}
                 
+                <!-- Banner / Capa Section -->
+                <div class="col-12 mb--40">
+                    <h5 class="mb--20"><i class="feather-image me-2"></i>{% trans "Capa do Perfil" %}</h5>
+                    <div class="rbt-profile-banner-upload">
+                        <div class="upload-area {% if perfil.foto_de_capa %}has-file{% endif %}" onclick="document.getElementById('foto_de_capa').click()" style="height: 180px; border: 2px dashed var(--color-border); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; background-color: var(--color-white);">
+                            {% if perfil.foto_de_capa %}
+                                <img id="capa-preview" src="{{ perfil.foto_de_capa.url }}" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;">
+                                <div id="capa-preview-text" style="position: relative; z-index: 2; background: rgba(0,0,0,0.6); color: white; padding: 6px 16px; border-radius: 30px; font-weight: 500;">
+                                    <i class="feather-camera me-2"></i> {% trans "Alterar Capa" %}
+                                </div>
+                            {% else %}
+                                <img id="capa-preview" src="" class="d-none" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;">
+                                <div id="capa-preview-text" style="position: relative; z-index: 2; color: var(--color-body); text-align: center;">
+                                    <i class="feather-upload-cloud mb--10" style="font-size: 32px; display: block; color: var(--color-primary);"></i>
+                                    <span class="file-name" id="name-capa" style="font-weight: 500;">{% trans "Carregar nova imagem de capa (Recomendado 1920x350)" %}</span>
+                                </div>
+                            {% endif %}
+                            <input type="file" id="foto_de_capa" name="foto_de_capa" accept="image/*" hidden onchange="previewCapa(this)">
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Avatar Section -->
                 <div class="col-lg-12">
                     <div class="profile-avatar-wrapper mb--40">
@@ -242,6 +264,28 @@
                 preview.classList.remove('d-none');
                 if (initial) {
                     initial.classList.add('d-none');
+                }
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function previewCapa(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var img = document.getElementById('capa-preview');
+                var textOverlay = document.getElementById('capa-preview-text');
+                
+                img.src = e.target.result;
+                img.classList.remove('d-none');
+                
+                if(textOverlay) {
+                    textOverlay.style.background = 'rgba(0,0,0,0.6)';
+                    textOverlay.style.color = 'white';
+                    textOverlay.style.padding = '6px 16px';
+                    textOverlay.style.borderRadius = '30px';
+                    textOverlay.innerHTML = '<i class="feather-camera me-2"></i> {% trans "Alterar Capa" %}';
                 }
             }
             reader.readAsDataURL(input.files[0]);

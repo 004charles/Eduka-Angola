@@ -83,9 +83,10 @@
 
         .play-hero-content {
             padding-left: 10%;
-            max-width: 600px;
+            max-width: 90%; /* Expandido para permitir títulos longos numa linha */
             z-index: 2;
             margin-top: 150px; /* Push content down to avoid being covered by the absolute/sticky header */
+            position: relative;
         }
 
         .play-badge {
@@ -107,12 +108,16 @@
             line-height: 1.1;
             margin-bottom: 20px;
             color: inherit;
+            white-space: nowrap; /* Impede a quebra de linha do título */
+            overflow: hidden;
+            text-overflow: ellipsis; /* Adiciona ... se o ecrã for pequeno demais */
         }
 
         .play-hero-desc {
-            font-size: 18px;
+            font-size: 16px;
             color: var(--play-meta-dark);
             margin-bottom: 30px;
+            max-width: 600px; /* Restringe a descrição para não ficar longa demais */
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
@@ -458,22 +463,160 @@
             </div>
         </section>
 
+        <!-- Banner Publicitário EdukAngola Play -->
+        <section class="play-section" style="margin-bottom: 30px;">
+            <div class="container">
+                <div class="promo-banner-play">
+                    <!-- Lado Esquerdo: Imagem -->
+                    <div class="promo-graphic-left">
+                        <img src="{% static 'assets/images/banner/play-promo.png' %}" alt="EdukAngola Play Promo">
+                    </div>
+
+                    <!-- Lado Direito: Conteúdo -->
+                    <div class="promo-content-right text-start">
+                        <h3 class="promo-title">{% trans "Desbloqueia o Teu Potencial" %}</h3>
+                        <p class="promo-text">
+                            {% trans "Estuda onde e quando quiseres. Todos os nossos cursos em vídeo estão disponíveis 24/7 para se adaptarem ao teu ritmo de aprendizagem." %}
+                        </p>
+                        <a href="{% url 'cursovideoapp:lista_cursos' %}" class="promo-link">{% trans "Começar agora" %} <i class="feather-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <style>
+            .promo-banner-play {
+                background-color: var(--play-primary, #6c28fd);
+                background: linear-gradient(135deg, var(--play-primary, #6c28fd) 0%, var(--play-secondary, #00d2ff) 100%);
+                border-radius: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 40px 0 0;
+                position: relative;
+                overflow: hidden;
+                box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            }
+
+            .promo-graphic-left {
+                width: 50%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .promo-graphic-left img {
+                width: 100%;
+                height: auto;
+                max-height: 350px;
+                object-fit: cover;
+                mask-image: linear-gradient(to right, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%);
+                -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%);
+            }
+
+            .promo-content-right {
+                width: 50%;
+                position: relative;
+                z-index: 2;
+                padding: 40px 0 40px 30px;
+            }
+
+            .promo-content-right .promo-title {
+                color: #ffffff;
+                font-size: 32px;
+                font-weight: 800;
+                margin-bottom: 15px;
+                line-height: 1.2;
+            }
+
+            .promo-content-right .promo-text {
+                color: rgba(255, 255, 255, 0.9);
+                font-size: 16px;
+                margin-bottom: 25px;
+                line-height: 1.5;
+            }
+
+            .promo-content-right .promo-link {
+                color: #ffffff;
+                font-size: 16px;
+                font-weight: 700;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                background: rgba(255,255,255,0.15);
+                padding: 12px 28px;
+                border-radius: 30px;
+                transition: 0.3s;
+                backdrop-filter: blur(5px);
+            }
+
+            .promo-content-right .promo-link:hover {
+                background: #ffffff;
+                color: var(--play-primary, #6c28fd);
+            }
+
+            @media (max-width: 991px) {
+                .promo-banner-play {
+                    flex-direction: column-reverse;
+                    padding: 30px;
+                    text-align: center;
+                }
+                .promo-content-right {
+                    width: 100%;
+                    text-align: center;
+                    padding: 0 0 30px 0;
+                }
+                .promo-graphic-left {
+                    width: 100%;
+                }
+                .promo-graphic-left img {
+                    mask-image: none;
+                    -webkit-mask-image: none;
+                    border-radius: 12px;
+                }
+            }
+        </style>
+
         {% if aluno_logado and continuar_a_ver %}
         <!-- Row: Continuar a Ver -->
         <section class="play-section">
-            <div class="d-flex justify-content-between align-items-center mb-3 pr-5" style="padding-right: 5%;">
-                <h2 class="play-section-title mb-0">Continuar a Ver</h2>
-            </div>
-            <div class="swiper playSwiper">
-                <div class="swiper-wrapper">
+            <div class="container">
+                <div class="bg-color-white rbt-shadow-box" style="padding: 40px; border-radius: 12px;">
+                    <div class="row g-5 align-items-center">
+                        <div class="col-lg-3 col-md-12">
+                            <div class="section-title text-start">
+                                <h2 class="play-section-title mb-0 title" style="padding-left: 0; font-size: 24px; font-weight: 700;">Continuar a Ver</h2>
+                                <p class="description mt--20" style="font-size: 15px; color: var(--play-meta-dark);">Retoma o teu estudo a partir do momento em que paraste. A tua evolução aguarda.</p>
+                            </div>
+                            <div class="d-flex justify-content-start gap-3 rbt-arrow-between mt--30">
+                                <div class="rbt-swiper-arrow style_2 play-custom-prev">
+                                    <div class="custom-overfolow">
+                                        <i class="rbt-icon feather-arrow-left"></i>
+                                        <i class="rbt-icon-top feather-arrow-left"></i>
+                                    </div>
+                                </div>
+                                <div class="rbt-swiper-arrow style_2 play-custom-next">
+                                    <div class="custom-overfolow">
+                                        <i class="rbt-icon feather-arrow-right"></i>
+                                        <i class="rbt-icon-top feather-arrow-right"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-9 col-md-12">
+                            <div class="swiper playSwiper-custom">
+                                <div class="swiper-wrapper">
                     {% for video in continuar_a_ver %}
-                    <div class="swiper-slide">
+                    <div class="swiper-slide p-2" style="width: 320px;">
                         {% include 'components/curso_card.html' with curso=video modo="aluno" %}
                     </div>
                     {% endfor %}
                 </div>
-                <div class="swiper-button-next"></div>
-                <div class="swiper-button-prev"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
         {% endif %}
@@ -484,41 +627,89 @@
         {% if aluno_logado and meus_favoritos %}
         <!-- Row: A Minha Lista -->
         <section class="play-section">
-            <div class="d-flex justify-content-between align-items-center mb-3 pr-5" style="padding-right: 5%;">
-                <h2 class="play-section-title mb-0">A Minha Lista</h2>
-            </div>
-            <div class="swiper playSwiper">
-                <div class="swiper-wrapper">
+            <div class="container">
+                <div class="bg-color-white rbt-shadow-box" style="padding: 40px; border-radius: 12px;">
+                    <div class="row g-5 align-items-center">
+                        <div class="col-lg-3 col-md-12">
+                            <div class="section-title text-start">
+                                <h2 class="play-section-title mb-0 title" style="padding-left: 0; font-size: 24px; font-weight: 700;">A Minha Lista</h2>
+                                <p class="description mt--20" style="font-size: 15px; color: var(--play-meta-dark);">Os cursos que guardaste como favoritos para aprender e crescer quando quiseres.</p>
+                            </div>
+                            <div class="d-flex justify-content-start gap-3 rbt-arrow-between mt--30">
+                                <div class="rbt-swiper-arrow style_2 play-custom-prev">
+                                    <div class="custom-overfolow">
+                                        <i class="rbt-icon feather-arrow-left"></i>
+                                        <i class="rbt-icon-top feather-arrow-left"></i>
+                                    </div>
+                                </div>
+                                <div class="rbt-swiper-arrow style_2 play-custom-next">
+                                    <div class="custom-overfolow">
+                                        <i class="rbt-icon feather-arrow-right"></i>
+                                        <i class="rbt-icon-top feather-arrow-right"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-9 col-md-12">
+                            <div class="swiper playSwiper-custom">
+                                <div class="swiper-wrapper">
                     {% for video in meus_favoritos %}
-                    <div class="swiper-slide">
+                    <div class="swiper-slide p-2" style="width: 320px;">
                         {% include 'components/curso_card.html' with curso=video %}
                     </div>
                     {% endfor %}
                 </div>
-                <div class="swiper-button-next"></div>
-                <div class="swiper-button-prev"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
         {% endif %}
 
         <!-- Row 1: Novos Lançamentos -->
         <section class="play-section">
-            <div class="d-flex justify-content-between align-items-center mb-3 pr-5" style="padding-right: 5%;">
-                <h2 class="play-section-title mb-0">Novos Lançamentos</h2>
-                <a href="{% url 'cursovideoapp:sessao_ver_todos' sessao_tipo='recentes' %}" class="play-btn-link" style="color: var(--play-meta-dark); text-decoration: none; font-weight: 600; font-size: 14px;">
-                    Explorar todos <i class="fas fa-chevron-right ms-1" style="font-size: 12px;"></i>
-                </a>
-            </div>
-            <div class="swiper playSwiper">
-                <div class="swiper-wrapper">
+            <div class="container">
+                <div class="bg-color-white rbt-shadow-box" style="padding: 40px; border-radius: 12px;">
+                    <div class="row g-5 align-items-center">
+                        <div class="col-lg-3 col-md-12">
+                            <div class="section-title text-start">
+                                <h2 class="play-section-title mb-0 title" style="padding-left: 0; font-size: 24px; font-weight: 700;">Novos Lançamentos</h2>
+                                <p class="description mt--20" style="font-size: 15px; color: var(--play-meta-dark);">Explora os mais recentes cursos e formações fresquinhas no nosso catálogo de aprendizagem.</p>
+                                <div class="mt--20">
+                                    <a href="{% url 'cursovideoapp:sessao_ver_todos' sessao_tipo='recentes' %}" class="play-btn-link" style="color: var(--play-meta-dark); text-decoration: none; font-weight: 600; font-size: 14px;">
+                                        Explorar todos <i class="fas fa-chevron-right ms-1" style="font-size: 12px;"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-start gap-3 rbt-arrow-between mt--30">
+                                <div class="rbt-swiper-arrow style_2 play-custom-prev">
+                                    <div class="custom-overfolow">
+                                        <i class="rbt-icon feather-arrow-left"></i>
+                                        <i class="rbt-icon-top feather-arrow-left"></i>
+                                    </div>
+                                </div>
+                                <div class="rbt-swiper-arrow style_2 play-custom-next">
+                                    <div class="custom-overfolow">
+                                        <i class="rbt-icon feather-arrow-right"></i>
+                                        <i class="rbt-icon-top feather-arrow-right"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-9 col-md-12">
+                            <div class="swiper playSwiper-custom">
+                                <div class="swiper-wrapper">
                     {% for video in videos_recentes %}
-                    <div class="swiper-slide">
+                    <div class="swiper-slide p-2" style="width: 320px;">
                         {% include 'components/curso_card.html' with curso=video %}
                     </div>
                     {% endfor %}
                 </div>
-                <div class="swiper-button-next"></div>
-                <div class="swiper-button-prev"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -527,85 +718,185 @@
 
         <!-- Row 2: Populares -->
         <section class="play-section">
-            <div class="d-flex justify-content-between align-items-center mb-3 pr-5" style="padding-right: 5%;">
-                <h2 class="play-section-title mb-0">Em Alta no EdukAngola</h2>
-                <a href="{% url 'cursovideoapp:sessao_ver_todos' sessao_tipo='populares' %}" class="play-btn-link" style="color: var(--play-meta-dark); text-decoration: none; font-weight: 600; font-size: 14px;">
-                    Explorar todos <i class="fas fa-chevron-right ms-1" style="font-size: 12px;"></i>
-                </a>
-            </div>
-            <div class="swiper playSwiper">
-                <div class="swiper-wrapper">
+            <div class="container">
+                <div class="bg-color-white rbt-shadow-box" style="padding: 40px; border-radius: 12px;">
+                    <div class="row g-5 align-items-center">
+                        <div class="col-lg-3 col-md-12">
+                            <div class="section-title text-start">
+                                <h2 class="play-section-title mb-0 title" style="padding-left: 0; font-size: 24px; font-weight: 700;">Em Alta no EdukAngola</h2>
+                                <p class="description mt--20" style="font-size: 15px; color: var(--play-meta-dark);">As formações mais cobiçadas do momento na comunidade. Não fiques para trás.</p>
+                                <div class="mt--20">
+                                    <a href="{% url 'cursovideoapp:sessao_ver_todos' sessao_tipo='populares' %}" class="play-btn-link" style="color: var(--play-meta-dark); text-decoration: none; font-weight: 600; font-size: 14px;">
+                                        Explorar todos <i class="fas fa-chevron-right ms-1" style="font-size: 12px;"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-start gap-3 rbt-arrow-between mt--30">
+                                <div class="rbt-swiper-arrow style_2 play-custom-prev">
+                                    <div class="custom-overfolow">
+                                        <i class="rbt-icon feather-arrow-left"></i>
+                                        <i class="rbt-icon-top feather-arrow-left"></i>
+                                    </div>
+                                </div>
+                                <div class="rbt-swiper-arrow style_2 play-custom-next">
+                                    <div class="custom-overfolow">
+                                        <i class="rbt-icon feather-arrow-right"></i>
+                                        <i class="rbt-icon-top feather-arrow-right"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-9 col-md-12">
+                            <div class="swiper playSwiper-custom">
+                                <div class="swiper-wrapper">
                     {% for video in videos_populares %}
-                    <div class="swiper-slide">
+                    <div class="swiper-slide p-2" style="width: 320px;">
                         {% include 'components/curso_card.html' with curso=video %}
                     </div>
                     {% endfor %}
                 </div>
-                <div class="swiper-button-next"></div>
-                <div class="swiper-button-prev"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
         <!-- Row 3: Categorias -->
         <section class="play-section">
-            <h2 class="play-section-title">Explorar por Categorias</h2>
-            <div class="swiper catSwiper">
-                <div class="swiper-wrapper">
-                    {% for cat in categorias %}
-                    <div class="swiper-slide">
-                        <div class="play-card" style="aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; background: linear-gradient(45deg, var(--play-primary), var(--play-secondary));">
-                            <div class="text-center">
-                                <h3 class="play-card-title" style="font-size: 20px;">{{ cat.nome }}</h3>
-                                <span style="font-size: 14px; opacity: 0.8; color: #fff;">{{ cat.num_cursos }} cursos</span>
+            <div class="container">
+                <div class="bg-color-white rbt-shadow-box" style="padding: 40px; border-radius: 12px;">
+                    <div class="row g-5 align-items-center">
+                        <div class="col-lg-3 col-md-12">
+                            <div class="section-title text-start">
+                                <h2 class="play-section-title mb-0 title" style="padding-left: 0; font-size: 24px; font-weight: 700;">Explorar por Categorias</h2>
+                                <p class="description mt--20" style="font-size: 15px; color: var(--play-meta-dark);">Navega facilmente pelas diferentes áreas do saber e foca-te naquilo que mais te interessa.</p>
+                            </div>
+                            <div class="d-flex justify-content-start gap-3 rbt-arrow-between mt--30">
+                                <div class="rbt-swiper-arrow style_2 play-custom-prev">
+                                    <div class="custom-overfolow">
+                                        <i class="rbt-icon feather-arrow-left"></i>
+                                        <i class="rbt-icon-top feather-arrow-left"></i>
+                                    </div>
+                                </div>
+                                <div class="rbt-swiper-arrow style_2 play-custom-next">
+                                    <div class="custom-overfolow">
+                                        <i class="rbt-icon feather-arrow-right"></i>
+                                        <i class="rbt-icon-top feather-arrow-right"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-9 col-md-12">
+                            <div class="swiper playSwiper-custom">
+                                <div class="swiper-wrapper">
+                                    {% for cat in categorias %}
+                                    <div class="swiper-slide p-2" style="width: 260px;">
+                                        <div class="play-card" style="aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; background: linear-gradient(45deg, var(--play-primary), var(--play-secondary)); border-radius: 8px;">
+                                            <div class="text-center">
+                                                <h3 class="play-card-title" style="font-size: 20px; color: #ffffff;">{{ cat.nome }}</h3>
+                                                <span style="font-size: 14px; opacity: 0.9; color: #ffffff;">{{ cat.num_cursos }} cursos</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
                             </div>
                         </div>
                     </div>
-                    {% endfor %}
                 </div>
-                <div class="swiper-button-next"></div>
-                <div class="swiper-button-prev"></div>
             </div>
         </section>
 
         <!-- Row: Tecnologia (Domine a Tecnologia Actual) -->
         <section class="play-section">
-            <div class="d-flex justify-content-between align-items-center mb-3 pr-5" style="padding-right: 5%;">
-                <h2 class="play-section-title mb-0">Domine a Tecnologia Actual</h2>
-                <a href="{% url 'cursovideoapp:sessao_ver_todos' sessao_tipo='tecnologia' %}" class="play-btn-link" style="color: var(--play-meta-dark); text-decoration: none; font-weight: 600; font-size: 14px;">
-                    Explorar todos <i class="fas fa-chevron-right ms-1" style="font-size: 12px;"></i>
-                </a>
-            </div>
-            <div class="swiper playSwiper">
-                <div class="swiper-wrapper">
+            <div class="container">
+                <div class="bg-color-white rbt-shadow-box" style="padding: 40px; border-radius: 12px;">
+                    <div class="row g-5 align-items-center">
+                        <div class="col-lg-3 col-md-12">
+                            <div class="section-title text-start">
+                                <h2 class="play-section-title mb-0 title" style="padding-left: 0; font-size: 24px; font-weight: 700;">Domine a Tecnologia Actual</h2>
+                                <p class="description mt--20" style="font-size: 15px; color: var(--play-meta-dark);">Formações dedicadas a potenciar a tua carreira nas áreas da tecnologia e inovação.</p>
+                                <div class="mt--20">
+                                    <a href="{% url 'cursovideoapp:sessao_ver_todos' sessao_tipo='tecnologia' %}" class="play-btn-link" style="color: var(--play-meta-dark); text-decoration: none; font-weight: 600; font-size: 14px;">
+                                        Explorar todos <i class="fas fa-chevron-right ms-1" style="font-size: 12px;"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-start gap-3 rbt-arrow-between mt--30">
+                                <div class="rbt-swiper-arrow style_2 play-custom-prev">
+                                    <div class="custom-overfolow">
+                                        <i class="rbt-icon feather-arrow-left"></i>
+                                        <i class="rbt-icon-top feather-arrow-left"></i>
+                                    </div>
+                                </div>
+                                <div class="rbt-swiper-arrow style_2 play-custom-next">
+                                    <div class="custom-overfolow">
+                                        <i class="rbt-icon feather-arrow-right"></i>
+                                        <i class="rbt-icon-top feather-arrow-right"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-9 col-md-12">
+                            <div class="swiper playSwiper-custom">
+                                <div class="swiper-wrapper">
                     {% for video in videos_tecnologia %}
-                    <div class="swiper-slide">
+                    <div class="swiper-slide p-2" style="width: 320px;">
                         {% include 'components/curso_card.html' with curso=video %}
                     </div>
                     {% endfor %}
                 </div>
-                <div class="swiper-button-next"></div>
-                <div class="swiper-button-prev"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
         <!-- Row 4: Mais Assistidos -->
-        <section class="play-section mb--60">
-            <div class="d-flex justify-content-between align-items-center mb-3 pr-5" style="padding-right: 5%;">
-                <h2 class="play-section-title mb-0">Cursos Mais Assistidos</h2>
-                <a href="{% url 'cursovideoapp:sessao_ver_todos' sessao_tipo='mais_assistidos' %}" class="play-btn-link" style="color: var(--play-meta-dark); text-decoration: none; font-weight: 600; font-size: 14px;">
-                    Explorar todos <i class="fas fa-chevron-right ms-1" style="font-size: 12px;"></i>
-                </a>
-            </div>
-            <div class="swiper playSwiper">
-                <div class="swiper-wrapper">
+        <section class="play-section">
+            <div class="container">
+                <div class="bg-color-white rbt-shadow-box" style="padding: 40px; border-radius: 12px;">
+                    <div class="row g-5 align-items-center">
+                        <div class="col-lg-3 col-md-12">
+                            <div class="section-title text-start">
+                                <h2 class="play-section-title mb-0 title" style="padding-left: 0; font-size: 24px; font-weight: 700;">Cursos Mais Assistidos</h2>
+                                <p class="description mt--20" style="font-size: 15px; color: var(--play-meta-dark);">Descobre o que outros milhares de angolanos estão a ver agora mesmo e domina novas habilidades.</p>
+                                <div class="mt--20">
+                                    <a href="{% url 'cursovideoapp:sessao_ver_todos' sessao_tipo='mais_assistidos' %}" class="play-btn-link" style="color: var(--play-meta-dark); text-decoration: none; font-weight: 600; font-size: 14px;">
+                                        Explorar todos <i class="fas fa-chevron-right ms-1" style="font-size: 12px;"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-start gap-3 rbt-arrow-between mt--30">
+                                <div class="rbt-swiper-arrow style_2 play-custom-prev">
+                                    <div class="custom-overfolow">
+                                        <i class="rbt-icon feather-arrow-left"></i>
+                                        <i class="rbt-icon-top feather-arrow-left"></i>
+                                    </div>
+                                </div>
+                                <div class="rbt-swiper-arrow style_2 play-custom-next">
+                                    <div class="custom-overfolow">
+                                        <i class="rbt-icon feather-arrow-right"></i>
+                                        <i class="rbt-icon-top feather-arrow-right"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-9 col-md-12">
+                            <div class="swiper playSwiper-custom">
+                                <div class="swiper-wrapper">
                     {% for video in videos_assistidos %}
-                    <div class="swiper-slide">
+                    <div class="swiper-slide p-2" style="width: 320px;">
                         {% include 'components/curso_card.html' with curso=video %}
                     </div>
                     {% endfor %}
                 </div>
-                <div class="swiper-button-next"></div>
-                <div class="swiper-button-prev"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -617,6 +908,26 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar sliders personalizados com botões na coluna da esquerda
+            document.querySelectorAll('.play-section').forEach(function(section) {
+                var customSwiperEl = section.querySelector('.playSwiper-custom, .playSwiper-recomendados');
+                var prevBtn = section.querySelector('.play-custom-prev');
+                var nextBtn = section.querySelector('.play-custom-next');
+                
+                if (customSwiperEl && prevBtn && nextBtn) {
+                    new Swiper(customSwiperEl, {
+                        slidesPerView: 'auto',
+                        spaceBetween: 20,
+                        watchOverflow: true,
+                        navigation: {
+                            nextEl: nextBtn,
+                            prevEl: prevBtn,
+                        }
+                    });
+                }
+            });
+
+            // Swipers convencionais
             new Swiper(".playSwiper", {
                 slidesPerView: 'auto',
                 spaceBetween: 20,

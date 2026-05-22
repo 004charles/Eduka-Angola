@@ -53,16 +53,31 @@
             </div>
         </div>
 
-        <!-- Texto de Esperança e Estudantil -->
+        <!-- Banner Estudantil Modernizado -->
         <div class="rbt-text-area ptb--40">
             <div class="container">
                 <div class="row justify-content-center">
-                    <div class="col-lg-8 text-center">
-                        <div class="section-title">
-                            <h2 class="title">{% trans "Alcance os Seus Objetivos" %}</h2>
-                            <p class="description mt--20">
-                                {% trans "Acredite no seu potencial. Os cursos abaixo são ministrados pelos melhores centros de formação de Angola para impulsionar o seu futuro." %}
-                            </p>
+                    <div class="col-lg-10">
+                        <div style="background-color: #020c26; border-radius: 12px; position: relative; overflow: hidden; display: flex; align-items: center; min-height: 220px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                            
+                            <!-- Gradiente de fundo (direita) -->
+                            <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 45%; background: linear-gradient(135deg, #00c6ff 0%, #6025F5 100%); clip-path: circle(75% at 100% 50%); z-index: 1;"></div>
+                            
+                            <!-- Imagem do Estudante (direita, dentro do gradiente) -->
+                            <div style="position: absolute; right: 2%; bottom: 0; z-index: 2; height: 100%; display: flex; align-items: flex-end;">
+                                <img src="{% static 'assets/images/bg/student_helmet.png' %}" alt="Estudante de Engenharia" style="height: 120%; max-height: 280px; object-fit: contain; filter: drop-shadow(-5px 5px 15px rgba(0,0,0,0.4)); margin-bottom: -15px;">
+                            </div>
+
+                            <!-- Conteúdo (esquerda) -->
+                            <div style="position: relative; z-index: 3; width: 65%;">
+                                <h3 style="color: #ffffff; font-weight: 700; margin-bottom: 15px; font-size: 26px;">{% trans "Alcance os Seus Objetivos" %}</h3>
+                                <p style="color: #cbd5e1; font-size: 15px; line-height: 1.6; margin-bottom: 25px; max-width: 85%;">
+                                    {% trans "Acredite no seu potencial. Os cursos abaixo são ministrados pelos melhores centros de formação de Angola para impulsionar o seu futuro." %}
+                                </p>
+                                <a href="{% url 'index' %}#recomendados" style="color: #ffffff; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s;" onmouseover="this.style.color='#00c6ff'" onmouseout="this.style.color='#ffffff'">
+                                    {% trans "Saber mais" %} <i class="feather-arrow-right"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -81,16 +96,19 @@
                 <!-- Retome sua exploração (Histórico) -->
                 {% include 'core/includes/home/recently_viewed.html' %}
             {% endif %}
+            
             {% include 'components/home_course_section.html' with secao=secao %}
+            
+            {% if secao.config.slug == 'novos' %}
+                <!-- Centros em Destaque / Centros Próximos de Ti (Movido para aqui) -->
+                {% include 'core/includes/home/featured_centers.html' %}
+            {% endif %}
             
             {% if secao.config.slug == 'negocios' %}
                 <!-- Publicidade 10% Desconto -->
                 {% include 'core/includes/home/promo_banner.html' %}
             {% endif %}
         {% endfor %}
-
-        <!-- Centros em Destaque / Centros Próximos de Ti (Dinâmico) -->
-        {% include 'core/includes/home/featured_centers.html' %}
 
     </main>
 

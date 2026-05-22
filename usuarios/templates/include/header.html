@@ -202,14 +202,7 @@
                             </a>
                         </li>
                         
-                        {% if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO' %}
-                        <li class="access-icon">
-                            <a class="rbt-round-btn relative" href="#" style="position: relative;">
-                                <i class="feather-bell"></i>
-                                <span class="badge-count hidden" style="position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white;">0</span>
-                            </a>
-                        </li>
-                        {% endif %}
+
 
                         {% if request.user.is_authenticated %}
                         <li class="access-icon rbt-user-wrapper right-align-dropdown">

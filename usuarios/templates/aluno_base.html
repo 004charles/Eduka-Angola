@@ -1,285 +1,104 @@
+{% extends 'base.html' %}
 {% load static %}
 {% load i18n %}
-<!DOCTYPE html>
-<html lang="pt-br">
 
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Edukangola | {% block title %}Painel do Aluno{% endblock %}</title>
-    <meta name="robots" content="noindex, follow">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{% block content %}
+<div class="rbt-page-banner-wrapper">
+    <!-- Start Banner BG Image  -->
+    <div class="rbt-banner-image"></div>
+    <!-- End Banner BG Image  -->
+</div>
 
-    {% include 'include/css.html' %}
-</head>
-
-<body class="rbt-header-sticky">
-    
-    <div class="app-dashboard-wrapper">
-        <!-- Overlay para fechar sidebar no mobile -->
-        <div id="sidebar-overlay" class="d-none" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; transition: 0.3s; opacity: 0;"></div>
-
-        <!-- Sidebar Fixo (Esquerda) -->
-        <aside class="app-sidebar bg-color-white">
-            {% include 'include/sidebar_app_aluno.html' %}
-        </aside>
-
-        <!-- Área Principal de Conteúdo (Direita) -->
-        <main class="app-main-content">
-            
-            <!-- Topbar App -->
-            <header class="app-topbar bg-color-white">
-                <div class="container-fluid">
-                    <div class="d-flex justify-content-between align-items-center" style="height: 70px;">
-                        <div class="d-flex align-items-center gap-3">
-                            <button id="mobile-menu-toggle" class="rbt-btn btn-white btn-sm icon-hover radius-round border d-block d-lg-none" style="padding: 0 10px; height: 35px; width: 35px; align-items:center; justify-content:center;">
-                                <i class="feather-menu" style="margin: 0; font-size: 18px;"></i>
-                            </button>
-                            <h4 class="page-title mb-0" style="font-size: 20px;">{% block page_title %}{% trans "Área do Aluno" %}{% endblock %}</h4>
-                        </div>
-                        
-                        <div class="user-profile-menu d-flex align-items-center gap-3">
-                            <!-- Theme Switcher -->
-                            <div class="rbt-user-menu-list-wrapper">
-                                <div class="inner">
-                                    <div class="rbt-btn btn-white btn-sm icon-hover radius-round border" id="custom-theme-switch" style="cursor: pointer;">
-                                        <span class="btn-text">Tema</span>
-                                        <span class="btn-icon"><i class="feather-moon" id="theme-icon"></i></span>
-                                    </div>
-                                </div>
+<!-- Start Card Style -->
+<div class="rbt-dashboard-area rbt-section-overlayping-top rbt-section-gapBottom">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <!-- Start Dashboard Top  -->
+                <div class="rbt-dashboard-content-wrapper">
+                    {% if perfil.foto_de_capa %}
+                        <div class="tutor-bg-photo bg_image height-350" style="background-image: url('{{ perfil.foto_de_capa.url }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                    {% else %}
+                        <div class="tutor-bg-photo bg_image height-350" style="background-image: url('{% static 'assets/images/bg/student-bg.png' %}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                    {% endif %}
+                    <!-- Start Tutor Information  -->
+                    <div class="rbt-tutor-information">
+                        <div class="rbt-tutor-information-left">
+                            <div class="thumbnail rbt-avatars size-lg">
+                                {% if perfil.foto_de_perfil %}
+                                    <img src="{{ perfil.foto_de_perfil.url }}" alt="{{ aluno_nome }}">
+                                {% elif perfil.imagem %}
+                                    <img src="{{ perfil.imagem.url }}" alt="{{ aluno_nome }}">
+                                {% else %}
+                                    <div class="student-avatar-initial" style="width:120px; height:120px; border-radius:50%; background:var(--color-primary); color:white; display:flex; align-items:center; justify-content:center; font-size:48px; margin:0 auto; border: 4px solid #fff;">{{ aluno_nome.0|upper }}</div>
+                                {% endif %}
                             </div>
-
-                            <a class="rbt-btn btn-primary btn-sm icon-hover radius-round" href="{% url 'index' %}">
-                                <span class="btn-text d-none d-md-block">{% trans "Voltar ao Site" %}</span>
-                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                            </a>
+                            <div class="tutor-content">
+                                <h5 class="title">{{ aluno_nome }}</h5>
+                                <ul class="rbt-meta rbt-meta-white mt--5">
+                                    <li><i class="feather-book"></i>{{ total_cursos_ativos|default:"0" }} {% trans "Cursos Inscritos" %}</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="rbt-tutor-information-right">
+                            <div class="tutor-btn">
+                                <a class="rbt-btn btn-md hover-icon-reverse" href="{% url 'index' %}">
+                                    <span class="icon-reverse-wrapper">
+                                        <span class="btn-text">{% trans "Explorar Cursos" %}</span>
+                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                    </span>
+                                </a>
+                            </div>
                         </div>
                     </div>
+                    <!-- End Tutor Information  -->
                 </div>
-            </header>
+                <!-- End Dashboard Top  -->
 
-            <!-- Inner Content -->
-            <div class="app-content-inner p-4 p-md-5">
-                <div class="container-fluid" style="max-width: 1320px; margin: 0 auto;">
-                    <!-- Mensagens de Feedback -->
-                    {% if messages %}
-                        <div class="row">
-                            <div class="col-12">
-                                {% for message in messages %}
-                                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show rbt-shadow-box mb--30" role="alert" style="border-radius: 10px; padding: 20px;">
-                                        <strong>{% if message.tags == 'success' %}Sucesso!{% elif message.tags == 'error' %}Erro!{% else %}Aviso!{% endif %}</strong> {{ message }}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="top: 15px; right: 15px;"></button>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    {% endif %}
-
-                    <!-- Content Blocks -->
-                    <div class="row g-5">
-                        <div class="col-lg-12">
-                            {% block dashboard_content_full %}{% endblock %}
-                            
-                            {% block dashboard_content_wrapper %}
-                            <div class="rbt-dashboard-content bg-color-white rbt-shadow-box border-0">
-                                <div class="content">
-                                    {% block dashboard_content %}{% endblock %}
+                <div class="row g-5">
+                    <div class="col-lg-3">
+                        <!-- Start Dashboard Sidebar  -->
+                        <div class="rbt-default-sidebar sticky-top rbt-shadow-box rbt-gradient-border">
+                            <div class="inner">
+                                <div class="content-item-content">
+                                    {% include 'include/sidebar_app_aluno.html' %}
                                 </div>
                             </div>
-                            {% endblock %}
                         </div>
+                        <!-- End Dashboard Sidebar  -->
+                    </div>
+
+                    <div class="col-lg-9">
+                        <!-- Mensagens de Feedback -->
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show rbt-shadow-box mb--30" role="alert" style="border-radius: 10px; padding: 20px;">
+                                    <strong>{% if message.tags == 'success' %}Sucesso!{% elif message.tags == 'error' %}Erro!{% else %}Aviso!{% endif %}</strong> {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="top: 15px; right: 15px;"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        {% block dashboard_content_full %}{% endblock %}
+                        
+                        {% block dashboard_content_wrapper %}
+                        <div class="rbt-dashboard-content bg-color-white rbt-shadow-box mb--60">
+                            <div class="content">
+                                {% block dashboard_content %}{% endblock %}
+                            </div>
+                        </div>
+                        {% endblock %}
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
     </div>
+</div>
+{% endblock %}
 
-    <style>
-        /* CSS Específico para o Layout Modo App */
-        html, body {
-            height: 100%;
-            overflow-x: hidden;
-        }
-        
-        .app-dashboard-wrapper {
-            display: flex;
-            min-height: 100vh;
-            background-color: #f3f4f6; /* Fundo Light nativo */
-            transition: background-color 0.3s ease;
-        }
-
-        /* Sidebar Fixo */
-        .app-sidebar {
-            width: 250px;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1000;
-            border-right: 1px solid var(--color-border);
-            transition: all 0.3s ease;
-            overflow-y: auto;
-        }
-
-        /* Oculta scrollbar da sidebar para ser mais limpo */
-        .app-sidebar::-webkit-scrollbar { display: none; }
-        .app-sidebar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* Área de Conteúdo Principal */
-        .app-main-content {
-            flex-grow: 1;
-            margin-left: 250px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            width: calc(100% - 250px);
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        /* Topbar Fixa */
-        .app-topbar {
-            position: sticky;
-            top: 0;
-            z-index: 999;
-            border-bottom: 1px solid var(--color-border);
-        }
-
-        /* Perfil Topbar */
-        .rbt-admin-profile {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding-left: 20px;
-            border-left: 1px solid var(--color-border);
-        }
-        .rbt-admin-profile .admin-info {
-            display: flex;
-            flex-direction: column;
-            text-align: left;
-        }
-        .rbt-admin-profile .admin-info .name {
-            font-weight: 600;
-            font-size: 15px;
-            line-height: 1;
-            margin-bottom: 4px;
-            color: var(--color-heading);
-        }
-        .rbt-admin-profile .admin-info a {
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        /* Melhorias nas caixas e cartões (Premium) */
-        .rbt-shadow-box {
-            border-radius: 12px; /* Cantos um pouco mais redondos */
-            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.03) !important;
-        }
-
-        /* Margem da área interna */
-        .app-content-inner {
-            flex-grow: 1;
-            padding-bottom: 60px !important;
-        }
-
-        /* Responsividade (Mobile) */
-        @media (max-width: 991px) {
-            .app-sidebar {
-                transform: translateX(-100%);
-                z-index: 1001; /* Ficar acima do overlay e do topbar */
-            }
-            .app-main-content {
-                margin-left: 0;
-                width: 100%;
-            }
-            
-            /* Toggle Classes for Mobile Menu */
-            .sidebar-open .app-sidebar {
-                transform: translateX(0);
-            }
-            .sidebar-open #sidebar-overlay {
-                display: block !important;
-                opacity: 1;
-            }
-        }
-        
-        /* Ajustes Tema Escuro */
-        .active-dark-mode .app-dashboard-wrapper {
-            background-color: #0f172a !important; /* Cor de fundo principal dark mode */
-        }
-        .active-dark-mode .app-sidebar,
-        .active-dark-mode .app-topbar {
-            background-color: #1e293b !important;
-            border-color: rgba(255,255,255,0.05);
-        }
-        .active-dark-mode .rbt-dashboard-content.bg-color-white {
-            background-color: #1e293b !important;
-        }
-        .active-dark-mode .page-title {
-            color: var(--color-white);
-        }
-    </style>
-
-    {% include 'include/java.html' %}
-
-    <script>
-        // Custom Theme Switcher Logic to guarantee it works in App Mode
-        document.addEventListener('DOMContentLoaded', function() {
-            const switchBtn = document.getElementById('custom-theme-switch');
-            const themeIcon = document.getElementById('theme-icon');
-            
-            function updateIcon() {
-                if(document.body.classList.contains('active-dark-mode')) {
-                    themeIcon.classList.remove('feather-moon');
-                    themeIcon.classList.add('feather-sun');
-                } else {
-                    themeIcon.classList.remove('feather-sun');
-                    themeIcon.classList.add('feather-moon');
-                }
-            }
-
-            // Sync with existing cookies/theme if set by jquery.style.switcher.js
-            setTimeout(updateIcon, 500);
-
-            if(switchBtn) {
-                switchBtn.addEventListener('click', function() {
-                    const body = document.body;
-                    if(body.classList.contains('active-dark-mode')) {
-                        body.classList.remove('active-dark-mode');
-                        body.classList.add('active-light-mode');
-                        document.cookie = "styleCookieName=light; path=/; max-age=2592000";
-                    } else {
-                        body.classList.remove('active-light-mode');
-                        body.classList.add('active-dark-mode');
-                        document.cookie = "styleCookieName=dark; path=/; max-age=2592000";
-                    }
-                    updateIcon();
-                });
-            }
-
-            // Mobile Sidebar Toggle
-            const menuToggle = document.getElementById('mobile-menu-toggle');
-            const dashboardWrapper = document.querySelector('.app-dashboard-wrapper');
-            const sidebarOverlay = document.getElementById('sidebar-overlay');
-
-            if(menuToggle && dashboardWrapper) {
-                menuToggle.addEventListener('click', function() {
-                    dashboardWrapper.classList.add('sidebar-open');
-                });
-            }
-            if(sidebarOverlay) {
-                sidebarOverlay.addEventListener('click', function() {
-                    dashboardWrapper.classList.remove('sidebar-open');
-                });
-            }
-        });
-    </script>
-
+{% block extra_js %}
     <!-- Odometer JS for counters -->
     <script src="{% static 'assets/js/vendor/odometer.js' %}"></script>
     <script src="{% static 'assets/js/vendor/appear.js' %}"></script>
-
-    {% block extra_js %}{% endblock %}
-</body>
-
-</html>
+{% endblock %}

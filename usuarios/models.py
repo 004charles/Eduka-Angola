@@ -135,6 +135,7 @@ class PerfilAluno(models.Model):
     
     imagem = models.ImageField(_('Imagem de Perfil'), upload_to='perfil_alunos/', null=True, blank=True)
     foto_de_perfil = models.ImageField(_('Foto de Perfil'), upload_to='fotos_perfil/', null=True, blank=True)
+    foto_de_capa = models.ImageField(_('Foto de Capa'), upload_to='fotos_capa/', null=True, blank=True)
     biografia = models.TextField(_('Biografia'), blank=True)
     telefone = models.CharField(_('Telefone'), max_length=20, blank=True, null=True)
     linkedin = models.URLField(_('LinkedIn'), blank=True, null=True)

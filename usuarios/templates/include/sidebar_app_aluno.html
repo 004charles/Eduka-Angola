@@ -2,26 +2,9 @@
 {% load static %}
 
 <div class="app-sidebar-inner">
-    <!-- Informação Rápida do Aluno no Topo do Menu -->
-    <div class="sidebar-user-area text-center mt--20 mb--20">
-        <div class="thumbnail rbt-avatars size-lg mx-auto mb-2">
-            {% if perfil.foto_de_perfil %}
-                <img src="{{ perfil.foto_de_perfil.url }}" alt="{{ aluno_nome }}">
-            {% elif perfil.imagem %}
-                <img src="{{ perfil.imagem.url }}" alt="{{ aluno_nome }}">
-            {% else %}
-                <div class="student-avatar-initial" style="width:60px; height:60px; border-radius:50%; background:var(--color-primary); color:white; display:flex; align-items:center; justify-content:center; font-size:24px; margin:0 auto;">{{ aluno_nome.0|upper }}</div>
-            {% endif %}
-        </div>
-        <h6 class="title mb-0 sidebar-student-name">{{ aluno_nome }}</h6>
-        <span class="rbt-badge-5 bg-primary-opacity mt--5" style="font-size: 12px; padding: 2px 8px;">{% trans "Aluno" %}</span>
-    </div>
-
-
-
     <div class="rbt-default-sidebar-wrapper">
-        <div class="section-title mb--10 px-4 text-start">
-            <h6 class="rbt-title-style-2" style="font-size: 13px; text-transform: uppercase; color: var(--color-body);">{% trans "Menu" %}</h6>
+        <div class="section-title mb--20 px-4 mt--20">
+            <h6 class="rbt-title-style-2" style="font-size: 13px; text-transform: uppercase; color: var(--color-body);">{% trans "Menu de Navegação" %}</h6>
         </div>
         
         <nav class="mainmenu-nav">
@@ -152,33 +135,6 @@
     .dashboard-mainmenu li a span, 
     .dashboard-mainmenu.nav-tabs .nav-link span {
         display: inline-block;
-    }
-
-    /* Estilos do avatar na sidebar */
-    .sidebar-user-area h6.title.sidebar-student-name {
-        display: block;
-        margin-top: 0px !important;
-        font-size: 17px !important;
-        font-weight: 700;
-        color: var(--color-heading);
-    }
-    
-    body.active-dark-mode .sidebar-user-area h6.title.sidebar-student-name {
-        color: #ffffff !important;
-    }
-    
-    .sidebar-user-area span.rbt-badge-5 {
-        display: inline-block;
-    }
-    .sidebar-user-area .student-avatar-initial {
-        width: 60px !important;
-        height: 60px !important;
-        font-size: 24px !important;
-    }
-    .thumbnail.rbt-avatars.size-lg img {
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
     }
     
     .dashboard-mainmenu.nav-tabs .nav-link.active,

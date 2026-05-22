@@ -720,6 +720,9 @@ def editar_perfil(request):
         if 'foto_de_perfil' in request.FILES:
             perfil.foto_de_perfil = request.FILES['foto_de_perfil']
             
+        if 'foto_de_capa' in request.FILES:
+            perfil.foto_de_capa = request.FILES['foto_de_capa']
+            
         if 'bilhete_frente' in request.FILES:
             perfil.bilhete_frente = request.FILES['bilhete_frente']
             

@@ -2,49 +2,51 @@
 {% load i18n %}
 
 {% if cursos_recomendados %}
-<div class="rbt-course-area rbt-section-gapBottom bg-color-white" style="padding-top: 50px; padding-bottom: 20px !important;">
+<div class="rbt-course-area rbt-section-gapBottom bg-color-extra2" style="padding-top: 50px; padding-bottom: 50px !important;">
     <div class="container">
-        <div class="row g-5 align-items-center">
-            <!-- Coluna da Esquerda (Título e Texto) -->
-            <div class="col-lg-3 col-md-12">
-                <div class="section-title text-start mb--30">
-                    <span class="subtitle bg-primary-opacity">🎯 {% trans "Para Si" %}</span>
-                    <h3 class="title" style="font-size: 24px; font-weight: 700;">{% trans "Recomendado para Si" %}</h3>
-                    <p class="description mt--20" style="font-size: 15px;">{% trans "Com base no seu perfil e interesses, selecionámos estas formações ideais para impulsionar a sua carreira." %}</p>
-                </div>
-                <!-- Setas e Botão Ver Tudo -->
-                <div class="d-flex justify-content-between align-items-center mt--30">
-                    <div class="view-all-btn">
-                        <a class="rbt-btn-link" href="{% url 'catalogo_cursos' %}">
-                            Ver Todos <i class="feather-arrow-right"></i>
-                        </a>
+        <div class="bg-color-white rbt-shadow-box" style="padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03) !important;">
+            <div class="row g-5 align-items-center">
+                <!-- Coluna da Esquerda (Título e Texto) -->
+                <div class="col-lg-3 col-md-12">
+                    <div class="section-title text-start mb--30">
+                        <span class="subtitle bg-primary-opacity">🎯 {% trans "Para Si" %}</span>
+                        <h3 class="title" style="font-size: 24px; font-weight: 700;">{% trans "Recomendado para Si" %}</h3>
+                        <p class="description mt--20" style="font-size: 15px;">{% trans "Com base no seu perfil e interesses, selecionámos estas formações ideais para impulsionar a sua carreira." %}</p>
                     </div>
-                    <div class="d-flex justify-content-start gap-3 rbt-arrow-between">
-                        <div class="rbt-swiper-arrow style_2 swiper-prev-recomendados">
-                            <div class="custom-overfolow">
-                                <i class="rbt-icon feather-arrow-left"></i>
-                                <i class="rbt-icon-top feather-arrow-left"></i>
+                    <!-- Setas e Botão Ver Tudo -->
+                    <div class="d-flex justify-content-between align-items-center mt--30">
+                        <div class="view-all-btn">
+                            <a class="rbt-btn-link" href="{% url 'catalogo_cursos' %}">
+                                Ver Todos <i class="feather-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div class="d-flex justify-content-start gap-3 rbt-arrow-between">
+                            <div class="rbt-swiper-arrow style_2 swiper-prev-recomendados">
+                                <div class="custom-overfolow">
+                                    <i class="rbt-icon feather-arrow-left"></i>
+                                    <i class="rbt-icon-top feather-arrow-left"></i>
+                                </div>
+                            </div>
+                            <div class="rbt-swiper-arrow style_2 swiper-next-recomendados">
+                                <div class="custom-overfolow">
+                                    <i class="rbt-icon feather-arrow-right"></i>
+                                    <i class="rbt-icon-top feather-arrow-right"></i>
+                                </div>
                             </div>
                         </div>
-                        <div class="rbt-swiper-arrow style_2 swiper-next-recomendados">
-                            <div class="custom-overfolow">
-                                <i class="rbt-icon feather-arrow-right"></i>
-                                <i class="rbt-icon-top feather-arrow-right"></i>
-                            </div>
-                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Coluna da Direita (Swiper com cartões de Cursos Padrão) -->
-            <div class="col-lg-9 col-md-12">
-                <div class="swiper dynamicCourseSwiper-recomendados mb--40">
-                    <div class="swiper-wrapper">
-                        {% for curso in cursos_recomendados %}
-                        <div class="swiper-slide p-2">
-                            {% include 'components/curso_card.html' with curso=curso %}
+                <!-- Coluna da Direita (Swiper com cartões de Cursos Padrão) -->
+                <div class="col-lg-9 col-md-12">
+                    <div class="swiper dynamicCourseSwiper-recomendados mb--40">
+                        <div class="swiper-wrapper">
+                            {% for curso in cursos_recomendados %}
+                            <div class="swiper-slide p-2">
+                                {% include 'components/curso_card.html' with curso=curso %}
+                            </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
                     </div>
                 </div>
             </div>
