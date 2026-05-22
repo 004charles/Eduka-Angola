@@ -3920,6 +3920,24 @@ def criar_anuncio(request):
             anuncio = form.save(commit=False)
             anuncio.centro = centro
             anuncio.save()
+            
+            # Notificar todos os seguidores
+            from usuarios.models import NotificacaoAluno
+            seguidores = centro.seguidores.all()
+            notificacoes = []
+            
+            for seguimento in seguidores:
+                notificacoes.append(NotificacaoAluno(
+                    aluno=seguimento.aluno,
+                    titulo=f"Novo comunicado de {centro.nome}",
+                    mensagem=f"{anuncio.titulo}",
+                    link=f"/cursos/instituicoes/",
+                    tipo='ANUNCIO'
+                ))
+                
+            if notificacoes:
+                NotificacaoAluno.objects.bulk_create(notificacoes)
+                
             messages.success(request, 'Anúncio publicado com sucesso! Os seus seguidores foram notificados.')
             return redirect('listar_anuncios')
     else:
