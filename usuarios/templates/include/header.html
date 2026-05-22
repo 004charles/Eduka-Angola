@@ -347,17 +347,17 @@
                     </div>
                     {% for d in destaques_global %}
                     <div class="col-lg-4 col-md-6 col-sm-6 col-12">
-                        <div class="rbt-card variation-01 rbt-hover">
-                            <div class="rbt-card-img" style="height: 80px;">
-                                <a href="{% url 'curso_detalhe' d.id %}">
-                                    <img src="{{ d.get_imagem_url }}" alt="{{ d.titulo }}" style="height: 100%; object-fit: cover;">
+                        <div class="rbt-card rbt-hover" style="display: flex !important; flex-direction: column !important; border: 1px solid rgba(0,0,0,0.05); border-radius: 8px; overflow: hidden; background: #fff;">
+                            <div class="rbt-card-img" style="height: 120px; width: 100%; display: block !important;">
+                                <a href="{% url 'curso_detalhe' d.id %}" style="display: block; height: 100%; width: 100%;">
+                                    <img src="{{ d.get_imagem_url }}" alt="{{ d.titulo }}" style="height: 100%; width: 100%; object-fit: cover; display: block;">
                                 </a>
                             </div>
-                            <div class="rbt-card-body p-3">
-                                <h6 class="rbt-card-title mb-0" style="font-size: 14px;">
+                            <div class="rbt-card-body p-3 text-start" style="width: 100%;">
+                                <h6 class="rbt-card-title mb-1" style="font-size: 14px; line-height: 1.4;">
                                     <a href="{% url 'curso_detalhe' d.id %}">{{ d.titulo|truncatechars:40 }}</a>
                                 </h6>
-                                <span class="text-primary fw-bold" style="font-size: 12px;">{{ d.preco|default:'Grátis' }} Kz</span>
+                                <span class="text-primary fw-bold" style="font-size: 13px;">{{ d.preco|default:'Grátis' }} Kz</span>
                             </div>
                         </div>
                     </div>

@@ -125,6 +125,14 @@
     </script>
     
     <!-- Lógica de Animações e Swipers Customizados -->
+    <style>
+        @media (max-width: 767px) {
+            [class*="dynamicCourseSwiper-"] .swiper-slide {
+                width: 280px !important;
+                height: auto;
+            }
+        }
+    </style>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Inicializar Swipers
@@ -174,7 +182,7 @@
                         prevEl: '.swiper-prev-' + slug 
                     },
                     breakpoints: {
-                        0: { slidesPerView: 1.2 },
+                        0: { slidesPerView: 'auto', spaceBetween: 15 },
                         768: { slidesPerView: 2 },
                         992: { slidesPerView: 3 },
                         1200: { slidesPerView: 3.2 }
