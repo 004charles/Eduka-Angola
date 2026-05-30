@@ -21,7 +21,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
 from .models import Galeria, SobreNos, MensagemContato, Publicidade
-from inteligencia.utils import recomendar_cursos
+# from inteligencia.utils import recomendar_cursos
 from avaliacoes.utils import get_centro_da_semana
 from cursos_app.utils_secoes import get_home_sections_data
 
@@ -348,6 +348,28 @@ def contato(request):
     return render(request, 'core/contato.html', context)
 
 
+def teste_pagamento(request):
+    """
+    Página de teste para a integração com Prontu.
+    Permite testar o fluxo de pagamento sem criar uma inscrição real.
+    """
+    context = {
+        'aluno_logado': False,
+    }
+    
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
+        try:
+            aluno = request.user.aluno_profile
+            context.update({
+                'aluno_logado': True,
+                'aluno_nome': aluno.nome,
+            })
+        except AttributeError:
+            pass
+    
+    return render(request, 'teste_pagamento.html', context)
+
+
 def faq(request):
     """
     Página de Perguntas Frequentes (FAQ).
@@ -367,3 +389,47 @@ def faq(request):
             pass
 
     return render(request, 'core/faq.html', context)
+
+
+def pagamento_sucesso(request):
+    """
+    Página de sucesso do pagamento.
+    """
+    context = {
+        'aluno_logado': False,
+        'referencia': request.GET.get('reference', 'N/A'),
+        'transaction_id': request.GET.get('transaction_id', 'N/A'),
+    }
+    
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
+        try:
+            aluno = request.user.aluno_profile
+            context.update({
+                'aluno_logado': True,
+                'aluno_nome': aluno.nome,
+            })
+        except AttributeError:
+            pass
+            
+    return render(request, 'core/pagamento_sucesso.html', context)
+
+
+def pagamento_cancelado(request):
+    """
+    Página de cancelamento do pagamento.
+    """
+    context = {
+        'aluno_logado': False,
+    }
+    
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
+        try:
+            aluno = request.user.aluno_profile
+            context.update({
+                'aluno_logado': True,
+                'aluno_nome': aluno.nome,
+            })
+        except AttributeError:
+            pass
+            
+    return render(request, 'core/pagamento_cancelado.html', context)

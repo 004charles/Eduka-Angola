@@ -1,0 +1,207 @@
+{% load i18n %}
+
+{% autoescape on %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            margin: -20px -20px 20px -20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+        .content {
+            margin: 20px 0;
+        }
+        .payment-details {
+            background-color: #f9f9f9;
+            border-left: 4px solid #f5576c;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .payment-details p {
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dotted #ddd;
+            padding-bottom: 5px;
+        }
+        .payment-details p:last-child {
+            border-bottom: none;
+        }
+        .amount {
+            font-size: 18px;
+            font-weight: bold;
+            color: #f5576c;
+        }
+        .footer {
+            background-color: #f4f4f4;
+            padding: 15px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-radius: 0 0 8px 8px;
+            margin: 20px -20px -20px -20px;
+        }
+        .alert {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 4px;
+            color: #856404;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        table th {
+            background-color: #f5f5f5;
+            padding: 10px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+        }
+        table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{% trans "Notificação de Pagamento Recebido" %}</h1>
+        </div>
+
+        <div class="content">
+            <p>{% trans "Um novo pagamento foi recebido no sistema. Verifique os detalhes abaixo:" %}</p>
+
+            <div class="alert">
+                ⚠️ {% trans "AÇÃO REQUERIDA: Verifique se a inscrição/acesso foi ativado corretamente." %}
+            </div>
+
+            <table>
+                <tr>
+                    <th colspan="2">{% trans "Informações do Pagamento" %}</th>
+                </tr>
+                <tr>
+                    <td><strong>{% trans "Referência:" %}</strong></td>
+                    <td>{{ pagamento.referencia_pagamento }}</td>
+                </tr>
+                <tr>
+                    <td><strong>{% trans "Gateway:" %}</strong></td>
+                    <td>{{ pagamento.gateway }}</td>
+                </tr>
+                <tr>
+                    <td><strong>{% trans "Referência Gateway:" %}</strong></td>
+                    <td>{{ pagamento.referencia_gateway }}</td>
+                </tr>
+                <tr>
+                    <td><strong>{% trans "Status:" %}</strong></td>
+                    <td><span style="background: #4caf50; color: white; padding: 4px 8px; border-radius: 3px;">{{ pagamento.get_status_display }}</span></td>
+                </tr>
+            </table>
+
+            <table>
+                <tr>
+                    <th colspan="2">{% trans "Informações do Usuário" %}</th>
+                </tr>
+                <tr>
+                    <td><strong>{% trans "Nome:" %}</strong></td>
+                    <td>{{ usuario.get_full_name }}</td>
+                </tr>
+                <tr>
+                    <td><strong>{% trans "Email:" %}</strong></td>
+                    <td>{{ usuario.email }}</td>
+                </tr>
+                <tr>
+                    <td><strong>{% trans "Telefone:" %}</strong></td>
+                    <td>{{ usuario.phone }}</td>
+                </tr>
+            </table>
+
+            <table>
+                <tr>
+                    <th colspan="2">{% trans "Valores" %}</th>
+                </tr>
+                <tr>
+                    <td><strong>{% trans "Valor Original:" %}</strong></td>
+                    <td>{{ pagamento.valor|floatformat:2 }} {{ pagamento.moeda }}</td>
+                </tr>
+                {% if pagamento.valor_desconto > 0 %}
+                <tr>
+                    <td><strong>{% trans "Desconto:" %}</strong></td>
+                    <td>-{{ pagamento.valor_desconto|floatformat:2 }} {{ pagamento.moeda }}</td>
+                </tr>
+                {% endif %}
+                <tr style="background-color: #f0f0f0;">
+                    <td><strong>{% trans "Valor Final:" %}</strong></td>
+                    <td class="amount">{{ pagamento.valor_final|floatformat:2 }} {{ pagamento.moeda }}</td>
+                </tr>
+            </table>
+
+            <table>
+                <tr>
+                    <th colspan="2">{% trans "Detalhes Adicionais" %}</th>
+                </tr>
+                <tr>
+                    <td><strong>{% trans "Tipo:" %}</strong></td>
+                    <td>{{ pagamento.get_tipo_pagamento_display }}</td>
+                </tr>
+                {% if pagamento.curso %}
+                <tr>
+                    <td><strong>{% trans "Curso:" %}</strong></td>
+                    <td>{{ pagamento.curso.titulo }}</td>
+                </tr>
+                {% endif %}
+                {% if pagamento.numero_parcela %}
+                <tr>
+                    <td><strong>{% trans "Parcela:" %}</strong></td>
+                    <td>{{ pagamento.numero_parcela }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td><strong>{% trans "Data de Criação:" %}</strong></td>
+                    <td>{{ pagamento.data_criacao|date:"d/m/Y H:i:s" }}</td>
+                </tr>
+                <tr>
+                    <td><strong>{% trans "Data de Pagamento:" %}</strong></td>
+                    <td>{{ pagamento.data_pagamento|date:"d/m/Y H:i:s" }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="footer">
+            <p>{% trans "Este é um email automático do sistema de pagamentos EdukAngola." %}</p>
+            <p>&copy; {% now "Y" %} EdukAngola. {% trans "Todos os direitos reservados." %}</p>
+        </div>
+    </div>
+</body>
+</html>
+
+{% endautoescape %}

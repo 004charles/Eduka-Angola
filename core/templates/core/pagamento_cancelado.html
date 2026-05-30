@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pagamento Cancelado{% endblock %}
+
+{% block content %}
+<div class="payment-cancel-wrapper d-flex align-items-center justify-content-center py-5">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <!-- Premium Glassmorphism Card -->
+                <div class="card payment-cancel-card shadow-2xl text-center border-0 overflow-hidden">
+                    <!-- Top Gradient Decoration -->
+                    <div class="card-glow-bg"></div>
+                    
+                    <div class="card-body p-5 position-relative">
+                        <!-- Canceled Icon Animation -->
+                        <div class="cancel-icon-container mb-4 mx-auto">
+                            <div class="cancel-circle-pulsing"></div>
+                            <div class="cancel-circle-solid d-flex align-items-center justify-content-center">
+                                <i class="feather-x" style="font-size: 40px; color: #fff;"></i>
+                            </div>
+                        </div>
+
+                        <!-- Main Heading & Text -->
+                        <h2 class="cancel-title mb-2">Transação Cancelada</h2>
+                        <p class="cancel-description mb-4">A transação de pagamento foi cancelada pelo utilizador ou expirou no gateway de pagamento Prontu. Não foi efetuada qualquer cobrança.</p>
+
+                        <!-- Info Details Box -->
+                        <div class="cancel-details p-4 mb-4 text-start">
+                            <div class="d-flex align-items-center gap-3 text-warning">
+                                <i class="feather-alert-triangle" style="font-size: 24px;"></i>
+                                <div class="small">
+                                    <strong>Precisa de ajuda?</strong> Se o montante foi retirado da sua conta, por favor contacte o suporte com o comprovativo de débito.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-3">
+                            <a href="/teste-pagamento/" class="btn btn-premium-primary btn-lg py-3 rounded-pill" id="btn-retry-payment">
+                                <i class="feather-refresh-cw me-2"></i> Tentar Novamente
+                            </a>
+                            <a href="/cursos/" class="btn btn-premium-secondary btn-lg py-3 rounded-pill" id="btn-browse-courses">
+                                <i class="feather-book-open me-2"></i> Voltar ao Catálogo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+
+    .payment-cancel-wrapper {
+        background-color: #0f0c1b;
+        background-image: 
+            radial-gradient(at 10% 20%, hsla(263, 61%, 15%, 1) 0px, transparent 50%),
+            radial-gradient(at 90% 80%, hsla(339, 60%, 12%, 1) 0px, transparent 50%);
+        min-height: 80vh;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    .payment-cancel-card {
+        background: rgba(25, 22, 45, 0.65) !important;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 24px !important;
+        color: #fff;
+        position: relative;
+    }
+
+    .card-glow-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 8px;
+        background: linear-gradient(90deg, #f43f5e 0%, #e11d48 100%);
+    }
+
+    .cancel-icon-container {
+        position: relative;
+        width: 100px;
+        height: 100px;
+    }
+
+    .cancel-circle-pulsing {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: rgba(244, 63, 94, 0.15);
+        animation: pulseCircle 2s infinite ease-in-out;
+    }
+
+    .cancel-circle-solid {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+        box-shadow: 0 10px 25px rgba(244, 63, 94, 0.4);
+    }
+
+    .cancel-title {
+        font-weight: 800;
+        font-size: 32px;
+        background: linear-gradient(90deg, #fda4af 0%, #e11d48 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.5px;
+    }
+
+    .cancel-description {
+        font-size: 16px;
+        color: #94a3b8;
+        line-height: 1.6;
+    }
+
+    .cancel-details {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+    }
+
+    .btn-premium-primary {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        color: #fff !important;
+        border: none;
+        font-weight: 600;
+        box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .btn-premium-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 25px rgba(79, 70, 229, 0.4);
+    }
+
+    .btn-premium-secondary {
+        background: rgba(255, 255, 255, 0.05);
+        color: #f1f5f9 !important;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-premium-secondary:hover {
+        background: rgba(255, 255, 255, 0.08);
+        transform: translateY(-2px);
+    }
+
+    @keyframes pulseCircle {
+        0% { transform: scale(0.95); opacity: 0.8; }
+        50% { transform: scale(1.15); opacity: 0; }
+        100% { transform: scale(0.95); opacity: 0; }
+    }
+</style>
+{% endblock %}

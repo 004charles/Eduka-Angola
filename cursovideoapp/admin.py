@@ -3,7 +3,7 @@ from django.urls import path
 from django.shortcuts import redirect
 from django.utils.html import format_html
 from .models import Curso_video, Aula, Exercicio, Questao, Alternativa
-from inteligencia.ai_utils import gerar_exercicios_ia
+# from inteligencia.ai_utils import gerar_exercicios_ia
 from django.contrib.auth.models import Group
 
 class AulaInline(admin.TabularInline):

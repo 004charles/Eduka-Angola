@@ -26,7 +26,7 @@ urlpatterns = [
     path('test-500/', views.erro_500_view),
     path('i18n/', include('django.conf.urls.i18n')),
     path('auth/', include('usuarios.urls')), 
-    path('accounts/', include('allauth.urls')), 
+    # path('accounts/', include('allauth.urls')), 
     path('curso_video/', include('cursovideoapp.urls')),
     path('orientador-ia/', include('cursovideoapp.urls_orientador')), # Atalho limpo
     path('sobre/', views.sobre, name = 'sobre'),
@@ -41,8 +41,12 @@ urlpatterns = [
     path('api/v1/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/v1/', include(router.urls)),
+    path('api/v1/pagamentos/', include('pagamentos.urls')),  # API de pagamentos
     path('centro/', include('centro_formacao.urls')),
     path('contato/', views.contato, name = 'contato'),
+    path('teste-pagamento/', views.teste_pagamento, name='teste_pagamento'),
+    path('pagamento/sucesso/', views.pagamento_sucesso, name='pagamento_sucesso'),
+    path('pagamento/cancelado/', views.pagamento_cancelado, name='pagamento_cancelado'),
     path('faq/', views.faq, name = 'faq'),
     path('carreira/', include('carreira.urls')),
     # path('fundo-bolsas/', views.fundo_bolsas, name='fundo_bolsas'),

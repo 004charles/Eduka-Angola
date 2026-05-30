@@ -1,0 +1,268 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Testar Pagamento - Prontu{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">💳 Testar Sistema de Pagamento Prontu</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle"></i> 
+                        <strong>Ambiente de Teste</strong> - Use este formulário para testar a integração com o Prontu
+                    </div>
+
+                    <form id="formPagamento" method="post">
+                        {% csrf_token %}
+                        
+                        <div class="form-group mb-4">
+                            <label for="tipo_pagamento" class="form-label">
+                                <strong>Tipo de Pagamento</strong>
+                            </label>
+                            <select class="form-control form-control-lg" id="tipo_pagamento" name="tipo_pagamento" required>
+                                <option value="">-- Selecione --</option>
+                                <option value="INSCRICAO">Inscrição em Curso</option>
+                                <option value="PAGAMENTO_CURSO">Pagamento de Curso</option>
+                                <option value="PARCELAMENTO">Parcelamento</option>
+                                <option value="TAXA_ADMINISTRATIVO">Taxa Administrativa</option>
+                                <option value="OUTRO">Outro</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="valor" class="form-label">
+                                <strong>Valor (AOA)</strong>
+                            </label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text">Kz</span>
+                                <input type="number" class="form-control" id="valor" name="valor" 
+                                       min="100" step="0.01" value="1000" required>
+                            </div>
+                            <small class="text-muted">Mínimo: 100 AOA</small>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="descricao" class="form-label">
+                                <strong>Descrição</strong>
+                            </label>
+                            <input type="text" class="form-control" id="descricao" name="descricao" 
+                                   placeholder="Ex: Inscrição curso de Python" value="Teste Pagamento Sistema">
+                        </div>
+
+                        <button type="button" class="btn btn-primary btn-lg w-100" onclick="criarPagamento()">
+                            <i class="fas fa-credit-card"></i> Criar Pagamento
+                        </button>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <div id="resultado" style="display: none;" class="alert alert-success">
+                        <h5>✅ Pagamento Criado com Sucesso!</h5>
+                        <div id="resultadoConteudo"></div>
+                    </div>
+
+                    <div id="erro" style="display: none;" class="alert alert-danger">
+                        <h5>❌ Erro ao Criar Pagamento</h5>
+                        <div id="erroConteudo"></div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-server"></i> Status da API</h6>
+                            <small id="statusAPI" class="text-muted">Verificando...</small>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-lock"></i> Configuração</h6>
+                            <small id="statusConfig" class="text-muted">Verificando...</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Cards -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h5><i class="fas fa-book"></i> Documentação</h5>
+                            <p>Para mais detalhes sobre a integração:</p>
+                            <a href="/admin/pagamentos/" class="btn btn-sm btn-outline-primary">
+                                Admin Pagamentos
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h5><i class="fas fa-tools"></i> API</h5>
+                            <p>Endpoint de teste:</p>
+                            <code>/api/v1/pagamentos/criar/</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Verificar status da API ao carregar
+    document.addEventListener('DOMContentLoaded', function() {
+        verificarStatus();
+    });
+
+    function verificarStatus() {
+        fetch('/api/v1/pagamentos/', {
+            headers: {
+                'Authorization': 'Bearer ' + getToken()
+            }
+        })
+        .then(response => {
+            if (response.status === 200 || response.status === 401) {
+                document.getElementById('statusAPI').innerHTML = '<span class="badge bg-success">✓ API Online</span>';
+            } else {
+                document.getElementById('statusAPI').innerHTML = '<span class="badge bg-warning">⚠ API com problema</span>';
+            }
+        })
+        .catch(error => {
+            document.getElementById('statusAPI').innerHTML = '<span class="badge bg-danger">✗ API Offline</span>';
+        });
+    }
+
+    function criarPagamento() {
+        const tipo = document.getElementById('tipo_pagamento').value;
+        const valor = document.getElementById('valor').value;
+        const descricao = document.getElementById('descricao').value;
+
+        if (!tipo) {
+            alert('Por favor selecione um tipo de pagamento');
+            return;
+        }
+
+        const dados = {
+            tipo_pagamento: tipo,
+            valor: parseFloat(valor),
+            descricao: descricao,
+            moeda: 'AOA'
+        };
+
+        fetch('/api/v1/pagamentos/criar/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(dados)
+        })
+        .then(response => response.json())
+        .then(data => {
+            const paymentData = data.pagamento || data;
+            const paymentUrl = data.pagamento?.url_pagamento || data.url_pagamento;
+
+            if (data.sucesso && paymentUrl) {
+                paymentData.url_pagamento = paymentUrl;
+                exibirResultado(paymentData);
+                // Redirecionar para Prontu após 2 segundos
+                setTimeout(() => {
+                    window.location.href = paymentUrl;
+                }, 2000);
+            } else if (data.erro) {
+                exibirErro(data.erro);
+            } else if (data.detail) {
+                exibirErro(data.detail);
+            } else {
+                exibirErro(JSON.stringify(data));
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            exibirErro(error.message);
+        });
+    }
+
+    function exibirResultado(data) {
+        document.getElementById('resultado').style.display = 'block';
+        document.getElementById('erro').style.display = 'none';
+        
+        let html = `
+            <p><strong>ID:</strong> ${data.id || 'N/A'}</p>
+            <p><strong>Referência:</strong> ${data.referencia_pagamento || 'N/A'}</p>
+            <p><strong>Status:</strong> ${data.status || 'N/A'}</p>
+            <p><strong>Valor:</strong> Kz ${data.valor || 'N/A'}</p>
+            <p><strong>Tipo:</strong> ${data.tipo_pagamento || 'N/A'}</p>
+            <a href="${data.url_pagamento}" class="btn btn-primary mt-3" target="_blank">
+                <i class="fas fa-external-link-alt"></i> Abrir Prontu
+            </a>
+            <p class="mt-3"><em>Redirecionando para Prontu em 2 segundos...</em></p>
+        `;
+        document.getElementById('resultadoConteudo').innerHTML = html;
+    }
+
+    function exibirErro(mensagem) {
+        document.getElementById('erro').style.display = 'block';
+        document.getElementById('resultado').style.display = 'none';
+        document.getElementById('erroConteudo').innerHTML = `<p>${mensagem}</p>`;
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function getToken() {
+        // Tentar buscar token do localStorage (se estiver usando JWT)
+        return localStorage.getItem('authToken') || '';
+    }
+</script>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+    
+    .card-header {
+        border-radius: 10px 10px 0 0;
+        border-bottom: 3px solid #0056b3;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #0056b3;
+        box-shadow: 0 0 0 0.2rem rgba(0, 86, 179, 0.25);
+    }
+    
+    .btn-primary {
+        border-radius: 8px;
+        padding: 12px 20px;
+        font-weight: 600;
+    }
+    
+    .badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+    }
+</style>
+{% endblock %}

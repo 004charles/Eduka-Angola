@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from .models import Escola, CursoEnsinoMedio
-from inteligencia.ai_utils import orientacao_escolar_ia
+# from inteligencia.ai_utils import orientacao_escolar_ia
 
 def onboarding_escolar(request):
     """

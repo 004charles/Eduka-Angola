@@ -18,7 +18,7 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse
 try:
     from weasyprint import HTML
-except ImportError:
+except (ImportError, OSError):
     HTML = None
 
 from django.contrib.staticfiles import finders
@@ -140,7 +140,7 @@ def inscrever_curso(request, curso_id):
 
 @login_required(login_url='login_aluno')
 def simular_pagamento(request, inscricao_id):
-    """View para simulação de pagamento"""
+    """View para simulação ou gateway real de pagamento"""
     inscricao = get_object_or_404(Inscricao, id=inscricao_id)
     
     # Verificar se o aluno é o dono da inscrição
@@ -153,17 +153,61 @@ def simular_pagamento(request, inscricao_id):
         messages.info(request, "Esta inscrição já foi confirmada.")
         return redirect('painel_curso', curso_id=inscricao.curso.id)
     
+    # === TENTAR FLUXO REAL PRONTU ===
+    from django.conf import settings
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    # Apenas se o curso for pago e as configurações de pagamento estiverem ativas
+    if not inscricao.curso.is_gratuito and getattr(settings, 'PAGAMENTOS_ATIVADOS', True):
+        from pagamentos.models import Pagamento
+        from pagamentos.services import get_payment_service, PagamentoException
+        
+        try:
+            # Buscar se já existe um pagamento pendente/solicitado para esta inscrição
+            pagamento = Pagamento.objects.filter(
+                usuario=request.user,
+                curso=inscricao.curso,
+                tipo_pagamento='INSCRICAO',
+                status__in=['PENDING', 'REQUESTED', 'PROCESSING']
+            ).first()
+            
+            if not pagamento:
+                # Criar nova transação real
+                servico = get_payment_service()
+                
+                # Se GATEWAY_MOCK=True, o próprio servico cria link simulado
+                pagamento = servico.criar_pagamento(
+                    usuario=request.user,
+                    tipo_pagamento='INSCRICAO',
+                    valor=inscricao.curso.preco_atual,
+                    moeda='AOA',
+                    curso=inscricao.curso,
+                    url_sucesso=request.build_absolute_uri('/pagamento/sucesso/'),
+                    url_cancelamento=request.build_absolute_uri('/pagamento/cancelado/'),
+                    metadados={'inscricao_id': str(inscricao.id)}
+                )
+                
+            if pagamento and pagamento.url_pagamento:
+                # Redirecionar diretamente para o checkout da Prontu!
+                return redirect(pagamento.url_pagamento)
+                
+        except PagamentoException as gateway_err:
+            logger.error(f"Erro no gateway Prontu: {gateway_err}. Usando fallback de simulação.")
+            messages.warning(request, "O gateway de pagamento Prontu está em manutenção. Pode prosseguir com a simulação local.")
+        except Exception as e_err:
+            logger.error(f"Erro inesperado no fluxo de pagamento: {e_err}. Usando fallback de simulação.")
+    
+    # === FALLBACK PARA FLUXO DE SIMULAÇÃO LOCAL (Garante resiliência total) ===
     if request.method == 'POST':
         codigo_pagamento = request.POST.get('codigo_pagamento', '')
         
         if codigo_pagamento == inscricao.codigo_simulacao:
-            # Importar localmente ou de utils
             from cursos_app.utils import processar_simulacao_pagamento, atribuir_turma_automatica
             success, message = processar_simulacao_pagamento(inscricao)
             
             if success:
                 messages.success(request, "Pagamento confirmado com sucesso! Opere o acesso ao curso.")
-                
                 atribuir_turma_automatica(inscricao)
                 
                 if request.headers.get('x-requested-with') == 'XMLHttpRequest':

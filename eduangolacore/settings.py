@@ -21,30 +21,17 @@ GEMINI_API_KEY = config("GEMINI_API_KEY", default="")
 INSTALLED_APPS = [
     # 'django.contrib.gis',
     'django.contrib.admin',
-    'rest_framework',
-    'rest_framework_simplejwt',
-    'corsheaders',
-    # 'channels',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary_storage',
-    'cloudinary',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'anymail',
-
-
-    # 'ckeditor',     
-    # 'ckeditor_uploader',
-
-    # Allauth
     'django.contrib.sites',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
+
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'corsheaders',
 
     'usuarios',
     'core',
@@ -55,15 +42,13 @@ INSTALLED_APPS = [
     'instrutores_app',
     'estagio',
     'planos',
-    'inteligencia',
+    # 'inteligencia',  # Comentado - requer google.generativeai
     'avaliacoes',
     'centro_formacao',
     'bolsas',
     'carreira',
     'escolas',
-
-    'crispy_forms',
-    'crispy_bootstrap5',
+    'pagamentos',  # Novo app de pagamentos
 ]
 
 
@@ -114,7 +99,7 @@ SITE_DOMAIN = config('SITE_DOMAIN', default='https://www.edukangola.com')
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    # 'whitenoise.middleware.WhiteNoiseMiddleware',  # Comentado - requer whitenoise
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -122,8 +107,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "allauth.account.middleware.AccountMiddleware",
-    'inteligencia.middleware.InteligenciaMiddleware',
+    # "allauth.account.middleware.AccountMiddleware",  # Comentado - requer allauth
+    # 'inteligencia.middleware.InteligenciaMiddleware',  # Comentado - requer inteligencia
 ]
 
 AUTH_USER_MODEL = 'usuarios.Usuario'
@@ -134,7 +119,7 @@ SITE_ID = 1
 AUTHENTICATION_BACKENDS = [
     'usuarios.backends.EmailBackend',  # Custom email-based authentication
     'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
+    # 'allauth.account.auth_backends.AuthenticationBackend',  # Desativado - causa erro com EmailAddress
 ]
 
 # Provider specific settings
@@ -189,19 +174,27 @@ WSGI_APPLICATION = 'eduangolacore.wsgi.application'
 GDAL_LIBRARY_PATH = config('GDAL_LIBRARY_PATH', default=None)
 GEOS_LIBRARY_PATH = config('GEOS_LIBRARY_PATH', default=None)
 
-import dj_database_url
-
 # Database Configuration
 DATABASE_URL = config('DATABASE_URL', default=None)
 
 if DATABASE_URL:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=DATABASE_URL,
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
-    }
+    try:
+        import dj_database_url
+        DATABASES = {
+            'default': dj_database_url.config(
+                default=DATABASE_URL,
+                conn_max_age=600,
+                conn_health_checks=True,
+            )
+        }
+    except ImportError:
+        # Fallback para SQLite se dj_database_url não estiver disponível
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
 else:
     # Fallback para SQLite em desenvolvimento local
     DATABASES = {
@@ -263,21 +256,13 @@ STATICFILES_DIRS = [
 CKEDITOR_UPLOAD_PATH = 'ckeditor/uploads/'
 
 # Configuração de Armazenamento (Django 4.2+)
+# Use Django padrão para desenvolvimento local
 STORAGES = {
     "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.StaticFilesStorage",
-    },
-}
-
-STORAGES = {
-    "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.StaticFilesStorage",
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
 
@@ -285,16 +270,8 @@ STORAGES = {
 DEFAULT_FILE_STORAGE = STORAGES["default"]["BACKEND"]
 STATICFILES_STORAGE = STORAGES["staticfiles"]["BACKEND"]
 
-# Configuração do Cloudinary
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=""),
-    'API_KEY': config('CLOUDINARY_API_KEY', default=""),
-    'API_SECRET': config('CLOUDINARY_API_SECRET', default=""),
-    'SECURE': True,
-}
-
-MEDIA_URL = '/media/'  # O django-cloudinary-storage cuidará de mapear isto para a nuvem
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+MEDIA_URL = '/media/' 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 
@@ -363,7 +340,58 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
+        'pagamentos': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
     },
 }
 
+
+# =====================================
+# CONFIGURAÇÕES DE PAGAMENTOS
+# =====================================
+
+# Ativar/Desativar pagamentos
+PAGAMENTOS_ATIVADOS = config('PAGAMENTOS_ATIVADOS', default='True', cast=bool)
+
+# Gateway padrão (PRONTU, STRIPE, PAYPAL)
+GATEWAY_PADRAO = config('GATEWAY_PADRAO', default='PRONTU')
+
+# Moeda padrão
+MOEDA_PADRAO = config('MOEDA_PADRAO', default='AOA')
+
+# Prontu Gateway
+PRONTU_API_URL = config('PRONTU_API_URL', default='https://api.prontu.io')
+PRONTU_API_KEY = config('PRONTU_API_KEY', default='')
+PRONTU_CALLBACK_URL = config('PRONTU_CALLBACK_URL', default='http://localhost:8000/api/v1/pagamentos/webhook/prontu/')
+# Credenciais para autenticação automática via API (preferidas ao token do portal)
+PRONTU_EMAIL = config('PRONTU_EMAIL', default='')
+PRONTU_PASSWORD = config('PRONTU_PASSWORD', default='')
+PRONTU_ENV = config('PRONTU_ENV', default=0, cast=int)  # 0=Sandbox, 1=Production
+
+
+# URLs de retorno do cliente
+FRONTEND_RETURN_URL = config('FRONTEND_RETURN_URL', default='http://localhost:3000/pagamento/sucesso')
+FRONTEND_CANCEL_URL = config('FRONTEND_CANCEL_URL', default='http://localhost:3000/pagamento/cancelado')
+
+# Tempo de expiração do link de pagamento (em minutos)
+TEMPO_EXPIRACAO_LINK_MINUTOS = config('TEMPO_EXPIRACAO_LINK_MINUTOS', default=120, cast=int)
+
+# Máximo de tentativas de pagamento
+MAX_TENTATIVAS_PAGAMENTO = config('MAX_TENTATIVAS_PAGAMENTO', default=3, cast=int)
+
+# Desconto para inscrições (em percentual)
+DESCONTO_INSCRICAO_PERCENTUAL = config('DESCONTO_INSCRICAO_PERCENTUAL', default=0.0, cast=float)
+
+# Notificações
+NOTIFICAR_ADMIN_PAGAMENTO_RECEBIDO = config('NOTIFICAR_ADMIN_PAGAMENTO_RECEBIDO', default='True', cast=bool)
+VALIDAR_WEBHOOK_SIGNATURE = config('VALIDAR_WEBHOOK_SIGNATURE', default='True', cast=bool)
+
+# Email
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='nao-responda@edukangola.ao')
+
+# Site Domain (para URLs absolutas)
+SITE_DOMAIN = config('SITE_DOMAIN', default='http://localhost:8000')
 

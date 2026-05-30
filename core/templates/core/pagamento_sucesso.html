@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pagamento Concluído com Sucesso{% endblock %}
+
+{% block content %}
+<div class="payment-success-wrapper d-flex align-items-center justify-content-center py-5">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <!-- Premium Glassmorphism Card -->
+                <div class="card payment-success-card shadow-2xl text-center border-0 overflow-hidden">
+                    <!-- Top Gradient Decoration -->
+                    <div class="card-glow-bg"></div>
+                    
+                    <div class="card-body p-5 position-relative">
+                        <!-- Success Circle Animation -->
+                        <div class="success-icon-container mb-4 mx-auto">
+                            <div class="success-circle-pulsing"></div>
+                            <div class="success-circle-solid d-flex align-items-center justify-content-center">
+                                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                    <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                                    <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Main Heading & Text -->
+                        <h2 class="success-title mb-2">Pagamento Confirmado!</h2>
+                        <p class="success-description mb-4">O seu pagamento foi processado com sucesso pelo gateway Prontu. O acesso à sua formação já se encontra libertado.</p>
+
+                        <!-- Transaction Metadata Table -->
+                        <div class="transaction-details p-4 mb-4 text-start">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="detail-label">Status</span>
+                                <span class="badge bg-success-soft text-success px-3 py-1 rounded-pill fw-bold">Aprovado</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="detail-label">Referência</span>
+                                <span class="detail-value text-monospace" id="ref-id">{{ referencia }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="detail-label">ID da Transação</span>
+                                <span class="detail-value text-muted text-monospace" id="trans-id">{{ transaction_id }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-3">
+                            <a href="/auth/aluno/dashboard/" class="btn btn-premium-primary btn-lg py-3 rounded-pill" id="btn-go-dashboard">
+                                <i class="feather-grid me-2"></i> Ir para o Meu Painel
+                            </a>
+                            <a href="/cursos/" class="btn btn-premium-secondary btn-lg py-3 rounded-pill" id="btn-browse-courses">
+                                <i class="feather-book-open me-2"></i> Explorar Outros Cursos
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+
+    .payment-success-wrapper {
+        background-color: #0f0c1b;
+        background-image: 
+            radial-gradient(at 10% 20%, hsla(263, 61%, 15%, 1) 0px, transparent 50%),
+            radial-gradient(at 90% 80%, hsla(142, 60%, 12%, 1) 0px, transparent 50%);
+        min-height: 80vh;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    .payment-success-card {
+        background: rgba(25, 22, 45, 0.65) !important;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 24px !important;
+        color: #fff;
+        position: relative;
+    }
+
+    .card-glow-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 8px;
+        background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    }
+
+    .success-icon-container {
+        position: relative;
+        width: 100px;
+        height: 100px;
+    }
+
+    .success-circle-pulsing {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: rgba(16, 185, 129, 0.15);
+        animation: pulseCircle 2s infinite ease-in-out;
+    }
+
+    .success-circle-solid {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    .checkmark {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: block;
+        stroke-width: 4;
+        stroke: #fff;
+        stroke-miterlimit: 10;
+    }
+
+    .checkmark__circle {
+        stroke-dasharray: 166;
+        stroke-dashoffset: 166;
+        stroke-width: 4;
+        stroke-miterlimit: 10;
+        stroke: rgba(255, 255, 255, 0.3);
+        fill: none;
+        animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+
+    .checkmark__check {
+        transform-origin: 50% 50%;
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+    }
+
+    .success-title {
+        font-weight: 800;
+        font-size: 32px;
+        background: linear-gradient(90deg, #34d399 0%, #059669 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.5px;
+    }
+
+    .success-description {
+        font-size: 16px;
+        color: #94a3b8;
+        line-height: 1.6;
+    }
+
+    .transaction-details {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+    }
+
+    .detail-label {
+        font-size: 14px;
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    .detail-value {
+        font-size: 14px;
+        color: #f1f5f9;
+        font-weight: 600;
+    }
+
+    .bg-success-soft {
+        background: rgba(16, 185, 129, 0.12) !important;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-premium-primary {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        color: #fff !important;
+        border: none;
+        font-weight: 600;
+        box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .btn-premium-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 25px rgba(79, 70, 229, 0.4);
+    }
+
+    .btn-premium-secondary {
+        background: rgba(255, 255, 255, 0.05);
+        color: #f1f5f9 !important;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-premium-secondary:hover {
+        background: rgba(255, 255, 255, 0.08);
+        transform: translateY(-2px);
+    }
+
+    @keyframes stroke {
+        100% { stroke-dashoffset: 0; }
+    }
+
+    @keyframes pulseCircle {
+        0% { transform: scale(0.95); opacity: 0.8; }
+        50% { transform: scale(1.15); opacity: 0; }
+        100% { transform: scale(0.95); opacity: 0; }
+    }
+</style>
+{% endblock %}

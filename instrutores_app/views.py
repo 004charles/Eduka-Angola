@@ -248,7 +248,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from .forms import CursoVideoForm, AulaForm, InstrutorProfileForm, MaterialAulaForm, AvisoCursoForm, MaterialCursoForm
 from cursovideoapp.models import MaterialAula, AvisoCurso, ProgressoAula, Exercicio, Questao, Alternativa, MaterialCurso
-from inteligencia.ai_utils import gerar_exercicios_ia
+# from inteligencia.ai_utils import gerar_exercicios_ia
 
 def listar_alunos(request):
     if not request.user.is_authenticated or request.user.tipo_usuario != 'INSTRUTOR':

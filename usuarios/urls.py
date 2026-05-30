@@ -82,5 +82,5 @@ urlpatterns = [
     #----------------------------fim validacoes aluno------------------------------
 
     # Link de Compatibilidade para Registro de Centros (caso links antigos tenham sido enviados)
-    path('cadastro/confirmar/<uuid:token>/', include('gestoreduka.urls')),
+    # path('cadastro/confirmar/<uuid:token>/', include('gestoreduka.urls')),
 ]
