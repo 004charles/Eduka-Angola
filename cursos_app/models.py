@@ -240,6 +240,21 @@ class Curso(models.Model):
 
     
     destaque = models.BooleanField(_('Curso em Destaque'), default=False, db_index=True)
+    
+    DOCUMENTO_CHOICES = [
+        ('BI', 'Bilhete de Identidade (BI)'),
+        ('PASSAPORTE', 'Passaporte'),
+        ('DIPLOMA', 'Diploma / Certificado de Habilitações'),
+        ('NENHUM', 'Nenhum (Inscrição Direta)'),
+    ]
+    documento_requerido = models.CharField(
+        _('Documento Obrigatório para Inscrição'),
+        max_length=20,
+        choices=DOCUMENTO_CHOICES,
+        default='NENHUM',
+        help_text="Defina se o aluno precisa de enviar algum documento para se inscrever neste curso"
+    )
+    
     permite_parcelamento = models.BooleanField(_('Permite Parcelamento'), default=False)
     max_parcelas = models.PositiveIntegerField(_('Máximo de Parcelas'), default=1)
     slug = models.SlugField(_('Slug'), unique=True, blank=True, help_text="URL amigável (preenchido automaticamente)")
@@ -696,6 +711,13 @@ class Inscricao(models.Model):
     valor_pago = models.DecimalField(_('Valor Pago'), max_digits=10, decimal_places=3, validators=[MinValueValidator(0)], null=True, blank=True)
     data_pagamento = models.DateTimeField(_('Data de Pagamento'), null=True, blank=True)
     comprovante_pagamento = models.FileField(_('Comprovante de Pagamento'), upload_to='comprovantes/', null=True, blank=True)
+    documento_inscricao = models.FileField(
+        _('Documento de Inscrição'),
+        upload_to='documentos_inscricao/',
+        null=True,
+        blank=True,
+        help_text="Cópia do documento enviado pelo aluno durante a inscrição"
+    )
     
     # Campos para simulação de pagamento
     pagamento_simulado = models.BooleanField(_('Pagamento Simulado'), default=False)

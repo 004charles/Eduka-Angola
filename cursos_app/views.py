@@ -68,11 +68,6 @@ def inscrever_curso(request, curso_id):
         messages.error(request, "Perfil de aluno não encontrado.")
         return redirect('login_aluno')
 
-    perfil = getattr(aluno, 'perfil', None)
-    if not perfil or not perfil.bilhete_frente or not perfil.bilhete_verso:
-        messages.warning(request, "Termine o seu cadastro importando o Bilhete de Identidade antes de se inscrever.")
-        return redirect('aluno_perfil')
-    
     # Verificar se já está inscrito
     inscricao_existente = Inscricao.objects.filter(aluno=aluno, curso=curso).first()
     if inscricao_existente:
@@ -94,18 +89,40 @@ def inscrever_curso(request, curso_id):
         messages.error(request, "As inscrições para este curso estão encerradas.")
         return redirect('curso_detalhe', id=curso_id)
     
-    # Obter turma disponível
+    # Obter turmas disponíveis para exibição
+    turmas_disponiveis = curso.turmas.filter(status='ABERTA', vagas_disponiveis__gt=0)
     turma_disponivel = curso.get_turma_menos_lotada()
     
     if request.method == 'POST':
         import random
         codigo_gerado = str(random.randint(100000000, 999999999))
         
+        # Validar turma selecionada
+        turma_id = request.POST.get('turma_escolhida')
+        if not turma_id:
+            messages.error(request, "Por favor, selecione a turma e horário desejados.")
+            return redirect('ficha_inscricao', curso_id=curso.id)
+            
+        from .models import Turma
+        turma_escolhida = get_object_or_404(Turma, id=turma_id, curso=curso, status='ABERTA')
+        if turma_escolhida.vagas_disponiveis <= 0:
+            messages.error(request, "Esta turma já não possui vagas disponíveis. Por favor, selecione outra.")
+            return redirect('ficha_inscricao', curso_id=curso.id)
+            
+        # Validar e obter documento exigido se aplicável
+        documento_file = None
+        if curso.documento_requerido != 'NENHUM':
+            documento_file = request.FILES.get('documento_inscricao')
+            if not documento_file:
+                messages.error(request, f"O envio do documento '{curso.get_documento_requerido_display()}' é obrigatório para a inscrição.")
+                return redirect('ficha_inscricao', curso_id=curso.id)
+        
         # Criar inscrição
         inscricao = Inscricao.objects.create(
             aluno=aluno,
             curso=curso,
-            turma_escolhida=turma_disponivel,
+            turma_escolhida=turma_escolhida,
+            documento_inscricao=documento_file,
             status='P',
             tipo_inscricao='ONLINE',
             codigo_simulacao=codigo_gerado,
@@ -170,6 +187,7 @@ def inscrever_curso(request, curso_id):
         'curso': curso,
         'aluno': aluno,
         'turma_disponivel': turma_disponivel,
+        'turmas_disponiveis': turmas_disponiveis,
         'valor_total': curso.preco_atual,
     }
     
@@ -1474,13 +1492,15 @@ def ficha_inscricao(request, curso_id):
         messages.error(request, "Perfil de aluno não encontrado.")
         return redirect('login_aluno')
 
-    # Obter turma disponível
+    # Obter turmas disponíveis
+    turmas_disponiveis = curso.turmas.filter(status='ABERTA', vagas_disponiveis__gt=0)
     turma_disponivel = curso.get_turma_menos_lotada()
 
     contexto = {
         'curso': curso,
         'aluno': aluno,
         'turma_disponivel': turma_disponivel,
+        'turmas_disponiveis': turmas_disponiveis,
         'valor_total': curso.preco_atual,
     }
 

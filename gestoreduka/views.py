@@ -2757,6 +2757,101 @@ def excluir_area_formacao(request, area_id):
 
 
 
+def save_turmas_from_json(curso, turmas_json_str):
+    if not turmas_json_str:
+        return
+    
+    try:
+        turmas_data = json.loads(turmas_json_str)
+    except Exception:
+        return
+        
+    received_ids = []
+    for t_data in turmas_data:
+        t_id = t_data.get('id')
+        if t_id:
+            try:
+                received_ids.append(int(t_id))
+            except ValueError:
+                pass
+
+    # Excluir turmas que não vieram no JSON e não têm inscrições ativas (vagas_ocupadas == 0)
+    turmas_para_deletar = curso.turmas.exclude(id__in=received_ids)
+    for t_del in turmas_para_deletar:
+        if t_del.vagas_ocupadas == 0:
+            t_del.delete()
+
+    for t_data in turmas_data:
+        t_id = t_data.get('id')
+        nome = t_data.get('nome', '').strip()
+        if not nome:
+            continue
+            
+        turno = t_data.get('turno', 'MANHA')
+        vagas_totais = int(t_data.get('vagas_totais', 0))
+        
+        # Tratar dias da semana
+        dias_lista = t_data.get('dias_semana', [])
+        if isinstance(dias_lista, list):
+            dias_semana = ",".join(dias_lista)
+        else:
+            dias_semana = str(dias_lista)
+            
+        local = t_data.get('local', '').strip()
+        sala = t_data.get('sala', '').strip()
+        observacoes = t_data.get('observacoes', '').strip()
+        status = t_data.get('status', 'ABERTA')
+        
+        # Parse de datas e horas
+        try:
+            data_inicio = datetime.strptime(t_data.get('data_inicio'), '%Y-%m-%d').date() if t_data.get('data_inicio') else None
+            data_fim = datetime.strptime(t_data.get('data_fim'), '%Y-%m-%d').date() if t_data.get('data_fim') else None
+            horario_inicio = datetime.strptime(t_data.get('horario_inicio'), '%H:%M').time() if t_data.get('horario_inicio') else None
+            horario_fim = datetime.strptime(t_data.get('horario_fim'), '%H:%M').time() if t_data.get('horario_fim') else None
+        except Exception:
+            continue
+            
+        if not (data_inicio and data_fim and horario_inicio and horario_fim):
+            continue
+
+        if t_id:
+            # Atualizar
+            try:
+                turma = Turma.objects.get(id=t_id, curso=curso)
+                turma.nome = nome
+                turma.turno = turno
+                turma.horario_inicio = horario_inicio
+                turma.horario_fim = horario_fim
+                turma.dias_semana = dias_semana
+                turma.data_inicio = data_inicio
+                turma.data_fim = data_fim
+                turma.vagas_totais = vagas_totais
+                turma.local = local
+                turma.sala = sala
+                turma.status = status
+                turma.observacoes = observacoes
+                turma.save()
+            except Turma.DoesNotExist:
+                pass
+        else:
+            # Criar novo
+            Turma.objects.create(
+                curso=curso,
+                nome=nome,
+                turno=turno,
+                horario_inicio=horario_inicio,
+                horario_fim=horario_fim,
+                dias_semana=dias_semana,
+                data_inicio=data_inicio,
+                data_fim=data_fim,
+                vagas_totais=vagas_totais,
+                local=local,
+                sala=sala,
+                status=status,
+                observacoes=observacoes
+            )
+
+
 def criar_curso(request):
     """
     Cria um novo curso de um centro ou filial, permitindo salvar como rascunho ou iniciar processo de publicação.
@@ -2799,6 +2894,7 @@ def criar_curso(request):
                     curso.publicado = False
                     curso.save()
                     form.save_m2m()
+                    save_turmas_from_json(curso, request.POST.get('turmas_json'))
                     messages.success(request, 'Curso salvo como rascunho com sucesso!')
                     return redirect('listar_cursos')
                 else:
@@ -2807,6 +2903,7 @@ def criar_curso(request):
                     curso.publicado = False
                     curso.save()
                     form.save_m2m()
+                    save_turmas_from_json(curso, request.POST.get('turmas_json'))
                     return redirect('curso_overview', curso_id=curso.id)
                     
             except Exception as e:
@@ -2958,6 +3055,7 @@ def editar_curso(request, curso_id):
         if form.is_valid():
             try:
                 form.save()
+                save_turmas_from_json(curso, request.POST.get('turmas_json'))
                 messages.success(request, 'Curso atualizado com sucesso!')
                 return redirect('listar_cursos')
             except Exception as e:
@@ -2969,11 +3067,31 @@ def editar_curso(request, curso_id):
     else:
         form = CursoForm(instance=curso, centro=centro)
     
+    # Serializar turmas existentes do curso
+    turmas_existentes = []
+    for t in curso.turmas.all():
+        turmas_existentes.append({
+            'id': t.id,
+            'nome': t.nome,
+            'turno': t.turno,
+            'horario_inicio': t.horario_inicio.strftime('%H:%M') if t.horario_inicio else '',
+            'horario_fim': t.horario_fim.strftime('%H:%M') if t.horario_fim else '',
+            'dias_semana': t.dias_semana.split(',') if t.dias_semana else [],
+            'data_inicio': t.data_inicio.strftime('%Y-%m-%d') if t.data_inicio else '',
+            'data_fim': t.data_fim.strftime('%Y-%m-%d') if t.data_fim else '',
+            'vagas_totais': t.vagas_totais,
+            'local': t.local,
+            'sala': t.sala,
+            'status': t.status,
+            'observacoes': t.observacoes
+        })
+    
     context = {
         'form': form,
         'curso': curso,
         'centro': centro,
-        'filial': filial
+        'filial': filial,
+        'turmas_existentes_json': json.dumps(turmas_existentes)
     }
     return render(request, 'editar_curso.html', context)
 

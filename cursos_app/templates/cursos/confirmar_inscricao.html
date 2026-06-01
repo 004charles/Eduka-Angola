@@ -213,7 +213,7 @@
                 </div>
             </div>
 
-            <form action="{% url 'inscrever_curso' curso.id %}" method="POST" id="checkoutForm">
+            <form action="{% url 'inscrever_curso' curso.id %}" method="POST" id="checkoutForm" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="row g-5">
                     
@@ -244,7 +244,48 @@
                                         </span>
                                     </div>
                                 </div>
-                            </div>
+                             </div>
+
+                             <!-- Seleção de Turma e Horário -->
+                             <h5 class="fw-bold mb-3 mt-5">Escolha a sua Turma e Localização *</h5>
+                             <p class="text-muted small mb-4">Selecione o horário e a filial/localização onde deseja frequentar as aulas.</p>
+                             
+                             <div class="row g-3 mb-5">
+                                 {% for t in turmas_disponiveis %}
+                                 <div class="col-md-6">
+                                     <div class="card p-4 pointer-card cursor-pointer {% if forloop.first %}border-primary bg-primary-opacity{% else %}border-light{% endif %}" onclick="selectTurma(this, '{{ t.id }}')" style="border-radius: 16px; border: 2px solid {% if forloop.first %}var(--color-primary){% else %}#edf2f7{% endif %}; transition: all 0.25s ease; background-color: {% if forloop.first %}rgba(var(--color-primary-rgb), 0.04){% else %}#fff{% endif %};">
+                                         <div class="d-flex align-items-center justify-content-between mb-3">
+                                             <span class="badge bg-primary text-white p-2 px-3 small" style="border-radius: 8px;">{{ t.nome }}</span>
+                                             <div class="radio-indicator">
+                                                 <i class="{% if forloop.first %}fas fa-dot-circle text-primary{% else %}far fa-circle text-muted{% endif %}" style="font-size: 18px;"></i>
+                                             </div>
+                                         </div>
+                                         <h6 class="fw-bold mb-2">{{ t.get_turno_display }}</h6>
+                                         <div class="small text-muted mb-2">
+                                             <i class="feather-clock me-1"></i> {{ t.horario_inicio|time:"H:i" }} - {{ t.horario_fim|time:"H:i" }}
+                                         </div>
+                                         <div class="small text-muted mb-2">
+                                             <i class="feather-calendar me-1"></i> {{ t.dias_semana }}
+                                         </div>
+                                         <div class="small text-dark fw-bold">
+                                             <i class="feather-map-pin me-1 text-primary"></i> Local: {{ t.local|default:curso.centro.nome }}
+                                         </div>
+                                         <div class="mt-3 text-end">
+                                             <span class="small text-success fw-bold">{{ t.vagas_disponiveis }} vagas restantes</span>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 {% empty %}
+                                 <div class="col-12">
+                                     <div class="alert alert-danger text-center radius-round">
+                                         Não existem turmas com vagas abertas para este curso de momento.
+                                     </div>
+                                 </div>
+                                 {% endfor %}
+                             </div>
+                             
+                             <!-- Hidden input to store selected class ID -->
+                             <input type="hidden" name="turma_escolhida" id="id_turma_escolhida" value="{% if turmas_disponiveis.first %}{{ turmas_disponiveis.first.id }}{% endif %}">
 
                             <h5 class="fw-bold mb-3 mt-5">Confirmar Seus Dados</h5>
                             <p class="text-muted small mb-4">Verifique se as informações abaixo estão corretas para a emissão do certificado.</p>
@@ -259,6 +300,19 @@
                                     <input type="email" value="{% if request.user.is_authenticated %}{{ request.user.email|default:aluno.usuario.email }}{% endif %}" readonly class="form-control bg-light border-0 text-dark fw-medium">
                                 </div>
                             </div>
+
+                            <!-- Documento Obrigatório Dinâmico -->
+                            {% if curso.documento_requerido != 'NENHUM' %}
+                            <h5 class="fw-bold mb-3 mt-5">Documento Obrigatório: {{ curso.get_documento_requerido_display }} *</h5>
+                            <p class="text-muted small mb-4">O centro de formação exige o envio deste documento para a validação da sua inscrição.</p>
+                            
+                            <div class="glass-card p-4" style="border: 2px dashed rgba(var(--color-primary-rgb), 0.3); border-radius: 16px; background-color: rgba(var(--color-primary-rgb), 0.01);">
+                                <div class="form-group mb-0">
+                                    <label class="small fw-bold text-uppercase d-block mb-3"><i class="feather-upload-cloud me-2 text-primary"></i> Carregar Ficheiro (PDF, JPG, PNG - Máx. 5MB) *</label>
+                                    <input type="file" name="documento_inscricao" required class="form-control" accept="image/*,application/pdf" style="border-radius: 12px; padding: 12px; background: #fff; border: 1px solid #e2e8f0;">
+                                </div>
+                            </div>
+                            {% endif %}
                         </div>
 
                         <!-- 2. Métodos de Pagamento -->
@@ -307,7 +361,7 @@
                         </div>
                         {% endif %}
                     </div>
-
+ 
                     <!-- Lado Direito: Resumo Final -->
                     <div class="col-lg-4">
                         <div class="order-summary">
@@ -368,8 +422,31 @@
             checkDiv.innerHTML = '<i class="feather-check-circle text-primary"></i>';
             element.appendChild(checkDiv);
             
-            // Aqui poderias guardar o método num input hidden se necessário
             console.log("Método selecionado:", method);
+        }
+
+        function selectTurma(element, id) {
+            // Remover destaque de todos os cartões de turma
+            document.querySelectorAll('.pointer-card').forEach(card => {
+                card.style.borderColor = '#edf2f7';
+                card.style.backgroundColor = '#fff';
+                const indicator = card.querySelector('.radio-indicator i');
+                if (indicator) {
+                    indicator.className = 'far fa-circle text-muted';
+                }
+            });
+            
+            // Ativar o cartão selecionado
+            element.style.borderColor = 'var(--color-primary)';
+            element.style.backgroundColor = 'rgba(var(--color-primary-rgb), 0.04)';
+            const indicator = element.querySelector('.radio-indicator i');
+            if (indicator) {
+                indicator.className = 'fas fa-dot-circle text-primary';
+            }
+            
+            // Atualizar o input hidden
+            document.getElementById('id_turma_escolhida').value = id;
+            console.log("Turma selecionada:", id);
         }
     </script>
 

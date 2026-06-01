@@ -36,7 +36,7 @@ class CursoForm(forms.ModelForm):
             'certificado', 'instrutores', 'carga_horaria', 'duracao', 
             'moeda', 'preco', 'preco_inscricao', 'preco_promocional', 
             'data_inicio_promocao', 'data_fim_promocao',
-            'modalidade', 'publicado', 'imagem', 'destaque'
+            'modalidade', 'publicado', 'imagem', 'destaque', 'documento_requerido'
         ]
         widgets = {
             'titulo': forms.TextInput(attrs={
@@ -70,6 +70,9 @@ class CursoForm(forms.ModelForm):
                 'class': 'kt-select'
             }),
             'moeda': forms.Select(attrs={
+                'class': 'kt-select'
+            }),
+            'documento_requerido': forms.Select(attrs={
                 'class': 'kt-select'
             }),
             'carga_horaria': forms.NumberInput(attrs={
@@ -145,7 +148,8 @@ class CursoForm(forms.ModelForm):
             'duracao': 'Duração do Curso *',
             'publicado': 'Publicar Curso?',
             'imagem': 'Imagem de Capa',
-            'destaque': 'Destacar este curso?'
+            'destaque': 'Destacar este curso?',
+            'documento_requerido': 'Documento Requerido para Inscrição *'
         }
 
     def clean(self):

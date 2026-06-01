@@ -166,6 +166,27 @@
                 </div>
             </div>
 
+            <!-- Turmas & Horários Card -->
+            <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-xl flex flex-col">
+                <div class="border-b border-white/10 px-6 py-5 bg-white/[0.02] flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-2">
+                        <i class="ki-filled ki-time text-primary text-xl"></i>
+                        <h3 class="font-bold text-base text-foreground" id="turmasCardTitle">Horários & Turmas do Curso</h3>
+                    </div>
+                    <button type="button" class="kt-btn kt-btn-sm kt-btn-primary hover:scale-[1.02] active:scale-[0.98] transition-all duration-300" id="btnOpenTurmaModal">
+                        <i class="ki-filled ki-plus"></i> Adicionar Turma
+                    </button>
+                </div>
+                
+                <div class="p-6 flex flex-col gap-6">
+                    <input type="hidden" id="id_turmas_json" name="turmas_json" value="[]">
+                    
+                    <div id="turmasContainer" class="flex flex-col gap-4">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <!-- Right Column: Settings, Media and Actions -->
@@ -272,6 +293,136 @@
 
 </div>
 
+<!-- Modal overlay -->
+<div id="turmaModal" class="hidden fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md transition-all duration-300">
+    <!-- Modal panel -->
+    <div class="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-white/10 bg-[#151521] p-6 shadow-2xl backdrop-blur-xl flex flex-col gap-6">
+        <!-- Close button -->
+        <button type="button" class="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors" id="btnCloseTurmaModal">
+            <i class="ki-filled ki-cross text-xl"></i>
+        </button>
+
+        <div class="flex items-center gap-3">
+            <div class="size-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                <i class="ki-filled ki-time text-xl"></i>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-foreground" id="modalTitle">Nova Turma / Horário</h3>
+                <p class="text-xs text-muted-foreground">Preencha os dados da turma para o curso.</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-4">
+            <input type="hidden" id="modal_turma_index" value="">
+            <input type="hidden" id="modal_turma_id" value="">
+
+            <!-- Preenchimento Rápido -->
+            <div class="flex flex-col gap-1.5 border-b border-white/5 pb-4 mb-2">
+                <label class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Preenchimento Rápido (Modelos de Horário)</label>
+                <div class="flex flex-wrap gap-2 mt-1">
+                    <button type="button" class="btn-quick-template px-2.5 py-1 text-[11px] font-bold rounded-lg border border-primary/20 bg-primary/10 text-primary hover:bg-primary/20 transition-all duration-300" data-template="MANHA">
+                        Manhã (08h - 12h, Seg-Sex)
+                    </button>
+                    <button type="button" class="btn-quick-template px-2.5 py-1 text-[11px] font-bold rounded-lg border border-success/20 bg-success/10 text-success hover:bg-success/20 transition-all duration-300" data-template="TARDE">
+                        Tarde (13h - 17h, Seg-Sex)
+                    </button>
+                    <button type="button" class="btn-quick-template px-2.5 py-1 text-[11px] font-bold rounded-lg border border-warning/20 bg-warning/10 text-warning hover:bg-warning/20 transition-all duration-300" data-template="NOITE">
+                        Noite (18h - 22h, Seg-Sex)
+                    </button>
+                    <button type="button" class="btn-quick-template px-2.5 py-1 text-[11px] font-bold rounded-lg border border-info/20 bg-info/10 text-info hover:bg-info/20 transition-all duration-300" data-template="SABADO">
+                        Sábados (08h - 13h)
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-muted-foreground">Nome da Turma *</label>
+                    <input type="text" id="modal_turma_nome" class="kt-input w-full bg-white/5 border border-white/10 rounded-xl text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all duration-300" placeholder="Ex: Turma A - Manhã">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-muted-foreground">Turno *</label>
+                    <select id="modal_turma_turno" class="kt-select w-full bg-white/5 border border-white/10 rounded-xl text-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all duration-300">
+                        <option value="MANHA">Manhã</option>
+                        <option value="TARDE">Tarde</option>
+                        <option value="NOITE">Noite</option>
+                        <option value="INTEGRAL">Integral</option>
+                        <option value="SABADO">Sábado</option>
+                        <option value="DOMINGO">Domingo</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-muted-foreground">Vagas Totais *</label>
+                    <input type="number" id="modal_turma_vagas" class="kt-input w-full bg-white/5 border border-white/10 rounded-xl text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all duration-300" min="1" placeholder="Ex: 25">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-xs font-semibold text-muted-foreground">Local / Filial</label>
+                        <input type="text" id="modal_turma_local" class="kt-input w-full bg-white/5 border border-white/10 rounded-xl text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all duration-300" placeholder="Sede" value="{% if filial %}{{ filial.nome }}{% else %}{{ centro.nome }}{% endif %}">
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-xs font-semibold text-muted-foreground">Sala</label>
+                        <input type="text" id="modal_turma_sala" class="kt-input w-full bg-white/5 border border-white/10 rounded-xl text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all duration-300" placeholder="Ex: Sala 4">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-muted-foreground">Data de Início *</label>
+                    <input type="date" id="modal_turma_data_inicio" class="kt-input w-full bg-white/5 border border-white/10 rounded-xl text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all duration-300">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-muted-foreground">Data de Término *</label>
+                    <input type="date" id="modal_turma_data_fim" class="kt-input w-full bg-white/5 border border-white/10 rounded-xl text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all duration-300">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-muted-foreground">Horário de Início *</label>
+                    <input type="time" id="modal_turma_hora_inicio" class="kt-input w-full bg-white/5 border border-white/10 rounded-xl text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all duration-300">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-muted-foreground">Horário de Término *</label>
+                    <input type="time" id="modal_turma_hora_fim" class="kt-input w-full bg-white/5 border border-white/10 rounded-xl text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all duration-300">
+                </div>
+            </div>
+
+            <!-- Days of Week Toggleable Pills -->
+            <div class="flex flex-col gap-2">
+                <label class="text-xs font-semibold text-muted-foreground">Dias da Semana *</label>
+                <div class="flex flex-wrap gap-2" id="modal_dias_semana_container">
+                    <button type="button" data-dia="SEG" class="dia-pill px-3 py-1.5 text-xs font-semibold rounded-lg border border-white/10 bg-white/5 text-muted-foreground hover:bg-white/10 transition-all duration-300">Seg</button>
+                    <button type="button" data-dia="TER" class="dia-pill px-3 py-1.5 text-xs font-semibold rounded-lg border border-white/10 bg-white/5 text-muted-foreground hover:bg-white/10 transition-all duration-300">Ter</button>
+                    <button type="button" data-dia="QUA" class="dia-pill px-3 py-1.5 text-xs font-semibold rounded-lg border border-white/10 bg-white/5 text-muted-foreground hover:bg-white/10 transition-all duration-300">Qua</button>
+                    <button type="button" data-dia="QUI" class="dia-pill px-3 py-1.5 text-xs font-semibold rounded-lg border border-white/10 bg-white/5 text-muted-foreground hover:bg-white/10 transition-all duration-300">Qui</button>
+                    <button type="button" data-dia="SEX" class="dia-pill px-3 py-1.5 text-xs font-semibold rounded-lg border border-white/10 bg-white/5 text-muted-foreground hover:bg-white/10 transition-all duration-300">Sex</button>
+                    <button type="button" data-dia="SAB" class="dia-pill px-3 py-1.5 text-xs font-semibold rounded-lg border border-white/10 bg-white/5 text-muted-foreground hover:bg-white/10 transition-all duration-300">Sáb</button>
+                    <button type="button" data-dia="DOM" class="dia-pill px-3 py-1.5 text-xs font-semibold rounded-lg border border-white/10 bg-white/5 text-muted-foreground hover:bg-white/10 transition-all duration-300">Dom</button>
+                </div>
+            </div>
+            
+            <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-semibold text-muted-foreground">Observações (Opcional)</label>
+                <textarea id="modal_turma_observacoes" rows="2" class="kt-input w-full bg-white/5 border border-white/10 rounded-xl text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all duration-300" placeholder="Ex: Aulas presenciais, laboratório 2..."></textarea>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+            <button type="button" class="kt-btn kt-btn-light border-white/10 hover:bg-white/10 text-foreground transition-colors" id="btnCancelTurma">
+                Cancelar
+            </button>
+            <button type="button" class="kt-btn kt-btn-primary" id="btnSaveTurma">
+                Confirmar
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const fileInput = document.querySelector('input[type="file"]');
@@ -334,39 +485,397 @@
             });
         }
 
-        // Drag and drop events
-        if (dropZone) {
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropZone.addEventListener(eventName, (e) => {
-                    e.preventDefault();
-                    dropZone.classList.add('border-primary/50', 'bg-white/[0.08]');
-                }, false);
-            });
+        }
 
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, (e) => {
-                    e.preventDefault();
-                    dropZone.classList.remove('border-primary/50', 'bg-white/[0.08]');
-                }, false);
-            });
-
-            dropZone.addEventListener('drop', (e) => {
-                const dt = e.dataTransfer;
-                const files = dt.files;
-                if (fileInput && files.length > 0) {
-                    fileInput.files = files;
-                    const file = files[0];
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        imgPreview.src = e.target.result;
-                        previewContainer.classList.remove('hidden');
-                        if (uploadIcon) uploadIcon.classList.add('hidden');
-                        if (uploadText) uploadText.classList.add('hidden');
-                    }
-                    reader.readAsDataURL(file);
+        // ==========================================
+        // GESTÃO DINÂMICA DE TURMAS E HORÁRIOS
+        // ==========================================
+        let turmas = [];
+        const turmasContainer = document.getElementById('turmasContainer');
+        const idTurmasJson = document.getElementById('id_turmas_json');
+        const turmaModal = document.getElementById('turmaModal');
+        
+        // Elementos do Modal
+        const btnOpenTurmaModal = document.getElementById('btnOpenTurmaModal');
+        const btnCloseTurmaModal = document.getElementById('btnCloseTurmaModal');
+        const btnCancelTurma = document.getElementById('btnCancelTurma');
+        const btnSaveTurma = document.getElementById('btnSaveTurma');
+        
+        const modalTitle = document.getElementById('modalTitle');
+        const modalTurmaIndex = document.getElementById('modal_turma_index');
+        const modalTurmaId = document.getElementById('modal_turma_id');
+        const modalTurmaNome = document.getElementById('modal_turma_nome');
+        const modalTurmaTurno = document.getElementById('modal_turma_turno');
+        const modalTurmaVagas = document.getElementById('modal_turma_vagas');
+        const modalTurmaLocal = document.getElementById('modal_turma_local');
+        const modalTurmaSala = document.getElementById('modal_turma_sala');
+        const modalTurmaDataInicio = document.getElementById('modal_turma_data_inicio');
+        const modalTurmaDataFim = document.getElementById('modal_turma_data_fim');
+        const modalTurmaHoraInicio = document.getElementById('modal_turma_hora_inicio');
+        const modalTurmaHoraFim = document.getElementById('modal_turma_hora_fim');
+        const modalTurmaObservacoes = document.getElementById('modal_turma_observacoes');
+        
+        // Dias de Semana Toggle
+        let diasSelected = [];
+        const diaPills = document.querySelectorAll('.dia-pill');
+        
+        diaPills.forEach(pill => {
+            pill.addEventListener('click', function() {
+                const dia = this.getAttribute('data-dia');
+                if (diasSelected.includes(dia)) {
+                    diasSelected = diasSelected.filter(d => d !== dia);
+                    this.classList.remove('bg-primary', 'text-white', 'border-primary/50');
+                    this.classList.add('bg-white/5', 'text-muted-foreground');
+                } else {
+                    diasSelected.push(dia);
+                    this.classList.add('bg-primary', 'text-white', 'border-primary/50');
+                    this.classList.remove('bg-white/5', 'text-muted-foreground');
                 }
             });
+        });
+
+        // Inicializar turmas se existirem
+        const turmasExistentesRaw = '{{ turmas_existentes_json|escapejs }}';
+        if (turmasExistentesRaw && turmasExistentesRaw !== '' && turmasExistentesRaw !== 'None') {
+            try {
+                turmas = JSON.parse(turmasExistentesRaw);
+            } catch(e) {
+                console.error("Erro ao parsear turmas existentes:", e);
+            }
         }
+        
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            return dateStr;
+        }
+
+        const turnoLabels = {
+            'MANHA': 'Manhã',
+            'TARDE': 'Tarde',
+            'NOITE': 'Noite',
+            'INTEGRAL': 'Integral',
+            'SABADO': 'Sábado',
+            'DOMINGO': 'Domingo'
+        };
+
+        function renderTurmas() {
+            turmasContainer.innerHTML = '';
+            
+            if (turmas.length === 0) {
+                turmasContainer.innerHTML = `
+                    <div class="flex flex-col items-center justify-center p-8 border border-dashed border-white/10 rounded-2xl bg-white/[0.01]">
+                        <i class="ki-filled ki-time text-4xl text-muted-foreground/60 mb-2"></i>
+                        <h4 class="text-sm font-semibold text-foreground">Sem turmas registradas</h4>
+                        <p class="text-xs text-muted-foreground text-center mt-1">Adicione pelo menos uma turma/horário para que os alunos possam ver e se inscrever.</p>
+                    </div>
+                `;
+                idTurmasJson.value = '[]';
+                return;
+            }
+            
+            turmas.forEach((turma, index) => {
+                const card = document.createElement('div');
+                card.className = "relative overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all duration-300 hover:bg-white/[0.05]";
+                
+                const formattedDays = turma.dias_semana.map(d => {
+                    const map = {'SEG': 'Seg', 'TER': 'Ter', 'QUA': 'Qua', 'QUI': 'Qui', 'SEX': 'Sex', 'SAB': 'Sáb', 'DOM': 'Dom'};
+                    return map[d] || d;
+                }).join(', ');
+
+                card.innerHTML = `
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-bold text-foreground">${turma.nome}</span>
+                            <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-md bg-primary/20 text-primary border border-primary/30">${turnoLabels[turma.turno] || turma.turno}</span>
+                            ${turma.status && turma.status !== 'ABERTA' ? `<span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-md bg-warning/20 text-warning border border-warning/30">${turma.status}</span>` : ''}
+                        </div>
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground mt-1">
+                            <span class="flex items-center gap-1"><i class="ki-filled ki-calendar text-sm text-primary"></i> ${formatDate(turma.data_inicio)} até ${formatDate(turma.data_fim)}</span>
+                            <span class="flex items-center gap-1"><i class="ki-filled ki-time text-sm text-primary"></i> ${turma.horario_inicio} - ${turma.horario_fim}</span>
+                            <span class="flex items-center gap-1"><i class="ki-filled ki-user text-sm text-primary"></i> ${turma.vagas_totais} vagas</span>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                            <span class="flex items-center gap-1"><i class="ki-filled ki-geolocation text-sm text-primary"></i> ${turma.local || 'Sede'}${turma.sala ? ` - Sala ${turma.sala}` : ''}</span>
+                            <span class="flex items-center gap-1"><i class="ki-filled ki-notepad-bookmark text-sm text-primary"></i> Dias: <strong>${formattedDays}</strong></span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 self-end md:self-center">
+                        <button type="button" class="btn-duplicate-turma p-2 rounded-lg bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all duration-300" data-index="${index}" title="Duplicar Turma">
+                            <i class="ki-filled ki-copy text-sm"></i>
+                        </button>
+                        <button type="button" class="btn-edit-turma p-2 rounded-lg bg-white/5 border border-white/10 text-muted-foreground hover:text-foreground hover:bg-white/10 transition-all duration-300" data-index="${index}" title="Editar Turma">
+                            <i class="ki-filled ki-pencil text-sm"></i>
+                        </button>
+                        <button type="button" class="btn-delete-turma p-2 rounded-lg bg-danger/10 border border-danger/20 text-danger hover:bg-danger/20 transition-all duration-300" data-index="${index}" title="Excluir Turma">
+                            <i class="ki-filled ki-trash text-sm"></i>
+                        </button>
+                    </div>
+                `;
+                turmasContainer.appendChild(card);
+            });
+            
+            idTurmasJson.value = JSON.stringify(turmas);
+            
+            // Reatachar Event Listeners
+            document.querySelectorAll('.btn-duplicate-turma').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const idx = this.getAttribute('data-index');
+                    duplicateTurma(idx);
+                });
+            });
+            
+            document.querySelectorAll('.btn-edit-turma').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const idx = this.getAttribute('data-index');
+                    openEditModal(idx);
+                });
+            });
+            
+            document.querySelectorAll('.btn-delete-turma').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const idx = this.getAttribute('data-index');
+                    deleteTurma(idx);
+                });
+            });
+        }
+
+        function resetModal() {
+            modalTitle.innerText = "Nova Turma / Horário";
+            modalTurmaIndex.value = '';
+            modalTurmaId.value = '';
+            modalTurmaNome.value = '';
+            modalTurmaTurno.value = 'MANHA';
+            modalTurmaVagas.value = '';
+            modalTurmaSala.value = '';
+            modalTurmaDataInicio.value = '';
+            modalTurmaDataFim.value = '';
+            modalTurmaHoraInicio.value = '';
+            modalTurmaHoraFim.value = '';
+            modalTurmaObservacoes.value = '';
+            
+            diasSelected = [];
+            diaPills.forEach(pill => {
+                pill.classList.remove('bg-primary', 'text-white', 'border-primary/50');
+                pill.classList.add('bg-white/5', 'text-muted-foreground');
+            });
+        }
+
+        function openAddModal() {
+            resetModal();
+            turmaModal.classList.remove('hidden');
+        }
+
+        function openEditModal(index) {
+            resetModal();
+            const turma = turmas[index];
+            
+            modalTitle.innerText = "Editar Turma / Horário";
+            modalTurmaIndex.value = index;
+            modalTurmaId.value = turma.id || '';
+            modalTurmaNome.value = turma.nome;
+            modalTurmaTurno.value = turma.turno;
+            modalTurmaVagas.value = turma.vagas_totais;
+            modalTurmaLocal.value = turma.local || '';
+            modalTurmaSala.value = turma.sala || '';
+            modalTurmaDataInicio.value = turma.data_inicio;
+            modalTurmaDataFim.value = turma.data_fim;
+            modalTurmaHoraInicio.value = turma.horario_inicio;
+            modalTurmaHoraFim.value = turma.horario_fim;
+            modalTurmaObservacoes.value = turma.observacoes || '';
+            
+            diasSelected = [...turma.dias_semana];
+            diaPills.forEach(pill => {
+                const dia = pill.getAttribute('data-dia');
+                if (diasSelected.includes(dia)) {
+                    pill.classList.add('bg-primary', 'text-white', 'border-primary/50');
+                    pill.classList.remove('bg-white/5', 'text-muted-foreground');
+                }
+            });
+            
+            turmaModal.classList.remove('hidden');
+        }
+
+        function closeTurmaModalFunc() {
+            turmaModal.classList.add('hidden');
+        }
+
+        function deleteTurma(index) {
+            if (confirm("Tem certeza que deseja remover esta turma?")) {
+                turmas.splice(index, 1);
+                renderTurmas();
+            }
+        }
+
+        function saveTurmaFromModal() {
+            const index = modalTurmaIndex.value;
+            const id = modalTurmaId.value;
+            const nome = modalTurmaNome.value.trim();
+            const turno = modalTurmaTurno.value;
+            const vagas = modalTurmaVagas.value;
+            const local = modalTurmaLocal.value.trim();
+            const sala = modalTurmaSala.value.trim();
+            const data_inicio = modalTurmaDataInicio.value;
+            const data_fim = modalTurmaDataFim.value;
+            const hora_inicio = modalTurmaHoraInicio.value;
+            const hora_fim = modalTurmaHoraFim.value;
+            const obs = modalTurmaObservacoes.value.trim();
+            
+            // Validações
+            if (!nome || !vagas || !data_inicio || !data_fim || !hora_inicio || !hora_fim) {
+                alert("Por favor, preencha todos os campos obrigatórios (*).");
+                return;
+            }
+            
+            if (diasSelected.length === 0) {
+                alert("Por favor, selecione pelo menos um dia da semana.");
+                return;
+            }
+            
+            if (parseInt(vagas) <= 0) {
+                alert("O número de vagas deve ser maior que zero.");
+                return;
+            }
+
+            if (new Date(data_fim) < new Date(data_inicio)) {
+                alert("A data de término não pode ser anterior à data de início.");
+                return;
+            }
+            
+            const turmaObj = {
+                id: id ? parseInt(id) : null,
+                nome: nome,
+                turno: turno,
+                vagas_totais: parseInt(vagas),
+                local: local,
+                sala: sala,
+                data_inicio: data_inicio,
+                data_fim: data_fim,
+                horario_inicio: hora_inicio,
+                horario_fim: hora_fim,
+                dias_semana: [...diasSelected],
+                observacoes: obs,
+                status: 'ABERTA'
+            };
+            
+            if (index !== '') {
+                // Editando existente
+                turmas[parseInt(index)] = turmaObj;
+            } else {
+                // Adicionando nova
+                turmas.push(turmaObj);
+            }
+            
+            closeTurmaModalFunc();
+            renderTurmas();
+        }
+
+        function duplicateTurma(index) {
+            const source = turmas[index];
+            const copy = {
+                id: null,
+                nome: `${source.nome} (Cópia)`,
+                turno: source.turno,
+                vagas_totais: source.vagas_totais,
+                local: source.local,
+                sala: source.sala,
+                data_inicio: source.data_inicio,
+                data_fim: source.data_fim,
+                horario_inicio: source.horario_inicio,
+                horario_fim: source.horario_fim,
+                dias_semana: [...source.dias_semana],
+                observacoes: source.observacoes,
+                status: 'ABERTA'
+            };
+            turmas.splice(parseInt(index) + 1, 0, copy);
+            renderTurmas();
+        }
+
+        function autoGenerateTurmaName() {
+            const nomeField = modalTurmaNome;
+            if (nomeField.value.trim() !== '') return;
+            
+            const turnoVal = modalTurmaTurno.value;
+            const dataVal = modalTurmaDataInicio.value;
+            
+            let monthName = '';
+            if (dataVal) {
+                const date = new Date(dataVal);
+                if (!isNaN(date.getTime())) {
+                    const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+                    monthName = ` - ${meses[date.getMonth()]}`;
+                }
+            }
+            
+            const turnoStr = turnoLabels[turnoVal] || 'Manhã';
+            nomeField.value = `Turma ${turnoStr}${monthName}`;
+        }
+        
+        modalTurmaTurno.addEventListener('change', autoGenerateTurmaName);
+        modalTurmaDataInicio.addEventListener('change', autoGenerateTurmaName);
+
+        // Lógica de Preenchimento Rápido (Quick Templates)
+        document.querySelectorAll('.btn-quick-template').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const template = this.getAttribute('data-template');
+                
+                diasSelected = [];
+                diaPills.forEach(pill => {
+                    pill.classList.remove('bg-primary', 'text-white', 'border-primary/50');
+                    pill.classList.add('bg-white/5', 'text-muted-foreground');
+                });
+                
+                if (template === 'MANHA') {
+                    modalTurmaTurno.value = 'MANHA';
+                    modalTurmaHoraInicio.value = '08:00';
+                    modalTurmaHoraFim.value = '12:00';
+                    diasSelected = ['SEG', 'TER', 'QUA', 'QUI', 'SEX'];
+                } else if (template === 'TARDE') {
+                    modalTurmaTurno.value = 'TARDE';
+                    modalTurmaHoraInicio.value = '13:00';
+                    modalTurmaHoraFim.value = '17:00';
+                    diasSelected = ['SEG', 'TER', 'QUA', 'QUI', 'SEX'];
+                } else if (template === 'NOITE') {
+                    modalTurmaTurno.value = 'NOITE';
+                    modalTurmaHoraInicio.value = '18:00';
+                    modalTurmaHoraFim.value = '22:00';
+                    diasSelected = ['SEG', 'TER', 'QUA', 'QUI', 'SEX'];
+                } else if (template === 'SABADO') {
+                    modalTurmaTurno.value = 'SABADO';
+                    modalTurmaHoraInicio.value = '08:00';
+                    modalTurmaHoraFim.value = '13:00';
+                    diasSelected = ['SAB'];
+                }
+                
+                diaPills.forEach(pill => {
+                    const dia = pill.getAttribute('data-dia');
+                    if (diasSelected.includes(dia)) {
+                        pill.classList.add('bg-primary', 'text-white', 'border-primary/50');
+                        pill.classList.remove('bg-white/5', 'text-muted-foreground');
+                    }
+                });
+                
+                autoGenerateTurmaName();
+            });
+        });
+
+        btnOpenTurmaModal.addEventListener('click', openAddModal);
+        btnCloseTurmaModal.addEventListener('click', closeTurmaModalFunc);
+        btnCancelTurma.addEventListener('click', closeTurmaModalFunc);
+        btnSaveTurma.addEventListener('click', saveTurmaFromModal);
+
+        // Fechar ao clicar fora do modal
+        turmaModal.addEventListener('click', function(e) {
+            if (e.target === turmaModal) {
+                closeTurmaModalFunc();
+            }
+        });
+        
+        // Renderizar inicial
+        renderTurmas();
     });
 </script>
 {% endblock content %}
