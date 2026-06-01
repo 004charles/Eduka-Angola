@@ -21,9 +21,20 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
 from .models import Galeria, SobreNos, MensagemContato, Publicidade
-# from inteligencia.utils import recomendar_cursos
 from avaliacoes.utils import get_centro_da_semana
 from cursos_app.utils_secoes import get_home_sections_data
+
+
+def recomendar_cursos(aluno, limite=8):
+    """
+    Fallback para recomendação de cursos caso o módulo de Inteligência Artificial esteja desativado.
+    Retorna os cursos ativos mais recentes do portal.
+    """
+    try:
+        from inteligencia.utils import recomendar_cursos as ai_recomendar
+        return ai_recomendar(aluno, limite)
+    except (ImportError, Exception):
+        return list(Curso.objects.filter(publicado=True, ativo=True).select_related('centro').order_by('-id')[:limite])
 
 
 from django.core.cache import cache
