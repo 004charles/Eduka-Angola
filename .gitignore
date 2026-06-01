@@ -90,7 +90,6 @@ coverage.xml
 cover/
 
 # Translations
-*.mo
 
 # Django stuff:
 
