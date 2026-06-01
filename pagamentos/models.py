@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 import json
+import django
 
 User = get_user_model()
 
@@ -467,16 +468,30 @@ class ConfiguracaoPagamento(models.Model):
     class Meta:
         verbose_name = _('Configuração de Pagamento')
         verbose_name_plural = _('Configurações de Pagamento')
-        constraints = [
-            models.CheckConstraint(
-                condition=models.Q(tempo_expiracao_link_minutos__gt=0),
-                name='tempo_expiracao_positivo'
-            ),
-            models.CheckConstraint(
-                condition=models.Q(max_tentativas_pagamento__gt=0),
-                name='max_tentativas_positivo'
-            ),
-        ]
+        
+        # Django 5.1+ / 6.0 usa 'condition', enquanto versões anteriores usam 'check'
+        if django.VERSION >= (5, 1):
+            constraints = [
+                models.CheckConstraint(
+                    condition=models.Q(tempo_expiracao_link_minutos__gt=0),
+                    name='tempo_expiracao_positivo'
+                ),
+                models.CheckConstraint(
+                    condition=models.Q(max_tentativas_pagamento__gt=0),
+                    name='max_tentativas_positivo'
+                ),
+            ]
+        else:
+            constraints = [
+                models.CheckConstraint(
+                    check=models.Q(tempo_expiracao_link_minutos__gt=0),
+                    name='tempo_expiracao_positivo'
+                ),
+                models.CheckConstraint(
+                    check=models.Q(max_tentativas_pagamento__gt=0),
+                    name='max_tentativas_positivo'
+                ),
+            ]
     
     def __str__(self):
         return _("Configuração Global de Pagamentos")
