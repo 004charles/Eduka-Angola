@@ -8,6 +8,8 @@ from django.conf.urls.i18n import i18n_patterns
 from rest_framework import routers
 from cursos_app.api_views import CourseViewSet, CategoryViewSet
 from cursovideoapp.api_views import CursoVideoViewSet, ExercicioViewSet
+from django.views.decorators.csrf import csrf_exempt
+from django.views.i18n import set_language
 
 router = routers.DefaultRouter()
 router.register(r'cursos', CourseViewSet)
@@ -24,6 +26,7 @@ urlpatterns = [
     path('', views.index, name = 'index'),
     path('test-404/', views.erro_404_view, kwargs={'exception': Exception("Teste 404")}),
     path('test-500/', views.erro_500_view),
+    path('i18n/setlang/', csrf_exempt(set_language), name='set_language'),
     path('i18n/', include('django.conf.urls.i18n')),
     path('auth/', include('usuarios.urls')), 
     # path('accounts/', include('allauth.urls')), 
