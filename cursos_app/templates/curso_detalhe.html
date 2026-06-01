@@ -480,6 +480,29 @@
                                     <div class="add-to-cart-button d-grid gap-3">
                                         {% if user.is_authenticated and aluno_inscricao %}
                                             <a class="rbt-btn btn-gradient radius-round" href="{% url 'painel_curso' curso.id %}">Ir para o Painel</a>
+                                        {% elif curso.lotado or not curso.possui_turmas_ativas or not curso.inscricoes_abertas %}
+                                            <button class="rbt-btn btn-secondary radius-round disabled" disabled style="cursor: not-allowed; opacity: 0.75; background: #e2e8f0; color: #718096; border: none;">
+                                                {% if curso.lotado %}
+                                                    {% trans "Sem Vagas Disponíveis" %}
+                                                {% elif not curso.possui_turmas_ativas %}
+                                                    {% trans "Sem Turmas Ativas" %}
+                                                {% else %}
+                                                    {% trans "Inscrições Encerradas" %}
+                                                {% endif %}
+                                            </button>
+                                            
+                                            <div class="alert alert-warning d-flex align-items-center gap-2 p-3 mt-2 small text-start" style="border-radius: 12px; background-color: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.2); color: #856404; line-height: 1.4;">
+                                                <i class="feather-alert-triangle" style="font-size: 16px; min-width: 16px;"></i>
+                                                <span>
+                                                    {% if curso.lotado %}
+                                                        {% trans "De momento todas as vagas para este curso foram preenchidas. Por favor, aguarde por novas vagas ou contacte o nosso suporte." %}
+                                                    {% elif not curso.possui_turmas_ativas %}
+                                                        {% trans "Não existem turmas ativas planeadas para este curso de momento. Contacte a instituição para mais informações." %}
+                                                    {% else %}
+                                                        {% trans "O período de inscrições para este curso já terminou ou ainda não iniciou." %}
+                                                    {% endif %}
+                                                </span>
+                                            </div>
                                         {% else %}
                                             <a class="rbt-btn btn-gradient radius-round" href="{% url 'ficha_inscricao' curso.id %}">Inscrever-se Agora</a>
                                         {% endif %}

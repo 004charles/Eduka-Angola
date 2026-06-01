@@ -84,6 +84,11 @@ def inscrever_curso(request, curso_id):
         messages.error(request, "Este curso não possui mais vagas disponíveis.")
         return redirect('curso_detalhe', id=curso_id)
     
+    # Verificar se possui turmas ativas
+    if not curso.possui_turmas_ativas:
+        messages.error(request, "Este curso não possui turmas ativas planejadas de momento.")
+        return redirect('curso_detalhe', id=curso_id)
+    
     # Verificar se as inscrições estão abertas
     if not curso.inscricoes_abertas:
         messages.error(request, "As inscrições para este curso estão encerradas.")
@@ -125,8 +130,40 @@ def inscrever_curso(request, curso_id):
         except Exception:
             pass
         
-        # Redirecionar para simulação de pagamento
-        return redirect('simular_pagamento', inscricao_id=inscricao.id)
+        # Se for pago, criar o pagamento no gateway real Prontu e redirecionar
+        try:
+            from django.urls import reverse
+            from pagamentos.services import get_payment_service, PagamentoException
+            servico = get_payment_service()
+            
+            # Criar transação real
+            pagamento = servico.criar_pagamento(
+                usuario=request.user,
+                tipo_pagamento='INSCRICAO',
+                valor=curso.preco_atual,
+                moeda='AOA',
+                curso=curso,
+                url_sucesso=request.build_absolute_uri(reverse('pagamento_sucesso')),
+                url_cancelamento=request.build_absolute_uri(reverse('pagamento_cancelado')),
+                metadados={'inscricao_id': str(inscricao.id)}
+            )
+            
+            if pagamento and pagamento.url_pagamento:
+                # Redirecionar diretamente para o checkout da Prontu!
+                return redirect(pagamento.url_pagamento)
+            else:
+                messages.error(request, "Não foi possível gerar o link de pagamento. Por favor, tente novamente.")
+                inscricao.delete()  # Limpar inscrição pendente pois a geração do link falhou
+                return redirect('curso_detalhe', id=curso_id)
+                
+        except PagamentoException as gateway_err:
+            messages.error(request, f"Erro no gateway Prontu: {gateway_err}")
+            inscricao.delete()
+            return redirect('curso_detalhe', id=curso_id)
+        except Exception as e_err:
+            messages.error(request, f"Ocorreu um erro inesperado ao iniciar o pagamento: {e_err}")
+            inscricao.delete()
+            return redirect('curso_detalhe', id=curso_id)
     
     # Mostrar página de confirmação de inscrição
     context = {
@@ -138,101 +175,7 @@ def inscrever_curso(request, curso_id):
     
     return render(request, 'cursos/confirmar_inscricao.html', context)
 
-@login_required(login_url='login_aluno')
-def simular_pagamento(request, inscricao_id):
-    """View para simulação ou gateway real de pagamento"""
-    inscricao = get_object_or_404(Inscricao, id=inscricao_id)
-    
-    # Verificar se o aluno é o dono da inscrição
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO' or request.user.aluno_profile.id != inscricao.aluno.id:
-        messages.error(request, "Você não tem permissão para acessar esta página.")
-        return redirect('curso_detalhe', id=inscricao.curso.id)
-    
-    # Verificar se já foi pago
-    if inscricao.status == 'A':
-        messages.info(request, "Esta inscrição já foi confirmada.")
-        return redirect('painel_curso', curso_id=inscricao.curso.id)
-    
-    # === TENTAR FLUXO REAL PRONTU ===
-    from django.conf import settings
-    import logging
-    logger = logging.getLogger(__name__)
-    
-    # Apenas se o curso for pago e as configurações de pagamento estiverem ativas
-    if not inscricao.curso.is_gratuito and getattr(settings, 'PAGAMENTOS_ATIVADOS', True):
-        from pagamentos.models import Pagamento
-        from pagamentos.services import get_payment_service, PagamentoException
-        
-        try:
-            # Buscar se já existe um pagamento pendente/solicitado para esta inscrição
-            pagamento = Pagamento.objects.filter(
-                usuario=request.user,
-                curso=inscricao.curso,
-                tipo_pagamento='INSCRICAO',
-                status__in=['PENDING', 'REQUESTED', 'PROCESSING']
-            ).first()
-            
-            if not pagamento:
-                # Criar nova transação real
-                servico = get_payment_service()
-                
-                # Se GATEWAY_MOCK=True, o próprio servico cria link simulado
-                pagamento = servico.criar_pagamento(
-                    usuario=request.user,
-                    tipo_pagamento='INSCRICAO',
-                    valor=inscricao.curso.preco_atual,
-                    moeda='AOA',
-                    curso=inscricao.curso,
-                    url_sucesso=request.build_absolute_uri('/pagamento/sucesso/'),
-                    url_cancelamento=request.build_absolute_uri('/pagamento/cancelado/'),
-                    metadados={'inscricao_id': str(inscricao.id)}
-                )
-                
-            if pagamento and pagamento.url_pagamento:
-                # Redirecionar diretamente para o checkout da Prontu!
-                return redirect(pagamento.url_pagamento)
-                
-        except PagamentoException as gateway_err:
-            logger.error(f"Erro no gateway Prontu: {gateway_err}. Usando fallback de simulação.")
-            messages.warning(request, "O gateway de pagamento Prontu está em manutenção. Pode prosseguir com a simulação local.")
-        except Exception as e_err:
-            logger.error(f"Erro inesperado no fluxo de pagamento: {e_err}. Usando fallback de simulação.")
-    
-    # === FALLBACK PARA FLUXO DE SIMULAÇÃO LOCAL (Garante resiliência total) ===
-    if request.method == 'POST':
-        codigo_pagamento = request.POST.get('codigo_pagamento', '')
-        
-        if codigo_pagamento == inscricao.codigo_simulacao:
-            from cursos_app.utils import processar_simulacao_pagamento, atribuir_turma_automatica
-            success, message = processar_simulacao_pagamento(inscricao)
-            
-            if success:
-                messages.success(request, "Pagamento confirmado com sucesso! Opere o acesso ao curso.")
-                atribuir_turma_automatica(inscricao)
-                
-                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                    return JsonResponse({
-                        'success': True,
-                        'message': 'Pagamento confirmado com sucesso!',
-                        'redirect_url': f'/cursos/painel/{inscricao.curso.id}/'
-                    })
-                
-                return redirect('painel_curso', curso_id=inscricao.curso.id)
-            else:
-                messages.error(request, message)
-        else:
-            messages.error(request, "Código inválido. Verifique se copiou corretamente do seu e-mail.")
-        
-        return redirect('simular_pagamento', inscricao_id=inscricao.id)
-    
-    context = {
-        'inscricao': inscricao,
-        'curso': inscricao.curso,
-        'aluno': inscricao.aluno,
-        'valor_total': inscricao.curso.preco_atual,
-    }
-    
-    return render(request, 'cursos/simular_pagamento.html', context)
+
 
 @login_required(login_url='login_aluno')
 def cancelar_inscricao(request, inscricao_id):
@@ -1513,6 +1456,16 @@ def ficha_inscricao(request, curso_id):
         return redirect('login_aluno')
 
     curso = get_object_or_404(Curso, id=curso_id)
+
+    # Verificar se curso está lotado, se não possui turmas ativas ou se inscrições estão fechadas
+    if curso.lotado or not curso.possui_turmas_ativas or not curso.inscricoes_abertas:
+        if curso.lotado:
+            messages.error(request, "Este curso não possui mais vagas disponíveis.")
+        elif not curso.possui_turmas_ativas:
+            messages.error(request, "Este curso não possui turmas ativas planejadas de momento.")
+        else:
+            messages.error(request, "As inscrições para este curso estão encerradas.")
+        return redirect('curso_detalhe', id=curso_id)
 
     aluno = None
     try:
