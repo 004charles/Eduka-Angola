@@ -469,11 +469,11 @@ class ConfiguracaoPagamento(models.Model):
         verbose_name_plural = _('Configurações de Pagamento')
         constraints = [
             models.CheckConstraint(
-                check=models.Q(tempo_expiracao_link_minutos__gt=0),
+                condition=models.Q(tempo_expiracao_link_minutos__gt=0),
                 name='tempo_expiracao_positivo'
             ),
             models.CheckConstraint(
-                check=models.Q(max_tentativas_pagamento__gt=0),
+                condition=models.Q(max_tentativas_pagamento__gt=0),
                 name='max_tentativas_positivo'
             ),
         ]
