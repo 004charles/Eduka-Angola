@@ -1,0 +1,170 @@
+{% extends 'escolas/admin/base.html' %}
+{% load static %}
+
+{% block title %}Galeria - {{ escola.nome }} | Eduka Angola{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+    <!-- Header -->
+    <div class="flex items-center justify-between gap-3 mb-6">
+        <div class="flex items-center gap-3">
+            <a href="{% url 'escolas:dashboard_representante_escola' escola.id %}" class="kt-btn kt-btn-icon kt-btn-ghost rounded-md">
+                <i class="ki-filled ki-arrow-left"></i>
+            </a>
+            <div>
+                <h1 class="text-3xl font-bold text-foreground">Galeria de Imagens</h1>
+                <p class="text-secondary">{{ escola.nome }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Section -->
+    <div class="card bg-background border border-input rounded-lg p-6">
+        <h2 class="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+            <i class="ki-filled ki-upload text-primary"></i>
+            Adicionar Imagem
+        </h2>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-4">
+            {% csrf_token %}
+
+            <!-- Categoria -->
+            <div>
+                <label for="id_categoria" class="form-label font-semibold">Categoria *</label>
+                <select id="id_categoria" name="categoria" required>
+                    {% for value, label in categorias %}
+                    <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Imagem -->
+            <div>
+                <label for="id_imagem" class="form-label font-semibold">Imagem *</label>
+                <input type="file" id="id_imagem" name="imagem" accept="image/*" required>
+                <p class="text-xs text-secondary mt-1">Formatos aceitos: JPG, PNG, GIF. Tamanho máximo: 10MB</p>
+            </div>
+
+            <!-- Legenda -->
+            <div>
+                <label for="id_legenda" class="form-label font-semibold">Legenda</label>
+                <input type="text" id="id_legenda" name="legenda" placeholder="Descreva a imagem">
+            </div>
+
+            <button type="submit" class="kt-btn kt-btn-primary rounded-md w-full">
+                <i class="ki-filled ki-upload"></i> Upload de Imagem
+            </button>
+        </form>
+    </div>
+
+    <!-- Gallery -->
+    <div>
+        <h2 class="text-lg font-bold text-foreground mb-4">Imagens Carregadas ({{ galerias.count }})</h2>
+
+        {% if galerias %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for galeria in galerias %}
+            <div class="card bg-background border border-input rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                <!-- Imagem -->
+                <div class="relative overflow-hidden bg-muted h-48">
+                    <img src="{{ galeria.imagem.url }}" alt="{{ galeria.legenda }}" class="w-full h-full object-cover">
+                    <button form="delete-form-{{ galeria.id }}" class="absolute top-2 right-2 kt-btn kt-btn-icon kt-btn-danger rounded-md" title="Deletar" onclick="return confirm('Deletar esta imagem?')">
+                        <i class="ki-filled ki-trash"></i>
+                    </button>
+                </div>
+
+                <!-- Info -->
+                <div class="p-4">
+                    <p class="text-xs font-semibold text-secondary mb-2">
+                        {% if galeria.get_categoria_display %}{{ galeria.get_categoria_display }}{% endif %}
+                    </p>
+                    <p class="text-sm text-foreground font-semibold mb-2">{{ galeria.legenda|default:"Sem legenda" }}</p>
+                    <p class="text-xs text-secondary">Adicionada há {{ galeria.id }} dias</p>
+                </div>
+
+                <!-- Delete Form (Hidden) -->
+                <form id="delete-form-{{ galeria.id }}" method="post" action="{% url 'escolas:deletar_imagem' escola.id galeria.id %}" style="display: none;">
+                    {% csrf_token %}
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="card bg-background border border-dashed border-input rounded-lg p-12 text-center">
+            <div class="mb-4">
+                <i class="ki-filled ki-picture text-6xl text-muted"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-foreground mb-2">Nenhuma imagem adicionada</h3>
+            <p class="text-secondary">Comece a carregar imagens para mostrar as instalações e actividades da sua escola.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: rgb(var(--color-foreground));
+        font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="file"],
+    select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid rgb(var(--color-input));
+        border-radius: 0.375rem;
+        font-family: inherit;
+        font-size: 0.875rem;
+        transition: border-color 0.15s;
+    }
+
+    input[type="text"]:focus,
+    input[type="file"]:focus,
+    select:focus {
+        outline: none;
+        border-color: rgb(var(--color-primary));
+        box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.1);
+    }
+
+    .kt-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+        cursor: pointer;
+        border: none;
+        transition: all 0.15s;
+    }
+
+    .kt-btn-primary {
+        background-color: rgb(var(--color-primary));
+        color: white;
+    }
+
+    .kt-btn-primary:hover {
+        background-color: rgb(var(--color-primary) / 0.9);
+    }
+
+    .kt-btn-danger {
+        background-color: #ef4444;
+        color: white;
+        padding: 0.375rem;
+        font-size: 0.75rem;
+    }
+
+    .kt-btn-danger:hover {
+        background-color: #dc2626;
+    }
+
+    .kt-btn-icon {
+        padding: 0.5rem;
+    }
+</style>
+{% endblock %}

@@ -153,7 +153,7 @@
                     </div>
                 </div>
                 <div class="col-lg-4 text-end">
-                    <a href="{% url 'lista_escolas' %}" class="rbt-btn-link">Ver todas as escolas <i class="feather-arrow-right"></i></a>
+                    <a href="{% url 'escolas:lista_escolas' %}" class="rbt-btn-link">Ver todas as escolas <i class="feather-arrow-right"></i></a>
                 </div>
             </div>
 
@@ -164,14 +164,14 @@
                         <div class="school-banner" style="background-image: url('{% if escola.perfil and escola.perfil.banner %}{{ escola.perfil.banner.url }}{% else %}{% static 'assets/images/bg/bg-image-10.jpg' %}{% endif %}');"></div>
                         <div class="school-body">
                             <span class="school-type">{{ escola.get_tipo_rede_display }}</span>
-                            <h4 class="title mb--10"><a href="{% url 'perfil_escola' escola.id %}">{{ escola.nome }}</a></h4>
+                            <h4 class="title mb--10"><a href="{% url 'escolas:perfil_escola' escola.id %}">{{ escola.nome }}</a></h4>
                             <div class="d-flex align-items-center text-muted mb--15" style="font-size: 14px;">
                                 <i class="feather-map-pin me-2"></i> {{ escola.municipio }}, {{ escola.provincia }}
                             </div>
                             
                             <hr class="mt--15 mb--15">
                             
-                            <a href="{% url 'perfil_escola' escola.id %}" class="rbt-btn btn-sm btn-border hover-icon-reverse w-100 text-center">
+                            <a href="{% url 'escolas:perfil_escola' escola.id %}" class="rbt-btn btn-sm btn-border hover-icon-reverse w-100 text-center">
                                 <span class="icon-reverse-wrapper">
                                     <span class="btn-text">Ver Perfil</span>
                                     <span class="btn-icon"><i class="feather-arrow-right"></i></span>
@@ -186,7 +186,7 @@
                     <div class="mb-4"><i class="feather-search text-muted" style="font-size: 40px;"></i></div>
                     <h4 class="title">Ainda não registámos escolas na tua área</h4>
                     <p>Apesar do teu perfil ser excelente, de momento não temos escolas registadas em {{ provincia }} que correspondam perfeitamente. Mas não desanimes!</p>
-                    <a href="{% url 'lista_escolas' %}" class="rbt-btn btn-primary mt-3">Explorar todas as escolas do País</a>
+                    <a href="{% url 'escolas:lista_escolas' %}" class="rbt-btn btn-primary mt-3">Explorar todas as escolas do País</a>
                 </div>
                 {% endfor %}
             </div>

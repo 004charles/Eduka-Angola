@@ -1,0 +1,142 @@
+{% extends 'escolas/admin/base.html' %}
+{% load static %}
+
+{% block title %}{% if parceria %}Editar{% else %}Nova{% endif %} Parceria - {{ escola.nome }} | Eduka Angola{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+    <!-- Header -->
+    <div class="flex items-center gap-3 mb-6">
+        <a href="{% url 'escolas:parcerias_escola' escola.id %}" class="kt-btn kt-btn-icon kt-btn-ghost rounded-md">
+            <i class="ki-filled ki-arrow-left"></i>
+        </a>
+        <div>
+            <h1 class="text-3xl font-bold text-foreground">{% if parceria %}Editar Parceria{% else %}Nova Parceria{% endif %}</h1>
+            <p class="text-secondary">{{ escola.nome }}</p>
+        </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="card bg-background border border-input rounded-lg p-6 max-w-2xl">
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Basic Info Section -->
+            <div class="border-b border-input pb-6">
+                <h2 class="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                    <i class="ki-filled ki-information-5 text-primary"></i>
+                    Informações Básicas
+                </h2>
+
+                <!-- Nome da Empresa -->
+                <div class="mb-4">
+                    <label for="id_nome" class="form-label font-semibold">Nome da Empresa/Parceiro *</label>
+                    <input type="text" id="id_nome" name="nome_empresa" value="{% if parceria %}{{ parceria.nome_empresa }}{% endif %}" required placeholder="Ex: Telefónica Angola, Zetdata, Huawei">
+                </div>
+
+                <!-- Descrição -->
+                <div>
+                    <label for="id_descricao" class="form-label font-semibold">Descrição da Parceria</label>
+                    <textarea id="id_descricao" name="descricao" placeholder="Ex: Oportunidades de estágio em Telecomunicações, Desenvolvimento Web, etc.">{% if parceria %}{{ parceria.descricao }}{% endif %}</textarea>
+                    <p class="text-xs text-secondary mt-1">Detalhe que tipo de oportunidades esta parceria oferece</p>
+                </div>
+            </div>
+
+            <!-- Branding Section -->
+            <div class="pb-6">
+                <h2 class="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                    <i class="ki-filled ki-palette-5 text-primary"></i>
+                    Branding
+                </h2>
+
+                <!-- Logo -->
+                <div>
+                    <label for="id_logo" class="form-label font-semibold">Logotipo</label>
+                    {% if parceria and parceria.logo %}
+                    <div class="mb-3">
+                        <p class="text-sm text-secondary mb-2">Logo Actual:</p>
+                        <img src="{{ parceria.logo.url }}" alt="{{ parceria.nome_empresa }}" class="h-20 object-contain rounded">
+                    </div>
+                    {% endif %}
+                    <input type="file" id="id_logo" name="logo" accept="image/*">
+                    <p class="text-xs text-secondary mt-1">Formatos aceitos: JPG, PNG. Tamanho máximo: 5MB</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-3 pt-4 border-t border-input">
+                <button type="submit" class="kt-btn kt-btn-primary rounded-md">
+                    <i class="ki-filled ki-check"></i> {% if parceria %}Atualizar{% else %}Criar{% endif %} Parceria
+                </button>
+                <a href="{% url 'escolas:parcerias_escola' escola.id %}" class="kt-btn kt-btn-secondary rounded-md">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: rgb(var(--color-foreground));
+    }
+
+    input[type="text"],
+    input[type="file"],
+    textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid rgb(var(--color-input));
+        border-radius: 0.375rem;
+        font-family: inherit;
+        font-size: 0.875rem;
+        transition: border-color 0.15s;
+    }
+
+    input[type="text"]:focus,
+    input[type="file"]:focus,
+    textarea:focus {
+        outline: none;
+        border-color: rgb(var(--color-primary));
+        box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.1);
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    .kt-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+        cursor: pointer;
+        border: none;
+        transition: all 0.15s;
+    }
+
+    .kt-btn-primary {
+        background-color: rgb(var(--color-primary));
+        color: white;
+    }
+
+    .kt-btn-primary:hover {
+        background-color: rgb(var(--color-primary) / 0.9);
+    }
+
+    .kt-btn-secondary {
+        background-color: rgb(var(--color-muted));
+        color: rgb(var(--color-foreground));
+    }
+
+    .kt-btn-secondary:hover {
+        background-color: rgb(var(--color-input));
+    }
+</style>
+{% endblock %}

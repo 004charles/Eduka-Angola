@@ -24,7 +24,7 @@
                     </div>
                     
                     <div class="rbt-contact-form contact-form-style-1 max-width-auto">
-                        <form id="orientacao-form" method="POST" action="{% url 'onboarding_escolar' %}" class="max-width-auto">
+                        <form id="orientacao-form" method="POST" action="{% url 'escolas:onboarding_escolar' %}" class="max-width-auto">
                             {% csrf_token %}
                             <div class="mb--30">
                                 <label for="nivel">1. Qual é a tua situação atual?</label>
@@ -117,7 +117,7 @@
                                 <p class="mt--15 text-muted" style="font-size: 14px;">Ao continuar, a Eduka AI irá analisar as tuas respostas para te dar o melhor rumo.</p>
                                 
                                 <div class="mt--30">
-                                    <a href="{% url 'lista_escolas' %}" class="rbt-btn-link">Ou pula esta etapa e vê todas as escolas <i class="feather-arrow-right"></i></a>
+                                    <a href="{% url 'escolas:lista_escolas' %}" class="rbt-btn-link">Ou pula esta etapa e vê todas as escolas <i class="feather-arrow-right"></i></a>
                                 </div>
                             </div>
                         </form>

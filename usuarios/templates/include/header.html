@@ -133,7 +133,7 @@
                         <ul class="mainmenu">
                             <li><a href="{% url 'index' %}">Home</a></li>
                             <li><a href="{% url 'lista_centros' %}">{% trans "Centros de Formação" %}</a></li>
-                            <li><a href="{% url 'lista_escolas' %}">{% trans "Escolas e Liceus" %}</a></li>
+                            <li><a href="{% url 'escolas:lista_escolas' %}">{% trans "Escolas e Liceus" %}</a></li>
                             <li class="with-megamenu has-menu-child-item">
                                 <a href="#">{% trans "Explorar" %} <i class="feather-chevron-down"></i></a>
                                 <!-- Start Mega Menu  -->
@@ -156,7 +156,7 @@
                                                     <li><a href="{% url 'catalogo_cursos' %}">{% trans "Todos os Cursos" %}</a></li>
                                                     <li><a href="{% url 'lista_centros' %}">{% trans "Instituições Parceiras" %}</a></li>
 
-                                                    <li><a href="{% url 'lista_escolas' %}">{% trans "Ensino Médio" %}</a></li>
+                                                    <li><a href="{% url 'escolas:lista_escolas' %}">{% trans "Ensino Médio" %}</a></li>
 
                                                     <li><a href="#">{% trans "Ensino Superior" %}</a></li>
                                                 </ul>

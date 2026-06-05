@@ -1,0 +1,196 @@
+{% extends 'escolas/admin/base.html' %}
+{% load static %}
+
+{% block title %}{% if curso %}Editar{% else %}Adicionar{% endif %} Curso - {{ escola.nome }} | Eduka Angola{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+    <!-- Header -->
+    <div class="flex items-center gap-3 mb-6">
+        <a href="{% url 'escolas:gerenciar_cursos' escola.id %}" class="kt-btn kt-btn-icon kt-btn-ghost rounded-md">
+            <i class="ki-filled ki-arrow-left"></i>
+        </a>
+        <div>
+            <h1 class="text-3xl font-bold text-foreground">{% if curso %}Editar Curso{% else %}Novo Curso{% endif %}</h1>
+            <p class="text-secondary">{{ escola.nome }}</p>
+        </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="card bg-background border border-input rounded-lg p-6 max-w-3xl">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Basic Info Section -->
+            <div class="border-b border-input pb-6">
+                <h2 class="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                    <i class="ki-filled ki-information-5 text-primary"></i>
+                    Informações Básicas
+                </h2>
+
+                <!-- Nome -->
+                <div class="mb-4">
+                    <label for="id_nome" class="form-label font-semibold">Nome do Curso *</label>
+                    <input type="text" id="id_nome" name="nome" value="{% if curso %}{{ curso.nome }}{% endif %}" required placeholder="Ex: Matemática, Física, Química">
+                </div>
+
+                <!-- Descrição -->
+                <div>
+                    <label for="id_descricao" class="form-label font-semibold">Descrição</label>
+                    <textarea id="id_descricao" name="descricao" placeholder="Descreva o conteúdo e objectivos do curso">{% if curso %}{{ curso.descricao }}{% endif %}</textarea>
+                </div>
+            </div>
+
+            <!-- Academic Info Section -->
+            <div class="border-b border-input pb-6">
+                <h2 class="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                    <i class="ki-filled ki-book-open text-primary"></i>
+                    Informações Académicas
+                </h2>
+
+                <!-- Classes Lecionadas -->
+                <div class="mb-4">
+                    <label for="id_classes" class="form-label font-semibold">Classes Lecionadas *</label>
+                    <input type="text" id="id_classes" name="classes_lecionadas" value="{% if curso %}{{ curso.classes_lecionadas }}{% endif %}" required placeholder="Ex: 10ª à 12ª Classe">
+                </div>
+
+                <!-- Duração -->
+                <div class="mb-4">
+                    <label for="id_duracao" class="form-label font-semibold">Duração (em anos) *</label>
+                    <input type="number" id="id_duracao" name="duracao_anos" value="{% if curso %}{{ curso.duracao_anos }}{% endif %}" required min="1" placeholder="3">
+                </div>
+
+                <!-- Períodos -->
+                <div class="mb-4">
+                    <label for="id_periodos" class="form-label font-semibold">Períodos Lectivos</label>
+                    <input type="text" id="id_periodos" name="periodos" value="{% if curso %}{{ curso.periodos }}{% endif %}" placeholder="Ex: Manhã, Tarde, Noite">
+                </div>
+
+                <!-- Exame -->
+                <div class="flex items-center gap-2 mb-4">
+                    <input type="checkbox" id="id_exame" name="exige_exame" {% if curso and curso.exige_exame %}checked{% endif %}>
+                    <label for="id_exame" class="form-label font-semibold">Exige Exame Nacional</label>
+                </div>
+
+                <!-- Disciplinas Exame -->
+                <div>
+                    <label for="id_disciplinas" class="form-label font-semibold">Disciplinas de Exame</label>
+                    <textarea id="id_disciplinas" name="disciplinas_exame" placeholder="Ex: Português, Matemática, Inglês">{% if curso %}{{ curso.disciplinas_exame }}{% endif %}</textarea>
+                </div>
+            </div>
+
+            <!-- Enrollment Section -->
+            <div class="border-b border-input pb-6">
+                <h2 class="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                    <i class="ki-filled ki-clipboard-list text-primary"></i>
+                    Inscrição
+                </h2>
+
+                <!-- Vagas -->
+                <div class="mb-4">
+                    <label for="id_vagas" class="form-label font-semibold">Vagas Anuais *</label>
+                    <input type="number" id="id_vagas" name="vagas_anuais" value="{% if curso %}{{ curso.vagas_anuais }}{% else %}30{% endif %}" required min="0" placeholder="30">
+                </div>
+            </div>
+
+            <!-- Pricing Section -->
+            <div class="pb-6">
+                <h2 class="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                    <i class="ki-filled ki-dollar text-primary"></i>
+                    Preços
+                </h2>
+
+                <!-- Mensalidade -->
+                <div class="mb-4">
+                    <label for="id_mensalidade" class="form-label font-semibold">Mensalidade (AOA) *</label>
+                    <input type="number" id="id_mensalidade" name="mensalidade" value="{% if curso %}{{ curso.mensalidade }}{% else %}0{% endif %}" required min="0" step="0.01" placeholder="0.00">
+                </div>
+
+                <!-- Taxa de Inscrição -->
+                <div>
+                    <label for="id_taxa" class="form-label font-semibold">Taxa de Inscrição (AOA) *</label>
+                    <input type="number" id="id_taxa" name="taxa_inscricao" value="{% if curso %}{{ curso.taxa_inscricao }}{% else %}0{% endif %}" required min="0" step="0.01" placeholder="0.00">
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-3 pt-4 border-t border-input">
+                <button type="submit" class="kt-btn kt-btn-primary rounded-md">
+                    <i class="ki-filled ki-check"></i> {% if curso %}Atualizar{% else %}Criar{% endif %} Curso
+                </button>
+                <a href="{% url 'escolas:gerenciar_cursos' escola.id %}" class="kt-btn kt-btn-secondary rounded-md">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: rgb(var(--color-foreground));
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid rgb(var(--color-input));
+        border-radius: 0.375rem;
+        font-family: inherit;
+        font-size: 0.875rem;
+        transition: border-color 0.15s;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    textarea:focus {
+        outline: none;
+        border-color: rgb(var(--color-primary));
+        box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.1);
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .kt-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+        cursor: pointer;
+        border: none;
+        transition: all 0.15s;
+    }
+
+    .kt-btn-primary {
+        background-color: rgb(var(--color-primary));
+        color: white;
+    }
+
+    .kt-btn-primary:hover {
+        background-color: rgb(var(--color-primary) / 0.9);
+    }
+
+    .kt-btn-secondary {
+        background-color: rgb(var(--color-muted));
+        color: rgb(var(--color-foreground));
+    }
+
+    .kt-btn-secondary:hover {
+        background-color: rgb(var(--color-input));
+    }
+
+    input[type="checkbox"] {
+        margin-right: 0.5rem;
+    }
+</style>
+{% endblock %}

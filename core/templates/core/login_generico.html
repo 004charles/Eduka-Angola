@@ -1,0 +1,77 @@
+{% extends 'auth_base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Aceder à Conta" %} — EdukAngola{% endblock %}
+
+{% block content %}
+<div class="kt-card max-w-[370px] w-full bg-background rounded-xl p-8 border border-border shadow-xl">
+    <form action="{% url 'valida_login_generico' %}" method="POST" class="kt-card-content flex flex-col gap-5 p-0" id="sign_in_form">
+        {% csrf_token %}
+        
+        {% if next %}
+        <input type="hidden" name="next" value="{{ next }}">
+        {% endif %}
+        
+        <div class="text-center mb-2.5">
+            <h3 class="text-2xl font-bold text-foreground leading-none mb-3">
+                {% trans "Entrar" %}
+            </h3>
+            <div class="flex items-center justify-center font-medium">
+                <span class="text-sm text-secondary-foreground text-center">
+                    {% trans "Gerencie a sua escola de forma inteligente." %}
+                </span>
+            </div>
+        </div>
+
+        <!-- Mensagens de Erro/Informações -->
+        {% if messages %}
+            <div class="flex flex-col gap-2">
+                {% for message in messages %}
+                    <div class="p-3 rounded-lg text-xs font-medium bg-danger/10 text-danger border border-danger/20 flex items-center gap-2">
+                        <i class="ki-filled ki-information-2 text-sm"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="flex flex-col gap-1">
+            <label class="kt-form-label font-semibold text-gray-700">{% trans "E-mail" %}</label>
+            <input class="kt-input" name="email" placeholder="email@exemplo.com" type="email" required/>
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <div class="flex items-center justify-between gap-1">
+                <label class="kt-form-label font-semibold text-gray-700">{% trans "Palavra-passe" %}</label>
+                <a class="text-sm kt-link shrink-0 font-medium text-primary hover:underline" href="{% url 'esqueci_senha' %}">
+                    {% trans "Esqueceu a senha?" %}
+                </a>
+            </div>
+            <div class="kt-input relative" data-kt-toggle-password="true">
+                <input name="senha" placeholder="••••••••" type="password" required class="w-full pr-10 bg-transparent!"/>
+                <button class="kt-btn kt-btn-sm kt-btn-ghost kt-btn-icon bg-transparent! absolute right-2 top-1/2 -translate-y-1/2" data-kt-toggle-password-trigger="true" type="button">
+                    <span class="kt-toggle-password-active:hidden">
+                        <i class="ki-filled ki-eye text-muted-foreground"></i>
+                    </span>
+                    <span class="hidden kt-toggle-password-active:block">
+                        <i class="ki-filled ki-eye-slash text-muted-foreground"></i>
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <button type="submit" class="kt-btn kt-btn-primary flex justify-center grow py-3 font-bold text-lg shadow-lg shadow-primary/20 mt-2">
+            {% trans "Aceder ao Painel" %}
+        </button>
+
+        <div class="text-center mt-4 border-t border-border pt-4 flex flex-col gap-2">
+            <p class="text-sm text-muted-foreground">
+                {% trans "Não tem conta?" %} <a href="{% url 'registro_aluno' %}" class="text-primary font-bold hover:underline">{% trans "Registe-se aqui" %}</a>
+            </p>
+            <p class="text-sm">
+                <a href="{% url 'index' %}" class="text-muted-foreground hover:text-foreground hover:underline">{% trans "Voltar ao início" %}</a>
+            </p>
+        </div>
+    </form>
+</div>
+{% endblock %}

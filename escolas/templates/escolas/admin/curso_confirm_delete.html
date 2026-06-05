@@ -1,0 +1,83 @@
+{% extends 'escolas/admin/base.html' %}
+{% load static %}
+
+{% block title %}Deletar Curso - {{ escola.nome }} | Eduka Angola{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+    <!-- Header -->
+    <div class="flex items-center gap-3 mb-6">
+        <a href="{% url 'escolas:gerenciar_cursos' escola.id %}" class="kt-btn kt-btn-icon kt-btn-ghost rounded-md">
+            <i class="ki-filled ki-arrow-left"></i>
+        </a>
+        <h1 class="text-3xl font-bold text-foreground">Deletar Curso</h1>
+    </div>
+
+    <!-- Confirmation Card -->
+    <div class="card bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 max-w-md">
+        <div class="flex items-start gap-4 mb-4">
+            <div class="size-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center flex-shrink-0">
+                <i class="ki-filled ki-trash text-red-600 dark:text-red-400 text-lg"></i>
+            </div>
+            <div>
+                <h2 class="text-lg font-bold text-red-900 dark:text-red-300">Tem certeza que deseja deletar este curso?</h2>
+                <p class="text-sm text-red-700 dark:text-red-400 mt-1">Esta acção não pode ser desfeita.</p>
+            </div>
+        </div>
+
+        <!-- Course Info -->
+        <div class="bg-background border border-input rounded-lg p-4 mb-6 my-4">
+            <h3 class="font-semibold text-foreground mb-2">{{ curso.nome }}</h3>
+            <p class="text-sm text-secondary">{{ curso.descricao|truncatewords:20 }}</p>
+        </div>
+
+        <!-- Action Buttons -->
+        <form method="post" class="flex gap-3">
+            {% csrf_token %}
+            <button type="submit" class="kt-btn kt-btn-danger rounded-md flex-1">
+                <i class="ki-filled ki-trash"></i> Deletar Curso
+            </button>
+            <a href="{% url 'escolas:gerenciar_cursos' escola.id %}" class="kt-btn kt-btn-secondary rounded-md flex-1 text-center">
+                Cancelar
+            </a>
+        </form>
+    </div>
+</div>
+
+<style>
+    .kt-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+        cursor: pointer;
+        border: none;
+        transition: all 0.15s;
+    }
+
+    .kt-btn-danger {
+        background-color: #ef4444;
+        color: white;
+    }
+
+    .kt-btn-danger:hover {
+        background-color: #dc2626;
+    }
+
+    .kt-btn-secondary {
+        background-color: rgb(var(--color-muted));
+        color: rgb(var(--color-foreground));
+    }
+
+    .kt-btn-secondary:hover {
+        background-color: rgb(var(--color-input));
+    }
+
+    .kt-btn-icon {
+        padding: 0.5rem;
+    }
+</style>
+{% endblock %}

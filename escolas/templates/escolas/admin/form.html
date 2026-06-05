@@ -1,0 +1,76 @@
+{% load i18n %}
+{% extends 'base.html' %}
+
+{% block title %}{% if escola %}{% trans 'Editar Escola' %}{% else %}{% trans 'Nova Escola' %}{% endif %}{% endblock %}
+
+{% block content %}
+<div class="rbt-section-gapTop rbt-section-gapBottom">
+    <div class="container">
+        <div class="row mb--30 align-items-center">
+            <div class="col-lg-8">
+                <h1 class="title">{% if escola %}{% trans 'Editar Escola' %}{% else %}{% trans 'Nova Escola' %}{% endif %}</h1>
+            </div>
+            <div class="col-lg-4 text-lg-end mt_md--20 mt_sm--20">
+                <a href="{% url 'admin_escolas' %}" class="rbt-btn btn-border">{% trans 'Voltar ao admin' %}</a>
+            </div>
+        </div>
+
+        <div class="row g-5">
+            <div class="col-lg-12">
+                <div class="rbt-card variation-01">
+                    <div class="rbt-card-body">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+
+                            {% if form.non_field_errors %}
+                                <div class="alert alert-danger">
+                                    {{ form.non_field_errors }}
+                                </div>
+                            {% endif %}
+
+                            <h5 class="mb-4">{% trans 'Dados da Escola' %}</h5>
+                            <div class="row g-4">
+                                {% for field in form %}
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            {{ field.label_tag }}
+                                            {{ field }}
+                                            {% if field.help_text %}
+                                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                                            {% endif %}
+                                            {{ field.errors }}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <hr class="my-5">
+                            <h5 class="mb-4">{% trans 'Dados do Perfil' %}</h5>
+                            <div class="row g-4">
+                                {% for field in profile_form %}
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            {{ field.label_tag }}
+                                            {{ field }}
+                                            {% if field.help_text %}
+                                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                                            {% endif %}
+                                            {{ field.errors }}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="row mt--30">
+                                <div class="col-lg-12 text-end">
+                                    <button type="submit" class="rbt-btn btn-gradient">{% trans 'Salvar Escola' %}</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

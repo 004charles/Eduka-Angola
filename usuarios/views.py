@@ -652,6 +652,80 @@ def login_instrutor(request):
     """
     return render(request, 'login_instrutor.html')
 
+
+def login_generico(request):
+    """
+    Login genérico para qualquer tipo de usuário (aluno, instrutor, representante de escola, etc).
+    """
+    if request.user.is_authenticated:
+        return redirect('index')
+    
+    next_url = request.GET.get('next', '')
+    context = {'next': next_url}
+    
+    return render(request, 'core/login_generico.html', context)
+
+
+def valida_login_generico(request):
+    """
+    Valida as credenciais para login genérico (sem restrição de tipo de usuário).
+    """
+    email = request.POST.get('email', '').strip()
+    senha = request.POST.get('senha', '').strip()
+    
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+    
+    if not email or not senha:
+        if is_ajax: 
+            return JsonResponse({'success': False, 'error': 'Email e senha são obrigatórios.'})
+        messages.error(request, 'Email e senha são obrigatórios.')
+        return redirect('login_generico')
+    
+    try:
+        user = authenticate(request, username=email, password=senha)
+        
+        if user is not None:
+            if not user.is_active:
+                if is_ajax: 
+                    return JsonResponse({'success': False, 'error': 'Conta inativa. Verifique o seu e-mail.'})
+                messages.error(request, 'Conta inativa. Verifique o seu e-mail.')
+                return redirect('login_generico')
+                
+            login(request, user)
+            
+            # Suporte ao parâmetro next
+            next_url = request.POST.get('next') or request.GET.get('next')
+            
+            # Se não houver redirect específico ou for um redirecionamento genérico à home, direciona por papel/perfil
+            if not next_url or next_url in ['/', 'index', 'None', '']:
+                from django.urls import reverse
+                from escolas.models import RepresentanteEscola
+                if RepresentanteEscola.objects.filter(user=user, ativo=True).exists():
+                    next_url = reverse('escolas:dashboard_representante')
+                elif user.tipo_usuario in ['GESTOR', 'GESTOR_FILIAL']:
+                    next_url = reverse('centro_dashboard')
+                elif user.tipo_usuario == 'ALUNO':
+                    next_url = reverse('aluno')
+                else:
+                    next_url = reverse('index')
+            
+            if is_ajax: 
+                return JsonResponse({'success': True, 'redirect': next_url})
+            return redirect(next_url)
+        else:
+            if is_ajax: 
+                return JsonResponse({'success': False, 'error': 'Email ou senha incorretos.'})
+            messages.error(request, 'Email ou senha incorretos.')
+            return redirect('login_generico')
+            
+    except Exception as e:
+        print(f"Erro no login: {e}")
+        if is_ajax: 
+            return JsonResponse({'success': False, 'error': 'Erro interno. Tente novamente.'})
+        messages.error(request, 'Erro interno. Tente novamente.')
+        return redirect('login_generico')
+
+
 def logout_usuario(request):
     """
     View de logout geral para todos os usuários.

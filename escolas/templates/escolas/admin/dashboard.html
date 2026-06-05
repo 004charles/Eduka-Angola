@@ -1,0 +1,387 @@
+{% extends 'escolas/admin/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - {{ escola.nome }} | Eduka Angola{% endblock %}
+
+{% block content %}
+<div class="space-y-8 max-w-7xl">
+    <!-- Header -->
+    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+        <div class="flex items-center gap-4">
+            {% if escola.perfil.logo %}
+            <img src="{{ escola.perfil.logo.url }}" alt="{{ escola.nome }}" class="h-14 w-14 object-contain rounded-xl border border-input shadow-sm">
+            {% else %}
+            <div class="h-14 w-14 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 flex-shrink-0">
+                <i class="ki-filled ki-building-4 text-primary text-2xl"></i>
+            </div>
+            {% endif %}
+            <div>
+                <h1 class="text-2xl font-bold text-foreground leading-tight">{{ escola.nome }}</h1>
+                <p class="text-sm text-secondary">{{ escola.municipio }}, {{ escola.provincia }}
+                    {% if escola.perfil.verificada %}
+                    <span class="inline-flex items-center gap-1 ml-2 text-blue-600 dark:text-blue-400 text-xs font-semibold">
+                        <i class="ki-filled ki-verify-5"></i> Verificada
+                    </span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3 flex-wrap">
+            <a href="{% url 'escolas:perfil_escola' escola.id %}" target="_blank"
+               class="inline-flex items-center gap-2 text-sm font-semibold text-primary border border-primary/30 hover:bg-primary/5 px-4 py-2 rounded-lg transition-all">
+                <i class="ki-filled ki-eye"></i> Ver Perfil Público
+            </a>
+            {% if escolas.count > 1 %}
+            <select class="text-sm border border-input rounded-lg px-3 py-2 bg-background text-foreground"
+                    onchange="window.location.href='{% url 'escolas:dashboard_representante_escola' %}' + this.value + '/'">
+                {% for esc in escolas %}
+                <option value="{{ esc.id }}" {% if esc.id == escola.id %}selected{% endif %}>{{ esc.nome }}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <!-- Cursos -->
+        <a href="{% url 'escolas:gerenciar_cursos' escola.id %}"
+           class="card bg-background border border-input rounded-xl p-5 hover:shadow-lg hover:border-primary/30 transition-all group">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold text-secondary uppercase tracking-wider">Cursos</span>
+                <div class="size-9 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center group-hover:bg-blue-500 transition-colors">
+                    <i class="ki-filled ki-book-open text-blue-500 group-hover:text-white text-sm transition-colors"></i>
+                </div>
+            </div>
+            <p class="text-3xl font-bold text-foreground mb-1">{{ cursos_count }}</p>
+            <p class="text-xs text-primary flex items-center gap-1">Gerir <i class="ki-filled ki-arrow-right text-[10px]"></i></p>
+        </a>
+
+        <!-- Galeria -->
+        <a href="{% url 'escolas:galeria_escola' escola.id %}"
+           class="card bg-background border border-input rounded-xl p-5 hover:shadow-lg hover:border-purple-300/50 transition-all group">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold text-secondary uppercase tracking-wider">Galeria</span>
+                <div class="size-9 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center group-hover:bg-purple-500 transition-colors">
+                    <i class="ki-filled ki-picture text-purple-500 group-hover:text-white text-sm transition-colors"></i>
+                </div>
+            </div>
+            <p class="text-3xl font-bold text-foreground mb-1">{{ galeria_count }}</p>
+            <p class="text-xs text-purple-500 flex items-center gap-1">Gerir <i class="ki-filled ki-arrow-right text-[10px]"></i></p>
+        </a>
+
+        <!-- Parcerias -->
+        <a href="{% url 'escolas:parcerias_escola' escola.id %}"
+           class="card bg-background border border-input rounded-xl p-5 hover:shadow-lg hover:border-amber-300/50 transition-all group">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold text-secondary uppercase tracking-wider">Parcerias</span>
+                <div class="size-9 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center group-hover:bg-amber-500 transition-colors">
+                    <i class="ki-filled ki-handshake text-amber-500 group-hover:text-white text-sm transition-colors"></i>
+                </div>
+            </div>
+            <p class="text-3xl font-bold text-foreground mb-1">{{ parcerias_count }}</p>
+            <p class="text-xs text-amber-500 flex items-center gap-1">Gerir <i class="ki-filled ki-arrow-right text-[10px]"></i></p>
+        </a>
+
+        <!-- Perfil Status -->
+        <a href="{% url 'escolas:editar_perfil_escola' escola.id %}"
+           class="card bg-background border border-input rounded-xl p-5 hover:shadow-lg hover:border-green-300/50 transition-all group">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold text-secondary uppercase tracking-wider">Perfil</span>
+                <div class="size-9 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center group-hover:bg-green-500 transition-colors">
+                    <i class="ki-filled ki-palette-5 text-green-500 group-hover:text-white text-sm transition-colors"></i>
+                </div>
+            </div>
+            {% if escola.perfil.logo and escola.perfil.descricao %}
+            <p class="text-sm font-bold text-green-600 dark:text-green-400 mb-1">✓ Completo</p>
+            {% elif escola.perfil.logo or escola.perfil.descricao %}
+            <p class="text-sm font-bold text-amber-600 dark:text-amber-400 mb-1">⚡ Parcial</p>
+            {% else %}
+            <p class="text-sm font-bold text-red-500 mb-1">✗ Por Configurar</p>
+            {% endif %}
+            <p class="text-xs text-green-500 flex items-center gap-1">Editar <i class="ki-filled ki-arrow-right text-[10px]"></i></p>
+        </a>
+    </div>
+
+    <!-- Main Grid: Profile Preview + Sidebar -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- PROFILE QUICK PREVIEW (2/3) -->
+        <div class="lg:col-span-2 space-y-4">
+
+            <!-- Video Banner Preview -->
+            {% if escola.perfil.video_banner or escola.perfil.video_banner_url %}
+            <div class="card bg-background border border-input rounded-xl overflow-hidden">
+                <div class="flex items-center justify-between p-4 border-b border-input">
+                    <h2 class="text-sm font-bold text-foreground flex items-center gap-2">
+                        <i class="ki-filled ki-film text-blue-500"></i> Vídeo de Fundo do Banner
+                    </h2>
+                    <a href="{% url 'escolas:editar_perfil_escola' escola.id %}" class="text-xs text-primary hover:underline font-semibold">
+                        Alterar
+                    </a>
+                </div>
+                <div class="relative" style="aspect-ratio:16/6;background:#0c0f1a;overflow:hidden;">
+                    <video class="w-full h-full object-cover opacity-75" autoplay loop muted playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+                        {% if escola.perfil.video_banner_url %}
+                        <source src="{{ escola.perfil.video_banner_url }}" type="video/mp4">
+                        {% elif escola.perfil.video_banner %}
+                        <source src="{{ escola.perfil.video_banner.url }}" type="video/mp4">
+                        {% endif %}
+                    </video>
+                    <div style="position:absolute;inset:0;background:linear-gradient(to right, rgba(12,15,26,0.8) 0%, rgba(12,15,26,0.2) 100%);"></div>
+                    <div style="position:absolute;inset:0;display:flex;align-items:center;padding:1.5rem;">
+                        <div>
+                            <p style="color:rgba(255,255,255,0.7);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.25rem;">Vídeo Institucional</p>
+                            <p style="color:white;font-size:1.125rem;font-weight:700;">{{ escola.nome }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <!-- No video — CTA -->
+            <div class="card bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
+                <div class="flex items-center gap-4">
+                    <div class="size-14 rounded-xl bg-blue-500 flex items-center justify-center text-white text-2xl flex-shrink-0 shadow-lg" style="box-shadow:0 8px 24px rgba(59,130,246,0.3);">
+                        <i class="ki-filled ki-film"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-blue-900 dark:text-blue-200">Adicione um Vídeo Institucional</h3>
+                        <p class="text-sm text-blue-700 dark:text-blue-400 mt-0.5">
+                            O vídeo de fundo torna o perfil da escola muito mais impactante e profissional.
+                        </p>
+                    </div>
+                    <a href="{% url 'escolas:editar_perfil_escola' escola.id %}"
+                       class="ml-auto flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+                        <i class="ki-filled ki-upload"></i> Adicionar
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Missão & Visão Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Missão -->
+                <div class="card bg-background border border-input rounded-xl overflow-hidden">
+                    {% if escola.perfil.foto_missao %}
+                    <div class="relative h-28">
+                        <img src="{{ escola.perfil.foto_missao.url }}" alt="Missão" class="w-full h-full object-cover">
+                        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.8),transparent);"></div>
+                        <span style="position:absolute;bottom:0.625rem;left:0.875rem;color:white;font-size:0.7rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;">MISSÃO</span>
+                    </div>
+                    {% else %}
+                    <div class="h-28 flex items-center justify-center" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+                        <i class="ki-filled ki-rocket text-white text-3xl" style="opacity:0.6;"></i>
+                    </div>
+                    {% endif %}
+                    <div class="p-4">
+                        {% if escola.perfil.missao %}
+                        <p class="text-sm text-foreground leading-relaxed">{{ escola.perfil.missao|truncatewords:20 }}</p>
+                        {% else %}
+                        <p class="text-sm text-secondary italic">Missão não definida ainda.</p>
+                        {% endif %}
+                        <a href="{% url 'escolas:editar_perfil_escola' escola.id %}"
+                           class="inline-flex items-center gap-1 mt-3 text-xs text-amber-600 dark:text-amber-400 font-semibold hover:underline">
+                            <i class="ki-filled ki-pencil"></i>
+                            {% if escola.perfil.missao %}Editar{% else %}Definir Missão{% endif %}
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Visão -->
+                <div class="card bg-background border border-input rounded-xl overflow-hidden">
+                    {% if escola.perfil.foto_visao %}
+                    <div class="relative h-28">
+                        <img src="{{ escola.perfil.foto_visao.url }}" alt="Visão" class="w-full h-full object-cover">
+                        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.8),transparent);"></div>
+                        <span style="position:absolute;bottom:0.625rem;left:0.875rem;color:white;font-size:0.7rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;">VISÃO</span>
+                    </div>
+                    {% else %}
+                    <div class="h-28 flex items-center justify-center" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);">
+                        <i class="ki-filled ki-eye text-white text-3xl" style="opacity:0.6;"></i>
+                    </div>
+                    {% endif %}
+                    <div class="p-4">
+                        {% if escola.perfil.visao %}
+                        <p class="text-sm text-foreground leading-relaxed">{{ escola.perfil.visao|truncatewords:20 }}</p>
+                        {% else %}
+                        <p class="text-sm text-secondary italic">Visão não definida ainda.</p>
+                        {% endif %}
+                        <a href="{% url 'escolas:editar_perfil_escola' escola.id %}"
+                           class="inline-flex items-center gap-1 mt-3 text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline">
+                            <i class="ki-filled ki-pencil"></i>
+                            {% if escola.perfil.visao %}Editar{% else %}Definir Visão{% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN (1/3) -->
+        <div class="space-y-4">
+            <!-- Quick Links -->
+            <div class="card bg-background border border-input rounded-xl p-5">
+                <h2 class="text-sm font-bold text-foreground mb-4 flex items-center gap-2">
+                    <i class="ki-filled ki-lightning-5 text-primary"></i>
+                    Acções Rápidas
+                </h2>
+                <div class="space-y-2">
+                    <a href="{% url 'escolas:editar_perfil_escola' escola.id %}"
+                       class="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors group">
+                        <span class="size-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-500 transition-colors">
+                            <i class="ki-filled ki-palette-5 text-blue-500 group-hover:text-white text-sm transition-colors"></i>
+                        </span>
+                        <div>
+                            <p class="text-sm font-semibold text-foreground leading-none mb-0.5">Editar Perfil</p>
+                            <p class="text-xs text-secondary">Logo, Banner, Vídeo, Missão...</p>
+                        </div>
+                        <i class="ki-filled ki-arrow-right text-muted-foreground ml-auto text-sm"></i>
+                    </a>
+
+                    <a href="{% url 'escolas:gerenciar_cursos' escola.id %}"
+                       class="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors group">
+                        <span class="size-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0 group-hover:bg-green-500 transition-colors">
+                            <i class="ki-filled ki-book-open text-green-500 group-hover:text-white text-sm transition-colors"></i>
+                        </span>
+                        <div>
+                            <p class="text-sm font-semibold text-foreground leading-none mb-0.5">Gerir Cursos</p>
+                            <p class="text-xs text-secondary">{{ cursos_count }} curso{% if cursos_count != 1 %}s{% endif %} registado{% if cursos_count != 1 %}s{% endif %}</p>
+                        </div>
+                        <i class="ki-filled ki-arrow-right text-muted-foreground ml-auto text-sm"></i>
+                    </a>
+
+                    <a href="{% url 'escolas:galeria_escola' escola.id %}"
+                       class="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors group">
+                        <span class="size-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-500 transition-colors">
+                            <i class="ki-filled ki-picture text-purple-500 group-hover:text-white text-sm transition-colors"></i>
+                        </span>
+                        <div>
+                            <p class="text-sm font-semibold text-foreground leading-none mb-0.5">Galeria de Fotos</p>
+                            <p class="text-xs text-secondary">{{ galeria_count }} foto{% if galeria_count != 1 %}s{% endif %} na galeria</p>
+                        </div>
+                        <i class="ki-filled ki-arrow-right text-muted-foreground ml-auto text-sm"></i>
+                    </a>
+
+                    <a href="{% url 'escolas:parcerias_escola' escola.id %}"
+                       class="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors group">
+                        <span class="size-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0 group-hover:bg-amber-500 transition-colors">
+                            <i class="ki-filled ki-handshake text-amber-500 group-hover:text-white text-sm transition-colors"></i>
+                        </span>
+                        <div>
+                            <p class="text-sm font-semibold text-foreground leading-none mb-0.5">Parcerias</p>
+                            <p class="text-xs text-secondary">{{ parcerias_count }} empresa{% if parcerias_count != 1 %}s{% endif %} parceira{% if parcerias_count != 1 %}s{% endif %}</p>
+                        </div>
+                        <i class="ki-filled ki-arrow-right text-muted-foreground ml-auto text-sm"></i>
+                    </a>
+
+                    <a href="{% url 'escolas:editar_info_escola' escola.id %}"
+                       class="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors group">
+                        <span class="size-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 group-hover:bg-slate-600 transition-colors">
+                            <i class="ki-filled ki-information-5 text-slate-500 group-hover:text-white text-sm transition-colors"></i>
+                        </span>
+                        <div>
+                            <p class="text-sm font-semibold text-foreground leading-none mb-0.5">Informações Gerais</p>
+                            <p class="text-xs text-secondary">Tipo, contacto, morada...</p>
+                        </div>
+                        <i class="ki-filled ki-arrow-right text-muted-foreground ml-auto text-sm"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- School Info Summary -->
+            <div class="card bg-background border border-input rounded-xl p-5">
+                <h2 class="text-sm font-bold text-foreground mb-4 flex items-center gap-2">
+                    <i class="ki-filled ki-information-5 text-primary"></i>
+                    Resumo da Escola
+                </h2>
+                <div class="space-y-2.5">
+                    <div class="flex items-start justify-between gap-2">
+                        <span class="text-xs text-secondary shrink-0">Tipo de Rede</span>
+                        <span class="text-xs font-semibold text-right">
+                            {% if escola.tipo_rede == 'PUBLICA' %}🏛️ Pública
+                            {% elif escola.tipo_rede == 'PRIVADA' %}🏫 Privada
+                            {% else %}🤝 Comparticipada{% endif %}
+                        </span>
+                    </div>
+                    {% if escola.perfil.diretor %}
+                    <div class="flex items-start justify-between gap-2">
+                        <span class="text-xs text-secondary shrink-0">Diretor(a)</span>
+                        <span class="text-xs font-semibold text-right">{{ escola.perfil.diretor }}</span>
+                    </div>
+                    {% endif %}
+                    {% if escola.perfil.ano_fundacao %}
+                    <div class="flex items-start justify-between gap-2">
+                        <span class="text-xs text-secondary shrink-0">Fundada em</span>
+                        <span class="text-xs font-semibold text-right">{{ escola.perfil.ano_fundacao }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="flex items-start justify-between gap-2">
+                        <span class="text-xs text-secondary shrink-0">Contacto</span>
+                        <a href="tel:{{ escola.telefone }}" class="text-xs font-semibold text-primary hover:underline text-right">{{ escola.telefone }}</a>
+                    </div>
+                    {% if escola.perfil.inscricoes_abertas %}
+                    <div class="flex items-center gap-2 mt-2 p-2 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                        <i class="ki-filled ki-check-circle text-green-600 text-sm"></i>
+                        <span class="text-xs font-bold text-green-700 dark:text-green-400">Inscrições Abertas</span>
+                        {% if escola.perfil.prazo_inscricoes %}
+                        <span class="text-xs text-green-600 ml-auto">até {{ escola.perfil.prazo_inscricoes|date:"d/m" }}</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /main grid -->
+
+    <!-- Gallery Preview -->
+    {% if galeria_imagens %}
+    <div class="card bg-background border border-input rounded-xl p-6">
+        <div class="flex justify-between items-center mb-5">
+            <h2 class="text-base font-bold text-foreground flex items-center gap-2">
+                <i class="ki-filled ki-picture text-primary"></i>
+                Galeria de Imagens
+            </h2>
+            <a href="{% url 'escolas:galeria_escola' escola.id %}"
+               class="inline-flex items-center gap-1.5 text-sm text-primary font-semibold hover:underline">
+                <i class="ki-filled ki-pencil"></i> Gerir
+            </a>
+        </div>
+        <style>
+            .no-scrollbar::-webkit-scrollbar { display: none; }
+            .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        </style>
+        <div class="flex overflow-x-auto gap-4 py-1 no-scrollbar snap-x snap-mandatory scroll-smooth">
+            {% for item in galeria_imagens %}
+            <div class="snap-start shrink-0 w-52 h-36 rounded-xl overflow-hidden relative group border border-border hover:shadow-lg transition-all duration-300">
+                <img src="{{ item.imagem.url }}" alt="{{ item.legenda }}"
+                     class="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-3 flex flex-col justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                    <p class="text-white text-xs font-semibold truncate">{{ item.legenda|default:"Sem legenda" }}</p>
+                </div>
+            </div>
+            {% endfor %}
+            <div class="snap-start shrink-0 w-52 h-36 rounded-xl border-2 border-dashed border-input flex flex-col items-center justify-center gap-2 hover:border-primary hover:bg-primary/5 transition-all cursor-pointer"
+                 onclick="window.location.href='{% url 'escolas:galeria_escola' escola.id %}'">
+                <i class="ki-filled ki-plus text-muted-foreground text-xl"></i>
+                <p class="text-xs text-secondary font-semibold">Adicionar Foto</p>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="card bg-background border border-dashed border-input rounded-xl p-8 text-center">
+        <div class="size-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+            <i class="ki-filled ki-picture text-primary text-2xl"></i>
+        </div>
+        <h3 class="font-bold text-foreground mb-1">Adicione Fotos à Galeria</h3>
+        <p class="text-sm text-secondary max-w-md mx-auto mb-4">
+            As fotos das instalações, salas de aula e eventos tornam o perfil muito mais atrativo para os estudantes.
+        </p>
+        <a href="{% url 'escolas:galeria_escola' escola.id %}"
+           class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-semibold text-sm rounded-lg hover:bg-primary/90 transition-colors shadow-sm">
+            <i class="ki-filled ki-plus"></i> Adicionar Primeiras Fotos
+        </a>
+    </div>
+    {% endif %}
+
+</div><!-- /space-y-8 -->
+{% endblock %}

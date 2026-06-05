@@ -24,7 +24,8 @@ urlpatterns = [
     #------------------login---------------------------------
     path('login_aluno/', views.login_aluno, name = 'login_aluno'), 
     path('user_profile/', views.user_profile, name='user_profile'),
-    path('login_instrutor/', views.login_instrutor, name = 'login_instrutor'), 
+    path('login_instrutor/', views.login_instrutor, name = 'login_instrutor'),
+    path('login/', views.login_generico, name='login_generico'),
     path('logout/', views.logout_usuario, name='logout'),
     path('tipo_user/', views.tipo_user, name = 'tipo_user'),
     path(
@@ -79,6 +80,7 @@ urlpatterns = [
     #-----------------------------aluno validacoes-----------------------
     path('valida_cadastro_aluno/', views.valida_cadastro_aluno, name = 'valida_cadastro_aluno'),
     path('valida_login_aluno/', views.valida_login, name = 'valida_login_aluno'),
+    path('valida_login/', views.valida_login_generico, name='valida_login_generico'),
     #----------------------------fim validacoes aluno------------------------------
 
     # Link de Compatibilidade para Registro de Centros (caso links antigos tenham sido enviados)

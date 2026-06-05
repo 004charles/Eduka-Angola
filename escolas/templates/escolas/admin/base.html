@@ -1,0 +1,238 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="h-full" data-kt-theme="true" data-kt-theme-mode="light" dir="ltr" lang="pt-PT">
+<head>
+    <title>{% block title %}Admin Escolas - Eduka Angola{% endblock %}</title>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="{% static 'metronic/assets/vendors/apexcharts/apexcharts.css' %}" rel="stylesheet"/>
+    <link href="{% static 'metronic/assets/vendors/keenicons/styles.bundle.css' %}" rel="stylesheet"/>
+    <link href="{% static 'metronic/assets/css/styles.css' %}" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="antialiased flex h-full text-base text-foreground bg-background [--header-height:60px] [--sidebar-width:70px] bg-muted! lg:overflow-hidden">
+    <!-- Theme Mode -->
+    <script>
+        const defaultThemeMode = 'light';
+        let themeMode;
+        if (document.documentElement) {
+            if (localStorage.getItem('kt-theme')) {
+                themeMode = localStorage.getItem('kt-theme');
+            } else if (document.documentElement.hasAttribute('data-kt-theme-mode')) {
+                themeMode = document.documentElement.getAttribute('data-kt-theme-mode');
+            } else {
+                themeMode = defaultThemeMode;
+            }
+            if (themeMode === 'system') {
+                themeMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            document.documentElement.classList.add(themeMode);
+        }
+    </script>
+
+    <!-- Page -->
+    <div class="flex grow">
+        <!-- Header -->
+        <header class="flex lg:hidden items-center fixed z-10 top-0 start-0 end-0 shrink-0 bg-muted h-[--header-height]" id="header">
+            <div class="kt-container-fluid flex items-center justify-between flex-wrap gap-3">
+                <a href="{% url 'escolas:dashboard_representante' %}">
+                    {% if escola and escola.perfil.logo %}
+                    <img class="min-h-[30px] max-w-[40px] rounded-md object-contain" src="{{ escola.perfil.logo.url }}"/>
+                    {% else %}
+                    <img class="dark:hidden min-h-[30px]" src="{% static 'metronic/assets/media/app/mini-logo-gray.svg' %}"/>
+                    <img class="hidden dark:block min-h-[30px]" src="{% static 'metronic/assets/media/app/mini-logo-gray-dark.svg' %}"/>
+                    {% endif %}
+                </a>
+                <button class="kt-btn kt-btn-icon kt-btn-ghost -me-2" data-kt-drawer-toggle="#sidebar">
+                    <i class="ki-filled ki-menu"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Wrapper -->
+        <div class="flex flex-col lg:flex-row grow pt-[--header-height] lg:pt-0">
+            <!-- Sidebar -->
+            <div class="fixed top-0 bottom-0 z-20 hidden lg:flex items-stretch shrink-0 w-[--sidebar-width] bg-muted [--kt-drawer-enable:true] lg:[--kt-drawer-enable:false]" data-kt-drawer="true" data-kt-drawer-class="kt-drawer kt-drawer-start flex flex-row top-0 bottom-0" id="sidebar">
+                <!-- Sidebar Primary -->
+                <div class="flex flex-col items-stretch shrink-0 gap-5 py-5 w-[70px] border-e border-input" id="sidebar_primary">
+                    <div class="hidden lg:flex items-center justify-center shrink-0" id="sidebar_primary_header">
+                        <a href="{% url 'escolas:dashboard_representante' %}">
+                            {% if escola and escola.perfil.logo %}
+                            <img class="min-h-[30px] max-w-[40px] rounded-md object-contain" src="{{ escola.perfil.logo.url }}"/>
+                            {% else %}
+                            <img class="dark:hidden min-h-[30px]" src="{% static 'metronic/assets/media/app/mini-logo-gray.svg' %}"/>
+                            <img class="hidden dark:block min-h-[30px]" src="{% static 'metronic/assets/media/app/mini-logo-gray-dark.svg' %}"/>
+                            {% endif %}
+                        </a>
+                    </div>
+                    <div class="flex grow shrink-0" id="sidebar_primary_content">
+                        <div class="kt-scrollable-y-hover grow gap-2.5 shrink-0 flex ps-4 flex-col" data-kt-scrollable="true" data-kt-scrollable-dependencies="#sidebar_primary_header,#sidebar_primary_footer" data-kt-scrollable-height="auto" data-kt-scrollable-offset="80px">
+                            <!-- Dashboard -->
+                            <a title="Painel de Comando da Escola" class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&_i]:text-primary hover:border-border [.active&]:bg-background [.active&]:[&_i]:text-primary [.active&]:border-border {% if 'dashboard' in request.resolver_match.url_name %}active{% endif %}" data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'escolas:dashboard_representante' %}">
+                                <span class="kt-menu-icon"><i class="ki-filled ki-chart-line-star text-lg"></i></span>
+                                <span class="kt-tooltip" data-kt-tooltip-content="true">Dashboard</span>
+                            </a>
+
+                            <!-- Informações -->
+                            <a title="Informações da Escola" class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&_i]:text-primary hover:border-border [.active&]:bg-background [.active&]:[&_i]:text-primary [.active&]:border-border {% if 'editar_info' in request.resolver_match.url_name %}active{% endif %}" data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'escolas:editar_info_escola' request.resolver_match.kwargs.escola_id|default:escola.id %}">
+                                <span class="kt-menu-icon"><i class="ki-filled ki-information-2 text-lg"></i></span>
+                                <span class="kt-tooltip" data-kt-tooltip-content="true">Informações</span>
+                            </a>
+
+                            <!-- Perfil -->
+                            <a title="Perfil e Branding" class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&_i]:text-primary hover:border-border [.active&]:bg-background [.active&]:[&_i]:text-primary [.active&]:border-border {% if 'editar_perfil' in request.resolver_match.url_name %}active{% endif %}" data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'escolas:editar_perfil_escola' request.resolver_match.kwargs.escola_id|default:escola.id %}">
+                                <span class="kt-menu-icon"><i class="ki-filled ki-profile-circle text-lg"></i></span>
+                                <span class="kt-tooltip" data-kt-tooltip-content="true">Perfil</span>
+                            </a>
+
+                            <!-- Cursos -->
+                            <a title="Gestão de Cursos" class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&_i]:text-primary hover:border-border [.active&]:bg-background [.active&]:[&_i]:text-primary [.active&]:border-border {% if 'cursos' in request.resolver_match.url_name %}active{% endif %}" data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'escolas:gerenciar_cursos' request.resolver_match.kwargs.escola_id|default:escola.id %}">
+                                <span class="kt-menu-icon"><i class="ki-filled ki-book-open text-lg"></i></span>
+                                <span class="kt-tooltip" data-kt-tooltip-content="true">Cursos</span>
+                            </a>
+
+                            <!-- Galeria -->
+                            <a title="Galeria de Imagens" class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&_i]:text-primary hover:border-border [.active&]:bg-background [.active&]:[&_i]:text-primary [.active&]:border-border {% if 'galeria' in request.resolver_match.url_name %}active{% endif %}" data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'escolas:galeria_escola' request.resolver_match.kwargs.escola_id|default:escola.id %}">
+                                <span class="kt-menu-icon"><i class="ki-filled ki-picture text-lg"></i></span>
+                                <span class="kt-tooltip" data-kt-tooltip-content="true">Galeria</span>
+                            </a>
+
+                             <!-- Parcerias -->
+                            <a title="Parcerias e Empresas" class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&_i]:text-primary hover:border-border [.active&]:bg-background [.active&]:[&_i]:text-primary [.active&]:border-border {% if 'parcerias' in request.resolver_match.url_name %}active{% endif %}" data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'escolas:parcerias_escola' request.resolver_match.kwargs.escola_id|default:escola.id %}">
+                                <span class="kt-menu-icon"><i class="ki-filled ki-handshake text-lg"></i></span>
+                                <span class="kt-tooltip" data-kt-tooltip-content="true">Parcerias</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar Footer (User Dropdown) -->
+                    <div class="flex flex-col gap-5 items-center shrink-0 mb-4" id="sidebar_primary_footer">
+                        <div data-kt-dropdown="true" data-kt-dropdown-offset="10px, 10px" data-kt-dropdown-offset-rtl="-20px, 10px" data-kt-dropdown-placement="bottom-start" data-kt-dropdown-placement-rtl="bottom-end" data-kt-dropdown-trigger="click">
+                            <div class="cursor-pointer shrink-0" data-kt-dropdown-toggle="true">
+                                {% if escola and escola.perfil.logo %}
+                                <img alt="" class="size-9 rounded-full shrink-0 object-cover border border-border" src="{{ escola.perfil.logo.url }}"/>
+                                {% else %}
+                                <div class="size-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shrink-0 border border-primary/20">
+                                    {{ request.user.nome|slice:":1"|upper }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="kt-dropdown-menu w-[250px]" data-kt-dropdown-menu="true">
+                                <div class="flex items-center justify-between px-2.5 py-1.5 gap-1.5">
+                                    <div class="flex items-center gap-2">
+                                        {% if escola and escola.perfil.logo %}
+                                        <img alt="" class="size-9 rounded-full shrink-0 object-cover border-2 border-green-500" src="{{ escola.perfil.logo.url }}"/>
+                                        {% else %}
+                                        <div class="size-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shrink-0 border-2 border-green-500">
+                                            {{ request.user.nome|slice:":1"|upper }}
+                                        </div>
+                                        {% endif %}
+                                        <div class="flex flex-col">
+                                            <span class="text-sm text-foreground font-semibold leading-none">
+                                                {{ request.user.nome }}
+                                            </span>
+                                            <span class="text-xs text-secondary-foreground font-medium leading-none mt-1">
+                                                {{ request.user.email }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <ul class="kt-dropdown-menu-sub">
+                                    <li>
+                                        <div class="kt-dropdown-menu-separator"></div>
+                                    </li>
+                                    <li>
+                                        <a class="kt-dropdown-menu-link" href="{% url 'escolas:editar_info_escola' request.resolver_match.kwargs.escola_id|default:escola.id %}">
+                                            <i class="ki-filled ki-setting-3"></i>
+                                            Configurações da Escola
+                                        </a>
+                                    </li>
+                                </ul>
+                                <div class="px-2.5 pt-1.5 mb-2.5 flex flex-col gap-3.5">
+                                    <div class="flex items-center gap-2 justify-between">
+                                        <span class="flex items-center gap-2">
+                                            <i class="ki-filled ki-moon text-base text-muted-foreground"></i>
+                                            <span class="font-medium text-2sm">Dark Mode</span>
+                                        </span>
+                                        <input class="kt-switch" data-kt-theme-switch-state="dark" data-kt-theme-switch-toggle="true" name="check" type="checkbox" value="1"/>
+                                    </div>
+                                    <a class="kt-btn kt-btn-outline justify-center w-full" href="{% url 'logout' %}">
+                                        Sair da Conta
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="flex grow rounded-xl bg-background border border-input lg:ms-[calc(var(--sidebar-width)+1.25rem)] mt-0 lg:mt-5 m-5">
+                <div class="flex flex-col grow kt-scrollable-y-auto lg:[--kt-scrollbar-width:auto] pt-5" id="scrollable_content">
+                    <main class="grow" role="content">
+                        <div class="kt-container-fluid px-6 lg:px-8">
+                            {% if messages %}
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} rounded-md p-4 mb-5 bg-{% if message.tags == 'error' %}red{% else %}green{% endif %}-50 border border-{% if message.tags == 'error' %}red{% else %}green{% endif %}-200">
+                                <div class="flex items-center">
+                                    <i class="ki-filled ki-{% if message.tags == 'error' %}close-circle{% else %}check-circle{% endif %} text-{% if message.tags == 'error' %}red{% else %}green{% endif %}-600 me-3"></i>
+                                    <p class="text-{% if message.tags == 'error' %}red{% else %}green{% endif %}-700">{{ message }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+
+                            {% block content %}{% endblock %}
+                        </div>
+                    </main>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'metronic/assets/js/core.bundle.js' %}"></script>
+    <script src="{% static 'metronic/assets/vendors/ktui/ktui.min.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+
+    <!-- Custom Theme Switcher Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeSwitch = document.querySelector('[data-kt-theme-switch-toggle="true"]');
+            if (themeSwitch) {
+                // Initialize switch state
+                const currentTheme = localStorage.getItem('kt-theme') || (document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+                themeSwitch.checked = currentTheme === 'dark';
+                
+                themeSwitch.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        document.documentElement.classList.add('dark');
+                        document.documentElement.classList.remove('light');
+                        document.documentElement.setAttribute('data-kt-theme-mode', 'dark');
+                        localStorage.setItem('kt-theme', 'dark');
+                    } else {
+                        document.documentElement.classList.add('light');
+                        document.documentElement.classList.remove('dark');
+                        document.documentElement.setAttribute('data-kt-theme-mode', 'light');
+                        localStorage.setItem('kt-theme', 'light');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

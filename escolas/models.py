@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
+from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 class CategoriaEscola(models.Model):
     """Categorias globais para Escolas (ex: Ensino Geral, Ensino Técnico, PUNIV)"""
@@ -78,10 +80,15 @@ class PerfilEscola(models.Model):
     
     logo = models.ImageField(_('Logotipo'), upload_to='escolas/logos/', null=True, blank=True)
     banner = models.ImageField(_('Banner/Capa'), upload_to='escolas/banners/', null=True, blank=True)
+    video_banner = models.FileField(_('Vídeo de Fundo (MP4)'), upload_to='escolas/videos/', null=True, blank=True, help_text=_("Vídeo institucional em formato MP4 para rodar em loop no fundo do banner (sem áudio)."))
+    video_banner_url = models.URLField(_('URL do Vídeo de Fundo (MP4)'), blank=True, null=True, help_text=_("URL direta para um vídeo MP4 hospedado (ex: no Cloudinary ou outro servidor)."))
     
     descricao = models.TextField(_('Descrição / História'), blank=True)
+    foto_historia = models.ImageField(_('Imagem de Quem Somos / História'), upload_to='escolas/sobre/', null=True, blank=True, help_text=_("Imagem ilustrativa para a seção de História / Quem Somos."))
     missao = models.TextField(_('Missão'), blank=True)
+    foto_missao = models.ImageField(_('Imagem da Missão'), upload_to='escolas/sobre/', null=True, blank=True, help_text=_("Imagem ilustrativa para a seção de Missão."))
     visao = models.TextField(_('Visão'), blank=True)
+    foto_visao = models.ImageField(_('Imagem da Visão'), upload_to='escolas/sobre/', null=True, blank=True, help_text=_("Imagem ilustrativa para a seção de Visão."))
     
     ano_fundacao = models.PositiveIntegerField(_('Ano de Fundação'), null=True, blank=True)
     diretor = models.CharField(_('Diretor(a)'), max_length=150, blank=True)
@@ -181,3 +188,32 @@ class ParceriaEscola(models.Model):
 
     def __str__(self):
         return f"{self.nome_empresa} - {self.escola.nome}"
+
+
+class RepresentanteEscola(models.Model):
+    """Representa um utilizador que é representante de uma escola"""
+    User = get_user_model()
+    
+    CARGO_CHOICES = [
+        ('diretor', _('Diretor/Diretora')),
+        ('diretor_adjunto', _('Diretor/Diretora Adjunto')),
+        ('secretario', _('Secretário/Secretária')),
+        ('coordenador', _('Coordenador/Coordenadora')),
+        ('gestor_admin', _('Gestor Administrativo')),
+        ('outro', _('Outro')),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='representante_escolas')
+    escola = models.ForeignKey(Escola, on_delete=models.CASCADE, related_name='representantes')
+    cargo = models.CharField(_('Cargo'), max_length=50, choices=CARGO_CHOICES, default='gestor_admin')
+    data_associacao = models.DateTimeField(_('Data de Associação'), auto_now_add=True)
+    ativo = models.BooleanField(_('Ativo'), default=True)
+    
+    class Meta:
+        unique_together = ('user', 'escola')
+        verbose_name = _('Representante de Escola')
+        verbose_name_plural = _('Representantes de Escolas')
+        ordering = ['-data_associacao']
+    
+    def __str__(self):
+        return f"{self.user.get_full_name() or self.user.username} - {self.escola.nome} ({self.get_cargo_display()})"

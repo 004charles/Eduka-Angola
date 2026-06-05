@@ -4,350 +4,1220 @@
 <html lang="pt">
 <head>
     <meta charset="utf-8">
-    <title>{% trans 'Perfil da Escola - Edukangola' %}</title>
+    <title>{{ escola.nome }} | Eduka Angola</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     {% include 'include/css.html' %}
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        .font-outfit {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Estilo Banner Geral da Escola */
+        .school-banner-premium {
+            position: relative;
+            min-height: 550px;
+            padding: 100px 0 80px 0;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            background-color: #0c0f1a;
+        }
+
+        .school-banner-video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: 0;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+            opacity: 0.65;
+            transition: opacity 0.5s ease;
+        }
+
+        .school-banner-premium::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(12, 15, 26, 0.5) 0%, rgba(12, 15, 26, 0.85) 100%),
+                        linear-gradient(to right, rgba(12, 15, 26, 0.9) 0%, rgba(12, 15, 26, 0.4) 100%);
+            z-index: 1;
+        }
+
+        /* Welcome Panel Estilo lfanet.org */
+        .lfa-welcome-card {
+            position: relative;
+            height: 380px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .lfa-welcome-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .lfa-welcome-card .lfa-img-wrapper {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .lfa-welcome-card .lfa-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .lfa-welcome-card:hover .lfa-img-wrapper img {
+            transform: scale(1.08);
+        }
+
+        .lfa-welcome-card .lfa-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            background: linear-gradient(to top, rgba(12, 15, 26, 0.95) 0%, rgba(12, 15, 26, 0.6) 50%, rgba(12, 15, 26, 0.2) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 30px;
+            transition: background 0.4s ease;
+        }
+
+        .lfa-welcome-card:hover .lfa-overlay {
+            background: linear-gradient(to top, rgba(12, 15, 26, 0.98) 0%, rgba(12, 15, 26, 0.7) 50%, rgba(12, 15, 26, 0.3) 100%);
+        }
+
+        .lfa-welcome-card .lfa-tag {
+            font-family: 'Outfit', sans-serif;
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            color: #a855f7;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .lfa-welcome-card .lfa-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+
+        .lfa-welcome-card .lfa-desc {
+            font-size: 13.5px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            transition: color 0.3s ease;
+        }
+
+        .lfa-welcome-card:hover .lfa-desc {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .lfa-btn-minimalist {
+            font-family: 'Outfit', sans-serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: #ffffff !important;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            width: fit-content;
+            transition: all 0.3s ease;
+        }
+
+        .lfa-btn-minimalist i {
+            font-size: 14px;
+            transition: transform 0.3s ease;
+        }
+
+        .lfa-welcome-card:hover .lfa-btn-minimalist {
+            border-bottom-color: #a855f7;
+        }
+
+        .lfa-welcome-card:hover .lfa-btn-minimalist i {
+            transform: translateX(5px);
+        }
+
+        /* Detalhes do Conteúdo de Boas-vindas */
+        .lfa-detail-box {
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+            padding: 40px;
+            margin-bottom: 30px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .active-dark-mode .lfa-detail-box {
+            background: #1c2132 !important;
+            color: #ffffff !important;
+            border-color: rgba(255, 255, 255, 0.05) !important;
+            box-shadow: none !important;
+        }
+
+        /* Logotipo da Escola */
+        .school-logo-wrapper {
+            width: 130px;
+            height: 130px;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #ffffff;
+            padding: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .school-logo-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        /* Pulsing Dot */
+        .pulsing-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #059669;
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+        }
+        .pulsing-dot::after {
+            content: '';
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: #059669;
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: pulse-ring 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* CSS overrides para as caixas de conteúdo no modo escuro */
+        .bg-white-override {
+            background: #ffffff;
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            transition: all 0.3s ease;
+        }
+
+        .active-dark-mode .bg-white-override {
+            background: #1c2132 !important;
+            color: #ffffff !important;
+            border-color: rgba(255, 255, 255, 0.05) !important;
+            box-shadow: none !important;
+        }
+
+        .active-dark-mode .text-muted {
+            color: rgba(255, 255, 255, 0.6) !important;
+        }
+
+        .active-dark-mode .rbt-separator {
+            border-color: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        .active-dark-mode .rbt-information-list li span,
+        .active-dark-mode .rbt-information-list li a {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* Cartões de Cursos */
+        .school-course-card {
+            border-radius: 16px !important;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.05) !important;
+            background: #ffffff !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03) !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .active-dark-mode .school-course-card {
+            background: #1c2132 !important;
+            border-color: rgba(255, 255, 255, 0.05) !important;
+            box-shadow: none !important;
+        }
+
+        .school-course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08) !important;
+        }
+
+        .active-dark-mode .school-course-card:hover {
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3) !important;
+        }
+
+        /* Galeria de Fotos */
+        .school-gallery-item {
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            height: 180px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .school-gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .school-gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .school-gallery-item .overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 15px;
+            z-index: 2;
+        }
+
+        .school-gallery-item:hover .overlay {
+            opacity: 1;
+        }
+
+        .active-dark-mode .rbt-inner-onepage-navigation {
+            background: #1c2132 !important;
+            border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+        }
+        
+        /* Ajuste para botões de partilha */
+        .social-share-btn {
+            border: 1.5px solid var(--color-border);
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .social-share-btn:hover {
+            transform: translateY(-3px);
+            background-color: var(--color-primary-opacity) !important;
+            border-color: var(--color-primary) !important;
+        }
+        
+        .active-dark-mode .social-share-btn {
+            border-color: rgba(255,255,255,0.1) !important;
+        }
+
+        /* Hover Zoom Image (estilo lfanet.org) */
+        .hover-zoom-img {
+            transition: transform 0.4s ease;
+        }
+        .hover-zoom-img:hover {
+            transform: scale(1.06);
+        }
+
+        /* LFA Tabs Interativas (Missão, Visão, História) */
+        .lfa-tabs-section {
+            position: relative;
+            z-index: 2;
+            transition: background 0.4s ease;
+            background: linear-gradient(135deg, #e65c00 0%, #f9d423 100%) !important;
+            border-radius: 24px;
+            padding: 60px 40px;
+            box-shadow: 0 20px 50px rgba(230, 92, 0, 0.15);
+        }
+
+        .active-dark-mode .lfa-tabs-section {
+            background: linear-gradient(135deg, #131722 0%, #1c2132 100%) !important;
+            box-shadow: none !important;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .lfa-tab-item {
+            cursor: pointer;
+            border-left: 3px solid rgba(255, 255, 255, 0.25);
+            padding-left: 24px;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            margin-bottom: 20px;
+        }
+
+        .lfa-tab-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .lfa-tab-item.active {
+            border-left-color: #ffffff;
+        }
+
+        .active-dark-mode .lfa-tab-item.active {
+            border-left-color: var(--color-primary) !important;
+        }
+
+        .lfa-tab-title {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 0;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+
+        .lfa-tab-item.active .lfa-tab-title {
+            opacity: 1;
+            font-size: 32px;
+            letter-spacing: -1px;
+        }
+
+        .lfa-tab-content {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .lfa-tab-item.active .lfa-tab-content {
+            max-height: 500px;
+            opacity: 1;
+            margin-top: 15px !important;
+        }
+
+        /* Pilha de Imagens com fade suave */
+        .lfa-images-stack-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lfa-image-frame-wrapper {
+            position: absolute;
+            width: 90%;
+            height: 100%;
+            opacity: 0;
+            transform: scale(0.96) translateY(10px);
+            transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+            z-index: 0;
+            pointer-events: none;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Efeito de camada atrás da imagem ativa */
+        .lfa-image-frame-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(12, 15, 26, 0.4) 0%, transparent 60%);
+            z-index: 1;
+        }
+
+        .lfa-image-frame-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 20px;
+            transition: transform 0.6s ease;
+        }
+
+        .lfa-image-frame-wrapper.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            z-index: 2;
+            pointer-events: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Imagens secundárias visíveis atrás como pilha de cartas (LFA) */
+        .lfa-image-frame-wrapper.prev-stacked {
+            opacity: 0.35;
+            transform: scale(0.93) translateX(25px) translateY(-15px) rotate(2deg);
+            z-index: 1;
+            display: block !important;
+        }
+        
+        .lfa-image-frame-wrapper.next-stacked {
+            opacity: 0.2;
+            transform: scale(0.88) translateX(45px) translateY(-25px) rotate(4deg);
+            z-index: 0;
+            display: block !important;
+        }
+
+        /* Carrossel de Cursos Horizontal (Layout Divisão LFA) */
+        .lfa-carousel-section {
+            background: #ffffff;
+            border-radius: 24px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.02);
+            padding: 50px 40px;
+        }
+
+        .active-dark-mode .lfa-carousel-section {
+            background: #1c2132 !important;
+            border-color: rgba(255, 255, 255, 0.05) !important;
+            box-shadow: none !important;
+        }
+
+        .lfa-carousel-container {
+            display: flex;
+            overflow-x: auto;
+            gap: 24px;
+            scroll-behavior: smooth;
+            padding: 10px 5px 25px 5px;
+            margin: 0 -5px;
+        }
+
+        .lfa-carousel-container::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .lfa-carousel-container::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.02);
+            border-radius: 10px;
+        }
+
+        .active-dark-mode .lfa-carousel-container::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .lfa-carousel-container::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+
+        .active-dark-mode .lfa-carousel-container::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .lfa-carousel-item {
+            flex: 0 0 320px;
+            width: 320px;
+            transition: transform 0.3s ease;
+        }
+
+        .lfa-carousel-item:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Botões Redondos de Navegação do Carrossel */
+        .lfa-nav-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #0f172a;
+            color: #ffffff !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .lfa-nav-btn:hover {
+            background: var(--color-primary);
+            transform: scale(1.05);
+        }
+
+        .active-dark-mode .lfa-nav-btn {
+            background: #0f172a;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .active-dark-mode .lfa-nav-btn:hover {
+            background: var(--color-primary);
+            border-color: transparent;
+        }
+
+        /* Botão de Play no Banner */
+        .lfa-play-btn {
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            background: #facc15;
+            color: #0f172a !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 25px rgba(250, 204, 21, 0.3);
+            border: 4px solid rgba(255, 255, 255, 0.25);
+            cursor: pointer;
+        }
+
+        .lfa-play-btn:hover {
+            transform: scale(1.1);
+            background: #fef08a;
+            box-shadow: 0 12px 30px rgba(250, 204, 21, 0.45);
+        }
+    </style>
 </head>
+
 <body class="rbt-header-sticky">
+    
+    <!-- Cabeçalho Principal -->
     {% include 'include/header.html' %}
     {% include 'include/menu_mobile.html' %}
-<main class="rbt-main-wrapper">
-    <!-- Banner da Escola -->
-    <div class="rbt-page-banner-wrapper">
-        <!-- Start Banner BG Image  -->
-        <div class="rbt-banner-image {% if not escola.perfil or not escola.perfil.banner %}bg_image--22{% endif %}" {% if escola.perfil and escola.perfil.banner %}style="background-image: url('{{ escola.perfil.banner.url }}');"{% endif %} data-gradient-overlay="7"></div>
-        <!-- End Banner BG Image  -->
-    </div>
 
-    <!-- Start Card Style -->
-    <div class="rbt-dashboard-area rbt-section-overlayping-top rbt-section-gapBottom">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <!-- Start Dashboard Top  -->
-                    <div class="rbt-dashboard-content-wrapper">
-                        <div class="tutor-bg-photo {% if not escola.perfil or not escola.perfil.banner %}bg_image--22{% endif %} height-350" {% if escola.perfil and escola.perfil.banner %}style="background-image: url('{{ escola.perfil.banner.url }}'); background-size: cover; background-position: center;"{% endif %}></div>
-                        <!-- Start Tutor Information  -->
-                        <div class="rbt-tutor-information">
-                            <div class="rbt-tutor-information-left">
-                                <div class="thumbnail rbt-avatars size-lg">
+    <main class="rbt-main-wrapper bg-color-light pb--80">
+        
+        <!-- 1. Banner Principal Premium da Escola (Estilo lfanet.org) -->
+        <div class="school-banner-premium">
+            <!-- Background Video -->
+            <video class="school-banner-video" autoplay loop muted playsinline 
+                   {% if escola.perfil and escola.perfil.banner %}poster="{{ escola.perfil.banner.url }}"{% endif %}>
+                {% if escola.perfil and escola.perfil.video_banner %}
+                    <source src="{{ escola.perfil.video_banner.url }}" type="video/mp4">
+                {% elif escola.perfil and escola.perfil.video_banner_url %}
+                    <source src="{{ escola.perfil.video_banner_url }}" type="video/mp4">
+                {% else %}
+                    <source src="https://assets.mixkit.co/videos/preview/mixkit-group-of-students-walking-in-a-campus-41584-large.mp4" type="video/mp4">
+                {% endif %}
+            </video>
+            
+            <div class="container" style="position: relative; z-index: 2;">
+                <div class="row align-items-center g-4 justify-content-between">
+                    <!-- Logo e Informações Principais -->
+                    <div class="col-lg-9 col-12">
+                        <div class="row align-items-center g-4">
+                            <!-- Logo da Escola -->
+                            <div class="col-md-auto col-12 text-center text-md-start">
+                                <div class="school-logo-wrapper">
                                     {% if escola.perfil and escola.perfil.logo %}
-                                    <img src="{{ escola.perfil.logo.url }}" alt="{{ escola.nome }}">
+                                        <img src="{{ escola.perfil.logo.url }}" alt="{{ escola.nome }}">
                                     {% else %}
-                                    <img src="{% static 'images/team/avatar.jpg' %}" alt="Logo Default">
+                                        <div class="w-100 h-100 text-white d-flex align-items-center justify-content-center fw-bold fs-1" style="background: linear-gradient(135deg, var(--color-primary), #8b5cf6); border-radius: 12px;">
+                                            {{ escola.nome|slice:":1"|upper }}
+                                        </div>
                                     {% endif %}
                                 </div>
-                                <div class="tutor-content">
-                                    <h5 class="title">{{ escola.nome }}</h5>
-                                    <ul class="rbt-meta d-flex flex-wrap align-items-center mb-0 mt-2">
-                                        <li><i class="feather-map-pin"></i>{{ escola.municipio }}, {{ escola.provincia }}</li>
-                                        <li><i class="feather-award"></i>{{ escola.get_tipo_rede_display }}</li>
-                                        {% if escola.perfil.ano_fundacao %}
-                                        <li><i class="feather-calendar"></i>Fundada em {{ escola.perfil.ano_fundacao }}</li>
-                                        {% endif %}
-                                    </ul>
-                                </div>
                             </div>
-                            <div class="rbt-tutor-information-right">
-                                <div class="tutor-btn">
-                                    {% if escola.telefone %}
-                                    <a class="rbt-btn btn-md hover-icon-reverse" href="tel:{{ escola.telefone }}">
-                                        <span class="icon-reverse-wrapper">
-                                            <span class="btn-text">Contactar Escola</span>
-                                            <span class="btn-icon"><i class="feather-phone"></i></span>
-                                            <span class="btn-icon"><i class="feather-phone"></i></span>
+                            
+                            <!-- Textos, Badges e Informações Rápidas -->
+                            <div class="col text-center text-md-start text-white">
+                                <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-2 mb-2">
+                                    {% if escola.perfil.verificada %}
+                                        <span class="badge bg-success-opacity text-success py-2 px-3 fs-6" style="border-radius: 30px; background-color: rgba(39, 174, 96, 0.2) !important; color: #2ecc71 !important;"><i class="feather-check-circle me-1"></i> {% trans "Verificada" %}</span>
+                                    {% endif %}
+                                    <span class="badge bg-primary-opacity text-primary py-2 px-3 fs-6" style="border-radius: 30px; background-color: rgba(108, 40, 253, 0.2) !important; color: #a855f7 !important;">{{ escola.get_tipo_rede_display }}</span>
+                                    {% if escola.perfil.inscricoes_abertas %}
+                                        <span class="badge bg-danger-opacity text-danger py-2 px-3 fs-6 d-inline-flex align-items-center gap-2" style="border-radius: 30px; background-color: rgba(231, 76, 60, 0.2) !important; color: #e74c3c !important;">
+                                            <span class="pulsing-dot"></span> {% trans "Matrículas Abertas" %}
                                         </span>
-                                    </a>
+                                    {% endif %}
+                                </div>
+                                
+                                <h1 class="title font-outfit text-white mb-2" style="font-size: 46px; font-weight: 900; text-shadow: 0 2px 10px rgba(0,0,0,0.65); line-height: 1.15; letter-spacing: -1px; text-transform: uppercase;">
+                                    {{ escola.nome }}
+                                </h1>
+                                
+                                <div class="d-flex flex-wrap justify-content-center justify-content-md-start align-items-center gap-3 mt-3 text-white-50 small" style="font-size: 14px;">
+                                    <span><i class="feather-map-pin text-white me-2"></i> {{ escola.municipio }}, {{ escola.provincia }}</span>
+                                    {% if escola.perfil.ano_fundacao %}
+                                        <span><i class="feather-calendar text-white me-2"></i> {% trans "Fundada em" %} {{ escola.perfil.ano_fundacao }}</span>
+                                    {% endif %}
+                                    {% if escola.perfil.diretor %}
+                                        <span><i class="feather-user text-white me-2"></i> {% trans "Direção:" %} {{ escola.perfil.diretor }}</span>
                                     {% endif %}
                                 </div>
                             </div>
                         </div>
-                        <!-- End Tutor Information  -->
                     </div>
-                    <!-- End Dashboard Top  -->
 
-                    <div class="row g-5">
-                        <div class="col-lg-3">
-                            <!-- Start Dashboard Sidebar  -->
-                            <div class="rbt-default-sidebar sticky-top rbt-shadow-box rbt-gradient-border">
-                                <div class="inner">
-                                    <div class="content-item-content">
-                                        <div class="rbt-default-sidebar-wrapper">
-                                            
-                                            <div class="section-title mb--20">
-                                                <h6 class="rbt-title-style-2">Navegação</h6>
-                                            </div>
-                                            <nav class="mainmenu-nav">
-                                                <ul class="dashboard-mainmenu rbt-default-sidebar-list">
-                                                    <li><a href="#sobre"><i class="feather-info"></i><span>Sobre Nós</span></a></li>
-                                                    <li><a href="#cursos"><i class="feather-book-open"></i><span>Oferta Formativa</span></a></li>
-                                                    {% if escola.perfil.infraestruturas.exists or escola.galeria.exists %}
-                                                    <li><a href="#campus"><i class="feather-image"></i><span>Instalações</span></a></li>
-                                                    {% endif %}
-                                                    {% if escola.parcerias.exists %}
-                                                    <li><a href="#parceiros"><i class="feather-briefcase"></i><span>Parceiros</span></a></li>
-                                                    {% endif %}
-                                                </ul>
-                                            </nav>
-
-                                            <div class="section-title mt--40 mb--20">
-                                                <h6 class="rbt-title-style-2">Informações Úteis</h6>
-                                            </div>
-                                            <ul class="rbt-information-list b2">
-                                                <li>
-                                                    <a href="javascript:void(0);">
-                                                        <i class="feather-navigation"></i>
-                                                        <span class="text-wrap">{{ escola.endereco|default:escola.municipio }}</span>
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a href="javascript:void(0);">
-                                                        <i class="feather-phone"></i>{{ escola.telefone|default:"Não disponível" }}
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a href="javascript:void(0);">
-                                                        <i class="feather-credit-card"></i>
-                                                        {% if escola.tipo_rede == 'PUBLICA' %}Ensino Gratuito{% elif escola.mensalidade_base > 0 %}{{ escola.mensalidade_base }} Kz /mês{% else %}Sob consulta{% endif %}
-                                                    </a>
-                                                </li>
-                                            </ul>
-
-                                            {% if escola.perfil.facebook or escola.perfil.instagram or escola.perfil.linkedin or escola.site %}
-                                            <div class="section-title mt--40 mb--20">
-                                                <h6 class="rbt-title-style-2">Redes Sociais</h6>
-                                            </div>
-                                            <ul class="social-icon social-default transparent-with-border justify-content-start">
-                                                {% if escola.perfil.facebook %}<li><a href="{{ escola.perfil.facebook }}"><i class="feather-facebook"></i></a></li>{% endif %}
-                                                {% if escola.perfil.instagram %}<li><a href="{{ escola.perfil.instagram }}"><i class="feather-instagram"></i></a></li>{% endif %}
-                                                {% if escola.perfil.linkedin %}<li><a href="{{ escola.perfil.linkedin }}"><i class="feather-linkedin"></i></a></li>{% endif %}
-                                                {% if escola.site %}<li><a href="{{ escola.site }}"><i class="feather-globe"></i></a></li>{% endif %}
-                                            </ul>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- End Dashboard Sidebar  -->
+                    <!-- Botão de Assistir Vídeo -->
+                    {% if escola.perfil.video_banner or escola.perfil.video_banner_url %}
+                    <div class="col-lg-auto col-12 text-center text-lg-end mt-4 mt-lg-0">
+                        <div class="d-inline-flex flex-column align-items-center gap-2">
+                            <button class="lfa-play-btn" id="lfaPlayVideoBtn" title="{% trans 'Assistir vídeo completo' %}">
+                                <i class="feather-play" style="margin-left: 4px;"></i>
+                            </button>
+                            <span class="text-white small fw-bold font-outfit text-uppercase" style="font-size: 10px; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">{% trans "Ver Vídeo" %}</span>
                         </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
 
-                        <div class="col-lg-9">
-                            <!-- Inscrições Abertas Alert -->
-                            {% if escola.perfil.inscricoes_abertas %}
-                            <div class="rbt-dashboard-content bg-color-white rbt-shadow-box mb--30" style="border-left: 4px solid var(--color-primary);">
-                                <div class="content">
-                                    <div class="d-flex align-items-center mb--20">
-                                        <div class="rbt-avatars size-md bg-primary-opacity rounded-circle d-flex justify-content-center align-items-center me-4">
-                                            <i class="feather-bell text-primary" style="font-size: 24px;"></i>
-                                        </div>
-                                        <div>
-                                            <h4 class="rbt-title-style-3 mb-1">Inscrições Abertas!</h4>
-                                            {% if escola.perfil.prazo_inscricoes %}
-                                            <p class="mb-0 b2">Prazo limite de matrícula: <span class="color-danger fw-bold">{{ escola.perfil.prazo_inscricoes|date:"d \d\e F \d\e Y" }}</span></p>
-                                            {% else %}
-                                            <p class="mb-0 b2">A nossa instituição está atualmente a aceitar candidaturas e matrículas.</p>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    {% if escola.perfil.requisitos_inscricao %}
-                                    <div class="rbt-profile-row row row--15 mt--15">
-                                        <div class="col-lg-12">
-                                            <div class="rbt-profile-content b2">
-                                                <h6 class="title"><i class="feather-file-text me-2"></i>Requisitos e Documentos Necessários:</h6>
-                                                <p style="white-space: pre-wrap;">{{ escola.perfil.requisitos_inscricao }}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% endif %}
+        <!-- 2. Menu Sticky Horizontal de Abas do Histudy -->
+        <div class="rbt-inner-onepage-navigation sticky-top bg-color-white" style="top: 80px; z-index: 99; border-bottom: 1px solid rgba(0, 0, 0, 0.05); box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+            <div class="container">
+                <nav class="mainmenu-nav onepagenav">
+                    <ul class="mainmenu d-flex justify-content-start overflow-auto no-scrollbar py-1" style="list-style: none; padding-left: 0; margin-bottom: 0; gap: 5px;">
+                        <li class="current"><a href="#sobre" class="nav-link py-3 px-4" style="font-weight: 700; font-size: 14px;">{% trans "Sobre Nós" %}</a></li>
+                        <li><a href="#cursos" class="nav-link py-3 px-4" style="font-weight: 700; font-size: 14px;">{% trans "Oferta Formativa" %}</a></li>
+                        {% if escola.perfil.infraestruturas.exists or escola.galeria.exists %}
+                            <li><a href="#campus" class="nav-link py-3 px-4" style="font-weight: 700; font-size: 14px;">{% trans "Instalações" %}</a></li>
+                        {% endif %}
+                        {% if escola.parcerias.exists %}
+                            <li><a href="#parceiros" class="nav-link py-3 px-4" style="font-weight: 700; font-size: 14px;">{% trans "Parceiros" %}</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
 
-                            <!-- Sobre a Instituição -->
-                            <div id="sobre" class="rbt-dashboard-content bg-color-white rbt-shadow-box mb--30">
-                                <div class="content">
-                                    <div class="section-title">
-                                        <h4 class="rbt-title-style-3">Sobre a Instituição</h4>
-                                    </div>
-                                    <div class="rbt-profile-row row row--15">
-                                        <div class="col-12">
-                                            <p class="b2">{{ escola.perfil.descricao|default:"Sem descrição disponível." }}</p>
-                                        </div>
-                                    </div>
-                                    {% if escola.perfil.missao %}
-                                    <div class="rbt-profile-row row row--15 mt--15">
-                                        <div class="col-12">
-                                            <div class="rbt-feature-wrapper mt--20">
-                                                <div class="rbt-feature feature-style-1 align-items-start">
-                                                    <div class="icon bg-primary-opacity mt-2">
-                                                        <i class="feather-target text-primary"></i>
-                                                    </div>
-                                                    <div class="feature-content">
-                                                        <h6 class="feature-title">A Nossa Missão</h6>
-                                                        <p class="feature-description b2">{{ escola.perfil.missao }}</p>
-                                                    </div>
-                                                </div>
+        <!-- 3. Grelha de Conteúdos (2 Colunas) -->
+        <div class="container pt--40">
+            <div class="row g-5">
+                
+                <!-- Coluna Principal (Esquerda - 8 colunas) -->
+                <div class="col-lg-8 col-12">
+                    
+                    <!-- Secção Sobre Nós (Estilo Premium lfanet.org) -->
+                    <section id="sobre" class="mb--40">
+                        <div class="lfa-tabs-section">
+                            <div class="row align-items-center g-5">
+                                <!-- Coluna Esquerda: Abas e Textos -->
+                                <div class="col-lg-7 text-white">
+                                    <span class="text-uppercase fw-bold text-white-50 font-outfit" style="font-size: 11px; letter-spacing: 2.5px; display: block; margin-bottom: 20px;">{% trans "MISSÃO & VISÃO" %}</span>
+                                    
+                                    <div class="lfa-tabs-navigation d-flex flex-column">
+                                        <!-- Aba 1: Quem Somos -->
+                                        <div class="lfa-tab-item active" data-target="quem-somos">
+                                            <h3 class="lfa-tab-title font-outfit">{% trans "Quem Somos" %}</h3>
+                                            <div class="lfa-tab-content">
+                                                <p class="small text-white-50 mt-3" style="line-height: 1.8; font-size: 14.5px;">
+                                                    {{ escola.perfil.descricao|default:_("Descubra as origens, os valores fundamentais e o compromisso contínuo da nossa escola com a formação académica e humana de excelência.") }}
+                                                </p>
+                                                <a href="#cursos" class="btn btn-outline-white mt-4 font-outfit" style="color: white; border: 1.5px solid white; padding: 10px 25px; border-radius: 30px; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; display: inline-block; background: transparent; transition: all 0.3s ease;">
+                                                    {% trans "Explorar Cursos" %}
+                                                </a>
                                             </div>
                                         </div>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            <!-- Oferta Formativa -->
-                            <div id="cursos" class="rbt-dashboard-content bg-color-white rbt-shadow-box mb--30">
-                                <div class="content">
-                                    <div class="section-title d-flex justify-content-between align-items-center mb--20">
-                                        <h4 class="rbt-title-style-3 mb--0">Oferta Formativa</h4>
-                                        <div class="rbt-search-with-category">
-                                            <div class="search-field">
-                                                <input type="text" id="courseSearchInput" placeholder="Pesquisar curso...">
-                                                <button class="rbt-round-btn search-btn"><i class="feather-search"></i></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row g-5" id="courseListContainer">
-                                        {% for curso in escola.cursos.all %}
-                                        <div class="col-lg-6 col-md-6 col-12 course-item" data-title="{{ curso.nome|lower }}" data-area="{{ curso.area_formacao.nome|lower }}">
-                                            <div class="rbt-card variation-01 rbt-hover h-100">
-                                                <div class="rbt-card-body p-4 d-flex flex-column h-100">
-                                                    {% if curso.area_formacao %}
-                                                    <div class="rbt-category mb--10">
-                                                        <a href="javascript:void(0);">{{ curso.area_formacao.nome }}</a>
-                                                    </div>
-                                                    {% endif %}
-                                                    <h5 class="rbt-card-title mb--10"><a href="javascript:void(0);">{{ curso.nome }}</a></h5>
-                                                    <p class="rbt-card-text mb--15 flex-grow-1 b2">{{ curso.descricao|truncatewords:15 }}</p>
-                                                    
-                                                    <ul class="rbt-meta pb--10 border-bottom mb--10">
-                                                        <li><i class="feather-book-open"></i>{{ curso.classes_lecionadas }}</li>
-                                                        <li><i class="feather-clock"></i>{{ curso.duracao_anos }} Anos</li>
-                                                    </ul>
-                                                    
-                                                    <div class="rbt-card-bottom d-flex align-items-center justify-content-between">
-                                                        <div class="rbt-price">
-                                                            {% if escola.tipo_rede == 'PUBLICA' %}
-                                                                <span class="current-price text-success"><i class="feather-check-circle"></i> Gratuito</span>
-                                                            {% else %}
-                                                                {% if curso.mensalidade %}
-                                                                    <span class="current-price">{{ curso.mensalidade }} Kz</span>
-                                                                {% elif escola.mensalidade_base > 0 %}
-                                                                    <span class="current-price">{{ escola.mensalidade_base }} Kz</span>
-                                                                {% else %}
-                                                                    <span class="current-price" style="font-size: 14px;">Sob consulta</span>
-                                                                {% endif %}
-                                                            {% endif %}
-                                                        </div>
-                                                        {% if curso.exige_exame %}
-                                                        <span class="rbt-badge-5 bg-danger-opacity text-danger"><i class="feather-alert-triangle"></i> Exame</span>
-                                                        {% endif %}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {% empty %}
-                                        <div class="col-12 text-center py-5">
-                                            <p class="b2">Nenhum curso registado de momento.</p>
-                                        </div>
-                                        {% endfor %}
                                         
-                                        <!-- Mensagem de Sem Resultados -->
-                                        <div class="col-12 text-center py-5 d-none" id="noResultsMsg">
-                                            <h5 class="title">Nenhum curso encontrado</h5>
-                                            <p class="b2">Tente pesquisar por outros termos.</p>
+                                        <!-- Aba 2: Missão -->
+                                        <div class="lfa-tab-item" data-target="missao">
+                                            <h3 class="lfa-tab-title font-outfit">{% trans "Nossa Missão" %}</h3>
+                                            <div class="lfa-tab-content">
+                                                <p class="small text-white-50 mt-3" style="line-height: 1.8; font-size: 14.5px;">
+                                                    {{ escola.perfil.missao|default:_("Capacitar e inspirar cada aluno a atingir o seu potencial máximo através de um ensino rigoroso e inovador.") }}
+                                                </p>
+                                                {% if escola.perfil.requisitos_inscricao %}
+                                                <a href="#requisitos" class="btn btn-outline-white mt-4 font-outfit" style="color: white; border: 1.5px solid white; padding: 10px 25px; border-radius: 30px; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; display: inline-block; background: transparent; transition: all 0.3s ease;">
+                                                    {% trans "Requisitos de Inscrição" %}
+                                                </a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <!-- Aba 3: Visão -->
+                                        <div class="lfa-tab-item" data-target="visao">
+                                            <h3 class="lfa-tab-title font-outfit">{% trans "Nossa Visão" %}</h3>
+                                            <div class="lfa-tab-content">
+                                                <p class="small text-white-50 mt-3" style="line-height: 1.8; font-size: 14.5px;">
+                                                    {{ escola.perfil.visao|default:_("Ser uma instituição de referência nacional e internacional na liderança pedagógica, inovação tecnológica e formação de líderes.") }}
+                                                </p>
+                                                {% if escola.perfil.infraestruturas.exists or escola.galeria.exists %}
+                                                <a href="#campus" class="btn btn-outline-white mt-4 font-outfit" style="color: white; border: 1.5px solid white; padding: 10px 25px; border-radius: 30px; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; display: inline-block; background: transparent; transition: all 0.3s ease;">
+                                                    {% trans "Ver Instalações" %}
+                                                </a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Coluna Direita: Imagem com efeito empilhado (LFA) -->
+                                <div class="col-lg-5 position-relative">
+                                    <div class="lfa-images-stack-container">
+                                        <div class="lfa-image-frame-wrapper active" id="img-quem-somos">
+                                            <img src="{% if escola.perfil.foto_historia %}{{ escola.perfil.foto_historia.url }}{% elif escola.galeria.all.0 %}{{ escola.galeria.all.0.imagem.url }}{% else %}https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80{% endif %}" alt="Quem Somos">
+                                        </div>
+                                        <div class="lfa-image-frame-wrapper next-stacked" id="img-missao">
+                                            <img src="{% if escola.perfil.foto_missao %}{{ escola.perfil.foto_missao.url }}{% elif escola.galeria.all.1 %}{{ escola.galeria.all.1.imagem.url }}{% else %}https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=600&q=80{% endif %}" alt="Missão">
+                                        </div>
+                                        <div class="lfa-image-frame-wrapper" id="img-visao">
+                                            <img src="{% if escola.perfil.foto_visao %}{{ escola.perfil.foto_visao.url }}{% elif escola.galeria.all.2 %}{{ escola.galeria.all.2.imagem.url }}{% else %}https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80{% endif %}" alt="Visão">
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </section>
 
-                            <!-- Campus e Instalações -->
-                            {% if escola.perfil.infraestruturas.exists or escola.galeria.exists %}
-                            <div id="campus" class="rbt-dashboard-content bg-color-white rbt-shadow-box mb--30">
-                                <div class="content">
-                                    <div class="section-title">
-                                        <h4 class="rbt-title-style-3">Campus & Instalações</h4>
+                    <!-- Secção Oferta Formativa (Cursos estilo Carrossel LFA) -->
+                    <section id="cursos" class="lfa-carousel-section mb--30 position-relative">
+                        <div class="row g-4 align-items-center">
+                            <!-- Coluna Esquerda: Texto fixo, Busca e Setas de Navegação -->
+                            <div class="col-xl-4 col-12">
+                                <span class="text-uppercase fw-bold text-primary font-outfit" style="font-size: 11px; letter-spacing: 2.5px; display: block; margin-bottom: 10px;">{% trans "ADMISSIONS" %}</span>
+                                <h3 class="title font-outfit fs-3 mb-3" style="color: var(--color-heading); font-weight: 800; line-height: 1.2;">
+                                    {% trans "Oferta Formativa" %}
+                                </h3>
+                                <p class="small text-muted mb-4" style="line-height: 1.6;">
+                                    {% trans "Explore as áreas de formação e cursos de ensino médio técnico disponíveis na nossa instituição para trilhar o seu caminho profissional." %}
+                                </p>
+                                
+                                <!-- Caixa de Pesquisa local -->
+                                <div class="rbt-search-with-category mb-4" style="max-width: 280px; width: 100%;">
+                                    <div class="search-field" style="border-radius: 12px; border: 1.5px solid var(--color-border); background: var(--color-lightest); overflow: hidden;">
+                                        <input type="text" id="courseSearchInput" placeholder="{% trans 'Pesquisar curso...' %}" style="height: 42px; padding-left: 15px; font-size: 13px; border: none; background: transparent; width: calc(100% - 45px);">
+                                        <button class="rbt-round-btn search-btn" style="height: 42px; width: 42px; background: transparent; border: none; color: var(--color-body); float: right;"><i class="feather-search"></i></button>
                                     </div>
-                                    
-                                    {% if escola.perfil.infraestruturas.exists %}
-                                    <div class="row g-4 mb--30">
-                                        {% for infra in escola.perfil.infraestruturas.all %}
-                                        <div class="col-lg-4 col-md-6 col-6">
-                                            <div class="rbt-flipbox text-center">
-                                                <div class="rbt-flipbox-wrap rbt-shadow-box bg-color-white p-4">
-                                                    <div class="icon mb--15">
-                                                        <i class="{{ infra.icone }} text-primary" style="font-size: 32px;"></i>
-                                                    </div>
-                                                    <h6 class="title mb--0">{{ infra.nome }}</h6>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                    {% endif %}
-                                    
-                                    {% if escola.galeria.exists %}
-                                    <div class="row g-3">
-                                        {% for imagem in escola.galeria.all %}
-                                        <div class="col-lg-4 col-md-4 col-sm-6 col-6">
-                                            <div class="rbt-gallery-item rounded-3 overflow-hidden shadow-sm position-relative group" style="height: 150px;">
-                                                <img src="{{ imagem.imagem.url }}" alt="{{ imagem.legenda|default:'Foto da Instituição' }}" class="w-100 h-100 object-fit-cover">
-                                                <div class="overlay position-absolute bottom-0 start-0 w-100 p-2" style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); opacity: 1;">
-                                                    {% if imagem.legenda %}
-                                                    <h6 class="text-white mb-0" style="font-size: 13px;">{{ imagem.legenda }}</h6>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                    {% endif %}
+                                </div>
+
+                                <!-- Setas de Navegação -->
+                                <div class="d-flex gap-2 mb-3">
+                                    <button class="lfa-nav-btn" id="lfaCoursePrevBtn" title="{% trans 'Anterior' %}">
+                                        <i class="feather-arrow-left"></i>
+                                    </button>
+                                    <button class="lfa-nav-btn" id="lfaCourseNextBtn" title="{% trans 'Seguinte' %}">
+                                        <i class="feather-arrow-right"></i>
+                                    </button>
                                 </div>
                             </div>
-                            {% endif %}
-
-                            <!-- Parceiros -->
-                            {% if escola.parcerias.exists %}
-                            <div id="parceiros" class="rbt-dashboard-content bg-color-white rbt-shadow-box mb--30">
-                                <div class="content">
-                                    <div class="section-title">
-                                        <h4 class="rbt-title-style-3">Parceiros de Estágio e Empregabilidade</h4>
-                                    </div>
-                                    <div class="row g-4">
-                                        {% for parceria in escola.parcerias.all %}
-                                        <div class="col-lg-4 col-md-4 col-sm-6 col-6">
-                                            <div class="rbt-card text-center p-4 h-100">
-                                                {% if parceria.logo %}
-                                                <img src="{{ parceria.logo.url }}" alt="{{ parceria.nome_empresa }}" style="max-height: 60px; object-fit: contain; margin-bottom: 15px;">
-                                                {% else %}
-                                                <div class="icon bg-primary-opacity mb--15 d-inline-block rounded-circle" style="width: 50px; height: 50px; line-height: 50px;">
-                                                    <i class="feather-briefcase text-primary" style="font-size: 20px;"></i>
+                            
+                            <!-- Coluna Direita: Carrossel Horizontal Deslizante -->
+                            <div class="col-xl-8 col-12">
+                                <div class="lfa-carousel-container no-scrollbar" id="lfaCourseCarousel">
+                                    {% for curso in escola.cursos.all %}
+                                    <div class="lfa-carousel-item course-item" data-title="{{ curso.nome|lower }}" data-area="{% if curso.area_formacao %}{{ curso.area_formacao.nome|lower }}{% endif %}">
+                                        <div class="school-course-card h-100 d-flex flex-column">
+                                            <div class="rbt-card-img" style="height: 140px; overflow: hidden; position: relative; background: linear-gradient(135deg, var(--color-primary-opacity), rgba(var(--color-primary-rgb), 0.7));">
+                                                <div class="w-100 h-100 d-flex align-items-center justify-content-center text-white" style="font-size: 48px;">
+                                                    <i class="feather-book-open"></i>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="rbt-card-body p-4 d-flex flex-column flex-grow-1 bg-transparent">
+                                                {% if curso.area_formacao %}
+                                                <div class="rbt-category mb-2">
+                                                    <span class="small uppercase font-weight-bold" style="letter-spacing: 0.5px; color: var(--color-primary); font-size: 10px;">{{ curso.area_formacao.nome }}</span>
                                                 </div>
                                                 {% endif %}
-                                                <h6 class="title mb--0 b2" style="font-weight: 600;">{{ parceria.nome_empresa }}</h6>
+                                                <h5 class="rbt-card-title mb-2 fs-5" style="min-height: 48px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                                    <a href="javascript:void(0);" style="font-weight: 700; color: var(--color-heading); font-size: 16px; line-height: 1.4;">{{ curso.nome }}</a>
+                                                </h5>
+                                                <p class="rbt-card-text mb-4 flex-grow-1 small text-muted" style="font-size: 13px; line-height: 1.6;">{{ curso.descricao|truncatewords:12 }}</p>
+                                                
+                                                <ul class="rbt-meta pb-2 border-bottom mb-3" style="list-style: none; padding-left: 0; display: flex; gap: 15px; font-size: 11px; color: var(--color-body);">
+                                                    <li><i class="feather-book-open text-primary me-1"></i>{{ curso.classes_lecionadas }}</li>
+                                                    <li><i class="feather-clock text-primary me-1"></i>{{ curso.duracao_anos }} Anos</li>
+                                                </ul>
+                                                
+                                                <div class="rbt-card-bottom d-flex align-items-center justify-content-between mt-auto">
+                                                    <div class="rbt-price font-weight-bold">
+                                                        {% if escola.tipo_rede == 'PUBLICA' %}
+                                                            <span class="text-success small"><i class="feather-check-circle me-1"></i> {% trans "Gratuito" %}</span>
+                                                        {% else %}
+                                                            {% if curso.mensalidade %}
+                                                                <span class="fs-6" style="color: var(--color-heading); font-weight: 700;">{{ curso.mensalidade }} Kz <span class="small text-muted font-weight-normal" style="font-size: 10px;">/mês</span></span>
+                                                            {% elif escola.mensalidade_base > 0 %}
+                                                                <span class="fs-6" style="color: var(--color-heading); font-weight: 700;">{{ escola.mensalidade_base }} Kz <span class="small text-muted font-weight-normal" style="font-size: 10px;">/mês</span></span>
+                                                            {% else %}
+                                                                <span class="text-muted small">{% trans "Sob consulta" %}</span>
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    </div>
+                                                    {% if curso.exige_exame %}
+                                                    <span class="badge bg-danger-opacity text-danger py-1 px-2.5 small" style="border-radius: 6px; font-size: 10px;" title="Exame: {{ curso.disciplinas_exame }}"><i class="feather-alert-triangle me-1"></i> {% trans "Exame" %}</span>
+                                                    {% endif %}
+                                                </div>
                                             </div>
                                         </div>
-                                        {% endfor %}
+                                    </div>
+                                    {% empty %}
+                                    <div class="col-12 text-center py-5">
+                                        <p class="text-muted">{% trans "Nenhum curso cadastrado de momento." %}</p>
+                                    </div>
+                                    {% endfor %}
+                                    
+                                    <!-- Mensagem Vazia -->
+                                    <div class="col-12 text-center py-5 d-none" id="noResultsMsg">
+                                        <i class="feather-search text-muted mb-2" style="font-size: 40px;"></i>
+                                        <h5 class="title mb-1">{% trans "Nenhum curso encontrado" %}</h5>
+                                        <p class="small text-muted">{% trans "Tente refinar sua busca por outras palavras." %}</p>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </section>
+
+                    <!-- Secção Instalações e Galeria -->
+                    {% if escola.perfil.infraestruturas.exists or escola.galeria.exists %}
+                    <section id="campus" class="rbt-shadow-box bg-white-override p--40 rounded mb--30 position-relative">
+                        <div style="position: absolute; top: 0; left: 30px; height: 5px; width: 80px; background: var(--color-primary); border-radius: 0 0 5px 5px;"></div>
+                        
+                        <h3 class="title mb-4 font-outfit fs-4" style="color: var(--color-heading); font-weight: 700;">
+                            <i class="feather-image text-primary me-2"></i> {% trans "Campus & Instalações" %}
+                        </h3>
+                        
+                        {% if escola.perfil.infraestruturas.exists %}
+                        <div class="d-flex flex-wrap gap-2 mb-4">
+                            {% for infra in escola.perfil.infraestruturas.all %}
+                            <span class="badge bg-light text-body border py-2.5 px-3 fs-6 d-flex align-items-center gap-2 font-weight-bold" style="border-radius: 12px; background: var(--color-lightest) !important; border-color: var(--color-border) !important; font-size: 13px;">
+                                <i class="{{ infra.icone }} text-primary"></i> {{ infra.nome }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        {% if escola.galeria.exists %}
+                        <div class="row g-3">
+                            {% for imagem in escola.galeria.all %}
+                            <div class="col-md-4 col-sm-6 col-6">
+                                <div class="school-gallery-item rounded-3">
+                                    <a href="{{ imagem.imagem.url }}" class="popup-image" title="{{ imagem.legenda|default:_('Foto da Escola') }}">
+                                        <img src="{{ imagem.imagem.url }}" alt="{{ imagem.legenda|default:_('Foto') }}">
+                                        <div class="overlay">
+                                            <h6 class="text-white mb-0" style="font-size: 13px; font-weight: 700;">{{ imagem.legenda|default:_("Instalações") }}</h6>
+                                            <span class="text-white-50 small" style="font-size: 10px;">{{ imagem.get_categoria_display }}</span>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </section>
+                    {% endif %}
+
+                    <!-- Secção Parceiros -->
+                    {% if escola.parcerias.exists %}
+                    <section id="parceiros" class="rbt-shadow-box bg-white-override p--40 rounded mb--30 position-relative">
+                        <div style="position: absolute; top: 0; left: 30px; height: 5px; width: 80px; background: var(--color-primary); border-radius: 0 0 5px 5px;"></div>
+                        
+                        <h3 class="title mb-4 font-outfit fs-4" style="color: var(--color-heading); font-weight: 700;">
+                            <i class="feather-briefcase text-primary me-2"></i> {% trans "Parcerias de Estágio" %}
+                        </h3>
+                        
+                        <div class="row g-4">
+                            {% for parceria in escola.parcerias.all %}
+                            <div class="col-md-4 col-sm-6 col-6">
+                                <div class="rbt-card text-center p-4 h-100 rbt-hover shadow-sm border bg-white-override" style="border-radius: 16px;">
+                                    {% if parceria.logo %}
+                                    <div class="d-flex align-items-center justify-content-center mb-3" style="height: 60px;">
+                                        <img src="{{ parceria.logo.url }}" alt="{{ parceria.nome_empresa }}" style="max-height: 60px; object-fit: contain;">
+                                    </div>
+                                    {% else %}
+                                    <div class="icon bg-primary-opacity mb-3 d-inline-flex rounded-circle align-items-center justify-content-center" style="width: 50px; height: 50px; line-height: 50px;">
+                                        <i class="feather-briefcase text-primary" style="font-size: 20px;"></i>
+                                    </div>
+                                    {% endif %}
+                                    <h6 class="title mb-1" style="font-weight: 700; color: var(--color-heading); font-size: 14px;">{{ parceria.nome_empresa }}</h6>
+                                    {% if parceria.descricao %}
+                                    <p class="small text-muted mb-0 truncate" title="{{ parceria.descricao }}" style="font-size: 11px;">{{ parceria.descricao }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </section>
+                    {% endif %}
+
+                </div>
+
+                <!-- Coluna Lateral (Direita - 4 colunas) -->
+                <div class="col-lg-4 col-12">
+                    <div class="rbt-sidebar-widget-wrapper sticky-top" style="top: 180px; z-index: 10;">
+                        
+                        <!-- Painel de Inscrições / Matrículas -->
+                        <div class="rbt-shadow-box p--30 rounded bg-white-override mb--30">
+                            {% if escola.perfil.inscricoes_abertas %}
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="badge bg-success-opacity text-success py-2 px-3 fs-6 d-inline-flex align-items-center gap-2" style="border-radius: 30px; background-color: rgba(39, 174, 96, 0.1) !important; color: #2ecc71 !important;">
+                                    <span class="pulsing-dot"></span> {% trans "Matrículas Abertas" %}
+                                </span>
+                            </div>
+                            
+                            {% if escola.perfil.prazo_inscricoes %}
+                            <div class="mb-3">
+                                <h6 class="text-muted small uppercase font-weight-bold mb-1" style="font-size: 10px; letter-spacing: 0.5px;">{% trans "Prazo Limite" %}</h6>
+                                <p class="title fs-5 mb-0" style="font-weight: 800; color: var(--color-heading);">
+                                    <i class="feather-clock text-primary me-2"></i>{{ escola.perfil.prazo_inscricoes|date:"d \d\e F, Y" }}
+                                </p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if escola.perfil.requisitos_inscricao %}
+                            <hr class="rbt-separator my-3">
+                            <h6 class="title fs-6 mb-2" style="font-weight: 700; color: var(--color-heading);"><i class="feather-file-text text-primary me-2"></i>{% trans "Matrícula e Documentos" %}</h6>
+                            <p class="small text-muted whitespace-pre-wrap leading-relaxed mb-4" style="max-height: 200px; overflow-y: auto; font-size: 12.5px; line-height: 1.7;">{{ escola.perfil.requisitos_inscricao }}</p>
+                            {% endif %}
+                            
+                            <div class="add-to-cart-button d-grid gap-3">
+                                {% if escola.telefone %}
+                                <a class="rbt-btn btn-gradient radius-round w-100 text-center" href="tel:{{ escola.telefone }}">
+                                    <span class="btn-text">{% trans "Fazer Matrícula" %}</span>
+                                </a>
+                                {% endif %}
+                            </div>
+                            
+                            {% else %}
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <span class="badge bg-secondary-opacity text-secondary py-1.5 px-3 small" style="border-radius: 30px;">{% trans "Inscrições Fechadas" %}</span>
+                            </div>
+                            <p class="small text-muted mb-0" style="font-size: 13px; line-height: 1.6;">{% trans "Neste momento, a instituição não tem candidaturas ou inscrições ativas no portal." %}</p>
                             {% endif %}
                         </div>
+
+                        <!-- Detalhes de Contacto -->
+                        <div class="rbt-shadow-box p--30 rounded bg-white-override mb--30">
+                            <h5 class="title mb--20 font-outfit fs-5 pb--10 border-bottom" style="font-weight: 700; color: var(--color-heading);">{% trans "Informações Úteis" %}</h5>
+                            
+                            <ul class="rbt-information-list small mb-0" style="list-style: none; padding-left: 0;">
+                                <li class="d-flex mb--15 align-items-start">
+                                    <i class="feather-map-pin me-3 text-primary fs-5 mt-1"></i> 
+                                    <div>
+                                        <span class="d-block text-muted uppercase font-weight-bold" style="font-size: 9px; letter-spacing: 0.5px;">{% trans "Endereço" %}</span>
+                                        <span class="text-body fw-medium" style="font-size: 13px;">{{ escola.endereco|default:escola.municipio }}</span>
+                                    </div>
+                                </li>
+                                {% if escola.email %}
+                                <li class="d-flex mb--15 align-items-start">
+                                    <i class="feather-mail me-3 text-primary fs-5 mt-1"></i> 
+                                    <div class="min-w-0 w-100">
+                                        <span class="d-block text-muted uppercase font-weight-bold" style="font-size: 9px; letter-spacing: 0.5px;">{% trans "E-mail" %}</span>
+                                        <a href="mailto:{{ escola.email }}" class="text-primary fw-medium text-truncate d-block" style="font-size: 13px;">{{ escola.email }}</a>
+                                    </div>
+                                </li>
+                                {% endif %}
+                                <li class="d-flex mb--15 align-items-start">
+                                    <i class="feather-phone me-3 text-primary fs-5 mt-1"></i> 
+                                    <div>
+                                        <span class="d-block text-muted uppercase font-weight-bold" style="font-size: 9px; letter-spacing: 0.5px;">{% trans "Contacto" %}</span>
+                                        <span class="text-body fw-medium" style="font-size: 13px;">{{ escola.telefone|default:_("Não disponível") }}</span>
+                                    </div>
+                                </li>
+                                <li class="d-flex mb--15 align-items-start">
+                                    <i class="feather-credit-card me-3 text-primary fs-5 mt-1"></i> 
+                                    <div>
+                                        <span class="d-block text-muted uppercase font-weight-bold" style="font-size: 9px; letter-spacing: 0.5px;">{% trans "Propina Base" %}</span>
+                                        <span class="text-body fw-bold" style="font-size: 13px; color: var(--color-heading);">
+                                            {% if escola.tipo_rede == 'PUBLICA' %}
+                                                {% trans "Ensino Gratuito" %}
+                                            {% elif escola.mensalidade_base > 0 %}
+                                                {{ escola.mensalidade_base }} Kz <span class="small text-muted font-weight-normal">/mês</span>
+                                            {% else %}
+                                                {% trans "Sob consulta" %}
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </li>
+                                {% if escola.site %}
+                                <li class="d-flex mb--15 align-items-start">
+                                    <i class="feather-globe me-3 text-primary fs-5 mt-1"></i> 
+                                    <div class="min-w-0 w-100">
+                                        <span class="d-block text-muted uppercase font-weight-bold" style="font-size: 9px; letter-spacing: 0.5px;">{% trans "Website" %}</span>
+                                        <a href="{{ escola.site }}" target="_blank" class="text-primary fw-medium text-truncate d-block" style="font-size: 13px;">Website Oficial</a>
+                                    </div>
+                                </li>
+                                {% endif %}
+                            </ul>
+                            
+                            {% if escola.perfil.facebook or escola.perfil.instagram or escola.perfil.linkedin or escola.perfil.whatsapp %}
+                            <hr class="rbt-separator my-4">
+                            <div class="social-share-wrapper d-flex justify-content-center">
+                                <ul class="social-icon social-default transparent-with-border justify-content-center m-0">
+                                    {% if escola.perfil.facebook %}<li><a href="{{ escola.perfil.facebook }}" target="_blank"><i class="feather-facebook"></i></a></li>{% endif %}
+                                    {% if escola.perfil.instagram %}<li><a href="{{ escola.perfil.instagram }}" target="_blank"><i class="feather-instagram"></i></a></li>{% endif %}
+                                    {% if escola.perfil.linkedin %}<li><a href="{{ escola.perfil.linkedin }}" target="_blank"><i class="feather-linkedin"></i></a></li>{% endif %}
+                                    {% if escola.perfil.whatsapp %}<li><a href="https://wa.me/{{ escola.perfil.whatsapp }}" target="_blank"><i class="fa fa-whatsapp"></i></a></li>{% endif %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Widget de Partilha -->
+                        <div class="rbt-shadow-box p--30 rounded bg-white-override mb--30">
+                            <span class="small text-muted d-block mb-3 fw-bold">PARTILHAR ESTA ESCOLA:</span>
+                            <div class="d-flex gap-3 flex-wrap">
+                                <a href="https://api.whatsapp.com/send?text=Olha%20s%C3%B3%20esta%20escola%20incr%C3%ADvel%20na%20EdukAngola:%20{{ escola.nome|urlencode }}.%20Confira%20aqui:%20{{ request.build_absolute_uri|urlencode }}" target="_blank" class="rbt-btn btn-border btn-sm d-flex align-items-center justify-content-center rounded-circle social-share-btn" style="width: 45px; height: 45px; font-size: 18px;" title="Partilhar no WhatsApp">
+                                    <i class="fab fa-whatsapp" style="color: #25D366;"></i>
+                                </a>
+                                <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" target="_blank" class="rbt-btn btn-border btn-sm d-flex align-items-center justify-content-center rounded-circle social-share-btn" style="width: 45px; height: 45px; font-size: 18px;" title="Partilhar no LinkedIn">
+                                    <i class="fab fa-linkedin-in" style="color: #0077B5;"></i>
+                                </a>
+                                <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="rbt-btn btn-border btn-sm d-flex align-items-center justify-content-center rounded-circle social-share-btn" style="width: 45px; height: 45px; font-size: 18px;" title="Partilhar no Facebook">
+                                    <i class="fab fa-facebook-f" style="color: #1877F2;"></i>
+                                </a>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</main>
+    </main>
+
+    {% include 'include/footer.html' %}
     {% include 'include/java.html' %}
     
+    <!-- Modal do Vídeo de Fundo (Dialog HTML5 nativo) -->
+    <dialog id="lfaVideoDialog" class="p-0 border-0 rounded-4 overflow-hidden" style="max-width: 800px; width: 90%; background: #0c0f1a; box-shadow: 0 25px 50px rgba(0,0,0,0.5); position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999;">
+        <div class="d-flex justify-content-between align-items-center px-4 py-3 text-white border-bottom border-secondary" style="background: #111422;">
+            <h5 class="m-0 font-outfit fw-bold text-white" style="font-size: 16px;">{% trans "Vídeo Institucional" %} - {{ escola.nome }}</h5>
+            <button class="btn-close btn-close-white" id="lfaCloseVideoBtn" style="filter: invert(1); background: none; border: none; font-size: 20px; color: white; cursor: pointer;"><i class="feather-x"></i></button>
+        </div>
+        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; background: #000;">
+            <video id="lfaModalVideo" controls style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" class="w-100 h-100">
+                {% if escola.perfil and escola.perfil.video_banner %}
+                    <source src="{{ escola.perfil.video_banner.url }}" type="video/mp4">
+                {% elif escola.perfil and escola.perfil.video_banner_url %}
+                    <source src="{{ escola.perfil.video_banner_url }}" type="video/mp4">
+                {% else %}
+                    <source src="https://assets.mixkit.co/videos/preview/mixkit-group-of-students-walking-in-a-campus-41584-large.mp4" type="video/mp4">
+                {% endif %}
+            </video>
+        </div>
+    </dialog>
+
+    <!-- Script da página para filtragem em tempo real e Scrollspy -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {
+            // Lógica do Modal de Vídeo
+            const playVideoBtn = document.getElementById('lfaPlayVideoBtn');
+            const videoDialog = document.getElementById('lfaVideoDialog');
+            const closeVideoBtn = document.getElementById('lfaCloseVideoBtn');
+            const modalVideo = document.getElementById('lfaModalVideo');
+
+            if (playVideoBtn && videoDialog) {
+                playVideoBtn.addEventListener('click', function() {
+                    videoDialog.showModal();
+                    if (modalVideo) modalVideo.play();
+                });
+            }
+
+            if (closeVideoBtn && videoDialog) {
+                closeVideoBtn.addEventListener('click', function() {
+                    videoDialog.close();
+                    if (modalVideo) {
+                        modalVideo.pause();
+                        modalVideo.currentTime = 0;
+                    }
+                });
+                
+                // Fechar ao clicar fora
+                videoDialog.addEventListener('click', function(e) {
+                    if (e.target === videoDialog) {
+                        videoDialog.close();
+                        if (modalVideo) {
+                            modalVideo.pause();
+                            modalVideo.currentTime = 0;
+                        }
+                    }
+                });
+            }
+
+            // Lógica das Abas LFA (Quem Somos, Missão, Visão)
+            const tabItems = document.querySelectorAll('.lfa-tab-item');
+            const imgWrappers = document.querySelectorAll('.lfa-image-frame-wrapper');
+
+            // Configuração inicial das pilhas de fotos
+            function updatePhotoStack(activeIndex) {
+                imgWrappers.forEach((img, imgIndex) => {
+                    img.classList.remove('active', 'prev-stacked', 'next-stacked');
+                    
+                    if (imgIndex === activeIndex) {
+                        img.classList.add('active');
+                    } else if (imgIndex === (activeIndex - 1 + tabItems.length) % tabItems.length) {
+                        img.classList.add('prev-stacked');
+                    } else if (imgIndex === (activeIndex + 1) % tabItems.length) {
+                        img.classList.add('next-stacked');
+                    }
+                });
+            }
+            
+            // Rodar uma vez para inicializar a pilha
+            updatePhotoStack(0);
+
+            tabItems.forEach((item, index) => {
+                item.addEventListener('click', function() {
+                    // Remover classes ativas de todas as abas
+                    tabItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    updatePhotoStack(index);
+                });
+            });
+
+            // Lógica do Carrossel de Cursos Horizontal
+            const carouselContainer = document.getElementById('lfaCourseCarousel');
+            const prevBtn = document.getElementById('lfaCoursePrevBtn');
+            const nextBtn = document.getElementById('lfaCourseNextBtn');
+
+            if (carouselContainer) {
+                const scrollAmount = 344; // Largura do card + gap (320 + 24)
+                
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', function() {
+                        carouselContainer.scrollLeft -= scrollAmount;
+                    });
+                }
+
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', function() {
+                        carouselContainer.scrollLeft += scrollAmount;
+                    });
+                }
+            }
+
+            // Lógica de filtragem de cursos
             const searchInput = document.getElementById('courseSearchInput');
             const courseItems = document.querySelectorAll('.course-item');
             const noResultsMsg = document.getElementById('noResultsMsg');
 
             if (searchInput) {
-                searchInput.addEventListener('keyup', function() {
+                searchInput.addEventListener('input', function() {
                     const term = this.value.toLowerCase().trim();
                     let found = false;
 
@@ -357,9 +1227,11 @@
                         
                         if (title.includes(term) || area.includes(term)) {
                             item.classList.remove('d-none');
+                            item.style.display = ''; // restaurar display flex
                             found = true;
                         } else {
                             item.classList.add('d-none');
+                            item.style.display = 'none';
                         }
                     });
 
@@ -370,6 +1242,31 @@
                     }
                 });
             }
+
+            // Lógica do Scrollspy ativo (fallback caso o plugin nativo não dispare)
+            const sections = document.querySelectorAll("section[id]");
+            
+            function scrollActive() {
+                const scrollY = window.pageYOffset;
+
+                sections.forEach(current => {
+                    const sectionHeight = current.offsetHeight;
+                    const sectionTop = current.offsetTop - 180; // Ajuste do offset por causa do cabeçalho fixo
+                    const sectionId = current.getAttribute("id");
+                    const link = document.querySelector(".rbt-inner-onepage-navigation ul.mainmenu li a[href*=" + sectionId + "]");
+                    
+                    if (link) {
+                        const parentLi = link.parentElement;
+                        if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
+                            // Remover current de todos
+                            document.querySelectorAll(".rbt-inner-onepage-navigation ul.mainmenu li").forEach(li => li.classList.remove("current"));
+                            parentLi.classList.add("current");
+                        }
+                    }
+                });
+            }
+            window.addEventListener("scroll", scrollActive);
+            scrollActive(); // Executar uma vez no carregamento
         });
     </script>
 </body>

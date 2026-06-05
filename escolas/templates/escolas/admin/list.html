@@ -1,0 +1,64 @@
+{% load i18n %}
+{% extends 'base.html' %}
+
+{% block title %}{% trans 'Admin Escolas' %}{% endblock %}
+
+{% block content %}
+<div class="rbt-section-gapTop rbt-section-gapBottom">
+    <div class="container">
+        <div class="row mb--30 align-items-center">
+            <div class="col-lg-8">
+                <h1 class="title">Admin de Escolas</h1>
+                <p class="description">Gerencie o cadastro de escolas do diretório e edite informações de perfil e inscrição.</p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt_md--20 mt_sm--20">
+                <a href="{% url 'admin_criar_escola' %}" class="rbt-btn btn-gradient">Criar Nova Escola</a>
+            </div>
+        </div>
+
+        <div class="row mb--30">
+            <div class="col-lg-12">
+                <form action="{% url 'admin_escolas' %}" method="GET" class="rbt-search-style-1">
+                    <input type="text" name="q" placeholder="Buscar escola por nome, município ou província..." value="{{ request.GET.q }}">
+                    <button type="submit" class="search-btn"><i class="feather-search"></i></button>
+                </form>
+            </div>
+        </div>
+
+        <div class="row g-5">
+            {% for escola in escolas %}
+            <div class="col-lg-4 col-md-6">
+                <div class="rbt-card variation-01 rbt-hover">
+                    <div class="rbt-card-img" style="height: 220px; overflow: hidden;">
+                        <a href="{% url 'escolas:perfil_escola' escola.id %}">
+                            {% if escola.perfil and escola.perfil.banner %}
+                            <img src="{{ escola.perfil.banner.url }}" alt="{{ escola.nome }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                            <img src="{% static 'assets/images/bg/bg-image-10.jpg' %}" alt="{{ escola.nome }}">
+                            {% endif %}
+                        </a>
+                    </div>
+                    <div class="rbt-card-body">
+                        <div class="rbt-card-top">
+                            <div class="rbt-badge-3 bg-primary-opacity">{{ escola.get_tipo_rede_display }}</div>
+                        </div>
+                        <h4 class="rbt-card-title"><a href="{% url 'admin_editar_escola' escola.id %}">{{ escola.nome }}</a></h4>
+                        <ul class="rbt-meta">
+                            <li><i class="feather-map-pin"></i> {{ escola.municipio }}, {{ escola.provincia }}</li>
+                            <li><i class="feather-book"></i> {{ escola.cursos.count }} Cursos</li>
+                        </ul>
+                        <div class="rbt-card-bottom">
+                            <a class="rbt-btn-link" href="{% url 'admin_editar_escola' escola.id %}">{% trans 'Editar' %}<i class="feather-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <h3>{% trans 'Nenhuma escola encontrada.' %}</h3>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
