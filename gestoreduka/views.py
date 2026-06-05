@@ -384,41 +384,10 @@ def centro_dashboard(request):
             'receita': float(rev)
         })
     
-    # Galeria de Imagens (últimas 8)
-    galeria_imagens = centro.galeria_imagens.all().order_by('ordem', '-data_upload')[:8]
-
-    # Reels/Vídeos do centro
-    reels = centro.reels.filter(publico=True).order_by('-destaque', '-data_publicacao')[:4]
-
-    # Vídeo de Apresentação do Perfil
-    try:
-        perfil_centro = centro.perfil
-    except Exception:
-        perfil_centro = None
-
-    # Estágios Recentes
-    try:
-        from estagio.models import Estagio
-        estagios_recentes = Estagio.objects.filter(
-            centro_formacao=centro
-        ).order_by('-data_publicacao')[:4]
-        total_estagios = Estagio.objects.filter(centro_formacao=centro).count()
-        estagios_ativos = Estagio.objects.filter(centro_formacao=centro, ativo=True).count()
-    except Exception:
-        estagios_recentes = []
-        total_estagios = 0
-        estagios_ativos = 0
-
     context = {
         'centro': centro,
         'filial': filial,
         'is_filial': filial is not None,
-        'perfil_centro': perfil_centro,
-        'galeria_imagens': galeria_imagens,
-        'reels': reels,
-        'estagios_recentes': estagios_recentes,
-        'total_estagios': total_estagios,
-        'estagios_ativos': estagios_ativos,
         'stats': {
             'total_cursos': total_cursos,
             'total_cursos_ativos': total_cursos_ativos,
@@ -447,7 +416,6 @@ def centro_dashboard(request):
     }
     
     return render(request, 'centro_dashboard.html', context)
-
 
 @login_required
 def listar_seguidores(request):

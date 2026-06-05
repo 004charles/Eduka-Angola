@@ -4,145 +4,86 @@
 
 {% block content %}
 <div class="flex flex-col gap-6 lg:gap-8 px-4 py-6 md:px-8">
-
-    <!-- =========================================
-         CABEÇALHO / HERO DO DASHBOARD
-         ========================================= -->
-    <div class="relative overflow-hidden rounded-2xl border border-white/20 dark:border-slate-800/50 shadow-sm">
-        <!-- Vídeo de fundo (se existir) -->
-        {% if perfil_centro.video_apresentacao %}
-        <div class="absolute inset-0 z-0">
-            <video class="w-full h-full object-cover" autoplay loop muted playsinline>
-                <source src="{{ perfil_centro.video_apresentacao.url }}" type="video/mp4">
-            </video>
-            <div class="absolute inset-0" style="background: linear-gradient(135deg, rgba(15,23,42,0.92) 0%, rgba(30,58,138,0.75) 50%, rgba(15,23,42,0.88) 100%);"></div>
-        </div>
-        {% elif perfil_centro.banner %}
-        <div class="absolute inset-0 z-0">
-            <img src="{{ perfil_centro.banner.url }}" alt="{{ centro.nome }}" class="w-full h-full object-cover">
-            <div class="absolute inset-0" style="background: linear-gradient(135deg, rgba(15,23,42,0.92) 0%, rgba(30,58,138,0.75) 50%, rgba(15,23,42,0.88) 100%);"></div>
-        </div>
-        {% else %}
-        <div class="absolute inset-0 z-0" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%);"></div>
-        <!-- Decorative blobs -->
-        <div class="absolute top-[-40px] right-[-40px] size-72 rounded-full opacity-20" style="background:radial-gradient(circle,#6366f1,transparent);"></div>
-        <div class="absolute bottom-[-30px] left-[10%] size-56 rounded-full opacity-15" style="background:radial-gradient(circle,#10b981,transparent);"></div>
-        {% endif %}
-
-        <!-- Conteúdo do Header -->
-        <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 p-7 md:p-10">
-            <div class="flex items-center gap-5">
-                <!-- Logo -->
-                <div class="shrink-0">
-                    {% if perfil_centro.imagem %}
-                    <img src="{{ perfil_centro.imagem.url }}" alt="{{ centro.nome }}"
-                         class="size-16 md:size-20 rounded-2xl object-cover ring-2 ring-white/20 shadow-xl">
-                    {% else %}
-                    <div class="size-16 md:size-20 rounded-2xl flex items-center justify-center text-3xl md:text-4xl font-extrabold text-white ring-2 ring-white/20 shadow-xl"
-                         style="background: linear-gradient(135deg, #6366f1, #4f46e5);">
-                        {{ centro.nome|slice:":1" }}
-                    </div>
-                    {% endif %}
-                </div>
-
-                <div>
-                    <div class="flex items-center gap-2.5 mb-1">
-                        <h1 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-none">{{ centro.nome }}</h1>
-                        {% if is_filial %}
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold rounded-full bg-indigo-500/20 text-indigo-200 border border-indigo-400/20">
-                            <span class="size-1.5 rounded-full bg-indigo-400 animate-pulse"></span> Filial: {{ filial.nome }}
-                        </span>
-                        {% else %}
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/20">
-                            <span class="size-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Sede Principal
-                        </span>
-                        {% endif %}
-                        {% if perfil_centro.verificado %}
-                        <span class="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-bold rounded-full bg-blue-500/20 text-blue-200 border border-blue-400/20">
-                            <i class="ki-filled ki-verify-5 text-xs"></i> Verificado
-                        </span>
-                        {% endif %}
-                    </div>
-                    <p class="text-sm text-slate-300 max-w-xl leading-relaxed">
-                        Monitore o crescimento e o impacto educacional em tempo real.
-                        {% if centro.cidade %}{{ centro.cidade }}, {{ centro.provincia }}.{% endif %}
-                    </p>
-                    <div class="flex items-center gap-4 mt-3">
-                        <span class="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
-                            <i class="ki-filled ki-people text-emerald-400"></i>
-                            <span class="text-white font-bold">{{ stats.total_seguidores }}</span> seguidores
-                        </span>
-                        <span class="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
-                            <i class="ki-filled ki-book-open text-indigo-400"></i>
-                            <span class="text-white font-bold">{{ stats.total_cursos_ativos }}</span> cursos ativos
-                        </span>
-                        <span class="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
-                            <i class="ki-filled ki-medal-star text-amber-400"></i>
-                            <span class="text-white font-bold">{{ stats.avaliacao_media }}★</span> avaliação
-                        </span>
-                    </div>
-                </div>
+    
+    <!-- Cabeçalho do Painel -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border border-white/20 dark:border-slate-800/50 p-6 rounded-2xl shadow-sm">
+        <div class="flex flex-col gap-1.5">
+            <div class="flex items-center gap-2">
+                <h1 class="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100">Painel de Comando Estratégico</h1>
+                {% if is_filial %}
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 border border-indigo-200/50 dark:border-indigo-800/30">
+                        <span class="size-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                        Filial: {{ filial.nome }}
+                    </span>
+                {% else %}
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border border-emerald-200/50 dark:border-emerald-800/30">
+                        <span class="size-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Sede Principal
+                    </span>
+                {% endif %}
             </div>
-
-            <!-- Botões de acção rápida no header -->
-            <div class="flex items-center gap-3 flex-wrap shrink-0">
-                <a href="{% url 'listar_anuncios' %}"
-                   class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl transition-all backdrop-blur-sm">
-                    <i class="ki-filled ki-notification-on text-sm"></i>
-                    Comunicado
-                </a>
-                <a href="{% url 'criar_curso' %}"
-                   class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-all shadow-lg shadow-indigo-900/40">
-                    <i class="ki-filled ki-plus text-sm"></i>
-                    Novo Curso
-                </a>
-                <a href="{% url 'criar_estagio' %}"
-                   class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-500 rounded-xl transition-all shadow-lg shadow-emerald-900/40">
-                    <i class="ki-filled ki-briefcase text-sm"></i>
-                    Nova Vaga
-                </a>
-            </div>
+            <p class="text-sm text-slate-600 dark:text-slate-400">
+                Monitore o crescimento, a adesão e o impacto educacional do seu centro em tempo real, <span class="font-semibold text-slate-800 dark:text-slate-200">{{ centro.nome }}</span>.
+            </p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'listar_anuncios' %}" class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-850 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl transition-all shadow-sm">
+                <i class="ki-filled ki-notification-on text-base"></i>
+                <span>Novo Comunicado</span>
+            </a>
+            <a href="{% url 'criar_curso' %}" class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 border border-transparent rounded-xl transition-all shadow-sm shadow-indigo-200 dark:shadow-none">
+                <i class="ki-filled ki-plus text-base"></i>
+                <span>Novo Curso</span>
+            </a>
         </div>
     </div>
 
-    <!-- =========================================
-         ALERTAS ATIVOS
-         ========================================= -->
+    <!-- Módulo 1.2: Alertas Activos -->
     {% if alertas %}
     <div class="flex flex-col gap-3">
         <div class="flex items-center justify-between px-1">
             <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                <i class="ki-filled ki-shield-search text-rose-500"></i>
-                Alertas e Notificações
+                <i class="ki-filled ki-shield-search text-base text-rose-500"></i>
+                Alertas e Notificações Estratégicas
             </h2>
             <span class="text-xs text-rose-500 font-semibold bg-rose-50 dark:bg-rose-950/30 px-2 py-0.5 rounded-md border border-rose-200/50 dark:border-rose-900/30">
                 {{ alertas|length }} pendência(s)
             </span>
         </div>
+        
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {% for alerta in alertas %}
-            <div class="group relative flex flex-col justify-between p-5 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 rounded-2xl shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 overflow-hidden">
-                <div class="absolute left-0 top-0 bottom-0 w-1.5
+            <div class="group relative flex flex-col justify-between p-5 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden hover:-translate-y-0.5">
+                <!-- Barra colorida lateral -->
+                <div class="absolute left-0 top-0 bottom-0 w-1.5 
                     {% if alerta.tipo == 'danger' %}bg-rose-500
                     {% elif alerta.tipo == 'warning' %}bg-amber-500
-                    {% else %}bg-indigo-500{% endif %}"></div>
+                    {% else %}bg-indigo-500{% endif %}">
+                </div>
+                
                 <div class="flex flex-col gap-2 pl-2">
                     <div class="flex items-center gap-2">
-                        <span class="p-1.5 rounded-lg
+                        <span class="p-1.5 rounded-lg 
                             {% if alerta.tipo == 'danger' %}bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400
                             {% elif alerta.tipo == 'warning' %}bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400
                             {% else %}bg-indigo-50 text-indigo-600 dark:bg-indigo-950/30 dark:text-indigo-400{% endif %}">
-                            {% if alerta.tipo == 'danger' %}<i class="ki-filled ki-shield-slash text-base"></i>
-                            {% elif alerta.tipo == 'warning' %}<i class="ki-filled ki-time text-base"></i>
-                            {% else %}<i class="ki-filled ki-message-question text-base"></i>{% endif %}
+                            {% if alerta.tipo == 'danger' %}
+                                <i class="ki-filled ki-shield-slash text-base"></i>
+                            {% elif alerta.tipo == 'warning' %}
+                                <i class="ki-filled ki-time text-base"></i>
+                            {% else %}
+                                <i class="ki-filled ki-message-question text-base"></i>
+                            {% endif %}
                         </span>
                         <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm">{{ alerta.titulo }}</h3>
                     </div>
                     <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">{{ alerta.mensagem }}</p>
                 </div>
+                
                 <div class="mt-4 pl-2 flex items-center justify-end">
-                    <a href="{{ alerta.link }}" class="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 transition-colors">
-                        Resolver agora <i class="ki-filled ki-right text-xs transition-transform group-hover:translate-x-0.5"></i>
+                    <a href="{{ alerta.link }}" class="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors">
+                        <span>Resolver agora</span>
+                        <i class="ki-filled ki-right text-xs transition-transform group-hover:translate-x-0.5"></i>
                     </a>
                 </div>
             </div>
@@ -151,564 +92,394 @@
     </div>
     {% endif %}
 
-    <!-- =========================================
-         KPIs PRINCIPAIS (4 cartões)
-         ========================================= -->
-    <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
-        <!-- Alcance -->
-        <div class="group relative flex flex-col p-5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 rounded-2xl shadow-sm hover:shadow-lg transition-all">
+    <!-- Estatísticas Principais (Grid de 4 cartões - Módulo 1.1) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
+        
+        <!-- Cartão 1: Alcance de Alunos -->
+        <div class="group relative flex flex-col p-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300">
             <div class="flex items-center justify-between mb-4">
-                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Matrículas</span>
-                <div class="flex items-center justify-center size-10 rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400 group-hover:scale-110 transition-transform">
+                <span class="text-sm font-semibold text-slate-500 dark:text-slate-400">Alcance Educacional</span>
+                <div class="flex items-center justify-center size-10 rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400 group-hover:scale-110 transition-transform duration-300">
                     <i class="ki-filled ki-people text-xl"></i>
                 </div>
             </div>
-            <div class="flex items-baseline gap-2 mb-1">
-                <span class="text-3xl font-extrabold text-slate-800 dark:text-slate-100">{{ stats.total_inscricoes }}</span>
-                <span class="text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1
-                    {% if stats.crescimento_inscricoes >= 0 %}bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400
-                    {% else %}bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400{% endif %}">
-                    <i class="ki-filled {% if stats.crescimento_inscricoes >= 0 %}ki-arrow-up{% else %}ki-arrow-down{% endif %} text-[10px]"></i>
-                    {% if stats.crescimento_inscricoes >= 0 %}+{% endif %}{{ stats.crescimento_inscricoes|floatformat:1 }}%
-                </span>
-            </div>
-            <div class="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800/50 pt-2 mt-1">
-                <span>Este mês:</span>
-                <span class="font-semibold text-slate-800 dark:text-slate-200">{{ stats.inscricoes_mes_atual }} novas</span>
+            <div class="flex flex-col gap-1.5">
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">{{ stats.total_inscricoes }}</span>
+                    <span class="text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1
+                        {% if stats.crescimento_inscricoes >= 0 %}
+                            bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400
+                        {% else %}
+                            bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400
+                        {% endif %}">
+                        <i class="ki-filled {% if stats.crescimento_inscricoes >= 0 %}ki-arrow-up{% else %}ki-arrow-down{% endif %} text-[10px]"></i>
+                        {% if stats.crescimento_inscricoes >= 0 %}+{% endif %}{{ stats.crescimento_inscricoes|floatformat:1 }}%
+                    </span>
+                </div>
+                <div class="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 mt-2 border-t border-slate-100 dark:border-slate-800/50 pt-2">
+                    <span>Mês atual:</span>
+                    <span class="font-semibold text-slate-800 dark:text-slate-200">{{ stats.inscricoes_mes_atual }} novas</span>
+                </div>
             </div>
         </div>
 
-        <!-- Faturação -->
-        <div class="group relative flex flex-col p-5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 rounded-2xl shadow-sm hover:shadow-lg transition-all">
+        <!-- Cartão 2: Faturação & Receita -->
+        <div class="group relative flex flex-col p-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300">
             <div class="flex items-center justify-between mb-4">
-                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Receita</span>
-                <div class="flex items-center justify-center size-10 rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400 group-hover:scale-110 transition-transform">
+                <span class="text-sm font-semibold text-slate-500 dark:text-slate-400">Faturação Recorrente</span>
+                <div class="flex items-center justify-center size-10 rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400 group-hover:scale-110 transition-transform duration-300">
                     <i class="ki-filled ki-wallet text-xl"></i>
                 </div>
             </div>
-            <div class="flex items-baseline gap-2 mb-1">
-                <span class="text-xl font-extrabold text-slate-800 dark:text-slate-100">{{ stats.receita_mes_atual|floatformat:0 }} Kz</span>
-                <span class="text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1
-                    {% if stats.crescimento_receita >= 0 %}bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400
-                    {% else %}bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400{% endif %}">
-                    <i class="ki-filled {% if stats.crescimento_receita >= 0 %}ki-arrow-up{% else %}ki-arrow-down{% endif %} text-[10px]"></i>
-                    {% if stats.crescimento_receita >= 0 %}+{% endif %}{{ stats.crescimento_receita|floatformat:1 }}%
-                </span>
-            </div>
-            <div class="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800/50 pt-2 mt-1">
-                <span>Total:</span>
-                <span class="font-semibold text-slate-800 dark:text-slate-200">{{ stats.receita_total|floatformat:0 }} Kz</span>
+            <div class="flex flex-col gap-1.5">
+                <div class="flex items-baseline gap-2">
+                    <span class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">{{ stats.receita_mes_atual|floatformat:0 }} Kz</span>
+                    <span class="text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1
+                        {% if stats.crescimento_receita >= 0 %}
+                            bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400
+                        {% else %}
+                            bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400
+                        {% endif %}">
+                        <i class="ki-filled {% if stats.crescimento_receita >= 0 %}ki-arrow-up{% else %}ki-arrow-down{% endif %} text-[10px]"></i>
+                        {% if stats.crescimento_receita >= 0 %}+{% endif %}{{ stats.crescimento_receita|floatformat:1 }}%
+                    </span>
+                </div>
+                <div class="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 mt-2 border-t border-slate-100 dark:border-slate-800/50 pt-2">
+                    <span>Total acumulado:</span>
+                    <span class="font-semibold text-slate-800 dark:text-slate-200">{{ stats.receita_total|floatformat:0 }} Kz</span>
+                </div>
             </div>
         </div>
 
-        <!-- Ocupação -->
-        <div class="group relative flex flex-col p-5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 rounded-2xl shadow-sm hover:shadow-lg transition-all">
+        <!-- Cartão 3: Ocupação & Vagas -->
+        <div class="group relative flex flex-col p-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300">
             <div class="flex items-center justify-between mb-4">
-                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Ocupação</span>
-                <div class="flex items-center justify-center size-10 rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400 group-hover:scale-110 transition-transform">
+                <span class="text-sm font-semibold text-slate-500 dark:text-slate-400">Ocupação Operacional</span>
+                <div class="flex items-center justify-center size-10 rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400 group-hover:scale-110 transition-transform duration-300">
                     <i class="ki-filled ki-element-11 text-xl"></i>
                 </div>
             </div>
-            <div class="flex items-baseline gap-2 mb-1">
-                <span class="text-3xl font-extrabold text-slate-800 dark:text-slate-100">{{ stats.taxa_ocupacao_media }}%</span>
-                <span class="text-xs text-slate-500 font-semibold">média</span>
-            </div>
-            <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden mb-1.5">
-                <div class="bg-amber-500 h-full rounded-full transition-all duration-700" style="width: {{ stats.taxa_ocupacao_media }}%;"></div>
-            </div>
-            <div class="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800/50 pt-2">
-                <span>Vagas livres:</span>
-                <span class="font-semibold text-slate-800 dark:text-slate-200">{{ stats.vagas_totais_disponiveis }}</span>
+            <div class="flex flex-col gap-1.5">
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">{{ stats.taxa_ocupacao_media }}%</span>
+                    <span class="text-xs text-slate-500 font-semibold">taxa de ocupação</span>
+                </div>
+                <!-- Barra de ocupação -->
+                <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden mt-1.5">
+                    <div class="bg-amber-500 h-full rounded-full transition-all duration-500" style="width: {{ stats.taxa_ocupacao_media }}%;"></div>
+                </div>
+                <div class="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 mt-2 border-t border-slate-100 dark:border-slate-800/50 pt-2">
+                    <span>Vagas livres:</span>
+                    <span class="font-semibold text-slate-800 dark:text-slate-200">{{ stats.vagas_totais_disponiveis }} restantes</span>
+                </div>
             </div>
         </div>
 
-        <!-- Qualidade -->
-        <div class="group relative flex flex-col p-5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 rounded-2xl shadow-sm hover:shadow-lg transition-all">
+        <!-- Cartão 4: Qualidade & Certificação -->
+        <div class="group relative flex flex-col p-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300">
             <div class="flex items-center justify-between mb-4">
-                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Qualidade</span>
-                <div class="flex items-center justify-center size-10 rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400 group-hover:scale-110 transition-transform">
+                <span class="text-sm font-semibold text-slate-500 dark:text-slate-400">Qualidade & Outorga</span>
+                <div class="flex items-center justify-center size-10 rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400 group-hover:scale-110 transition-transform duration-300">
                     <i class="ki-filled ki-medal-star text-xl"></i>
                 </div>
             </div>
-            <div class="flex items-baseline gap-2 mb-1">
-                <span class="text-3xl font-extrabold text-slate-800 dark:text-slate-100">{{ stats.avaliacao_media }}</span>
-                <span class="text-lg text-amber-400">★</span>
-                <span class="text-xs text-slate-500 font-semibold">/ 5.0</span>
-            </div>
-            <div class="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800/50 pt-2 mt-1">
-                <span>Certificados (mês):</span>
-                <span class="font-semibold text-slate-800 dark:text-slate-200">{{ stats.total_certificados_mes }}</span>
+            <div class="flex flex-col gap-1.5">
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">{{ stats.avaliacao_media }} <span class="text-lg text-amber-400">★</span></span>
+                    <span class="text-xs text-slate-500 font-semibold">reputação</span>
+                </div>
+                <div class="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 mt-2 border-t border-slate-100 dark:border-slate-800/50 pt-2">
+                    <span>Certificados (Mês):</span>
+                    <span class="font-semibold text-slate-800 dark:text-slate-200">{{ stats.total_certificados_mes }} outorgados</span>
+                </div>
             </div>
         </div>
+
     </div>
 
-    <!-- =========================================
-         ACÇÕES RÁPIDAS (atalhos visuais)
-         ========================================= -->
-    <div class="bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 rounded-2xl p-6 shadow-sm">
-        <h2 class="text-sm font-bold text-slate-800 dark:text-slate-100 mb-5 flex items-center gap-2">
-            <i class="ki-filled ki-lightning-5 text-indigo-500"></i>
-            Acções Rápidas
-        </h2>
-        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
-            <a href="{% url 'criar_curso' %}" class="flex flex-col items-center justify-center gap-2 p-4 bg-indigo-50 dark:bg-indigo-950/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded-xl border border-indigo-100 dark:border-indigo-900/30 transition-all group text-center">
-                <i class="ki-filled ki-plus text-xl text-indigo-600 group-hover:scale-110 transition-transform"></i>
-                <span class="text-[11px] font-semibold text-indigo-700 dark:text-indigo-300 leading-tight">Novo Curso</span>
-            </a>
-            <a href="{% url 'criar_estagio' %}" class="flex flex-col items-center justify-center gap-2 p-4 bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 rounded-xl border border-emerald-100 dark:border-emerald-900/30 transition-all group text-center">
-                <i class="ki-filled ki-briefcase text-xl text-emerald-600 group-hover:scale-110 transition-transform"></i>
-                <span class="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 leading-tight">Nova Vaga</span>
-            </a>
-            <a href="{% url 'criar_evento' %}" class="flex flex-col items-center justify-center gap-2 p-4 bg-purple-50 dark:bg-purple-950/30 hover:bg-purple-100 dark:hover:bg-purple-900/40 rounded-xl border border-purple-100 dark:border-purple-900/30 transition-all group text-center">
-                <i class="ki-filled ki-calendar text-xl text-purple-600 group-hover:scale-110 transition-transform"></i>
-                <span class="text-[11px] font-semibold text-purple-700 dark:text-purple-300 leading-tight">Evento</span>
-            </a>
-            <a href="{% url 'gerenciar_inscricoes' %}?status=P" class="flex flex-col items-center justify-center gap-2 p-4 bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-900/40 rounded-xl border border-amber-100 dark:border-amber-900/30 transition-all group text-center relative">
-                <i class="ki-filled ki-people text-xl text-amber-600 group-hover:scale-110 transition-transform"></i>
-                {% if stats.inscricoes_pendentes > 0 %}
-                <span class="absolute top-2.5 right-2.5 size-4 rounded-full bg-amber-500 text-[9px] font-bold text-white flex items-center justify-center">{{ stats.inscricoes_pendentes }}</span>
-                {% endif %}
-                <span class="text-[11px] font-semibold text-amber-700 dark:text-amber-300 leading-tight">Matrículas</span>
-            </a>
-            <a href="{% url 'gerenciar_turmas' %}" class="flex flex-col items-center justify-center gap-2 p-4 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl border border-slate-100 dark:border-slate-700 transition-all group text-center">
-                <i class="ki-filled ki-element-11 text-xl text-slate-600 dark:text-slate-300 group-hover:scale-110 transition-transform"></i>
-                <span class="text-[11px] font-semibold text-slate-700 dark:text-slate-300 leading-tight">Turmas</span>
-            </a>
-            <a href="{% url 'gerenciar_instrutores' %}" class="flex flex-col items-center justify-center gap-2 p-4 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl border border-slate-100 dark:border-slate-700 transition-all group text-center">
-                <i class="ki-filled ki-user-tick text-xl text-slate-600 dark:text-slate-300 group-hover:scale-110 transition-transform"></i>
-                <span class="text-[11px] font-semibold text-slate-700 dark:text-slate-300 leading-tight">Instrutores</span>
-            </a>
-            <a href="{% url 'gerenciar_financeiro' %}" class="flex flex-col items-center justify-center gap-2 p-4 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl border border-slate-100 dark:border-slate-700 transition-all group text-center">
-                <i class="ki-filled ki-wallet text-xl text-slate-600 dark:text-slate-300 group-hover:scale-110 transition-transform"></i>
-                <span class="text-[11px] font-semibold text-slate-700 dark:text-slate-300 leading-tight">Financeiro</span>
-            </a>
-            <a href="{% url 'analytics_centro' %}" class="flex flex-col items-center justify-center gap-2 p-4 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl border border-slate-100 dark:border-slate-700 transition-all group text-center">
-                <i class="ki-filled ki-chart-pie-4 text-xl text-slate-600 dark:text-slate-300 group-hover:scale-110 transition-transform"></i>
-                <span class="text-[11px] font-semibold text-slate-700 dark:text-slate-300 leading-tight">Analytics</span>
-            </a>
-        </div>
-    </div>
-
-    <!-- =========================================
-         GRÁFICO + PLANO (grid 3+1)
-         ========================================= -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Gráfico -->
+    <!-- Seção de Análise Visual e Métricas Mensais (Chart.js) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+        
+        <!-- Gráfico de Desempenho Mensal -->
         <div class="lg:col-span-2 flex flex-col p-6 bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 rounded-2xl shadow-sm">
             <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-800/50">
-                <div>
-                    <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base">Evolução Mensal</h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Matrículas e Faturamento nos últimos 6 meses</p>
+                <div class="flex flex-col gap-0.5">
+                    <h3 class="font-bold text-slate-850 dark:text-slate-100 text-base">Evolução Mensal</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Matrículas e Faturamento acumulados nos últimos 6 meses</p>
                 </div>
                 <div class="flex items-center gap-4 text-xs font-semibold">
-                    <span class="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
-                        <span class="size-2 rounded-full bg-indigo-500"></span> Inscrições
+                    <span class="flex items-center gap-1.5 text-slate-700 dark:text-slate-350">
+                        <span class="size-2 rounded-full bg-indigo-500"></span>
+                        Inscrições
                     </span>
-                    <span class="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
-                        <span class="size-2 rounded-full bg-emerald-500"></span> Faturamento
+                    <span class="flex items-center gap-1.5 text-slate-700 dark:text-slate-350">
+                        <span class="size-2 rounded-full bg-emerald-500"></span>
+                        Faturamento (Kz)
                     </span>
                 </div>
             </div>
-            <div class="relative w-full h-[280px]">
+            
+            <div class="relative w-full h-[320px]">
                 <canvas id="monthlyPerformanceChart"></canvas>
             </div>
         </div>
 
-        <!-- Resumo do Plano -->
-        <div class="flex flex-col p-6 bg-slate-900 text-white rounded-2xl shadow-sm relative overflow-hidden">
-            <div class="absolute right-[-20px] top-[-20px] size-40 rounded-full blur-3xl" style="background:rgba(99,102,241,0.3);"></div>
-            <div class="absolute left-[-20px] bottom-[-20px] size-32 rounded-full blur-2xl" style="background:rgba(16,185,129,0.2);"></div>
-            <div class="flex items-center justify-between mb-5 relative">
-                <div>
-                    <span class="text-xs font-medium uppercase tracking-wider text-slate-400">Assinatura Ativa</span>
-                    <h4 class="font-bold text-lg mt-0.5 text-white">{{ assinatura.plano.nome|default:"Plano de Entrada" }}</h4>
-                </div>
-                <span class="px-2.5 py-1 text-[10px] font-bold rounded bg-indigo-500/20 text-indigo-300 border border-indigo-400/20">PRO</span>
-            </div>
-            <div class="flex flex-col gap-4 relative">
-                <div>
-                    <div class="flex justify-between text-xs font-semibold mb-1.5">
-                        <span class="text-slate-300">Cursos Publicados</span>
-                        <span class="text-white font-bold">{{ stats.total_cursos }} / {{ stats.limite_cursos }}</span>
+        <!-- Informações Adicionais e Ações do Plano -->
+        <div class="flex flex-col gap-6">
+            
+            <!-- Resumo do Plano de Serviços -->
+            <div class="flex flex-col p-6 bg-slate-900 text-white rounded-2xl shadow-sm relative overflow-hidden">
+                <div class="absolute right-[-20px] top-[-20px] size-40 bg-indigo-600/30 rounded-full blur-3xl"></div>
+                <div class="absolute left-[-20px] bottom-[-20px] size-32 bg-emerald-600/20 rounded-full blur-2xl"></div>
+                
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex flex-col">
+                        <span class="text-xs font-medium uppercase tracking-wider text-slate-400">Status de Assinatura</span>
+                        <h4 class="font-bold text-lg mt-0.5 text-white">{{ assinatura.plano.nome|default:"Plano de Entrada" }}</h4>
                     </div>
-                    <div class="w-full bg-white/10 h-2 rounded-full overflow-hidden">
-                        <div class="bg-indigo-400 h-full rounded-full transition-all duration-700" style="width: {{ stats.percentual_cursos }}%;"></div>
-                    </div>
+                    <span class="px-2.5 py-1 text-[10px] font-bold rounded bg-indigo-500/20 text-indigo-300 border border-indigo-400/20">PRO</span>
                 </div>
-                <div class="flex items-center justify-between text-xs text-slate-300 pt-3 border-t border-white/10">
-                    <span>Seguidores no Portal</span>
-                    <span class="font-bold text-white flex items-center gap-1">
-                        <i class="ki-filled ki-people text-sm"></i> {{ stats.total_seguidores }}
-                    </span>
-                </div>
-                <div class="flex items-center justify-between text-xs text-slate-300">
-                    <span>Estágios Ativos</span>
-                    <span class="font-bold text-white flex items-center gap-1">
-                        <i class="ki-filled ki-briefcase text-sm"></i> {{ estagios_ativos }}
-                    </span>
-                </div>
-            </div>
-            <div class="mt-6 relative">
-                <a href="{% url 'gerenciar_assinatura' %}" class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-bold text-slate-900 bg-white hover:bg-slate-100 rounded-xl transition-colors shadow-sm">
-                    Gerenciar Assinatura <i class="ki-filled ki-setting-3"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- =========================================
-         GALERIA DE IMAGENS
-         ========================================= -->
-    {% if galeria_imagens %}
-    <div class="bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 rounded-2xl p-6 shadow-sm">
-        <div class="flex items-center justify-between mb-5">
-            <div>
-                <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2">
-                    <i class="ki-filled ki-picture text-purple-500"></i> Galeria do Centro
-                </h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Imagens das instalações, laboratórios e eventos</p>
-            </div>
-            <a href="{% url 'configuracao_gestor' %}" class="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">
-                <i class="ki-filled ki-pencil"></i> Gerir
-            </a>
-        </div>
-        <style>
-            .no-scrollbar::-webkit-scrollbar { display: none; }
-            .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        </style>
-        <div class="flex overflow-x-auto gap-4 pb-2 no-scrollbar snap-x snap-mandatory">
-            {% for img in galeria_imagens %}
-            <div class="snap-start shrink-0 w-52 h-36 rounded-xl overflow-hidden relative group border border-slate-100 dark:border-slate-800 hover:shadow-xl transition-all duration-300">
-                <img src="{{ img.imagem.url }}" alt="{{ img.titulo }}"
-                     class="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent p-3 flex flex-col justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-                    <p class="text-white text-xs font-semibold truncate">{{ img.titulo|default:"Sem título" }}</p>
-                    <span class="inline-flex items-center mt-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-white/20 text-white">{{ img.get_categoria_display }}</span>
-                </div>
-            </div>
-            {% endfor %}
-            <div class="snap-start shrink-0 w-40 h-36 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center gap-2 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all cursor-pointer"
-                 onclick="window.location.href='{% url 'configuracao_gestor' %}'">
-                <i class="ki-filled ki-plus text-slate-400 text-xl"></i>
-                <p class="text-xs text-slate-500 font-semibold">Adicionar Foto</p>
-            </div>
-        </div>
-    </div>
-    {% else %}
-    <!-- CTA Galeria Vazia -->
-    <div class="bg-white dark:bg-slate-900 border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl p-8 text-center shadow-sm">
-        <div class="size-14 rounded-full bg-purple-50 dark:bg-purple-950/30 flex items-center justify-center mx-auto mb-3">
-            <i class="ki-filled ki-picture text-purple-500 text-2xl"></i>
-        </div>
-        <h3 class="font-bold text-slate-800 dark:text-slate-100 mb-1">Adicione Fotos à Galeria</h3>
-        <p class="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-4">
-            As fotos das instalações, laboratórios e eventos tornam o perfil muito mais atrativo para estudantes.
-        </p>
-        <a href="{% url 'configuracao_gestor' %}"
-           class="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-600 text-white font-semibold text-sm rounded-xl hover:bg-purple-700 transition-colors shadow-sm shadow-purple-200 dark:shadow-none">
-            <i class="ki-filled ki-plus"></i> Adicionar Primeiras Fotos
-        </a>
-    </div>
-    {% endif %}
-
-    <!-- =========================================
-         VÍDEOS / REELS (se houver)
-         ========================================= -->
-    {% if reels %}
-    <div class="bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 rounded-2xl p-6 shadow-sm">
-        <div class="flex items-center justify-between mb-5">
-            <div>
-                <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2">
-                    <i class="ki-filled ki-film text-rose-500"></i> Vídeos e Reels
-                </h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Conteúdo em vídeo para atrair mais estudantes</p>
-            </div>
-            <a href="{% url 'configuracao_gestor' %}" class="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400">
-                <i class="ki-filled ki-plus"></i> Adicionar
-            </a>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {% for reel in reels %}
-            <div class="relative rounded-xl overflow-hidden group border border-slate-100 dark:border-slate-800 hover:shadow-xl transition-all" style="aspect-ratio:9/16;max-height:280px;">
-                {% if reel.thumbnail %}
-                <img src="{{ reel.thumbnail.url }}" alt="{{ reel.titulo }}" class="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500">
-                {% else %}
-                <div class="w-full h-full bg-gradient-to-b from-slate-800 to-slate-900 flex items-center justify-center">
-                    <i class="ki-filled ki-film text-slate-500 text-4xl"></i>
-                </div>
-                {% endif %}
-                <!-- Overlay -->
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-3">
-                    <!-- Play Button -->
-                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-70 group-hover:opacity-100 transition-opacity">
-                        <div class="size-12 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center">
-                            <i class="ki-filled ki-to-right text-white text-xl ml-0.5"></i>
+                
+                <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <div class="flex justify-between text-xs font-semibold">
+                            <span class="text-slate-300">Cursos Publicados:</span>
+                            <span class="text-white font-bold">{{ stats.total_cursos }} / {{ stats.limite_cursos }}</span>
+                        </div>
+                        <div class="w-full bg-white/10 h-2 rounded-full overflow-hidden">
+                            <div class="bg-indigo-400 h-full" style="width: {{ stats.percentual_cursos }}%;"></div>
                         </div>
                     </div>
-                    <p class="text-white text-xs font-bold truncate">{{ reel.titulo }}</p>
-                    <div class="flex items-center gap-3 mt-1">
-                        <span class="flex items-center gap-1 text-white/70 text-[10px]">
-                            <i class="ki-filled ki-eye text-[9px]"></i> {{ reel.visualizacoes }}
+                    
+                    <div class="flex items-center justify-between text-xs text-slate-300 pt-2 border-t border-white/10">
+                        <span>Seguidores no Portal:</span>
+                        <span class="font-bold text-white flex items-center gap-1">
+                            <i class="ki-filled ki-people text-sm"></i>
+                            {{ stats.total_seguidores }}
                         </span>
-                        <span class="flex items-center gap-1 text-white/70 text-[10px]">
-                            <i class="ki-filled ki-heart text-[9px]"></i> {{ reel.curtidas }}
-                        </span>
-                        {% if reel.destaque %}
-                        <span class="ml-auto px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500 text-white">★ Destaque</span>
-                        {% endif %}
                     </div>
                 </div>
+
+                <div class="mt-6">
+                    <a href="{% url 'gerenciar_assinatura' %}" class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-bold text-slate-900 bg-white hover:bg-slate-100 rounded-xl transition-colors shadow-sm">
+                        <span>Gerenciar Assinatura</span>
+                        <i class="ki-filled ki-setting-3"></i>
+                    </a>
+                </div>
             </div>
-            {% endfor %}
+
+            <!-- Comunidade & Links Rápidos -->
+            <div class="flex flex-col p-6 bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 rounded-2xl shadow-sm">
+                <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm mb-4">Módulos Estratégicos</h3>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <a href="{% url 'gerenciar_financeiro' %}" class="flex flex-col items-center justify-center p-3 bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-800 transition-colors text-center">
+                        <i class="ki-filled ki-wallet text-xl text-emerald-500 mb-1.5"></i>
+                        <span class="text-xs font-semibold text-slate-700 dark:text-slate-350">Financeiro</span>
+                    </a>
+                    
+                    <a href="{% url 'chat_centro' %}" class="flex flex-col items-center justify-center p-3 bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-800 transition-colors text-center">
+                        <i class="ki-filled ki-messages text-xl text-indigo-500 mb-1.5"></i>
+                        <span class="text-xs font-semibold text-slate-700 dark:text-slate-350">Comunicação</span>
+                    </a>
+                    
+                    <a href="{% url 'gerenciar_comentarios' %}" class="flex flex-col items-center justify-center p-3 bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-800 transition-colors text-center">
+                        <i class="ki-filled ki-message-question text-xl text-amber-500 mb-1.5"></i>
+                        <span class="text-xs font-semibold text-slate-700 dark:text-slate-350">Dúvidas</span>
+                    </a>
+                    
+                    <a href="{% url 'analytics_centro' %}" class="flex flex-col items-center justify-center p-3 bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-800 transition-colors text-center">
+                        <i class="ki-filled ki-chart-pie-4 text-xl text-rose-500 mb-1.5"></i>
+                        <span class="text-xs font-semibold text-slate-700 dark:text-slate-350">Métricas</span>
+                    </a>
+                </div>
+            </div>
+
         </div>
+
     </div>
-    {% endif %}
 
-    <!-- =========================================
-         CURSOS POPULARES + ESTÁGIOS (grid 2 colunas)
-         ========================================= -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
+    <!-- Cursos Populares & Inscrições Recentes -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+        
         <!-- Cursos Populares -->
         <div class="flex flex-col bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 rounded-2xl shadow-sm overflow-hidden">
-            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/50 px-6 py-4">
-                <div>
-                    <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2">
-                        <i class="ki-filled ki-book-open text-indigo-500"></i> Cursos Populares
-                    </h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Líderes em matrículas confirmadas</p>
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/50 px-6 py-5">
+                <div class="flex flex-col gap-0.5">
+                    <h3 class="font-bold text-slate-850 dark:text-slate-100 text-base">Cursos Populares</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Os cursos líderes em matrículas confirmadas</p>
                 </div>
-                <a href="{% url 'listar_cursos' %}" class="text-xs font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400">Ver Todos</a>
+                <a href="{% url 'listar_cursos' %}" class="text-xs font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">Ver Todos</a>
             </div>
+            
             <div class="flex flex-col divide-y divide-slate-100 dark:divide-slate-800/50">
                 {% for curso in cursos_populares %}
-                <div class="flex items-center justify-between p-4 hover:bg-slate-50/50 dark:hover:bg-slate-850/50 transition-colors">
-                    <div class="flex items-center gap-3">
-                        <div class="size-12 shrink-0 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden flex items-center justify-center shadow-sm">
+                <div class="flex items-center justify-between p-5 hover:bg-slate-50/50 dark:hover:bg-slate-850/50 transition-colors duration-200">
+                    <div class="flex items-center gap-4">
+                        <div class="size-[48px] shrink-0 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm flex items-center justify-center">
                             {% if curso.imagem_destaque %}
-                            <img src="{{ curso.imagem_destaque.url }}" alt="{{ curso.titulo }}" class="size-full object-cover">
+                                <img src="{{ curso.imagem_destaque.url }}" alt="{{ curso.titulo }}" class="size-full object-cover">
                             {% else %}
-                            <i class="ki-filled ki-book-open text-xl text-slate-400"></i>
+                                <i class="ki-filled ki-book-open text-xl text-slate-400"></i>
                             {% endif %}
                         </div>
-                        <div>
-                            <a href="{% url 'curso_overview' curso.id %}" class="text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-indigo-600 transition-colors block">{{ curso.titulo|truncatechars:32 }}</a>
-                            <span class="text-xs text-slate-500">{{ curso.categoria.nome }}</span>
+                        <div class="flex flex-col gap-0.5">
+                            <a href="{% url 'curso_overview' curso.id %}" class="text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-indigo-650 transition-colors">{{ curso.titulo }}</a>
+                            <span class="text-xs text-slate-500 dark:text-slate-450">{{ curso.categoria.nome }}</span>
                         </div>
                     </div>
+                    
                     <div class="flex flex-col items-end gap-1">
-                        <span class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ curso.num_alunos }} <span class="text-xs font-normal text-slate-500">alunos</span></span>
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold
+                        <span class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ curso.num_alunos }} Matrículas</span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold 
                             {% if curso.ativo %}bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400
-                            {% else %}bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400{% endif %}">
+                            {% else %}bg-amber-50 text-amber-605 dark:bg-amber-950/30 dark:text-amber-400{% endif %}">
                             {% if curso.ativo %}Ativo{% else %}Rascunho{% endif %}
                         </span>
                     </div>
                 </div>
                 {% empty %}
-                <div class="p-8 text-center flex flex-col items-center gap-3">
+                <div class="p-8 text-center text-sm text-slate-500 dark:text-slate-400 flex flex-col items-center justify-center gap-2">
                     <i class="ki-filled ki-book-open text-3xl text-slate-300"></i>
-                    <p class="text-sm text-slate-500">Nenhum curso cadastrado ainda.</p>
-                    <a href="{% url 'criar_curso' %}" class="inline-flex items-center gap-1 px-4 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-lg hover:bg-indigo-700 transition-colors">
-                        <i class="ki-filled ki-plus"></i> Criar Primeiro Curso
-                    </a>
+                    <span>Nenhum curso popular cadastrado ou com inscrições no momento.</span>
                 </div>
                 {% endfor %}
             </div>
         </div>
 
-        <!-- Estágios Recentes -->
+        <!-- Inscrições Recentes -->
         <div class="flex flex-col bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 rounded-2xl shadow-sm overflow-hidden">
-            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/50 px-6 py-4">
-                <div>
-                    <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2">
-                        <i class="ki-filled ki-briefcase text-emerald-500"></i> Vagas de Estágio
-                    </h3>
-                    <p class="text-xs text-slate-500 mt-0.5">
-                        <span class="font-bold text-emerald-600">{{ estagios_ativos }}</span> ativas de {{ total_estagios }} total
-                    </p>
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/50 px-6 py-5">
+                <div class="flex flex-col gap-0.5">
+                    <h3 class="font-bold text-slate-850 dark:text-slate-100 text-base">Inscrições Recentes</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Atividades de matrículas recentes no centro</p>
                 </div>
-                <div class="flex items-center gap-2">
-                    <a href="{% url 'criar_estagio' %}" class="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400">
-                        <i class="ki-filled ki-plus"></i> Nova
-                    </a>
-                    <span class="text-slate-300 dark:text-slate-700">|</span>
-                    <a href="{% url 'gerenciar_estagios' %}" class="text-xs font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400">Ver Todas</a>
-                </div>
+                <a href="{% url 'gerenciar_inscricoes' %}" class="text-xs font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">Ver Todas</a>
             </div>
-            <div class="flex flex-col divide-y divide-slate-100 dark:divide-slate-800/50">
-                {% for estagio in estagios_recentes %}
-                <div class="p-4 hover:bg-slate-50/50 dark:hover:bg-slate-850/50 transition-colors">
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="flex items-center gap-3">
-                            <div class="size-10 shrink-0 rounded-xl flex items-center justify-center text-lg font-bold text-white shadow-sm"
-                                 style="background:linear-gradient(135deg,#059669,#047857);">
-                                <i class="ki-filled ki-briefcase text-sm"></i>
-                            </div>
-                            <div>
-                                <a href="{% url 'editar_estagio' estagio.id %}" class="text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-emerald-600 transition-colors block">{{ estagio.titulo|truncatechars:35 }}</a>
-                                <div class="flex items-center gap-2 mt-0.5">
-                                    {% if estagio.cidade %}
-                                    <span class="text-xs text-slate-500">{{ estagio.cidade }}{% if estagio.provincia %}, {{ estagio.provincia }}{% endif %}</span>
-                                    {% endif %}
-                                    {% if estagio.modalidade %}
-                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">{{ estagio.modalidade }}</span>
-                                    {% endif %}
+            
+            <div class="overflow-x-auto">
+                <table class="table-auto w-full text-left text-sm whitespace-nowrap">
+                    <thead class="bg-slate-50/50 dark:bg-slate-850/50 text-xs font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800/50">
+                        <tr>
+                            <th class="px-6 py-3 font-semibold">Estudante</th>
+                            <th class="px-6 py-3 font-semibold">Formação</th>
+                            <th class="px-6 py-3 font-semibold">Data</th>
+                            <th class="px-6 py-3 font-semibold text-right">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800/50">
+                        {% for inscricao in recent_enrollments %}
+                        <tr class="hover:bg-slate-50/30 dark:hover:bg-slate-850/30 transition-colors duration-155">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="size-8 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-xs uppercase shadow-inner">
+                                        {{ inscricao.aluno.usuario.nome|slice:":2" }}
+                                    </div>
+                                    <div class="flex flex-col gap-0.5">
+                                        <span class="text-sm font-bold text-slate-800 dark:text-slate-200 leading-none">{{ inscricao.aluno.usuario.nome }}</span>
+                                        <span class="text-2xs text-slate-500 dark:text-slate-450 leading-none">{{ inscricao.aluno.usuario.email }}</span>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="shrink-0">
-                            {% if estagio.ativo %}
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30">
-                                <span class="size-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Aberta
-                            </span>
-                            {% else %}
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400">
-                                Fechada
-                            </span>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% if estagio.data_limite_inscricao %}
-                    <p class="text-[11px] text-slate-400 mt-2 flex items-center gap-1" style="margin-left:52px;">
-                        <i class="ki-filled ki-calendar text-[10px]"></i>
-                        Prazo: {{ estagio.data_limite_inscricao|date:"d/m/Y" }}
-                    </p>
-                    {% endif %}
-                </div>
-                {% empty %}
-                <div class="p-8 text-center flex flex-col items-center gap-3">
-                    <i class="ki-filled ki-briefcase text-3xl text-slate-300"></i>
-                    <p class="text-sm text-slate-500">Nenhuma vaga de estágio publicada ainda.</p>
-                    <a href="{% url 'criar_estagio' %}" class="inline-flex items-center gap-1 px-4 py-2 bg-emerald-600 text-white text-xs font-semibold rounded-lg hover:bg-emerald-700 transition-colors">
-                        <i class="ki-filled ki-plus"></i> Publicar Primeira Vaga
-                    </a>
-                </div>
-                {% endfor %}
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-xs font-medium text-slate-700 dark:text-slate-300">{{ inscricao.curso.titulo }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-xs text-slate-500 dark:text-slate-400">{{ inscricao.data_inscricao|date:"d/m/Y H:i" }}</span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                {% if inscricao.status == 'A' %}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 text-2xs font-bold rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30">
+                                    <span class="size-1 bg-emerald-500 rounded-full"></span>
+                                    Ativa
+                                </span>
+                                {% elif inscricao.status == 'P' %}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 text-2xs font-bold rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30 animate-pulse">
+                                    <span class="size-1 bg-amber-500 rounded-full"></span>
+                                    Pendente
+                                </span>
+                                {% elif inscricao.status == 'C' %}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 text-2xs font-bold rounded-full bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30">
+                                    <span class="size-1 bg-rose-500 rounded-full"></span>
+                                    Cancelada
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 text-2xs font-bold rounded-full bg-slate-50 text-slate-700 dark:bg-slate-900/40 dark:text-slate-400 border border-slate-205 dark:border-slate-800/30">
+                                    <span class="size-1 bg-slate-400 rounded-full"></span>
+                                    Rejeitada
+                                </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="px-6 py-10 text-center text-sm text-slate-500 dark:text-slate-400">
+                                <div class="flex flex-col items-center justify-center gap-2">
+                                    <i class="ki-filled ki-people text-3xl text-slate-350"></i>
+                                    <span>Nenhuma inscrição recebida no momento.</span>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
-    </div>
 
-    <!-- =========================================
-         INSCRIÇÕES RECENTES
-         ========================================= -->
-    <div class="flex flex-col bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 rounded-2xl shadow-sm overflow-hidden">
-        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/50 px-6 py-4">
-            <div>
-                <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base flex items-center gap-2">
-                    <i class="ki-filled ki-people text-blue-500"></i> Matrículas Recentes
-                </h3>
-                <p class="text-xs text-slate-500 mt-0.5">Últimas atividades de inscrição no centro</p>
-            </div>
-            <a href="{% url 'gerenciar_inscricoes' %}" class="text-xs font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400">Ver Todas</a>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="table-auto w-full text-left text-sm whitespace-nowrap">
-                <thead class="bg-slate-50/50 dark:bg-slate-850/50 text-xs font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800/50">
-                    <tr>
-                        <th class="px-6 py-3 font-semibold">Estudante</th>
-                        <th class="px-6 py-3 font-semibold">Formação</th>
-                        <th class="px-6 py-3 font-semibold hidden md:table-cell">Data</th>
-                        <th class="px-6 py-3 font-semibold text-right">Status</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 dark:divide-slate-800/50">
-                    {% for inscricao in recent_enrollments %}
-                    <tr class="hover:bg-slate-50/30 dark:hover:bg-slate-850/30 transition-colors">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="size-8 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-xs uppercase">
-                                    {{ inscricao.aluno.usuario.nome|slice:":2" }}
-                                </div>
-                                <div>
-                                    <span class="text-sm font-bold text-slate-800 dark:text-slate-200 block leading-none">{{ inscricao.aluno.usuario.nome }}</span>
-                                    <span class="text-[11px] text-slate-500 dark:text-slate-400 leading-none">{{ inscricao.aluno.usuario.email }}</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="text-xs font-medium text-slate-700 dark:text-slate-300">{{ inscricao.curso.titulo|truncatechars:30 }}</span>
-                        </td>
-                        <td class="px-6 py-4 hidden md:table-cell">
-                            <span class="text-xs text-slate-500">{{ inscricao.data_inscricao|date:"d/m/Y H:i" }}</span>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            {% if inscricao.status == 'A' %}
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30">
-                                <span class="size-1 bg-emerald-500 rounded-full"></span> Ativa
-                            </span>
-                            {% elif inscricao.status == 'P' %}
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30 animate-pulse">
-                                <span class="size-1 bg-amber-500 rounded-full"></span> Pendente
-                            </span>
-                            {% elif inscricao.status == 'C' %}
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold rounded-full bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30">
-                                <span class="size-1 bg-rose-500 rounded-full"></span> Cancelada
-                            </span>
-                            {% else %}
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
-                                <span class="size-1 bg-slate-400 rounded-full"></span> Rejeitada
-                            </span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="4" class="px-6 py-10 text-center">
-                            <div class="flex flex-col items-center justify-center gap-2">
-                                <i class="ki-filled ki-people text-3xl text-slate-300"></i>
-                                <span class="text-sm text-slate-500">Nenhuma inscrição recebida ainda.</span>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
     </div>
 
 </div>
 {% endblock content %}
 
 {% block extra_js %}
+<!-- Importação do Chart.js via CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        // Obter os dados do gráfico injetados via Django views
         const dadosRaw = '{{ dados_grafico|safe }}';
         let dados = [];
-        try { dados = JSON.parse(dadosRaw); } catch (e) {}
+        try {
+            dados = JSON.parse(dadosRaw);
+        } catch (e) {
+            console.error("Erro ao analisar dados do gráfico:", e);
+        }
 
+        // Mapear dados para as listas do gráfico
         const labels = dados.map(item => item.mes);
         const inscricoesData = dados.map(item => item.inscricoes);
         const receitaData = dados.map(item => item.receita);
 
+        // Estilos para suportar Light/Dark mode
         const isDark = document.documentElement.classList.contains("dark");
         const gridColor = isDark ? "rgba(71, 85, 105, 0.15)" : "rgba(226, 232, 240, 0.6)";
-        const textColor = isDark ? "#94a3b8" : "#64748b";
+        const textMutedColor = isDark ? "#94a3b8" : "#64748b";
 
         const ctx = document.getElementById('monthlyPerformanceChart').getContext('2d');
-        const gradInscs = ctx.createLinearGradient(0, 0, 0, 280);
-        gradInscs.addColorStop(0, 'rgba(99, 102, 241, 0.25)');
-        gradInscs.addColorStop(1, 'rgba(99, 102, 241, 0.01)');
-        const gradRev = ctx.createLinearGradient(0, 0, 0, 280);
-        gradRev.addColorStop(0, 'rgba(16, 185, 129, 0.25)');
-        gradRev.addColorStop(1, 'rgba(16, 185, 129, 0.01)');
+        
+        // Criar gradientes para preenchimento
+        const gradientInscs = ctx.createLinearGradient(0, 0, 0, 300);
+        gradientInscs.addColorStop(0, 'rgba(99, 102, 241, 0.25)');
+        gradientInscs.addColorStop(1, 'rgba(99, 102, 241, 0.01)');
+
+        const gradientRev = ctx.createLinearGradient(0, 0, 0, 300);
+        gradientRev.addColorStop(0, 'rgba(16, 185, 129, 0.25)');
+        gradientRev.addColorStop(1, 'rgba(16, 185, 129, 0.01)');
 
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels,
+                labels: labels,
                 datasets: [
                     {
                         label: 'Inscrições',
                         data: inscricoesData,
                         borderColor: '#6366f1',
-                        borderWidth: 2.5,
-                        backgroundColor: gradInscs,
+                        borderWidth: 3,
+                        backgroundColor: gradientInscs,
                         fill: true,
                         tension: 0.35,
                         pointBackgroundColor: '#6366f1',
-                        pointRadius: 4,
                         pointHoverRadius: 7,
                         yAxisID: 'y'
                     },
@@ -716,12 +487,11 @@
                         label: 'Faturamento (Kz)',
                         data: receitaData,
                         borderColor: '#10b981',
-                        borderWidth: 2.5,
-                        backgroundColor: gradRev,
+                        borderWidth: 3,
+                        backgroundColor: gradientRev,
                         fill: true,
                         tension: 0.35,
                         pointBackgroundColor: '#10b981',
-                        pointRadius: 4,
                         pointHoverRadius: 7,
                         yAxisID: 'y1'
                     }
@@ -731,22 +501,27 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false },
+                    legend: {
+                        display: false
+                    },
                     tooltip: {
                         padding: 12,
                         backgroundColor: isDark ? '#1e293b' : '#ffffff',
                         titleColor: isDark ? '#f1f5f9' : '#0f172a',
                         bodyColor: isDark ? '#94a3b8' : '#334155',
-                        borderColor: isDark ? 'rgba(71,85,105,0.3)' : 'rgba(226,232,240,0.8)',
+                        borderColor: isDark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(226, 232, 240, 0.8)',
                         borderWidth: 1,
                         usePointStyle: true,
                         callbacks: {
-                            label: function(ctx) {
-                                let label = ctx.dataset.label + ': ';
-                                if (ctx.datasetIndex === 1) {
-                                    label += new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA' }).format(ctx.raw).replace("AOA","Kz");
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.datasetIndex === 1) {
+                                    label += new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA' }).format(context.raw).replace("AOA", "Kz");
                                 } else {
-                                    label += ctx.raw + " matrículas";
+                                    label += context.raw + " matrículas";
                                 }
                                 return label;
                             }
@@ -754,18 +529,57 @@
                     }
                 },
                 scales: {
-                    x: { grid: { display: false }, ticks: { color: textColor, font: { family: 'Inter', size: 11 } } },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: textMutedColor,
+                            font: {
+                                family: 'Inter',
+                                size: 11,
+                                weight: '500'
+                            }
+                        }
+                    },
                     y: {
-                        type: 'linear', display: true, position: 'left',
-                        grid: { color: gridColor },
-                        ticks: { color: textColor, font: { family: 'Inter', size: 11 }, stepSize: 1 }
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        grid: {
+                            color: gridColor,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: textMutedColor,
+                            font: {
+                                family: 'Inter',
+                                size: 11
+                            },
+                            stepSize: 1
+                        }
                     },
                     y1: {
-                        type: 'linear', display: true, position: 'right',
-                        grid: { drawOnChartArea: false },
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        grid: {
+                            drawOnChartArea: false
+                        },
                         ticks: {
-                            color: textColor, font: { family: 'Inter', size: 11 },
-                            callback: v => v >= 1000000 ? (v/1000000).toFixed(1)+'M Kz' : v >= 1000 ? (v/1000).toFixed(0)+'k Kz' : v+' Kz'
+                            color: textMutedColor,
+                            font: {
+                                family: 'Inter',
+                                size: 11
+                            },
+                            callback: function(value) {
+                                if (value >= 1000000) {
+                                    return (value / 1000000).toFixed(1) + 'M Kz';
+                                } else if (value >= 1000) {
+                                    return (value / 1000).toFixed(0) + 'k Kz';
+                                }
+                                return value + ' Kz';
+                            }
                         }
                     }
                 }
@@ -774,3 +588,4 @@
     });
 </script>
 {% endblock extra_js %}
+
