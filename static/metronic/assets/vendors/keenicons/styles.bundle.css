@@ -1,9 +1,9 @@
 @font-face {
   font-family: 'keenicons-duotone';
   src:
-    url('fonts/keenicons-duotone.ttf%3Fgcn9yo') format('truetype'),
-    url('fonts/keenicons-duotone.woff%3Fgcn9yo') format('woff'),
-    url('fonts/keenicons-duotone.svg%3Fgcn9yo') format('svg');
+    url('fonts/keenicons-duotone.ttf?gcn9yo') format('truetype'),
+    url('fonts/keenicons-duotone.woff?gcn9yo') format('woff'),
+    url('fonts/keenicons-duotone.svg?gcn9yo') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -5467,9 +5467,9 @@
 @font-face {
   font-family: 'keenicons-filled';
   src:
-    url('fonts/keenicons-filled.ttf%3Fnz57rx') format('truetype'),
-    url('fonts/keenicons-filled.woff%3Fnz57rx') format('woff'),
-    url('fonts/keenicons-filled.svg%3Fnz57rx') format('svg');
+    url('fonts/keenicons-filled.ttf?nz57rx') format('truetype'),
+    url('fonts/keenicons-filled.woff?nz57rx') format('woff'),
+    url('fonts/keenicons-filled.svg?nz57rx') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -10744,9 +10744,9 @@
 @font-face {
   font-family: 'keenicons-outline';
   src:
-    url('fonts/keenicons-outline.ttf%3F3m7u3e') format('truetype'),
-    url('fonts/keenicons-outline.woff%3F3m7u3e') format('woff'),
-    url('fonts/keenicons-outline.svg%3F3m7u3e') format('svg');
+    url('fonts/keenicons-outline.ttf?3m7u3e') format('truetype'),
+    url('fonts/keenicons-outline.woff?3m7u3e') format('woff'),
+    url('fonts/keenicons-outline.svg?3m7u3e') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -12466,9 +12466,9 @@
 @font-face {
   font-family: 'keenicons-solid';
   src:
-    url('fonts/keenicons-solid.ttf%3Fm54ea1') format('truetype'),
-    url('fonts/keenicons-solid.woff%3Fm54ea1') format('woff'),
-    url('fonts/keenicons-solid.svg%3Fm54ea1') format('svg');
+    url('fonts/keenicons-solid.ttf?m54ea1') format('truetype'),
+    url('fonts/keenicons-solid.woff?m54ea1') format('woff'),
+    url('fonts/keenicons-solid.svg?m54ea1') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
