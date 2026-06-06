@@ -259,12 +259,23 @@
         </div>
         <div class="flex flex-col gap-1.5">
           <label class="text-sm font-medium text-mono">Curso</label>
-          <select name="curso_id" class="kt-select" required>
-            <option value="">Selecionar curso...</option>
+          <select name="curso_id" id="curso_select" class="kt-select" required onchange="atualizarPreco()">
+            <option value="" data-preco="0.00">Selecionar curso...</option>
             {% for curso in cursos_ativos %}
-              <option value="{{ curso.id }}">{{ curso.titulo }}</option>
+              <option value="{{ curso.id }}" data-preco="{{ curso.preco_atual|stringformat:'f' }}">{{ curso.titulo }}</option>
             {% endfor %}
           </select>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium text-mono">Forma de Pagamento</label>
+          <select name="forma_pagamento" class="kt-select" required>
+            <option value="DINHEIRO">Dinheiro (Pagamento Manual/Offline)</option>
+            <option value="PRONTU">Prontu (Gerar Link de Pagamento)</option>
+          </select>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium text-mono">Valor a Cobrar (Kz)</label>
+          <input type="number" step="0.01" name="valor_pago" id="valor_pago" class="kt-input" placeholder="0.00" required>
         </div>
       </div>
       <div class="kt-card-footer px-5 py-4 border-t border-border flex items-center justify-end gap-3">
@@ -280,6 +291,12 @@
 </div>
 
 <script>
+  function atualizarPreco() {
+    var select = document.getElementById('curso_select');
+    var preco = select.options[select.selectedIndex].getAttribute('data-preco');
+    document.getElementById('valor_pago').value = preco;
+  }
+
   // Pesquisa rápida na tabela
   document.getElementById('searchInput').addEventListener('input', function() {
     const query = this.value.toLowerCase();
@@ -289,5 +306,44 @@
       row.style.display = text.includes(query) ? '' : 'none';
     });
   });
+
+  function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+      alert("Link copiado para a área de transferência!");
+    }, function(err) {
+      console.error('Erro ao copiar texto: ', err);
+    });
+  }
 </script>
+
+{% if prontu_payment_link %}
+<!-- Modal Link de Pagamento Prontu -->
+<div id="modal_prontu_link" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+  <div class="kt-card w-full max-w-md mx-4">
+    <div class="kt-card-header px-5 py-4 border-b border-border flex items-center justify-between">
+      <h3 class="text-base font-semibold text-mono text-primary">Pagamento Pendente Gerado</h3>
+      <button class="kt-btn kt-btn-icon kt-btn-ghost kt-btn-sm"
+              onclick="document.getElementById('modal_prontu_link').classList.add('hidden')">
+        <i class="ki-filled ki-cross text-base"></i>
+      </button>
+    </div>
+    <div class="kt-card-body px-5 py-5 flex flex-col gap-4 text-center">
+      <div class="mx-auto size-16 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+        <i class="ki-filled ki-wallet text-3xl text-primary"></i>
+      </div>
+      <p class="text-sm text-muted-foreground">O link de pagamento foi gerado com sucesso. Pode partilhá-lo com o aluno para que ele efectue o pagamento.</p>
+      
+      <div class="p-3 bg-secondary/30 rounded-lg border border-border flex items-center justify-between gap-2 mt-2">
+        <input type="text" readonly class="kt-input flex-1 bg-transparent border-0 focus:ring-0 text-sm" value="{{ prontu_payment_link }}">
+        <button class="kt-btn kt-btn-primary kt-btn-sm shrink-0" onclick="copyToClipboard('{{ prontu_payment_link }}')">
+          <i class="ki-filled ki-copy text-sm"></i> Copiar
+        </button>
+      </div>
+    </div>
+    <div class="kt-card-footer px-5 py-4 border-t border-border flex justify-end">
+      <button class="kt-btn kt-btn-outline kt-btn-sm" onclick="document.getElementById('modal_prontu_link').classList.add('hidden')">Fechar</button>
+    </div>
+  </div>
+</div>
+{% endif %}
 {% endblock %}

@@ -73,75 +73,100 @@
     </script>
 
     <!-- Page Content -->
-    <div class="flex justify-center items-center grow bg-background">
-        <!-- Form Side -->
-        <div class="flex justify-center items-center p-8 lg:p-10 bg-background">
-            <div class="kt-card max-w-[370px] w-full shadow-none lg:shadow-none border-none">
-                <form action="{% url 'login_gestor' %}" method="POST" class="kt-card-content flex flex-col gap-5 p-0" id="sign_in_form">
+    <div class="flex flex-col lg:flex-row h-screen grow bg-background">
+        
+        <!-- Image Side (Esquerda) -->
+        <div class="hidden lg:flex flex-col w-1/2 h-full relative" style="background-color: #0c0f1a; background-image: url('{% static 'gestoreduka/media/app/auth_bg.png' %}'); background-size: contain; background-repeat: no-repeat; background-position: center 15%;">
+            <div class="absolute inset-0 bg-gradient-to-t from-[#0c0f1a] via-[#0c0f1a]/60 to-transparent"></div>
+            
+            <div class="relative z-10 flex flex-col justify-end h-full p-12 xl:p-20 text-white">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="size-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg">
+                        <i class="ki-filled ki-briefcase text-2xl text-white"></i>
+                    </div>
+                    <span class="text-2xl font-bold tracking-tight">GestorEduka</span>
+                </div>
+                <h1 class="text-4xl font-bold mb-4 leading-tight tracking-tight">
+                    O centro de comando da sua <span class="text-indigo-400">Instituição</span>.
+                </h1>
+                <p class="text-lg text-slate-300 font-medium max-w-lg">
+                    Acompanhe matrículas, valide candidaturas e cresça a presença digital do seu Centro de Formação em Angola.
+                </p>
+            </div>
+        </div>
+
+        <!-- Form Side (Direita) -->
+        <div class="flex justify-center items-center w-full lg:w-1/2 p-8 lg:p-16 bg-background relative">
+            <div class="absolute top-8 right-8">
+                <a href="{% url 'index' %}" class="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2">
+                    <i class="ki-filled ki-arrow-left"></i> Voltar ao site
+                </a>
+            </div>
+
+            <div class="max-w-[400px] w-full mt-8 lg:mt-0">
+                <form action="{% url 'login_gestor' %}" method="POST" class="flex flex-col gap-6" id="sign_in_form">
                     {% csrf_token %}
                     
-                    <div class="text-center mb-2.5">
-                        <h3 class="text-2xl font-bold text-foreground leading-none mb-3">
-                            {% trans "Entrar" %}
+                    <div class="mb-4">
+                        <h3 class="text-3xl font-bold text-foreground tracking-tight mb-2">
+                            {% trans "Bem-vindo de volta" %}
                         </h3>
-                        <div class="flex items-center justify-center font-medium">
-                            <span class="text-sm text-secondary-foreground me-1.5">
-                                {% trans "Gerencie o seu centro de forma inteligente." %}
-                            </span>
-                        </div>
+                        <p class="text-sm text-secondary-foreground font-medium">
+                            {% trans "Insira as suas credenciais de gestão." %}
+                        </p>
                     </div>
 
                     <!-- Mensagens de Erro -->
                     {% if messages %}
                         <div class="flex flex-col gap-2">
                             {% for message in messages %}
-                                <div class="p-3 rounded-lg text-xs font-medium bg-danger/10 text-danger border border-danger/20 flex items-center gap-2">
-                                    <i class="ki-filled ki-information-2 text-sm"></i>
+                                <div class="p-3.5 rounded-xl text-sm font-medium bg-danger/10 text-danger border border-danger/20 flex items-center gap-2.5">
+                                    <i class="ki-filled ki-information-2 text-lg"></i>
                                     {{ message }}
                                 </div>
                             {% endfor %}
                         </div>
                     {% endif %}
 
-                    <div class="flex flex-col gap-1">
-                        <label class="kt-form-label font-semibold text-gray-700">{% trans "E-mail" %}</label>
-                        <input class="kt-input" name="email" placeholder="email@exemplo.com" type="email" required/>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="font-semibold text-sm text-foreground">{% trans "E-mail Profissional" %}</label>
+                        <input class="kt-input bg-transparent border-input focus:border-primary px-4 py-3 rounded-xl transition-colors" name="email" placeholder="email@centro.com" type="email" required/>
                     </div>
 
-                    <div class="flex flex-col gap-1">
+                    <div class="flex flex-col gap-1.5">
                         <div class="flex items-center justify-between gap-1">
-                            <label class="kt-form-label font-semibold text-gray-700">{% trans "Palavra-passe" %}</label>
-                            <a class="text-sm kt-link shrink-0 font-medium" href="#">
-                                {% trans "Esqueceu a senha?" %}
+                            <label class="font-semibold text-sm text-foreground">{% trans "Palavra-passe" %}</label>
+                            <a class="text-sm font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400" href="#">
+                                {% trans "Recuperar senha" %}
                             </a>
                         </div>
-                        <div class="kt-input relative" data-kt-toggle-password="true">
-                            <input name="senha" placeholder="••••••••" type="password" required/>
-                            <button class="kt-btn kt-btn-sm kt-btn-ghost kt-btn-icon bg-transparent! absolute right-2 top-1/2 -translate-y-1/2" data-kt-toggle-password-trigger="true" type="button">
+                        <div class="relative flex items-center" data-kt-toggle-password="true">
+                            <input name="senha" placeholder="••••••••" type="password" class="kt-input bg-transparent border-input focus:border-primary px-4 py-3 rounded-xl transition-colors w-full pr-12" required/>
+                            <button class="absolute right-3 flex items-center justify-center p-1 text-muted-foreground hover:text-foreground transition-colors" data-kt-toggle-password-trigger="true" type="button">
                                 <span class="kt-toggle-password-active:hidden">
-                                    <i class="ki-filled ki-eye text-muted-foreground"></i>
+                                    <i class="ki-filled ki-eye text-lg"></i>
                                 </span>
                                 <span class="hidden kt-toggle-password-active:block">
-                                    <i class="ki-filled ki-eye-slash text-muted-foreground"></i>
+                                    <i class="ki-filled ki-eye-slash text-lg"></i>
                                 </span>
                             </button>
                         </div>
                     </div>
 
-                    <div class="flex items-center justify-between">
-                        <label class="kt-label flex items-center gap-2 cursor-pointer">
-                            <input class="kt-checkbox kt-checkbox-sm" name="remember" type="checkbox" value="1"/>
-                            <span class="kt-checkbox-label text-sm text-secondary-foreground">{% trans "Lembrar-me" %}</span>
+                    <div class="flex items-center">
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input class="kt-checkbox size-4 rounded border-input" name="remember" type="checkbox" value="1"/>
+                            <span class="text-sm font-medium text-secondary-foreground group-hover:text-foreground transition-colors">{% trans "Manter sessão iniciada" %}</span>
                         </label>
                     </div>
 
-                    <button type="submit" class="kt-btn kt-btn-primary flex justify-center grow py-3 font-bold text-lg shadow-lg shadow-primary/20">
-                        {% trans "Aceder ao Painel" %}
+                    <button type="submit" class="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-base py-3.5 rounded-xl shadow-lg shadow-indigo-600/20 transition-all mt-2">
+                        {% trans "Aceder ao Painel" %} <i class="ki-filled ki-right text-sm"></i>
                     </button>
 
-                    <div class="text-center mt-4">
-                        <p class="text-sm text-muted-foreground">
-                            {% trans "Não tem conta?" %} <a href="{% url 'sobre' %}" class="text-primary font-bold hover:underline">{% trans "Saiba como aderir" %}</a>
+                    <div class="text-center mt-6">
+                        <p class="text-sm text-secondary-foreground font-medium">
+                            {% trans "Quer inscrever o seu centro?" %} <a href="{% url 'sobre' %}" class="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">{% trans "Saber mais" %}</a>
                         </p>
                     </div>
                 </form>

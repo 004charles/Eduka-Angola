@@ -505,6 +505,8 @@ def gerenciar_inscricoes(request):
     page_number = request.GET.get('page')
     inscricoes = paginator.get_page(page_number)
     
+    prontu_payment_link = request.session.pop('prontu_payment_link', None)
+    
     return render(request, 'gestor/inscricoes.html', {
         'centro': centro,
         'filial': filial,
@@ -514,7 +516,8 @@ def gerenciar_inscricoes(request):
         'pendentes_count': pendentes_count,
         'aprovadas_count': aprovadas_count,
         'rejeitadas_count': rejeitadas_count,
-        'cursos_ativos': Curso.objects.filter(centro=centro, publicado=True, ativo=True) if not filial else Curso.objects.filter(filial=filial, publicado=True, ativo=True)
+        'cursos_ativos': Curso.objects.filter(centro=centro, publicado=True, ativo=True) if not filial else Curso.objects.filter(filial=filial, publicado=True, ativo=True),
+        'prontu_payment_link': prontu_payment_link
     })
 
 from django.views.decorators.http import require_POST
@@ -569,20 +572,58 @@ def matricular_aluno_manual(request):
             'nome': nome,
         })
         
+        forma_pagamento = request.POST.get('forma_pagamento', 'DINHEIRO')
+        valor_pago_str = request.POST.get('valor_pago', '0.00')
+        
+        try:
+            valor_pago = float(valor_pago_str)
+        except ValueError:
+            valor_pago = 0.00
+        
         if Inscricao.objects.filter(aluno=aluno, curso=curso).exists():
             messages.warning(request, f"O aluno {nome} já está matriculado neste curso.")
         else:
-            Inscricao.objects.create(
-                aluno=aluno,
-                curso=curso,
-                status='A',
-                tipo_inscricao='PRESENCIAL' if curso.modalidade == 'PRESENCIAL' else 'ONLINE',
-                forma_pagamento='DINHEIRO',
-                valor_pago=0.00,
-                data_confirmacao=timezone.now(),
-                observacoes="Inscrição manual via Gestor (Offline)"
-            )
-            messages.success(request, f"Aluno {nome} matriculado com sucesso no curso {curso.titulo}!")
+            if forma_pagamento == 'PRONTU':
+                inscricao = Inscricao.objects.create(
+                    aluno=aluno,
+                    curso=curso,
+                    status='P',
+                    tipo_inscricao='PRESENCIAL' if curso.modalidade == 'PRESENCIAL' else 'ONLINE',
+                    forma_pagamento='PRONTU',
+                    valor_pago=valor_pago,
+                    observacoes="Inscrição manual via Gestor (Aguardando Pagamento Prontu)"
+                )
+                
+                from pagamentos.services import PaymentService, PagamentoException
+                try:
+                    servico = PaymentService()
+                    pagamento = servico.criar_pagamento(
+                        usuario=user,
+                        tipo_pagamento='INSCRICAO',
+                        valor=valor_pago,
+                        moeda='AOA',
+                        curso=curso,
+                        url_sucesso=request.build_absolute_uri(reverse('pagamento_sucesso')),
+                        url_cancelamento=request.build_absolute_uri(reverse('pagamento_cancelado')),
+                        metadados={'inscricao_id': str(inscricao.id)}
+                    )
+                    request.session['prontu_payment_link'] = pagamento.url_pagamento
+                    messages.success(request, f"Matrícula pendente gerada para {nome}. O link de pagamento Prontu está pronto.")
+                except Exception as ex:
+                    messages.error(request, f"Erro ao gerar pagamento Prontu: {ex}")
+                    inscricao.delete()
+            else:
+                Inscricao.objects.create(
+                    aluno=aluno,
+                    curso=curso,
+                    status='A',
+                    tipo_inscricao='PRESENCIAL' if curso.modalidade == 'PRESENCIAL' else 'ONLINE',
+                    forma_pagamento='DINHEIRO',
+                    valor_pago=valor_pago,
+                    data_confirmacao=timezone.now(),
+                    observacoes="Inscrição manual via Gestor (Offline)"
+                )
+                messages.success(request, f"Aluno {nome} matriculado com sucesso no curso {curso.titulo}!")
             
     except Exception as e:
         messages.error(request, f"Erro ao matricular aluno: {str(e)}")
