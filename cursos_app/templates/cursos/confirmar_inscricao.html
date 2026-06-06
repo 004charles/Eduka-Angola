@@ -16,10 +16,25 @@
             --premium-gradient: linear-gradient(135deg, #6e42e5 0%, #4e27cc 100%);
             --glass-bg: rgba(255, 255, 255, 0.9);
             --glass-border: rgba(255, 255, 255, 0.3);
+            --card-bg: #fff;
+            --border-color: #edf2f7;
+            --step-circle-bg: #fff;
+            --input-bg: #f8f9fa;
+        }
+
+        body.active-dark-mode {
+            --checkout-bg: #0f0f11;
+            --glass-bg: rgba(26, 26, 29, 0.9);
+            --glass-border: rgba(255, 255, 255, 0.05);
+            --card-bg: #1a1a1d;
+            --border-color: #2a2a2d;
+            --step-circle-bg: #1a1a1d;
+            --input-bg: #2a2a2d;
+            color: #f8f8f8;
         }
 
         body {
-            background-color: var(--checkout-bg);
+            background-color: var(--checkout-bg) !important;
         }
 
         .checkout-container {
@@ -43,8 +58,8 @@
             top: 120px;
             border-radius: 24px;
             padding: 30px;
-            background: #fff;
-            border: 1px solid var(--color-border);
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             box-shadow: 0 15px 50px rgba(0, 0, 0, 0.05);
         }
 
@@ -67,7 +82,7 @@
         }
 
         .payment-option {
-            border: 2px solid #edf2f7;
+            border: 2px solid var(--border-color);
             border-radius: 16px;
             padding: 20px;
             cursor: pointer;
@@ -77,6 +92,7 @@
             gap: 18px;
             margin-bottom: 15px;
             position: relative;
+            background: var(--card-bg);
         }
 
         .payment-option:hover {
@@ -95,7 +111,7 @@
             width: 48px;
             height: 48px;
             border-radius: 12px;
-            background: #fff;
+            background: var(--checkout-bg);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -120,7 +136,7 @@
             left: 0;
             right: 0;
             height: 2px;
-            background: #e2e8f0;
+            background: var(--border-color);
             z-index: 1;
         }
 
@@ -139,8 +155,8 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: #fff;
-            border: 2px solid #e2e8f0;
+            background: var(--step-circle-bg);
+            border: 2px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -253,7 +269,7 @@
                              <div class="row g-3 mb-5">
                                  {% for t in turmas_disponiveis %}
                                  <div class="col-md-6">
-                                     <div class="card p-4 pointer-card cursor-pointer {% if forloop.first %}border-primary bg-primary-opacity{% else %}border-light{% endif %}" onclick="selectTurma(this, '{{ t.id }}')" style="border-radius: 16px; border: 2px solid {% if forloop.first %}var(--color-primary){% else %}#edf2f7{% endif %}; transition: all 0.25s ease; background-color: {% if forloop.first %}rgba(var(--color-primary-rgb), 0.04){% else %}#fff{% endif %};">
+                                     <div class="card p-4 pointer-card cursor-pointer {% if forloop.first %}border-primary bg-primary-opacity{% else %}border-light{% endif %}" onclick="selectTurma(this, '{{ t.id }}')" style="border-radius: 16px; border: 2px solid {% if forloop.first %}var(--color-primary){% else %}var(--border-color){% endif %}; transition: all 0.25s ease; background-color: {% if forloop.first %}rgba(var(--color-primary-rgb), 0.04){% else %}var(--card-bg){% endif %};">
                                          <div class="d-flex align-items-center justify-content-between mb-3">
                                              <span class="badge bg-primary text-white p-2 px-3 small" style="border-radius: 8px;">{{ t.nome }}</span>
                                              <div class="radio-indicator">
@@ -293,11 +309,11 @@
                             <div class="data-grid">
                                 <div class="form-group">
                                     <label class="small fw-bold text-uppercase mb-2">Nome Completo</label>
-                                    <input type="text" value="{% if request.user.is_authenticated %}{{ aluno.nome|default:request.user.nome }}{% endif %}" readonly class="form-control bg-light border-0 text-dark fw-medium">
+                                    <input type="text" value="{% if request.user.is_authenticated %}{{ aluno.nome|default:request.user.nome }}{% endif %}" readonly class="form-control border-0 fw-medium" style="background-color: var(--input-bg);">
                                 </div>
                                 <div class="form-group">
                                     <label class="small fw-bold text-uppercase mb-2">E-mail de Acesso</label>
-                                    <input type="email" value="{% if request.user.is_authenticated %}{{ request.user.email|default:aluno.usuario.email }}{% endif %}" readonly class="form-control bg-light border-0 text-dark fw-medium">
+                                    <input type="email" value="{% if request.user.is_authenticated %}{{ request.user.email|default:aluno.usuario.email }}{% endif %}" readonly class="form-control border-0 fw-medium" style="background-color: var(--input-bg);">
                                 </div>
                             </div>
 
@@ -309,7 +325,7 @@
                             <div class="glass-card p-4" style="border: 2px dashed rgba(var(--color-primary-rgb), 0.3); border-radius: 16px; background-color: rgba(var(--color-primary-rgb), 0.01);">
                                 <div class="form-group mb-0">
                                     <label class="small fw-bold text-uppercase d-block mb-3"><i class="feather-upload-cloud me-2 text-primary"></i> Carregar Ficheiro (PDF, JPG, PNG - Máx. 5MB) *</label>
-                                    <input type="file" name="documento_inscricao" required class="form-control" accept="image/*,application/pdf" style="border-radius: 12px; padding: 12px; background: #fff; border: 1px solid #e2e8f0;">
+                                    <input type="file" name="documento_inscricao" required class="form-control" accept="image/*,application/pdf" style="border-radius: 12px; padding: 12px; background: var(--input-bg); border: 1px solid var(--border-color);">
                                 </div>
                             </div>
                             {% endif %}
@@ -394,7 +410,7 @@
                             </div>
                         </div>
 
-                        <div class="mt-4 p-4 rounded-4" style="background: #fff; border: 1px solid var(--color-border);">
+                        <div class="mt-4 p-4 rounded-4" style="background: var(--card-bg); border: 1px solid var(--border-color);">
                             <h6 class="fw-bold mb-3"><i class="feather-info text-primary me-2"></i> Ajuda</h6>
                             <p class="small text-muted mb-0">Precisa de ajuda com o pagamento? Contacte o nosso suporte via WhatsApp no rodapé da página.</p>
                         </div>
@@ -428,8 +444,8 @@
         function selectTurma(element, id) {
             // Remover destaque de todos os cartões de turma
             document.querySelectorAll('.pointer-card').forEach(card => {
-                card.style.borderColor = '#edf2f7';
-                card.style.backgroundColor = '#fff';
+                card.style.borderColor = 'var(--border-color)';
+                card.style.backgroundColor = 'var(--card-bg)';
                 const indicator = card.querySelector('.radio-indicator i');
                 if (indicator) {
                     indicator.className = 'far fa-circle text-muted';
