@@ -468,6 +468,7 @@ class PaymentService:
         valor: Decimal,
         moeda: str = 'AOA',
         curso=None,
+        plano=None,
         numero_parcela: int = None,
         url_sucesso: str = None,
         url_cancelamento: str = None,
@@ -532,6 +533,7 @@ class PaymentService:
                 usuario=usuario,
                 tipo_pagamento=tipo_pagamento,
                 curso=curso,
+                plano=plano,
                 numero_parcela=numero_parcela,
                 moeda=moeda,
                 valor=valor,
@@ -826,6 +828,20 @@ class PaymentService:
                         logger.info(f"Aluno {aluno.id} adicionado ao Curso Video {curso_video_id} após pagamento.")
                     except Exception as e:
                         logger.error(f"Erro ao processar INSCRICAO_VIDEO: {e}")
+
+            elif pagamento.tipo_pagamento == 'ASSINATURA_PLANO' and pagamento.plano:
+                from planos.models import AssinaturaMembro
+                try:
+                    # Encontrar a assinatura do centro do usuário
+                    assinatura = AssinaturaMembro.objects.get(centro__responsavel=pagamento.usuario)
+                    assinatura.plano = pagamento.plano
+                    assinatura.data_inicio = timezone.now().date()
+                    assinatura.data_fim = assinatura.data_inicio + timedelta(days=30)
+                    assinatura.status = 'A'
+                    assinatura.save()
+                    logger.info(f"Assinatura do centro {assinatura.centro.nome} atualizada para plano {pagamento.plano.nome} com sucesso!")
+                except Exception as e:
+                    logger.error(f"Erro ao processar ASSINATURA_PLANO: {e}")
 
             logger.info(f"Ações pós-pagamento executadas: {pagamento.referencia_pagamento}")
         

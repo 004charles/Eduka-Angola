@@ -686,80 +686,38 @@ def gerenciar_assinatura(request):
     })
 
 from django.utils.crypto import get_random_string
-from planos.models import VoucherPlano
-from core.email_utils import enviar_email_brevo
+from pagamentos.services import PaymentService, PagamentoException
+from django.urls import reverse
 
 @login_required
 @require_http_methods(["POST"])
-def solicitar_voucher(request, plano_id):
+def assinar_plano_prontu(request, plano_id):
     centro, filial = get_gestor_context(request.user)
     if not centro:
         return redirect('login_gestor')
         
     plano = get_object_or_404(Plano, id=plano_id, ativo=True)
     
-    codigo = get_random_string(length=6, allowed_chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
-    codigo_formatado = f"PLANO-{int(plano.preco)}-{codigo}"
-    
-    VoucherPlano.objects.create(
-        codigo=codigo_formatado,
-        plano=plano,
-        centro=centro,
-        usado=False
-    )
-    
-    subject = "Código de Ativação do Plano - Eduka Angola"
-    html_content = f"""
-    <h2>Olá {centro.nome}!</h2>
-    <p>Obrigado pelo seu interesse em atualizar para o <strong>{plano.nome}</strong>.</p>
-    <p>O seu código de ativação é: <strong style="font-size:18px; color:#4a4a4a; background:#f0f0f0; padding:5px 10px; border-radius:4px;">{codigo_formatado}</strong></p>
-    <p>Insira este código na página de Planos e Assinaturas do seu Painel de Gestão para ativar o plano imediatamente.</p>
-    <p>Equipe Eduka-Angola</p>
-    """
-    
-    email_destino = getattr(centro, 'email', request.user.email)
-    
-    enviar_email_brevo(
-        to_email=email_destino,
-        subject=subject,
-        html_content=html_content,
-        to_name=centro.nome
-    )
-    
-    messages.success(request, f"Enviamos um código de ativação (como simulação: {codigo_formatado}) para o seu e-mail ({email_destino}).")
-    return redirect('gerenciar_assinatura')
-
-@login_required
-@require_http_methods(["POST"])
-def ativar_voucher(request):
-    centro, filial = get_gestor_context(request.user)
-    if not centro:
-        return redirect('login_gestor')
-        
-    codigo = request.POST.get('codigo_voucher', '').strip()
-    
-    if not codigo:
-        messages.error(request, "Por favor, insira um código de voucher.")
-        return redirect('gerenciar_assinatura')
-        
     try:
-        voucher = VoucherPlano.objects.get(codigo=codigo, centro=centro, usado=False)
+        service = PaymentService()
         
-        assinatura, created = AssinaturaMembro.objects.get_or_create(centro=centro)
-        assinatura.plano = voucher.plano
-        assinatura.status = 'ATIVO'
-        assinatura.data_inicio = timezone.now()
-        assinatura.data_fim = timezone.now() + timezone.timedelta(days=30)
-        assinatura.save()
+        pagamento = service.criar_pagamento(
+            usuario=request.user,
+            tipo_pagamento='ASSINATURA_PLANO',
+            valor=plano.preco,
+            plano=plano,
+            moeda='AOA',
+            url_sucesso=request.build_absolute_uri(reverse('gerenciar_assinatura')),
+            url_cancelamento=request.build_absolute_uri(reverse('gerenciar_assinatura'))
+        )
+        return redirect(pagamento.url_pagamento)
         
-        voucher.usado = True
-        voucher.save()
-        
-        messages.success(request, f"Plano '{voucher.plano.nome}' ativado com sucesso! Validade estendida por 30 dias.")
-    except VoucherPlano.DoesNotExist:
-        messages.error(request, "Código inválido, já utilizado ou não pertence a este centro.")
-        
-    return redirect('gerenciar_assinatura')
+    except PagamentoException as e:
+        messages.error(request, f"Erro ao iniciar pagamento: {str(e)}")
+        return redirect('gerenciar_assinatura')
+    except Exception as e:
+        messages.error(request, "Ocorreu um erro inesperado ao conectar à Prontu.")
+        return redirect('gerenciar_assinatura')
 
 def analytics_centro(request):
     """

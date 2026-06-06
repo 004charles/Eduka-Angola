@@ -47,7 +47,7 @@ urlpatterns = [
     path('api/v1/pagamentos/', include('pagamentos.urls')),  # API de pagamentos
     path('centro/', include('centro_formacao.urls')),
     path('contato/', views.contato, name = 'contato'),
-    path('teste-pagamento/', views.teste_pagamento, name='teste_pagamento'),
+
     path('pagamento/sucesso/', views.pagamento_sucesso, name='pagamento_sucesso'),
     path('pagamento/cancelado/', views.pagamento_cancelado, name='pagamento_cancelado'),
     path('faq/', views.faq, name = 'faq'),

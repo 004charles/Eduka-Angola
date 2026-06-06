@@ -35,22 +35,7 @@
         </div>
     </div>
 
-    <!-- Formulário de Ativação via Voucher -->
-    <div class="kt-card bg-background border border-border rounded-xl overflow-hidden mb-8">
-        <div class="p-6">
-            <h3 class="text-lg font-bold text-foreground mb-2">Tem um código de ativação?</h3>
-            <p class="text-sm text-muted-foreground mb-4">Insira o código recebido no seu e-mail para ativar o seu novo plano imediatamente.</p>
-            
-            <form action="{% url 'ativar_voucher' %}" method="POST" class="flex flex-col sm:flex-row gap-3">
-                {% csrf_token %}
-                <input type="text" name="codigo_voucher" class="kt-input flex-1 uppercase" placeholder="Ex: PLANO-15000-X7A9" required>
-                <button type="submit" class="kt-btn kt-btn-primary">
-                    <i class="ki-filled ki-check-circle"></i>
-                    Ativar Plano
-                </button>
-            </form>
-        </div>
-    </div>
+
     <div class="flex flex-col gap-4 mb-4">
         <h3 class="text-lg font-bold text-foreground">Planos Recomendados</h3>
         <p class="text-sm text-muted-foreground">Escolha um dos planos abaixo para desbloquear novas funcionalidades e aumentar o limite de cursos e alunos.</p>
@@ -103,11 +88,11 @@
                     </li>
                 </ul>
 
-                <form action="{% url 'solicitar_voucher' plano.id %}" method="POST" class="w-full">
+                <form action="{% url 'assinar_plano_prontu' plano.id %}" method="POST" class="w-full">
                     {% csrf_token %}
                     <button type="submit" class="kt-btn kt-btn-primary w-full justify-center">
                         <i class="ki-filled ki-wallet"></i>
-                        Alterar para este Plano
+                        Subscrever via Prontu
                     </button>
                 </form>
             </div>

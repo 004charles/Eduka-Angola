@@ -47,6 +47,7 @@ class Pagamento(models.Model):
         ('INSCRICAO_VIDEO', _('Subscrição Edukangola Play')),
         ('PAGAMENTO_CURSO', _('Pagamento do Curso')),
         ('PARCELAMENTO', _('Parcela do Curso')),
+        ('ASSINATURA_PLANO', _('Subscrição de Plano de Centro')),
         ('TAXA_ADMINISTRATIVO', _('Taxa Administrativa')),
         ('OUTRO', _('Outro')),
     ]
@@ -81,6 +82,14 @@ class Pagamento(models.Model):
         blank=True,
         related_name='pagamentos',
         verbose_name=_('Curso')
+    )
+    plano = models.ForeignKey(
+        'planos.Plano',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name='pagamentos',
+        verbose_name=_('Plano')
     )
     numero_parcela = models.PositiveIntegerField(
         _('Número da Parcela'),

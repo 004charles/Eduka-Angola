@@ -32,8 +32,7 @@ urlpatterns = [
     path('inscricoes/manual/', views.matricular_aluno_manual, name='matricular_aluno_manual'),
     path('inscricoes/<int:inscricao_id>/emitir-certificado/', views.emitir_certificado_manual, name='emitir_certificado_manual'),
     path('assinatura/', views.gerenciar_assinatura, name='gerenciar_assinatura'),
-    path('assinatura/solicitar-voucher/<int:plano_id>/', views.solicitar_voucher, name='solicitar_voucher'),
-    path('assinatura/ativar-voucher/', views.ativar_voucher, name='ativar_voucher'),
+    path('assinatura/assinar-prontu/<int:plano_id>/', views.assinar_plano_prontu, name='assinar_plano_prontu'),
     
     # Analytics
     path('analytics/', views.analytics_centro, name='analytics_centro'),
