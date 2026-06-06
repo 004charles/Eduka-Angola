@@ -421,4 +421,34 @@ def pagamento_cancelado(request):
         except AttributeError:
             pass
             
+            pass
+            
     return render(request, 'core/pagamento_cancelado.html', context)
+
+
+from pagamentos.models import Pagamento
+from django.db.models import Sum
+
+def dashboard_callback(request, context):
+    """
+    Callback do Django Unfold para injetar dados customizados no Dashboard.
+    """
+    total_alunos = Aluno.objects.count()
+    total_centros = CentroDeFormacao.objects.filter(ativo=True).count()
+    total_cursos = Curso.objects.filter(publicado=True, ativo=True).count()
+    
+    receita_dict = Pagamento.objects.filter(status='CONCLUIDO').aggregate(total=Sum('valor'))
+    receita_total = receita_dict['total'] or 0
+
+    cursos_recentes = Curso.objects.filter(publicado=True).order_by('-data_criacao')[:5]
+    centros_recentes = CentroDeFormacao.objects.filter(ativo=True).order_by('-data_registro')[:5]
+
+    context.update({
+        "total_alunos": total_alunos,
+        "total_centros": total_centros,
+        "total_cursos": total_cursos,
+        "receita_total": receita_total,
+        "cursos_recentes": cursos_recentes,
+        "centros_recentes": centros_recentes,
+    })
+    return context

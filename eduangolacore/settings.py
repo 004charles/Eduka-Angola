@@ -426,6 +426,7 @@ UNFOLD = {
     "SITE_HEADER": "Gestão EdukAngola",
     "SITE_URL": "/",
     "SITE_ICON": "ki-solid ki-crown",
+    "DASHBOARD_CALLBACK": "core.views.dashboard_callback",
     "THEME": "dark", # Usar dark mode por predefinição ou auto
     "COLORS": {
         "primary": {
