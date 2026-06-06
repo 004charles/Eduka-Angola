@@ -37,7 +37,8 @@ def fix_uuid_pk(apps, schema_editor):
                                 WHERE table_name = 'pagamentos_tentativapagamento' AND column_name = 'pagamento_id'
                             );
 
-                            -- Alterar tipos de bigint para uuid
+                            -- Alterar tipos de bigint para uuid (precisa dropar a propriedade identity primeiro no Postgres > 10)
+                            ALTER TABLE pagamentos_pagamento ALTER COLUMN id DROP IDENTITY IF EXISTS;
                             ALTER TABLE pagamentos_pagamento ALTER COLUMN id SET DATA TYPE uuid USING (gen_random_uuid());
                             ALTER TABLE pagamentos_historicopagamento ALTER COLUMN pagamento_id SET DATA TYPE uuid USING (gen_random_uuid());
                             ALTER TABLE pagamentos_tentativapagamento ALTER COLUMN pagamento_id SET DATA TYPE uuid USING (gen_random_uuid());
