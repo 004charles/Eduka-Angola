@@ -441,7 +441,7 @@ def dashboard_callback(request, context):
     receita_total = receita_dict['total'] or 0
 
     cursos_recentes = Curso.objects.filter(publicado=True).order_by('-data_criacao')[:5]
-    centros_recentes = CentroDeFormacao.objects.filter(ativo=True).order_by('-data_registro')[:5]
+    centros_recentes = CentroDeFormacao.objects.filter(ativo=True).order_by('-data_criacao')[:5]
 
     context.update({
         "total_alunos": total_alunos,
