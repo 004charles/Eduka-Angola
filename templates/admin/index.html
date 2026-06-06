@@ -1,5 +1,11 @@
-{% extends "unfold/layouts/base_setup.html" %}
+{% extends "admin/base.html" %}
 {% load i18n unfold humanize %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+    {% include "unfold/helpers/site_branding.html" %}
+{% endblock %}
 
 {% block content %}
 <div class="mb-8 p-4">
@@ -124,7 +130,10 @@
 </div>
 
 <!-- Render the normal django admin content below our dashboard -->
-<div class="p-4">
-    {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
-</div>
+    <div class="flex flex-col lg:flex-row lg:gap-8">
+        <div class="grow">
+            {% include "unfold/helpers/app_list_default.html" %}
+        </div>
+        {% include "unfold/helpers/history.html" %}
+    </div>
 {% endblock %}
