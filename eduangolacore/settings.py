@@ -20,6 +20,7 @@ GEMINI_API_KEY = config("GEMINI_API_KEY", default="")
 
 INSTALLED_APPS = [
     # 'django.contrib.gis',
+    'unfold',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -418,3 +419,28 @@ SITE_DOMAIN = config('SITE_DOMAIN', default='http://localhost:8000')
 # Force server reload check and print diagnostic message
 print("--- DJANGO WEB SERVER STARTING: LOCAL STORAGE ENFORCED IN DEV ---")
 
+
+# Configuração do Django Unfold
+UNFOLD = {
+    "SITE_TITLE": "EdukAngola Admin",
+    "SITE_HEADER": "Gestão EdukAngola",
+    "SITE_URL": "/",
+    "SITE_ICON": "ki-solid ki-crown",
+    "DASHBOARD_CALLBACK": "core.views.dashboard_callback", # Opcional, podemos criar depois
+    "THEME": "dark", # Usar dark mode por predefinição ou auto
+    "COLORS": {
+        "primary": {
+            "50": "238 242 255",
+            "100": "224 231 255",
+            "200": "199 210 254",
+            "300": "165 180 252",
+            "400": "129 140 248",
+            "500": "99 102 241", # Cor primária do EdukAngola
+            "600": "79 70 229",
+            "700": "67 56 202",
+            "800": "55 48 163",
+            "900": "49 46 129",
+            "950": "30 27 75",
+        },
+    },
+}

@@ -1,4 +1,7 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin as UnfoldModelAdmin
+from unfold.admin import TabularInline as UnfoldTabularInline
+from unfold.admin import StackedInline as UnfoldStackedInline
 from django.urls import path
 from django.shortcuts import redirect
 from django.utils.html import format_html
@@ -6,12 +9,12 @@ from .models import Curso_video, Aula, Exercicio, Questao, Alternativa
 # from inteligencia.ai_utils import gerar_exercicios_ia
 from django.contrib.auth.models import Group
 
-class AulaInline(admin.TabularInline):
+class AulaInline(UnfoldTabularInline):
     model = Aula
     extra = 1
 
 @admin.register(Curso_video)
-class Curso_videoAdmin(admin.ModelAdmin):
+class Curso_videoAdmin(UnfoldModelAdmin):
     list_display = ('titulo', 'instrutor', 'categoria', 'data_publicacao', 'import_playlist_link')
     search_fields = ('titulo', 'descricao')
     list_filter = ('categoria', 'instrutor')
@@ -25,7 +28,7 @@ class Curso_videoAdmin(admin.ModelAdmin):
     import_playlist_link.short_description = "Ação YouTube"
 
 @admin.register(Aula)
-class AulaAdmin(admin.ModelAdmin):
+class AulaAdmin(UnfoldModelAdmin):
     list_display = ('ordem', 'titulo', 'curso', 'duracao_formatada', 'tem_exercicio')
     list_filter = ('curso',)
     search_fields = ('titulo',)
@@ -62,21 +65,21 @@ class AulaAdmin(admin.ModelAdmin):
                     )
         self.message_user(request, "Processamento concluído.")
 
-class AlternativaInline(admin.TabularInline):
+class AlternativaInline(UnfoldTabularInline):
     model = Alternativa
     extra = 4
 
 @admin.register(Questao)
-class QuestaoAdmin(admin.ModelAdmin):
+class QuestaoAdmin(UnfoldModelAdmin):
     list_display = ('texto', 'exercicio')
     inlines = [AlternativaInline]
 
-class QuestaoInline(admin.StackedInline):
+class QuestaoInline(UnfoldStackedInline):
     model = Questao
     extra = 1
 
 @admin.register(Exercicio)
-class ExercicioAdmin(admin.ModelAdmin):
+class ExercicioAdmin(UnfoldModelAdmin):
     list_display = ('aula', 'data_criacao')
     inlines = [QuestaoInline]
 

@@ -1,4 +1,7 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin as UnfoldModelAdmin
+from unfold.admin import TabularInline as UnfoldTabularInline
+from unfold.admin import StackedInline as UnfoldStackedInline
 from django.contrib.auth.hashers import make_password
 from django.utils.html import format_html
 from .models import *
@@ -100,7 +103,7 @@ def enviar_convite_centro(modeladmin, request, queryset):
 enviar_convite_centro.short_description = "Enviar convite de registro por e-mail"
 
 # ========== INLINES ==========
-class CertificacaoInline(admin.TabularInline):
+class CertificacaoInline(UnfoldTabularInline):
     model = Certificacao
     extra = 1
     fields = ['nome', 'orgao_emissor', 'logo_preview']
@@ -112,15 +115,15 @@ class CertificacaoInline(admin.TabularInline):
         return "-"
     logo_preview.short_description = 'Preview'
 
-class DiferencialInline(admin.TabularInline):
+class DiferencialInline(UnfoldTabularInline):
     model = Diferencial
     extra = 1
 
-class AreaFormacaoInline(admin.TabularInline):
+class AreaFormacaoInline(UnfoldTabularInline):
     model = AreaFormacao
     extra = 1
 
-class EquipeInline(admin.TabularInline):
+class EquipeInline(UnfoldTabularInline):
     model = Equipe
     extra = 1
     fields = ['nome', 'cargo', 'foto_preview']
@@ -132,21 +135,21 @@ class EquipeInline(admin.TabularInline):
         return "-"
     foto_preview.short_description = 'Foto'
 
-class RecursoInline(admin.TabularInline):
+class RecursoInline(UnfoldTabularInline):
     model = Recurso
     extra = 1
 
-class DepoimentoInline(admin.TabularInline):
+class DepoimentoInline(UnfoldTabularInline):
     model = Depoimento
     extra = 0
     fields = ['nome', 'nota', 'aprovado']
     readonly_fields = ['data']
 
-class EstatisticaInline(admin.TabularInline):
+class EstatisticaInline(UnfoldTabularInline):
     model = Estatistica
     extra = 1
 
-class ParceriaInline(admin.TabularInline):
+class ParceriaInline(UnfoldTabularInline):
     model = Parceria
     extra = 1
     fields = ['nome_empresa', 'logo_preview', 'ativa']
@@ -158,12 +161,12 @@ class ParceriaInline(admin.TabularInline):
         return "-"
     logo_preview.short_description = 'Logo'
 
-class EventoInline(admin.TabularInline):
+class EventoInline(UnfoldTabularInline):
     model = Evento
     extra = 1
     fields = ['titulo', 'tipo', 'data_inicio', 'destaque']
 
-class GaleriaImagemInline(admin.TabularInline):
+class GaleriaImagemInline(UnfoldTabularInline):
     model = GaleriaImagem
     extra = 1
     fields = ['titulo', 'imagem_preview']
@@ -175,19 +178,19 @@ class GaleriaImagemInline(admin.TabularInline):
         return "-"
     imagem_preview.short_description = 'Preview'
 
-class ReelCentroInline(admin.TabularInline):
+class ReelCentroInline(UnfoldTabularInline):
     model = ReelCentro
     extra = 0
     fields = ['titulo', 'video', 'visualizacoes', 'curtidas']
     readonly_fields = ['visualizacoes', 'curtidas']
 
-class FilialInline(admin.TabularInline):
+class FilialInline(UnfoldTabularInline):
     model = Filial
     extra = 1
 
 # ========== MODEL ADMINS ==========
 @admin.register(CentroDeFormacao)
-class CentroDeFormacaoAdmin(admin.ModelAdmin):
+class CentroDeFormacaoAdmin(UnfoldModelAdmin):
     """
     Configuração do painel administrativo para os Centros de Formação.
     """
@@ -249,7 +252,7 @@ class CentroDeFormacaoAdmin(admin.ModelAdmin):
     total_cursos_display.short_description = 'Total Cursos'
 
 @admin.register(PerfilCentroDeFormacao)
-class PerfilCentroDeFormacaoAdmin(admin.ModelAdmin):
+class PerfilCentroDeFormacaoAdmin(UnfoldModelAdmin):
     """
     Gerenciamento detalhado do perfil institucional e branding do Centro.
     """
@@ -310,7 +313,7 @@ class PerfilCentroDeFormacaoAdmin(admin.ModelAdmin):
     verificado_display.short_description = 'V'
 
 @admin.register(ConviteCentro)
-class ConviteCentroAdmin(admin.ModelAdmin):
+class ConviteCentroAdmin(UnfoldModelAdmin):
     list_display = ['centro', 'token', 'criado_em', 'usado_display']
     list_filter = ['usado', 'criado_em']
     search_fields = ['centro__nome', 'centro__email', 'token']
@@ -326,7 +329,7 @@ class ConviteCentroAdmin(admin.ModelAdmin):
 
 # ========== ADMINS PARA MODELOS RELACIONADOS ==========
 @admin.register(Certificacao)
-class CertificacaoAdmin(admin.ModelAdmin):
+class CertificacaoAdmin(UnfoldModelAdmin):
     list_display = ['nome', 'orgao_emissor', 'centro', 'logo_preview']
     list_filter = ['orgao_emissor']
     search_fields = ['nome', 'orgao_emissor', 'centro__nome']
@@ -338,7 +341,7 @@ class CertificacaoAdmin(admin.ModelAdmin):
     logo_preview.short_description = 'Logo'
 
 @admin.register(Equipe)
-class EquipeAdmin(admin.ModelAdmin):
+class EquipeAdmin(UnfoldModelAdmin):
     list_display = ['nome', 'cargo', 'centro', 'ordem', 'foto_preview']
     list_filter = ['cargo']
     search_fields = ['nome', 'cargo', 'centro__nome']
@@ -351,7 +354,7 @@ class EquipeAdmin(admin.ModelAdmin):
     foto_preview.short_description = 'Foto'
 
 @admin.register(Depoimento)
-class DepoimentoAdmin(admin.ModelAdmin):
+class DepoimentoAdmin(UnfoldModelAdmin):
     list_display = ['nome', 'cargo', 'nota', 'centro', 'aprovado', 'data']
     list_filter = ['aprovado', 'nota', 'data']
     search_fields = ['nome', 'cargo', 'centro__nome', 'texto']
@@ -363,7 +366,7 @@ class DepoimentoAdmin(admin.ModelAdmin):
     nota_display.short_description = 'Nota'
 
 @admin.register(Evento)
-class EventoAdmin(admin.ModelAdmin):
+class EventoAdmin(UnfoldModelAdmin):
     list_display = ['titulo', 'tipo', 'centro', 'data_inicio', 'destaque']
     list_filter = ['tipo', 'destaque', 'data_inicio']
     search_fields = ['titulo', 'centro__nome', 'local']
@@ -371,7 +374,7 @@ class EventoAdmin(admin.ModelAdmin):
     date_hierarchy = 'data_inicio'
 
 @admin.register(ReelCentro)
-class ReelCentroAdmin(admin.ModelAdmin):
+class ReelCentroAdmin(UnfoldModelAdmin):
     list_display = [
         'titulo', 
         'centro', 
@@ -387,13 +390,13 @@ class ReelCentroAdmin(admin.ModelAdmin):
     readonly_fields = ['visualizacoes', 'curtidas', 'comentarios', 'compartilhamentos']
 
 @admin.register(CurtidaReel)
-class CurtidaReelAdmin(admin.ModelAdmin):
+class CurtidaReelAdmin(UnfoldModelAdmin):
     list_display = ['reel', 'aluno', 'data_curtida']
     list_filter = ['data_curtida']
     search_fields = ['reel__titulo', 'aluno__nome']
 
 @admin.register(ComentarioReel)
-class ComentarioReelAdmin(admin.ModelAdmin):
+class ComentarioReelAdmin(UnfoldModelAdmin):
     list_display = ['reel', 'aluno', 'texto_resumido', 'aprovado', 'data_comentario']
     list_filter = ['aprovado', 'data_comentario']
     search_fields = ['reel__titulo', 'aluno__nome', 'texto']
@@ -404,13 +407,13 @@ class ComentarioReelAdmin(admin.ModelAdmin):
     texto_resumido.short_description = 'Comentário'
 
 @admin.register(Conversa)
-class ConversaAdmin(admin.ModelAdmin):
+class ConversaAdmin(UnfoldModelAdmin):
     list_display = ['centro', 'aluno', 'data_criacao', 'ultima_mensagem', 'ativa']
     list_filter = ['ativa', 'data_criacao']
     search_fields = ['centro__nome', 'aluno__nome']
 
 @admin.register(Mensagem)
-class MensagemAdmin(admin.ModelAdmin):
+class MensagemAdmin(UnfoldModelAdmin):
     list_display = ['conversa', 'remetente_info', 'tipo', 'data_envio', 'lida']
     list_filter = ['tipo', 'lida', 'data_envio']
     
@@ -422,36 +425,36 @@ class MensagemAdmin(admin.ModelAdmin):
 
 # ========== REGISTRO DOS MODELOS RESTANTES ==========
 @admin.register(Diferencial)
-class DiferencialAdmin(admin.ModelAdmin):
+class DiferencialAdmin(UnfoldModelAdmin):
     list_display = ['titulo', 'centro', 'icone']
     search_fields = ['titulo', 'centro__nome']
 
 @admin.register(AreaFormacao)
-class AreaFormacaoAdmin(admin.ModelAdmin):
+class AreaFormacaoAdmin(UnfoldModelAdmin):
     list_display = ['nome', 'centro', 'ordem']
     list_editable = ['ordem']
     search_fields = ['nome', 'centro__nome']
 
 @admin.register(Recurso)
-class RecursoAdmin(admin.ModelAdmin):
+class RecursoAdmin(UnfoldModelAdmin):
     list_display = ['nome', 'centro', 'icone']
     search_fields = ['nome', 'centro__nome']
 
 @admin.register(Estatistica)
-class EstatisticaAdmin(admin.ModelAdmin):
+class EstatisticaAdmin(UnfoldModelAdmin):
     list_display = ['titulo', 'valor', 'centro', 'ordem']
     list_editable = ['ordem']
     search_fields = ['titulo', 'centro__nome']
 
 @admin.register(Parceria)
-class ParceriaAdmin(admin.ModelAdmin):
+class ParceriaAdmin(UnfoldModelAdmin):
     list_display = ['nome_empresa', 'centro', 'tipo_parceria', 'ativa']
     list_filter = ['ativa', 'tipo_parceria']
     search_fields = ['nome_empresa', 'centro__nome']
     list_editable = ['ativa']
 
 @admin.register(GaleriaImagem)
-class GaleriaImagemAdmin(admin.ModelAdmin):
+class GaleriaImagemAdmin(UnfoldModelAdmin):
     list_display = ['titulo', 'centro', 'imagem_preview', 'ordem']
     list_editable = ['ordem']
     search_fields = ['titulo', 'centro__nome']
@@ -463,13 +466,13 @@ class GaleriaImagemAdmin(admin.ModelAdmin):
     imagem_preview.short_description = 'Imagem'
 
 @admin.register(VisualizacaoPerfil)
-class VisualizacaoPerfilAdmin(admin.ModelAdmin):
+class VisualizacaoPerfilAdmin(UnfoldModelAdmin):
     list_display = ['centro', 'aluno', 'ip_address', 'data_visualizacao']
     list_filter = ['data_visualizacao']
     search_fields = ['centro__nome', 'aluno__nome', 'ip_address']
 
 @admin.register(Filial)
-class FilialAdmin(admin.ModelAdmin):
+class FilialAdmin(UnfoldModelAdmin):
     list_display = ['nome', 'centro_principal', 'telefone', 'ativo']
     list_filter = ['ativo']
     search_fields = ['nome', 'centro_principal__nome', 'email']

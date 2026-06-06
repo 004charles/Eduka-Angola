@@ -1,18 +1,21 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin as UnfoldModelAdmin
+from unfold.admin import TabularInline as UnfoldTabularInline
+from unfold.admin import StackedInline as UnfoldStackedInline
 from .models import AreaEstagio, Estagio, InscricaoEstagio, BeneficioEstagio
 
 @admin.register(AreaEstagio)
-class AreaEstagioAdmin(admin.ModelAdmin):
+class AreaEstagioAdmin(UnfoldModelAdmin):
     list_display = ['nome', 'ativa']
     list_filter = ['ativa']
     search_fields = ['nome']
 
-class BeneficioEstagioInline(admin.TabularInline):
+class BeneficioEstagioInline(UnfoldTabularInline):
     model = BeneficioEstagio
     extra = 1
 
 @admin.register(Estagio)
-class EstagioAdmin(admin.ModelAdmin):
+class EstagioAdmin(UnfoldModelAdmin):
     list_display = [
         'titulo', 
         'centro_formacao', 
@@ -39,7 +42,7 @@ class EstagioAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ['titulo']}
 
 @admin.register(InscricaoEstagio)
-class InscricaoEstagioAdmin(admin.ModelAdmin):
+class InscricaoEstagioAdmin(UnfoldModelAdmin):
     list_display = [
         'aluno', 
         'estagio', 

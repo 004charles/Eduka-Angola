@@ -1,13 +1,16 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin as UnfoldModelAdmin
+from unfold.admin import TabularInline as UnfoldTabularInline
+from unfold.admin import StackedInline as UnfoldStackedInline
 from .models import *
 
 @admin.register(Categoria)
-class CategoriaAdmin(admin.ModelAdmin):
+class CategoriaAdmin(UnfoldModelAdmin):
     list_display = ('nome', 'slug')
     search_fields = ('nome',)
     prepopulated_fields = {'slug': ('nome',)}
 
-class InstrutorAdmin(admin.ModelAdmin):
+class InstrutorAdmin(UnfoldModelAdmin):
     list_display = ('nome', 'email', 'area_especializacao', 'ativo')
     search_fields = ('nome', 'email')
     list_filter = ('area_especializacao', 'ativo')
@@ -26,12 +29,12 @@ class InstrutorAdmin(admin.ModelAdmin):
     )
 
 
-class PreRequisitoCursoInline(admin.TabularInline):
+class PreRequisitoCursoInline(UnfoldTabularInline):
     model = PreRequisitoCurso
     extra = 3
 
 @admin.register(Curso)
-class CursoAdmin(admin.ModelAdmin):
+class CursoAdmin(UnfoldModelAdmin):
     # ... (restante configurado abaixo)
     inlines = [PreRequisitoCursoInline]
     list_display = [
@@ -75,7 +78,7 @@ admin.site.register(Inscricao)
 admin.site.register(PreRequisitoCurso)
 
 @admin.register(Turma)
-class TurmaAdmin(admin.ModelAdmin):
+class TurmaAdmin(UnfoldModelAdmin):
     list_display = ('nome', 'curso', 'data_inicio', 'data_fim', 'vagas_ocupadas', 'vagas_totais', 'status')
     list_filter = ('status', 'curso', 'turno')
     search_fields = ('nome', 'curso__titulo')

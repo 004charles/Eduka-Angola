@@ -1,9 +1,12 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin as UnfoldModelAdmin
+from unfold.admin import TabularInline as UnfoldTabularInline
+from unfold.admin import StackedInline as UnfoldStackedInline
 from .models import InstrutorProxy
 from django.utils.translation import gettext_lazy as _
 
 @admin.register(InstrutorProxy)
-class InstrutorAdmin(admin.ModelAdmin):
+class InstrutorAdmin(UnfoldModelAdmin):
     list_display = ('nome', 'email', 'area_especializacao', 'get_status_usuario', 'data_cadastro')
     list_filter = ('area_especializacao', 'ativo')
     search_fields = ('nome', 'email')

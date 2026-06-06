@@ -1,11 +1,14 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin as UnfoldModelAdmin
+from unfold.admin import TabularInline as UnfoldTabularInline
+from unfold.admin import StackedInline as UnfoldStackedInline
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import format_html
 from .models import Pagamento, HistoricoPagamento, TentativaPagamento, ConfiguracaoPagamento
 
 
 @admin.register(Pagamento)
-class PagamentoAdmin(admin.ModelAdmin):
+class PagamentoAdmin(UnfoldModelAdmin):
     list_display = [
         'referencia_pagamento',
         'usuario_display',
@@ -138,7 +141,7 @@ class PagamentoAdmin(admin.ModelAdmin):
     marcar_como_processado.short_description = _('Marcar webhook como processado')
 
 
-class HistoricoPagamentoInline(admin.TabularInline):
+class HistoricoPagamentoInline(UnfoldTabularInline):
     model = HistoricoPagamento
     extra = 0
     readonly_fields = ['status_anterior', 'status_novo', 'motivo', 'criado_por', 'data_criacao']
@@ -146,7 +149,7 @@ class HistoricoPagamentoInline(admin.TabularInline):
 
 
 @admin.register(HistoricoPagamento)
-class HistoricoPagamentoAdmin(admin.ModelAdmin):
+class HistoricoPagamentoAdmin(UnfoldModelAdmin):
     list_display = [
         'pagamento',
         'status_anterior',
@@ -171,7 +174,7 @@ class HistoricoPagamentoAdmin(admin.ModelAdmin):
 
 
 @admin.register(TentativaPagamento)
-class TentativaPagamentoAdmin(admin.ModelAdmin):
+class TentativaPagamentoAdmin(UnfoldModelAdmin):
     list_display = [
         'pagamento',
         'numero_tentativa',
@@ -207,7 +210,7 @@ class TentativaPagamentoAdmin(admin.ModelAdmin):
 
 
 @admin.register(ConfiguracaoPagamento)
-class ConfiguracaoPagamentoAdmin(admin.ModelAdmin):
+class ConfiguracaoPagamentoAdmin(UnfoldModelAdmin):
     fieldsets = (
         (_('Geral'), {
             'fields': ('pagamentos_ativados', 'gateway_padrao', 'moeda_padrao')

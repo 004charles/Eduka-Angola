@@ -1,4 +1,7 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin as UnfoldModelAdmin
+from unfold.admin import TabularInline as UnfoldTabularInline
+from unfold.admin import StackedInline as UnfoldStackedInline
 from django.contrib.auth.admin import UserAdmin
 from .models import *
 
@@ -24,7 +27,7 @@ class UsuarioAdmin(UserAdmin):
     filter_horizontal = ('groups', 'user_permissions',)
 
 
-class AlunoAdmin(admin.ModelAdmin):
+class AlunoAdmin(UnfoldModelAdmin):
     list_display = ('nome', 'get_email', 'data_cadastro', 'ativo')
     search_fields = ('nome', 'usuario__email')
     list_filter = ('ativo',)
@@ -36,7 +39,7 @@ class AlunoAdmin(admin.ModelAdmin):
 
 
 @admin.register(PerfilAluno)
-class PerfilAlunoAdmin(admin.ModelAdmin):
+class PerfilAlunoAdmin(UnfoldModelAdmin):
     list_display = ['aluno', 'biografia']
 
 # Registro dos modelos

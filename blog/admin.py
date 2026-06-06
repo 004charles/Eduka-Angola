@@ -1,8 +1,11 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin as UnfoldModelAdmin
+from unfold.admin import TabularInline as UnfoldTabularInline
+from unfold.admin import StackedInline as UnfoldStackedInline
 from .models import Categoria, Tag, Post, Comentario
 from django.utils.html import format_html
 
-class PostAdmin(admin.ModelAdmin):
+class PostAdmin(UnfoldModelAdmin):
     list_display = ('titulo', 'categoria', 'status', 'publicado_em', 'visualizacoes')
     list_filter = ('status', 'categoria', 'tags', 'publicado_em')
     search_fields = ('titulo', 'conteudo')
@@ -23,7 +26,7 @@ class PostAdmin(admin.ModelAdmin):
         }),
     )
 
-class ComentarioAdmin(admin.ModelAdmin):
+class ComentarioAdmin(UnfoldModelAdmin):
     list_display = ('nome', 'email', 'post', 'criado_em', 'aprovado')
     list_filter = ('aprovado', 'criado_em')
     search_fields = ('nome', 'email', 'mensagem')
