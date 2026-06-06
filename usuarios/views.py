@@ -914,3 +914,32 @@ def aluno_onboarding(request):
         'niveis': PerfilAluno.NIVEL_CONHECIMENTO_CHOICES,
     }
     return render(request, 'aluno/onboarding.html', context)
+
+@login_required(login_url='/login_aluno/')
+def baixar_ficha_inscricao(request, inscricao_id):
+    import weasyprint
+    from django.utils import timezone
+    from django.http import HttpResponse
+    
+    aluno = get_object_or_404(Aluno, usuario=request.user)
+    inscricao = get_object_or_404(Inscricao, id=inscricao_id, aluno=aluno)
+    
+    if inscricao.status != 'A':
+        messages.error(request, "A ficha de inscrição só está disponível para inscrições pagas/aprovadas.")
+        return redirect('aluno_cursos')
+        
+    context = {
+        'inscricao': inscricao,
+        'aluno': aluno,
+        'curso': inscricao.curso,
+        'centro': inscricao.curso.centro,
+        'data_atual': timezone.now()
+    }
+    
+    html_string = render_to_string('usuarios/ficha_inscricao_pdf.html', context)
+    html = weasyprint.HTML(string=html_string, base_url=request.build_absolute_uri('/'))
+    pdf = html.write_pdf()
+    
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="Ficha_Inscricao_{inscricao.codigo_inscricao}.pdf"'
+    return response

@@ -583,47 +583,34 @@ def matricular_aluno_manual(request):
         if Inscricao.objects.filter(aluno=aluno, curso=curso).exists():
             messages.warning(request, f"O aluno {nome} já está matriculado neste curso.")
         else:
-            if forma_pagamento == 'PRONTU':
-                inscricao = Inscricao.objects.create(
-                    aluno=aluno,
+            inscricao = Inscricao.objects.create(
+                aluno=aluno,
+                curso=curso,
+                status='P',
+                tipo_inscricao='PRESENCIAL' if curso.modalidade == 'PRESENCIAL' else 'ONLINE',
+                forma_pagamento='PRONTU',
+                valor_pago=valor_pago,
+                observacoes="Inscrição manual via Gestor (Aguardando Pagamento Prontu)"
+            )
+            
+            from pagamentos.services import PaymentService, PagamentoException
+            try:
+                servico = PaymentService()
+                pagamento = servico.criar_pagamento(
+                    usuario=user,
+                    tipo_pagamento='INSCRICAO',
+                    valor=valor_pago,
+                    moeda='AOA',
                     curso=curso,
-                    status='P',
-                    tipo_inscricao='PRESENCIAL' if curso.modalidade == 'PRESENCIAL' else 'ONLINE',
-                    forma_pagamento='PRONTU',
-                    valor_pago=valor_pago,
-                    observacoes="Inscrição manual via Gestor (Aguardando Pagamento Prontu)"
+                    url_sucesso=request.build_absolute_uri(reverse('pagamento_sucesso')),
+                    url_cancelamento=request.build_absolute_uri(reverse('pagamento_cancelado')),
+                    metadados={'inscricao_id': str(inscricao.id)}
                 )
-                
-                from pagamentos.services import PaymentService, PagamentoException
-                try:
-                    servico = PaymentService()
-                    pagamento = servico.criar_pagamento(
-                        usuario=user,
-                        tipo_pagamento='INSCRICAO',
-                        valor=valor_pago,
-                        moeda='AOA',
-                        curso=curso,
-                        url_sucesso=request.build_absolute_uri(reverse('pagamento_sucesso')),
-                        url_cancelamento=request.build_absolute_uri(reverse('pagamento_cancelado')),
-                        metadados={'inscricao_id': str(inscricao.id)}
-                    )
-                    request.session['prontu_payment_link'] = pagamento.url_pagamento
-                    messages.success(request, f"Matrícula pendente gerada para {nome}. O link de pagamento Prontu está pronto.")
-                except Exception as ex:
-                    messages.error(request, f"Erro ao gerar pagamento Prontu: {ex}")
-                    inscricao.delete()
-            else:
-                Inscricao.objects.create(
-                    aluno=aluno,
-                    curso=curso,
-                    status='A',
-                    tipo_inscricao='PRESENCIAL' if curso.modalidade == 'PRESENCIAL' else 'ONLINE',
-                    forma_pagamento='DINHEIRO',
-                    valor_pago=valor_pago,
-                    data_confirmacao=timezone.now(),
-                    observacoes="Inscrição manual via Gestor (Offline)"
-                )
-                messages.success(request, f"Aluno {nome} matriculado com sucesso no curso {curso.titulo}!")
+                request.session['prontu_payment_link'] = pagamento.url_pagamento
+                messages.success(request, f"Matrícula pendente gerada para {nome}. O link de pagamento Prontu está pronto.")
+            except Exception as ex:
+                messages.error(request, f"Erro ao gerar pagamento Prontu: {ex}")
+                inscricao.delete()
             
     except Exception as e:
         messages.error(request, f"Erro ao matricular aluno: {str(e)}")
@@ -4205,3 +4192,33 @@ def responder_comentario(request, comentario_id):
             messages.error(request, 'A resposta não pode estar vazia.')
             
     return redirect('gerenciar_comentarios')
+
+@login_required(login_url='/login_generico/')
+@user_passes_test(is_gestor)
+def validar_inscricao(request):
+    if request.method == 'POST':
+        codigo = request.POST.get('codigo_inscricao', '').strip()
+        
+        if request.user.tipo_usuario == 'GESTOR':
+            centro = getattr(request.user, 'centro_formacao', None)
+        else:
+            filial = Filial.objects.filter(usuario=request.user).first()
+            centro = filial.centro_principal if filial else None
+
+        if not codigo:
+            messages.error(request, "Por favor, insira um código de inscrição válido.")
+            return redirect('gestor_inscricoes')
+
+        try:
+            inscricao = Inscricao.objects.get(codigo_inscricao__iexact=codigo, curso__centro=centro)
+            if inscricao.status == 'A':
+                messages.success(request, f"Ficha Validada! O aluno {inscricao.aluno.nome} tem a inscrição PAGA e APROVADA.")
+            elif inscricao.status == 'P':
+                messages.warning(request, f"Ficha encontrada, mas a inscrição do aluno {inscricao.aluno.nome} ainda está PENDENTE.")
+            elif inscricao.status == 'N':
+                messages.error(request, f"A inscrição do aluno {inscricao.aluno.nome} foi REJEITADA ou CANCELADA.")
+                
+        except Inscricao.DoesNotExist:
+            messages.error(request, "Código inválido ou a inscrição não pertence a este centro.")
+            
+    return redirect('gestor_inscricoes')

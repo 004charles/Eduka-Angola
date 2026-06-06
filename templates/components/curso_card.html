@@ -59,6 +59,11 @@
             <div class="rbt-card-top">
                 <div class="rbt-review">
                     <span class="rating-count">Videoaula</span>
+                    {% if curso.is_pago %}
+                        <span class="rating-count ms-2 text-primary fw-bold">{{ curso.preco|floatformat:2 }} AOA</span>
+                    {% else %}
+                        <span class="rating-count ms-2 text-success fw-bold">Grátis</span>
+                    {% endif %}
                 </div>
             </div>
             <h4 class="rbt-card-title"><a href="{% url 'cursovideoapp:detalhe_curso' slug=curso.slug %}">{{ curso.titulo }}</a></h4>

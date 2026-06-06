@@ -805,6 +805,28 @@ class PaymentService:
                 else:
                     logger.warning(f"Nenhuma inscrição correspondente encontrada para pagamento {pagamento.referencia_pagamento}")
 
+            elif pagamento.tipo_pagamento == 'INSCRICAO_VIDEO':
+                curso_video_id = None
+                if pagamento.metadados:
+                    if isinstance(pagamento.metadados, str):
+                        try:
+                            meta_dict = json.loads(pagamento.metadados)
+                        except Exception:
+                            meta_dict = {}
+                    else:
+                        meta_dict = pagamento.metadados
+                    curso_video_id = meta_dict.get('curso_video_id')
+                
+                if curso_video_id:
+                    from cursovideoapp.models import Curso_video
+                    try:
+                        curso_video = Curso_video.objects.get(id=curso_video_id)
+                        aluno = pagamento.usuario.aluno_profile
+                        curso_video.inscritos.add(aluno)
+                        logger.info(f"Aluno {aluno.id} adicionado ao Curso Video {curso_video_id} após pagamento.")
+                    except Exception as e:
+                        logger.error(f"Erro ao processar INSCRICAO_VIDEO: {e}")
+
             logger.info(f"Ações pós-pagamento executadas: {pagamento.referencia_pagamento}")
         
         except Exception as e:

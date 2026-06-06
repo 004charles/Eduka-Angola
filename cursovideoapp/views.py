@@ -523,8 +523,29 @@ def toggle_inscricao(request, slug):
 
     if curso.inscritos.filter(id=aluno.id).exists():
         curso.inscritos.remove(aluno)
+        messages.success(request, f"Inscrição no curso '{curso.titulo}' removida com sucesso.")
     else:
-        curso.inscritos.add(aluno)
+        if getattr(curso, 'is_pago', False) and getattr(curso, 'preco', 0) > 0:
+            from pagamentos.services import PaymentService
+            try:
+                servico = PaymentService()
+                pagamento = servico.criar_pagamento(
+                    usuario=request.user,
+                    tipo_pagamento='INSCRICAO_VIDEO',
+                    valor=float(curso.preco),
+                    moeda='AOA',
+                    curso=None,
+                    url_sucesso=request.build_absolute_uri(reverse('cursovideoapp:detalhe_curso', kwargs={'slug': slug})),
+                    url_cancelamento=request.build_absolute_uri(reverse('cursovideoapp:detalhe_curso', kwargs={'slug': slug})),
+                    metadados={'acao': 'inscricao_video', 'curso_video_id': str(curso.id)}
+                )
+                messages.info(request, "Você está sendo redirecionado para o pagamento seguro via Prontu.")
+                return redirect(pagamento.url_pagamento)
+            except Exception as e:
+                messages.error(request, f"Erro ao iniciar pagamento: {str(e)}")
+        else:
+            curso.inscritos.add(aluno)
+            messages.success(request, f"Inscrição realizada com sucesso! Bem-vindo(a) ao curso.")
         
     return redirect('cursovideoapp:detalhe_curso', slug=slug)
 

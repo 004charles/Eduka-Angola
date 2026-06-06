@@ -16,12 +16,19 @@
         <span>Inscrições</span>
       </div>
     </div>
-    <!-- Botão Matricular Manualmente -->
-    <button class="kt-btn kt-btn-primary kt-btn-sm gap-2"
-            onclick="document.getElementById('modal_matricula').classList.remove('hidden')">
-      <i class="ki-filled ki-plus-squared text-base"></i>
-      Matricular Aluno
-    </button>
+    <!-- Botões de Ação -->
+    <div class="flex gap-2">
+        <button class="kt-btn kt-btn-success kt-btn-sm gap-2"
+                onclick="document.getElementById('modal_validar_ficha').classList.remove('hidden')">
+          <i class="ki-filled ki-shield-tick text-base"></i>
+          Validar Ficha
+        </button>
+        <button class="kt-btn kt-btn-primary kt-btn-sm gap-2"
+                onclick="document.getElementById('modal_matricula').classList.remove('hidden')">
+          <i class="ki-filled ki-plus-squared text-base"></i>
+          Matricular Aluno
+        </button>
+    </div>
   </div>
 
   <!-- Cards de Resumo -->
@@ -266,13 +273,7 @@
             {% endfor %}
           </select>
         </div>
-        <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium text-mono">Forma de Pagamento</label>
-          <select name="forma_pagamento" class="kt-select" required>
-            <option value="DINHEIRO">Dinheiro (Pagamento Manual/Offline)</option>
-            <option value="PRONTU">Prontu (Gerar Link de Pagamento)</option>
-          </select>
-        </div>
+        <input type="hidden" name="forma_pagamento" value="PRONTU">
         <div class="flex flex-col gap-1.5">
           <label class="text-sm font-medium text-mono">Valor a Cobrar (Kz)</label>
           <input type="number" step="0.01" name="valor_pago" id="valor_pago" class="kt-input" placeholder="0.00" required>
@@ -344,6 +345,31 @@
       <button class="kt-btn kt-btn-outline kt-btn-sm" onclick="document.getElementById('modal_prontu_link').classList.add('hidden')">Fechar</button>
     </div>
   </div>
+  <!-- Modal Validar Ficha -->
+  <div id="modal_validar_ficha" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-background/80 backdrop-blur-sm" onclick="this.parentElement.classList.add('hidden')"></div>
+    <div class="relative bg-card rounded-xl shadow-lg border border-border w-full max-w-md flex flex-col">
+      <div class="flex items-center justify-between p-5 border-b border-border">
+        <h3 class="font-bold text-lg">Validar Ficha de Inscrição</h3>
+        <button onclick="document.getElementById('modal_validar_ficha').classList.add('hidden')" class="btn-icon btn-sm text-muted-foreground hover:text-foreground">
+          <i class="ki-filled ki-cross text-lg"></i>
+        </button>
+      </div>
+      <form action="{% url 'validar_inscricao' %}" method="POST" class="p-5 flex flex-col gap-4">
+        {% csrf_token %}
+        <div>
+          <label class="block text-sm font-medium mb-1.5">Código de Acesso</label>
+          <input type="text" name="codigo_inscricao" class="kt-input" required placeholder="Ex: INS-A1B2C3" autocomplete="off" style="text-transform: uppercase;">
+          <p class="text-xs text-muted-foreground mt-1">O código encontra-se na Ficha em PDF do aluno.</p>
+        </div>
+        <div class="flex justify-end gap-2 mt-2">
+          <button type="button" class="kt-btn kt-btn-outline" onclick="document.getElementById('modal_validar_ficha').classList.add('hidden')">Cancelar</button>
+          <button type="submit" class="kt-btn kt-btn-success">Verificar Código</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 </div>
 {% endif %}
 {% endblock %}

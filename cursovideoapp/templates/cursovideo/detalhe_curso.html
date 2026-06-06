@@ -512,7 +512,11 @@
                                 <form action="{% url 'cursovideoapp:toggle_inscricao' slug=curso.slug %}" method="POST" class="w-100 d-flex">
                                     {% csrf_token %}
                                     <button type="submit" class="play-btn-primary w-100">
-                                        <i class="fas fa-plus"></i> Inscrever-se Agora
+                                        {% if curso.is_pago %}
+                                            <i class="fas fa-shopping-cart"></i> Comprar por {{ curso.preco|floatformat:2 }} AOA
+                                        {% else %}
+                                            <i class="fas fa-plus"></i> Inscrever-se Grátis
+                                        {% endif %}
                                     </button>
                                 </form>
                             {% endif %}
@@ -787,7 +791,11 @@
                                         </h6>
                                         <div class="rbt-card-bottom">
                                             <div class="rbt-price">
-                                                <span class="current-price">Grátis</span>
+                                                {% if rec.is_pago %}
+                                                    <span class="current-price">{{ rec.preco|floatformat:2 }} AOA</span>
+                                                {% else %}
+                                                    <span class="current-price">Grátis</span>
+                                                {% endif %}
                                             </div>
                                             <div class="rbt-view">
                                                 {% if rec.duracao_total_segundos > 0 %}

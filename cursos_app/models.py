@@ -706,6 +706,7 @@ class Inscricao(models.Model):
     data_inscricao = models.DateTimeField(_('Data de Inscrição'), default=timezone.now, db_index=True)
     status = models.CharField(_('Status'), max_length=1, choices=STATUS_CHOICES, default='P', db_index=True)
     tipo_inscricao = models.CharField(_('Tipo de Inscrição'), max_length=10, choices=TIPO_INSCRICAO_CHOICES, default='ONLINE', db_index=True)
+    codigo_inscricao = models.CharField(_('Código de Inscrição'), max_length=20, unique=True, blank=True, null=True, db_index=True)
     
     forma_pagamento = models.CharField(_('Forma de Pagamento'), max_length=20, choices=FORMA_PAGAMENTO_CHOICES, blank=True)
     valor_pago = models.DecimalField(_('Valor Pago'), max_digits=10, decimal_places=3, validators=[MinValueValidator(0)], null=True, blank=True)
@@ -732,6 +733,10 @@ class Inscricao(models.Model):
         return f"{self.aluno.nome} → {self.curso.titulo} ({self.get_status_display()})"
 
     def save(self, *args, **kwargs):
+        if not self.codigo_inscricao:
+            import uuid
+            self.codigo_inscricao = f"INS-{str(uuid.uuid4().hex[:6]).upper()}"
+            
         is_new = self.pk is None
         old_status = None
         

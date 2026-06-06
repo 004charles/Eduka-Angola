@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+    <meta charset="UTF-8">
+    <title>Ficha de Inscrição - {{ inscricao.codigo_inscricao }}</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #10b981;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #1f2937;
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+        .header p {
+            margin: 0;
+            color: #6b7280;
+        }
+        .badge-pago {
+            display: inline-block;
+            background-color: #d1fae5;
+            color: #047857;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            border: 1px solid #10b981;
+            margin-top: 15px;
+        }
+        .section {
+            margin-bottom: 30px;
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #4f46e5;
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 5px;
+        }
+        .row {
+            display: table;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .col {
+            display: table-cell;
+            width: 50%;
+        }
+        .label {
+            font-weight: bold;
+            color: #6b7280;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        .value {
+            font-size: 15px;
+            color: #111827;
+            margin-top: 4px;
+        }
+        .code-box {
+            text-align: center;
+            background: #e0e7ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        .code-box .label {
+            color: #4338ca;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .code-box .code {
+            font-size: 32px;
+            font-weight: bold;
+            color: #312e81;
+            letter-spacing: 2px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 12px;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Ficha de Inscrição Presencial</h1>
+        <p>EdukAngola - Plataforma de Educação</p>
+        <div class="badge-pago">INSCRIÇÃO PAGA (VIA PRONTU)</div>
+    </div>
+
+    <div class="code-box">
+        <span class="label">CÓDIGO DE ACESSO AO CENTRO</span>
+        <span class="code">{{ inscricao.codigo_inscricao }}</span>
+        <p style="font-size: 12px; color: #4f46e5; margin-top: 10px;">Apresente este código no {{ centro.nome }} para confirmar a sua inscrição.</p>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Dados do Aluno</h2>
+        <div class="row">
+            <div class="col">
+                <div class="label">Nome Completo</div>
+                <div class="value">{{ aluno.usuario.nome }}</div>
+            </div>
+            <div class="col">
+                <div class="label">Email</div>
+                <div class="value">{{ aluno.usuario.email }}</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="label">Telefone</div>
+                <div class="value">{{ aluno.telefone|default:"Não informado" }}</div>
+            </div>
+            <div class="col">
+                <div class="label">Data de Inscrição</div>
+                <div class="value">{{ inscricao.data_inscricao|date:"d/m/Y H:i" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Dados do Curso</h2>
+        <div class="row">
+            <div class="col">
+                <div class="label">Curso</div>
+                <div class="value">{{ curso.titulo }}</div>
+            </div>
+            <div class="col">
+                <div class="label">Centro de Formação</div>
+                <div class="value">{{ centro.nome }}</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="label">Modalidade</div>
+                <div class="value">{{ curso.get_modalidade_display }}</div>
+            </div>
+            <div class="col">
+                <div class="label">Valor Pago</div>
+                <div class="value">{{ inscricao.valor_pago|floatformat:2 }} {{ curso.moeda }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Documento gerado automaticamente pelo sistema EdukAngola em {{ data_atual|date:"d/m/Y H:i" }}.<br>
+        Este documento serve como comprovativo de inscrição pago.
+    </div>
+
+</body>
+</html>
