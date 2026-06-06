@@ -1,19 +1,19 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Pagamento Concluído com Sucesso{% endblock %}
+{% block title %}Pagamento Concluído | EdukAngola{% endblock %}
 
 {% block content %}
-<div class="payment-success-wrapper d-flex align-items-center justify-content-center py-5">
+<div class="payment-success-wrapper py-5">
     <div class="container py-4">
         <div class="row justify-content-center">
-            <div class="col-md-6">
+            <div class="col-lg-6 col-md-8">
                 <!-- Premium Glassmorphism Card -->
-                <div class="card payment-success-card shadow-2xl text-center border-0 overflow-hidden">
+                <div class="card payment-success-card shadow-lg text-center border-0 overflow-hidden">
                     <!-- Top Gradient Decoration -->
                     <div class="card-glow-bg"></div>
                     
-                    <div class="card-body p-5 position-relative">
+                    <div class="card-body p-4 p-md-5 position-relative">
                         <!-- Success Circle Animation -->
                         <div class="success-icon-container mb-4 mx-auto">
                             <div class="success-circle-pulsing"></div>
@@ -26,32 +26,40 @@
                         </div>
 
                         <!-- Main Heading & Text -->
-                        <h2 class="success-title mb-2">Pagamento Confirmado!</h2>
-                        <p class="success-description mb-4">O seu pagamento foi processado com sucesso pelo gateway Prontu. O acesso à sua formação já se encontra libertado.</p>
+                        <h2 class="success-title mb-3">Pagamento Confirmado!</h2>
+                        <p class="success-description mb-4">O seu pagamento foi processado com sucesso pelo nosso sistema. O acesso à sua formação já se encontra libertado.</p>
 
                         <!-- Transaction Metadata Table -->
                         <div class="transaction-details p-4 mb-4 text-start">
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="detail-label">Status</span>
-                                <span class="badge bg-success-soft text-success px-3 py-1 rounded-pill fw-bold">Aprovado</span>
+                                <span class="badge bg-success text-white px-3 py-1 rounded-pill fw-bold" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;">Aprovado</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="detail-label">Referência</span>
                                 <span class="detail-value text-monospace" id="ref-id">{{ referencia }}</span>
                             </div>
                             <div class="d-flex justify-content-between">
-                                <span class="detail-label">ID da Transação</span>
+                                <span class="detail-label">ID Transação</span>
                                 <span class="detail-value text-muted text-monospace" id="trans-id">{{ transaction_id }}</span>
                             </div>
                         </div>
 
                         <!-- Action Buttons -->
-                        <div class="d-grid gap-3">
-                            <a href="/auth/aluno/dashboard/" class="btn btn-premium-primary btn-lg py-3 rounded-pill" id="btn-go-dashboard">
-                                <i class="feather-grid me-2"></i> Ir para o Meu Painel
+                        <div class="d-grid gap-3 mt-2">
+                            <a href="/auth/aluno/cursos/" class="rbt-btn btn-gradient hover-icon-reverse w-100 mb-2" id="btn-go-dashboard" style="border-radius: 50px;">
+                                <span class="icon-reverse-wrapper">
+                                    <span class="btn-text">Ir para Meus Cursos</span>
+                                    <span class="btn-icon"><i class="feather-book"></i></span>
+                                    <span class="btn-icon"><i class="feather-book"></i></span>
+                                </span>
                             </a>
-                            <a href="/cursos/" class="btn btn-premium-secondary btn-lg py-3 rounded-pill" id="btn-browse-courses">
-                                <i class="feather-book-open me-2"></i> Explorar Outros Cursos
+                            <a href="/cursos/" class="rbt-btn btn-border hover-icon-reverse w-100" id="btn-browse-courses" style="border-radius: 50px;">
+                                <span class="icon-reverse-wrapper">
+                                    <span class="btn-text">Explorar Outros Cursos</span>
+                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                </span>
                             </a>
                         </div>
                     </div>
@@ -64,25 +72,35 @@
 
 {% block extra_css %}
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+    :root {
+        --success-bg: #f8faff;
+        --glass-bg: rgba(255, 255, 255, 0.95);
+        --glass-border: rgba(0, 0, 0, 0.05);
+        --text-color: #4b5563;
+        --detail-bg: rgba(16, 185, 129, 0.03);
+    }
+
+    body.active-dark-mode {
+        --success-bg: #0f0f11;
+        --glass-bg: #1a1a1d;
+        --glass-border: rgba(255, 255, 255, 0.05);
+        --text-color: #94a3b8;
+        --detail-bg: rgba(16, 185, 129, 0.05);
+    }
 
     .payment-success-wrapper {
-        background-color: #0f0c1b;
-        background-image: 
-            radial-gradient(at 10% 20%, hsla(263, 61%, 15%, 1) 0px, transparent 50%),
-            radial-gradient(at 90% 80%, hsla(142, 60%, 12%, 1) 0px, transparent 50%);
-        min-height: 80vh;
-        font-family: 'Outfit', sans-serif;
+        background-color: var(--success-bg);
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        transition: background-color 0.3s ease;
     }
 
     .payment-success-card {
-        background: rgba(25, 22, 45, 0.65) !important;
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-        border-radius: 24px !important;
-        color: #fff;
-        position: relative;
+        background: var(--glass-bg) !important;
+        border: 1px solid var(--glass-border) !important;
+        border-radius: 20px !important;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
     }
 
     .card-glow-bg {
@@ -90,14 +108,14 @@
         top: 0;
         left: 0;
         width: 100%;
-        height: 8px;
+        height: 5px;
         background: linear-gradient(90deg, #10b981 0%, #059669 100%);
     }
 
     .success-icon-container {
         position: relative;
-        width: 100px;
-        height: 100px;
+        width: 80px;
+        height: 80px;
     }
 
     .success-circle-pulsing {
@@ -115,16 +133,16 @@
         position: absolute;
         top: 10px;
         left: 10px;
-        width: 80px;
-        height: 80px;
+        width: 60px;
+        height: 60px;
         border-radius: 50%;
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+        box-shadow: 0 8px 16px rgba(16, 185, 129, 0.25);
     }
 
     .checkmark {
-        width: 45px;
-        height: 45px;
+        width: 35px;
+        height: 35px;
         border-radius: 50%;
         display: block;
         stroke-width: 4;
@@ -150,68 +168,36 @@
     }
 
     .success-title {
-        font-weight: 800;
-        font-size: 32px;
-        background: linear-gradient(90deg, #34d399 0%, #059669 100%);
+        font-weight: 700;
+        font-size: 26px;
+        background: linear-gradient(90deg, #10b981 0%, #059669 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        letter-spacing: -0.5px;
     }
 
     .success-description {
-        font-size: 16px;
-        color: #94a3b8;
+        font-size: 15px;
+        color: var(--text-color);
         line-height: 1.6;
     }
 
     .transaction-details {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 16px;
+        background: var(--detail-bg);
+        border: 1px solid rgba(16, 185, 129, 0.1);
+        border-radius: 12px;
     }
 
     .detail-label {
         font-size: 14px;
-        color: #64748b;
+        color: var(--text-color);
         font-weight: 600;
+        opacity: 0.8;
     }
 
     .detail-value {
         font-size: 14px;
-        color: #f1f5f9;
+        color: var(--text-color);
         font-weight: 600;
-    }
-
-    .bg-success-soft {
-        background: rgba(16, 185, 129, 0.12) !important;
-        border: 1px solid rgba(16, 185, 129, 0.2);
-    }
-
-    .btn-premium-primary {
-        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-        color: #fff !important;
-        border: none;
-        font-weight: 600;
-        box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
-        transition: all 0.3s ease;
-    }
-
-    .btn-premium-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 15px 25px rgba(79, 70, 229, 0.4);
-    }
-
-    .btn-premium-secondary {
-        background: rgba(255, 255, 255, 0.05);
-        color: #f1f5f9 !important;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .btn-premium-secondary:hover {
-        background: rgba(255, 255, 255, 0.08);
-        transform: translateY(-2px);
     }
 
     @keyframes stroke {
