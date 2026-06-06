@@ -59,7 +59,7 @@
         </h2>
         <div class="flex overflow-x-auto gap-4 pb-4 snap-x hide-scrollbar">
             {% for curso in cursos_recentes %}
-            <div class="min-w-[280px] w-[280px] bg-gray-800 rounded-xl shadow-sm border border-gray-700 overflow-hidden flex-shrink-0 snap-start transition-transform hover:-translate-y-1">
+            <div class="bg-gray-800 rounded-xl shadow-sm border border-gray-700 overflow-hidden flex-shrink-0 snap-start transition-transform hover:-translate-y-1" style="min-width: 280px; width: 280px;">
                 {% if curso.capa %}
                     <img src="{{ curso.capa.url }}" alt="{{ curso.titulo }}" class="w-full h-36 object-cover border-b border-gray-700">
                 {% else %}
@@ -88,7 +88,7 @@
         </h2>
         <div class="flex overflow-x-auto gap-4 pb-4 snap-x hide-scrollbar">
             {% for centro in centros_recentes %}
-            <div class="min-w-[320px] w-[320px] bg-gray-800 rounded-xl shadow-sm border border-gray-700 overflow-hidden flex-shrink-0 snap-start transition-transform hover:-translate-y-1">
+            <div class="bg-gray-800 rounded-xl shadow-sm border border-gray-700 overflow-hidden flex-shrink-0 snap-start transition-transform hover:-translate-y-1" style="min-width: 320px; width: 320px;">
                 <div class="relative h-32">
                     {% if centro.perfil.banner %}
                         <img src="{{ centro.perfil.banner.url }}" alt="{{ centro.nome }}" class="w-full h-full object-cover">
@@ -98,9 +98,9 @@
                     <div class="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
                     
                     {% if centro.perfil.imagem %}
-                    <img src="{{ centro.perfil.imagem.url }}" class="absolute -bottom-6 left-4 w-14 h-14 rounded-full border-4 border-gray-800 object-cover bg-white">
+                    <img src="{{ centro.perfil.imagem.url }}" class="absolute rounded-full border-4 border-gray-800 object-cover bg-white" style="width: 64px; height: 64px; bottom: -24px; left: 16px;">
                     {% else %}
-                    <div class="absolute -bottom-6 left-4 w-14 h-14 rounded-full border-4 border-gray-800 bg-indigo-600 flex items-center justify-center text-white font-bold text-xl">
+                    <div class="absolute rounded-full border-4 border-gray-800 bg-indigo-600 flex items-center justify-center text-white font-bold text-xl" style="width: 64px; height: 64px; bottom: -24px; left: 16px;">
                         {{ centro.nome|make_list|first|upper }}
                     </div>
                     {% endif %}
