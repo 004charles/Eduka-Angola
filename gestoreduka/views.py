@@ -4193,17 +4193,17 @@ def responder_comentario(request, comentario_id):
             
     return redirect('gerenciar_comentarios')
 
-@login_required(login_url='/login_generico/')
-@user_passes_test(is_gestor)
 def validar_inscricao(request):
+    if not request.user.is_authenticated:
+        return redirect('login_gestor')
+        
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        messages.error(request, "Acesso negado.")
+        return redirect('login_gestor')
+
     if request.method == 'POST':
         codigo = request.POST.get('codigo_inscricao', '').strip()
-        
-        if request.user.tipo_usuario == 'GESTOR':
-            centro = getattr(request.user, 'centro_formacao', None)
-        else:
-            filial = Filial.objects.filter(usuario=request.user).first()
-            centro = filial.centro_principal if filial else None
 
         if not codigo:
             messages.error(request, "Por favor, insira um código de inscrição válido.")
