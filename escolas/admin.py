@@ -26,12 +26,16 @@ class ParceriaEscolaInline(UnfoldTabularInline):
     model = ParceriaEscola
     extra = 1
 
+class RepresentanteEscolaInline(UnfoldTabularInline):
+    model = RepresentanteEscola
+    extra = 1
+
 @admin.register(Escola)
 class EscolaAdmin(UnfoldModelAdmin):
     list_display = ('nome', 'tipo_rede', 'provincia', 'municipio', 'ativa')
     list_filter = ('tipo_rede', 'provincia', 'ativa')
     search_fields = ('nome', 'municipio')
-    inlines = [PerfilEscolaInline, CursoEnsinoMedioInline, GaleriaEscolaInline, ParceriaEscolaInline]
+    inlines = [PerfilEscolaInline, RepresentanteEscolaInline, CursoEnsinoMedioInline, GaleriaEscolaInline, ParceriaEscolaInline]
 
 @admin.register(RepresentanteEscola)
 class RepresentanteEscolaAdmin(UnfoldModelAdmin):
