@@ -672,8 +672,9 @@ def gerenciar_assinatura(request):
         return redirect('login_gestor')
     
     centro, filial = get_gestor_context(request.user)
-    if not centro:
-        return redirect('login_gestor')
+    if not centro or filial:
+        messages.error(request, "Acesso negado. Apenas a Sede pode gerir assinaturas.")
+        return redirect('centro_dashboard')
         
     assinatura = getattr(centro, 'assinatura', None)
     planos_disponiveis = Plano.objects.filter(ativo=True).exclude(id=assinatura.plano.id if assinatura and assinatura.plano else None)
@@ -4004,8 +4005,9 @@ def gerenciar_financeiro(request):
 def listar_anuncios(request):
     """Listagem de anúncios do centro para o gestor"""
     centro, filial = get_gestor_context(request.user)
-    if not centro:
-        return redirect('login_gestor')
+    if not centro or filial:
+        messages.error(request, "Acesso negado. Apenas a Sede pode gerir comunicados.")
+        return redirect('centro_dashboard')
         
     anuncios = centro.anuncios.all().order_by('-data_publicacao')
     
@@ -4018,8 +4020,9 @@ def listar_anuncios(request):
 def criar_anuncio(request):
     """Criação de um novo anúncio institucional"""
     centro, filial = get_gestor_context(request.user)
-    if not centro:
-        return redirect('login_gestor')
+    if not centro or filial:
+        messages.error(request, "Acesso negado. Apenas a Sede pode criar comunicados.")
+        return redirect('centro_dashboard')
         
     if request.method == 'POST':
         from .forms import AnuncioForm
@@ -4064,8 +4067,9 @@ from django.shortcuts import get_object_or_404
 def editar_anuncio(request, anuncio_id):
     """Edição de um anúncio institucional existente"""
     centro, filial = get_gestor_context(request.user)
-    if not centro:
-        return redirect('login_gestor')
+    if not centro or filial:
+        messages.error(request, "Acesso negado. Apenas a Sede pode editar comunicados.")
+        return redirect('centro_dashboard')
         
     from gestoreduka.models import AnuncioCentro
     anuncio = get_object_or_404(AnuncioCentro, id=anuncio_id, centro=centro)
@@ -4092,8 +4096,9 @@ def editar_anuncio(request, anuncio_id):
 def excluir_anuncio(request, anuncio_id):
     """Excluir um anúncio institucional existente"""
     centro, filial = get_gestor_context(request.user)
-    if not centro:
-        return redirect('login_gestor')
+    if not centro or filial:
+        messages.error(request, "Acesso negado. Apenas a Sede pode apagar comunicados.")
+        return redirect('centro_dashboard')
         
     from gestoreduka.models import AnuncioCentro
     anuncio = get_object_or_404(AnuncioCentro, id=anuncio_id, centro=centro)
@@ -4348,14 +4353,14 @@ def atribuir_cursos_filial(request, filial_id):
     centro = request.user.centro_profile
     filial = get_object_or_404(Filial, id=filial_id, centro_principal=centro, ativo=True)
     
-    # Cursos do centro principal (sem filial)
-    cursos_centro = Curso.objects.filter(centro=centro, filial__isnull=True, ativo=True)
+    # Cursos do centro principal
+    cursos_centro = Curso.objects.filter(centro=centro, ativo=True)
     
-    # Títulos de cursos que a filial já tem
-    titulos_filial = Curso.objects.filter(centro=centro, filial=filial, ativo=True).values_list('titulo', flat=True)
+    # Cursos que a filial já tem
+    cursos_filial = filial.cursos_disponiveis.all()
     
     # Cursos disponíveis para atribuir (que a filial não tem)
-    cursos_disponiveis = cursos_centro.exclude(titulo__in=titulos_filial)
+    cursos_disponiveis = cursos_centro.exclude(id__in=cursos_filial.values_list('id', flat=True))
     
     if request.method == 'POST':
         curso_ids = request.POST.getlist('cursos')
@@ -4363,38 +4368,21 @@ def atribuir_cursos_filial(request, filial_id):
             messages.warning(request, "Selecione pelo menos um curso para atribuir.")
             return redirect('atribuir_cursos_filial', filial_id=filial_id)
             
-        cursos_para_clonar = cursos_centro.filter(id__in=curso_ids)
+        cursos_para_atribuir = cursos_centro.filter(id__in=curso_ids)
         
-        import uuid
         from django.db import transaction
         
         with transaction.atomic():
-            for curso in cursos_para_clonar:
-                # Criar clone base do curso
-                novo_curso = Curso.objects.get(id=curso.id)
-                novo_curso.id = None
-                novo_curso.filial = filial
-                novo_curso.slug = f"{curso.slug}-f{filial.id}-{str(uuid.uuid4())[:6]}"
-                novo_curso.save()
+            for curso in cursos_para_atribuir:
+                curso.filiais.add(filial)
                 
-                # Clonar relações M2M simples
-                novo_curso.instrutores.set(curso.instrutores.all())
-                
-                # Clonar Pré-requisitos (Relação Reversa)
-                from cursos_app.models import PreRequisitoCurso
-                for pre_req in curso.pre_requisitos.all():
-                    PreRequisitoCurso.objects.create(
-                        curso=novo_curso,
-                        texto=pre_req.texto,
-                        ordem=pre_req.ordem
-                    )
-                
-        messages.success(request, f"{cursos_para_clonar.count()} cursos clonados e atribuídos com sucesso à filial {filial.nome}.")
+        messages.success(request, f"{cursos_para_atribuir.count()} curso(s) atribuído(s) com sucesso à filial {filial.nome}.")
         return redirect('gerenciar_filiais')
         
     context = {
         'filial': filial,
-        'cursos_disponiveis': cursos_disponiveis
+        'cursos_disponiveis': cursos_disponiveis,
+        'cursos_atuais': cursos_filial
     }
     return render(request, 'gestor/filiais/atribuir_cursos.html', context)
 

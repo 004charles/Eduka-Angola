@@ -928,7 +928,7 @@ class PaymentService:
     def _construir_url_callback(self, referencia_pagamento: str) -> str:
         """Constrói URL de callback do webhook"""
         
-        base_url = settings.PRONTU_CALLBACK_URL or f"{settings.SITE_DOMAIN}/api/pagamentos/webhook"
+        base_url = settings.PRONTU_CALLBACK_URL or f"{settings.SITE_DOMAIN}/api/v1/pagamentos/webhook/prontu/"
         return f"{base_url}?ref={referencia_pagamento}"
     
     def _gerar_descricao_pagamento(
