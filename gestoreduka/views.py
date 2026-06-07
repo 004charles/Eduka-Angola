@@ -4180,3 +4180,136 @@ def validar_inscricao(request):
             messages.error(request, "Código inválido ou a inscrição não pertence a este centro.")
             
     return redirect('gestor_inscricoes')
+
+
+# ==========================================
+# GESTÃO DE FILIAIS
+# ==========================================
+from django.contrib.auth import get_user_model
+from usuarios.models import Usuario
+
+def gerenciar_filiais(request):
+    """Lista as filiais do Centro Master."""
+    if not request.user.is_authenticated:
+        return redirect('login_gestor')
+        
+    centro, filial = get_gestor_context(request.user)
+    if not centro or filial:  # Apenas Master pode ver filiais
+        messages.error(request, "Acesso negado. Apenas a Sede (Master) pode gerir filiais.")
+        return redirect('centro_dashboard')
+        
+    filiais = centro.filiais.all()
+    
+    context = {
+        'centro': centro,
+        'filiais': filiais,
+    }
+    return render(request, 'gestor/filiais/lista.html', context)
+
+def criar_filial(request):
+    """Cria uma nova filial e o respectivo usuário GESTOR_FILIAL."""
+    if not request.user.is_authenticated:
+        return redirect('login_gestor')
+        
+    centro, filial = get_gestor_context(request.user)
+    if not centro or filial:
+        messages.error(request, "Acesso negado.")
+        return redirect('centro_dashboard')
+        
+    if request.method == 'POST':
+        nome = request.POST.get('nome')
+        endereco = request.POST.get('endereco')
+        telefone = request.POST.get('telefone')
+        email = request.POST.get('email')
+        whatsapp = request.POST.get('whatsapp')
+        senha = request.POST.get('senha')
+        
+        if Filial.objects.filter(email=email).exists() or Usuario.objects.filter(email=email).exists():
+            messages.error(request, "Já existe uma filial ou utilizador com este e-mail.")
+        else:
+            try:
+                # 1. Criar Utilizador
+                novo_usuario = Usuario.objects.create_user(
+                    email=email,
+                    password=senha,
+                    nome=f"Gestor - {nome}",
+                    tipo_usuario='GESTOR_FILIAL'
+                )
+                
+                # 2. Criar Filial
+                nova_filial = Filial.objects.create(
+                    centro_principal=centro,
+                    usuario=novo_usuario,
+                    nome=nome,
+                    endereco=endereco,
+                    telefone=telefone,
+                    email=email,
+                    whatsapp=whatsapp
+                )
+                
+                # 3. Copiar Categorias
+                nova_filial.categorias.set(centro.categorias.all())
+                
+                messages.success(request, "Filial criada com sucesso!")
+                return redirect('gerenciar_filiais')
+            except Exception as e:
+                messages.error(request, f"Erro ao criar filial: {str(e)}")
+                
+    context = {
+        'centro': centro,
+        'acao': 'Criar'
+    }
+    return render(request, 'gestor/filiais/form.html', context)
+
+def editar_filial(request, filial_id):
+    if not request.user.is_authenticated:
+        return redirect('login_gestor')
+        
+    centro, is_filial = get_gestor_context(request.user)
+    if not centro or is_filial:
+        messages.error(request, "Acesso negado.")
+        return redirect('centro_dashboard')
+        
+    filial_obj = get_object_or_404(Filial, id=filial_id, centro_principal=centro)
+    
+    if request.method == 'POST':
+        filial_obj.nome = request.POST.get('nome')
+        filial_obj.endereco = request.POST.get('endereco')
+        filial_obj.telefone = request.POST.get('telefone')
+        filial_obj.whatsapp = request.POST.get('whatsapp')
+        
+        nova_senha = request.POST.get('senha')
+        if nova_senha and filial_obj.usuario:
+            filial_obj.usuario.set_password(nova_senha)
+            filial_obj.usuario.save()
+            
+        filial_obj.save()
+        messages.success(request, "Filial atualizada com sucesso!")
+        return redirect('gerenciar_filiais')
+        
+    context = {
+        'centro': centro,
+        'filial_obj': filial_obj,
+        'acao': 'Editar'
+    }
+    return render(request, 'gestor/filiais/form.html', context)
+
+def excluir_filial(request, filial_id):
+    if not request.user.is_authenticated:
+        return redirect('login_gestor')
+        
+    centro, is_filial = get_gestor_context(request.user)
+    if not centro or is_filial:
+        messages.error(request, "Acesso negado.")
+        return redirect('centro_dashboard')
+        
+    filial_obj = get_object_or_404(Filial, id=filial_id, centro_principal=centro)
+    
+    if request.method == 'POST':
+        usuario = filial_obj.usuario
+        filial_obj.delete()
+        if usuario:
+            usuario.delete()
+        messages.success(request, "Filial excluída com sucesso!")
+        
+    return redirect('gerenciar_filiais')

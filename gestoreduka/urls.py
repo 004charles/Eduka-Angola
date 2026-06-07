@@ -41,6 +41,12 @@ urlpatterns = [
     path('turmas/', views.gerenciar_turmas, name='gerenciar_turmas'),
     path('turmas/criar/', views.criar_turma, name='criar_turma'),
     path('turmas/editar/<int:turma_id>/', views.editar_turma, name='editar_turma'),
+
+    # Filiais
+    path('filiais/', views.gerenciar_filiais, name='gerenciar_filiais'),
+    path('filiais/criar/', views.criar_filial, name='criar_filial'),
+    path('filiais/editar/<int:filial_id>/', views.editar_filial, name='editar_filial'),
+    path('filiais/excluir/<int:filial_id>/', views.excluir_filial, name='excluir_filial'),
     
     # Instrutores
     path('instrutores/', views.gerenciar_instrutores, name='gerenciar_instrutores'),

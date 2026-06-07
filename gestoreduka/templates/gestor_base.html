@@ -161,6 +161,12 @@ License: https://keenthemes.com/metronic/tailwind/docs/getting-started/license
          <span class="kt-menu-icon"><i class="ki-filled ki-user text-lg"></i></span>
          <span class="kt-tooltip" data-kt-tooltip-content="true">Corpo de Mentores</span>
         </a>
+        {% if request.user.tipo_usuario == 'GESTOR' %}
+        <a title="Filiais: Gerir as localizações e filiais do seu centro" class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&amp;_i]:text-primary hover:border-border [.active&amp;]:bg-background [.active&amp;]:[&amp;_i]:text-primary [.active&amp;]:border-border {% if 'filiai' in request.resolver_match.url_name %}active{% endif %}" data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'gerenciar_filiais' %}">
+         <span class="kt-menu-icon"><i class="ki-filled ki-map text-lg"></i></span>
+         <span class="kt-tooltip" data-kt-tooltip-content="true">Gestão de Filiais</span>
+        </a>
+        {% endif %}
         <a title="Eventos: Criar workshops e webinars" class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&amp;_i]:text-primary hover:border-border [.active&amp;]:bg-background [.active&amp;]:[&amp;_i]:text-primary [.active&amp;]:border-border {% if 'evento' in request.resolver_match.url_name %}active{% endif %}" data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'gerenciar_eventos' %}">
          <span class="kt-menu-icon"><i class="ki-filled ki-calendar text-lg"></i></span>
          <span class="kt-tooltip" data-kt-tooltip-content="true">Eventos</span>

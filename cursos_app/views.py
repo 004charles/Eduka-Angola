@@ -635,6 +635,15 @@ def curso_detalhe(request, id):
     curso.visualizacoes += 1
     curso.save(update_fields=['visualizacoes'])
     
+    # Encontrar outras filiais/centro que oferecem o mesmo curso (mesmo título)
+    outras_localizacoes = Curso.objects.filter(
+        centro=curso.centro,
+        titulo__iexact=curso.titulo,
+        publicado=True,
+        ativo=True
+    ).exclude(id=curso.id)
+    
+    
     
     comentarios = Comentario.objects.select_related('aluno').filter(
         curso=curso,
@@ -721,6 +730,7 @@ def curso_detalhe(request, id):
         'categorias': categorias,
         'cursos_relacionados': cursos_relacionados,
         'cursos_relacionados_lista': cursos_relacionados_lista,
+        'outras_localizacoes': outras_localizacoes,
         'video_preview': video_preview,
         'imagem': imagem,
         'media_avaliacoes': round(media_avaliacoes, 1),
@@ -1060,11 +1070,12 @@ def instrutor_detalhes(request, id):
     cursos = Curso.objects.filter(instrutores=instrutor)
     
     context = {
-        'instrutor': instrutor,
-        'cursos': cursos
+        'c1': stats['c1'] or 0,
+        'avaliacoes_distribuicao': distrib,
+        'outras_localizacoes': outras_localizacoes,
     }
     
-    return render(request, 'instrutor_detalhes.html', context)
+    return render(request, 'cursos_app/curso_detalhe.html', context)
 
 def cursos_por_centro(request, centro_id):
     context = {

@@ -477,6 +477,23 @@
                                         {% endif %}
                                     </div>
 
+                                    {% if curso.filial or outras_localizacoes %}
+                                    <div class="mb-4">
+                                        <span class="small text-muted d-block mb-2 fw-bold" style="font-size: 11px;">LOCAL DE ESTUDO:</span>
+                                        <div class="dropdown w-100">
+                                            <button class="btn btn-outline-primary dropdown-toggle w-100 d-flex justify-content-between align-items-center" type="button" id="dropdownFilial" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 8px; text-align: left;">
+                                                <span><i class="feather-map-pin me-2"></i> {% if curso.filial %}{{ curso.filial.nome }}{% else %}Sede ({{ curso.centro.nome }}){% endif %}</span>
+                                            </button>
+                                            <ul class="dropdown-menu w-100 shadow-sm" aria-labelledby="dropdownFilial" style="border-radius: 8px; border: 1px solid rgba(0,0,0,0.05);">
+                                                <li><a class="dropdown-item active bg-primary text-white" href="{% url 'curso_detalhe' curso.id %}">{% if curso.filial %}{{ curso.filial.nome }}{% else %}Sede ({{ curso.centro.nome }}){% endif %}</a></li>
+                                                {% for outro in outras_localizacoes %}
+                                                <li><a class="dropdown-item" href="{% url 'curso_detalhe' outro.id %}">{% if outro.filial %}{{ outro.filial.nome }}{% else %}Sede ({{ curso.centro.nome }}){% endif %}</a></li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+
                                     <div class="add-to-cart-button d-grid gap-3">
                                         {% if user.is_authenticated and aluno_inscricao %}
                                             <a class="rbt-btn btn-gradient radius-round" href="{% url 'painel_curso' curso.id %}">Ir para o Painel</a>

@@ -1,0 +1,107 @@
+{% extends 'gestor_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="flex flex-col gap-6 lg:gap-8">
+
+    <!-- Header Glassmorphic Panel -->
+    <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md shadow-xl">
+        <div class="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-primary/20 blur-3xl"></div>
+        
+        <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex flex-col gap-1.5">
+                <h1 class="text-2xl font-bold text-foreground tracking-tight">Gerenciar Filiais</h1>
+                <p class="text-sm text-muted-foreground max-w-xl">
+                    Administre as filiais associadas ao seu centro. Crie novas filiais e acompanhe os gestores responsáveis por cada uma.
+                </p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="{% url 'criar_filial' %}" class="kt-btn kt-btn-primary shadow-lg shadow-primary/20 hover:scale-[1.01] transition-all duration-300">
+                    <i class="ki-filled ki-plus"></i> Nova Filial
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Filiais Card Grid / Table -->
+    <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-xl flex flex-col">
+        
+        <div class="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+            <h3 class="font-bold text-base text-foreground flex items-center gap-2">
+                <i class="ki-filled ki-map text-primary text-lg"></i>
+                Lista de Filiais
+            </h3>
+            <span class="text-xs font-semibold text-muted-foreground bg-white/5 px-2.5 py-1 rounded-lg border border-white/10">
+                {{ filiais|length }} Filiais Registradas
+            </span>
+        </div>
+
+        <div class="p-6 overflow-x-auto">
+            <table class="table-auto w-full text-left text-sm whitespace-nowrap">
+                <thead class="text-[10px] text-muted-foreground uppercase tracking-widest border-b border-white/10">
+                    <tr>
+                        <th class="pb-3 font-semibold">Filial</th>
+                        <th class="pb-3 font-semibold">Email & Telefone</th>
+                        <th class="pb-3 font-semibold">Endereço</th>
+                        <th class="pb-3 font-semibold">Cursos Oferecidos</th>
+                        <th class="pb-3 font-semibold text-right">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                    {% for filial in filiais %}
+                    <tr class="group hover:bg-white/[0.02] transition-colors">
+                        <td class="py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="size-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                                    <i class="ki-filled ki-shop text-xl text-primary/80"></i>
+                                </div>
+                                <div class="flex flex-col gap-0.5">
+                                    <span class="text-sm font-bold text-foreground group-hover:text-primary transition-colors">{{ filial.nome }}</span>
+                                    <span class="text-[10px] text-muted-foreground font-mono">ID: {{ filial.id }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4">
+                            <div class="flex flex-col gap-0.5">
+                                <span class="text-sm font-medium text-foreground">{{ filial.email }}</span>
+                                <span class="text-[10px] text-muted-foreground">{{ filial.telefone|default:"N/A" }}</span>
+                            </div>
+                        </td>
+                        <td class="py-4">
+                            <span class="text-xs font-medium text-foreground">{{ filial.endereco|default:"Não informado"|truncatechars:35 }}</span>
+                        </td>
+                        <td class="py-4">
+                            <span class="text-xs font-bold text-foreground">{{ filial.cursos.count }} Cursos</span>
+                        </td>
+                        <td class="py-4 text-right">
+                            <div class="flex items-center justify-end gap-1.5">
+                                <a href="{% url 'editar_filial' filial.id %}" class="inline-flex items-center justify-center size-8 rounded-lg border border-white/10 bg-white/5 text-muted-foreground hover:text-warning hover:bg-warning/10 hover:border-warning/20 transition-all duration-300" title="Editar Filial">
+                                    <i class="ki-filled ki-pencil text-base"></i>
+                                </a>
+                                <form action="{% url 'excluir_filial' filial.id %}" method="POST" class="inline" onsubmit="return confirm('Tem a certeza que deseja excluir esta filial? Esta ação é irreversível.');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="inline-flex items-center justify-center size-8 rounded-lg border border-white/10 bg-white/5 text-muted-foreground hover:text-danger hover:bg-danger/10 hover:border-danger/20 transition-all duration-300" title="Excluir Filial">
+                                        <i class="ki-filled ki-trash text-base"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="py-12 text-center text-sm text-muted-foreground">
+                            <div class="flex flex-col items-center justify-center gap-3">
+                                <i class="ki-filled ki-map text-4xl text-muted-foreground/30"></i>
+                                <p class="text-xs">Ainda não tem filiais cadastradas. Crie a sua primeira filial!</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>
+{% endblock content %}
