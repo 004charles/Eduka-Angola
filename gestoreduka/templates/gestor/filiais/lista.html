@@ -75,6 +75,9 @@
                         </td>
                         <td class="py-4 text-right">
                             <div class="flex items-center justify-end gap-1.5">
+                                <a href="{% url 'atribuir_cursos_filial' filial.id %}" class="inline-flex items-center justify-center size-8 rounded-lg border border-white/10 bg-white/5 text-muted-foreground hover:text-primary hover:bg-primary/10 hover:border-primary/20 transition-all duration-300" title="Atribuir Cursos">
+                                    <i class="ki-filled ki-book-open text-base"></i>
+                                </a>
                                 <a href="{% url 'editar_filial' filial.id %}" class="inline-flex items-center justify-center size-8 rounded-lg border border-white/10 bg-white/5 text-muted-foreground hover:text-warning hover:bg-warning/10 hover:border-warning/20 transition-all duration-300" title="Editar Filial">
                                     <i class="ki-filled ki-pencil text-base"></i>
                                 </a>

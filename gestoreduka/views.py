@@ -2850,6 +2850,10 @@ def criar_curso(request):
     if not centro:
         return redirect('login_gestor')
         
+    if request.user.tipo_usuario == 'GESTOR_FILIAL':
+        messages.error(request, "Apenas a Sede Principal (Master) tem permissões para criar novos cursos.")
+        return redirect('gestor_dashboard')
+        
     # Verificação de Limite de Cursos do Plano Atual
     try:
         assinatura = centro.assinatura
@@ -4223,6 +4227,16 @@ def criar_filial(request):
         email = request.POST.get('email')
         whatsapp = request.POST.get('whatsapp')
         senha = request.POST.get('senha')
+        latitude = request.POST.get('latitude')
+        longitude = request.POST.get('longitude')
+        
+        # Converter para decimal se não estiver vazio
+        try:
+            latitude = float(latitude) if latitude else None
+            longitude = float(longitude) if longitude else None
+        except ValueError:
+            latitude = None
+            longitude = None
         
         if Filial.objects.filter(email=email).exists() or Usuario.objects.filter(email=email).exists():
             messages.error(request, "Já existe uma filial ou utilizador com este e-mail.")
@@ -4244,7 +4258,9 @@ def criar_filial(request):
                     endereco=endereco,
                     telefone=telefone,
                     email=email,
-                    whatsapp=whatsapp
+                    whatsapp=whatsapp,
+                    latitude=latitude,
+                    longitude=longitude
                 )
                 
                 # 3. Copiar Categorias
@@ -4277,6 +4293,15 @@ def editar_filial(request, filial_id):
         filial_obj.endereco = request.POST.get('endereco')
         filial_obj.telefone = request.POST.get('telefone')
         filial_obj.whatsapp = request.POST.get('whatsapp')
+        
+        latitude = request.POST.get('latitude')
+        longitude = request.POST.get('longitude')
+        
+        try:
+            if latitude: filial_obj.latitude = float(latitude)
+            if longitude: filial_obj.longitude = float(longitude)
+        except ValueError:
+            pass
         
         nova_senha = request.POST.get('senha')
         if nova_senha and filial_obj.usuario:

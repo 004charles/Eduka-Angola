@@ -1,0 +1,98 @@
+{% extends 'gestor_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="flex flex-col gap-6 lg:gap-8">
+
+    <!-- Header Glassmorphic Panel -->
+    <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md shadow-xl">
+        <div class="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-primary/20 blur-3xl"></div>
+        
+        <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex flex-col gap-1.5">
+                <h1 class="text-2xl font-bold text-foreground tracking-tight">Atribuir Cursos</h1>
+                <p class="text-sm text-muted-foreground max-w-xl">
+                    Selecione os cursos da sede principal que deseja disponibilizar na filial <strong>{{ filial.nome }}</strong>. Isto irá clonar o curso para a filial.
+                </p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="{% url 'gerenciar_filiais' %}" class="kt-btn kt-btn-light border-white/10 hover:bg-white/10 text-foreground transition-all">
+                    <i class="ki-filled ki-arrow-left"></i> Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if messages %}
+        <div class="flex flex-col gap-3">
+            {% for message in messages %}
+                <div class="p-4 rounded-xl text-sm font-medium backdrop-blur-md transition-all duration-300 flex items-center gap-3 {% if message.tags == 'success' %}bg-success/10 text-success border border-success/20 shadow-sm shadow-success/5{% elif message.tags == 'error' %}bg-danger/10 text-danger border border-danger/20 shadow-sm shadow-danger/5{% else %}bg-warning/10 text-warning border border-warning/20 shadow-sm shadow-warning/5{% endif %}">
+                    <span class="size-2 rounded-full {% if message.tags == 'success' %}bg-success animate-pulse{% elif message.tags == 'error' %}bg-danger animate-pulse{% else %}bg-warning animate-pulse{% endif %}"></span>
+                    <span class="flex-1">{{ message }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-xl flex flex-col">
+        <form method="POST" action="{% url 'atribuir_cursos_filial' filial.id %}">
+            {% csrf_token %}
+            <div class="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+                <h3 class="font-bold text-base text-foreground flex items-center gap-2">
+                    <i class="ki-filled ki-book-open text-primary text-lg"></i>
+                    Cursos Disponíveis na Sede
+                </h3>
+            </div>
+
+            <div class="p-6">
+                {% if cursos_disponiveis %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for curso in cursos_disponiveis %}
+                    <label class="relative flex flex-col p-5 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-primary/50 transition-all cursor-pointer group">
+                        <div class="absolute top-5 right-5">
+                            <input type="checkbox" name="cursos" value="{{ curso.id }}" class="size-5 rounded border-white/20 bg-white/5 text-primary focus:ring-primary focus:ring-offset-background transition-all">
+                        </div>
+                        
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="size-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+                                {% if curso.imagem %}
+                                    <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}" class="size-full object-cover">
+                                {% else %}
+                                    <i class="ki-filled ki-book text-xl text-primary/80"></i>
+                                {% endif %}
+                            </div>
+                            <div class="flex flex-col pr-8">
+                                <span class="text-sm font-bold text-foreground">{{ curso.titulo }}</span>
+                                <span class="text-[10px] text-muted-foreground">{{ curso.categoria.nome|default:"Sem Categoria" }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
+                            <span class="text-xs font-medium text-foreground">{{ curso.preco }} Kz</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">{{ curso.get_nivel_display }}</span>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="py-12 text-center text-sm text-muted-foreground">
+                    <div class="flex flex-col items-center justify-center gap-3">
+                        <i class="ki-filled ki-check-circle text-4xl text-success/50"></i>
+                        <p class="text-sm">Todos os cursos da Sede Principal já estão atribuídos a esta filial!</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if cursos_disponiveis %}
+            <div class="p-6 border-t border-white/10 flex justify-end bg-white/[0.02] gap-3">
+                <button type="submit" class="kt-btn kt-btn-primary shadow-lg shadow-primary/20 hover:scale-[1.01] transition-all">
+                    <i class="ki-filled ki-copy"></i> Clonar e Atribuir Cursos
+                </button>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+
+</div>
+{% endblock content %}

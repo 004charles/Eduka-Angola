@@ -22,9 +22,11 @@
                 </p>
             </div>
             <div class="flex items-center gap-3">
+                {% if request.user.tipo_usuario == 'GESTOR' %}
                 <a href="{% url 'criar_curso' %}" class="kt-btn kt-btn-primary shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300 hover:scale-[1.02]">
                     <i class="ki-filled ki-plus"></i> Novo Curso
                 </a>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -200,12 +202,18 @@
                                     <i class="ki-filled ki-book-open text-3xl opacity-50"></i>
                                 </span>
                                 <h4 class="text-base font-bold text-foreground">Nenhum curso encontrado</h4>
+                                {% if request.user.tipo_usuario == 'GESTOR' %}
                                 <p class="text-sm text-muted-foreground max-w-sm">
                                     Comece criando seu primeiro curso para atrair novos alunos e expandir sua marca na Angola.
                                 </p>
                                 <a href="{% url 'criar_curso' %}" class="kt-btn kt-btn-sm kt-btn-primary mt-2">
                                     Criar Curso
                                 </a>
+                                {% else %}
+                                <p class="text-sm text-muted-foreground max-w-sm">
+                                    Ainda não lhe foram atribuídos cursos.
+                                </p>
+                                {% endif %}
                             </div>
                         </td>
                     </tr>

@@ -47,6 +47,7 @@ urlpatterns = [
     path('filiais/criar/', views.criar_filial, name='criar_filial'),
     path('filiais/editar/<int:filial_id>/', views.editar_filial, name='editar_filial'),
     path('filiais/excluir/<int:filial_id>/', views.excluir_filial, name='excluir_filial'),
+    path('filiais/atribuir-cursos/<int:filial_id>/', views.atribuir_cursos_filial, name='atribuir_cursos_filial'),
     
     # Instrutores
     path('instrutores/', views.gerenciar_instrutores, name='gerenciar_instrutores'),
