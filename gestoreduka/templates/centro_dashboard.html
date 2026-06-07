@@ -27,10 +27,12 @@
             </p>
         </div>
         <div class="flex items-center gap-3">
+            {% if request.user.tipo_usuario == 'GESTOR' %}
             <a href="{% url 'listar_anuncios' %}" class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-850 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl transition-all shadow-sm">
                 <i class="ki-filled ki-notification-on text-base"></i>
                 <span>Novo Comunicado</span>
             </a>
+            {% endif %}
             <a href="{% url 'criar_curso' %}" class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 border border-transparent rounded-xl transition-all shadow-sm shadow-indigo-200 dark:shadow-none">
                 <i class="ki-filled ki-plus text-base"></i>
                 <span>Novo Curso</span>
@@ -246,6 +248,7 @@
         <!-- Informações Adicionais e Ações do Plano -->
         <div class="flex flex-col gap-6">
             
+            {% if request.user.tipo_usuario == 'GESTOR' %}
             <!-- Resumo do Plano de Serviços -->
             <div class="flex flex-col p-6 bg-slate-900 text-white rounded-2xl shadow-sm relative overflow-hidden">
                 <div class="absolute right-[-20px] top-[-20px] size-40 bg-indigo-600/30 rounded-full blur-3xl"></div>
@@ -286,6 +289,7 @@
                     </a>
                 </div>
             </div>
+            {% endif %}
 
             <!-- Comunidade & Links Rápidos -->
             <div class="flex flex-col p-6 bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 rounded-2xl shadow-sm">

@@ -175,11 +175,13 @@ License: https://keenthemes.com/metronic/tailwind/docs/getting-started/license
          <span class="kt-menu-icon"><i class="ki-filled ki-chart-pie-4 text-lg"></i></span>
          <span class="kt-tooltip" data-kt-tooltip-content="true">Métricas de Impacto</span>
         </a>
+        {% if request.user.tipo_usuario == 'GESTOR' %}
         <a id="nav-comunicados" title="Comunicados & Seguidores: Anúncios para os alunos" class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&_i]:text-primary hover:border-border [.active&]:bg-background [.active&]:[&_i]:text-primary [.active&]:border-border relative {% if 'anuncio' in request.resolver_match.url_name %}active{% endif %}" data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'listar_anuncios' %}">
          <span class="kt-menu-icon"><i class="ki-filled ki-notification-on text-lg"></i></span>
          <span class="badge-count hidden absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-red-500 text-white rounded-full text-[10px] w-4 h-4 flex items-center justify-center">0</span>
          <span class="kt-tooltip" data-kt-tooltip-content="true">Comunicados & Seguidores</span>
         </a>
+        {% endif %}
         <a title="Comunidade: Ver alunos que seguem o centro" class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&_i]:text-primary hover:border-border [.active&]:bg-background [.active&]:[&_i]:text-primary [.active&]:border-border {% if 'seguidores' in request.resolver_match.url_name %}active{% endif %}" data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'listar_seguidores' %}">
          <span class="kt-menu-icon"><i class="ki-filled ki-people text-lg"></i></span>
          <span class="kt-tooltip" data-kt-tooltip-content="true">Seguidores do Centro</span>
