@@ -147,7 +147,16 @@ def inscrever_curso(request, curso_id):
         except Exception:
             pass
         
-        # Se for pago, criar o pagamento no gateway real Prontu e redirecionar
+        messages.success(request, "Inscrição iniciada. Prossiga com o pagamento para confirmar a sua vaga.")
+        return redirect('tela_pagamento_inscricao', inscricao_id=inscricao.id)
+        
+@login_required(login_url='login_aluno')
+def tela_pagamento_inscricao(request, inscricao_id):
+    """View para intermediar o pagamento após a inscrição"""
+    inscricao = get_object_or_404(Inscricao, id=inscricao_id, aluno=request.user.aluno_profile)
+    curso = inscricao.curso
+    
+    if request.method == 'POST':
         try:
             from django.urls import reverse
             from pagamentos.services import get_payment_service, PagamentoException
@@ -170,17 +179,20 @@ def inscrever_curso(request, curso_id):
                 return redirect(pagamento.url_pagamento)
             else:
                 messages.error(request, "Não foi possível gerar o link de pagamento. Por favor, tente novamente.")
-                inscricao.delete()  # Limpar inscrição pendente pois a geração do link falhou
-                return redirect('curso_detalhe', id=curso_id)
+                return redirect('tela_pagamento_inscricao', inscricao_id=inscricao.id)
                 
         except PagamentoException as gateway_err:
             messages.error(request, f"Erro no gateway Prontu: {gateway_err}")
-            inscricao.delete()
-            return redirect('curso_detalhe', id=curso_id)
+            return redirect('tela_pagamento_inscricao', inscricao_id=inscricao.id)
         except Exception as e_err:
             messages.error(request, f"Ocorreu um erro inesperado ao iniciar o pagamento: {e_err}")
-            inscricao.delete()
-            return redirect('curso_detalhe', id=curso_id)
+            return redirect('tela_pagamento_inscricao', inscricao_id=inscricao.id)
+
+    context = {
+        'inscricao': inscricao,
+        'curso': curso
+    }
+    return render(request, 'cursos/tela_pagamento.html', context)
     
     # Mostrar página de confirmação de inscrição
     context = {

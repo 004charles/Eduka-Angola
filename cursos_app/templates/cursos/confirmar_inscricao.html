@@ -334,44 +334,16 @@
                         <!-- 2. Métodos de Pagamento -->
                         {% if not curso.is_gratuito %}
                         <div class="glass-card">
-                            <h4 class="fw-bold mb-4">Forma de Pagamento</h4>
-                            <p class="text-muted small mb-4">Escolha como deseja concluir a sua inscrição com total segurança.</p>
+                            <h4 class="fw-bold mb-4">Pagamento Seguro</h4>
+                            <p class="text-muted small mb-4">Na próxima etapa será redirecionado para a plataforma de pagamento seguro Prontu.</p>
                             
-                            <div class="payment-methods">
-                                <!-- MCX Express -->
-                                <div class="payment-option active" onclick="selectPayment(this, 'express')">
-                                    <div class="icon-box">
-                                        <i class="fas fa-mobile-alt"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-1 fw-bold">Multicaixa Express</h6>
-                                        <p class="mb-0 small text-muted">Aprovação em tempo real. Pague pelo telemóvel.</p>
-                                    </div>
-                                    <div class="ms-auto check-icon">
-                                        <i class="feather-check-circle text-primary"></i>
-                                    </div>
+                            <div class="d-flex align-items-center gap-3 p-4 rounded-4" style="background-color: var(--input-bg); border: 1px solid var(--border-color);">
+                                <div class="icon-box bg-white shadow-sm d-flex align-items-center justify-center rounded-3" style="width: 48px; height: 48px; color: var(--color-primary);">
+                                    <i class="fas fa-shield-alt fs-4"></i>
                                 </div>
-
-                                <!-- Referência Multicaixa -->
-                                <div class="payment-option" onclick="selectPayment(this, 'referencia')">
-                                    <div class="icon-box">
-                                        <i class="fas fa-barcode"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-1 fw-bold">Pagamento por Referência</h6>
-                                        <p class="mb-0 small text-muted">Pague no Multicaixa ou Internet Banking (24h).</p>
-                                    </div>
-                                </div>
-
-                                <!-- Transferência -->
-                                <div class="payment-option" onclick="selectPayment(this, 'transferencia')">
-                                    <div class="icon-box">
-                                        <i class="fas fa-university"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-1 fw-bold">Transferência / Depósito</h6>
-                                        <p class="mb-0 small text-muted">Anexo de comprovativo. Validação em 24h.</p>
-                                    </div>
+                                <div>
+                                    <h6 class="mb-1 fw-bold">Ambiente Protegido</h6>
+                                    <p class="mb-0 small text-muted">A sua inscrição será finalizada após a confirmação do pagamento.</p>
                                 </div>
                             </div>
                         </div>
@@ -400,7 +372,7 @@
                             </div>
 
                             <button type="submit" class="rbt-btn btn-gradient w-100 btn-md icon-hover py-4" style="border-radius: 16px;">
-                                <span class="btn-text">{% if curso.is_gratuito %}Finalizar Inscrição{% else %}Ir para Pagamento{% endif %}</span>
+                                <span class="btn-text">{% if curso.is_gratuito %}Finalizar Inscrição{% else %}Confirmar e Avançar{% endif %}</span>
                                 <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                             </button>
 
