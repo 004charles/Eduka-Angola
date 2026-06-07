@@ -207,13 +207,13 @@ def centro_dashboard(request):
         
     from datetime import timedelta
     # Estatísticas Gerais (Filtrar por filial se aplicável)
-    cursos_qs = filial.cursos.all() if filial else centro.cursos.all()
+    cursos_qs = filial.cursos_disponiveis.all() if filial else centro.cursos.all()
     total_cursos = cursos_qs.count()
     total_cursos_ativos = cursos_qs.filter(ativo=True).count()
     
     inscricoes_qs = Inscricao.objects.filter(curso__centro=centro)
     if filial:
-        inscricoes_qs = inscricoes_qs.filter(curso__filial=filial)
+        inscricoes_qs = inscricoes_qs.filter(curso__filiais=filial)
         
     total_inscricoes = inscricoes_qs.count()
     inscricoes_pendentes = inscricoes_qs.filter(status='P').count()
@@ -282,7 +282,7 @@ def centro_dashboard(request):
     )
     if filial:
         comentarios_centro = comentarios_centro.filter(
-            Q(curso__filial=filial) | Q(curso_video__instrutor__filial=filial)
+            Q(curso__filiais=filial) | Q(curso_video__instrutor__filial=filial)
         )
     avaliacao_media = comentarios_centro.aggregate(media=Avg('avaliacao'))['media'] or 0.0
     avaliacao_media = round(avaliacao_media, 1)
@@ -325,7 +325,7 @@ def centro_dashboard(request):
     # 2. Vagas em níveis críticos (ex: lotação > 90% ou vagas disponíveis < 3 em turmas abertas)
     turmas_criticas = Turma.objects.filter(curso__centro=centro, status='ABERTA')
     if filial:
-        turmas_criticas = turmas_criticas.filter(curso__filial=filial)
+        turmas_criticas = turmas_criticas.filter(curso__filiais=filial)
     
     count_turmas_criticas = 0
     for t in turmas_criticas:
@@ -348,7 +348,7 @@ def centro_dashboard(request):
     )
     if filial:
         comentarios_nao_respondidos = comentarios_nao_respondidos.filter(
-            Q(curso__filial=filial) | Q(curso_video__instrutor__filial=filial)
+            Q(curso__filiais=filial) | Q(curso_video__instrutor__filial=filial)
         )
     count_comentarios_nao_respondidos = comentarios_nao_respondidos.count()
     if count_comentarios_nao_respondidos > 0:
@@ -471,7 +471,7 @@ def gerenciar_inscricoes(request):
             from django.contrib import messages
             inscricoes_qs = Inscricao.objects.filter(curso__centro=centro)
             if filial:
-                inscricoes_qs = inscricoes_qs.filter(curso__filial=filial)
+                inscricoes_qs = inscricoes_qs.filter(curso__filiais=filial)
             inscricao = get_object_or_404(inscricoes_qs, id=inscricao_id)
             if action == 'approve':
                 inscricao.status = 'A'
@@ -485,7 +485,7 @@ def gerenciar_inscricoes(request):
 
     inscricoes_qs = Inscricao.objects.filter(curso__centro=centro)
     if filial:
-        inscricoes_qs = inscricoes_qs.filter(curso__filial=filial)
+        inscricoes_qs = inscricoes_qs.filter(curso__filiais=filial)
 
     # Calculate statistics before filtering
     total_count = inscricoes_qs.count()
@@ -644,7 +644,7 @@ def emitir_certificado_manual(request, inscricao_id):
     try:
         inscricoes_qs = Inscricao.objects.filter(curso__centro=centro, status='A')
         if filial:
-            inscricoes_qs = inscricoes_qs.filter(curso__filial=filial)
+            inscricoes_qs = inscricoes_qs.filter(curso__filiais=filial)
             
         inscricao = inscricoes_qs.get(id=inscricao_id)
         
@@ -738,8 +738,8 @@ def analytics_centro(request):
     inscricoes_qs = Inscricao.objects.filter(curso__centro=centro)
     cursos_qs = centro.cursos.all()
     if filial:
-        inscricoes_qs = inscricoes_qs.filter(curso__filial=filial)
-        cursos_qs = filial.cursos.all()
+        inscricoes_qs = inscricoes_qs.filter(curso__filiais=filial)
+        cursos_qs = filial.cursos_disponiveis.all()
     
     # Receita mensal
     receita_mes = inscricoes_qs.filter(
@@ -783,7 +783,7 @@ def gerenciar_turmas(request):
         
     turmas_qs = Turma.objects.filter(curso__centro=centro)
     if filial:
-        turmas_qs = turmas_qs.filter(curso__filial=filial)
+        turmas_qs = turmas_qs.filter(curso__filiais=filial)
         
     turmas = turmas_qs.select_related('curso', 'instrutor_principal').order_by('-data_inicio')
     
@@ -808,7 +808,7 @@ def criar_turma(request):
     if not centro:
         return redirect('login_gestor')
         
-    cursos_context = filial.cursos.filter(ativo=True) if filial else centro.cursos.filter(ativo=True)
+    cursos_context = filial.cursos_disponiveis.filter(ativo=True) if filial else centro.cursos.filter(ativo=True)
     instrutores_context = filial.instrutores.filter(ativo=True) if filial else centro.instrutores.filter(ativo=True)
     
     if request.method == 'POST':
@@ -874,7 +874,7 @@ def editar_turma(request, turma_id):
         messages.error(request, "Permissão negada.")
         return redirect('gerenciar_turmas')
         
-    cursos_context = filial.cursos.filter(ativo=True) if filial else centro.cursos.filter(ativo=True)
+    cursos_context = filial.cursos_disponiveis.filter(ativo=True) if filial else centro.cursos.filter(ativo=True)
     instrutores_context = filial.instrutores.filter(ativo=True) if filial else centro.instrutores.filter(ativo=True)
     
     if request.method == 'POST':
@@ -3005,7 +3005,7 @@ def listar_cursos(request):
     if not centro:
         return redirect('login_gestor')
     
-    cursos_qs = filial.cursos.all() if filial else centro.cursos.all()
+    cursos_qs = filial.cursos_disponiveis.all() if filial else centro.cursos.all()
     cursos = cursos_qs.order_by('-data_criacao')
     
     # Filtros para as abas
@@ -3885,7 +3885,7 @@ def gerenciar_alunos(request):
         return redirect('login_gestor')
         
     # Buscar IDs dos cursos pertencentes ao centro/filial
-    cursos_ids = filial.cursos.values_list('id', flat=True) if filial else centro.cursos.values_list('id', flat=True)
+    cursos_ids = filial.cursos_disponiveis.values_list('id', flat=True) if filial else centro.cursos.values_list('id', flat=True)
     
     # Encontrar todas as inscrições nesses cursos
     from cursos_app.models import Inscricao
@@ -3925,7 +3925,7 @@ def dossie_aluno(request, aluno_id):
     from usuarios.models import Aluno
     aluno = get_object_or_404(Aluno, id=aluno_id)
     
-    cursos_ids = filial.cursos.values_list('id', flat=True) if filial else centro.cursos.values_list('id', flat=True)
+    cursos_ids = filial.cursos_disponiveis.values_list('id', flat=True) if filial else centro.cursos.values_list('id', flat=True)
     
     from cursos_app.models import Inscricao
     inscricoes = Inscricao.objects.filter(aluno=aluno, curso_id__in=cursos_ids).select_related('curso', 'turma_escolhida').order_by('-data_inscricao')
@@ -3964,25 +3964,25 @@ def gerenciar_financeiro(request):
         inscricoes_pagas = Inscricao.objects.filter(
             curso__centro=centro,
             valor_pago__gt=0
-        ).select_related('curso__filial', 'curso', 'aluno__usuario').order_by('-data_pagamento', '-data_inscricao')
+        ).select_related('curso', 'aluno__usuario').order_by('-data_pagamento', '-data_inscricao')
         
         # Agregação global
         total_receita = inscricoes_pagas.aggregate(Sum('valor_pago'))['valor_pago__sum'] or 0
         
         # Agregação por filial (null = Centro Mãe)
-        receita_centro_mae = inscricoes_pagas.filter(curso__filial__isnull=True).aggregate(Sum('valor_pago'))['valor_pago__sum'] or 0
+        receita_centro_mae = inscricoes_pagas.filter(curso__filiais__isnull=True).aggregate(Sum('valor_pago'))['valor_pago__sum'] or 0
         
         # Receitas das filiais
         filiais_receita = []
         for fil in centro.filiais.all():
-            receitas_f = inscricoes_pagas.filter(curso__filial=fil).aggregate(Sum('valor_pago'))['valor_pago__sum'] or 0
+            receitas_f = inscricoes_pagas.filter(curso__filiais=fil).aggregate(Sum('valor_pago'))['valor_pago__sum'] or 0
             if receitas_f > 0:
                 filiais_receita.append({'nome': fil.nome, 'total': receitas_f})
                 
     else:
         # É GESTOR_FILIAL - só os cursos da filial
         inscricoes_pagas = Inscricao.objects.filter(
-            curso__filial=filial,
+            curso__filiais=filial,
             valor_pago__gt=0
         ).select_related('curso', 'aluno__usuario').order_by('-data_pagamento', '-data_inscricao')
         
