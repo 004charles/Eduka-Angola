@@ -516,7 +516,7 @@ def gerenciar_inscricoes(request):
         'pendentes_count': pendentes_count,
         'aprovadas_count': aprovadas_count,
         'rejeitadas_count': rejeitadas_count,
-        'cursos_ativos': Curso.objects.filter(centro=centro, publicado=True, ativo=True) if not filial else Curso.objects.filter(filial=filial, publicado=True, ativo=True),
+        'cursos_ativos': Curso.objects.filter(centro=centro, publicado=True, ativo=True) if not filial else Curso.objects.filter(filiais=filial, publicado=True, ativo=True),
         'prontu_payment_link': prontu_payment_link
     })
 
