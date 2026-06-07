@@ -4379,8 +4379,15 @@ def atribuir_cursos_filial(request, filial_id):
                 
                 # Clonar relações M2M simples
                 novo_curso.instrutores.set(curso.instrutores.all())
-                novo_curso.categorias.set(curso.categorias.all())
-                novo_curso.pre_requisitos.set(curso.pre_requisitos.all())
+                
+                # Clonar Pré-requisitos (Relação Reversa)
+                from cursos_app.models import PreRequisitoCurso
+                for pre_req in curso.pre_requisitos.all():
+                    PreRequisitoCurso.objects.create(
+                        curso=novo_curso,
+                        texto=pre_req.texto,
+                        ordem=pre_req.ordem
+                    )
                 
         messages.success(request, f"{cursos_para_clonar.count()} cursos clonados e atribuídos com sucesso à filial {filial.nome}.")
         return redirect('gerenciar_filiais')
