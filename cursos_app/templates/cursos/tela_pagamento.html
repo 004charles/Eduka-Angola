@@ -93,10 +93,14 @@
                         <span class="text-muted">Aluno:</span>
                         <span class="fw-bold">{{ inscricao.aluno.nome }}</span>
                     </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">Motivo:</span>
+                        <span class="fw-bold">{{ curso.descricao_cobranca_online }}</span>
+                    </div>
                     <hr class="my-3">
                     <div class="d-flex justify-content-between align-items-center">
-                        <span class="fw-bold h5 mb-0">Total a Pagar:</span>
-                        <span class="fw-bold h4 mb-0 text-primary">{{ curso.preco_atual }} Kz</span>
+                        <span class="fw-bold h5 mb-0">Total a Pagar Agora:</span>
+                        <span class="fw-bold h4 mb-0 text-primary">{{ curso.valor_a_cobrar_online }} Kz</span>
                     </div>
                 </div>
 
@@ -108,7 +112,7 @@
                         {% csrf_token %}
                         <button type="submit" class="rbt-btn btn-gradient w-100 btn-xl d-flex align-items-center justify-content-center gap-2" style="border-radius: 12px; font-size: 18px;">
                             <i class="feather-lock"></i>
-                            Pagar {{ curso.preco_atual }} Kz via Prontu
+                            Pagar {{ curso.valor_a_cobrar_online }} Kz via Prontu
                         </button>
                     </form>
                 </div>

@@ -34,7 +34,7 @@ class CursoForm(forms.ModelForm):
         fields = [
             'titulo', 'descricao', 'descricao_curta', 'nivel', 'idioma', 'categoria',
             'certificado', 'instrutores', 'carga_horaria', 'duracao', 
-            'moeda', 'preco', 'preco_inscricao', 'preco_promocional', 
+            'moeda', 'preco', 'preco_inscricao', 'mensalidade', 'tipo_cobranca_inscricao', 'preco_promocional', 
             'data_inicio_promocao', 'data_fim_promocao',
             'modalidade', 'publicado', 'imagem', 'destaque', 'documento_requerido'
         ]
@@ -93,6 +93,15 @@ class CursoForm(forms.ModelForm):
                 'step': '0.001',
                 'min': '0'
             }),
+            'mensalidade': forms.NumberInput(attrs={
+                'class': 'kt-input',
+                'placeholder': '0.000',
+                'step': '0.001',
+                'min': '0'
+            }),
+            'tipo_cobranca_inscricao': forms.Select(attrs={
+                'class': 'kt-select'
+            }),
             'preco_promocional': forms.NumberInput(attrs={
                 'class': 'kt-input',
                 'placeholder': '0.000',
@@ -141,6 +150,8 @@ class CursoForm(forms.ModelForm):
             'moeda': 'Moeda do Curso *',
             'preco': 'Preço Normal *',
             'preco_inscricao': 'Taxa de Inscrição',
+            'mensalidade': 'Valor da Mensalidade (opcional)',
+            'tipo_cobranca_inscricao': 'O que cobrar online?',
             'preco_promocional': 'Preço Promocional',
             'data_inicio_promocao': 'Início da Promoção',
             'data_fim_promocao': 'Fim da Promoção',

@@ -140,6 +140,12 @@ class Curso(models.Model):
         ('USD', _('Dólar (USD)')),
     ]
 
+    TIPO_COBRANCA_INSCRICAO_CHOICES = [
+        ('APENAS_TAXA', 'Apenas Taxa de Inscrição'),
+        ('TAXA_E_MENSALIDADE', 'Taxa de Inscrição + 1ª Mensalidade'),
+        ('CURSO_COMPLETO', 'Preço Total do Curso'),
+    ]
+
     DURACAO_CHOICES = [
         ('1_SEMANA', '1 Semana'),
         ('2_SEMANAS', '2 Semanas'),
@@ -204,6 +210,23 @@ class Curso(models.Model):
         blank=True,
         help_text="Preço com desconto (opcional)"
     
+    )
+    
+    mensalidade = models.DecimalField(
+        _('Valor da Mensalidade'),
+        max_digits=12,
+        decimal_places=3,
+        validators=[MinValueValidator(0)],
+        default=0,
+        help_text="Valor da mensalidade (opcional, aplicável se o curso tiver pagamentos mensais)"
+    )
+
+    tipo_cobranca_inscricao = models.CharField(
+        _('O que cobrar na Inscrição Online?'),
+        max_length=25,
+        choices=TIPO_COBRANCA_INSCRICAO_CHOICES,
+        default='APENAS_TAXA',
+        help_text="Define o valor exato a ser cobrado ao aluno pelo portal na hora da inscrição."
     )
 
     data_inicio_promocao = models.DateTimeField(_('Início da Promoção'), null=True, blank=True)
@@ -364,6 +387,36 @@ class Curso(models.Model):
                     pass
         
         return len(turmas_insuficientes)
+
+    def valor_a_cobrar_online(self):
+        """Retorna o valor exato que o aluno tem de pagar no checkout online."""
+        if self.is_gratuito:
+            return 0
+            
+        if self.tipo_cobranca_inscricao == 'APENAS_TAXA':
+            return self.preco_inscricao
+        elif self.tipo_cobranca_inscricao == 'TAXA_E_MENSALIDADE':
+            return self.preco_inscricao + self.mensalidade
+        elif self.tipo_cobranca_inscricao == 'CURSO_COMPLETO':
+            # Geralmente cobra o curso todo + taxa de inscrição? Ou só o curso?
+            # Assumimos que "Preço Total" cobra tudo.
+            return self.preco_atual + self.preco_inscricao
+        
+        return self.preco_inscricao
+
+    def descricao_cobranca_online(self):
+        """Texto explicativo sobre o que está a ser cobrado."""
+        if self.is_gratuito:
+            return "Inscrição Gratuita"
+            
+        if self.tipo_cobranca_inscricao == 'APENAS_TAXA':
+            return "Apenas Taxa de Inscrição"
+        elif self.tipo_cobranca_inscricao == 'TAXA_E_MENSALIDADE':
+            return "Taxa de Inscrição + 1ª Mensalidade"
+        elif self.tipo_cobranca_inscricao == 'CURSO_COMPLETO':
+            return "Preço Total do Curso + Inscrição"
+            
+        return "Taxa de Inscrição"
 
     @property
     def preco_base_atual(self):

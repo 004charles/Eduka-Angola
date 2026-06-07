@@ -129,16 +129,18 @@ def inscrever_curso(request, curso_id):
             observacoes=f"Inscrição realizada em {timezone.now().strftime('%d/%m/%Y %H:%M')}"
         )
         
-        # Se for curso gratuito, confirmar automaticamente
-        if curso.is_gratuito:
-            inscricao.forma_pagamento = 'SIMULADO'
+        valor_cobrar = curso.valor_a_cobrar_online()
+        
+        # Se o valor a cobrar online for 0, confirmar automaticamente
+        if valor_cobrar <= 0:
+            inscricao.forma_pagamento = 'ISENTO'
             inscricao.valor_pago = 0
             inscricao.data_pagamento = timezone.now()
             inscricao.status = 'A'
             inscricao.data_confirmacao = timezone.now()
             inscricao.save()
             
-            messages.success(request, "Inscrição realizada com sucesso! Curso gratuito confirmado.")
+            messages.success(request, "Inscrição realizada com sucesso! A sua vaga está confirmada (Isento de Pagamento Online).")
             return redirect('painel_curso', curso_id=curso_id)
             
         from cursos_app.utils import enviar_email_inscricao
@@ -162,11 +164,11 @@ def tela_pagamento_inscricao(request, inscricao_id):
             from pagamentos.services import get_payment_service, PagamentoException
             servico = get_payment_service()
             
-            # Criar transação real
+            # Criar transação real com o valor a cobrar online
             pagamento = servico.criar_pagamento(
                 usuario=request.user,
                 tipo_pagamento='INSCRICAO',
-                valor=curso.preco_atual,
+                valor=curso.valor_a_cobrar_online(),
                 moeda='AOA',
                 curso=curso,
                 url_sucesso=request.build_absolute_uri(reverse('pagamento_sucesso')),

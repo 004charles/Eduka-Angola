@@ -356,23 +356,23 @@
                             <h4 class="fw-bold mb-4">Resumo do Pedido</h4>
                             
                             <div class="d-flex justify-content-between mb-3 text-muted">
-                                <span>Subtotal</span>
-                                <span>{% if curso.is_gratuito %}0 Kz{% else %}{{ curso.preco }} Kz{% endif %}</span>
+                                <span>Custo do Curso</span>
+                                <span>{% if curso.is_gratuito %}Grátis{% else %}{{ curso.preco_atual }} Kz{% endif %}</span>
                             </div>
                             <div class="d-flex justify-content-between mb-3 text-muted">
-                                <span>Taxas de Inscrição</span>
-                                <span class="text-success">Grátis</span>
+                                <span>A Pagar Agora</span>
+                                <span class="text-primary">{{ curso.descricao_cobranca_online }}</span>
                             </div>
                             
                             <hr class="my-4">
                             
                             <div class="d-flex justify-content-between mb-4">
                                 <span class="fw-bold h5">Total a Pagar</span>
-                                <span class="fw-bold h5 text-primary">{% if curso.is_gratuito %}0 Kz{% else %}{{ curso.preco }} Kz{% endif %}</span>
+                                <span class="fw-bold h5 text-primary">{% if curso.valor_a_cobrar_online <= 0 %}0 Kz (Isento){% else %}{{ curso.valor_a_cobrar_online }} Kz{% endif %}</span>
                             </div>
 
                             <button type="submit" class="rbt-btn btn-gradient w-100 btn-md icon-hover py-4" style="border-radius: 16px;">
-                                <span class="btn-text">{% if curso.is_gratuito %}Finalizar Inscrição{% else %}Confirmar e Avançar{% endif %}</span>
+                                <span class="btn-text">{% if curso.valor_a_cobrar_online <= 0 %}Confirmar Inscrição Gratuita{% else %}Confirmar e Avançar{% endif %}</span>
                                 <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                             </button>
 
