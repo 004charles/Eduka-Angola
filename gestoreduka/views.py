@@ -4338,3 +4338,56 @@ def excluir_filial(request, filial_id):
         messages.success(request, "Filial excluída com sucesso!")
         
     return redirect('gerenciar_filiais')
+
+@login_required
+def atribuir_cursos_filial(request, filial_id):
+    if request.user.tipo_usuario != 'GESTOR':
+        messages.error(request, "Apenas o Gestor Principal pode atribuir cursos a filiais.")
+        return redirect('gestor_dashboard')
+        
+    centro = request.user.centro_profile
+    filial = get_object_or_404(Filial, id=filial_id, centro_principal=centro, ativo=True)
+    
+    # Cursos do centro principal (sem filial)
+    cursos_centro = Curso.objects.filter(centro=centro, filial__isnull=True, ativo=True)
+    
+    # Títulos de cursos que a filial já tem
+    titulos_filial = Curso.objects.filter(centro=centro, filial=filial, ativo=True).values_list('titulo', flat=True)
+    
+    # Cursos disponíveis para atribuir (que a filial não tem)
+    cursos_disponiveis = cursos_centro.exclude(titulo__in=titulos_filial)
+    
+    if request.method == 'POST':
+        curso_ids = request.POST.getlist('cursos')
+        if not curso_ids:
+            messages.warning(request, "Selecione pelo menos um curso para atribuir.")
+            return redirect('atribuir_cursos_filial', filial_id=filial_id)
+            
+        cursos_para_clonar = cursos_centro.filter(id__in=curso_ids)
+        
+        import uuid
+        from django.db import transaction
+        
+        with transaction.atomic():
+            for curso in cursos_para_clonar:
+                # Criar clone base do curso
+                novo_curso = Curso.objects.get(id=curso.id)
+                novo_curso.id = None
+                novo_curso.filial = filial
+                novo_curso.slug = f"{curso.slug}-f{filial.id}-{str(uuid.uuid4())[:6]}"
+                novo_curso.save()
+                
+                # Clonar relações M2M simples
+                novo_curso.instrutores.set(curso.instrutores.all())
+                novo_curso.categorias.set(curso.categorias.all())
+                novo_curso.pre_requisitos.set(curso.pre_requisitos.all())
+                
+        messages.success(request, f"{cursos_para_clonar.count()} cursos clonados e atribuídos com sucesso à filial {filial.nome}.")
+        return redirect('gerenciar_filiais')
+        
+    context = {
+        'filial': filial,
+        'cursos_disponiveis': cursos_disponiveis
+    }
+    return render(request, 'gestor/filiais/atribuir_cursos.html', context)
+
