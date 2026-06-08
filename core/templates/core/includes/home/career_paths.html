@@ -20,9 +20,9 @@
 
         <div class="row g-5">
             {% for categoria in categorias %}
-            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
-                <a class="rbt-cat-box rbt-cat-box-1 text-center" href="{% url 'buscar_cursos' %}?categoria={{ categoria.id }}">
-                    <div class="inner">
+            <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex">
+                <a class="rbt-cat-box rbt-cat-box-1 text-center w-100 h-100 d-flex flex-column" href="{% url 'buscar_cursos' %}?categoria={{ categoria.id }}">
+                    <div class="inner flex-grow-1 d-flex flex-column justify-content-center">
                         <div class="icons">
                             {% if categoria.imagem %}
                                 <img src="{{ categoria.imagem.url }}" alt="{{ categoria.nome }}" style="max-height: 50px;">
