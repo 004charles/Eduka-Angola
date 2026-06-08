@@ -37,6 +37,9 @@
         
         <!-- Banner Principal / Slider -->
         {% include 'core/includes/home/banner.html' %}
+        
+        <!-- Lista de Escolas / Parceiros Premium -->
+        {% include 'core/includes/home/partners_strip.html' %}
 
         <!-- Barra de Pesquisa -->
         <div class="rbt-search-area ptb--60">
@@ -87,8 +90,8 @@
         <!-- Recomendados para si -->
         {% include 'core/includes/home/recommended_courses.html' %}
 
-        <!-- Categorias de Cursos -->
-        {% include 'core/includes/home/categories.html' %}
+        <!-- Trilhas de Carreira (Novo Estilo Coursera) -->
+        {% include 'core/includes/home/career_paths.html' %}
 
         <!-- Secções Dinâmicas de Cursos (Injetadas via Contexto) -->
         {% for secao in secoes_dinamicas %}
@@ -105,8 +108,8 @@
             {% endif %}
             
             {% if secao.config.slug == 'negocios' %}
-                <!-- Publicidade 10% Desconto -->
-                {% include 'core/includes/home/promo_banner.html' %}
+                <!-- Banners de Publicidade Dinâmicos -->
+                {% include 'core/includes/home/dynamic_ads.html' %}
             {% endif %}
         {% endfor %}
 

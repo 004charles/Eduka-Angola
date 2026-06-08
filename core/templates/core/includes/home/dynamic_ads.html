@@ -1,0 +1,122 @@
+{% load i18n %}
+{% if publicidades %}
+<div class="ptb--40">
+    <div class="container">
+        <div class="swiper ads-swiper-activation" style="border-radius: 16px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.1);">
+            <div class="swiper-wrapper">
+                {% for ad in publicidades %}
+                <div class="swiper-slide">
+                    <div class="promo-banner-wrapper" style="{% if ad.imagem_fundo %}background-image: url('{{ ad.imagem_fundo.url }}'); background-size: cover; background-position: center;{% else %}background: linear-gradient(135deg, #020c26 0%, #6025F5 100%);{% endif %}">
+                        
+                        <!-- Overlay escuro para garantir legibilidade do texto -->
+                        {% if ad.imagem_fundo %}
+                        <div style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(2,12,38,0.9) 0%, rgba(96,37,245,0.4) 100%); z-index: 1;"></div>
+                        {% endif %}
+                        
+                        <div class="promo-content">
+                            <h3 class="promo-title">{{ ad.titulo }}</h3>
+                            <p class="promo-text">{{ ad.descricao|truncatechars:180 }}</p>
+                            {% if ad.url_destino %}
+                            <a href="{{ ad.url_destino }}" class="promo-link-btn">{{ ad.texto_botao|default:"Saber mais" }} <i class="feather-arrow-right"></i></a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% if publicidades|length > 1 %}
+            <div class="swiper-pagination ads-pagination" style="position: absolute; bottom: 15px; z-index: 10;"></div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .promo-banner-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 50px 70px;
+        position: relative;
+        min-height: 250px;
+    }
+    .promo-content {
+        max-width: 65%;
+        position: relative;
+        z-index: 2;
+    }
+    .promo-title {
+        color: #ffffff;
+        font-size: 32px;
+        font-weight: 800;
+        margin-bottom: 15px;
+        line-height: 1.2;
+        font-family: 'Inter', sans-serif;
+    }
+    .promo-text {
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 16px;
+        margin-bottom: 30px;
+        line-height: 1.6;
+    }
+    .promo-link-btn {
+        background: #ffffff;
+        color: #020c26;
+        padding: 12px 28px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.3s;
+        text-decoration: none;
+    }
+    .promo-link-btn:hover {
+        background: #00c6ff;
+        color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 198, 255, 0.4);
+    }
+    .ads-pagination .swiper-pagination-bullet {
+        background: rgba(255,255,255,0.5);
+        opacity: 1;
+    }
+    .ads-pagination .swiper-pagination-bullet-active {
+        background: #ffffff;
+        width: 24px;
+        border-radius: 4px;
+    }
+
+    @media (max-width: 768px) {
+        .promo-banner-wrapper {
+            flex-direction: column;
+            padding: 40px 25px;
+            text-align: center;
+        }
+        .promo-content {
+            max-width: 100%;
+        }
+        .promo-title {
+            font-size: 26px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if(typeof Swiper !== 'undefined') {
+            new Swiper(".ads-swiper-activation", {
+                slidesPerView: 1,
+                spaceBetween: 0,
+                loop: true,
+                autoplay: { delay: 6000, disableOnInteraction: false },
+                pagination: { el: '.ads-pagination', clickable: true }
+            });
+        }
+    });
+</script>
+{% else %}
+<!-- Fallback to original promo if no ads in DB -->
+{% include 'core/includes/home/promo_banner.html' %}
+{% endif %}
