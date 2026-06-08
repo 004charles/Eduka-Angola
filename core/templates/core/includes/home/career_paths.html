@@ -4,9 +4,9 @@
         <div class="row mb--40 align-items-end">
             <div class="col-lg-8 col-md-8 col-12">
                 <div class="section-title text-start">
-                    <span class="subtitle bg-primary-opacity" style="color: #6025F5; font-weight: 700; letter-spacing: 0.5px;">{% trans "TRILHAS DE CARREIRA" %}</span>
-                    <h2 class="title" style="font-weight: 800; font-size: 36px; color: #1c1d1f; letter-spacing: -0.5px;">{% trans "Dê o próximo passo no seu futuro" %}</h2>
-                    <p class="description mt--15" style="color: #475569; font-size: 16px; max-width: 600px;">{% trans "Explore especializações desenvolvidas pelos melhores centros para as exigências do mercado de trabalho moderno." %}</p>
+                    <span class="subtitle bg-primary-opacity">{% trans "TRILHAS DE CARREIRA" %}</span>
+                    <h2 class="title">{% trans "Dê o próximo passo no seu futuro" %}</h2>
+                    <p class="description mt--15">{% trans "Explore especializações desenvolvidas para as exigências do mercado de trabalho moderno." %}</p>
                 </div>
             </div>
             <div class="col-lg-4 col-md-4 col-12 mt_sm--20">
@@ -18,22 +18,22 @@
             </div>
         </div>
 
-        <div class="row g-4">
+        <div class="row g-5">
             {% for categoria in categorias %}
             <div class="col-lg-3 col-md-4 col-sm-6 col-12">
-                <a class="rbt-cat-box career-path-card" href="{% url 'buscar_cursos' %}?categoria={{ categoria.id }}">
+                <a class="rbt-cat-box rbt-cat-box-1 text-center" href="{% url 'buscar_cursos' %}?categoria={{ categoria.id }}">
                     <div class="inner">
                         <div class="icons">
-                            {% if categoria.icone_class %}
-                                <i class="{{ categoria.icone_class }}"></i>
+                            {% if categoria.imagem %}
+                                <img src="{{ categoria.imagem.url }}" alt="{{ categoria.nome }}" style="max-height: 50px;">
                             {% else %}
-                                <i class="feather-{% if forloop.counter|divisibleby:3 %}briefcase{% elif forloop.counter|divisibleby:2 %}monitor{% else %}trending-up{% endif %}"></i>
+                                <i class="{% if categoria.icone_class %}{{ categoria.icone_class }}{% else %}feather-briefcase{% endif %}"></i>
                             {% endif %}
                         </div>
                         <div class="content">
                             <h5 class="title">{{ categoria.nome }}</h5>
                             <div class="read-more-btn">
-                                <span class="rbt-btn-link">{{ categoria.num_cursos }} {% trans "Cursos disponíveis" %} <i class="feather-arrow-right"></i></span>
+                                <span class="rbt-btn-link">{{ categoria.num_cursos }} {% trans "Cursos" %} <i class="feather-arrow-right"></i></span>
                             </div>
                         </div>
                     </div>
@@ -43,79 +43,3 @@
         </div>
     </div>
 </div>
-
-<style>
-    .career-path-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 25px 20px;
-        transition: all 0.3s ease;
-        display: block;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
-        position: relative;
-        overflow: hidden;
-    }
-    .career-path-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: linear-gradient(90deg, #6025F5, #00c6ff);
-        opacity: 0;
-        transition: 0.3s;
-    }
-    .career-path-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        border-color: transparent;
-    }
-    .career-path-card:hover::before {
-        opacity: 1;
-    }
-    .career-path-card .inner {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 20px;
-    }
-    .career-path-card .icons {
-        width: 55px;
-        height: 55px;
-        background: #f8fafc;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #6025F5;
-        font-size: 26px;
-        transition: all 0.3s ease;
-        border: 1px solid #f1f5f9;
-    }
-    .career-path-card:hover .icons {
-        background: #6025F5;
-        color: #ffffff;
-        transform: scale(1.05);
-    }
-    .career-path-card .title {
-        font-size: 17px;
-        font-weight: 700;
-        color: #1e293b;
-        margin-bottom: 8px;
-        font-family: 'Inter', sans-serif;
-        line-height: 1.3;
-    }
-    .career-path-card .rbt-btn-link {
-        font-size: 13px;
-        color: #64748b;
-        font-weight: 500;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-    }
-    .career-path-card:hover .rbt-btn-link {
-        color: #6025F5;
-    }
-</style>
