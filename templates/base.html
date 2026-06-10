@@ -8,6 +8,9 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>EdukAngola | {% block title %}{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="theme-color" content="#4f46e5">
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <link rel="apple-touch-icon" href="{% static 'assets/images/icons/pwa-192x192.png' %}">
 
     {% include 'include/css.html' %}
     {% block extra_css %}{% endblock %}
@@ -24,6 +27,21 @@
     {% include 'include/java.html' %}
 
     {% block extra_js %}{% endblock %}
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
 </body>
 
 </html>

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sem Ligação à Internet{% endblock %}
+
+{% block content %}
+<div class="rbt-error-area bg-color-white rbt-section-gap">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="error-content text-center">
+                    <div class="error-image mb--30">
+                        <img src="{% static 'assets/images/icons/pwa-192x192.png' %}" alt="Sem Internet" style="max-width: 150px; opacity: 0.5;">
+                    </div>
+                    <h1 class="title">Oops! Estás Offline.</h1>
+                    <p class="description">Parece que perdeste a tua ligação à internet. Por favor, verifica a tua rede e tenta novamente.</p>
+                    <a class="rbt-btn btn-gradient icon-hover" href="javascript:window.location.reload();">
+                        <span class="btn-text">Tentar Novamente</span>
+                        <span class="btn-icon"><i class="feather-refresh-cw"></i></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
