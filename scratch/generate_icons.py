@@ -38,11 +38,8 @@ def create_pwa_icon(source_path, target_dir, size, padding=40):
 
 if __name__ == "__main__":
     base_dir = r"c:\Users\Muquissi\Documents\Eduka-Angola"
-    # Try Eduka.png first, fallback to logo1.png
-    src1 = os.path.join(base_dir, "static", "assets", "images", "logo", "Eduka.png")
-    src2 = os.path.join(base_dir, "static", "assets", "images", "logo", "logo1.png")
-    
-    src = src1 if os.path.exists(src1) else src2
+    # Force use of logo1.png as requested by user
+    src = os.path.join(base_dir, "static", "assets", "images", "logo", "logo1.png")
     print(f"Using source image: {src}")
     
     target_dir = os.path.join(base_dir, "static", "assets", "images", "icons")
