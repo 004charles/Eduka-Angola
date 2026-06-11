@@ -14,7 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     
     <!-- Configurações PWA -->
-    <meta name="theme-color" content="#4f46e5">
+    <meta name="theme-color" content="#ffffff">
     <link rel="manifest" href="{% static 'manifest.json' %}">
     <link rel="apple-touch-icon" href="{% static 'assets/images/icons/pwa-192x192.png' %}">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -32,6 +32,39 @@
     
     <!-- Estilos Customizados da Home -->
     <link rel="stylesheet" href="{% static 'assets/css/home_custom.css' %}">
+    
+    <!-- PWA Standalone Styles -->
+    <style>
+        body.is-pwa-standalone .rbt-home-banner-activation .swiper-slide {
+            padding: 10px 15px !important;
+        }
+        body.is-pwa-standalone .rbt-card {
+            margin-bottom: 15px !important;
+        }
+        body.is-pwa-standalone .rbt-card-img {
+            height: 100px !important;
+        }
+        body.is-pwa-standalone .ptb--60 {
+            padding-top: 30px !important;
+            padding-bottom: 30px !important;
+        }
+        body.is-pwa-standalone .ptb--40 {
+            padding-top: 20px !important;
+            padding-bottom: 20px !important;
+        }
+        body.is-pwa-standalone .rbt-text-area .container > div > div > div {
+            min-height: 160px !important;
+            padding: 20px !important;
+        }
+        body.is-pwa-standalone .rbt-text-area h3 {
+            font-size: 20px !important;
+            margin-bottom: 8px !important;
+        }
+        body.is-pwa-standalone .rbt-text-area p {
+            font-size: 13px !important;
+            margin-bottom: 15px !important;
+        }
+    </style>
     
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 </head>
@@ -254,6 +287,11 @@
         const installBanner = document.getElementById('pwa-install-banner');
         const installBtn = document.getElementById('pwa-install-btn');
         const closeBtn = document.getElementById('pwa-install-close');
+
+        // Styles specific for PWA native feel (standalone mode)
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+            document.body.classList.add('is-pwa-standalone');
+        }
 
         window.addEventListener('beforeinstallprompt', (e) => {
             // Impede o Chrome de exibir o prompt padrão
