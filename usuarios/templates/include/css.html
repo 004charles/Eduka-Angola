@@ -27,3 +27,111 @@
 <link rel="stylesheet" href="{% static 'assets/css/plugins/jodit.min.css' %}">
 <link rel="stylesheet" href="{% static 'assets/css/styles.css' %}">
 
+
+<!-- PWA Standalone Styles -->
+<style>
+    /* Base Reset para PWA Mobile */
+    body.is-pwa-standalone .ptb--60 { padding-top: 20px !important; padding-bottom: 20px !important; }
+    body.is-pwa-standalone .ptb--40 { padding-top: 15px !important; padding-bottom: 15px !important; }
+    body.is-pwa-standalone .mt--30 { margin-top: 10px !important; }
+    body.is-pwa-standalone .mb--30 { margin-bottom: 10px !important; }
+    body.is-pwa-standalone .mb--40 { margin-bottom: 15px !important; }
+    
+    /* Swipers Horizontais (Carrossel Native) */
+    body.is-pwa-standalone [class*="dynamicCourseSwiper-"] .swiper-slide,
+    body.is-pwa-standalone .dynamicCourseSwiper-recomendados .swiper-slide {
+        width: 110px !important; /* Mostra 3.5 cartões na tela para induzir swipe (3/4 cursos) */
+        height: auto;
+        padding: 0 5px !important;
+    }
+    
+    /* Cartões Compactos (Netflix/Coursera Style) */
+    body.is-pwa-standalone .rbt-card {
+        min-height: 180px !important;
+        margin-bottom: 0 !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+        border-radius: 8px !important;
+    }
+    body.is-pwa-standalone .rbt-card-img {
+        height: 75px !important;
+    }
+    body.is-pwa-standalone .rbt-card-img img {
+        height: 100% !important;
+        border-radius: 8px 8px 0 0 !important;
+    }
+    body.is-pwa-standalone .rbt-card-body {
+        padding: 8px !important;
+    }
+    body.is-pwa-standalone .rbt-card-title {
+        font-size: 11px !important;
+        line-height: 1.3 !important;
+        min-height: 30px !important;
+        margin-bottom: 4px !important;
+    }
+    body.is-pwa-standalone .rbt-card-title a {
+        color: #1f1f25;
+    }
+    body.is-pwa-standalone .rbt-card-top .rating-count {
+        font-size: 9px !important;
+    }
+    body.is-pwa-standalone .rbt-btn-link {
+        font-size: 10px !important;
+        margin-top: 5px;
+    }
+    
+    /* Secções e Títulos */
+    body.is-pwa-standalone .section-title .title {
+        font-size: 16px !important;
+    }
+    body.is-pwa-standalone .section-title .description {
+        display: none !important;
+    }
+    
+    /* Ocultar botão "Ver Todos" gigante */
+    body.is-pwa-standalone .view-all-btn {
+        display: none !important;
+    }
+
+    /* Remover padding extra das caixas brancas dos cursos */
+    body.is-pwa-standalone .bg-color-white.rbt-shadow-box {
+        padding: 15px !important;
+        box-shadow: none !important;
+        background: transparent !important;
+    }
+    
+    /* Ajustar a margem e título */
+    body.is-pwa-standalone .section-title {
+        margin-bottom: 10px !important;
+    }
+    body.is-pwa-standalone .mt--30 {
+        margin-top: 5px !important;
+    }
+    
+    /* Banner Modernizado */
+    body.is-pwa-standalone .rbt-text-area .container > div > div > div {
+        min-height: 140px !important;
+        padding: 15px !important;
+    }
+    body.is-pwa-standalone .rbt-text-area h3 {
+        font-size: 16px !important;
+        margin-bottom: 8px !important;
+    }
+    body.is-pwa-standalone .rbt-text-area p {
+        font-size: 12px !important;
+        margin-bottom: 10px !important;
+        max-width: 100% !important;
+    }
+    
+    /* Ocultar elementos desnecessários (setas de swiper) no mobile */
+    body.is-pwa-standalone .rbt-arrow-between,
+    body.is-pwa-standalone .swiper-navigation {
+        display: none !important;
+    }
+    
+    /* Fix Swiper config in CSS override */
+    @media (max-width: 767px) {
+        body.is-pwa-standalone .rbt-home-banner-activation .swiper-slide {
+            padding: 5px 10px !important;
+        }
+    }
+</style>

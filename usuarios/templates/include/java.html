@@ -29,4 +29,10 @@
 
 <script src="{% static 'js/components/course_card.js' %}"></script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+            document.body.classList.add('is-pwa-standalone');
+        }
+    });
 </script>
