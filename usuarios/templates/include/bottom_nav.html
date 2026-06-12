@@ -13,6 +13,10 @@
         <i class="feather-book-open"></i>
         <span>Estudos</span>
     </a>
+    <a href="{% url 'aluno_favoritos' %}" class="nav-item">
+        <i class="feather-heart"></i>
+        <span>Favoritos</span>
+    </a>
     <a href="{% url 'aluno_perfil' %}" class="nav-item">
         <i class="feather-user"></i>
         <span>Perfil</span>
@@ -84,6 +88,11 @@
     /* Hide the huge mobile menu button in PWA */
     body.is-pwa-standalone .mobile-menu-bar {
         display: none !important;
+    }
+
+    /* Move the Dark Mode Switcher UP so it's not hidden by Bottom Nav */
+    body.is-pwa-standalone #my_switcher {
+        bottom: 85px !important;
     }
 }
 </style>

@@ -70,6 +70,11 @@
         const installBtn = document.getElementById('pwa-install-btn');
         const closeBtn = document.getElementById('pwa-install-close');
 
+        // Styles specific for PWA native feel (standalone mode)
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+            document.body.classList.add('is-pwa-standalone');
+        }
+
         window.addEventListener('beforeinstallprompt', (e) => {
             // Impede o Chrome de exibir o prompt padrão
             e.preventDefault();

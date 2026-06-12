@@ -45,7 +45,7 @@
         /* Swipers Horizontais (Carrossel Native) */
         body.is-pwa-standalone [class*="dynamicCourseSwiper-"] .swiper-slide,
         body.is-pwa-standalone .dynamicCourseSwiper-recomendados .swiper-slide {
-            width: 160px !important; /* Mostra 2.5 cartões na tela para induzir swipe */
+            width: 145px !important; /* Mostra 2.5 cartões na tela para induzir swipe */
             height: auto;
             padding: 0 8px !important;
         }
@@ -89,7 +89,26 @@
             font-size: 18px !important;
         }
         body.is-pwa-standalone .section-title .description {
-            font-size: 13px !important;
+            display: none !important;
+        }
+        
+        /* Ocultar botão "Ver Todos" gigante */
+        body.is-pwa-standalone .view-all-btn {
+            display: none !important;
+        }
+
+        /* Remover padding extra das caixas brancas dos cursos */
+        body.is-pwa-standalone .bg-color-white.rbt-shadow-box {
+            padding: 15px !important;
+            box-shadow: none !important;
+            background: transparent !important;
+        }
+        
+        /* Ajustar a margem e título */
+        body.is-pwa-standalone .section-title {
+            margin-bottom: 10px !important;
+        }
+        body.is-pwa-standalone .mt--30 {
             margin-top: 5px !important;
         }
         
