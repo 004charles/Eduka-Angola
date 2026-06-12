@@ -27,6 +27,58 @@
 <link rel="stylesheet" href="{% static 'assets/css/plugins/jodit.min.css' %}">
 <link rel="stylesheet" href="{% static 'assets/css/styles.css' %}">
 
+<style>    /* Transições Suaves de Página */
+    body {
+        animation: pageFadeIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        opacity: 0;
+    }
+    @keyframes pageFadeIn {
+        0% { opacity: 0; transform: translateY(8px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    body.page-is-leaving {
+        animation: pageFadeOut 0.3s ease-in forwards !important;
+    }
+    @keyframes pageFadeOut {
+        0% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-8px); }
+    }
+
+    /* Splash Screen Nativo */
+    .pwa-splash-screen {
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background-color: #ffffff;
+        z-index: 9999999;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0.5s ease-out, visibility 0.5s;
+    }
+    body.active-dark-mode .pwa-splash-screen {
+        background-color: var(--color-darker);
+    }
+    .splash-logo {
+        width: 180px;
+        animation: pulseLogo 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    @keyframes pulseLogo {
+        0% { transform: scale(1); opacity: 0.8; }
+        50% { transform: scale(1.05); opacity: 1; }
+        100% { transform: scale(1); opacity: 0.8; }
+    }
+    .splash-spinner {
+        margin-top: 30px;
+        width: 36px;
+        height: 36px;
+        border: 3px solid rgba(47, 87, 239, 0.2);
+        border-top-color: var(--color-primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
 
 <!-- PWA Standalone Styles -->
 <style>

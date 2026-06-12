@@ -196,6 +196,14 @@ def index(request):
     return render(request, 'core/index.html', context)
 
 
+def offline_view(request):
+    """
+    Renderiza a página offline quando o utilizador perde a ligação à Internet.
+    O Service Worker irá servir esta página a partir do cache.
+    """
+    return render(request, 'core/offline.html')
+
+
 
 
 #-------------------------fim homes-----------------------------------------

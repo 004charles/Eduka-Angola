@@ -31,8 +31,59 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Detetar modo standalone
         if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
             document.body.classList.add('is-pwa-standalone');
         }
+
+        // 1. Ocultar Splash Screen
+        const splash = document.getElementById('pwa-splash-screen');
+        if (splash) {
+            // Um pequeno delay garante que o ecrã renderizou bem
+            setTimeout(() => {
+                splash.style.opacity = '0';
+                splash.style.visibility = 'hidden';
+            }, 300);
+        }
+
+        // 2. Intercetar Cliques para Transições Suaves
+        const links = document.querySelectorAll('a[href]');
+        links.forEach(link => {
+            link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                const target = this.getAttribute('target');
+                
+                // Se for um link interno, não for âncora, e não abrir numa nova tab
+                if (href && href.startsWith('/') && !href.startsWith('#') && target !== '_blank' && !e.ctrlKey && !e.metaKey) {
+                    e.preventDefault();
+                    document.body.classList.add('page-is-leaving');
+                    // Aguardar o tempo da animação CSS (300ms) antes de mudar
+                    setTimeout(() => {
+                        window.location.href = href;
+                    }, 250);
+                }
+            });
+        });
     });
+
+    // Se o user usar o botão Voltar (BFCache), a class de saída tem que ser removida
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
+            document.body.classList.remove('page-is-leaving');
+        }
+    });
+
+    // Função para Pedir Permissão de Notificações
+    function askNotificationPermission() {
+        if (!('Notification' in window)) {
+            console.log("Este browser não suporta notificações.");
+            return;
+        }
+        Notification.requestPermission().then((permission) => {
+            if (permission === 'granted') {
+                console.log('Permissão de Notificação concedida.');
+                // Futuro: subscrever ao push manager e enviar subscrição ao backend Django
+            }
+        });
+    }
 </script>
