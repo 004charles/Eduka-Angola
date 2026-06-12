@@ -39,8 +39,9 @@
     
     /* Swipers Horizontais (Carrossel Native) */
     body.is-pwa-standalone [class*="dynamicCourseSwiper-"] .swiper-slide,
-    body.is-pwa-standalone .dynamicCourseSwiper-recomendados .swiper-slide {
-        width: 125px !important; /* Mostra ~3 cartões na tela (proporcional) */
+    body.is-pwa-standalone .dynamicCourseSwiper-recomendados .swiper-slide,
+    body.is-pwa-standalone .category-activation-four .swiper-slide {
+        width: 140px !important; /* Acomoda um pouco menos de 3 cartões, mas bem visíveis */
         height: auto;
         padding: 0 5px !important;
     }
@@ -54,11 +55,30 @@
         border-radius: 8px !important;
     }
     body.is-pwa-standalone .rbt-card-img {
-        height: 80px !important;
+        height: 85px !important;
     }
     body.is-pwa-standalone .rbt-card-img img {
         height: 100% !important;
         border-radius: 8px 8px 0 0 !important;
+    }
+    
+    /* Ajustes específicos para Categorias no PWA */
+    body.is-pwa-standalone .category-box-equal .inner {
+        padding: 15px 10px !important;
+    }
+    body.is-pwa-standalone .category-box-equal .icons {
+        height: 45px !important;
+        margin-bottom: 10px !important;
+    }
+    body.is-pwa-standalone .category-box-equal .icons img {
+        max-width: 45px !important;
+    }
+    body.is-pwa-standalone .category-box-equal .read-more-btn {
+        display: none !important;
+    }
+    body.is-pwa-standalone .category-box-equal .content .title {
+        font-size: 13px !important;
+        margin-bottom: 0 !important;
     }
     body.is-pwa-standalone .rbt-card-body {
         padding: 8px !important;
