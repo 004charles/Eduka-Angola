@@ -30,6 +30,26 @@
 
 <!-- PWA Standalone Styles -->
 <style>
+    /* Dark Mode Global Background Override (Tom do Footer) */
+    body.active-dark-mode,
+    body.active-dark-mode .rbt-page-wrapper,
+    body.active-dark-mode .rbt-main-wrapper,
+    body.active-dark-mode .bg-color-white,
+    body.active-dark-mode .bg-color-extra2,
+    body.active-dark-mode .bg-color-light,
+    body.active-dark-mode .rbt-section-gapBottom,
+    body.active-dark-mode .rbt-section-gap {
+        background-color: var(--color-darker) !important;
+    }
+    
+    body.active-dark-mode .rbt-card {
+        background-color: #1a1a2e !important; /* Slightly lighter card to stand out */
+    }
+
+    body.active-dark-mode .category-box-equal {
+        background-color: #1a1a2e !important;
+    }
+
     /* Base Reset para PWA Mobile */
     body.is-pwa-standalone .ptb--60 { padding-top: 20px !important; padding-bottom: 20px !important; }
     body.is-pwa-standalone .ptb--40 { padding-top: 15px !important; padding-bottom: 15px !important; }
