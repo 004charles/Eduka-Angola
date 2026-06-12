@@ -18,28 +18,43 @@
             </div>
         </div>
 
-        <div class="row g-5">
-            {% for categoria in categorias %}
-            <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex">
-                <a class="rbt-cat-box rbt-cat-box-1 text-center w-100 h-100 d-flex flex-column" href="{% url 'buscar_cursos' %}?categoria={{ categoria.id }}">
-                    <div class="inner flex-grow-1 d-flex flex-column justify-content-center">
-                        <div class="icons">
-                            {% if categoria.imagem %}
-                                <img src="{{ categoria.imagem.url }}" alt="{{ categoria.nome }}" style="max-height: 50px;">
-                            {% else %}
-                                <i class="{% if categoria.icone_class %}{{ categoria.icone_class }}{% else %}feather-briefcase{% endif %}"></i>
-                            {% endif %}
-                        </div>
-                        <div class="content">
-                            <h5 class="title">{{ categoria.nome }}</h5>
-                            <div class="read-more-btn">
-                                <span class="rbt-btn-link">{{ categoria.num_cursos }} {% trans "Cursos" %} <i class="feather-arrow-right"></i></span>
+        <div class="swiper category-activation-four rbt-arrow-between pb--40">
+            <div class="swiper-wrapper">
+                {% for categoria in categorias %}
+                <div class="swiper-slide">
+                    <a class="rbt-cat-box rbt-cat-box-1 text-center w-100 h-100 d-flex flex-column" href="{% url 'buscar_cursos' %}?categoria={{ categoria.id }}">
+                        <div class="inner flex-grow-1 d-flex flex-column justify-content-center">
+                            <div class="icons">
+                                {% if categoria.imagem %}
+                                    <img src="{{ categoria.imagem.url }}" alt="{{ categoria.nome }}" style="max-height: 50px;">
+                                {% else %}
+                                    <i class="{% if categoria.icone_class %}{{ categoria.icone_class }}{% else %}feather-briefcase{% endif %}"></i>
+                                {% endif %}
+                            </div>
+                            <div class="content">
+                                <h5 class="title">{{ categoria.nome }}</h5>
+                                <div class="read-more-btn">
+                                    <span class="rbt-btn-link">{{ categoria.num_cursos }} {% trans "Cursos" %} <i class="feather-arrow-right"></i></span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </a>
+                    </a>
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+            
+            <div class="rbt-swiper-arrow rbt-arrow-left">
+                <div class="custom-overfolow">
+                    <i class="rbt-icon feather-arrow-left"></i>
+                    <i class="rbt-icon-top feather-arrow-left"></i>
+                </div>
+            </div>
+            <div class="rbt-swiper-arrow rbt-arrow-right">
+                <div class="custom-overfolow">
+                    <i class="rbt-icon feather-arrow-right"></i>
+                    <i class="rbt-icon-top feather-arrow-right"></i>
+                </div>
+            </div>
         </div>
     </div>
 </div>

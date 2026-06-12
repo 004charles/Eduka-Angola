@@ -521,7 +521,11 @@
                                                 </span>
                                             </div>
                                         {% else %}
-                                            <a class="rbt-btn btn-gradient radius-round" href="{% url 'ficha_inscricao' curso.id %}">Inscrever-se Agora</a>
+                                        <div class="add-to-cart-btn mt--20">
+                                            <a class="play-btn-primary" href="{% url 'ficha_inscricao' curso.id %}">
+                                                <i class="fas fa-plus"></i> Inscrever-se Agora
+                                            </a>
+                                        </div>
                                         {% endif %}
                                         <button class="rbt-btn btn-border radius-round" onclick="toggleFavorite({{ curso.id }})">
                                             <i class="feather-heart me-2"></i> Adicionar aos Favoritos

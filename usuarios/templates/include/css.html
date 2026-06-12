@@ -91,15 +91,42 @@
     body.active-dark-mode .bg-color-light,
     body.active-dark-mode .rbt-section-gapBottom,
     body.active-dark-mode .rbt-section-gap {
-        background-color: var(--color-darker) !important;
+        background-color: #191919 !important;
     }
     
     body.active-dark-mode .rbt-card {
-        background-color: #1a1a2e !important; /* Slightly lighter card to stand out */
+        background-color: #242424 !important; /* Slightly lighter card to stand out */
     }
 
     body.active-dark-mode .category-box-equal {
         background-color: #1a1a2e !important;
+    }
+
+    /* Botão de Inscrição Profissional (Global) */
+    .play-btn-primary {
+        background: #0f172a;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        flex-grow: 1;
+        transition: 0.2s;
+        text-decoration: none !important;
+        border: none;
+    }
+    
+    body.active-dark-mode .play-btn-primary {
+        background: #fff;
+        color: #0f172a;
+    }
+
+    .play-btn-primary:hover {
+        opacity: 0.9;
+        color: inherit;
     }
 
     /* Base Reset para PWA Mobile */

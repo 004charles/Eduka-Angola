@@ -219,7 +219,7 @@
                         {% if cursos %}
                             <div class="row g-5">
                                 {% for curso in cursos %}
-                                    <div class="col-lg-4 col-md-6 col-12">
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-12">
                                         {% include 'components/curso_card.html' with curso=curso %}
                                     </div>
                                 {% endfor %}
@@ -270,6 +270,7 @@
     </div>
         </div>
     </div>
+    {% include 'include/bottom_nav.html' %}
     {% include 'include/footer.html' %}
 
     <div id="my_switcher" class="my_switcher">
