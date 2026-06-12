@@ -40,20 +40,21 @@
     /* Swipers Horizontais (Carrossel Native) */
     body.is-pwa-standalone [class*="dynamicCourseSwiper-"] .swiper-slide,
     body.is-pwa-standalone .dynamicCourseSwiper-recomendados .swiper-slide {
-        width: 110px !important; /* Mostra 3.5 cartões na tela para induzir swipe (3/4 cursos) */
+        width: 125px !important; /* Mostra ~3 cartões na tela (proporcional) */
         height: auto;
         padding: 0 5px !important;
     }
     
     /* Cartões Compactos (Netflix/Coursera Style) */
     body.is-pwa-standalone .rbt-card {
-        min-height: 180px !important;
+        min-height: auto !important;
+        height: auto !important;
         margin-bottom: 0 !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
         border-radius: 8px !important;
     }
     body.is-pwa-standalone .rbt-card-img {
-        height: 75px !important;
+        height: 80px !important;
     }
     body.is-pwa-standalone .rbt-card-img img {
         height: 100% !important;
