@@ -667,6 +667,7 @@
         </section>
         {% endif %}
 
+        {% if videos_recentes %}
         <!-- Row 1: Novos Lançamentos -->
         <section class="play-section">
             <div class="container">
@@ -712,10 +713,12 @@
                 </div>
             </div>
         </section>
+        {% endif %}
 
         <!-- Row: Recomendados para Você (Novo Estilo) -->
         {% include 'cursovideo/includes/recommended_courses.html' %}
 
+        {% if videos_populares %}
         <!-- Row 2: Populares -->
         <section class="play-section">
             <div class="container">
@@ -761,7 +764,9 @@
                 </div>
             </div>
         </section>
+        {% endif %}
 
+        {% if categorias %}
         <!-- Row 3: Categorias -->
         <section class="play-section">
             <div class="container">
@@ -807,7 +812,9 @@
                 </div>
             </div>
         </section>
+        {% endif %}
 
+        {% if videos_tecnologia %}
         <!-- Row: Tecnologia (Domine a Tecnologia Actual) -->
         <section class="play-section">
             <div class="container">
@@ -853,7 +860,9 @@
                 </div>
             </div>
         </section>
+        {% endif %}
 
+        {% if videos_assistidos %}
         <!-- Row 4: Mais Assistidos -->
         <section class="play-section">
             <div class="container">
@@ -899,6 +908,7 @@
                 </div>
             </div>
         </section>
+        {% endif %}
 
     </main>
 

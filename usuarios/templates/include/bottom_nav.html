@@ -127,3 +127,9 @@ body.active-dark-mode .pwa-bottom-nav .nav-item.active {
     }
 }
 </style>
+
+<script>
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+        document.body.classList.add('is-pwa-standalone');
+    }
+</script>
