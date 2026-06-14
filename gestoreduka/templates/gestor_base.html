@@ -157,10 +157,22 @@
                                 <span class="kt-tooltip" data-kt-tooltip-content="true">Painel de Comando</span>
                             </a>
                             <a title="Gestão de Formações: Criar, editar e publicar cursos"
-                                class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&amp;_i]:text-primary hover:border-border [.active&amp;]:bg-background [.active&amp;]:[&amp;_i]:text-primary [.active&amp;]:border-border {% if 'curso' in request.resolver_match.url_name %}active{% endif %}"
+                                class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&amp;_i]:text-primary hover:border-border [.active&amp;]:bg-background [.active&amp;]:[&amp;_i]:text-primary [.active&amp;]:border-border {% if request.resolver_match.url_name == 'listar_cursos' or request.resolver_match.url_name == 'criar_curso' or request.resolver_match.url_name == 'editar_curso' %}active{% endif %}"
                                 data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'listar_cursos' %}">
                                 <span class="kt-menu-icon"><i class="ki-filled ki-book-open text-lg"></i></span>
                                 <span class="kt-tooltip" data-kt-tooltip-content="true">Gestão de Formações</span>
+                            </a>
+                            <a title="Cursos em Vídeo: Publicar cursos online"
+                                class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&amp;_i]:text-primary hover:border-border [.active&amp;]:bg-background [.active&amp;]:[&amp;_i]:text-primary [.active&amp;]:border-border {% if 'cursos_video' in request.resolver_match.url_name or 'aulas_video' in request.resolver_match.url_name %}active{% endif %}"
+                                data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'listar_cursos_video' %}">
+                                <span class="kt-menu-icon"><i class="ki-filled ki-youtube text-lg"></i></span>
+                                <span class="kt-tooltip" data-kt-tooltip-content="true">Cursos em Vídeo</span>
+                            </a>
+                            <a title="Certificados (Vídeo): Aprovar certificados de cursos online"
+                                class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&amp;_i]:text-primary hover:border-border [.active&amp;]:bg-background [.active&amp;]:[&amp;_i]:text-primary [.active&amp;]:border-border {% if 'certificados_video' in request.resolver_match.url_name %}active{% endif %}"
+                                data-kt-tooltip="" data-kt-tooltip-placement="right" href="{% url 'listar_certificados_video' %}">
+                                <span class="kt-menu-icon"><i class="ki-filled ki-shield-tick text-lg"></i></span>
+                                <span class="kt-tooltip" data-kt-tooltip-content="true">Certificados (Vídeo)</span>
                             </a>
                             <a title="Turmas: Gerir turmas ativas e horários"
                                 class="kt-btn kt-btn-icon kt-btn-ghost rounded-md size-9 border border-transparent hover:bg-background hover:[&amp;_i]:text-primary hover:border-border [.active&amp;]:bg-background [.active&amp;]:[&amp;_i]:text-primary [.active&amp;]:border-border {% if 'turma' in request.resolver_match.url_name %}active{% endif %}"

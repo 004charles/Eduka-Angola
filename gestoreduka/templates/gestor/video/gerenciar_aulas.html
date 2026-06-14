@@ -1,0 +1,91 @@
+{% extends 'gestor_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="flex flex-col gap-6 lg:gap-8">
+    
+    <div class="flex items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-foreground">Aulas: {{ curso.titulo }}</h1>
+            <p class="text-sm text-muted-foreground">Total de Aulas: {{ total_aulas }} / {% if limite_aulas == 999 %}Ilimitado{% else %}{{ limite_aulas }}{% endif %}</p>
+        </div>
+        <a href="{% url 'listar_cursos_video' %}" class="kt-btn kt-btn-light">Voltar</a>
+    </div>
+
+    {% if messages %}
+        <div class="flex flex-col gap-3">
+            {% for message in messages %}
+                <div class="p-4 rounded-xl text-sm font-medium backdrop-blur-md flex items-center gap-3 bg-success/10 text-success border border-success/20">
+                    <span class="flex-1">{{ message }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Lista de Aulas -->
+        <div class="lg:col-span-2 flex flex-col gap-4">
+            {% for aula in aulas %}
+            <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 shadow-xl flex items-center justify-between">
+                <div class="flex flex-col gap-1">
+                    <h3 class="font-bold">{{ aula.titulo|default:"Aula Sem Título" }}</h3>
+                    <a href="{{ aula.video_url }}" target="_blank" class="text-xs text-primary hover:underline"><i class="ki-filled ki-link"></i> Ver Vídeo Original</a>
+                </div>
+                <div class="flex items-center gap-2">
+                    <form action="{% url 'excluir_aula_video' aula.id %}" method="POST" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="kt-btn kt-btn-sm kt-btn-icon kt-btn-light hover:bg-danger hover:text-white" onclick="return confirm('Excluir esta aula?');" title="Excluir Aula">
+                            <i class="ki-filled ki-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <div class="p-8 text-center bg-white/5 border border-white/10 rounded-2xl">
+                <p class="text-muted-foreground">Ainda não há aulas adicionadas.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Adicionar Aula -->
+        <div class="flex flex-col gap-4">
+            <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-5 shadow-xl">
+                <h2 class="text-lg font-bold mb-4">Adicionar Nova Aula</h2>
+                
+                {% if pode_adicionar %}
+                <form method="POST" class="flex flex-col gap-4">
+                    {% csrf_token %}
+                    
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium">Link do Vídeo (Youtube/Vimeo)</label>
+                        {{ form.video_url }}
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium">Título (Opcional)</label>
+                        {{ form.titulo }}
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium">Descrição</label>
+                        {{ form.descricao }}
+                    </div>
+                    
+                    <button type="submit" class="kt-btn kt-btn-primary w-full mt-2">
+                        <i class="ki-filled ki-plus"></i> Adicionar Aula
+                    </button>
+                </form>
+                {% else %}
+                <div class="p-4 bg-warning/10 border border-warning/20 text-warning rounded-xl text-sm">
+                    <strong>Limite Atingido!</strong><br>
+                    O seu plano atual permite apenas {{ limite_aulas }} aulas. Faça upgrade para adicionar mais.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

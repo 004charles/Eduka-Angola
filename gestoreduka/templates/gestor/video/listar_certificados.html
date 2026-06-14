@@ -1,0 +1,100 @@
+{% extends 'gestor_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="flex flex-col gap-6 lg:gap-8">
+
+    <div class="flex items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-foreground">Certificados de Cursos em Vídeo</h1>
+            <p class="text-sm text-muted-foreground">Aprove ou rejeite a emissão de certificados dos seus alunos.</p>
+        </div>
+    </div>
+
+    {% if messages %}
+        <div class="flex flex-col gap-3">
+            {% for message in messages %}
+                <div class="p-4 rounded-xl text-sm font-medium backdrop-blur-md flex items-center gap-3 bg-success/10 text-success border border-success/20">
+                    <span class="flex-1">{{ message }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Filtros -->
+    <div class="flex items-center gap-3">
+        <a href="?status=" class="kt-btn kt-btn-sm {% if not status_filter %}kt-btn-primary{% else %}kt-btn-light{% endif %}">Todos</a>
+        <a href="?status=PENDENTE" class="kt-btn kt-btn-sm {% if status_filter == 'PENDENTE' %}kt-btn-warning{% else %}kt-btn-light{% endif %}">Pendentes</a>
+        <a href="?status=EMITIDO" class="kt-btn kt-btn-sm {% if status_filter == 'EMITIDO' %}kt-btn-success{% else %}kt-btn-light{% endif %}">Emitidos</a>
+        <a href="?status=REJEITADO" class="kt-btn kt-btn-sm {% if status_filter == 'REJEITADO' %}kt-btn-danger{% else %}kt-btn-light{% endif %}">Rejeitados</a>
+    </div>
+
+    <!-- Lista de Certificados -->
+    <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-xl flex flex-col">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+                <thead>
+                    <tr class="text-xs text-muted-foreground uppercase tracking-wider border-b border-white/10 bg-white/[0.01]">
+                        <th class="px-6 py-4 font-semibold">Aluno / Código</th>
+                        <th class="px-6 py-4 font-semibold">Curso</th>
+                        <th class="px-6 py-4 font-semibold text-center">Status</th>
+                        <th class="px-6 py-4 font-semibold text-right">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                    {% for cert in page_obj %}
+                    <tr class="hover:bg-white/[0.03] transition-all duration-200">
+                        <td class="px-6 py-4">
+                            <div class="flex flex-col gap-0.5">
+                                <span class="text-sm font-bold">{{ cert.aluno.user.first_name }} {{ cert.aluno.user.last_name }}</span>
+                                <span class="text-xs text-muted-foreground font-mono">{{ cert.codigo }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-sm font-medium">{{ cert.curso.titulo }}</span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            {% if cert.status == 'PENDENTE' %}
+                                <span class="px-2 py-1 bg-warning/10 text-warning text-xs font-bold rounded">Pendente</span>
+                            {% elif cert.status == 'EMITIDO' %}
+                                <span class="px-2 py-1 bg-success/10 text-success text-xs font-bold rounded">Emitido</span>
+                            {% elif cert.status == 'REJEITADO' %}
+                                <span class="px-2 py-1 bg-danger/10 text-danger text-xs font-bold rounded">Rejeitado</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            {% if cert.status == 'PENDENTE' %}
+                            <div class="flex items-center justify-end gap-2">
+                                <form action="{% url 'alterar_status_certificado' cert.id %}" method="POST" class="inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="status" value="EMITIDO">
+                                    <button type="submit" class="kt-btn kt-btn-sm kt-btn-success" onclick="return confirm('Aprovar certificado?');">
+                                        Aprovar
+                                    </button>
+                                </form>
+                                <form action="{% url 'alterar_status_certificado' cert.id %}" method="POST" class="inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="status" value="REJEITADO">
+                                    <button type="submit" class="kt-btn kt-btn-sm kt-btn-danger" onclick="return confirm('Rejeitar certificado?');">
+                                        Rejeitar
+                                    </button>
+                                </form>
+                            </div>
+                            {% else %}
+                            <span class="text-xs text-muted-foreground">Atualizado por: {{ cert.aprovado_por.first_name|default:"Sistema" }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-16 text-center">
+                            <p class="text-muted-foreground">Nenhum certificado encontrado.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

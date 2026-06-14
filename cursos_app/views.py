@@ -1237,6 +1237,7 @@ def cursos_por_centro(request, centro_id):
         'parcerias': parcerias,
         'estatisticas': estatisticas,
         'estagios': centro.estagios.filter(ativo=True).order_by('-data_publicacao'),
+        'cursos_video': Curso_video.objects.filter(centro=centro).order_by('-data_publicacao'),
         'depoimentos': depoimentos,
         'seguidores_count': seguidores_count,
         'ja_segue': ja_segue,

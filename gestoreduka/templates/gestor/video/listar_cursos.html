@@ -1,0 +1,118 @@
+{% extends 'gestor_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="flex flex-col gap-6 lg:gap-8">
+
+    <!-- Header Glassmorphic Panel -->
+    <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md shadow-xl">
+        <div class="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-primary/20 blur-3xl"></div>
+        <div class="absolute -left-20 -bottom-20 h-40 w-40 rounded-full bg-info/20 blur-3xl"></div>
+        
+        <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex flex-col gap-1.5">
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center justify-center size-8 rounded-lg bg-primary/10 border border-primary/20 text-primary">
+                        <i class="ki-filled ki-youtube text-lg"></i>
+                    </span>
+                    <h1 class="text-2xl font-bold text-foreground tracking-tight">Cursos em Vídeo</h1>
+                </div>
+                <p class="text-sm text-muted-foreground max-w-xl">
+                    Administre seus cursos em vídeo e organize as aulas online para seus alunos de forma prática.
+                </p>
+            </div>
+            <div class="flex items-center gap-3">
+                {% if request.user.tipo_usuario == 'GESTOR' %}
+                <a href="{% url 'criar_curso_video' %}" class="kt-btn kt-btn-primary shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300 hover:scale-[1.02]">
+                    <i class="ki-filled ki-plus"></i> Novo Curso em Vídeo
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if messages %}
+        <div class="flex flex-col gap-3">
+            {% for message in messages %}
+                <div class="p-4 rounded-xl text-sm font-medium backdrop-blur-md transition-all duration-300 flex items-center gap-3 {% if message.tags == 'success' %}bg-success/10 text-success border border-success/20 shadow-sm shadow-success/5{% elif message.tags == 'error' %}bg-danger/10 text-danger border border-danger/20 shadow-sm shadow-danger/5{% else %}bg-warning/10 text-warning border border-warning/20 shadow-sm shadow-warning/5{% endif %}">
+                    <span class="size-2 rounded-full {% if message.tags == 'success' %}bg-success animate-pulse{% elif message.tags == 'error' %}bg-danger animate-pulse{% else %}bg-warning animate-pulse{% endif %}"></span>
+                    <span class="flex-1">{{ message }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Lista de Cursos -->
+    <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-xl flex flex-col">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+                <thead>
+                    <tr class="text-xs text-muted-foreground uppercase tracking-wider border-b border-white/10 bg-white/[0.01]">
+                        <th class="px-6 py-4 font-semibold">Curso</th>
+                        <th class="px-6 py-4 font-semibold">Categoria</th>
+                        <th class="px-6 py-4 font-semibold text-center">Aulas</th>
+                        <th class="px-6 py-4 font-semibold text-center">Preço</th>
+                        <th class="px-6 py-4 font-semibold text-right">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                    {% for curso in page_obj %}
+                    <tr class="hover:bg-white/[0.03] transition-all duration-200">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-4">
+                                <div class="relative size-12 shrink-0 bg-white/5 rounded-xl overflow-hidden border border-white/10 flex items-center justify-center">
+                                    {% if curso.capa %}
+                                        <img src="{{ curso.capa.url }}" class="size-full object-cover">
+                                    {% else %}
+                                        <i class="ki-filled ki-youtube text-xl text-primary/70"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="flex flex-col gap-0.5">
+                                    <span class="text-sm font-bold text-foreground">{{ curso.titulo }}</span>
+                                    <span class="text-xs text-muted-foreground">{{ curso.data_publicacao|date:"d M Y" }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-sm font-medium">{{ curso.categoria.nome }}</span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="text-sm font-bold">{{ curso.aulas.count }}</span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            {% if curso.is_pago %}
+                                <span class="text-sm font-bold text-success">{{ curso.preco }} Kz</span>
+                            {% else %}
+                                <span class="text-sm font-bold text-success">Gratuito</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <div class="flex items-center justify-end gap-1.5">
+                                <a href="{% url 'gerenciar_aulas_video' curso.id %}" class="inline-flex items-center justify-center size-8 rounded-lg border border-white/10 hover:border-info/30 hover:bg-info/10 text-muted-foreground hover:text-info transition-all duration-200" title="Gerenciar Aulas">
+                                    <i class="ki-filled ki-folder text-lg"></i>
+                                </a>
+                                <a href="{% url 'editar_curso_video' curso.id %}" class="inline-flex items-center justify-center size-8 rounded-lg border border-white/10 hover:border-warning/30 hover:bg-warning/10 text-muted-foreground hover:text-warning transition-all duration-200" title="Editar">
+                                    <i class="ki-filled ki-pencil text-lg"></i>
+                                </a>
+                                <form action="{% url 'excluir_curso_video' curso.id %}" method="POST" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="inline-flex items-center justify-center size-8 rounded-lg border border-white/10 hover:border-danger/30 hover:bg-danger/10 text-muted-foreground hover:text-danger transition-all duration-200" title="Excluir" onclick="return confirm('Tem certeza?');">
+                                        <i class="ki-filled ki-trash text-lg"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-16 text-center">
+                            <p class="text-muted-foreground">Nenhum curso em vídeo encontrado.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

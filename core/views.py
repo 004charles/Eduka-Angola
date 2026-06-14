@@ -62,8 +62,9 @@ def index(request):
             destaque=True, publicado=True, ativo=True
         ).select_related('centro').prefetch_related('instrutores')[:10])
 
-        # 2. Cursos de vídeo
-        cursos_destaque_video = list(Curso_video.objects.filter(destaque=True).select_related('instrutor')[:5])
+        # 2. Cursos de vídeo (Originais vs Parceiros)
+        cursos_video_originais = list(Curso_video.objects.filter(centro__isnull=True, destaque=True).select_related('instrutor')[:5])
+        cursos_video_parceiros = list(Curso_video.objects.filter(centro__isnull=False, destaque=True).select_related('centro', 'instrutor')[:5])
         
         # 3. Primeiro instrutor a dar curso em vídeo
         primeiro_instrutor_video = Instrutor.objects.filter(cursos_video__isnull=False).select_related('centro_de_formacao').first()
@@ -109,7 +110,8 @@ def index(request):
 
         global_data = {
             'cursos_destaque': cursos_destaque,
-            'cursos_destaque_video': cursos_destaque_video,
+            'cursos_video_originais': cursos_video_originais,
+            'cursos_video_parceiros': cursos_video_parceiros,
             'primeiro_instrutor_video': primeiro_instrutor_video,
             'posts': posts,
             'instrutores': instrutores,

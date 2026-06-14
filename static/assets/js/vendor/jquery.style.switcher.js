@@ -323,9 +323,10 @@ SOFTWARE.
     if (Cookies.get("styleCookieName") == "dark") {
       $("body").addClass("active-dark-mode");
     } else if (Cookies.get("styleCookieName") == "light") {
-      $("body").removeClass("active-light-mode");
+      $("body").removeClass("active-dark-mode").addClass("active-light-mode");
     } else {
-      $("body").removeClass("active-light-mode");
+      // Default para dark mode em todo o projeto
+      $("body").addClass("active-dark-mode");
     }
 
     // Check Cookie

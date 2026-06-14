@@ -1,5 +1,6 @@
 from django.urls import path, include
 from gestoreduka import views
+from gestoreduka import views_video
 
 
 urlpatterns = [
@@ -27,6 +28,18 @@ urlpatterns = [
     path('cursos/excluir/<int:curso_id>/', views.excluir_curso, name='excluir_curso'),
     path('cursos/<int:curso_id>/overview/', views.curso_overview, name='curso_overview'),
     path('cursos/<int:curso_id>/publicar-final/', views.publicar_curso_final, name='publicar_curso_final'),
+    
+    # Cursos em Vídeo
+    path('cursos-video/', views_video.listar_cursos_video, name='listar_cursos_video'),
+    path('cursos-video/criar/', views_video.criar_curso_video, name='criar_curso_video'),
+    path('cursos-video/editar/<int:curso_id>/', views_video.editar_curso_video, name='editar_curso_video'),
+    path('cursos-video/excluir/<int:curso_id>/', views_video.excluir_curso_video, name='excluir_curso_video'),
+    path('cursos-video/<int:curso_id>/aulas/', views_video.gerenciar_aulas_video, name='gerenciar_aulas_video'),
+    path('cursos-video/aulas/excluir/<int:aula_id>/', views_video.excluir_aula_video, name='excluir_aula_video'),
+    
+    # Certificados em Vídeo
+    path('certificados-video/', views_video.listar_certificados_video, name='listar_certificados_video'),
+    path('certificados-video/status/<int:certificado_id>/', views_video.alterar_status_certificado, name='alterar_status_certificado'),
     path('inscricoes/', views.gerenciar_inscricoes, name='gerenciar_inscricoes'),
     path('inscricoes/validar/', views.validar_inscricao, name='validar_inscricao'),
     path('inscricoes/manual/', views.matricular_aluno_manual, name='matricular_aluno_manual'),

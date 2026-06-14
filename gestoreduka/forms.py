@@ -258,3 +258,33 @@ class AnuncioForm(forms.ModelForm):
             'imagem': 'Imagem de Destaque (opcional)',
             'ativo': 'Publicar agora?'
         }
+
+from cursovideoapp.models import Curso_video, Aula
+
+class CursoVideoForm(forms.ModelForm):
+    class Meta:
+        model = Curso_video
+        fields = [
+            'titulo', 'descricao', 'categoria', 'is_pago', 'preco', 
+            'capa', 'destaque'
+        ]
+        widgets = {
+            'titulo': forms.TextInput(attrs={'class': 'kt-input', 'placeholder': 'Título do Curso'}),
+            'descricao': forms.Textarea(attrs={'class': 'kt-input', 'rows': 4}),
+            'categoria': forms.Select(attrs={'class': 'kt-select'}),
+            'is_pago': forms.CheckboxInput(attrs={'class': 'kt-checkbox', 'style': 'width: 18px; height: 18px;'}),
+            'preco': forms.NumberInput(attrs={'class': 'kt-input', 'step': '0.001', 'min': '0'}),
+            'capa': forms.FileInput(attrs={'class': 'kt-input', 'accept': 'image/*'}),
+            'destaque': forms.CheckboxInput(attrs={'class': 'kt-checkbox', 'style': 'width: 18px; height: 18px;'}),
+        }
+
+class AulaForm(forms.ModelForm):
+    class Meta:
+        model = Aula
+        fields = ['titulo', 'video_url', 'descricao', 'ordem']
+        widgets = {
+            'titulo': forms.TextInput(attrs={'class': 'kt-input', 'placeholder': 'Deixe em branco para usar o título do YouTube/Vimeo'}),
+            'video_url': forms.URLInput(attrs={'class': 'kt-input', 'placeholder': 'https://youtube.com/watch?v=...'}),
+            'descricao': forms.Textarea(attrs={'class': 'kt-input', 'rows': 3}),
+            'ordem': forms.NumberInput(attrs={'class': 'kt-input', 'min': '0'}),
+        }

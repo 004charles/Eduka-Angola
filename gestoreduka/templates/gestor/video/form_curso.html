@@ -1,0 +1,62 @@
+{% extends 'gestor_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="flex flex-col gap-6 lg:gap-8">
+    
+    <div class="flex items-center justify-between gap-4">
+        <h1 class="text-2xl font-bold text-foreground">{{ titulo_pagina }}</h1>
+        <a href="{% url 'listar_cursos_video' %}" class="kt-btn kt-btn-light">Voltar</a>
+    </div>
+
+    <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-xl p-6">
+        <form method="POST" enctype="multipart/form-data" class="flex flex-col gap-5">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="flex flex-col gap-2">
+                    <label class="font-medium">Título do Curso</label>
+                    {{ form.titulo }}
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="font-medium">Categoria</label>
+                    {{ form.categoria }}
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label class="font-medium">Descrição</label>
+                {{ form.descricao }}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="flex flex-col gap-2">
+                    <label class="font-medium">Preço (Kz)</label>
+                    {{ form.preco }}
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="font-medium">Capa do Curso</label>
+                    {{ form.capa }}
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2">
+                    {{ form.is_pago }}
+                    <label class="font-medium">Curso Pago?</label>
+                </div>
+                <div class="flex items-center gap-2">
+                    {{ form.destaque }}
+                    <label class="font-medium">Destacar?</label>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-4 border-t border-white/10">
+                <button type="submit" class="kt-btn kt-btn-primary">
+                    <i class="ki-filled ki-save"></i> Salvar Curso
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

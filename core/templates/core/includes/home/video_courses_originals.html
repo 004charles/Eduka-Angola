@@ -1,0 +1,57 @@
+{% load static %}
+{% if cursos_video_originais %}
+<div class="rbt-course-area ptb--80 bg-color-light" id="eduka-originals">
+    <div class="container">
+        <!-- Section Title -->
+        <div class="row mb--40">
+            <div class="col-lg-12">
+                <div class="section-title text-center">
+                    <span class="subtitle bg-primary-opacity">Conteúdo Exclusivo</span>
+                    <h2 class="title">Eduka Originals <i class="feather-video text-primary"></i></h2>
+                    <p class="description mt--15">Aulas em vídeo produzidas pela nossa equipa de especialistas. Qualidade premium, direto ao ponto.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-5">
+            {% for curso in cursos_video_originais %}
+            <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+                <div class="rbt-card variation-01 rbt-hover">
+                    <div class="rbt-card-img">
+                        <a href="{% url 'detalhe_curso' curso.slug %}">
+                            {% if curso.imagem %}
+                                <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}">
+                            {% else %}
+                                <img src="{% static 'assets/images/course/course-online-01.jpg' %}" alt="{{ curso.titulo }}">
+                            {% endif %}
+                            <div class="rbt-badge-3 bg-white">
+                                <span>Original</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="rbt-card-body">
+                        <ul class="rbt-meta">
+                            <li><i class="feather-book"></i>{{ curso.aulas.count }} Aulas</li>
+                            <li><i class="feather-users"></i>{{ curso.visualizacoes }} Visualizações</li>
+                        </ul>
+                        <h4 class="rbt-card-title"><a href="{% url 'detalhe_curso' curso.slug %}">{{ curso.titulo }}</a></h4>
+                        <p class="rbt-card-text">{{ curso.descricao|truncatewords:12 }}</p>
+                        
+                        <div class="rbt-card-bottom">
+                            <div class="rbt-price">
+                                {% if curso.is_gratuito %}
+                                    <span class="current-price">Gratuito</span>
+                                {% else %}
+                                    <span class="current-price">{{ curso.preco }} AOA</span>
+                                {% endif %}
+                            </div>
+                            <a class="rbt-btn-link" href="{% url 'detalhe_curso' curso.slug %}">Assistir <i class="feather-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}

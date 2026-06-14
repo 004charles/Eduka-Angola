@@ -37,7 +37,7 @@
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 </head>
 
-<body class="rbt-header-sticky">
+<body class="active-dark-mode rbt-header-sticky">
 
     <!-- PWA Install Banner -->
     <div id="pwa-install-banner" style="display: none; position: fixed; bottom: 0; left: 0; width: 100%; background-color: #ffffff; box-shadow: 0 -4px 15px rgba(0,0,0,0.1); z-index: 99999; padding: 15px; flex-direction: row; justify-content: space-between; align-items: center; border-top-left-radius: 15px; border-top-right-radius: 15px;">
@@ -113,6 +113,12 @@
 
         <!-- Recomendados para si -->
         {% include 'core/includes/home/recommended_courses.html' %}
+
+        <!-- Eduka Originals (Cursos em Vídeo da Plataforma) -->
+        {% include 'core/includes/home/video_courses_originals.html' %}
+
+        <!-- Cursos dos Nossos Parceiros (Cursos em Vídeo dos Centros) -->
+        {% include 'core/includes/home/video_courses_partners.html' %}
 
         <!-- Trilhas de Carreira (Novo Estilo Coursera) -->
         {% include 'core/includes/home/career_paths.html' %}

@@ -12,7 +12,8 @@ from cursos_app.models import Categoria, Instrutor
 class Curso_video(models.Model):
     titulo = models.CharField(max_length=200)
     descricao = models.TextField()
-    instrutor = models.ForeignKey(Instrutor, on_delete=models.CASCADE, related_name="cursos_video")
+    instrutor = models.ForeignKey(Instrutor, on_delete=models.CASCADE, related_name="cursos_video", null=True, blank=True)
+    centro = models.ForeignKey('gestoreduka.CentroDeFormacao', on_delete=models.CASCADE, related_name="cursos_video_centro", null=True, blank=True)
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, related_name="cursos_video")
     data_publicacao = models.DateTimeField(auto_now_add=True, db_index=True)
     capa = models.ImageField(upload_to="cursos/capas/", blank=True, null=True)
@@ -189,6 +190,14 @@ class Certificado(models.Model):
     curso = models.ForeignKey(Curso_video, on_delete=models.CASCADE, related_name='certificados_emitidos')
     data_emissao = models.DateTimeField(auto_now_add=True)
     codigo_verificacao = models.CharField(max_length=20, unique=True, blank=True)
+    
+    STATUS_CHOICES = [
+        ('PENDENTE', 'Pendente'),
+        ('EMITIDO', 'Emitido'),
+        ('REJEITADO', 'Rejeitado')
+    ]
+    status = models.CharField(_('Status'), max_length=20, choices=STATUS_CHOICES, default='EMITIDO')
+    aprovado_por = models.ForeignKey('usuarios.Usuario', on_delete=models.SET_NULL, null=True, blank=True, related_name='certificados_aprovados')
     
     # Novos campos para avaliação
     nota_final = models.DecimalField(max_digits=5, decimal_places=2, default=0.00, verbose_name=_("Nota Final"))
