@@ -9,6 +9,7 @@
         <i class="feather-search"></i>
         <span>Explorar</span>
     </a>
+    {% if request.user.is_authenticated %}
     <a href="{% url 'aluno_dashboard' %}" class="nav-item">
         <i class="feather-book-open"></i>
         <span>Estudos</span>
@@ -21,6 +22,20 @@
         <i class="feather-user"></i>
         <span>Perfil</span>
     </a>
+    {% else %}
+    <a href="{% url 'lista_centros' %}" class="nav-item">
+        <i class="feather-award"></i>
+        <span>Centros</span>
+    </a>
+    <a href="{% url 'cursovideoapp:home_videos' %}" class="nav-item">
+        <i class="feather-play-circle"></i>
+        <span>Play</span>
+    </a>
+    <a href="{% url 'escolas:lista_escolas' %}" class="nav-item">
+        <i class="feather-book"></i>
+        <span>Escolas</span>
+    </a>
+    {% endif %}
 </div>
 
 <style>
@@ -93,15 +108,17 @@ body.active-dark-mode .pwa-bottom-nav .nav-item.active {
         padding-bottom: 60px !important;
     }
 
+    /* Hide the footer and copyright in PWA Mode */
+    body.is-pwa-standalone .rbt-footer,
+    body.is-pwa-standalone .copyright-area,
+    body.is-pwa-standalone .rbt-separator-mid {
+        display: none !important;
+    }
+
     /* Hide Desktop Header Elements on Mobile App Mode */
     body.is-pwa-standalone .rbt-header-wrapper {
         padding: 10px 0 !important;
         box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
-    }
-    
-    /* Hide the huge mobile menu button in PWA */
-    body.is-pwa-standalone .mobile-menu-bar {
-        display: none !important;
     }
 
     /* Move the Dark Mode Switcher UP so it's not hidden by Bottom Nav */
