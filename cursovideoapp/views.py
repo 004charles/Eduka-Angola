@@ -195,7 +195,7 @@ def home_videos(request):
 
         categorias = list(Categoria.objects.annotate(
             num_cursos=Count('cursos_video')
-        ).filter(num_cursos__gt=0).order_by('nome'))
+        ).order_by('nome'))
         
         global_data = {
             'videos_recentes': videos_recentes,

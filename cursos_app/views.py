@@ -1054,7 +1054,7 @@ def catalogo_cursos(request):
     # Obter categorias para o menu de filtros
     categorias = Categoria.objects.annotate(
         total_cursos=Count('curso')
-    ).filter(total_cursos__gt=0)
+    )
     
     # Contexto
     context = {

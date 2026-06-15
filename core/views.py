@@ -103,7 +103,7 @@ def index(request):
         # 12. Categorias principais
         categorias = list(Categoria.objects.annotate(
             num_cursos=Count('curso', filter=Q(curso__publicado=True, curso__ativo=True))
-        ).filter(num_cursos__gt=0).order_by('-num_cursos')[:10])
+        ).order_by('-num_cursos')[:10])
 
         # 13. Depoimentos
         depoimentos = list(Depoimento.objects.filter(aprovado=True).order_by('-data')[:8])
