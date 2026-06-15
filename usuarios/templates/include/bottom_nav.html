@@ -95,41 +95,57 @@ body.active-dark-mode .pwa-bottom-nav .nav-item.active {
     color: #ffffff;
 }
 
+/* PWA Standalone Classes (Apply on any screen size when installed as PWA) */
+body.is-pwa-standalone .pwa-bottom-nav {
+    display: flex !important;
+}
+
+body.is-pwa-standalone {
+    padding-bottom: 60px !important;
+}
+
+/* Hide the footer and copyright in PWA Mode */
+body.is-pwa-standalone .rbt-footer,
+body.is-pwa-standalone .copyright-area,
+body.is-pwa-standalone .rbt-separator-mid {
+    display: none !important;
+}
+
+/* Hide Desktop Header Elements on Mobile App Mode */
+body.is-pwa-standalone .rbt-header-wrapper {
+    padding: 10px 0 !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
+}
+
+/* Move the Dark Mode Switcher UP so it's not hidden by Bottom Nav */
+body.is-pwa-standalone #my_switcher {
+    bottom: 85px !important;
+}
+
 /* Aplicar Apenas em Mobile e/ou Standalone PWA */
 @media (max-width: 767px) {
-    /* Hide standard components in PWA standalone mode */
-    body.is-pwa-standalone .pwa-bottom-nav,
+    /* Mostra na web mobile normal também */
     .pwa-bottom-nav {
-        display: flex;
+        display: flex !important;
     }
-    
-    /* Add padding to body so content doesn't hide behind bottom nav */
     body {
         padding-bottom: 60px !important;
-    }
-
-    /* Hide the footer and copyright in PWA Mode */
-    body.is-pwa-standalone .rbt-footer,
-    body.is-pwa-standalone .copyright-area,
-    body.is-pwa-standalone .rbt-separator-mid {
-        display: none !important;
-    }
-
-    /* Hide Desktop Header Elements on Mobile App Mode */
-    body.is-pwa-standalone .rbt-header-wrapper {
-        padding: 10px 0 !important;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
-    }
-
-    /* Move the Dark Mode Switcher UP so it's not hidden by Bottom Nav */
-    body.is-pwa-standalone #my_switcher {
-        bottom: 85px !important;
     }
 }
 </style>
 
 <script>
-    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-        document.body.classList.add('is-pwa-standalone');
+    function updatePwaClass() {
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+            document.body.classList.add('is-pwa-standalone');
+        } else {
+            document.body.classList.remove('is-pwa-standalone');
+        }
     }
+
+    // Check immediately
+    updatePwaClass();
+
+    // Listen for changes
+    window.matchMedia('(display-mode: standalone)').addEventListener('change', updatePwaClass);
 </script>
