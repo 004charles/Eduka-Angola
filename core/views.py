@@ -53,7 +53,7 @@ def index(request):
             pass
         
     # Tentar obter dados globais do cache (seções que não mudam por user)
-    cache_key = 'home_global_data_v2'
+    cache_key = 'home_global_data_v3'
     global_data = cache.get(cache_key)
     
     if global_data is None:
