@@ -184,20 +184,23 @@
                 }
             });
 
-            // Categorias
-            new Swiper(".category-activation-four", {
-                slidesPerView: 3,
-                spaceBetween: 20,
-                loop: true,
-                watchOverflow: true,
-                navigation: { nextEl: '.rbt-arrow-right', prevEl: '.rbt-arrow-left' },
-                breakpoints: {
-                    0: { slidesPerView: 1.2 },
-                    576: { slidesPerView: 2 },
-                    992: { slidesPerView: 3 },
-                    1200: { slidesPerView: 4 }
-                }
-            });
+            // Categorias - inicializado aqui (prevalece sobre main.js)
+            if (document.querySelector('.category-activation-four')) {
+                new Swiper(".category-activation-four", {
+                    slidesPerView: 2,
+                    spaceBetween: 12,
+                    loop: false,
+                    watchOverflow: true,
+                    freeMode: true,
+                    navigation: { nextEl: '.rbt-swiper-arrow.rbt-arrow-right', prevEl: '.rbt-swiper-arrow.rbt-arrow-left' },
+                    breakpoints: {
+                        0:    { slidesPerView: 2, spaceBetween: 10 },
+                        576:  { slidesPerView: 2, spaceBetween: 15 },
+                        992:  { slidesPerView: 3, spaceBetween: 20 },
+                        1200: { slidesPerView: 4, spaceBetween: 20 }
+                    }
+                });
+            }
 
             // Secções Dinâmicas
             document.querySelectorAll('[class*="dynamicCourseSwiper-"]').forEach(function(swiperContainer) {
