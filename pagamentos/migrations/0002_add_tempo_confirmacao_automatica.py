@@ -1,21 +1,15 @@
 # Migration para sincronizar todos os campos em falta na tabela
 # pagamentos_configuracaopagamento em producao.
 #
-# Usa ADD COLUMN IF NOT EXISTS para ser 100% seguro e idempotente:
-# nao falha se a coluna ja existir.
+# Usa ADD COLUMN IF NOT EXISTS apenas em PostgreSQL para ser seguro e idempotente.
+# Em SQLite (usado em dev/testes locais), as colunas ja sao criadas no 0001_initial.
 
 from django.db import migrations
 
-
-class Migration(migrations.Migration):
-
-    dependencies = [
-        ('pagamentos', '0001_initial'),
-    ]
-
-    operations = [
-        migrations.RunSQL(
-            sql="""
+def add_columns_if_postgres(apps, schema_editor):
+    if schema_editor.connection.vendor == 'postgresql':
+        with schema_editor.connection.cursor() as cursor:
+            cursor.execute("""
                 ALTER TABLE pagamentos_configuracaopagamento
                     ADD COLUMN IF NOT EXISTS tempo_confirmacao_automatica_minutos integer NOT NULL DEFAULT 5,
                     ADD COLUMN IF NOT EXISTS max_tentativas_pagamento integer NOT NULL DEFAULT 3,
@@ -28,7 +22,14 @@ class Migration(migrations.Migration):
                     ADD COLUMN IF NOT EXISTS gateway_padrao varchar(50) NOT NULL DEFAULT 'PRONTU',
                     ADD COLUMN IF NOT EXISTS moeda_padrao varchar(3) NOT NULL DEFAULT 'AOA',
                     ADD COLUMN IF NOT EXISTS pagamentos_ativados boolean NOT NULL DEFAULT true;
-            """,
-            reverse_sql=migrations.RunSQL.noop,
-        ),
+            """)
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('pagamentos', '0001_initial'),
+    ]
+
+    operations = [
+        migrations.RunPython(add_columns_if_postgres, reverse_code=migrations.RunPython.noop),
     ]

@@ -22,6 +22,14 @@ def enviar_email_brevo(to_email, subject, html_content, text_content=None, to_na
 
     if not api_key:
         logger.error("[BREVO] BREVO_API_KEY não configurada!")
+        if settings.DEBUG:
+            logger.info(f"[BREVO] [DEBUG MODE] Simulação de envio com sucesso para {to_email} (sem API KEY)")
+            print(f"\n================ MOCK EMAIL SENT (DEBUG - SEM API KEY) ================")
+            print(f"To: {to_email}")
+            print(f"Subject: {subject}")
+            print(f"Body: {text_content or html_content}")
+            print(f"=========================================================\n")
+            return True
         return False
 
     payload = {
@@ -57,11 +65,33 @@ def enviar_email_brevo(to_email, subject, html_content, text_content=None, to_na
             return True
         else:
             logger.error(f"[BREVO] ❌ Erro {response.status_code}: {response.text}")
+            if settings.DEBUG:
+                logger.info(f"[BREVO] [DEBUG MODE] Simulação de envio com sucesso para {to_email} (fallback console)")
+                print(f"\n================ MOCK EMAIL SENT (DEBUG - ERRO API) ================")
+                print(f"To: {to_email}")
+                print(f"Subject: {subject}")
+                print(f"Body: {text_content or html_content}")
+                print(f"=========================================================\n")
+                return True
             return False
 
     except requests.exceptions.Timeout:
         logger.error(f"[BREVO] ❌ Timeout ao enviar para {to_email}")
+        if settings.DEBUG:
+            logger.info(f"[BREVO] [DEBUG MODE] Simulação de envio com sucesso para {to_email} após timeout")
+            print(f"\n================ MOCK EMAIL SENT (DEBUG - TIMEOUT) ================")
+            print(f"To: {to_email}")
+            print(f"Subject: {subject}")
+            print(f"=========================================================\n")
+            return True
         return False
     except Exception as e:
         logger.error(f"[BREVO] ❌ Erro inesperado para {to_email}: {type(e).__name__}: {e}")
+        if settings.DEBUG:
+            logger.info(f"[BREVO] [DEBUG MODE] Simulação de envio com sucesso para {to_email} após erro")
+            print(f"\n================ MOCK EMAIL SENT (DEBUG - ERRO INESPERADO) ================")
+            print(f"To: {to_email}")
+            print(f"Subject: {subject}")
+            print(f"=========================================================\n")
+            return True
         return False

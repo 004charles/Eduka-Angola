@@ -1,0 +1,264 @@
+def build_centros():
+    template = """{% load static %}
+{% load i18n %}
+{% load curso_filters %}
+<!DOCTYPE html>
+<html lang="{{ request.LANGUAGE_CODE|default:'pt' }}">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Centros de Formação em Angola | EdukAngola</title>
+    <meta name="description" content="Encontre e compare os melhores centros de formação, escolas técnicas e institutos em Angola.">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    {% include 'include/css.html' %}
+    
+    <style>
+      :root {
+        --color-primary: #2f57ef;
+        --color-heading: #192335;
+        --color-body: #6b7385;
+        --color-border: #e6e3f1;
+        --color-bg: #F5F7FA;
+      }
+      body {
+        background-color: #F5F7FA !important;
+        font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: #192335;
+        -webkit-font-smoothing: antialiased;
+      }
+      a { color: #192335; text-decoration: none; }
+      a:hover { color: #2f57ef; }
+
+      /* DARK MODE COMPREHENSIVE RULES */
+      body.active-dark-mode,
+      body.active-dark-mode main.rbt-main-wrapper {
+        background-color: #121212 !important;
+        color: #ffffff !important;
+      }
+
+      body.active-dark-mode .drawing-header-hero,
+      body.active-dark-mode .drawing-filter-sidebar,
+      body.active-dark-mode .drawing-centro-grid-card,
+      body.active-dark-mode .drawing-search-box {
+        background-color: #1e1e1e !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+        color: #ffffff !important;
+      }
+
+      body.active-dark-mode .drawing-heading-title,
+      body.active-dark-mode h1,
+      body.active-dark-mode h2,
+      body.active-dark-mode h3,
+      body.active-dark-mode h4,
+      body.active-dark-mode h5,
+      body.active-dark-mode h6,
+      body.active-dark-mode label {
+        color: #ffffff !important;
+      }
+
+      body.active-dark-mode .drawing-sub-text,
+      body.active-dark-mode .text-muted {
+        color: #cbd5e1 !important;
+      }
+
+      @media (max-width: 991px) {
+        .drawing-centros-layout {
+          grid-template-columns: 1fr !important;
+        }
+        .drawing-centros-grid {
+          grid-template-columns: repeat(2, 1fr) !important;
+        }
+      }
+      @media (max-width: 640px) {
+        .drawing-centros-grid {
+          grid-template-columns: 1fr !important;
+        }
+      }
+    </style>
+</head>
+<body class="rbt-header-sticky">
+
+    {% include 'include/header.html' %}
+
+    <main class="rbt-main-wrapper" style="padding-bottom: 60px;">
+        
+        <!-- HEADER HERO SECTION -->
+        <div class="drawing-header-hero" style="background: #ffffff; border-bottom: 1px solid #e6e3f1; padding: 34px 40px 30px">
+            <div class="container" style="max-width: 1400px;">
+                <div class="drawing-sub-text" style="font-size: 12.5px; color: #9aa1b1; margin-bottom: 14px">
+                    <a href="{% url 'index' %}" style="color: #9aa1b1">Início</a> › <span>Centros de formação</span>
+                </div>
+                <h1 class="drawing-heading-title" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 36px; letter-spacing: -0.035em; color: #192335; margin: 0 0 10px">Centros de formação em Angola</h1>
+                <p class="drawing-sub-text" style="font-size: 15.5px; line-height: 1.6; margin: 0 0 24px; max-width: 640px; color: #6b7385;">
+                    {{ total_centros|default:"142" }} centros, escolas técnicas e institutos certificados, em todas as províncias. Compara cursos, preços e avaliações antes de te inscreveres.
+                </p>
+
+                <!-- SEARCH FORM BOX -->
+                <form action="{% url 'lista_centros' %}" method="GET" class="drawing-search-box" style="display: flex; align-items: stretch; height: 52px; border: 1.5px solid #192335; border-radius: 11px; background: #ffffff; overflow: hidden; max-width: 760px">
+                    <input type="text" name="q" value="{{ q }}" placeholder="Procurar centro, escola ou instituto…" style="flex: 1; border: none; outline: none; background: transparent; font-size: 15px; color: #0f172a; padding: 0 18px">
+                    <div style="display: flex; align-items: center; padding: 0 16px; border-left: 1px solid #e6e3f1; font-size: 14px; flex-shrink: 0">
+                        <select name="provincia" style="border: none; background: transparent; outline: none; font-size: 14px; color: #192335; cursor: pointer;">
+                            <option value="">Todas as províncias</option>
+                            {% for p in provincias %}
+                                <option value="{{ p }}" {% if provincia_selecionada == p %}selected{% endif %}>{{ p }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" style="border: none; background: #2f57ef; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 600; padding: 0 30px; cursor: pointer">Procurar</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="container" style="max-width: 1400px; margin-top: 28px;">
+            <div class="drawing-centros-layout" style="display: grid; grid-template-columns: 264px 1fr; gap: 28px; align-items: start">
+
+                <!-- SIDEBAR FILTERS -->
+                <div class="drawing-filter-sidebar" style="background: #ffffff; border: 1px solid #e6e3f1; border-radius: 12px; padding: 22px">
+                    <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20px">
+                        <span class="drawing-heading-title" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 15px; color: #192335">Filtros</span>
+                        <a href="{% url 'lista_centros' %}" style="font-size: 12.5px; color: #2f57ef;">Limpar</a>
+                    </div>
+
+                    <form action="{% url 'lista_centros' %}" method="GET">
+                        <input type="hidden" name="q" value="{{ q }}">
+                        
+                        <div class="drawing-heading-title" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 12.5px; color: #192335; margin-bottom: 12px">Província</div>
+                        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13.5px; padding-bottom: 20px; border-bottom: 1px solid #e6e3f1">
+                            {% for p in provincias|slice:":6" %}
+                                <label style="display: flex; align-items: center; gap: 9px; cursor: pointer">
+                                    <input type="radio" name="provincia" value="{{ p }}" {% if provincia_selecionada == p %}checked{% endif %} onchange="this.form.submit()" style="accent-color: #2f57ef">
+                                    {{ p }}
+                                </label>
+                            {% endfor %}
+                        </div>
+
+                        <div class="drawing-heading-title" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 12.5px; color: #192335; margin: 20px 0 12px">Tipo de instituição</div>
+                        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13.5px; padding-bottom: 20px; border-bottom: 1px solid #e6e3f1">
+                            <label style="display: flex; align-items: center; gap: 9px; cursor: pointer"><input type="checkbox" checked style="accent-color: #2f57ef">Centro de formação</label>
+                            <label style="display: flex; align-items: center; gap: 9px; cursor: pointer"><input type="checkbox" style="accent-color: #2f57ef">Escola técnica</label>
+                            <label style="display: flex; align-items: center; gap: 9px; cursor: pointer"><input type="checkbox" style="accent-color: #2f57ef">Instituto médio</label>
+                            <label style="display: flex; align-items: center; gap: 9px; cursor: pointer"><input type="checkbox" style="accent-color: #2f57ef">Centro de línguas</label>
+                        </div>
+
+                        <div class="drawing-heading-title" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 12.5px; color: #192335; margin: 20px 0 12px">Garantias & Benefícios</div>
+                        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13.5px">
+                            <label style="display: flex; align-items: center; gap: 9px; cursor: pointer"><input type="checkbox" style="accent-color: #2f57ef">Certificado pelo INEFOP</label>
+                            <label style="display: flex; align-items: center; gap: 9px; cursor: pointer"><input type="checkbox" style="accent-color: #2f57ef">Tem cursos online</label>
+                            <label style="display: flex; align-items: center; gap: 9px; cursor: pointer"><input type="checkbox" style="accent-color: #2f57ef">Pagamento em prestações</label>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- MAIN CENTROS CONTENT -->
+                <div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px">
+                        <div class="drawing-sub-text" style="font-size: 14px; color: #6b7385">
+                            A mostrar <strong class="drawing-heading-title" style="color: #192335">{{ page_obj.paginator.count|default:total_centros }}</strong> centros de formação
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px">
+                            <a href="?sort=relevantes" class="rbt-btn btn-sm btn-border radius-round">Mais relevantes</a>
+                            <a href="?sort=avaliados" class="rbt-btn btn-sm btn-border radius-round">Melhor avaliados</a>
+                        </div>
+                    </div>
+
+                    <!-- 3-COLUMN CENTROS GRID -->
+                    <div class="drawing-centros-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px">
+                        {% for ct in page_obj %}
+                            <a href="{% url 'cursos_por_centro' ct.id %}" class="drawing-centro-grid-card" style="background: #ffffff; border: 1px solid #e6e3f1; border-radius: 13px; overflow: hidden; display: flex; flex-direction: column; text-decoration: none;">
+                                <div style="height: 104px; background: linear-gradient(135deg, #eef1f8 0%, #e4e9f5 100%); border-bottom: 1px solid #e6e3f1; position: relative">
+                                    {% if ct.perfil.destaque %}
+                                        <span style="position: absolute; top: 10px; right: 10px; font-size: 10.5px; font-weight: 700; padding: 4px 9px; border-radius: 999px; background: #2f57ef; color: #ffffff">Em destaque</span>
+                                    {% endif %}
+                                </div>
+                                <div style="padding: 0 20px 20px; margin-top: -28px; display: flex; flex-direction: column; flex: 1">
+                                    <div style="width: 56px; height: 56px; border-radius: 13px; background: #ffffff; border: 1px solid #e6e3f1; display: flex; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 17px; color: #192335; margin-bottom: 13px; overflow: hidden;">
+                                        {% if ct.perfil.imagem %}
+                                            <img src="{{ ct.perfil.imagem.url }}" alt="{{ ct.nome }}" style="width:100%; height:100%; object-fit:cover;">
+                                        {% else %}
+                                            {{ ct.nome|slice:":2"|upper }}
+                                        {% endif %}
+                                    </div>
+
+                                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px">
+                                        <span class="drawing-heading-title" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 16.5px; letter-spacing: -0.015em; color: #192335; line-height: 1.2;">{{ ct.nome }}</span>
+                                        <span style="font-size: 10px; font-weight: 700; width: 16px; height: 16px; border-radius: 999px; background: #e8f7ed; color: #2c8a4c; display: flex; align-items: center; justify-content: center; flex-shrink: 0">✓</span>
+                                    </div>
+                                    <div class="drawing-sub-text" style="font-size: 12.5px; color: #9aa1b1; margin-bottom: 12px">
+                                        Centro de Formação · {{ ct.provincia|default:ct.cidade|default:"Luanda" }}
+                                    </div>
+
+                                    <div class="drawing-sub-text" style="font-size: 13px; line-height: 1.5; color: #6b7385; margin-bottom: 14px">
+                                        {{ ct.descricao|default:"Instituição de formação técnica e profissional certificada."|truncatechars:75 }}
+                                    </div>
+
+                                    <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px">
+                                        <span style="font-size: 11px; background: #F5F7FA; border: 1px solid #e6e3f1; border-radius: 999px; padding: 4px 10px; color: #192335;">Certificado</span>
+                                        <span style="font-size: 11px; background: #e8f7ed; color: #2c8a4c; border: 1px solid #c2e6cf; border-radius: 999px; padding: 4px 10px">Parceiro Oficial</span>
+                                    </div>
+
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 14px; border-top: 1px solid #e6e3f1; font-size: 12.5px; color: #6b7385">
+                                        <span>{{ ct.total_cursos|default:ct.curso_set.count|default:"10" }} cursos disponíveis</span>
+                                        <span style="color: #ff9d2d; font-weight: 700"><i class="fas fa-star me-1"></i>4.8</span>
+                                    </div>
+                                </div>
+                            </a>
+                        {% empty %}
+                            <div class="col-12 text-center py-5">
+                                <div class="text-muted fs-5">Nenhum centro de formação encontrado com os critérios pesquisados.</div>
+                                <a href="{% url 'lista_centros' %}" class="rbt-btn btn-border radius-round mt-3">Ver todos os centros</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- PAGINATION -->
+                    {% if page_obj.has_other_pages %}
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 36px">
+                            {% if page_obj.has_previous %}
+                                <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if provincia_selecionada %}&provincia={{ provincia_selecionada }}{% endif %}" class="rbt-btn btn-sm btn-border radius-round">Anterior</a>
+                            {% endif %}
+                            
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <span style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 10px; background: #2f57ef; color: #fff; font-size: 13.5px; font-weight: 600">{{ num }}</span>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <a href="?page={{ num }}{% if q %}&q={{ q }}{% endif %}{% if provincia_selecionada %}&provincia={{ provincia_selecionada }}{% endif %}" style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 1px solid #e6e3f1; background: #ffffff; color: #6b7385; font-size: 13.5px">{{ num }}</a>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                                <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if provincia_selecionada %}&provincia={{ provincia_selecionada }}{% endif %}" class="rbt-btn btn-sm btn-border radius-round">Seguinte</a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    <!-- CTA REGISTRAR CENTRO -->
+                    <div style="margin-top: 36px; background: linear-gradient(135deg, #020c26 0%, #192335 100%); border-radius: 14px; padding: 28px 32px; display: flex; align-items: center; gap: 28px; color: #ffffff;">
+                        <div>
+                            <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: -0.03em; color: #ffffff; margin-bottom: 7px">És um centro de formação?</div>
+                            <div style="font-size: 14px; color: rgba(255,255,255,0.8); max-width: 480px">Publica os teus cursos, gere turmas e recebe inscrições de todo o país. Sem custo de adesão.</div>
+                        </div>
+                        <a href="{% url 'registro_centro' %}" class="rbt-btn btn-gradient radius-round" style="margin-left: auto; flex-shrink: 0;">Registar o meu centro</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    {% include 'include/footer.html' %}
+    {% include 'include/java.html' %}
+
+</body>
+</html>
+"""
+    with open('cursos_app/templates/lista_instituicoes.html', 'w', encoding='utf-8') as f:
+        f.write(template)
+    print("Centros template generated successfully!")
+
+if __name__ == "__main__":
+    build_centros()

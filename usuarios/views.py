@@ -22,9 +22,11 @@ import random
 import json
 
 
-@login_required
 def api_notificacoes_nao_lidas(request):
     """Retorna o número de notificações não lidas e as últimas 5 notificações para o polling do frontend."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'count': 0, 'notificacoes': []})
+        
     user = request.user
     dados = {
         'count': 0,

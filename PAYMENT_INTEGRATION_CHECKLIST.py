@@ -19,7 +19,7 @@ RESET = '\033[0m'
 
 def print_status(status, message):
     """Imprime mensagem de status colorida"""
-    symbol = '✓' if status else '✗'
+    symbol = '[OK]' if status else '[X]'
     color = GREEN if status else RED
     print(f"{color}{symbol}{RESET} {message}")
 
@@ -73,10 +73,10 @@ def check_django_settings():
     
     checks = {
         "'pagamentos' in INSTALLED_APPS": "'pagamentos'" in settings_content,
-        "PRONTU_API_URL configurado": "PRONTU_API_URL = os.getenv" in settings_content,
-        "PRONTU_API_KEY configurado": "PRONTU_API_KEY = os.getenv" in settings_content,
-        "FRONTEND_RETURN_URL configurado": "FRONTEND_RETURN_URL = os.getenv" in settings_content,
-        "FRONTEND_CANCEL_URL configurado": "FRONTEND_CANCEL_URL = os.getenv" in settings_content,
+        "PRONTU_API_URL configurado": "PRONTU_API_URL = config" in settings_content,
+        "PRONTU_API_KEY configurado": "PRONTU_API_KEY = config" in settings_content,
+        "FRONTEND_RETURN_URL configurado": "FRONTEND_RETURN_URL = config" in settings_content,
+        "FRONTEND_CANCEL_URL configurado": "FRONTEND_CANCEL_URL = config" in settings_content,
     }
     
     all_ok = True
@@ -164,34 +164,34 @@ def check_database():
         return False
 
 def print_configuration_guide():
-    """Imprime guia de configuração"""
-    print(f"\n{BLUE}=== GUIA DE CONFIGURAÇÃO .ENV ==={RESET}\n")
+    """Imprime guia de configuracao"""
+    print(f"\n{BLUE}=== GUIA DE CONFIGURACAO .ENV ==={RESET}\n")
     
     guide = """
-VARIÁVEIS ESSENCIAIS:
+VARIAVEIS ESSENCIAIS:
 
-1. Ativação do Sistema
+1. Ativacao do Sistema
    PAGAMENTOS_ATIVADOS=True         # Ativar/desativar pagamentos
 
 2. Gateway Principal  
    GATEWAY_PADRAO=PRONTU            # PRONTU, STRIPE, PAYPAL
-   MOEDA_PADRAO=AOA                 # Moeda padrão
+   MOEDA_PADRAO=AOA                 # Moeda padrao
 
-3. Credenciais Prontu (OBRIGATÓRIO - alterar em produção!)
+3. Credenciais Prontu (OBRIGATORIO - alterar em producao!)
    PRONTU_API_URL=https://api.prontu.io
-   PRONTU_API_KEY=sua_chave_api_aqui    # ⚠️ ALTERAR ESTE VALOR
+   PRONTU_API_KEY=sua_chave_api_aqui    # [ATENCAO] ALTERAR ESTE VALOR
    PRONTU_CALLBACK_URL=http://localhost:8000/api/v1/pagamentos/webhook/prontu/
 
 4. URLs de Redirecionamento (Frontend)
    FRONTEND_RETURN_URL=http://localhost:3000/pagamento/sucesso
    FRONTEND_CANCEL_URL=http://localhost:3000/pagamento/cancelado
 
-5. Configurações de Pagamento
-   TEMPO_EXPIRACAO_LINK_MINUTOS=120    # Link expira após 2h
-   MAX_TENTATIVAS_PAGAMENTO=3           # Máximo de tentativas
+5. Configuracoes de Pagamento
+   TEMPO_EXPIRACAO_LINK_MINUTOS=120    # Link expira apos 2h
+   MAX_TENTATIVAS_PAGAMENTO=3           # Maximo de tentativas
    DESCONTO_INSCRICAO_PERCENTUAL=0      # Desconto (0-100%)
 
-6. Notificações
+6. Notificacoes
    NOTIFICAR_ADMIN_PAGAMENTO_RECEBIDO=True
    VALIDAR_WEBHOOK_SIGNATURE=True
 
@@ -199,11 +199,11 @@ VARIÁVEIS ESSENCIAIS:
    DEFAULT_FROM_EMAIL=nao-responda@edukangola.ao
    SITE_DOMAIN=http://localhost:8000
 
-INSTRUÇÕES PARA PRODUÇÃO:
+INSTRUCOES PARA PRODUCAO:
 1. Alterar PRONTU_API_KEY com credenciais reais
-2. Alterar FRONTEND_RETURN_URL e FRONTEND_CANCEL_URL para domínio real
-3. Alterar SITE_DOMAIN para domínio em produção
-4. Alterar PRONTU_CALLBACK_URL para domínio em produção
+2. Alterar FRONTEND_RETURN_URL e FRONTEND_CANCEL_URL para dominio real
+3. Alterar SITE_DOMAIN para dominio em producao
+4. Alterar PRONTU_CALLBACK_URL para dominio em producao
 5. Definir DEBUG=False
 6. Usar HTTPS em todas as URLs
 7. Configurar EMAIL_BACKEND real (SendGrid, etc.)
@@ -231,9 +231,9 @@ def main():
     all_ok = all(results.values())
     
     if all_ok:
-        print(f"\n{GREEN}✓ Tudo configurado corretamente!{RESET}")
+        print(f"\n{GREEN}[OK] Tudo configurado corretamente!{RESET}")
     else:
-        print(f"\n{RED}✗ Alguns itens precisam ser verificados{RESET}")
+        print(f"\n{RED}[X] Alguns itens precisam ser verificados{RESET}")
     
     print_configuration_guide()
     

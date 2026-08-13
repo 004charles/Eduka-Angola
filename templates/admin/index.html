@@ -1,5 +1,6 @@
-{% extends "admin/base.html" %}
-{% load i18n unfold humanize %}
+{% extends "unfold/layouts/base.html" %}
+
+{% load i18n unfold %}
 
 {% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
 
@@ -8,132 +9,24 @@
 {% endblock %}
 
 {% block content %}
-<div class="mb-8 p-4">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <!-- KPIs -->
-        <div class="bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-700">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-gray-400 text-sm font-medium">Total Alunos</h3>
-                <span class="text-indigo-400 bg-indigo-400/10 p-2 rounded-lg">
-                    <i class="ki-filled ki-profile-circle text-xl"></i>
-                </span>
-            </div>
-            <p class="text-white text-3xl font-bold">{{ total_alunos|intcomma }}</p>
-        </div>
-
-        <div class="bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-700">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-gray-400 text-sm font-medium">Centros Ativos</h3>
-                <span class="text-green-400 bg-green-400/10 p-2 rounded-lg">
-                    <i class="ki-filled ki-bank text-xl"></i>
-                </span>
-            </div>
-            <p class="text-white text-3xl font-bold">{{ total_centros|intcomma }}</p>
-        </div>
-
-        <div class="bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-700">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-gray-400 text-sm font-medium">Cursos Publicados</h3>
-                <span class="text-blue-400 bg-blue-400/10 p-2 rounded-lg">
-                    <i class="ki-filled ki-book-open text-xl"></i>
-                </span>
-            </div>
-            <p class="text-white text-3xl font-bold">{{ total_cursos|intcomma }}</p>
-        </div>
-
-        <div class="bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-700">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-gray-400 text-sm font-medium">Receita Total</h3>
-                <span class="text-yellow-400 bg-yellow-400/10 p-2 rounded-lg">
-                    <i class="ki-filled ki-wallet text-xl"></i>
-                </span>
-            </div>
-            <p class="text-white text-3xl font-bold">{{ receita_total|floatformat:2|intcomma }} <span class="text-sm font-normal text-gray-500">Kz</span></p>
-        </div>
-    </div>
-
-    <!-- Carrossel de Cursos Recentes -->
-    <div class="mb-8">
-        <h2 class="text-lg text-white font-semibold mb-4 flex items-center gap-2">
-            <i class="ki-filled ki-abstract-26 text-indigo-500"></i> Últimos Cursos Adicionados
-        </h2>
-        <div class="flex overflow-x-auto gap-4 pb-4 snap-x hide-scrollbar">
-            {% for curso in cursos_recentes %}
-            <div class="bg-gray-800 rounded-xl shadow-sm border border-gray-700 overflow-hidden flex-shrink-0 snap-start transition-transform hover:-translate-y-1" style="min-width: 280px; width: 280px;">
-                {% if curso.imagem %}
-                    <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}" class="w-full h-36 object-cover border-b border-gray-700">
-                {% else %}
-                    <div class="w-full h-36 bg-gray-900 flex items-center justify-center text-gray-600 border-b border-gray-700">Sem Capa</div>
-                {% endif %}
-                <div class="p-4">
-                    <h4 class="text-white font-medium text-sm line-clamp-2" title="{{ curso.titulo }}">{{ curso.titulo }}</h4>
-                    <div class="flex items-center gap-2 mt-3">
-                        <span class="text-xs font-semibold px-2 py-1 bg-indigo-500/10 text-indigo-400 rounded-md">
-                            {{ curso.preco|floatformat:0|intcomma }} Kz
-                        </span>
-                        <span class="text-gray-400 text-xs truncate">{{ curso.centro.nome }}</span>
-                    </div>
+    <!-- NATIVE UNFOLD KPI METRICS -->
+    {% if kpi %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            {% for item in kpi %}
+                <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
+                    <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">{{ item.title }}</span>
+                    <span class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight block">{{ item.metric }}</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400 mt-2 block">{{ item.footer }}</span>
                 </div>
-            </div>
-            {% empty %}
-            <p class="text-gray-500 text-sm">Nenhum curso encontrado.</p>
             {% endfor %}
         </div>
-    </div>
+    {% endif %}
 
-    <!-- Centros Recentes -->
-    <div class="mb-8">
-        <h2 class="text-lg text-white font-semibold mb-4 flex items-center gap-2">
-            <i class="ki-filled ki-buildings text-indigo-500"></i> Novos Centros de Formação
-        </h2>
-        <div class="flex overflow-x-auto gap-4 pb-4 snap-x hide-scrollbar">
-            {% for centro in centros_recentes %}
-            <div class="bg-gray-800 rounded-xl shadow-sm border border-gray-700 overflow-hidden flex-shrink-0 snap-start transition-transform hover:-translate-y-1" style="min-width: 320px; width: 320px;">
-                <div class="relative h-32">
-                    {% if centro.perfil.banner %}
-                        <img src="{{ centro.perfil.banner.url }}" alt="{{ centro.nome }}" class="w-full h-full object-cover">
-                    {% else %}
-                        <div class="w-full h-full bg-gray-900"></div>
-                    {% endif %}
-                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
-                    
-                    {% if centro.perfil.imagem %}
-                    <img src="{{ centro.perfil.imagem.url }}" class="absolute rounded-full border-4 border-gray-800 object-cover bg-white" style="width: 64px; height: 64px; bottom: -24px; left: 16px;">
-                    {% else %}
-                    <div class="absolute rounded-full border-4 border-gray-800 bg-indigo-600 flex items-center justify-center text-white font-bold text-xl" style="width: 64px; height: 64px; bottom: -24px; left: 16px;">
-                        {{ centro.nome|make_list|first|upper }}
-                    </div>
-                    {% endif %}
-                </div>
-                <div class="pt-8 pb-4 px-4">
-                    <h4 class="text-white font-semibold text-base truncate">{{ centro.nome }}</h4>
-                    <p class="text-gray-400 text-xs mt-1 flex items-center gap-1">
-                        <i class="ki-filled ki-geolocation text-gray-500"></i> {{ centro.perfil.provincia|default:"Angola" }}
-                    </p>
-                </div>
-            </div>
-            {% empty %}
-            <p class="text-gray-500 text-sm">Nenhum centro encontrado.</p>
-            {% endfor %}
-        </div>
-    </div>
-    
-    <style>
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-    </style>
-</div>
-
-<!-- Render the normal django admin content below our dashboard -->
     <div class="flex flex-col lg:flex-row lg:gap-8">
         <div class="grow">
             {% include "unfold/helpers/app_list_default.html" %}
         </div>
+
         {% include "unfold/helpers/history.html" %}
     </div>
 {% endblock %}

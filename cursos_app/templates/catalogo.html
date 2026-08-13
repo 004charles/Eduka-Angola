@@ -52,7 +52,7 @@
 
     <div class="rbt-course-area bg-color-white rbt-section-gap">
         <div class="container">
-            <form method="get" id="filter-form" class="rbt-search-filter-form">
+            <form action="{% url 'catalogo_cursos' %}" method="get" id="filter-form" class="rbt-search-filter-form">
                 <div class="row g-5">
                     <!-- Sidebar de Filtros (Esquerda) -->
                     <div class="col-lg-3">
@@ -69,6 +69,23 @@
                                         <div class="search-suggestions-wrapper"></div>
                                         <button class="search-btn"><i class="feather-search"></i></button>
                                     </div>
+                                </div>
+                            </div>
+
+                            <!-- Formato do Curso -->
+                            <div class="rbt-single-widget rbt-widget-categories">
+                                <div class="inner">
+                                    <h4 class="rbt-widget-title">{% trans 'Formato do Curso' %}</h4>
+                                    <ul class="rbt-sidebar-list-wrapper categories-list-check">
+                                        <li class="rbt-check-group">
+                                            <input id="formato-presencial" type="radio" name="formato_link" value="presencial" checked onclick="window.location.href='{% url 'catalogo_cursos' %}'">
+                                            <label for="formato-presencial">{% trans 'Presencial / Centros' %}</label>
+                                        </li>
+                                        <li class="rbt-check-group">
+                                            <input id="formato-video" type="radio" name="formato_link" value="video" onclick="window.location.href='{% url 'cursovideoapp:home_videos' %}'">
+                                            <label for="formato-video">{% trans 'Cursos em Vídeo (Online)' %}</label>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
 
@@ -219,7 +236,7 @@
                         {% if cursos %}
                             <div class="row g-5">
                                 {% for curso in cursos %}
-                                    <div class="col-xl-6 col-lg-6 col-md-6 col-12">
+                                    <div class="col-xl-4 col-lg-4 col-md-6 col-12">
                                         {% include 'components/curso_card.html' with curso=curso %}
                                     </div>
                                 {% endfor %}
@@ -291,6 +308,20 @@
     </div>
 
     {% include 'include/java.html' %}
+    <script>
+        // Submete o formulário de filtros automaticamente ao selecionar qualquer opção
+        document.addEventListener("DOMContentLoaded", function() {
+            const form = document.getElementById("filter-form");
+            if (form) {
+                const filterInputs = form.querySelectorAll("input[type='radio']:not([name='formato_link']), input[type='checkbox']");
+                filterInputs.forEach(function(input) {
+                    input.addEventListener("change", function() {
+                        form.submit();
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

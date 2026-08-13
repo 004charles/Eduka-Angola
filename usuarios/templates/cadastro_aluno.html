@@ -1,171 +1,296 @@
 {% load static %}
+{% load i18n %}
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="{{ request.LANGUAGE_CODE|default:'pt' }}">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Edukangola | Cadastro</title>
-    <meta name="robots" content="noindex, follow">
-    <meta name="description" content="">
+    <title>EdukAngola | {% trans "Criar Conta" %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+    
+    <!-- Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
+    
     {% include 'include/css.html' %}
+    
+    <style>
+      :root {
+        --color-primary: #2f57ef;
+        --color-heading: #192335;
+        --color-body: #6b7385;
+        --color-border: #e6e3f1;
+        --color-bg: #F5F7FA;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--color-bg);
+        font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: var(--color-body);
+        -webkit-font-smoothing: antialiased;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      .login-page-wrapper {
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        padding: 40px 20px;
+      }
+
+      .glow-circle-1 {
+        position: absolute;
+        top: -280px;
+        left: 50%;
+        margin-left: -400px;
+        width: 800px;
+        height: 800px;
+        border-radius: 999px;
+        background: radial-gradient(circle, rgba(47,87,239,0.12) 0%, rgba(47,87,239,0) 68%);
+        pointer-events: none;
+      }
+      .glow-circle-2 {
+        position: absolute;
+        bottom: -320px;
+        right: -160px;
+        width: 720px;
+        height: 720px;
+        border-radius: 999px;
+        background: radial-gradient(circle, rgba(185,102,231,0.12) 0%, rgba(185,102,231,0) 68%);
+        pointer-events: none;
+      }
+
+      .top-lang-pill {
+        position: absolute;
+        top: 32px;
+        right: 40px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        padding: 7px 15px;
+        border: 1px solid var(--color-border);
+        border-radius: 999px;
+        background: #ffffff;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        z-index: 10;
+      }
+
+      .login-card-box {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        max-width: 440px;
+      }
+
+      .login-card-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 24px;
+        text-align: center;
+      }
+
+      .login-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 700;
+        font-size: 28px;
+        letter-spacing: -0.03em;
+        color: var(--color-heading);
+        margin: 0 0 8px 0;
+      }
+
+      .login-subtitle {
+        font-size: 14.5px;
+        color: var(--color-body);
+        margin: 0;
+      }
+
+      .login-form-card {
+        background: #ffffff;
+        border: 1px solid var(--color-border);
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 24px 60px -30px rgba(15,23,42,0.18);
+      }
+
+      .form-field-group {
+        margin-bottom: 16px;
+      }
+
+      .field-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: #0f172a;
+        margin-bottom: 6px;
+      }
+
+      .input-control {
+        width: 100%;
+        height: 48px;
+        border: 1px solid var(--color-border);
+        border-radius: 11px;
+        background: #F9F9FF;
+        font-family: 'Manrope', sans-serif;
+        font-size: 14px;
+        color: #0f172a;
+        padding: 0 16px;
+        outline: none;
+        transition: all 0.2s ease;
+      }
+      .input-control:focus {
+        border-color: var(--color-primary);
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(47,87,239,0.12);
+      }
+
+      .btn-primary-login {
+        width: 100%;
+        height: 50px;
+        border: none;
+        border-radius: 11px;
+        background: var(--color-primary);
+        color: #ffffff;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 10px 24px -10px rgba(47,87,239,0.8);
+        transition: all 0.2s ease;
+        margin-top: 8px;
+      }
+      .btn-primary-login:hover {
+        background: #1f42c9;
+        transform: translateY(-1px);
+        box-shadow: 0 12px 28px -8px rgba(47,87,239,0.9);
+      }
+
+      .footer-bottom-links {
+        position: absolute;
+        bottom: 24px;
+        left: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 22px;
+        font-size: 12.5px;
+        color: #9aa1b1;
+      }
+      .footer-bottom-links a {
+        color: #9aa1b1;
+        text-decoration: none;
+      }
+      .footer-bottom-links a:hover {
+        color: var(--color-primary);
+      }
+    </style>
 </head>
+<body>
 
-<body class="rbt-header-sticky">
-
-    <div id="my_switcher" class="my_switcher">
-        <ul>
-            <li>
-                <a href="javascript: void(0);" data-theme="light" class="setColor light">
-                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode">
-                        Light</span>
-                </a>
-            </li>
-            <li>
-                <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
-                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span
-                        title="Dark Mode"> Dark</span>
-                </a>
-            </li>
-        </ul>
+    <div class="top-lang-pill">
+        <a href="{% url 'index' %}" class="fw-bold me-2 text-primary" style="text-decoration: none;"><i class="feather-arrow-left me-1"></i> Voltar</a>
+        <span class="fw-bold text-dark">PT</span>
+        <span class="text-muted">·</span>
+        <span class="text-muted">EN</span>
     </div>
 
-    <!-- Start Header Area -->
-    {% include 'include/header.html' %}
+    <div class="login-page-wrapper">
+        <div class="glow-circle-1"></div>
+        <div class="glow-circle-2"></div>
 
-    <!-- Mobile Menu Section -->
+        <div class="login-card-box">
+            <div class="login-card-header">
+                <a href="{% url 'index' %}" class="d-inline-block mb-3">
+                    <img src="{% static 'assets/images/logo/logo1.png' %}" alt="EdukAngola" style="max-height: 75px; width: auto; object-fit: contain;">
+                </a>
+                <h1 class="login-title">Criar Conta Gratuita</h1>
+                <p class="login-subtitle">Junte-se à maior comunidade de cursos em Angola.</p>
+            </div>
 
-
-
-
-    <div class="rbt-elements-area bg-color-white rbt-section-gap" style="display: flex; align-items: center; min-height: 100vh;">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-6">
-                <div class="rbt-contact-form contact-form-style-1 mx-auto">
-                    <h3 class="title text-center mb-4">Junte-se a uma Comunidade Focada no Crescimento</h3>
-
-                    <!-- Mensagens de status APENAS para cadastro -->
-                    <div class="messages-container">
-                        <!-- Status 1 - Campos obrigatórios -->
-                        <div class="alert alert-danger {% if status != '1' %}d-none{% endif %}" id="status-1">
+            <div class="login-form-card">
+                
+                <!-- Status Messages -->
+                <div class="messages-container mb-3">
+                    {% if status == '1' %}
+                        <div class="alert alert-danger border-0 rounded-3 shadow-sm py-2 px-3 fs-7" role="alert">
                             <i class="feather-alert-circle me-2"></i> Preencha todos os campos corretamente!
                         </div>
-
-                        <!-- Status 2 - Senha curta -->
-                        <div class="alert alert-danger {% if status != '2' %}d-none{% endif %}" id="status-2">
+                    {% elif status == '2' %}
+                        <div class="alert alert-danger border-0 rounded-3 shadow-sm py-2 px-3 fs-7" role="alert">
                             <i class="feather-alert-circle me-2"></i> A senha deve ter no mínimo 8 caracteres!
                         </div>
-
-                        <!-- Status 3 - E-mail existente -->
-                        <div class="alert alert-danger {% if status != '3' %}d-none{% endif %}" id="status-3">
+                    {% elif status == '3' %}
+                        <div class="alert alert-danger border-0 rounded-3 shadow-sm py-2 px-3 fs-7" role="alert">
                             <i class="feather-alert-circle me-2"></i> Este e-mail já está cadastrado!
                         </div>
-
-                        <!-- Status 4 - Erro interno -->
-                        <div class="alert alert-danger {% if status != '4' %}d-none{% endif %}" id="status-4">
-                            <i class="feather-alert-triangle me-2"></i> Erro interno do sistema. Tente novamente
-                            mais tarde!
+                    {% elif status == '4' %}
+                        <div class="alert alert-danger border-0 rounded-3 shadow-sm py-2 px-3 fs-7" role="alert">
+                            <i class="feather-alert-triangle me-2"></i> Erro interno do sistema. Tente novamente mais tarde.
                         </div>
-
-                        <!-- Status 5 - Senhas não coincidem -->
-                        <div class="alert alert-danger {% if status != '5' %}d-none{% endif %}" id="status-5">
+                    {% elif status == '5' %}
+                        <div class="alert alert-danger border-0 rounded-3 shadow-sm py-2 px-3 fs-7" role="alert">
                             <i class="feather-alert-circle me-2"></i> As senhas não coincidem!
                         </div>
+                    {% endif %}
+                </div>
+
+                <form method="POST" action="{% url 'valida_cadastro_aluno' %}">
+                    {% csrf_token %}
+
+                    <div class="form-field-group">
+                        <label class="field-label">Nome Completo</label>
+                        <input type="text" name="nome" placeholder="Seu nome e sobrenome" required class="input-control">
                     </div>
 
-                    <form method="POST" action="{% url 'valida_cadastro_aluno' %}">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <input name="nome" type="text" required />
-                            <label>Nome Completo *</label>
-                            <span class="focus-border"></span>
-                        </div>
+                    <div class="form-field-group">
+                        <label class="field-label">Email</label>
+                        <input type="email" name="email" placeholder="nome@email.com" required class="input-control">
+                    </div>
 
-                        <div class="form-group">
-                            <input name="email" type="email" required />
-                            <label>E-mail *</label>
-                            <span class="focus-border"></span>
-                        </div>
+                    <div class="form-field-group">
+                        <label class="field-label">Palavra-passe (mínimo 8 caracteres)</label>
+                        <input type="password" name="senha" placeholder="••••••••" required minlength="8" class="input-control">
+                    </div>
 
-                        <div class="form-group">
-                            <input name="senha" type="password" required minlength="8">
-                            <label>Senha * (mínimo 8 caracteres)</label>
-                            <span class="focus-border"></span>
-                        </div>
+                    <div class="form-field-group">
+                        <label class="field-label">Confirmar Palavra-passe</label>
+                        <input type="password" name="confirmar_senha" placeholder="••••••••" required minlength="8" class="input-control">
+                    </div>
 
-                        <div class="form-group">
-                            <input name="confirmar_senha" type="password" required>
-                            <label>Confirmar Senha *</label>
-                            <span class="focus-border"></span>
-                        </div>
-
-                        <div class="row mb--30">
-                            <div class="col-lg-12">
-                                <div class="rbt-checkbox">
-                                    <input type="checkbox" id="termos" name="termos" required>
-                                    <label for="termos">Li e aceito os <a href="/termos-de-uso"
-                                            target="_blank">Termos de Serviço</a></label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-submit-group">
-                            <button type="submit" class="rbt-btn btn-md btn-gradient hover-icon-reverse w-100">
-                                <span class="icon-reverse-wrapper">
-                                    <span class="btn-text">Criar Conta e Iniciar</span>
-                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                </span>
-                            </button>
-                        </div>
-
-                        <div class="text-center mt-3">
-                            <p class="mb-0">Já possui uma conta? <a href="{% url 'login_aluno' %}"
-                                    class="rbt-btn-link">Faça login</a></p>
-                        </div>
-                    </form>
-                </div>
+                    <button type="submit" class="btn-primary-login">Criar Conta</button>
+                </form>
             </div>
+
+            <p class="text-center mt-4 mb-0" style="font-size: 14px;">
+                Já tens uma conta? <a href="{% url 'login_aluno' %}" class="text-primary fw-bold text-decoration-none">Entrar na conta</a>
+            </p>
+        </div>
+
+        <div class="footer-bottom-links">
+            <span>© 2026 EdukAngola</span>
+            <a href="#">Termos</a>
+            <a href="#">Privacidade</a>
+            <a href="{% url 'faq' %}">Ajuda</a>
         </div>
     </div>
-</div>
 
-<!-- Script para controle manual das mensagens -->
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const urlParams = new URLSearchParams(window.location.search);
-        const status = urlParams.get('status');
-
-        // Esconde todas as mensagens primeiro
-        document.querySelectorAll('[id^="status-"]').forEach(el => {
-            el.classList.add('d-none');
-        });
-
-        // Mostra apenas a mensagem correspondente ao status
-        if (status) {
-            const statusElement = document.getElementById(`status-${status}`);
-            if (statusElement) {
-                statusElement.classList.remove('d-none');
-
-                // Rola a página até a mensagem
-                setTimeout(() => {
-                    statusElement.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
-            }
-        }
-    });
-</script>
-    
-
-    <!-- Start Footer aera -->
-    <!-- Start Footer aera -->
-    {% include 'include/footer.html' %}
-    <!-- JS
-============================================ -->
     {% include 'include/java.html' %}
 </body>
-
 </html>

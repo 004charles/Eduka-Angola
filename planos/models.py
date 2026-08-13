@@ -18,7 +18,9 @@ class Plano(models.Model):
     # Novas Permissões
     permite_inscricao_manual = models.BooleanField(_('Permite Inscrição Manual'), default=False)
     permite_gerar_certificado = models.BooleanField(_('Permite Gerar Certificados'), default=False)
-    
+    permite_cursos_video = models.BooleanField(_('Permite Publicar Vídeo-Cursos'), default=False, help_text=_('Permite ao centro publicar cursos em vídeo sem comissão.'))
+    limite_cursos_video = models.PositiveIntegerField(_('Limite de Vídeo-Cursos'), default=0, help_text=_('Quantidade máxima de vídeo-cursos permitida no plano.'))
+
     ativo = models.BooleanField(default=True)
     data_criacao = models.DateTimeField(auto_now_add=True)
 

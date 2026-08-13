@@ -477,6 +477,26 @@ class FilialAdmin(UnfoldModelAdmin):
     list_filter = ['ativo']
     search_fields = ['nome', 'centro_principal__nome', 'email']
 
+@admin.register(ConfiguracaoPlataforma)
+class ConfiguracaoPlataformaAdmin(UnfoldModelAdmin):
+    list_display = ['taxa_comissao', 'taxa_comissao_ead', 'taxa_gestao_bolsas', 'taxa_markup', 'data_atualizacao']
+    fieldsets = (
+        ('Comissões do Modelo de Negócio', {
+            'fields': ('taxa_comissao', 'taxa_comissao_ead', 'taxa_gestao_bolsas'),
+            'description': 'Ajuste aqui as percentagens de comissão retidas pela plataforma EdukAngola. Quando alterar de 15% para 5% ou 8%, a nova taxa é aplicada automaticamente.'
+        }),
+        ('Outras Configurações', {
+            'fields': ('taxa_markup',),
+        }),
+    )
+
+    def has_add_permission(self, request):
+        # Impede criar mais de um registo (Singleton)
+        return not ConfiguracaoPlataforma.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 # ========== CONFIGURAÇÃO DO ADMIN SITE ==========
 admin.site.site_header = "Administração do Sistema de Centros de Formação"
 admin.site.site_title = "Sistema de Centros"

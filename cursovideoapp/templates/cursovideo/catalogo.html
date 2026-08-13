@@ -1,0 +1,291 @@
+{% load static %}
+{% load humanize %}
+{% load curso_filters %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="pt-pt">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>{% trans 'Cursos em Vídeo - Edukangola' %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% include 'include/css.html' %}
+</head>
+
+<body class="rbt-header-sticky">
+    {% include 'include/header.html' %}
+    {% include 'include/menu_mobile.html' %}
+
+    <!-- Start Breadcrumb Area -->
+    <div class="rbt-breadcrumb-default ptb--100 ptb_md--50 ptb_sm--30 bg-gradient-1">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="breadcrumb-inner text-center">
+                        <h2 class="title">
+                            {% if secao_ativa %}
+                                {{ secao_ativa.titulo }}
+                            {% else %}
+                                {% trans 'Aprenda no Seu Próprio Ritmo' %}
+                            {% endif %}
+                        </h2>
+                        <ul class="page-list">
+                            <li class="rbt-breadcrumb-item"><a href="/">Home</a></li>
+                            <li>
+                                <div class="icon-right"><i class="feather-chevron-right"></i></div>
+                            </li>
+                            <li class="rbt-breadcrumb-item active">
+                                {% trans 'Cursos em Vídeo' %}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Breadcrumb Area -->
+
+    <div class="rbt-course-area bg-color-white rbt-section-gap">
+        <div class="container">
+            <form action="{% url 'cursovideoapp:home_videos' %}" method="get" id="filter-form" class="rbt-search-filter-form">
+                <div class="row g-5">
+                    <!-- Sidebar de Filtros (Esquerda) -->
+                    <div class="col-lg-3">
+                        <aside class="rbt-sidebar-widget-wrapper">
+                            {% if filtros.secao %}
+                                <input type="hidden" name="secao" value="{{ filtros.secao }}">
+                            {% endif %}
+                            
+                            <!-- Pesquisa Central -->
+                            <div class="rbt-single-widget rbt-widget-search">
+                                <div class="inner">
+                                    <div class="rbt-search-style-1 search-form-with-suggestions">
+                                        <input type="text" name="q" class="rbt-search-autocomplete" placeholder="{% trans 'Pesquisar cursos em vídeo...' %}" value="{{ filtros.busca|default:'' }}" autocomplete="off">
+                                        <div class="search-suggestions-wrapper"></div>
+                                        <button class="search-btn"><i class="feather-search"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Formato do Curso -->
+                            <div class="rbt-single-widget rbt-widget-categories">
+                                <div class="inner">
+                                    <h4 class="rbt-widget-title">{% trans 'Formato do Curso' %}</h4>
+                                    <ul class="rbt-sidebar-list-wrapper categories-list-check">
+                                        <li class="rbt-check-group">
+                                            <input id="formato-presencial" type="radio" name="formato_link" value="presencial" onclick="window.location.href='{% url 'catalogo_cursos' %}'">
+                                            <label for="formato-presencial">{% trans 'Presencial / Centros' %}</label>
+                                        </li>
+                                        <li class="rbt-check-group">
+                                            <input id="formato-video" type="radio" name="formato_link" value="video" checked onclick="window.location.href='{% url 'cursovideoapp:home_videos' %}'">
+                                            <label for="formato-video">{% trans 'Cursos em Vídeo (Online)' %}</label>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Filtros Rápidos -->
+                            <div class="rbt-single-widget rbt-widget-categories">
+                                <div class="inner">
+                                    <h4 class="rbt-widget-title">{% trans 'Filtros Dinâmicos' %}</h4>
+                                    <ul class="rbt-sidebar-list-wrapper categories-list-check">
+                                        <li class="rbt-check-group">
+                                            <input id="check-semana" type="checkbox" name="tempo" value="semana" {% if filtros.tempo == "semana" %}checked{% endif %}>
+                                            <label for="check-semana">{% trans 'Novidades da Semana' %}</label>
+                                        </li>
+                                        <li class="rbt-check-group">
+                                            <input id="check-destaque" type="checkbox" name="destaque" value="true" {% if filtros.destaque == "true" or filtros.destaque == 'true' %}checked{% endif %}>
+                                            <label for="check-destaque">{% trans 'Cursos em Destaque' %}</label>
+                                        </li>
+                                        {% if user.is_authenticated and user.tipo_usuario == 'ALUNO' %}
+                                        <li class="rbt-check-group">
+                                            <input id="check-ia" type="checkbox" name="para_voce" value="true" {% if filtros.para_voce == "true" or filtros.para_voce == 'true' %}checked{% endif %}>
+                                            <label for="check-ia">✨ {% trans 'Recomendados para Mim (IA)' %}</label>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Categorias -->
+                            <div class="rbt-single-widget rbt-widget-categories has-show-more">
+                                <div class="inner">
+                                    <h4 class="rbt-widget-title">{% trans 'Categoria' %}</h4>
+                                    <ul class="rbt-sidebar-list-wrapper categories-list-check has-show-more-inner-content">
+                                        <li class="rbt-check-group">
+                                            <input id="cat-all" type="radio" name="categoria" value="" {% if not filtros.categoria %}checked{% endif %}>
+                                            <label for="cat-all">{% trans 'Todas as categorias' %}</label>
+                                        </li>
+                                        {% for cat in categorias %}
+                                        <li class="rbt-check-group">
+                                            <input id="cat-{{ cat.id }}" type="radio" name="categoria" value="{{ cat.id }}" {% if filtros.categoria|stringformat:"s" == cat.id|stringformat:"s" %}checked{% endif %}>
+                                            <label for="cat-{{ cat.id }}">{{ cat.nome }}</label>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                <div class="rbt-show-more-btn">{% trans 'Mostrar Mais' %}</div>
+                            </div>
+
+                            <!-- Preço -->
+                            <div class="rbt-single-widget rbt-widget-prices">
+                                <div class="inner">
+                                    <h4 class="rbt-widget-title">{% trans 'Preço' %}</h4>
+                                    <ul class="rbt-sidebar-list-wrapper prices-list-check">
+                                        <li class="rbt-check-group">
+                                            <input id="preco-all" type="radio" name="preco" value="" {% if not filtros.preco %}checked{% endif %}>
+                                            <label for="preco-all">{% trans 'Qualquer preço' %}</label>
+                                        </li>
+                                        <li class="rbt-check-group">
+                                            <input id="preco-gratis" type="radio" name="preco" value="gratuitos" {% if filtros.preco == 'gratuitos' %}checked{% endif %}>
+                                            <label for="preco-gratis">{% trans 'Gratuitos' %}</label>
+                                        </li>
+                                        <li class="rbt-check-group">
+                                            <input id="preco-100" type="radio" name="preco" value="pagina_100" {% if filtros.preco == 'pagina_100' %}checked{% endif %}>
+                                            <label for="preco-100">{% trans 'Até 100 KZ' %}</label>
+                                        </li>
+                                        <li class="rbt-check-group">
+                                            <input id="preco-100-500" type="radio" name="preco" value="100_500" {% if filtros.preco == '100_500' %}checked{% endif %}>
+                                            <label for="preco-100-500">{% trans '100 - 500 KZ' %}</label>
+                                        </li>
+                                        <li class="rbt-check-group">
+                                            <input id="preco-500plus" type="radio" name="preco" value="500_plus" {% if filtros.preco == '500_plus' %}checked{% endif %}>
+                                            <label for="preco-500plus">{% trans 'Acima de 500 KZ' %}</label>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="rbt-filter-actions d-grid gap-3 mt--60">
+                                <button type="submit" class="rbt-btn btn-gradient btn-md text-center" style="font-size: 16px; padding: 15px;">
+                                    <i class="feather-filter"></i> {% trans 'Filtrar Agora' %}
+                                </button>
+                                <a href="{% url 'cursovideoapp:home_videos' %}" class="rbt-btn btn-link btn-md text-center text-muted" style="font-size: 15px;">
+                                    {% trans 'Limpar tudo' %}
+                                </a>
+                            </div>
+                        </aside>
+                    </div>
+
+                    <!-- Conteúdo Principal (Direita) -->
+                    <div class="col-lg-9">
+                        <!-- Cabeçalho de Ordenação -->
+                        <div class="rbt-sorting-list d-flex flex-wrap align-items-center justify-content-between mb--30">
+                            <div class="rbt-short-item">
+                                <span class="course-index fw-bold">
+                                    {% if cursos %}
+                                        {{ total_cursos }} {% trans "Cursos em Vídeo Encontrados" %}
+                                    {% else %}
+                                        {% trans "Eduka-Angola: Conectando Talento e Conhecimento" %}
+                                    {% endif %}
+                                </span>
+                                {% if filtros.busca %}
+                                    <span class="course-index ms-2">{% trans 'Resultados para' %}: <strong>"{{ filtros.busca }}"</strong></span>
+                                {% endif %}
+                            </div>
+
+                            <div class="rbt-short-item">
+                                <div class="filter-select">
+                                    <span class="select-label d-block">{% trans 'Ordenar por' %}</span>
+                                    <div class="filter-select rbt-modern-select search-by-category">
+                                        <select name="order" data-size="7" onchange="this.form.submit()">
+                                            <option value="">{% trans 'Mais Recentes' %}</option>
+                                            <option value="mais_procurados" {% if request.GET.order == 'mais_procurados' %}selected{% endif %}>{% trans 'Mais Populares' %}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Grid de Resultados -->
+                        {% if cursos %}
+                            <div class="row g-5">
+                                {% for curso in cursos %}
+                                    <div class="col-xl-4 col-lg-4 col-md-6 col-12">
+                                        {% include 'components/curso_card.html' with curso=curso %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Paginação -->
+                            {% if page_obj.has_other_pages %}
+                                <div class="row mt--60">
+                                    <div class="col-lg-12">
+                                        <nav>
+                                            <ul class="rbt-pagination justify-content-center">
+                                                {% if page_obj.has_previous %}
+                                                    <li><a href="?page={{ page_obj.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"><i class="feather-chevron-left"></i></a></li>
+                                                {% endif %}
+
+                                                {% for num in page_obj.paginator.page_range %}
+                                                    {% if page_obj.number == num %}
+                                                        <li class="active"><a href="#">{{ num }}</a></li>
+                                                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                                        <li><a href="?page={{ num }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a></li>
+                                                    {% endif %}
+                                                {% endfor %}
+
+                                                {% if page_obj.has_next %}
+                                                    <li><a href="?page={{ page_obj.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"><i class="feather-chevron-right"></i></a></li>
+                                                {% endif %}
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="rbt-empty-state text-center py-5" style="background: var(--color-extra2); border-radius: 16px; border: 2px dashed var(--color-border);">
+                                <div class="icon mb-4">
+                                    <i class="feather-search display-4 text-muted"></i>
+                                </div>
+                                <h3 class="title mb--10">{% trans "Nenhum curso cadastrado no momento" %}</h3>
+                                <p class="description mb--30">{% trans "Tente ajustar os seus filtros ou pesquise por outros termos." %}</p>
+                                <a href="{% url 'cursovideoapp:home_videos' %}" class="rbt-btn btn-gradient btn-md">
+                                    <span class="btn-text">{% trans "Limpar Filtros" %}</span>
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% include 'include/footer.html' %}
+
+    <div id="my_switcher" class="my_switcher">
+        <ul>
+            <li>
+                <a href="javascript: void(0);" data-theme="light" class="setColor light">
+                    <img src="{% static 'assets/images/about/sun-01.svg' %}" alt="Sun images"><span title="Light Mode">
+                        Light</span>
+                </a>
+            </li>
+            <li>
+                <a href="javascript: void(0);" data-theme="dark" class="setColor dark">
+                    <img src="{% static 'assets/images/about/vector.svg' %}" alt="Vector Images"><span title="Dark Mode">
+                        Dark</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    {% include 'include/java.html' %}
+    <script>
+        // Submete o formulário de filtros automaticamente ao selecionar qualquer opção
+        document.addEventListener("DOMContentLoaded", function() {
+            const form = document.getElementById("filter-form");
+            if (form) {
+                const filterInputs = form.querySelectorAll("input[type='radio']:not([name='formato_link']), input[type='checkbox']");
+                filterInputs.forEach(function(input) {
+                    input.addEventListener("change", function() {
+                        form.submit();
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

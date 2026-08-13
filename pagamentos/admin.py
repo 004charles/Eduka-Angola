@@ -237,3 +237,38 @@ class ConfiguracaoPagamentoAdmin(UnfoldModelAdmin):
     
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+from .models import FinanceiroCentro
+
+@admin.register(FinanceiroCentro)
+class FinanceiroCentroAdmin(UnfoldModelAdmin):
+    list_display = [
+        'centro',
+        'periodo',
+        'total_bruto_inscricoes',
+        'percentual_comissao_plataforma',
+        'valor_comissao_plataforma',
+        'valor_liquido_centro',
+        'pago',
+        'data_criacao'
+    ]
+    list_filter = ['pago', 'periodo', 'centro']
+    search_fields = ['centro__nome', 'periodo']
+    readonly_fields = ['valor_comissao_plataforma', 'valor_liquido_centro', 'data_criacao']
+
+    fieldsets = (
+        (_('Centro & Período'), {
+            'fields': ('centro', 'periodo')
+        }),
+        (_('Apuração e Comissão'), {
+            'fields': ('total_bruto_inscricoes', 'percentual_comissao_plataforma', 'valor_comissao_plataforma', 'valor_liquido_centro')
+        }),
+        (_('Repasse & Transferência'), {
+            'fields': ('pago', 'comprovativo_repasse', 'data_pagamento_repasse')
+        }),
+    )
+
+    def save_model(self, request, obj, form, change):
+        obj.calcular_valores()
+        super().save_model(request, obj, form, change)

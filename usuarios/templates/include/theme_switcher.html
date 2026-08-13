@@ -18,3 +18,16 @@
     </ul>
 </div>
 <!-- End Switcher Area -->
+
+<script>
+    // Remove switchers duplicados na página (mantém apenas o primeiro carregado no cabeçalho)
+    document.addEventListener("DOMContentLoaded", function() {
+        const switchers = document.querySelectorAll('.my_switcher');
+        if (switchers.length > 1) {
+            for (let i = 1; i < switchers.length; i++) {
+                switchers[i].remove();
+            }
+        }
+    });
+</script>
+

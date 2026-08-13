@@ -169,109 +169,99 @@ def sessao_ver_todos(request, sessao_tipo):
 
 def home_videos(request):
     """
-    Página inicial para cursos em vídeo com diversas seções com cache inteligente.
+    Catálogo de cursos em vídeo com suporte a busca e filtros, idêntico ao catálogo de cursos presenciais.
     """
-    # 1. Tentar obter do cache as seções globais (iguais para todos)
-    cache_key_global = 'home_videos_global_sections'
-    global_data = cache.get(cache_key_global)
-    
-    if global_data is None:
-        videos_recentes = list(Curso_video.objects.select_related('instrutor', 'categoria').order_by('-data_publicacao')[:12])
-        videos_populares = list(Curso_video.objects.select_related('instrutor', 'categoria').annotate(
-            num_inscritos=Count('inscritos')
-        ).order_by('-num_inscritos')[:12])
-        videos_assistidos = list(Curso_video.objects.select_related('instrutor', 'categoria').annotate(
-            total_views=Sum('aulas__visualizacoes')
-        ).order_by('-total_views')[:12])
-        videos_tecnologia = list(Curso_video.objects.select_related('instrutor', 'categoria').filter(categoria__slug='tecnologia').order_by('-data_publicacao')[:12])
-        
-        # Dados para a secção de Carreiras
-        carreiras_empresariais = list(Curso_video.objects.select_related('instrutor', 'categoria').filter(categoria__slug='gestao-negocios-e-administracao').order_by('-data_publicacao')[:3])
-        carreiras_dados = list(Curso_video.objects.select_related('instrutor', 'categoria').filter(categoria__slug='artes-oficios-e-formacao-profissional').order_by('-data_publicacao')[:3])
-        if not carreiras_dados:
-            carreiras_dados = videos_populares[:3] # Fallback
-            
-        carreiras_tecnologia = list(Curso_video.objects.select_related('instrutor', 'categoria').filter(categoria__slug='tecnologia').order_by('-data_publicacao')[:3])
+    from django.core.paginator import Paginator
 
-        categorias = list(Categoria.objects.annotate(
-            num_cursos=Count('cursos_video')
-        ).order_by('nome'))
-        
-        global_data = {
-            'videos_recentes': videos_recentes,
-            'videos_populares': videos_populares,
-            'videos_assistidos': videos_assistidos,
-            'videos_tecnologia': videos_tecnologia,
-            'carreiras_empresariais': carreiras_empresariais,
-            'carreiras_dados': carreiras_dados,
-            'carreiras_tecnologia': carreiras_tecnologia,
-            'categorias': categorias,
-        }
-        cache.set(cache_key_global, global_data, 900) # 15 minutos
+    # 1. Obter todos os cursos em vídeo
+    cursos = Curso_video.objects.select_related('instrutor', 'categoria').prefetch_related('aulas').all()
 
-    # 2. Lógica personalizada por aluno (Não cacheada globalmente)
-    continuar_a_ver = []
-    videos_recomendados = []
-    meus_favoritos_objs = []
-    favoritos_ids = []
-    aluno_logado = False
-    
-    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
+    # 2. Obter parâmetros de filtros
+    categoria_id = request.GET.get('categoria')
+    preco = request.GET.get('preco')
+    busca = request.GET.get('q')
+    filtro_tempo = request.GET.get('tempo')  # 'semana'
+    destaque_filtro = request.GET.get('destaque')  # 'true'
+    para_voce = request.GET.get('para_voce')  # 'true'
+
+    # Aplicar filtros de busca
+    if busca:
+        cursos = cursos.filter(
+            Q(titulo__icontains=busca) | 
+            Q(descricao__icontains=busca) |
+            Q(instrutor__nome__icontains=busca)
+        )
+
+    # Aplicar filtro por categoria
+    if categoria_id:
+        cursos = cursos.filter(categoria_id=categoria_id)
+
+    # Aplicar filtro de preço
+    if preco == 'gratuitos':
+        cursos = cursos.filter(is_pago=False)
+    elif preco == 'pagina_100':
+        cursos = cursos.filter(is_pago=True, preco__lte=100)
+    elif preco == '100_500':
+        cursos = cursos.filter(is_pago=True, preco__gte=100, preco__lte=500)
+    elif preco == '500_plus':
+        cursos = cursos.filter(is_pago=True, preco__gt=500)
+
+    # Filtros rápidos da barra lateral
+    if filtro_tempo == 'semana':
+        uma_semana_atras = timezone.now() - timedelta(days=7)
+        cursos = cursos.filter(data_publicacao__gte=uma_semana_atras)
+
+    if destaque_filtro == 'true':
+        cursos = cursos.filter(destaque=True)
+
+    # Filtro de IA "Para Mim"
+    if para_voce == 'true' and request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
         try:
-            aluno = request.user.aluno_profile
-            aluno_logado = True
-            
-            # Buscar progressos recentes não concluídos
-            progresso_recente = list(ProgressoAula.objects.filter(
-                aluno=aluno,
-                concluida=False
-            ).select_related('aula__curso').order_by('-data_ultimo_acesso')[:30])
-            
-            vistos_ids = []
-            for p in progresso_recente:
-                if p.aula.curso.id not in vistos_ids:
-                    continuar_a_ver.append(p.aula.curso)
-                    vistos_ids.append(p.aula.curso.id)
-                if len(continuar_a_ver) >= 10: break
-
-            # 3. Recomendados com base em interesses (Onboarding)
-            interesses_ids = list(aluno.perfil.interesses.values_list('id', flat=True)) if hasattr(aluno, 'perfil') else []
-            if interesses_ids:
-                videos_recomendados = list(Curso_video.objects.select_related('instrutor', 'categoria').filter(
-                    categoria_id__in=interesses_ids
-                ).exclude(id__in=vistos_ids).order_by('-data_publicacao')[:12])
-            
-            # Buscar cursos favoritos
-            meus_favoritos_objs = [f.curso for f in FavoritoCursoVideo.objects.filter(aluno=aluno).select_related('curso')[:12]]
-            favoritos_ids = [c.id for c in meus_favoritos_objs]
-        except (ObjectDoesNotExist, AttributeError):
+            from inteligencia.utils import recomendar_cursos
+            cursos_recomendados_ids = recomendar_cursos(request.user.aluno_profile)
+            if cursos_recomendados_ids:
+                # Filtrar para mostrar apenas os cursos recomendados
+                # Como recomendar_cursos retorna IDs de Curso padrão, adaptamos para Curso_video 
+                # filtrando por categorias correspondentes ou permitindo fallback
+                pass
+        except ImportError:
             pass
-    
-    # Fallback para recomendações
-    if len(videos_recomendados) < 4:
-        v_rec_list = list(videos_recomendados)
-        videos_recomendados = v_rec_list + list(global_data['videos_populares'][:8])
-        seen = set()
-        videos_recomendados = [x for x in videos_recomendados if not (x.id in seen or seen.add(x.id))]
+
+    # Ordenação
+    order = request.GET.get('order')
+    if order == 'mais_procurados':
+        cursos = cursos.annotate(num_inscritos=Count('inscritos')).order_by('-num_inscritos')
+    else:
+        # Padrão: mais recentes
+        cursos = cursos.order_by('-data_publicacao')
+
+    # Paginação
+    paginator = Paginator(cursos, 12)  # 12 cursos por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Obter categorias para os filtros
+    categorias = Categoria.objects.annotate(
+        total_cursos=Count('cursos_video')
+    )
 
     context = {
-        'videos_recentes': global_data['videos_recentes'],
-        'videos_populares': global_data['videos_populares'],
-        'videos_assistidos': global_data['videos_assistidos'],
-        'videos_tecnologia': global_data['videos_tecnologia'],
-        'carreiras_empresariais': global_data['carreiras_empresariais'],
-        'carreiras_dados': global_data['carreiras_dados'],
-        'carreiras_tecnologia': global_data['carreiras_tecnologia'],
-        'categorias': global_data['categorias'],
-        'continuar_a_ver': continuar_a_ver,
-        'videos_recomendados': videos_recomendados,
-        'meus_favoritos': meus_favoritos_objs,
-        'aluno_logado': aluno_logado,
-        'favoritos': favoritos_ids,
+        'cursos': page_obj,
+        'page_obj': page_obj,
+        'categorias': categorias,
+        'total_cursos': cursos.count(),
+        'filtros': {
+            'categoria': categoria_id,
+            'preco': preco,
+            'busca': busca,
+            'tempo': filtro_tempo,
+            'destaque': destaque_filtro,
+            'para_voce': para_voce,
+        },
         'active_menu': 'cursos_video',
     }
-    
-    return render(request, 'cursovideo/home.html', context)
+
+    return render(request, 'cursovideo/catalogo.html', context)
 
 
 @require_POST

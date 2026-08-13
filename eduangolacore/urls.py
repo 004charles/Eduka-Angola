@@ -7,8 +7,13 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.conf.urls.i18n import i18n_patterns
 from rest_framework import routers
 from cursos_app.api_views import CourseViewSet, CategoryViewSet
-from cursovideoapp.api_views import CursoVideoViewSet, ExercicioViewSet
+from cursovideoapp.api_views import CursoVideoViewSet, ExercicioViewSet, AulaViewSet
+from usuarios.api_views import AlunoViewSet
+from gestoreduka.api_views import CentroViewSet, ParceriaViewSet, CandidaturaExternaViewSet
+from blog.api_views import PostViewSet
+# from estagio.api_views import EstagioViewSet
 from django.views.decorators.csrf import csrf_exempt
+from usuarios import views as usuarios_views
 from django.views.i18n import set_language
 from django.views.generic import TemplateView
 
@@ -17,6 +22,14 @@ router.register(r'cursos', CourseViewSet)
 router.register(r'categorias', CategoryViewSet)
 router.register(r'video-cursos', CursoVideoViewSet)
 router.register(r'exercicios', ExercicioViewSet)
+router.register(r'alunos', AlunoViewSet, basename='alunos')
+router.register(r'centros', CentroViewSet, basename='centros')
+router.register(r'parcerias', ParceriaViewSet, basename='parcerias')
+router.register(r'candidaturas', CandidaturaExternaViewSet, basename='candidaturas')
+router.register(r'aulas', AulaViewSet, basename='aulas')
+router.register(r'blog', PostViewSet, basename='blog')
+# router.register(r'estagios', EstagioViewSet, basename='estagios')
+
 
 
 
@@ -27,20 +40,18 @@ urlpatterns = [
     path('', views.index, name = 'index'),
     path('test-404/', views.erro_404_view, kwargs={'exception': Exception("Teste 404")}),
     path('test-500/', views.erro_500_view),
-    path('sw.js', TemplateView.as_view(template_name='sw.js', content_type='application/javascript'), name='sw.js'),
-    path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
     path('i18n/setlang/', csrf_exempt(set_language), name='set_language'),
     path('i18n/', include('django.conf.urls.i18n')),
     path('auth/', include('usuarios.urls')), 
     # path('accounts/', include('allauth.urls')), 
     path('curso_video/', include('cursovideoapp.urls')),
-    path('orientador-ia/', include('cursovideoapp.urls_orientador')), # Atalho limpo
+    # path('orientador-ia/', include('cursovideoapp.urls_orientador')), # Desativado no MVP
     path('sobre/', views.sobre, name = 'sobre'),
     path('cursos/', include('cursos_app.urls')),
     path('escolas/', include('escolas.urls')),
     path('gestoreduka/', include('gestoreduka.urls')),
     path('blog/', include('blog.urls')),
-    path('estagio/', include('estagio.urls')), 
+    # path('estagio/', include('estagio.urls')), # Desativado no MVP
     path('instrutor/', include('instrutores_app.urls')),
     
     # SHARED API ENDPOINTS
@@ -50,13 +61,13 @@ urlpatterns = [
     path('api/v1/pagamentos/', include('pagamentos.urls')),  # API de pagamentos
     path('centro/', include('centro_formacao.urls')),
     path('contato/', views.contato, name = 'contato'),
+    path('api/notificacoes/nao-lidas/', usuarios_views.api_notificacoes_nao_lidas, name='api_notificacoes_nao_lidas_root'),
 
     path('pagamento/sucesso/', views.pagamento_sucesso, name='pagamento_sucesso'),
     path('pagamento/cancelado/', views.pagamento_cancelado, name='pagamento_cancelado'),
     path('faq/', views.faq, name = 'faq'),
-    path('carreira/', include('carreira.urls')),
-    # path('fundo-bolsas/', views.fundo_bolsas, name='fundo_bolsas'),
-    # path('bolsas/', include('bolsas.urls')),
+    path('fundo-bolsas/', views.fundo_bolsas, name='fundo_bolsas'),
+    path('bolsas/', include('bolsas.urls')),
 ] 
 
 # Adicionar padrões de MEDIA e STATIC

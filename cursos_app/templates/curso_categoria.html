@@ -331,6 +331,23 @@
                     </div>
                     {% endif %}
 
+                    {% if not cursos %}
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8 text-center py-5">
+                            <div class="rbt-card variation-01 p-5 shadow-lg" style="border-radius: 16px; background: var(--color-bg-alt);">
+                                <div class="rbt-card-body">
+                                    <i class="feather-folder" style="font-size: 56px; color: var(--color-primary);"></i>
+                                    <h3 class="title mt-4 mb-3">Nenhum curso publicado ainda</h3>
+                                    <p class="description">Lamentamos, mas ainda não existem cursos ativos na categoria <strong>{{ categoria.nome }}</strong>.</p>
+                                    <div class="mt-4">
+                                        <a href="{% url 'index' %}" class="rbt-btn btn-gradient btn-md radius-round">Explorar Outras Categorias</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <div class="rbt-separator m-0 mb--60"></div>
                 {% endif %}
 

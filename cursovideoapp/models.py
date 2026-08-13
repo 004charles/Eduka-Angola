@@ -21,9 +21,10 @@ class Curso_video(models.Model):
     inscritos = models.ManyToManyField('usuarios.Aluno', related_name='cursos_inscritos_video', blank=True)
     destaque = models.BooleanField(default=False, db_index=True)
     
-    # Novos campos para monetização
+    # Novos campos para monetização e origem
     is_pago = models.BooleanField(default=False, verbose_name=_("Curso Pago?"), db_index=True)
     preco = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name=_("Preço (KZ)"))
+    is_original_edukangola = models.BooleanField(default=False, verbose_name=_("Original EdukAngola?"), help_text=_("Indica se o vídeo-curso foi produzido pela própria plataforma EdukAngola."), db_index=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -32,6 +33,33 @@ class Curso_video(models.Model):
 
     def total_inscritos(self):
         return self.inscritos.count()
+
+    @property
+    def get_imagem_url(self):
+        """Retorna a URL da capa ou a imagem padrão caso esteja ausente."""
+        if self.capa and hasattr(self.capa, 'url'):
+            try:
+                return self.capa.url
+            except Exception:
+                pass
+        from django.templatetags.static import static
+        return static('assets/images/course/course-01.jpg')
+
+    @property
+    def modalidade(self):
+        return 'ONLINE'
+
+    @property
+    def get_modalidade_display(self):
+        return 'Online'
+
+    @property
+    def is_gratuito(self):
+        return not self.is_pago
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('cursovideoapp:detalhe_curso', kwargs={'slug': self.slug})
     
     def duracao_total_segundos(self):
         return sum(aula.duracao_segundos for aula in self.aulas.all() if aula.duracao_segundos)

@@ -521,7 +521,7 @@
                                 </form>
                             {% endif %}
                         {% else %}
-                            <a href="{% url 'account_login' %}?next={{ request.path }}" class="play-btn-primary">
+                            <a href="{% url 'login_aluno' %}?next={{ request.path }}" class="play-btn-primary">
                                 <i class="fas fa-sign-in-alt"></i> Entrar para Assistir
                             </a>
                         {% endif %}
@@ -749,7 +749,7 @@
                                         </button>
                                         {% endif %}
                                     {% elif not user.is_authenticated %}
-                                        <p class="small"><em><a href="{% url 'account_login' %}?next={{ request.path }}" class="text-primary">Faça login</a> para poder avaliar este curso.</em></p>
+                                        <p class="small"><em><a href="{% url 'login_aluno' %}?next={{ request.path }}" class="text-primary">Faça login</a> para poder avaliar este curso.</em></p>
                                     {% else %}
                                         <p class="small"><em>Inscreva-se no curso para poder deixar a sua avaliação.</em></p>
                                     {% endif %}

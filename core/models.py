@@ -60,12 +60,21 @@ class MensagemContato(models.Model):
         return f"{self.nome} - {self.assunto}"
 
 class Publicidade(models.Model):
+    POSICAO_CHOICES = [
+        ('HERO_BOLSA', 'Hero Banner Principal (Bolsas)'),
+        ('EMPRESAS', 'Banner Formação para Empresas'),
+        ('GERAL', 'Geral / Outros'),
+    ]
+
     titulo = models.CharField("Título", max_length=200, blank=True, null=True)
+    subtitulo = models.TextField("Subtítulo / Descrição Curta", blank=True, null=True)
+    tag_label = models.CharField("Etiqueta / Tag", max_length=100, blank=True, null=True, help_text="Ex: Publicidade · Jovem Digital")
+    posicao = models.CharField("Posição no Site", max_length=20, choices=POSICAO_CHOICES, default='GERAL', db_index=True)
     descricao = models.TextField("Descrição", blank=True, null=True)
-    imagem_fundo = models.ImageField("Imagem de Fundo", upload_to="publicidades/")
+    imagem_fundo = models.ImageField("Imagem de Fundo / Banner", upload_to="publicidades/", blank=True, null=True)
     url_destino = models.URLField("URL de Destino", blank=True, null=True)
     texto_botao = models.CharField("Texto do Botão", max_length=50, default="Saiba Mais", blank=True)
-    ativo = models.BooleanField("Ativo", default=True)
+    ativo = models.BooleanField("Ativo", default=True, db_index=True)
     data_criacao = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -74,4 +83,26 @@ class Publicidade(models.Model):
         ordering = ['-data_criacao']
 
     def __str__(self):
-        return self.titulo or f"Publicidade {self.id}"
+        return f"[{self.get_posicao_display()}] {self.titulo or f'Publicidade {self.id}'}"
+
+
+class ClienteAPIKey(models.Model):
+    nome_cliente = models.CharField("Nome do Cliente / Site", max_length=150, unique=True, help_text="Ex: Mobile App, Site Parceiro, etc.")
+    chave = models.CharField("Chave de API", max_length=64, unique=True, blank=True)
+    ativo = models.BooleanField("Ativo?", default=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    ultimo_uso = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Chave de API de Cliente"
+        verbose_name_plural = "Chaves de API de Clientes"
+
+    def save(self, *args, **kwargs):
+        if not self.chave:
+            import secrets
+            self.chave = secrets.token_hex(32)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.nome_cliente} ({'Ativo' if self.ativo else 'Inativo'})"
+

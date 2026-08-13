@@ -1,5 +1,19 @@
 {% load static %}
 {% load i18n %}
+<style>
+.rbt-footer ul,
+.rbt-footer li,
+.ft-link,
+.ft-link li,
+.social-icon,
+.social-icon li {
+  list-style: none !important;
+  padding: 0 !important;
+}
+.ft-link li {
+  margin-bottom: 8px !important;
+}
+</style>
 <footer class="rbt-footer footer-style-1">
     <div class="footer-top">
         <div class="container">
@@ -153,5 +167,3 @@
         });
     });
 </script>
-
-{% include 'include/bottom_nav.html' %}

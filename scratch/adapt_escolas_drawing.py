@@ -1,0 +1,425 @@
+def adapt_escolas():
+    template_content = """{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ request.LANGUAGE_CODE|default:'pt' }}">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Escolas e Liceus em Angola | EdukAngola</title>
+    <meta name="description" content="Diretório de escolas primárias, I e II ciclo, liceus e institutos médios em Angola. Compara propinas, cursos e matrículas.">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- CSS Platform Defaults -->
+    <link rel="stylesheet" href="{% static 'assets/css/vendor/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/vendor/slick.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/vendor/slick-theme.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/plugins/feather.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+      body {
+        font-family: 'Manrope', sans-serif !important;
+        background-color: #F5F7FA !important;
+        color: #6b7385;
+      }
+      .drawing-heading-title, h1, h2, h3, h4, h5, h6 {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        color: #192335;
+      }
+      
+      /* DARK MODE STYLES */
+      body.active-dark-mode {
+        background-color: #121212 !important;
+        color: #cbd5e1 !important;
+      }
+      body.active-dark-mode .drawing-header-hero,
+      body.active-dark-mode .drawing-filter-sidebar,
+      body.active-dark-mode .drawing-escola-card,
+      body.active-dark-mode .drawing-nivel-card,
+      body.active-dark-mode .drawing-search-box {
+        background-color: #1e1e1e !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+      }
+      body.active-dark-mode .drawing-heading-title,
+      body.active-dark-mode h1,
+      body.active-dark-mode h2,
+      body.active-dark-mode h3,
+      body.active-dark-mode h4,
+      body.active-dark-mode h5,
+      body.active-dark-mode h6,
+      body.active-dark-mode label,
+      body.active-dark-mode input {
+        color: #ffffff !important;
+      }
+      body.active-dark-mode .drawing-sub-text,
+      body.active-dark-mode .text-muted {
+        color: #cbd5e1 !important;
+      }
+
+      /* FORCE VISIBILITY FOR SIDEBAR CHECKBOXES */
+      .drawing-filter-sidebar input[type="checkbox"],
+      .drawing-filter-sidebar input[type="radio"] {
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: static !important;
+        width: 16px !important;
+        height: 16px !important;
+        min-width: 16px !important;
+        min-height: 16px !important;
+        margin: 0 !important;
+        cursor: pointer !important;
+        accent-color: #2f57ef !important;
+        appearance: checkbox !important;
+        -webkit-appearance: checkbox !important;
+        -moz-appearance: checkbox !important;
+        z-index: 1 !important;
+      }
+
+      /* PREVENT SEARCH SELECT DISTORTION */
+      .drawing-search-box {
+        overflow: visible !important;
+        position: relative !important;
+      }
+      .drawing-search-box select,
+      .drawing-search-box .nice-select {
+        border: none !important;
+        background: transparent !important;
+        outline: none !important;
+        font-size: 14px !important;
+        color: #192335 !important;
+        cursor: pointer !important;
+        box-shadow: none !important;
+        height: 100% !important;
+        line-height: 50px !important;
+        margin: 0 !important;
+        padding-left: 12px !important;
+        padding-right: 28px !important;
+        float: none !important;
+        display: flex !important;
+        align-items: center !important;
+      }
+      .drawing-search-box .nice-select .list {
+        background-color: #ffffff !important;
+        border: 1px solid #e6e3f1 !important;
+        border-radius: 10px !important;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.12) !important;
+        margin-top: 4px !important;
+        max-height: 260px !important;
+        overflow-y: auto !important;
+        z-index: 9999 !important;
+        width: max-content !important;
+        min-width: 180px !important;
+      }
+      body.active-dark-mode .drawing-search-box select,
+      body.active-dark-mode .drawing-search-box .nice-select {
+        color: #ffffff !important;
+      }
+      body.active-dark-mode .drawing-search-box .nice-select .list {
+        background-color: #1e1e1e !important;
+        border-color: rgba(255,255,255,0.15) !important;
+      }
+
+      @media (max-width: 991px) {
+        .drawing-escolas-layout {
+          grid-template-columns: 1fr !important;
+        }
+        .drawing-niveis-grid {
+          grid-template-columns: repeat(2, 1fr) !important;
+        }
+        .drawing-escola-card {
+          flex-direction: column !important;
+        }
+        .drawing-escola-card-side {
+          width: 100% !important;
+          border-left: none !important;
+          border-top: 1px solid #eef1f8 !important;
+          padding-left: 0 !important;
+          padding-top: 16px !important;
+        }
+      }
+      @media (max-width: 640px) {
+        .drawing-niveis-grid {
+          grid-template-columns: 1fr !important;
+        }
+      }
+    </style>
+</head>
+<body class="rbt-header-sticky">
+
+    {% include 'include/header.html' %}
+
+    <main class="rbt-main-wrapper" style="padding-bottom: 60px;">
+      
+      <div style="max-width: 1440px; margin: 0 auto; background: #F5F7FA">
+        
+        <!-- HEADER HERO SECTION -->
+        <div class="drawing-header-hero" style="background: #ffffff; border-bottom: 1px solid #e6e3f1; padding: 34px 40px 30px">
+          <div style="font-size: 12.5px; color: #9aa1b1; margin-bottom: 14px">
+            <a href="{% url 'index' %}" style="color: #9aa1b1">Início</a> › <span>Escolas e liceus</span>
+          </div>
+          <h1 class="drawing-heading-title" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 36px; letter-spacing: -0.035em; color: #192335; margin: 0 0 10px">Escolas e liceus em Angola</h1>
+          <p class="drawing-sub-text" style="font-size: 15.5px; line-height: 1.6; margin: 0 0 24px; max-width: 660px; color: #6b7385;">
+            Ensino primário, I e II ciclo, e ensino médio técnico. Compara cursos, propinas e prazos de matrícula das escolas públicas e privadas do país.
+          </p>
+
+          <!-- SEARCH FORM BOX -->
+          <form action="{% url 'escolas:lista_escolas' %}" method="GET" class="drawing-search-box" style="display: flex; align-items: stretch; height: 52px; border: 1.5px solid #192335; border-radius: 11px; background: #ffffff; overflow: hidden; max-width: 800px">
+            <input type="text" name="q" value="{{ q }}" placeholder="Procurar escola, liceu ou instituto médio…" style="flex: 1; border: none; outline: none; background: transparent; font-family: Manrope, sans-serif; font-size: 15px; color: #0f172a; padding: 0 18px">
+            
+            <div style="display: flex; align-items: center; padding: 0 12px; border-left: 1px solid #e6e3f1; font-size: 14px; flex-shrink: 0">
+              <select name="provincia" onchange="this.form.submit()" style="border: none; background: transparent; outline: none; font-size: 14px; color: #192335; cursor: pointer; height: 100%; padding: 0 8px;">
+                <option value="">Todas as províncias</option>
+                {% for p in provincias %}
+                  <option value="{{ p }}" {% if provincia_selecionada == p %}selected{% endif %}>{{ p }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div style="display: flex; align-items: center; padding: 0 12px; border-left: 1px solid #e6e3f1; font-size: 14px; flex-shrink: 0">
+              <select name="nivel" onchange="this.form.submit()" style="border: none; background: transparent; outline: none; font-size: 14px; color: #192335; cursor: pointer; height: 100%; padding: 0 8px;">
+                <option value="">Todos os níveis</option>
+                <option value="Primário" {% if nivel_selecionado == 'Primário' %}selected{% endif %}>Primário</option>
+                <option value="I ciclo" {% if nivel_selecionado == 'I ciclo' %}selected{% endif %}>I Ciclo</option>
+                <option value="II ciclo" {% if nivel_selecionado == 'II ciclo' %}selected{% endif %}>II Ciclo / Liceu</option>
+                <option value="Médio técnico" {% if nivel_selecionado == 'Médio técnico' %}selected{% endif %}>Médio Técnico</option>
+              </select>
+            </div>
+
+            <button type="submit" style="border: none; background: #2f57ef; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 600; padding: 0 30px; cursor: pointer">Procurar</button>
+          </form>
+        </div>
+
+        <!-- ANNOUNCEMENT BANNER -->
+        <div style="padding: 24px 40px 0">
+          <div style="background: #fff4e6; border: 1px solid #ffdcb0; border-radius: 12px; padding: 18px 22px; display: flex; align-items: center; gap: 20px">
+            <span style="width: 30px; height: 30px; border-radius: 999px; background: #ff9d2d; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center; flex-shrink: 0">!</span>
+            <div>
+              <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 15px; color: #192335">Matrículas para o ano lectivo 2026/2027 abertas até 30 de Agosto</div>
+              <div style="font-size: 13px; color: #8a5a1c; margin-top: 3px">Confirma os documentos exigidos por cada escola antes de submeter a candidatura.</div>
+            </div>
+            <a href="#escolas-grid" style="margin-left: auto; flex-shrink: 0; font-size: 13.5px; font-weight: 600; color: #8a5a1c; border-bottom: 2px solid #ff9d2d; padding-bottom: 2px">Ver lista →</a>
+          </div>
+        </div>
+
+        <!-- 4 LEVEL CARDS (Nível 01 - 04) -->
+        <div style="padding: 26px 40px 0">
+          <div class="drawing-niveis-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px">
+            <a href="?nivel=Primário" class="drawing-nivel-card" style="background: #ffffff; border: 1px solid #e6e3f1; border-radius: 12px; padding: 18px 20px; display: block; text-decoration: none;">
+              <div style="font-size: 11px; letter-spacing: 0.09em; text-transform: uppercase; color: #b966e7; margin-bottom: 16px; font-weight: 700;">Nível 01</div>
+              <div class="drawing-heading-title" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 16px; letter-spacing: -0.015em; color: #192335; line-height: 1.25">Ensino Primário</div>
+              <div class="drawing-sub-text" style="font-size: 12.5px; color: #9aa1b1; margin-top: 4px">6 a 11 anos · 112 escolas</div>
+            </a>
+            <a href="?nivel=I+ciclo" class="drawing-nivel-card" style="background: #ffffff; border: 1px solid #e6e3f1; border-radius: 12px; padding: 18px 20px; display: block; text-decoration: none;">
+              <div style="font-size: 11px; letter-spacing: 0.09em; text-transform: uppercase; color: #b966e7; margin-bottom: 16px; font-weight: 700;">Nível 02</div>
+              <div class="drawing-heading-title" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 16px; letter-spacing: -0.015em; color: #192335; line-height: 1.25">I Ciclo do Secundário</div>
+              <div class="drawing-sub-text" style="font-size: 12.5px; color: #9aa1b1; margin-top: 4px">12 a 14 anos · 94 escolas</div>
+            </a>
+            <a href="?nivel=II+ciclo" class="drawing-nivel-card" style="background: #ffffff; border: 1px solid #e6e3f1; border-radius: 12px; padding: 18px 20px; display: block; text-decoration: none;">
+              <div style="font-size: 11px; letter-spacing: 0.09em; text-transform: uppercase; color: #b966e7; margin-bottom: 16px; font-weight: 700;">Nível 03</div>
+              <div class="drawing-heading-title" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 16px; letter-spacing: -0.015em; color: #192335; line-height: 1.25">II Ciclo / Liceu</div>
+              <div class="drawing-sub-text" style="font-size: 12.5px; color: #9aa1b1; margin-top: 4px">15 a 17 anos · 78 escolas</div>
+            </a>
+            <a href="?nivel=Médio+técnico" class="drawing-nivel-card" style="background: #ffffff; border: 1px solid #e6e3f1; border-radius: 12px; padding: 18px 20px; display: block; text-decoration: none;">
+              <div style="font-size: 11px; letter-spacing: 0.09em; text-transform: uppercase; color: #b966e7; margin-bottom: 16px; font-weight: 700;">Nível 04</div>
+              <div class="drawing-heading-title" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 16px; letter-spacing: -0.015em; color: #192335; line-height: 1.25">Médio Técnico</div>
+              <div class="drawing-sub-text" style="font-size: 12.5px; color: #9aa1b1; margin-top: 4px">15 a 19 anos · 46 escolas</div>
+            </a>
+          </div>
+        </div>
+
+        <!-- MAIN LAYOUT SIDEBAR + ESCOLAS LIST -->
+        <div class="drawing-escolas-layout" style="display: grid; grid-template-columns: 264px 1fr; gap: 28px; padding: 28px 40px 48px; align-items: start" id="escolas-grid">
+
+          <!-- SIDEBAR FILTERS -->
+          <div class="drawing-filter-sidebar" style="background: #ffffff; border: 1px solid #e6e3f1; border-radius: 12px; padding: 22px">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20px">
+              <span class="drawing-heading-title" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 15px; color: #192335">Filtros</span>
+              <a href="{% url 'escolas:lista_escolas' %}" style="font-size: 12.5px; color: #2f57ef;">Limpar</a>
+            </div>
+
+            <form action="{% url 'escolas:lista_escolas' %}" method="GET">
+              <input type="hidden" name="q" value="{{ q }}">
+              
+              <div class="drawing-heading-title" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 12.5px; color: #192335; margin-bottom: 12px">Nível de ensino</div>
+              <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13.5px; padding-bottom: 20px; border-bottom: 1px solid #e6e3f1">
+                <label style="display: flex; align-items: center; gap: 9px; cursor: pointer; color: #192335;">
+                  <input type="checkbox" name="nivel" value="Primário" {% if nivel_selecionado == 'Primário' %}checked{% endif %} onchange="this.form.submit()"> Primário <span style="color: #9aa1b1">(112)</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 9px; cursor: pointer; color: #192335;">
+                  <input type="checkbox" name="nivel" value="I ciclo" {% if nivel_selecionado == 'I ciclo' %}checked{% endif %} onchange="this.form.submit()"> I Ciclo <span style="color: #9aa1b1">(94)</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 9px; cursor: pointer; color: #192335;">
+                  <input type="checkbox" name="nivel" value="II ciclo" {% if nivel_selecionado == 'II ciclo' %}checked{% endif %} onchange="this.form.submit()"> II Ciclo / Liceu <span style="color: #9aa1b1">(78)</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 9px; cursor: pointer; color: #192335;">
+                  <input type="checkbox" name="nivel" value="Médio técnico" {% if nivel_selecionado == 'Médio técnico' %}checked{% endif %} onchange="this.form.submit()"> Médio Técnico <span style="color: #9aa1b1">(46)</span>
+                </label>
+              </div>
+
+              <div class="drawing-heading-title" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 12.5px; color: #192335; margin: 20px 0 12px">Natureza</div>
+              <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13.5px; padding-bottom: 20px; border-bottom: 1px solid #e6e3f1">
+                <label style="display: flex; align-items: center; gap: 9px; cursor: pointer; color: #192335;">
+                  <input type="checkbox" name="natureza" value="Pública" {% if natureza_selecionada == 'Pública' %}checked{% endif %} onchange="this.form.submit()"> Pública <span style="color: #9aa1b1">(138)</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 9px; cursor: pointer; color: #192335;">
+                  <input type="checkbox" name="natureza" value="Privada" {% if natureza_selecionada == 'Privada' %}checked{% endif %} onchange="this.form.submit()"> Privada <span style="color: #9aa1b1">(86)</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 9px; cursor: pointer; color: #192335;">
+                  <input type="checkbox" name="natureza" value="Comparticipada" {% if natureza_selecionada == 'Comparticipada' %}checked{% endif %} onchange="this.form.submit()"> Comparticipada <span style="color: #9aa1b1">(21)</span>
+                </label>
+              </div>
+
+              <div class="drawing-heading-title" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 12.5px; color: #192335; margin: 20px 0 12px">Província</div>
+              <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13.5px; padding-bottom: 20px; border-bottom: 1px solid #e6e3f1">
+                {% for p in provincias|slice:":8" %}
+                  <label style="display: flex; align-items: center; gap: 9px; cursor: pointer; color: #192335;">
+                    <input type="checkbox" name="provincia" value="{{ p }}" {% if provincia_selecionada == p %}checked{% endif %} onchange="this.form.submit()">
+                    {{ p }}
+                  </label>
+                {% endfor %}
+              </div>
+
+              <div class="drawing-heading-title" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 12.5px; color: #192335; margin: 20px 0 12px">Propina mensal</div>
+              <div style="padding-bottom: 20px; border-bottom: 1px solid #e6e3f1">
+                <input type="range" style="width: 100%; accent-color: #2f57ef">
+                <div style="display: flex; justify-content: space-between; font-size: 12.5px; color: #9aa1b1; margin-top: 6px"><span>Grátis</span><span>120 000 Kz</span></div>
+              </div>
+
+              <div class="drawing-heading-title" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 12.5px; color: #192335; margin: 20px 0 12px">Outros</div>
+              <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13.5px">
+                <label style="display: flex; align-items: center; gap: 9px; cursor: pointer; color: #192335;"><input type="checkbox"> Matrículas abertas</label>
+                <label style="display: flex; align-items: center; gap: 9px; cursor: pointer; color: #192335;"><input type="checkbox"> Tem transporte escolar</label>
+                <label style="display: flex; align-items: center; gap: 9px; cursor: pointer; color: #192335;"><input type="checkbox"> Tem cantina</label>
+                <label style="display: flex; align-items: center; gap: 9px; cursor: pointer; color: #192335;"><input type="checkbox"> Período da tarde</label>
+              </div>
+            </form>
+          </div>
+
+          <!-- MAIN ESCOLAS LIST CONTENT -->
+          <div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px">
+              <div class="drawing-sub-text" style="font-size: 14px; color: #6b7385">
+                A mostrar <strong class="drawing-heading-title" style="color: #192335">{{ page_obj.paginator.count|default:total_escolas }}</strong> escolas e liceus
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px">
+                <a href="?sort=relevantes" class="rbt-btn btn-sm btn-border radius-round">Mais relevantes</a>
+                <a href="?sort=avaliadas" class="rbt-btn btn-sm btn-border radius-round">Melhor avaliadas</a>
+              </div>
+            </div>
+
+            <!-- ESCOLAS CARDS LIST -->
+            <div style="display: flex; flex-direction: column; gap: 14px">
+              {% for esc in page_obj %}
+                <a href="{% url 'escolas:perfil_escola' esc.id %}" class="drawing-escola-card" style="background: #ffffff; border: 1px solid #e6e3f1; border-radius: 13px; padding: 18px; display: flex; gap: 20px; text-decoration: none;">
+                  <div style="width: 190px; height: 138px; border-radius: 10px; border: 1px solid #e6e3f1; background: repeating-linear-gradient(135deg, #eef1f8 0px, #eef1f8 9px, #e4e9f5 9px, #e4e9f5 18px); flex-shrink: 0; position: relative; overflow: hidden;">
+                    {% if esc.perfil.imagem %}
+                      <img src="{{ esc.perfil.imagem.url }}" alt="{{ esc.nome }}" style="width:100%; height:100%; object-fit:cover;">
+                    {% endif %}
+                    <span style="position: absolute; top: 9px; left: 9px; font-size: 10.5px; font-weight: 600; padding: 4px 9px; border-radius: 999px; 
+                      {% if esc.tipo_escola == 'Privada' %}background: #f6edfd; color: #8a4fb0;{% elif esc.tipo_escola == 'Comparticipada' %}background: #fff4e6; color: #b56a12;{% else %}background: #e8f7ed; color: #2c8a4c;{% endif %}">
+                      {{ esc.tipo_escola|default:"Pública" }}
+                    </span>
+                  </div>
+
+                  <div style="flex: 1; display: flex; flex-direction: column">
+                    <div style="display: flex; align-items: center; gap: 9px; margin-bottom: 5px">
+                      <span class="drawing-heading-title" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 18.5px; letter-spacing: -0.02em; color: #192335; line-height: 1.2;">{{ esc.nome }}</span>
+                      <span style="font-size: 10px; font-weight: 700; width: 16px; height: 16px; border-radius: 999px; background: #e8f7ed; color: #2c8a4c; display: flex; align-items: center; justify-content: center; flex-shrink: 0">✓</span>
+                    </div>
+                    <div class="drawing-sub-text" style="font-size: 13px; color: #9aa1b1; margin-bottom: 11px">
+                      {{ esc.provincia|default:"Luanda" }} · {{ esc.municipio|default:"Maianga" }}
+                    </div>
+                    <div class="drawing-sub-text" style="font-size: 13.5px; line-height: 1.55; color: #6b7385; margin-bottom: 13px; max-width: 640px">
+                      {{ esc.descricao|default:"Ensino primário e secundário de excelência com acompanhamento pedagógico completo."|truncatechars:120 }}
+                    </div>
+
+                    <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px">
+                      <span style="font-size: 11px; background: #e8ecfd; color: #2f57ef; font-weight: 600; border-radius: 999px; padding: 4px 10px; white-space: nowrap">Primário & Secundário</span>
+                      <span style="font-size: 11px; background: #F5F7FA; border: 1px solid #e6e3f1; border-radius: 999px; padding: 4px 10px; white-space: nowrap; color: #192335;">Laboratório de Informática</span>
+                      <span style="font-size: 11px; background: #F5F7FA; border: 1px solid #e6e3f1; border-radius: 999px; padding: 4px 10px; white-space: nowrap; color: #192335;">Quadra Desportiva</span>
+                    </div>
+
+                    <div class="drawing-sub-text" style="display: flex; align-items: center; gap: 16px; margin-top: auto; padding-top: 13px; border-top: 1px solid #eef1f8; font-size: 12.5px; color: #9aa1b1">
+                      <span>1 200 alunos</span>
+                      <span>·</span>
+                      <span>30 alunos/turma</span>
+                      <span>·</span>
+                      <span style="color: #ff9d2d; font-weight: 700">4,6 ★</span>
+                    </div>
+                  </div>
+
+                  <div class="drawing-escola-card-side" style="width: 190px; flex-shrink: 0; display: flex; flex-direction: column; border-left: 1px solid #eef1f8; padding-left: 20px">
+                    <div class="drawing-sub-text" style="font-size: 12px; color: #9aa1b1">Propina mensal</div>
+                    <div class="drawing-heading-title" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: -0.03em; color: #192335; margin: 4px 0 3px">
+                      {% if esc.tipo_escola == 'Pública' %}Grátis{% else %}45 000 Kz{% endif %}
+                    </div>
+                    <div class="drawing-sub-text" style="font-size: 12px; color: #9aa1b1; margin-bottom: 16px">Matrícula: 10 000 Kz</div>
+
+                    <div style="font-size: 12.5px; font-weight: 600; color: #3EB75E; margin-bottom: 12px">Matrículas abertas</div>
+
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto">
+                      <span style="text-align: center; height: 40px; line-height: 40px; border-radius: 9px; background: #2f57ef; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13.5px; font-weight: 600">Ver a escola</span>
+                    </div>
+                  </div>
+                </a>
+              {% empty %}
+                <div style="background: #ffffff; border: 1px solid #e6e3f1; border-radius: 13px; padding: 40px; text-align: center;">
+                  <h4 class="drawing-heading-title">Nenhuma escola encontrada</h4>
+                  <p class="drawing-sub-text">Tenta ajustar os teus filtros ou termos de pesquisa.</p>
+                </div>
+              {% endfor %}
+            </div>
+
+            <!-- PAGINATION -->
+            {% if page_obj.has_other_pages %}
+              <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 30px">
+                {% if page_obj.has_previous %}
+                  <a href="?page={{ page_obj.previous_page_number }}" style="height: 38px; display: flex; align-items: center; padding: 0 16px; border-radius: 10px; border: 1px solid #e6e3f1; background: #ffffff; color: #6b7385; font-size: 13.5px">Anterior</a>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                  {% if page_obj.number == num %}
+                    <span style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 10px; background: #2f57ef; color: #fff; font-size: 13.5px; font-weight: 600">{{ num }}</span>
+                  {% else %}
+                    <a href="?page={{ num }}" style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 1px solid #e6e3f1; background: #ffffff; color: #6b7385; font-size: 13.5px">{{ num }}</a>
+                  {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                  <a href="?page={{ page_obj.next_page_number }}" style="height: 38px; display: flex; align-items: center; padding: 0 16px; border-radius: 10px; border: 1px solid #e6e3f1; background: #ffffff; color: #6b7385; font-size: 13.5px">Seguinte</a>
+                {% endif %}
+              </div>
+            {% endif %}
+
+            <!-- SCHOOL REGISTRATION CTA -->
+            <div style="margin-top: 32px; background: #192335; border-radius: 14px; padding: 28px 32px; display: flex; align-items: center; gap: 28px">
+              <div>
+                <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: -0.03em; color: #ffffff; margin-bottom: 7px">Representas uma escola ou liceu?</div>
+                <div style="font-size: 14px; color: rgba(255,255,255,0.62); max-width: 500px">Publica a tua oferta, prazos de matrícula e propinas. As famílias encontram-te e candidatam-se online.</div>
+              </div>
+              <a href="{% url 'escolas:onboarding_escolar' %}" style="margin-left: auto; flex-shrink: 0; background: #2f57ef; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600; padding: 13px 24px; border-radius: 10px; text-decoration: none;">Registar a escola</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+    {% include 'include/footer.html' %}
+    {% include 'include/java.html' %}
+</body>
+</html>
+"""
+    with open('escolas/templates/escolas/lista_escolas.html', 'w', encoding='utf-8') as out:
+        out.write(template_content)
+    print("Successfully adapted escolas/templates/escolas/lista_escolas.html with exact 1440px outer container!")
+
+adapt_escolas()

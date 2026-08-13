@@ -8,8 +8,8 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>{{ curso.titulo }} - Eduka Angola</title>
-    <meta name="robots" content="noindex, follow">
-    <meta name="description" content="{{ curso.descricao_curta }}">
+    <meta name="robots" content="index, follow">
+    <meta name="description" content="{% if curso.descricao_curta %}{{ curso.descricao_curta }}{% else %}{{ curso.descricao|striptags|truncatechars:160 }}{% endif %}">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     
     <!-- Metadados de Compartilhamento (Open Graph / Redes Sociais) -->
@@ -34,333 +34,352 @@
     <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'assets/images/logo/logo1.png' %}">
     {% endif %}
     
-    <!-- Ícones e CSS Base -->
+    <!-- Ícones e CSS Base do Tema -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     {% include 'include/css.html' %}
-    
-    <style>
-        .social-share-btn:hover {
-            transform: scale(1.1);
-            background-color: var(--color-primary-opacity) !important;
-            border-color: var(--color-primary) !important;
-        }
-        .rbt-sidebar-widget-wrapper.sticky-top {
-            top: 100px;
-        }
-        .rating-count-bar {
-            height: 8px;
-            border-radius: 4px;
-            background-color: var(--color-border-2);
-            overflow: hidden;
-            flex-grow: 1;
-            margin: 0 15px;
-        }
-        .active-dark-mode .rating-count-bar {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-        .rating-count-bar .fill {
-            height: 100%;
-            background-color: #ff9d2d;
-        }
-        .active-dark-mode .rbt-author-meta {
-            background-color: var(--color-darker) !important;
-        }
-        .active-dark-mode .avatar {
-            background: rgba(255, 255, 255, 0.05) !important;
-        }
-        .active-dark-mode .video-widget {
-            border-color: rgba(255, 255, 255, 0.1) !important;
-            background-color: var(--color-darker) !important;
-        }
-
-        /* Modern Comment Styles */
-        .rbt-comment-section {
-            background: var(--color-white);
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        }
-        .active-dark-mode .rbt-comment-section {
-            background: var(--color-darker);
-            box-shadow: none;
-        }
-        .single-comment {
-            background: #fff;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-        }
-        .active-dark-mode .single-comment {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.1);
-        }
-        .comment-respond {
-            background: #f9f9f9;
-            padding: 30px;
-            border-radius: 12px;
-        }
-        .active-dark-mode .comment-respond {
-            background: rgba(255, 255, 255, 0.03);
-        }
-        #star-rating i {
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        #star-rating i:hover {
-            transform: scale(1.2);
-        }
-        .replies-container {
-            border-left: 2px solid var(--color-primary-opacity);
-            margin-left: 25px;
-            padding-left: 20px;
-            margin-top: 15px;
-            position: relative;
-        }
-        .replies-container::before {
-            content: "";
-            position: absolute;
-            left: -2px;
-            top: 0;
-            height: 20px;
-            width: 20px;
-            border-bottom: 2px solid var(--color-primary-opacity);
-            border-left: 2px solid var(--color-primary-opacity);
-            border-bottom-left-radius: 10px;
-            display: none; /* Opcional: curva conectora */
-        }
-    </style>
 </head>
 
 <body class="rbt-header-sticky">
     {% include 'include/header.html' %}
 
-    <main class="rbt-main-wrapper" style="margin-top: 20px;">
-        <!-- Start Course Details  -->
+    <main class="rbt-main-wrapper">
+        <!-- Start breadcrumb Area (Cópia exata do Exemplo course-details.html) -->
+        <div class="rbt-breadcrumb-default rbt-breadcrumb-style-3">
+            <div class="breadcrumb-inner breadcrumb-dark">
+                <img src="{% static 'assets/images/bg/bg-image-10.jpg' %}" alt="EdukaAngola Background">
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="content text-start">
+                            <ul class="page-list">
+                                <li class="rbt-breadcrumb-item"><a href="{% url 'index' %}">{% trans "Home" %}</a></li>
+                                <li>
+                                    <div class="icon-right"><i class="feather-chevron-right"></i></div>
+                                </li>
+                                <li class="rbt-breadcrumb-item active">{% if curso.categoria %}{{ curso.categoria.nome }}{% else %}{% trans "Curso" %}{% endif %}</li>
+                            </ul>
+                            <h2 class="title">{{ curso.titulo }}</h2>
+                            <p class="description">{% if curso.descricao_curta %}{{ curso.descricao_curta }}{% else %}{{ curso.descricao|striptags|truncatechars:160 }}{% endif %}</p>
+
+                            <div class="d-flex align-items-center mb--20 flex-wrap rbt-course-details-feature">
+
+                                {% if curso.categoria %}
+                                <div class="feature-sin best-seller-badge">
+                                    <span class="rbt-badge-2">
+                                        <span class="image"><img src="{% static 'assets/images/icons/card-icon-1.png' %}" alt="Icon"></span> {{ curso.categoria.nome }}
+                                    </span>
+                                </div>
+                                {% endif %}
+
+                                <div class="feature-sin rating">
+                                    <a href="#">{{ media_avaliacoes }}</a>
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= media_avaliacoes %}
+                                            <a href="#"><i class="fa fa-star"></i></a>
+                                        {% else %}
+                                            <a href="#"><i class="far fa-star"></i></a>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+
+                                <div class="feature-sin total-rating">
+                                    <a class="rbt-badge-4" href="#">{{ total_comentarios }} {% trans "avaliações" %}</a>
+                                </div>
+
+                                <div class="feature-sin total-student">
+                                    <span>{{ curso.inscricoes.count }} {% trans "alunos" %}</span>
+                                </div>
+
+                            </div>
+
+                            <div class="rbt-author-meta mb--20">
+                                <div class="rbt-avater">
+                                    <a href="{% url 'cursos_por_centro' curso.centro.id %}">
+                                        {% if curso.centro.perfil.imagem %}
+                                            <img src="{{ curso.centro.perfil.imagem.url }}" alt="{{ curso.centro.nome }}">
+                                        {% else %}
+                                            <img src="{% static 'assets/images/client/avatar-02.png' %}" alt="{{ curso.centro.nome }}">
+                                        {% endif %}
+                                    </a>
+                                </div>
+                                <div class="rbt-author-info">
+                                    {% trans "Por" %} <a href="{% url 'cursos_por_centro' curso.centro.id %}">{{ curso.centro.nome }}</a> {% if curso.categoria %}{% trans "em" %} <a href="#">{{ curso.categoria.nome }}</a>{% endif %}
+                                </div>
+                            </div>
+
+                            <ul class="rbt-meta">
+                                <li><i class="feather-clock"></i>{{ curso.carga_horaria }}h</li>
+                                <li><i class="feather-globe"></i>{{ curso.idioma|default:"Português" }}</li>
+                                <li><i class="feather-award"></i>{% if curso.certificado %}{% trans "Curso Certificado" %}{% else %}{% trans "Sem Certificado" %}{% endif %}</li>
+                            </ul>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Breadcrumb Area -->
+
+        <!-- Start Course Details Area (Cópia exata do Exemplo course-details.html) -->
         <div class="rbt-course-details-area ptb--60">
             <div class="container">
                 <div class="row g-5">
 
+                    <!-- Coluna Principal (Esquerda - col-lg-8) -->
                     <div class="col-lg-8">
                         <div class="course-details-content">
-                            <!-- Hero Section Simplificada -->
-                            <div class="rbt-course-details-feature">
-                                <div class="row g-5 align-items-center">
-                                    <div class="col-lg-12">
-                                        <div class="section-title text-start">
-                                            <span class="subtitle bg-primary-opacity">{{ curso.categoria.nome }}</span>
-                                            <h2 class="title">{{ curso.titulo }}</h2>
-                                            <div class="d-flex align-items-center flex-wrap gap-3 mt--20">
-                                                <div class="rbt-review">
-                                                    <div class="rating">
-                                                        {% for i in "12345" %}
-                                                            {% if forloop.counter <= curso.get_media_avaliacoes %}
-                                                                <i class="fas fa-star text-warning" style="color: #ff9d2d !important;"></i>
-                                                            {% else %}
-                                                                <i class="far fa-star text-muted"></i>
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                    </div>
-                                                    <span class="rating-count">({{ curso.comentarios.count }} avaliações)</span>
-                                                </div>
-                                                <span class="rbt-badge-2"><i class="feather-users"></i> {{ curso.inscricoes.count }} Alunos</span>
-                                                <span class="rbt-badge-2"><i class="feather-award"></i> {{ curso.nivel }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <!-- Course Feature Box / Thumbnail -->
+                            <div class="rbt-course-feature-box rbt-shadow-box thuumbnail">
+                                {% if curso.imagem %}
+                                    <img class="w-100" src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}">
+                                {% else %}
+                                    <img class="w-100" src="{% static 'assets/images/course/course-01.jpg' %}" alt="{{ curso.titulo }}">
+                                {% endif %}
                             </div>
 
-                            <!-- Course Tabs -->
-                            <div class="rbt-inner-onepage-navigation sticky-top mt--60">
+                            <!-- Onepage Sticky Navigation -->
+                            <div class="rbt-inner-onepage-navigation sticky-top mt--30">
                                 <nav class="mainmenu-nav onepagenav">
                                     <ul class="mainmenu">
-                                        <li class="current"><a href="#overview">Visão Geral</a></li>
-                                        <li><a href="#coursecontent">Currículo</a></li>
-                                        <li><a href="#instructor">Centro</a></li>
-                                        <li><a href="#review">Avaliações</a></li>
+                                        <li class="current">
+                                            <a href="#overview">{% trans "Visão Geral" %}</a>
+                                        </li>
+                                        <li>
+                                            <a href="#coursecontent">{% trans "Conteúdo do Curso" %}</a>
+                                        </li>
+                                        {% if curso.pre_requisitos.all %}
+                                        <li>
+                                            <a href="#details">{% trans "Pré-requisitos" %}</a>
+                                        </li>
+                                        {% endif %}
+                                        <li>
+                                            <a href="#intructor">{% trans "Instrutor" %}</a>
+                                        </li>
+                                        <li>
+                                            <a href="#review">{% trans "Avaliações" %}</a>
+                                        </li>
                                     </ul>
                                 </nav>
                             </div>
 
-                            <!-- Overview Section -->
-                            <div id="overview" class="rbt-course-details-feature mt--60">
-                                <h4 class="title">Sobre este Curso</h4>
-                                <div class="content">
-                                    {{ curso.descricao|safe }}
+                            <!-- Start Overview Box -->
+                            <div class="rbt-course-feature-box overview-wrapper rbt-shadow-box mt--30 has-show-more" id="overview">
+                                <div class="rbt-course-feature-inner has-show-more-inner-content">
+                                    <div class="section-title">
+                                        <h4 class="rbt-title-style-3">{% trans "Sobre este Curso" %}</h4>
+                                    </div>
+                                    <div class="description-content">
+                                        {{ curso.descricao|safe }}
+                                    </div>
                                 </div>
+                                <div class="rbt-show-more-btn">{% trans "Ver Mais" %}</div>
                             </div>
+                            <!-- End Overview Box -->
 
-                            <!-- Pré-requisitos Section -->
-                            {% if curso.pre_requisitos.all %}
-                            <div class="rbt-course-details-feature mt--60">
-                                <h4 class="title">Pré-requisitos</h4>
-                                <ul class="plan-offer-list" style="list-style: none; padding: 0;">
-                                    {% for req in curso.pre_requisitos.all %}
-                                    <li class="d-flex align-items-center mb--10">
-                                        <i class="feather-check-circle text-primary me-2" style="min-width: 20px;"></i>
-                                        <span>{{ req.texto }}</span>
-                                    </li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                            {% endif %}
-
-                            <!-- Curriculum Section -->
-                            <div id="coursecontent" class="rbt-course-details-feature mt--60">
-                                <div class="section-title text-start mb--20">
-                                    <h4 class="title">Conteúdo do Curso</h4>
-                                </div>
-                                <div class="rbt-accordion-style rbt-accordion-02 accordion">
-                                    <div class="accordion" id="accordionCourse">
-                                        {% for modulo in curso.modulos.all %}
-                                        <div class="accordion-item card">
-                                            <h2 class="accordion-header-it" id="heading{{ modulo.id }}">
-                                                <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ modulo.id }}" aria-expanded="{{ forloop.first|lower }}" aria-controls="collapse{{ modulo.id }}">
-                                                    {{ modulo.titulo }} <span class="badge bg-primary-opacity ms-auto">{{ modulo.aulas.count }} aulas</span>
-                                                </button>
-                                            </h2>
-                                            <div id="collapse{{ modulo.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading{{ modulo.id }}" data-bs-parent="#accordionCourse">
-                                                <div class="accordion-body card-body">
-                                                    <ul class="rbt-course-main-content-list">
-                                                        {% for aula in modulo.aulas.all %}
-                                                        <li>
-                                                            <a href="javascript:void(0)">
-                                                                <div class="course-content-left">
-                                                                    <i class="feather-play-circle"></i> <span class="text">{{ aula.titulo }}</span>
-                                                                </div>
-                                                                <div class="course-content-right">
-                                                                    {% if aula.is_preview %}
-                                                                    <span class="rbt-badge-6">Preview</span>
-                                                                    {% else %}
-                                                                    <i class="feather-lock"></i>
-                                                                    {% endif %}
-                                                                </div>
-                                                            </a>
-                                                        </li>
-                                                        {% endfor %}
-                                                    </ul>
+                            <!-- Start Course Content -->
+                            <div class="course-content rbt-shadow-box coursecontent-wrapper mt--30" id="coursecontent">
+                                <div class="rbt-course-feature-inner">
+                                    <div class="section-title">
+                                        <h4 class="rbt-title-style-3">{% trans "Conteúdo do Curso" %}</h4>
+                                    </div>
+                                    <div class="rbt-accordion-style rbt-accordion-02 accordion">
+                                        <div class="accordion" id="accordionExampleb2">
+                                            {% for modulo in curso.modulos.all %}
+                                            <div class="accordion-item card">
+                                                <h2 class="accordion-header card-header" id="headingTwo{{ modulo.id }}">
+                                                    <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo{{ modulo.id }}" aria-expanded="{{ forloop.first|lower }}" aria-controls="collapseTwo{{ modulo.id }}">
+                                                        {{ modulo.titulo }} <span class="rbt-badge-5 ml--10">{{ modulo.aulas.count }} {% trans "aulas" %}</span>
+                                                    </button>
+                                                </h2>
+                                                <div id="collapseTwo{{ modulo.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="headingTwo{{ modulo.id }}" data-bs-parent="#accordionExampleb2">
+                                                    <div class="accordion-body card-body pr--0">
+                                                        <ul class="rbt-course-main-content liststyle">
+                                                            {% for aula in modulo.aulas.all %}
+                                                            <li>
+                                                                <a href="javascript:void(0)">
+                                                                    <div class="course-content-left">
+                                                                        <i class="feather-play-circle"></i> <span class="text">{{ aula.titulo }}</span>
+                                                                    </div>
+                                                                    <div class="course-content-right">
+                                                                        {% if aula.is_preview %}
+                                                                        <span class="rbt-badge variation-03 bg-primary-opacity"><i class="feather-eye"></i> Preview</span>
+                                                                        {% else %}
+                                                                        <span class="course-lock"><i class="feather-lock"></i></span>
+                                                                        {% endif %}
+                                                                    </div>
+                                                                </a>
+                                                            </li>
+                                                            {% empty %}
+                                                            <li class="p-3 text-muted small">{% trans "Nenhuma aula neste módulo." %}</li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Instructor Section -->
-                            <div id="instructor" class="rbt-course-details-feature mt--60">
-                                <h4 class="title">Oferecido por</h4>
-                                <div class="rbt-author-meta shadow-sm p-4 rounded bg-white-override">
-                                    <div class="d-flex align-items-center gap-4">
-                                        {% if curso.centro.perfil.imagem %}
-                                        <img src="{{ curso.centro.perfil.imagem.url }}" alt="{{ curso.centro.nome }}" style="width: 100px; border-radius: 12px;">
-                                        {% endif %}
-                                        <div class="author-info">
-                                            <h5 class="mb-2">{{ curso.centro.nome }}</h5>
-                                            <p class="mb-0">{{ curso.centro.perfil.biografia|truncatewords:30 }}</p>
-                                            <a href="{% url 'lista_centros' %}" class="btn-link mt-2 d-inline-block">Ver Perfil Completo</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Review Section -->
-                            <div id="review" class="rbt-course-details-feature mt--60">
-                                <div class="section-title text-start mb--20">
-                                    <h4 class="title">Avaliações dos Alunos</h4>
-                                </div>
-                                <div class="row g-5">
-                                    <div class="col-lg-4">
-                                        <div class="rating-box">
-                                            <h2 class="rating-number">{{ curso.get_media_avaliacoes }}</h2>
-                                            <div class="rating">
-                                                {% for i in "12345" %}
-                                                    {% if forloop.counter <= curso.get_media_avaliacoes %}
-                                                        <i class="fas fa-star text-warning" style="color: #ff9d2d !important;"></i>
-                                                    {% else %}
-                                                        <i class="far fa-star text-muted"></i>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </div>
-                                            <span class="sub-title">Pontuação do Curso</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-8">
-                                        <div class="review-wrapper">
-                                            {% for nota, percent in curso.get_distribuicao_avaliacoes.items reversed %}
-                                            <div class="single-progress-bar d-flex align-items-center mb-3">
-                                                <span class="rating-text" style="min-width: 60px;">{{ nota }} estrelas</span>
-                                                <div class="rating-count-bar">
-                                                    <div class="fill" style="width: {{ percent }}%"></div>
-                                                </div>
-                                                <span class="percent-label">{{ percent }}%</span>
-                                            </div>
+                                            {% empty %}
+                                            <p class="text-muted p-3">{% trans "O programa deste curso está em atualização." %}</p>
                                             {% endfor %}
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <div class="rbt-comment-section mt--60">
-                                    <div class="section-title text-start mb--30">
-                                        <h4 class="title">Comentários e Dúvidas</h4>
+                            </div>
+                            <!-- End Course Content -->
+
+                            <!-- Start Prerequisites -->
+                            {% if curso.pre_requisitos.all %}
+                            <div class="rbt-course-feature-box rbt-shadow-box details-wrapper mt--30" id="details">
+                                <div class="row g-5">
+                                    <div class="col-lg-12">
+                                        <div class="section-title">
+                                            <h4 class="rbt-title-style-3 mb--20">{% trans "Pré-requisitos" %}</h4>
+                                        </div>
+                                        <ul class="rbt-list-style-1">
+                                            {% for req in curso.pre_requisitos.all %}
+                                            <li><i class="feather-check"></i>{{ req.texto }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            <!-- End Prerequisites -->
+
+                            <!-- Start Instructor Box -->
+                            <div class="rbt-instructor rbt-shadow-box intructor-wrapper mt--30" id="intructor">
+                                <div class="about-author border-0 pb--0 pt--0">
+                                    <div class="section-title mb--30">
+                                        <h4 class="rbt-title-style-3">{% trans "Instrutor / Centro" %}</h4>
+                                    </div>
+                                    <div class="media align-items-center">
+                                        <div class="thumbnail">
+                                            <a href="{% url 'cursos_por_centro' curso.centro.id %}">
+                                                {% if curso.centro.perfil.imagem %}
+                                                <img src="{{ curso.centro.perfil.imagem.url }}" alt="{{ curso.centro.nome }}">
+                                                {% else %}
+                                                <img src="{% static 'assets/images/testimonial/testimonial-7.jpg' %}" alt="{{ curso.centro.nome }}">
+                                                {% endif %}
+                                            </a>
+                                        </div>
+                                        <div class="media-body">
+                                            <div class="author-info">
+                                                <h5 class="title">
+                                                    <a class="hover-flip-item-wrapper" href="{% url 'cursos_por_centro' curso.centro.id %}">{{ curso.centro.nome }}</a>
+                                                </h5>
+                                                <span class="b3 subtitle">{% trans "Centro de Formação Verificado" %}</span>
+                                                <ul class="rbt-meta mb--20 mt--10">
+                                                    <li><i class="fa fa-star color-warning"></i>{{ media_avaliacoes }} <span class="rbt-badge-5 ml--5">{% trans "Avaliação" %}</span></li>
+                                                    <li><i class="feather-users"></i>{{ curso.inscricoes.count }} {% trans "Alunos" %}</li>
+                                                </ul>
+                                            </div>
+                                            <div class="content">
+                                                <p class="description">
+                                                    {% if curso.centro.perfil.biografia %}
+                                                        {{ curso.centro.perfil.biografia|truncatewords:35 }}
+                                                    {% else %}
+                                                        {% trans "Centro de Formação dedicado ao ensino e desenvolvimento de competências em Angola." %}
+                                                    {% endif %}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End Instructor Box -->
+
+                            <!-- Start Review Area -->
+                            <div class="rbt-review-wrapper rbt-shadow-box review-wrapper mt--30" id="review">
+                                <div class="course-content">
+                                    <div class="section-title">
+                                        <h4 class="rbt-title-style-3">{% trans "Avaliações dos Alunos" %}</h4>
+                                    </div>
+                                    <div class="row g-5 align-items-center">
+                                        <div class="col-lg-3">
+                                            <div class="rating-box">
+                                                <div class="rating-number">{{ media_avaliacoes }}</div>
+                                                <div class="rating">
+                                                    {% for i in "12345" %}
+                                                        {% if forloop.counter <= media_avaliacoes %}
+                                                            <i class="fas fa-star text-warning" style="color: #ff9d2d !important;"></i>
+                                                        {% else %}
+                                                            <i class="far fa-star text-muted"></i>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                                <span class="sub-title">{% trans "Pontuação do Curso" %}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-9">
+                                            <div class="review-wrapper">
+                                                {% for nota, percent in rating_percent.items %}
+                                                <div class="single-progress-bar">
+                                                    <div class="rating-text">
+                                                        <span>{{ nota }} {% trans "estrelas" %}</span>
+                                                    </div>
+                                                    <div class="progress">
+                                                        <div class="progress-bar" role="progressbar" style="width: {{ percent }}%" aria-valuenow="{{ percent }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                    <span class="value-text">{{ percent|floatformat:0 }}%</span>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Form e Comentários da Comunidade -->
+                                <div class="rbt-comment-section border-top mt--40 pt--30">
+                                    <div class="section-title mb--30">
+                                        <h5 class="fw-bold text-dark mb-0">{% trans "Comentários e Dúvidas" %}</h5>
                                     </div>
 
                                     {% if user.is_authenticated and user.tipo_usuario == 'ALUNO' %}
-                                        <div class="rbt-comment-respond mb--60">
-                                            <h5 class="title">Deixe seu Comentário ou Dúvida</h5>
+                                        <div class="comment-respond mb--40">
+                                            <h6 class="fw-bold mb-3">{% trans "Deixe seu comentário ou tire uma dúvida" %}</h6>
                                             <form action="{% url 'adicionar_comentario' curso.id %}" method="POST" class="comment-form-style-1">
                                                 {% csrf_token %}
-                                                <div class="row row--10">
-                                                    <div class="col-12 mb--20">
-                                                        <div class="rating-input">
-                                                            <span class="d-block mb-2 text-muted small">Sua Avaliação (opcional):</span>
-                                                            <div id="star-rating" class="mb-3">
-                                                                <i class="far fa-star text-muted pointer" data-value="1"></i>
-                                                                <i class="far fa-star text-muted pointer" data-value="2"></i>
-                                                                <i class="far fa-star text-muted pointer" data-value="3"></i>
-                                                                <i class="far fa-star text-muted pointer" data-value="4"></i>
-                                                                <i class="far fa-star text-muted pointer" data-value="5"></i>
+                                                <div class="row g-3">
+                                                    <div class="col-12">
+                                                        <div class="rating-input mb-3">
+                                                            <span class="d-block mb-2 text-muted small fw-medium">{% trans "Sua Avaliação (opcional):" %}</span>
+                                                            <div id="star-rating" class="d-flex gap-2">
+                                                                <i class="far fa-star text-muted fs-4 pointer" data-value="1"></i>
+                                                                <i class="far fa-star text-muted fs-4 pointer" data-value="2"></i>
+                                                                <i class="far fa-star text-muted fs-4 pointer" data-value="3"></i>
+                                                                <i class="far fa-star text-muted fs-4 pointer" data-value="4"></i>
+                                                                <i class="far fa-star text-muted fs-4 pointer" data-value="5"></i>
                                                             </div>
-                                                    <input type="hidden" name="avaliacao" id="id_avaliacao" value="5">
-                                                    <input type="hidden" name="parent_id" id="id_parent_id" value="">
-                                                </div>
-                                            </div>
-                                            <div class="col-12">
-                                                <div id="replying-to" class="mb-2 d-none">
-                                                    <span class="badge bg-light text-dark p-2">
-                                                        Respondendo a <strong id="replying-to-name"></strong>
-                                                        <i class="feather-x ms-2 pointer" onclick="cancelReply()"></i>
-                                                    </span>
-                                                </div>
-                                                <div class="form-group">
-                                                    <textarea name="comentario" id="comentario-textarea" required placeholder=" "></textarea>
-                                                            <label>Sua dúvida ou comentário *</label>
-                                                            <span class="focus-border"></span>
+                                                            <input type="hidden" name="avaliacao" id="id_avaliacao" value="5">
+                                                            <input type="hidden" name="parent_id" id="id_parent_id" value="">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div id="replying-to" class="mb-2 d-none">
+                                                            <span class="badge bg-primary text-white p-2 radius-round">
+                                                                {% trans "Respondendo a" %} <strong id="replying-to-name"></strong>
+                                                                <i class="feather-x ms-2 pointer" onclick="cancelReply()"></i>
+                                                            </span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <textarea name="comentario" id="comentario-textarea" required class="form-control p-3 rounded-3" rows="4" placeholder="{% trans 'Escreva aqui a sua dúvida ou comentário sobre o curso...' %}"></textarea>
                                                         </div>
                                                     </div>
                                                     <div class="col-12 mt--20">
-                                                        <div class="form-submit-group">
-                                                            <button type="submit" class="rbt-btn btn-md btn-gradient hover-icon-reverse radius-round">
-                                                                <span class="icon-reverse-wrapper">
-                                                                    <span class="btn-text">Enviar Mensagem</span>
-                                                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                                                </span>
-                                                            </button>
-                                                        </div>
+                                                        <button type="submit" class="rbt-btn btn-md btn-gradient radius-round icon-hover">
+                                                            <span class="btn-text">{% trans "Enviar Mensagem" %}</span>
+                                                            <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </form>
                                         </div>
                                     {% elif not user.is_authenticated %}
-                                        <div class="rbt-comment-respond mb--40">
-                                            <div class="alert alert-info text-center radius-round">
-                                                <p class="mb-0">Para deixar um comentário ou tirar uma dúvida, por favor <a href="{% url 'login_aluno' %}" class="fw-bold text-primary">faça login</a>.</p>
+                                        <div class="comment-respond mb--40 text-center">
+                                            <div class="alert alert-info border-0 radius-round p-3 mb-0">
+                                                <p class="mb-0 small">{% trans "Para deixar um comentário ou tirar uma dúvida," %} <a href="{% url 'login_aluno' %}" class="fw-bold text-primary text-decoration-underline">{% trans "faça login aqui" %}</a>.</p>
                                             </div>
                                         </div>
                                     {% endif %}
@@ -368,9 +387,9 @@
                                     <!-- Listagem de Comentários -->
                                     <div id="comments-list">
                                         {% for comentario in curso.comentarios_principais|slice:":5" %}
-                                        <div class="single-comment bg-white-override shadow-sm mb--30" id="comment-{{ comentario.id }}">
+                                        <div class="single-comment shadow-sm" id="comment-{{ comentario.id }}">
                                             <div class="d-flex gap-3">
-                                                <div class="avatar shadow-sm d-flex align-items-center justify-content-center" style="min-width: 50px; height: 50px; border-radius: 50%; background: var(--color-primary-opacity); color: var(--color-primary);">
+                                                <div class="avatar shadow-sm d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; border-radius: 50%; background: var(--color-primary-opacity); color: var(--color-primary);">
                                                     {% if comentario.aluno.perfil.imagem %}
                                                         <img src="{{ comentario.aluno.perfil.imagem.url }}" alt="{{ comentario.aluno.nome }}" class="rounded-circle w-100 h-100" style="object-fit: cover;">
                                                     {% else %}
@@ -379,38 +398,38 @@
                                                 </div>
                                                 <div class="comment-content flex-grow-1">
                                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                                        <h6 class="mb-0">{{ comentario.aluno.nome }}</h6>
-                                                        <span class="text-muted" style="font-size: 11px;">{{ comentario.data_comentario|date:"d/m/Y" }}</span>
+                                                        <h6 class="mb-0 fw-bold">{{ comentario.aluno.nome }}</h6>
+                                                        <span class="text-muted small" style="font-size: 11px;">{{ comentario.data_comentario|date:"d/m/Y" }}</span>
                                                     </div>
                                                     <div class="rating mb-2">
                                                         {% for i in "12345" %}
-                                                        <i class="fas fa-star {% if forloop.counter <= comentario.avaliacao %}text-warning{% else %}text-muted{% endif %} x-small"></i>
+                                                        <i class="fas fa-star {% if forloop.counter <= comentario.avaliacao %}text-warning{% else %}text-muted{% endif %}" style="font-size: 12px; color: {% if forloop.counter <= comentario.avaliacao %}#ff9d2d{% endif %} !important;"></i>
                                                         {% endfor %}
                                                     </div>
-                                                    <p class="text-body small mb-2">{{ comentario.comentario }}</p>
+                                                    <p class="text-body mb-2" style="font-size: 0.95rem;">{{ comentario.comentario }}</p>
 
                                                     <div class="d-flex gap-3">
-                                                        <a href="javascript:void(0)" onclick="prepareReply({{ comentario.id }}, '{{ comentario.aluno.nome }}')" class="rbt-btn-link small fw-bold">
-                                                            <i class="feather-corner-up-left me-1"></i> Responder
+                                                        <a href="javascript:void(0)" onclick="prepareReply({{ comentario.id }}, '{{ comentario.aluno.nome }}')" class="rbt-btn-link small fw-bold text-decoration-none">
+                                                            <i class="feather-corner-up-left me-1"></i> {% trans "Responder" %}
                                                         </a>
                                                     </div>
 
                                                     {% if comentario.resposta %}
-                                                    <div class="reply-box mt-3 p-3 rounded" style="background: var(--color-primary-opacity); border-left: 4px solid var(--color-primary);">
+                                                    <div class="reply-box mt-3 p-3 rounded-3" style="background: rgba(124, 58, 237, 0.05); border-left: 4px solid var(--color-primary);">
                                                         <div class="d-flex align-items-center gap-2 mb-1">
                                                             <i class="feather-corner-down-right text-primary small"></i>
-                                                            <strong class="small text-primary">Resposta do Centro</strong>
+                                                            <strong class="small text-primary">{% trans "Resposta do Centro de Formação" %}</strong>
                                                         </div>
-                                                        <p class="mb-0 small italic">{{ comentario.resposta }}</p>
+                                                        <p class="mb-0 small text-body font-italic">{{ comentario.resposta }}</p>
                                                     </div>
                                                     {% endif %}
 
                                                     {% if comentario.respostas_comunidade.all %}
                                                     <div class="replies-container">
                                                         {% for resposta in comentario.respostas_comunidade.all %}
-                                                        <div class="single-comment bg-light-opacity p-3 border-0 mb-3">
+                                                        <div class="single-comment p-3 border-0 bg-light mb-2">
                                                             <div class="d-flex gap-2">
-                                                                <div class="avatar d-flex align-items-center justify-content-center" style="min-width: 35px; height: 35px; border-radius: 50%; background: #eee;">
+                                                                <div class="avatar d-flex align-items-center justify-content-center flex-shrink-0" style="width: 35px; height: 35px; border-radius: 50%; background: #e5e7eb;">
                                                                     {% if resposta.aluno.perfil.imagem %}
                                                                         <img src="{{ resposta.aluno.perfil.imagem.url }}" class="rounded-circle w-100 h-100" style="object-fit: cover;">
                                                                     {% else %}
@@ -418,8 +437,8 @@
                                                                     {% endif %}
                                                                 </div>
                                                                 <div class="flex-grow-1">
-                                                                    <h6 class="mb-0 small">{{ resposta.aluno.nome }}</h6>
-                                                                    <p class="text-body x-small mb-0">{{ resposta.comentario }}</p>
+                                                                    <h6 class="mb-0 small fw-bold">{{ resposta.aluno.nome }}</h6>
+                                                                    <p class="text-body small mb-0">${resposta.comentario}</p>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -430,61 +449,76 @@
                                             </div>
                                         </div>
                                         {% empty %}
-                                        <p class="text-center text-muted">Ainda não existem comentários para este curso. Seja o primeiro a perguntar!</p>
+                                        <p class="text-center text-muted py-4">{% trans "Ainda não existem comentários para este curso. Seja o primeiro a participar!" %}</p>
                                         {% endfor %}
                                     </div>
 
                                     {% if curso.comentarios_principais.count > 5 %}
-                                    <div class="text-center mt--30">
+                                    <div class="text-center mt-4">
                                         <button id="btn-load-more" class="rbt-btn btn-border btn-sm radius-round" data-offset="5" data-course="{{ curso.id }}">
-                                            Ver mais comentários <i class="feather-chevron-down ms-2"></i>
+                                            {% trans "Ver mais comentários" %} <i class="feather-chevron-down ms-2"></i>
                                         </button>
                                     </div>
                                     {% endif %}
                                 </div>
                             </div>
+                            <!-- End Review Area -->
 
                         </div>
                     </div>
 
-                    <!-- Sidebar -->
+                    <!-- Coluna Lateral (Direita - Cópia exata do Exemplo course-details.html) -->
                     <div class="col-lg-4">
-                        <div class="rbt-sidebar-widget-wrapper sticky-top">
-                            <div class="video-widget rbt-shadow-box mb--30 overflow-hidden" style="border-radius: 12px; border: 1px solid #eee;">
-                                <div class="thumbnail position-relative">
-                                    {% if curso.video_preview_file %}
-                                        <video width="100%" height="auto" controls poster="{% if curso.imagem %}{{ curso.imagem.url }}{% endif %}">
-                                            <source src="{{ curso.video_preview_file.url }}" type="video/mp4">
-                                            O seu navegador não suporta vídeos.
-                                        </video>
-                                    {% elif curso.video_previa_url %}
-                                        <div class="rbt-video-area">
-                                            <iframe width="100%" height="250" src="{{ curso.video_previa_url }}" frameborder="0" allowfullscreen></iframe>
-                                        </div>
-                                    {% elif curso.imagem %}
-                                        <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}" class="img-fluid">
-                                    {% endif %}
-                                </div>
+                        <div class="course-sidebar sticky-top rbt-shadow-box course-sidebar-top rbt-gradient-border">
+                            <div class="inner">
 
-                                <div class="content p-4">
-                                    <div class="price-wrapper d-flex align-items-center gap-3 mb-4">
+                                <!-- Start Video Wrapper -->
+                                {% if curso.video_preview_file %}
+                                    <div class="video-content mb--15">
+                                        <video width="100%" height="auto" controls poster="{% if curso.imagem %}{{ curso.imagem.url }}{% endif %}" class="rbt-radius w-100">
+                                            <source src="{{ curso.video_preview_file.url }}" type="video/mp4">
+                                        </video>
+                                    </div>
+                                {% elif curso.video_previa_url %}
+                                    <div class="video-content mb--15">
+                                        <iframe width="100%" height="200" src="{{ curso.video_previa_url }}" frameborder="0" allowfullscreen class="rbt-radius w-100"></iframe>
+                                    </div>
+                                {% else %}
+                                    <a class="video-popup-with-text video-popup-wrapper text-center popup-video sidebar-video-hidden mb--15" href="#">
+                                        <div class="video-content">
+                                            <img class="w-100 rbt-radius" src="{% if curso.imagem %}{{ curso.imagem.url }}{% else %}{% static 'assets/images/others/video-01.jpg' %}{% endif %}" alt="{{ curso.titulo }}">
+                                        </div>
+                                    </a>
+                                {% endif %}
+                                <!-- End Video Wrapper -->
+
+                                <div class="content-item-content">
+                                    <div class="rbt-price-wrapper d-flex flex-wrap align-items-center justify-content-between">
+                                        <div class="rbt-price">
+                                            {% if curso.preco_promocional %}
+                                                <span class="current-price">{{ curso.preco_promocional|floatformat:"0" }} Kz</span>
+                                                <span class="off-price">{{ curso.preco|floatformat:"0" }} Kz</span>
+                                            {% elif curso.preco > 0 %}
+                                                <span class="current-price">{{ curso.preco|floatformat:"0" }} Kz</span>
+                                            {% else %}
+                                                <span class="current-price">{% trans "Gratuito" %}</span>
+                                            {% endif %}
+                                        </div>
                                         {% if curso.preco_promocional %}
-                                            <span class="current-price h3 mb-0 text-primary">{{ curso.preco_promocional }} Kz</span>
-                                            <span class="off-price text-muted text-decoration-line-through">{{ curso.preco }} Kz</span>
-                                            <span class="rbt-badge-6">Promoção</span>
-                                        {% else %}
-                                            <span class="current-price h3 mb-0 text-primary">{{ curso.preco }} Kz</span>
+                                        <div class="discount-time">
+                                            <span class="rbt-badge color-danger bg-color-danger-opacity"><i class="feather-clock"></i> {% trans "Promoção" %}</span>
+                                        </div>
                                         {% endif %}
                                     </div>
 
                                     {% if curso.filial or outras_localizacoes %}
-                                    <div class="mb-4">
-                                        <span class="small text-muted d-block mb-2 fw-bold" style="font-size: 11px;">LOCAL DE ESTUDO:</span>
+                                    <div class="mt--15">
+                                        <span class="subtitle d-block mb--5 text-start fw-bold" style="font-size: 11px;">{% trans "LOCAL DE ESTUDO:" %}</span>
                                         <div class="dropdown w-100">
-                                            <button class="btn btn-outline-primary dropdown-toggle w-100 d-flex justify-content-between align-items-center" type="button" id="dropdownFilial" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 8px; text-align: left;">
+                                            <button class="btn btn-outline-primary dropdown-toggle w-100 d-flex justify-content-between align-items-center p-3" type="button" id="dropdownFilial" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 10px;">
                                                 <span><i class="feather-map-pin me-2"></i> {% if curso.filial %}{{ curso.filial.nome }}{% else %}Sede ({{ curso.centro.nome }}){% endif %}</span>
                                             </button>
-                                            <ul class="dropdown-menu w-100 shadow-sm" aria-labelledby="dropdownFilial" style="border-radius: 8px; border: 1px solid rgba(0,0,0,0.05);">
+                                            <ul class="dropdown-menu w-100 shadow" aria-labelledby="dropdownFilial">
                                                 <li><a class="dropdown-item active bg-primary text-white" href="{% url 'curso_detalhe' curso.id %}">{% if curso.filial %}{{ curso.filial.nome }}{% else %}Sede ({{ curso.centro.nome }}){% endif %}</a></li>
                                                 {% for outro in outras_localizacoes %}
                                                 <li><a class="dropdown-item" href="{% url 'curso_detalhe' outro.id %}">{% if outro.filial %}{{ outro.filial.nome }}{% else %}Sede ({{ curso.centro.nome }}){% endif %}</a></li>
@@ -494,71 +528,66 @@
                                     </div>
                                     {% endif %}
 
-                                    <div class="add-to-cart-button d-grid gap-3">
+                                    <div class="add-to-card-button mt--15">
                                         {% if user.is_authenticated and aluno_inscricao %}
-                                            <a class="rbt-btn btn-gradient radius-round" href="{% url 'painel_curso' curso.id %}">Ir para o Painel</a>
+                                            <a class="rbt-btn btn-gradient icon-hover w-100 d-block text-center" href="{% url 'painel_curso' curso.id %}">
+                                                <span class="btn-text">{% trans "Ir para o Painel" %}</span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            </a>
                                         {% elif curso.lotado or not curso.possui_turmas_ativas or not curso.inscricoes_abertas %}
-                                            <button class="rbt-btn btn-secondary radius-round disabled" disabled style="cursor: not-allowed; opacity: 0.75; background: #e2e8f0; color: #718096; border: none;">
-                                                {% if curso.lotado %}
-                                                    {% trans "Sem Vagas Disponíveis" %}
-                                                {% elif not curso.possui_turmas_ativas %}
-                                                    {% trans "Sem Turmas Ativas" %}
-                                                {% else %}
-                                                    {% trans "Inscrições Encerradas" %}
-                                                {% endif %}
-                                            </button>
-                                            
-                                            <div class="alert alert-warning d-flex align-items-center gap-2 p-3 mt-2 small text-start" style="border-radius: 12px; background-color: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.2); color: #856404; line-height: 1.4;">
-                                                <i class="feather-alert-triangle" style="font-size: 16px; min-width: 16px;"></i>
-                                                <span>
+                                            <button class="rbt-btn btn-secondary w-100 d-block text-center disabled" disabled style="opacity: 0.75; cursor: not-allowed;">
+                                                <span class="btn-text">
                                                     {% if curso.lotado %}
-                                                        {% trans "De momento todas as vagas para este curso foram preenchidas. Por favor, aguarde por novas vagas ou contacte o nosso suporte." %}
+                                                        {% trans "Sem Vagas Disponíveis" %}
                                                     {% elif not curso.possui_turmas_ativas %}
-                                                        {% trans "Não existem turmas ativas planeadas para este curso de momento. Contacte a instituição para mais informações." %}
+                                                        {% trans "Sem Turmas Ativas" %}
                                                     {% else %}
-                                                        {% trans "O período de inscrições para este curso já terminou ou ainda não iniciou." %}
+                                                        {% trans "Inscrições Encerradas" %}
                                                     {% endif %}
                                                 </span>
-                                            </div>
+                                            </button>
                                         {% else %}
-                                        <div class="add-to-cart-btn mt--20">
-                                            <a class="play-btn-primary" href="{% url 'ficha_inscricao' curso.id %}">
-                                                <i class="fas fa-plus"></i> Inscrever-se Agora
+                                            <a class="rbt-btn btn-gradient icon-hover w-100 d-block text-center" href="{% url 'ficha_inscricao' curso.id %}">
+                                                <span class="btn-text">{% trans "Inscrever-se Agora" %}</span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                             </a>
-                                        </div>
                                         {% endif %}
-                                        <button class="rbt-btn btn-border radius-round" onclick="toggleFavorite({{ curso.id }})">
-                                            <i class="feather-heart me-2"></i> Adicionar aos Favoritos
+                                    </div>
+
+                                    <div class="buy-now-btn mt--15">
+                                        <button class="rbt-btn btn-border icon-hover w-100 d-block text-center" onclick="toggleFavorite({{ curso.id }})">
+                                            <span class="btn-text"><i class="feather-heart me-2 text-danger"></i>{% trans "Adicionar aos Favoritos" %}</span>
                                         </button>
                                     </div>
 
-                                    <!-- Botões de Partilha Social -->
-                                    <div class="rbt-share-course-wrapper mt--30 pt--20 border-top">
-                                        <span class="small text-muted d-block mb-3 fw-bold">PARTILHAR ESTE CURSO:</span>
-                                        <div class="d-flex gap-3 flex-wrap">
-                                            <a href="https://api.whatsapp.com/send?text=Olha%20s%C3%B3%20este%20curso%20incr%C3%ADvel%20na%20EdukAngola:%20{{ curso.titulo|urlencode }}.%20Confira%20aqui:%20{{ request.build_absolute_uri|urlencode }}" target="_blank" class="rbt-btn btn-border btn-sm d-flex align-items-center justify-content-center rounded-circle social-share-btn" style="width: 45px; height: 45px; font-size: 18px; transition: all 0.3s ease;" title="Partilhar no WhatsApp">
-                                                <i class="fab fa-whatsapp" style="color: #25D366;"></i>
-                                            </a>
-                                            <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" target="_blank" class="rbt-btn btn-border btn-sm d-flex align-items-center justify-content-center rounded-circle social-share-btn" style="width: 45px; height: 45px; font-size: 18px; transition: all 0.3s ease;" title="Partilhar no LinkedIn">
-                                                <i class="fab fa-linkedin-in" style="color: #0077B5;"></i>
-                                            </a>
-                                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="rbt-btn btn-border btn-sm d-flex align-items-center justify-content-center rounded-circle social-share-btn" style="width: 45px; height: 45px; font-size: 18px; transition: all 0.3s ease;" title="Partilhar no Facebook">
-                                                <i class="fab fa-facebook-f" style="color: #1877F2;"></i>
-                                            </a>
-                                            <a href="#" onclick="copyCourseLink(event)" class="rbt-btn btn-border btn-sm d-flex align-items-center justify-content-center rounded-circle social-share-btn" style="width: 45px; height: 45px; font-size: 18px; transition: all 0.3s ease;" title="Copiar Link">
-                                                <i class="fas fa-link"></i>
-                                            </a>
+                                    <div class="rbt-widget-details has-show-more mt--20">
+                                        <ul class="has-show-more-inner-content rbt-course-details-list-wrapper">
+                                            <li><span>{% trans "Carga Horária" %}</span><span class="rbt-feature-value rbt-badge-5">{{ curso.carga_horaria }}h</span></li>
+                                            <li><span>{% trans "Modalidade" %}</span><span class="rbt-feature-value rbt-badge-5">{{ curso.modalidade }}</span></li>
+                                            <li><span>{% trans "Inscritos" %}</span><span class="rbt-feature-value rbt-badge-5">{{ curso.inscricoes.count }}</span></li>
+                                            <li><span>{% trans "Idioma" %}</span><span class="rbt-feature-value rbt-badge-5">{{ curso.idioma|default:"Português" }}</span></li>
+                                            <li><span>{% trans "Certificado" %}</span><span class="rbt-feature-value rbt-badge-5">{% if curso.certificado %}{% trans "Sim" %}{% else %}{% trans "Não" %}{% endif %}</span></li>
+                                            <li><span>{% trans "Nível" %}</span><span class="rbt-feature-value rbt-badge-5">{{ curso.nivel|default:"Geral" }}</span></li>
+                                        </ul>
+                                        <div class="rbt-show-more-btn">{% trans "Ver Mais" %}</div>
+                                    </div>
+
+                                    <div class="social-share-wrapper mt--30 text-center">
+                                        <div class="rbt-post-share d-flex align-items-center justify-content-center">
+                                            <ul class="social-icon social-default transparent-with-border justify-content-center">
+                                                <li><a href="https://api.whatsapp.com/send?text=Confira%20este%20curso:%20{{ curso.titulo|urlencode }}%20{{ request.build_absolute_uri|urlencode }}" target="_blank"><i class="fab fa-whatsapp" style="color: #25D366;"></i></a></li>
+                                                <li><a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" target="_blank"><i class="fab fa-linkedin-in" style="color: #0077B5;"></i></a></li>
+                                                <li><a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank"><i class="fab fa-facebook-f" style="color: #1877F2;"></i></a></li>
+                                                <li><a href="#" onclick="copyCourseLink(event)"><i class="fas fa-link"></i></a></li>
+                                            </ul>
+                                        </div>
+                                        <hr class="mt--20">
+                                        <div class="contact-with-us text-center">
+                                            <p>{% trans "Dúvidas sobre o curso?" %}</p>
+                                            <p class="rbt-badge-2 mt--10 justify-content-center w-100"><i class="feather-phone mr--5"></i> {% trans "Contacte a Instituição" %}</p>
                                         </div>
                                     </div>
 
-                                    <div class="rbt-widget-details mt--30">
-                                        <ul class="list-unstyled d-flex flex-column gap-3">
-                                            <li class="d-flex justify-content-between"><span>Carga Horária:</span> <strong>{{ curso.carga_horaria }}h</strong></li>
-                                            <li class="d-flex justify-content-between"><span>Modalidade:</span> <strong>{{ curso.modalidade }}</strong></li>
-                                            <li class="d-flex justify-content-between"><span>Certificado:</span> <strong>{% if curso.certificado %}Sim{% else %}Não{% endif %}</strong></li>
-                                            <li class="d-flex justify-content-between"><span>Idioma:</span> <strong>{{ curso.idioma }}</strong></li>
-                                        </ul>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -567,7 +596,36 @@
                 </div>
             </div>
         </div>
-        <!-- End Course Details  -->
+        <!-- End Course Details Area -->
+
+        <!-- Start Separator -->
+        <div class="rbt-separator-mid">
+            <div class="container">
+                <hr class="rbt-separator m-0">
+            </div>
+        </div>
+        <!-- End Separator -->
+
+        <!-- Start Related Courses Area -->
+        {% if cursos_relacionados_lista or cursos_relacionados %}
+        <div class="rbt-related-course-area bg-color-white pt--60 rbt-section-gapBottom">
+            <div class="container">
+                <div class="section-title mb--30">
+                    <span class="subtitle bg-primary-opacity">{% trans "Mais Cursos Semelhantes" %}</span>
+                    <h4 class="title">{% trans "Cursos Relacionados" %}</h4>
+                </div>
+                <div class="row g-4">
+                    {% for item in cursos_relacionados_lista|default:cursos_relacionados|slice:":4" %}
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12 d-flex align-items-stretch">
+                        {% include 'components/curso_card.html' with curso=item %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <!-- End Related Courses Area -->
+
     </main>
 
     {% include 'include/footer.html' %}
@@ -576,7 +634,9 @@
     {% include 'include/java.html' %}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            feather.replace();
+            if (typeof feather !== 'undefined') {
+                feather.replace();
+            }
             if (document.getElementById('id_avaliacao')) {
                 updateStars(document.getElementById('id_avaliacao').value);
             }
@@ -587,23 +647,20 @@
             document.getElementById('replying-to').classList.remove('d-none');
             document.getElementById('replying-to-name').innerText = studentName;
             
-            // Focar no textarea e scroll suave
             const textarea = document.getElementById('comentario-textarea');
             textarea.focus();
             textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            
-            // Mudar placeholder para indicar resposta
-            textarea.placeholder = "Escreva sua resposta para " + studentName + "...";
+            textarea.placeholder = "{% trans 'Escreva sua resposta para' %} " + studentName + "...";
         }
 
         function cancelReply() {
             document.getElementById('id_parent_id').value = '';
             document.getElementById('replying-to').classList.add('d-none');
             const textarea = document.getElementById('comentario-textarea');
-            textarea.placeholder = " ";
+            textarea.placeholder = "{% trans 'Escreva aqui a sua dúvida ou comentário sobre o curso...' %}";
         }
 
-        // Lógica de Estrelas
+        // Lógica de Estrelas Interativa
         const stars = document.querySelectorAll('#star-rating i');
         const avaliacaoInput = document.getElementById('id_avaliacao');
 
@@ -633,17 +690,19 @@
                 const value = this.getAttribute('data-value');
                 avaliacaoInput.value = value;
                 updateStars(value);
-                // Fixar a seleção
                 this.parentElement.setAttribute('data-selected', value);
             });
         });
 
-        document.getElementById('star-rating').addEventListener('mouseleave', function() {
-            const selected = this.getAttribute('data-selected') || avaliacaoInput.value || 0;
-            updateStars(selected);
-        });
+        const starRatingContainer = document.getElementById('star-rating');
+        if (starRatingContainer) {
+            starRatingContainer.addEventListener('mouseleave', function() {
+                const selected = this.getAttribute('data-selected') || (avaliacaoInput ? avaliacaoInput.value : 5);
+                updateStars(selected);
+            });
+        }
 
-        // Carregar mais comentários
+        // Carregar mais comentários por AJAX
         const btnLoadMore = document.getElementById('btn-load-more');
         if (btnLoadMore) {
             btnLoadMore.addEventListener('click', function() {
@@ -651,7 +710,7 @@
                 const courseId = this.dataset.course;
                 const container = document.getElementById('comments-list');
                 
-                this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Carregando...';
+                this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> {% trans "Carregando..." %}';
                 
                 fetch(`/cursos/api/curso/${courseId}/comentarios/?offset=${offset}`)
                     .then(r => r.json())
@@ -659,7 +718,7 @@
                         data.comentarios.forEach(c => {
                             let starsHtml = '';
                             for (let i=1; i<=5; i++) {
-                                starsHtml += `<i class="fas fa-star ${i <= c.avaliacao ? 'text-warning' : 'text-muted'} x-small"></i> `;
+                                starsHtml += `<i class="fas fa-star ${i <= c.avaliacao ? 'text-warning' : 'text-muted'}" style="font-size: 12px; color: ${i <= c.avaliacao ? '#ff9d2d' : ''} !important;"></i> `;
                             }
                             
                             let repliesHtml = '';
@@ -667,14 +726,14 @@
                                 repliesHtml = '<div class="replies-container">';
                                 c.respostas_comunidade.forEach(r => {
                                     repliesHtml += `
-                                        <div class="single-comment bg-light-opacity p-3 border-0 mb-3">
+                                        <div class="single-comment p-3 border-0 bg-light mb-2">
                                             <div class="d-flex gap-2">
-                                                <div class="avatar d-flex align-items-center justify-content-center" style="min-width: 35px; height: 35px; border-radius: 50%; background: #eee;">
+                                                <div class="avatar d-flex align-items-center justify-content-center flex-shrink-0" style="width: 35px; height: 35px; border-radius: 50%; background: #e5e7eb;">
                                                     ${r.foto ? `<img src="${r.foto}" class="rounded-circle w-100 h-100" style="object-fit: cover;">` : '<i class="feather-user small"></i>'}
                                                 </div>
                                                 <div class="flex-grow-1">
-                                                    <h6 class="mb-0 small">${r.aluno}</h6>
-                                                    <p class="text-body x-small mb-0">${r.comentario}</p>
+                                                    <h6 class="mb-0 small fw-bold">${r.aluno}</h6>
+                                                    <p class="text-body small mb-0">${r.comentario}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -686,12 +745,12 @@
                             let replyBoxHtml = '';
                             if (c.resposta) {
                                 replyBoxHtml = `
-                                    <div class="reply-box mt-3 p-3 rounded" style="background: var(--color-primary-opacity); border-left: 4px solid var(--color-primary);">
+                                    <div class="reply-box mt-3 p-3 rounded-3" style="background: rgba(124, 58, 237, 0.05); border-left: 4px solid var(--color-primary);">
                                         <div class="d-flex align-items-center gap-2 mb-1">
                                             <i class="feather-corner-down-right text-primary small"></i>
-                                            <strong class="small text-primary">Resposta do Centro</strong>
+                                            <strong class="small text-primary">{% trans "Resposta do Centro de Formação" %}</strong>
                                         </div>
-                                        <p class="mb-0 small italic">${c.resposta}</p>
+                                        <p class="mb-0 small text-body font-italic">${c.resposta}</p>
                                         <div class="text-end mt-1">
                                             <small class="text-muted" style="font-size: 10px;">${c.resposta_data}</small>
                                         </div>
@@ -700,22 +759,22 @@
                             }
 
                             const html = `
-                                <div class="single-comment bg-white-override shadow-sm">
+                                <div class="single-comment shadow-sm">
                                     <div class="d-flex gap-3">
-                                        <div class="avatar shadow-sm d-flex align-items-center justify-content-center" style="min-width: 50px; height: 50px; border-radius: 50%; background: var(--color-primary-opacity); color: var(--color-primary);">
+                                        <div class="avatar shadow-sm d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; border-radius: 50%; background: var(--color-primary-opacity); color: var(--color-primary);">
                                             ${c.foto ? `<img src="${c.foto}" class="rounded-circle w-100 h-100" style="object-fit: cover;">` : '<i class="feather-user"></i>'}
                                         </div>
                                         <div class="comment-content flex-grow-1">
                                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <h6 class="mb-0">${c.aluno}</h6>
-                                                <span class="text-muted" style="font-size: 11px;">${c.data}</span>
+                                                <h6 class="mb-0 fw-bold">${c.aluno}</h6>
+                                                <span class="text-muted small" style="font-size: 11px;">${c.data}</span>
                                             </div>
                                             <div class="rating mb-2">${starsHtml}</div>
-                                            <p class="text-body small mb-2">${c.comentario}</p>
+                                            <p class="text-body mb-2" style="font-size: 0.95rem;">${c.comentario}</p>
                                             
                                             <div class="d-flex gap-3">
-                                                <a href="javascript:void(0)" onclick="prepareReply(${c.id}, '${c.aluno}')" class="rbt-btn-link small fw-bold">
-                                                    <i class="feather-corner-up-left me-1"></i> Responder
+                                                <a href="javascript:void(0)" onclick="prepareReply(${c.id}, '${c.aluno}')" class="rbt-btn-link small fw-bold text-decoration-none">
+                                                    <i class="feather-corner-up-left me-1"></i> {% trans "Responder" %}
                                                 </a>
                                             </div>
 
@@ -729,12 +788,14 @@
                         });
                         
                         this.dataset.offset = parseInt(offset) + data.comentarios.length;
-                        this.innerHTML = 'Ver mais comentários <i class="feather-chevron-down ms-2"></i>';
+                        this.innerHTML = '{% trans "Ver mais comentários" %} <i class="feather-chevron-down ms-2"></i>';
                         
                         if (!data.has_more) {
                             this.parentElement.remove();
                         }
-                        feather.replace();
+                        if (typeof feather !== 'undefined') {
+                            feather.replace();
+                        }
                     });
             });
         }

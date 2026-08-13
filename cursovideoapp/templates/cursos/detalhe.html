@@ -970,7 +970,7 @@
                             <div class="swiper-slide">
                                 <div class="rbt-card variation-01 rbt-hover">
                                     <div class="rbt-card-img">
-                                        <a href="{% url 'detalhe_curso' curso_recomendado.slug %}">
+                                        <a href="{% url 'cursovideoapp:detalhe_curso' slug=curso_recomendado.slug %}">
                                             {% if curso_recomendado.capa %}
                                             <img src="{{ curso_recomendado.capa.url }}"
                                                 alt="{{ curso_recomendado.titulo }}">
@@ -983,7 +983,7 @@
                                     <div class="rbt-card-body">
                                         <h4 class="rbt-card-title">
                                             <a style="font-size: 18px;"
-                                                href="{% url 'detalhe_curso' curso_recomendado.slug %}">{{
+                                                href="{% url 'cursovideoapp:detalhe_curso' slug=curso_recomendado.slug %}">{{
                                                 curso_recomendado.titulo|truncatewords:5 }}</a>
                                         </h4>
 
@@ -1000,7 +1000,7 @@
                                                 <span class="current-price">Grátis</span>
                                             </div>
                                             <a class="rbt-btn-link"
-                                                href="{% url 'detalhe_curso' curso_recomendado.slug %}">
+                                                href="{% url 'cursovideoapp:detalhe_curso' slug=curso_recomendado.slug %}">
                                                 Ver Curso
                                             </a>
                                         </div>

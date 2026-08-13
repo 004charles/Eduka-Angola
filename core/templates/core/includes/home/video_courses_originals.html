@@ -18,7 +18,7 @@
             <div class="col-lg-4 col-md-6 col-sm-12 col-12">
                 <div class="rbt-card variation-01 rbt-hover">
                     <div class="rbt-card-img">
-                        <a href="{% url 'detalhe_curso' curso.slug %}">
+                        <a href="{% url 'cursovideoapp:detalhe_curso' slug=curso.slug %}">
                             {% if curso.imagem %}
                                 <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}">
                             {% else %}
@@ -34,7 +34,7 @@
                             <li><i class="feather-book"></i>{{ curso.aulas.count }} Aulas</li>
                             <li><i class="feather-users"></i>{{ curso.visualizacoes }} Visualizações</li>
                         </ul>
-                        <h4 class="rbt-card-title"><a href="{% url 'detalhe_curso' curso.slug %}">{{ curso.titulo }}</a></h4>
+                        <h4 class="rbt-card-title"><a href="{% url 'cursovideoapp:detalhe_curso' slug=curso.slug %}">{{ curso.titulo }}</a></h4>
                         <p class="rbt-card-text">{{ curso.descricao|truncatewords:12 }}</p>
                         
                         <div class="rbt-card-bottom">
@@ -45,7 +45,7 @@
                                     <span class="current-price">{{ curso.preco }} AOA</span>
                                 {% endif %}
                             </div>
-                            <a class="rbt-btn-link" href="{% url 'detalhe_curso' curso.slug %}">Assistir <i class="feather-arrow-right"></i></a>
+                            <a class="rbt-btn-link" href="{% url 'cursovideoapp:detalhe_curso' slug=curso.slug %}">Assistir <i class="feather-arrow-right"></i></a>
                         </div>
                     </div>
                 </div>

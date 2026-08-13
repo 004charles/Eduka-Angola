@@ -21,20 +21,12 @@
     <div class="rbt-card-img">
         {% if model_name == 'Curso_video' %}
             <a href="{% url 'cursovideoapp:detalhe_curso' slug=curso.slug %}">
-                {% if curso.capa %}
-                    <img src="{{ curso.capa.url }}" alt="{{ curso.titulo }}" style="height: 180px; object-fit: cover;">
-                {% else %}
-                    <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{ curso.titulo }}" style="height: 180px; object-fit: cover;">
-                {% endif %}
+                <img src="{{ curso.get_imagem_url }}" alt="{{ curso.titulo }}" style="height: 150px; width: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='{% static 'assets/images/course/course-01.jpg' %}';">
             </a>
 
         {% else %}
             <a href="{% url 'curso_detalhe' id=curso.id %}">
-                {% if curso.imagem %}
-                    <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}" style="height: 180px; object-fit: cover;">
-                {% else %}
-                    <img src="{% static 'assets/images/course/default-course.jpg' %}" alt="{{ curso.titulo }}" style="height: 180px; object-fit: cover;">
-                {% endif %}
+                <img src="{{ curso.get_imagem_url }}" alt="{{ curso.titulo }}" style="height: 150px; width: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='{% static 'assets/images/course/course-01.jpg' %}';">
             </a>
 
         {% endif %}

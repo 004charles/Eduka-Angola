@@ -8,44 +8,12 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>EdukAngola | {% block title %}{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="theme-color" content="#ffffff">
-    <link rel="manifest" href="{% static 'manifest.json' %}">
-    <link rel="apple-touch-icon" href="{% static 'assets/images/icons/pwa-192x192.png' %}">
-    
-    <!-- Configurações para iOS Safari (Comportamento de App Nativo) -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="EdukAngola">
-
     {% include 'include/css.html' %}
     {% block extra_css %}{% endblock %}
 </head>
 
 <body class="rbt-header-sticky">
     
-    <!-- PWA Native Splash Screen -->
-    <div id="pwa-splash-screen" class="pwa-splash-screen">
-        <div class="splash-logo-wrapper">
-            <img src="{% static 'assets/images/logo/logo1.png' %}?v=2" alt="EdukAngola Logo" class="splash-logo">
-        </div>
-        <div class="splash-spinner"></div>
-    </div>
-
-    <!-- PWA Install Banner -->
-    <div id="pwa-install-banner" style="display: none; position: fixed; bottom: 0; left: 0; width: 100%; background-color: #ffffff; box-shadow: 0 -4px 15px rgba(0,0,0,0.1); z-index: 99999; padding: 15px; flex-direction: row; justify-content: space-between; align-items: center; border-top-left-radius: 15px; border-top-right-radius: 15px;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <img src="{% static 'assets/images/icons/pwa-192x192.png' %}" alt="EdukAngola" style="width: 50px; height: 50px; border-radius: 12px; object-fit: cover;">
-            <div>
-                <h6 style="margin: 0; font-size: 15px; font-weight: bold; color: #1f1f25;">EdukAngola</h6>
-                <p style="margin: 0; font-size: 12px; color: #757589; line-height: 1.2; margin-top: 2px;">Instale o app oficial para uma melhor experiência.</p>
-            </div>
-        </div>
-        <div style="display: flex; gap: 15px; align-items: center;">
-            <button id="pwa-install-close" style="background: none; border: none; color: #757589; font-size: 24px; cursor: pointer; padding: 0;">&times;</button>
-            <button id="pwa-install-btn" class="rbt-btn btn-sm btn-gradient" style="padding: 0 16px; height: 36px; line-height: 36px; font-size: 13px; font-weight: bold; border-radius: 6px;">Instalar</button>
-        </div>
-    </div>
-
     {% include 'include/header.html' %}
 
     <main class="rbt-main-wrapper">
@@ -58,66 +26,6 @@
 
     {% block extra_js %}{% endblock %}
 
-    <!-- PWA Service Worker Registration -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
-            });
-        }
-
-        // Lógica do Banner de Instalação PWA
-        let deferredPrompt;
-        const installBanner = document.getElementById('pwa-install-banner');
-        const installBtn = document.getElementById('pwa-install-btn');
-        const closeBtn = document.getElementById('pwa-install-close');
-
-        // Styles specific for PWA native feel (standalone mode)
-        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-            document.body.classList.add('is-pwa-standalone');
-        }
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Impede o Chrome de exibir o prompt padrão
-            e.preventDefault();
-            // Guarda o evento para usá-lo quando clicarmos no botão
-            deferredPrompt = e;
-            // Exibe o nosso banner customizado se o usuário ainda não o tiver fechado nesta sessão
-            if (!sessionStorage.getItem('pwaPromptDismissed')) {
-                installBanner.style.display = 'flex';
-            }
-        });
-
-        installBtn.addEventListener('click', async () => {
-            // Esconde o banner
-            installBanner.style.display = 'none';
-            // Se o evento estiver guardado, aciona o prompt nativo
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                // Aguarda a resposta do usuário
-                const { outcome } = await deferredPrompt.userChoice;
-                console.log(`Escolha de instalação: ${outcome}`);
-                // Limpa a variável
-                deferredPrompt = null;
-            }
-        });
-
-        closeBtn.addEventListener('click', () => {
-            installBanner.style.display = 'none';
-            sessionStorage.setItem('pwaPromptDismissed', 'true');
-        });
-        
-        // Esconde o banner permanentemente se o app já foi instalado
-        window.addEventListener('appinstalled', (evt) => {
-            installBanner.style.display = 'none';
-        });
-    </script>
 </body>
 
 </html>

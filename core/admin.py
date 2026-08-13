@@ -2,7 +2,7 @@ from django.contrib import admin
 from unfold.admin import ModelAdmin as UnfoldModelAdmin
 from unfold.admin import TabularInline as UnfoldTabularInline
 from unfold.admin import StackedInline as UnfoldStackedInline
-from .models import SobreNos, MensagemContato, Galeria, Publicidade
+from .models import SobreNos, MensagemContato, Galeria, Publicidade, ClienteAPIKey
 
 @admin.register(Galeria)
 class GaleriaAdmin(UnfoldModelAdmin):
@@ -34,3 +34,11 @@ class PublicidadeAdmin(UnfoldModelAdmin):
     list_display = ('titulo', 'ativo', 'data_criacao')
     list_filter = ('ativo',)
     search_fields = ('titulo', 'descricao')
+
+@admin.register(ClienteAPIKey)
+class ClienteAPIKeyAdmin(UnfoldModelAdmin):
+    list_display = ('nome_cliente', 'chave', 'ativo', 'criado_em', 'ultimo_uso')
+    list_filter = ('ativo', 'criado_em')
+    search_fields = ('nome_cliente',)
+    readonly_fields = ('chave', 'criado_em', 'ultimo_uso')
+

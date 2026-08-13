@@ -1,75 +1,260 @@
 {% load static %}
+{% load i18n %}
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="{{ request.LANGUAGE_CODE|default:'pt' }}">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Edukangola | Recuperar Senha</title>
+    <title>EdukAngola | {% trans "Recuperar Senha" %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <!-- Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
+    
     {% include 'include/css.html' %}
+    
+    <style>
+      :root {
+        --color-primary: #2f57ef;
+        --color-heading: #192335;
+        --color-body: #6b7385;
+        --color-border: #e6e3f1;
+        --color-bg: #F5F7FA;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--color-bg);
+        font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: var(--color-body);
+        -webkit-font-smoothing: antialiased;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      .login-page-wrapper {
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        padding: 40px 20px;
+      }
+
+      .glow-circle-1 {
+        position: absolute;
+        top: -280px;
+        left: 50%;
+        margin-left: -400px;
+        width: 800px;
+        height: 800px;
+        border-radius: 999px;
+        background: radial-gradient(circle, rgba(47,87,239,0.12) 0%, rgba(47,87,239,0) 68%);
+        pointer-events: none;
+      }
+      .glow-circle-2 {
+        position: absolute;
+        bottom: -320px;
+        right: -160px;
+        width: 720px;
+        height: 720px;
+        border-radius: 999px;
+        background: radial-gradient(circle, rgba(185,102,231,0.12) 0%, rgba(185,102,231,0) 68%);
+        pointer-events: none;
+      }
+
+      .top-lang-pill {
+        position: absolute;
+        top: 32px;
+        right: 40px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        padding: 7px 15px;
+        border: 1px solid var(--color-border);
+        border-radius: 999px;
+        background: #ffffff;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        z-index: 10;
+      }
+
+      .login-card-box {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        max-width: 430px;
+      }
+
+      .login-card-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 28px;
+        text-align: center;
+      }
+
+      .login-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 700;
+        font-size: 28px;
+        letter-spacing: -0.03em;
+        color: var(--color-heading);
+        margin: 0 0 8px 0;
+      }
+
+      .login-subtitle {
+        font-size: 14.5px;
+        color: var(--color-body);
+        margin: 0;
+      }
+
+      .login-form-card {
+        background: #ffffff;
+        border: 1px solid var(--color-border);
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 24px 60px -30px rgba(15,23,42,0.18);
+      }
+
+      .form-field-group {
+        margin-bottom: 18px;
+      }
+
+      .field-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: #0f172a;
+        margin-bottom: 8px;
+      }
+
+      .input-control {
+        width: 100%;
+        height: 50px;
+        border: 1px solid var(--color-border);
+        border-radius: 11px;
+        background: #F9F9FF;
+        font-family: 'Manrope', sans-serif;
+        font-size: 14.5px;
+        color: #0f172a;
+        padding: 0 16px;
+        outline: none;
+        transition: all 0.2s ease;
+      }
+      .input-control:focus {
+        border-color: var(--color-primary);
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(47,87,239,0.12);
+      }
+
+      .btn-primary-login {
+        width: 100%;
+        height: 52px;
+        border: none;
+        border-radius: 11px;
+        background: var(--color-primary);
+        color: #ffffff;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 10px 24px -10px rgba(47,87,239,0.8);
+        transition: all 0.2s ease;
+      }
+      .btn-primary-login:hover {
+        background: #1f42c9;
+        transform: translateY(-1px);
+        box-shadow: 0 12px 28px -8px rgba(47,87,239,0.9);
+      }
+
+      .footer-bottom-links {
+        position: absolute;
+        bottom: 24px;
+        left: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 22px;
+        font-size: 12.5px;
+        color: #9aa1b1;
+      }
+      .footer-bottom-links a {
+        color: #9aa1b1;
+        text-decoration: none;
+      }
+      .footer-bottom-links a:hover {
+        color: var(--color-primary);
+      }
+    </style>
 </head>
+<body>
 
-<body class="rbt-header-sticky">
-    {% include 'include/header.html' %}
+    <div class="top-lang-pill">
+        <a href="{% url 'login_aluno' %}" class="fw-bold me-2 text-primary" style="text-decoration: none;"><i class="feather-arrow-left me-1"></i> Voltar</a>
+        <span class="fw-bold text-dark">PT</span>
+        <span class="text-muted">·</span>
+        <span class="text-muted">EN</span>
+    </div>
 
-    <div class="rbt-breadcrumb-default ptb--100 ptb_md--50 ptb_sm--30 bg-gradient-1">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="breadcrumb-inner text-center">
-                        <h2 class="title">Recuperar Senha</h2>
-                        <p class="welcome-message">Digite seu email para receber um código de recuperação.</p>
-                    </div>
-                </div>
+    <div class="login-page-wrapper">
+        <div class="glow-circle-1"></div>
+        <div class="glow-circle-2"></div>
+
+        <div class="login-card-box">
+            <div class="login-card-header">
+                <a href="{% url 'index' %}" class="d-inline-block mb-3">
+                    <img src="{% static 'assets/images/logo/logo1.png' %}" alt="EdukAngola" style="max-height: 75px; width: auto; object-fit: contain;">
+                </a>
+                <h1 class="login-title">Recuperar Senha</h1>
+                <p class="login-subtitle">Digite o seu e-mail cadastrado para receber o código.</p>
             </div>
+
+            <div class="login-form-card">
+                {% if message %}
+                    <div class="alert alert-info border-0 rounded-3 shadow-sm py-2 px-3 fs-7 mb-3" role="alert">
+                        <i class="feather-info me-2"></i> {{ message }}
+                    </div>
+                {% endif %}
+
+                <form method="POST" action="{% url 'esqueci_senha' %}">
+                    {% csrf_token %}
+
+                    <div class="form-field-group">
+                        <label class="field-label">Email cadastrado</label>
+                        <input type="email" name="email" placeholder="nome@email.com" required class="input-control" autocomplete="email">
+                    </div>
+
+                    <button type="submit" class="btn-primary-login">Enviar Código de Recuperação</button>
+                </form>
+            </div>
+
+            <p class="text-center mt-4 mb-0" style="font-size: 14px;">
+                Lembrou-se da palavra-passe? <a href="{% url 'login_aluno' %}" class="text-primary fw-bold text-decoration-none">Voltar ao login</a>
+            </p>
+        </div>
+
+        <div class="footer-bottom-links">
+            <span>© 2026 EdukAngola</span>
+            <a href="#">Termos</a>
+            <a href="#">Privacidade</a>
+            <a href="{% url 'faq' %}">Ajuda</a>
         </div>
     </div>
 
-    <div class="rbt-elements-area bg-color-white rbt-section-gap"
-        style="display: flex; align-items: center; min-height: 50vh;">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-6">
-                    <div class="rbt-contact-form contact-form-style-1 mx-auto">
-                        <h3 class="title text-center mb-4">Esqueci Minha Senha</h3>
-
-                        {% if message %}
-                        <div class="alert alert-info" role="alert">
-                            <i class="feather-info me-2"></i> {{ message }}
-                        </div>
-                        {% endif %}
-
-                        <form method="POST" action="{% url 'esqueci_senha' %}">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <input name="email" type="email" required placeholder="Digite seu e-mail cadastrado" />
-                                <label>E-mail *</label>
-                                <span class="focus-border"></span>
-                            </div>
-
-                            <div class="form-submit-group">
-                                <button type="submit" class="rbt-btn btn-md btn-gradient hover-icon-reverse w-100">
-                                    <span class="icon-reverse-wrapper">
-                                        <span class="btn-text">Enviar Código</span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                    </span>
-                                </button>
-                            </div>
-                        </form>
-
-                        <div class="text-center mt-3">
-                            <a href="{% url 'login_aluno' %}" class="rbt-btn-link">Voltar para o Login</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {% include 'include/footer.html' %}
     {% include 'include/java.html' %}
 </body>
-
 </html>

@@ -29,13 +29,35 @@ class ConfiguracaoPlataforma(models.Model):
     """
     Configurações globais da plataforma, como taxas e comissões.
     Implementado como Singleton (apenas um registo ativo).
+    Permite alterar dinamicamente a comissão no Painel de Administração.
     """
-    taxa_markup = models.DecimalField(_('Taxa de Markup (%)'), max_digits=5, decimal_places=2, default=20.00)
-    taxa_comissao = models.DecimalField(_('Taxa de Comissão (%)'), max_digits=5, decimal_places=2, default=20.00)
+    taxa_comissao = models.DecimalField(
+        _('Comissão Padrão de Inscrição em Cursos (%)'), 
+        max_digits=5, 
+        decimal_places=2, 
+        default=15.00,
+        help_text=_('Percentagem retida pelo EdukAngola nas inscrições de cursos presenciais/centros. Ex: 15.00, 8.00 ou 5.00.')
+    )
+    taxa_comissao_ead = models.DecimalField(
+        _('Comissão em Cursos Online EAD (%)'), 
+        max_digits=5, 
+        decimal_places=2, 
+        default=20.00,
+        help_text=_('Percentagem da plataforma em vendas de vídeo-cursos gravados.')
+    )
+    taxa_gestao_bolsas = models.DecimalField(
+        _('Taxa de Gestão do Fundo de Bolsas (%)'), 
+        max_digits=5, 
+        decimal_places=2, 
+        default=10.00,
+        help_text=_('Taxa retida na alocação de fundos de patrocínio corporativo.')
+    )
+    taxa_markup = models.DecimalField(_('Taxa de Markup Padrão (%)'), max_digits=5, decimal_places=2, default=20.00)
+    data_atualizacao = models.DateTimeField(_('Última Atualização'), auto_now=True)
 
     class Meta:
-        verbose_name = _('Configuração da Plataforma')
-        verbose_name_plural = _('Configurações da Plataforma')
+        verbose_name = _('Configuração de Taxas e Comissões')
+        verbose_name_plural = _('Configurações de Taxas e Comissões')
 
     def save(self, *args, **kwargs):
         self.pk = 1
@@ -43,8 +65,19 @@ class ConfiguracaoPlataforma(models.Model):
 
     @classmethod
     def load(cls):
-        obj, created = cls.objects.get_or_create(pk=1)
+        obj, created = cls.objects.get_or_create(
+            pk=1,
+            defaults={
+                'taxa_comissao': 15.00,
+                'taxa_comissao_ead': 20.00,
+                'taxa_gestao_bolsas': 10.00,
+                'taxa_markup': 20.00
+            }
+        )
         return obj
+
+    def __str__(self):
+        return f"Configuração Global (Comissão Atual: {self.taxa_comissao}%)"
 
 class CategoriaCentro(models.Model):
     """Categorias globais para centros de formação (Tecnologia, Línguas, etc.)"""
@@ -582,6 +615,12 @@ class Parceria(models.Model):
     logo = models.ImageField(_('Logo'), upload_to='parcerias/', blank=True)
     website = models.URLField(_('Website'), blank=True)
     tipo_parceria = models.CharField(_('Tipo de Parceria'), max_length=100)
+    descricao = models.TextField(_('Descrição'), blank=True)
+    localizacao = models.CharField(_('Localização'), max_length=200, blank=True)
+    contacto = models.CharField(_('Contacto'), max_length=50, blank=True)
+    parceiro_externo = models.BooleanField(_('Parceiro Externo'), default=False, db_index=True)
+    aceita_candidaturas = models.BooleanField(_('Aceita Candidaturas'), default=False)
+    total_candidatos = models.PositiveIntegerField(_('Total de Candidatos'), default=0)
     ativa = models.BooleanField(_('Ativa'), default=True)
 
     class Meta:
@@ -590,6 +629,74 @@ class Parceria(models.Model):
 
     def __str__(self):
         return f"{self.nome_empresa} - {self.centro.nome}"
+
+
+class CandidaturaExterna(models.Model):
+    STATUS_CHOICES = [
+        ('P', 'Pendente'),
+        ('A', 'Aprovada'),
+        ('R', 'Rejeitada'),
+        ('C', 'Cancelada'),
+    ]
+
+    parceria = models.ForeignKey(
+        Parceria,
+        on_delete=models.CASCADE,
+        related_name='candidaturas',
+        verbose_name=_('Parceria')
+    )
+    aluno = models.ForeignKey(
+        'usuarios.Aluno',
+        on_delete=models.CASCADE,
+        related_name='candidaturas_externas',
+        verbose_name=_('Aluno')
+    )
+    curso = models.ForeignKey(
+        'cursos_app.Curso',
+        on_delete=models.CASCADE,
+        related_name='candidaturas_externas',
+        verbose_name=_('Curso')
+    )
+    nome_completo = models.CharField(_('Nome Completo'), max_length=150)
+    email = models.EmailField(_('Email'))
+    telefone = models.CharField(_('Telefone'), max_length=20)
+    bi = models.CharField(_('BI/Nº Identificação'), max_length=30, blank=True)
+    documento_inscricao = models.FileField(
+        _('Documento de Inscrição'),
+        upload_to='candidaturas/documentos/',
+        blank=True, null=True
+    )
+    comprovativo_pagamento = models.FileField(
+        _('Comprovativo de Pagamento'),
+        upload_to='candidaturas/comprovantes/',
+        blank=True, null=True
+    )
+    status = models.CharField(
+        _('Status'),
+        max_length=1,
+        choices=STATUS_CHOICES,
+        default='P',
+        db_index=True
+    )
+    observacoes = models.TextField(_('Observações'), blank=True)
+    resposta_admin = models.TextField(_('Resposta do Admin'), blank=True)
+    data_criacao = models.DateTimeField(_('Data de Criação'), auto_now_add=True, db_index=True)
+    data_atualizacao = models.DateTimeField(_('Data de Atualização'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Candidatura Externa')
+        verbose_name_plural = _('Candidaturas Externas')
+        ordering = ['-data_criacao']
+
+    def __str__(self):
+        return f"{self.nome_completo} → {self.curso.titulo} ({self.get_status_display()})"
+
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        if is_new:
+            self.parceria.total_candidatos += 1
+            self.parceria.save(update_fields=['total_candidatos'])
 
 class Evento(models.Model):
     centro = models.ForeignKey(

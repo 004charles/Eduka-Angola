@@ -43,3 +43,20 @@ class ResultadoExercicioSerializer(serializers.ModelSerializer):
     class Meta:
         model = ResultadoExercicio
         fields = ['id', 'aluno', 'exercicio', 'pontuacao', 'acertos', 'total_questoes', 'data_conclusao']
+
+
+from .models import ProgressoAula, NotaAula
+
+class ProgressoAulaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProgressoAula
+        fields = ['id', 'aula', 'concluida', 'tempo_assistido', 'data_ultimo_acesso']
+        read_only_fields = ['aula']
+
+
+class NotaAulaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NotaAula
+        fields = ['id', 'aula', 'conteudo', 'data_criacao', 'data_atualizacao']
+        read_only_fields = ['aula']
+

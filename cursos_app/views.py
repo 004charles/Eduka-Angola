@@ -883,13 +883,13 @@ def excluir_comentario(request, comentario_id):
         if comentario.curso:
             return redirect('curso_detalhe', id=comentario.curso.id)
         else:
-            return redirect('detalhe_curso', slug=comentario.curso_video.slug)
+            return redirect('cursovideoapp:detalhe_curso', slug=comentario.curso_video.slug)
     
     # Salvar referência para redirecionamento antes de excluir
     if comentario.curso:
         url_redirecionamento = redirect('curso_detalhe', id=comentario.curso.id)
     else:
-        url_redirecionamento = redirect('detalhe_curso', slug=comentario.curso_video.slug)
+        url_redirecionamento = redirect('cursovideoapp:detalhe_curso', slug=comentario.curso_video.slug)
         
     comentario.delete()
     
@@ -906,7 +906,7 @@ def denunciar_comentario(request, comentario_id):
         if comentario.curso:
             return redirect('curso_detalhe', id=comentario.curso.id)
         else:
-            return redirect('detalhe_curso', slug=comentario.curso_video.slug)
+            return redirect('cursovideoapp:detalhe_curso', slug=comentario.curso_video.slug)
     
     comentario.denunciar()
     
@@ -915,7 +915,7 @@ def denunciar_comentario(request, comentario_id):
     if comentario.curso:
         return redirect('curso_detalhe', id=comentario.curso.id)
     else:
-        return redirect('detalhe_curso', slug=comentario.curso_video.slug)
+        return redirect('cursovideoapp:detalhe_curso', slug=comentario.curso_video.slug)
 
 def catalogo_cursos(request):
     """
@@ -1796,7 +1796,9 @@ def lista_centros(request):
         )
         
     if provincia:
-        centros_qs = centros_qs.filter(provincia=provincia)
+        centros_qs = centros_qs.filter(
+            Q(provincia__icontains=provincia) | Q(cidade__icontains=provincia)
+        )
 
     # --- Sessões Temáticas ---
     sessoes = []
@@ -1847,11 +1849,20 @@ def lista_centros(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    provincias = [
+    provincias_oficiais = [
         "Bengo", "Benguela", "Bié", "Cabinda", "Cuando Cubango", "Cuanza Norte", 
         "Cuanza Sul", "Cunene", "Huambo", "Huíla", "Luanda", "Lunda Norte", 
         "Lunda Sul", "Malanje", "Moxico", "Namibe", "Uíge", "Zaire"
     ]
+    provincias_banco = list(
+        CentroDeFormacao.objects.filter(ativo=True)
+        .exclude(provincia__isnull=True)
+        .exclude(provincia='')
+        .values_list('provincia', flat=True)
+        .distinct()
+    )
+    # Combina mantendo a ordem oficial e adiciona quaisquer outras províncias/países cadastrados
+    provincias = provincias_oficiais + [p for p in provincias_banco if p not in provincias_oficiais]
     
     context = {
         'page_obj': page_obj,

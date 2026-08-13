@@ -258,12 +258,13 @@ STATICFILES_DIRS = [
 
 CKEDITOR_UPLOAD_PATH = 'ckeditor/uploads/'
 
-# Configuração de Armazenamento Dinâmico (Cloudinary em produção / FileSystem local)
+# Configuração de Armazenamento Dinâmico (Cloudinary em produção / FileSystem local em dev)
+USE_CLOUDINARY = config('USE_CLOUDINARY', default=False, cast=bool)
 CLOUDINARY_CLOUD_NAME = config('CLOUDINARY_CLOUD_NAME', default='')
 CLOUDINARY_API_KEY = config('CLOUDINARY_API_KEY', default='')
 CLOUDINARY_API_SECRET = config('CLOUDINARY_API_SECRET', default='')
 
-if CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET:
+if USE_CLOUDINARY and CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET:
     CLOUDINARY_STORAGE = {
         'CLOUD_NAME': CLOUDINARY_CLOUD_NAME,
         'API_KEY': CLOUDINARY_API_KEY,
@@ -325,10 +326,14 @@ EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'core.authentication.ClienteAPIKeyAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
     ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+    'EXCEPTION_HANDLER': 'core.exceptions.custom_exception_handler',
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -420,27 +425,29 @@ SITE_DOMAIN = config('SITE_DOMAIN', default='http://localhost:8000')
 print("--- DJANGO WEB SERVER STARTING: LOCAL STORAGE ENFORCED IN DEV ---")
 
 
-# Configuração do Django Unfold
+# Configuração do Django Unfold (Área Administrativa Executiva & Profissional)
 UNFOLD = {
-    "SITE_TITLE": "EdukAngola Admin",
-    "SITE_HEADER": "Gestão EdukAngola",
+    "SITE_TITLE": "EdukAngola Administration",
+    "SITE_HEADER": "EdukAngola Admin",
     "SITE_URL": "/",
-    "SITE_ICON": "ki-solid ki-crown",
+    "SITE_LOGO": {
+        "light": lambda request: "/static/assets/images/logo/logo1.png",
+        "dark": lambda request: "/static/assets/images/logo/logo1.png",
+    },
     "DASHBOARD_CALLBACK": "core.views.dashboard_callback",
-    "THEME": "dark", # Usar dark mode por predefinição ou auto
     "COLORS": {
         "primary": {
-            "50": "238 242 255",
+            "50": "240 244 255",
             "100": "224 231 255",
             "200": "199 210 254",
             "300": "165 180 252",
             "400": "129 140 248",
-            "500": "99 102 241", # Cor primária do EdukAngola
-            "600": "79 70 229",
-            "700": "67 56 202",
-            "800": "55 48 163",
-            "900": "49 46 129",
-            "950": "30 27 75",
+            "500": "47 87 239",   # Azul EdukAngola (#2f57ef)
+            "600": "37 70 200",
+            "700": "27 55 160",
+            "800": "20 40 120",
+            "900": "15 30 90",
+            "950": "10 20 60",
         },
     },
 }

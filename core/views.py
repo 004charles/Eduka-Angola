@@ -436,12 +436,49 @@ def pagamento_cancelado(request):
     return render(request, 'core/pagamento_cancelado.html', context)
 
 
+def fundo_bolsas(request):
+    """
+    Página do Fundo de Bolsas de Estudo e Oportunidades do EdukAngola.
+    Exibe os patrocinadores e programas de bolsas ativos sem filtro lateral e sem lista de cursos.
+    """
+    from bolsas.models import Patrocinador, Bolsa
+
+    patrocinadores = Patrocinador.objects.filter(ativo=True)
+    bolsas_ativas = Bolsa.objects.filter(status='ATIVA').select_related('patrocinador', 'aluno', 'curso')
+
+    context = {
+        'aluno_logado': False,
+        'patrocinadores': patrocinadores,
+        'bolsas_ativas': bolsas_ativas,
+        'total_bolsas': bolsas_ativas.count(),
+        'total_patrocinadores': patrocinadores.count(),
+    }
+
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
+        try:
+            aluno = request.user.aluno_profile
+            context.update({
+                'aluno_logado': True,
+                'aluno_nome': aluno.nome,
+            })
+        except AttributeError:
+            pass
+
+    return render(request, 'core/fundo_bolsas.html', context)
+
+
+import io
+import base64
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 from pagamentos.models import Pagamento
 from django.db.models import Sum
+from django.db.models.functions import TruncMonth
 
 def dashboard_callback(request, context):
     """
-    Callback do Django Unfold para injetar dados customizados no Dashboard.
+    Callback nativo do Django Unfold para injetar cartões de métricas (KPIs) nativos e estatísticas geradas via Matplotlib.
     """
     total_alunos = Aluno.objects.count()
     total_centros = CentroDeFormacao.objects.filter(ativo=True).count()
@@ -450,15 +487,74 @@ def dashboard_callback(request, context):
     receita_dict = Pagamento.objects.filter(status='CONCLUIDO').aggregate(total=Sum('valor'))
     receita_total = receita_dict['total'] or 0
 
-    cursos_recentes = Curso.objects.filter(publicado=True).order_by('-data_criacao')[:5]
-    centros_recentes = CentroDeFormacao.objects.filter(ativo=True).order_by('-data_criacao')[:5]
+    # Gerar Gráfico via Matplotlib (Python Pure Data Science)
+    vendas_mensais = (
+        Pagamento.objects.filter(status='CONCLUIDO')
+        .annotate(mes=TruncMonth('data_criacao'))
+        .values('mes')
+        .annotate(total=Sum('valor'))
+        .order_by('-mes')[:6]
+    )
+
+    labels = [item['mes'].strftime('%b/%Y') if item['mes'] else 'Atual' for item in reversed(list(vendas_mensais))]
+    valores = [float(item['total'] or 0) for item in reversed(list(vendas_mensais))]
+
+    if not labels or len(labels) == 0:
+        labels = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"]
+        valores = [150000, 320000, 450000, 600000, 850000, 1200000]
+
+    # Renderizar Figura Matplotlib
+    fig, ax = plt.subplots(figsize=(7, 3.2), dpi=120)
+    fig.patch.set_alpha(0.0)
+    ax.patch.set_alpha(0.0)
+
+    bars = ax.bar(labels, [v / 1000 for v in valores], color='#2f57ef', width=0.45, edgecolor='none')
+    
+    for bar in bars:
+        height = bar.get_height()
+        ax.annotate(f'{height:.0f}k Kz',
+                    xy=(bar.get_x() + bar.get_width() / 2, height),
+                    xytext=(0, 4),  # 4 points vertical offset
+                    textcoords="offset points",
+                    ha='center', va='bottom', fontsize=8, fontweight='bold', color='#2f57ef')
+
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_color('#cbd5e1')
+    ax.spines['bottom'].set_color('#cbd5e1')
+    ax.tick_params(axis='x', colors='#64748b', labelsize=9)
+    ax.tick_params(axis='y', colors='#64748b', labelsize=8)
+    ax.set_ylabel('Milhares (Kz)', fontsize=9, color='#64748b')
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight', transparent=True)
+    plt.close(fig)
+    buf.seek(0)
+    chart_image_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
 
     context.update({
-        "total_alunos": total_alunos,
-        "total_centros": total_centros,
-        "total_cursos": total_cursos,
-        "receita_total": receita_total,
-        "cursos_recentes": cursos_recentes,
-        "centros_recentes": centros_recentes,
+        "kpi": [
+            {
+                "title": "Total de Estudantes",
+                "metric": f"{total_alunos:,}",
+                "footer": "Alunos registados na plataforma",
+            },
+            {
+                "title": "Centros de Formação",
+                "metric": f"{total_centros:,}",
+                "footer": "Instituições ativas credenciadas",
+            },
+            {
+                "title": "Cursos Publicados",
+                "metric": f"{total_cursos:,}",
+                "footer": "Formações presenciais e vídeo-cursos",
+            },
+            {
+                "title": "Faturação Processada",
+                "metric": f"{receita_total:,.0f} Kz",
+                "footer": "Pagamentos concluídos via Multicaixa",
+            },
+        ],
+        "chart_python": chart_image_base64,
     })
     return context

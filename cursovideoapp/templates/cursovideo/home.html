@@ -196,7 +196,7 @@
         }
 
         .swiper-slide {
-            width: 320px; /* Largura fixa para os cards no modo auto */
+            width: 250px; /* Largura reduzida para os cards */
             height: auto;
         }
 
@@ -608,7 +608,7 @@
                             <div class="swiper playSwiper-custom">
                                 <div class="swiper-wrapper">
                     {% for video in continuar_a_ver %}
-                    <div class="swiper-slide p-2" style="width: 320px;">
+                    <div class="swiper-slide p-2" style="width: 250px;">
                         {% include 'components/curso_card.html' with curso=video modo="aluno" %}
                     </div>
                     {% endfor %}
@@ -654,7 +654,7 @@
                             <div class="swiper playSwiper-custom">
                                 <div class="swiper-wrapper">
                     {% for video in meus_favoritos %}
-                    <div class="swiper-slide p-2" style="width: 320px;">
+                    <div class="swiper-slide p-2" style="width: 250px;">
                         {% include 'components/curso_card.html' with curso=video %}
                     </div>
                     {% endfor %}
@@ -702,7 +702,7 @@
                             <div class="swiper playSwiper-custom">
                                 <div class="swiper-wrapper">
                     {% for video in videos_recentes %}
-                    <div class="swiper-slide p-2" style="width: 320px;">
+                    <div class="swiper-slide p-2" style="width: 250px;">
                         {% include 'components/curso_card.html' with curso=video %}
                     </div>
                     {% endfor %}
@@ -753,7 +753,7 @@
                             <div class="swiper playSwiper-custom">
                                 <div class="swiper-wrapper">
                     {% for video in videos_populares %}
-                    <div class="swiper-slide p-2" style="width: 320px;">
+                    <div class="swiper-slide p-2" style="width: 250px;">
                         {% include 'components/curso_card.html' with curso=video %}
                     </div>
                     {% endfor %}
@@ -849,7 +849,7 @@
                             <div class="swiper playSwiper-custom">
                                 <div class="swiper-wrapper">
                     {% for video in videos_tecnologia %}
-                    <div class="swiper-slide p-2" style="width: 320px;">
+                    <div class="swiper-slide p-2" style="width: 250px;">
                         {% include 'components/curso_card.html' with curso=video %}
                     </div>
                     {% endfor %}
@@ -897,7 +897,7 @@
                             <div class="swiper playSwiper-custom">
                                 <div class="swiper-wrapper">
                     {% for video in videos_assistidos %}
-                    <div class="swiper-slide p-2" style="width: 320px;">
+                    <div class="swiper-slide p-2" style="width: 250px;">
                         {% include 'components/curso_card.html' with curso=video %}
                     </div>
                     {% endfor %}

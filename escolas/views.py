@@ -79,15 +79,61 @@ def lista_escolas(request):
     """
     Diretório geral de escolas.
     """
-    escolas = Escola.objects.filter(ativa=True).prefetch_related('cursos', 'perfil')
+    from django.core.paginator import Paginator
+    escolas_qs = Escola.objects.filter(ativa=True).prefetch_related('cursos', 'perfil')
     
-    # Simples busca
-    q = request.GET.get('q')
+    q = request.GET.get('q', '')
+    provincia = request.GET.get('provincia', '')
+    nivel = request.GET.get('nivel', '')
+    natureza = request.GET.get('natureza', '')
+    
     if q:
-        escolas = escolas.filter(Q(nome__icontains=q) | Q(municipio__icontains=q) | Q(cursos__nome__icontains=q)).distinct()
+        escolas_qs = escolas_qs.filter(
+            Q(nome__icontains=q) | Q(municipio__icontains=q) | Q(provincia__icontains=q) | Q(cursos__nome__icontains=q)
+        ).distinct()
+
+    if provincia:
+        escolas_qs = escolas_qs.filter(
+            Q(provincia__icontains=provincia) | Q(municipio__icontains=provincia)
+        ).distinct()
+
+    if nivel:
+        escolas_qs = escolas_qs.filter(
+            Q(cursos__nome__icontains=nivel) | 
+            Q(cursos__descricao__icontains=nivel) | 
+            Q(perfil__descricao__icontains=nivel) | 
+            Q(nome__icontains=nivel)
+        ).distinct()
+
+    if natureza:
+        # tipo_rede escolhas: PUBLICA, PRIVADA, COMPARTICIPADA
+        natureza_map = {
+            'Pública': 'PUBLIC',
+            'Privada': 'PRIVADA',
+            'Comparticipada': 'COMPARTICIPADA'
+        }
+        val = natureza_map.get(natureza, natureza)
+        escolas_qs = escolas_qs.filter(tipo_rede__icontains=val).distinct()
+
+    provincias_oficiais = [
+        "Bengo", "Benguela", "Bié", "Cabinda", "Cuando Cubango", "Cuanza Norte", 
+        "Cuanza Sul", "Cunene", "Huambo", "Huíla", "Luanda", "Lunda Norte", 
+        "Lunda Sul", "Malanje", "Moxico", "Namibe", "Uíge", "Zaire"
+    ]
+
+    paginator = Paginator(escolas_qs.order_by('-data_criacao'), 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     context = {
-        'escolas': escolas
+        'page_obj': page_obj,
+        'escolas': page_obj,
+        'total_escolas': escolas_qs.count(),
+        'q': q,
+        'provincia_selecionada': provincia,
+        'nivel_selecionado': nivel,
+        'natureza_selecionada': natureza,
+        'provincias': provincias_oficiais,
     }
     return render(request, 'escolas/lista_escolas.html', context)
 

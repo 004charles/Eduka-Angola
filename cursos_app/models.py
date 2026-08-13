@@ -419,6 +419,17 @@ class Curso(models.Model):
         return "Taxa de Inscrição"
 
     @property
+    def get_imagem_url(self):
+        """Retorna a URL da imagem do curso ou a imagem padrão caso esteja ausente."""
+        if self.imagem and hasattr(self.imagem, 'url'):
+            try:
+                return self.imagem.url
+            except Exception:
+                pass
+        from django.templatetags.static import static
+        return static('assets/images/course/course-01.jpg')
+
+    @property
     def preco_base_atual(self):
         """Retorna o preço base definido pelo centro, sem aplicação de taxas"""
         agora = timezone.now()

@@ -247,6 +247,42 @@ class Pagamento(models.Model):
     def pode_reembolsar(self):
         """Verifica se pode reembolsar"""
         return self.status == 'ACCEPTED'
+
+
+class FinanceiroCentro(models.Model):
+    """
+    Modelo de Prestação de Contas e Ganhos Financeiros para cada Centro de Formação.
+    Calcula a comissão da EdukAngola e o valor a repassar/transferir para o Centro.
+    """
+    centro = models.ForeignKey(
+        'gestoreduka.CentroDeFormacao',
+        on_delete=models.CASCADE,
+        related_name='relatorios_financeiros',
+        verbose_name=_('Centro de Formação')
+    )
+    periodo = models.CharField(_('Período de Apuração'), max_length=50, help_text='Ex: Agosto/2026')
+    total_bruto_inscricoes = models.DecimalField(_('Faturação Bruta (Kz)'), max_digits=12, decimal_places=2, default=0)
+    percentual_comissao_plataforma = models.DecimalField(_('Comissão Retida (%)'), max_digits=5, decimal_places=2, default=15.00)
+    valor_comissao_plataforma = models.DecimalField(_('Valor Retido pela EdukAngola (Kz)'), max_digits=12, decimal_places=2, default=0)
+    valor_liquido_centro = models.DecimalField(_('Ganhos Líquidos do Centro (Kz)'), max_digits=12, decimal_places=2, default=0)
+    pago = models.BooleanField(_('Repasse Efetuado?'), default=False)
+    comprovativo_repasse = models.FileField(_('Comprovativo bancário de repasse'), upload_to='comprovativos_financeiros/', null=True, blank=True)
+    data_criacao = models.DateTimeField(_('Data do Relatório'), auto_now_add=True)
+    data_pagamento_repasse = models.DateTimeField(_('Data da Transferência'), null=True, blank=True)
+
+    class Meta:
+        verbose_name = _('Finanças & Repasse de Centro')
+        verbose_name_plural = _('Finanças & Repasses de Centros')
+        ordering = ['-data_criacao']
+
+    def __str__(self):
+        return f"Repasse {self.centro.nome} - {self.periodo} ({self.valor_liquido_centro:,.2f} Kz)"
+
+    def calcular_valores(self):
+        """Calcula a comissão retida e o valor líquido do centro de forma exata"""
+        self.valor_comissao_plataforma = (self.total_bruto_inscricoes * self.percentual_comissao_plataforma) / Decimal('100.00')
+        self.valor_liquido_centro = self.total_bruto_inscricoes - self.valor_comissao_plataforma
+        self.save()
     
     def atualizar_status(self, novo_status, resposta_gateway=None):
         """Atualiza o status do pagamento de forma segura"""

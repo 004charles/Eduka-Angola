@@ -2,308 +2,907 @@
 {% load i18n %}
 {% load curso_filters %}
 <!DOCTYPE html>
-<html lang="{{ request.LANGUAGE_CODE }}">
-
+<html lang="{{ request.LANGUAGE_CODE|default:'pt' }}">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Edukangola | {% trans "Conectando o Futuro de Angola" %}</title>
-    <meta name="robots" content="index, follow">
-    <meta name="description" content="{% trans 'A maior plataforma de cursos e centros de formação em Angola. Encontre especializações, cursos técnicos e formação online de elite.' %}">
-    <meta name="keywords" content="cursos em angola, centros de formação, edukangola, formação técnica, cursos online angola">
+    <title>EdukAngola | O mercado de cursos e centros de formação de Angola</title>
+    <meta name="description" content="A maior plataforma de cursos e centros de formação em Angola. Encontre especializações, cursos técnicos e formação online de elite.">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     
-    <!-- Configurações PWA -->
-    <meta name="theme-color" content="#ffffff">
-    <link rel="manifest" href="{% static 'manifest.json' %}">
-    <link rel="apple-touch-icon" href="{% static 'assets/images/icons/pwa-192x192.png' %}">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="EdukAngola">
-
-    <!-- CSS Externos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+    <!-- Ícones e CSS Base da Plataforma -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     
     {% include 'include/css.html' %}
     
-    <!-- Estilos Customizados da Home -->
-    <link rel="stylesheet" href="{% static 'assets/css/home_custom.css' %}">
-    
-    
-    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+      :root {
+        --color-primary: #2f57ef;
+        --color-secondary: #b966e7;
+        --color-heading: #192335;
+        --color-body: #6b7385;
+        --color-border: #e6e3f1;
+        --color-bg: #F5F7FA;
+        --card-bg: #ffffff;
+        --histudy-shadow-1: 0px 6px 34px rgba(215, 216, 222, 0.41);
+        --histudy-shadow-2: 0 15px 34px 0 rgba(175, 181, 204, 0.32);
+        --histudy-transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.3s, border-color 0.3s;
+      }
+
+      body {
+        background-color: var(--color-bg) !important;
+        font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: #192335;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a { color: #192335; text-decoration: none; transition: color 0.2s ease; }
+      a:hover { color: #2f57ef; }
+
+      /* HISTUDY CARD HOVER & SHADOWS */
+      .drawing-card, 
+      .drawing-intl-card, 
+      .drawing-centro-card, 
+      .drawing-side-card, 
+      .drawing-num-card, 
+      .drawing-ranking-card {
+        transition: var(--histudy-transition) !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.03) !important;
+      }
+
+      .drawing-card:hover, 
+      .drawing-intl-card:hover, 
+      .drawing-centro-card:hover, 
+      .drawing-side-card:hover {
+        transform: translateY(-5px) !important;
+        box-shadow: var(--histudy-shadow-2) !important;
+        border-color: rgba(47, 87, 239, 0.3) !important;
+      }
+
+      .drawing-num-card:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: var(--histudy-shadow-1) !important;
+        border-color: #2f57ef !important;
+      }
+
+      .drawing-ranking-card:hover {
+        transform: translateX(4px) !important;
+        box-shadow: var(--histudy-shadow-1) !important;
+        border-color: #2f57ef !important;
+      }
+
+      /* CARD IMAGE ZOOM TRANSITION */
+      .drawing-card img, .drawing-hero-img img {
+        transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1) !important;
+      }
+      .drawing-card:hover img {
+        transform: scale(1.06) !important;
+      }
+
+      /* SUBNAV HISTUDY REFINEMENT */
+      .drawing-subnav {
+        box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        transition: box-shadow 0.3s ease;
+      }
+      .drawing-subnav::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+      }
+      .drawing-subnav {
+        -ms-overflow-style: none !important;
+        scrollbar-width: none !important;
+      }
+
+      /* PILL BUTTONS HISTUDY STYLE */
+      .section-modalidade-pills .pill-btn {
+        transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1) !important;
+      }
+      .section-modalidade-pills .pill-btn.active {
+        box-shadow: 0 4px 12px rgba(47, 87, 239, 0.35) !important;
+      }
+
+      /* DARK MODE COMPREHENSIVE RULES */
+      body.active-dark-mode,
+      body.active-dark-mode main.rbt-main-wrapper {
+        background-color: #121212 !important;
+        color: #ffffff !important;
+      }
+
+      body.active-dark-mode .drawing-subnav,
+      body.active-dark-mode .drawing-card,
+      body.active-dark-mode .drawing-side-card,
+      body.active-dark-mode .drawing-num-card,
+      body.active-dark-mode .drawing-ranking-card,
+      body.active-dark-mode .drawing-intl-box,
+      body.active-dark-mode .drawing-intl-card,
+      body.active-dark-mode .drawing-centro-card {
+        background-color: #1e1e1e !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+        color: #ffffff !important;
+      }
+
+      body.active-dark-mode .drawing-title-text,
+      body.active-dark-mode .drawing-heading,
+      body.active-dark-mode h1,
+      body.active-dark-mode h2,
+      body.active-dark-mode h3,
+      body.active-dark-mode h4,
+      body.active-dark-mode h5,
+      body.active-dark-mode h6 {
+        color: #ffffff !important;
+      }
+
+      body.active-dark-mode .drawing-sub-text,
+      body.active-dark-mode .text-muted {
+        color: #cbd5e1 !important;
+      }
+
+      body.active-dark-mode .drawing-subnav a {
+        color: #cbd5e1 !important;
+      }
+      body.active-dark-mode .drawing-subnav a:hover {
+        color: #2f57ef !important;
+      }
+
+      body.active-dark-mode .drawing-intl-card {
+        background-color: #262626 !important;
+      }
+      body.active-dark-mode .section-modalidade-pills {
+        background: #1e293b !important;
+      }
+      body.active-dark-mode .section-modalidade-pills .pill-btn:not(.active) {
+        color: #94a3b8 !important;
+      }
+
+      /* RESPONSIVE LAYOUT RULES FOR MOBILE & TABLET */
+      .drawing-hero-grid {
+        display: grid;
+        grid-template-columns: 1fr 336px;
+        gap: 16px;
+      }
+      .drawing-hero-main {
+        min-height: 340px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #020c26 0%, #1e3bb3 60%, #2f57ef 100%);
+        padding: 40px 44px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+        color: #ffffff;
+        box-shadow: 0 10px 30px rgba(47, 87, 239, 0.25);
+      }
+      .drawing-hero-img {
+        width: 220px;
+        height: 250px;
+        border-radius: 14px;
+        overflow: hidden;
+        flex-shrink: 0;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        border: 2px solid rgba(255,255,255,0.25);
+        margin-left: 20px;
+      }
+      .drawing-hero-side {
+        display: grid;
+        grid-template-rows: 1fr 1fr;
+        gap: 16px;
+      }
+      .drawing-banner-empresas {
+        border-radius: 14px;
+        background: linear-gradient(135deg, #020c26 0%, #192335 100%);
+        border: 1px solid #e6e3f1;
+        padding: 26px 32px;
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        color: #ffffff;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      }
+      .drawing-ranking-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+      .drawing-num-grid {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 10px;
+      }
+
+      @media (max-width: 991px) {
+        .drawing-hero-grid {
+          grid-template-columns: 1fr !important;
+        }
+        .drawing-hero-main {
+          flex-direction: column !important;
+          text-align: center !important;
+          padding: 24px !important;
+        }
+        .drawing-hero-main h2 {
+          font-size: 24px !important;
+        }
+        .drawing-hero-img {
+          display: none !important;
+        }
+        .drawing-hero-side {
+          grid-template-rows: auto !important;
+          grid-template-columns: 1fr !important;
+        }
+        .drawing-banner-empresas {
+          flex-direction: column !important;
+          text-align: center !important;
+          gap: 16px !important;
+          padding: 24px !important;
+        }
+        .drawing-banner-empresas a {
+          margin-left: 0 !important;
+        }
+        .drawing-ranking-grid {
+          grid-template-columns: 1fr !important;
+        }
+        .drawing-num-grid {
+          grid-template-columns: repeat(4, 1fr) !important;
+        }
+        .drawing-intl-box {
+          padding: 24px !important;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .drawing-num-grid {
+          grid-template-columns: repeat(2, 1fr) !important;
+        }
+      }
+    </style>
 </head>
-
-<body class="active-dark-mode rbt-header-sticky">
-
-    <!-- PWA Install Banner -->
-    <div id="pwa-install-banner" style="display: none; position: fixed; bottom: 0; left: 0; width: 100%; background-color: #ffffff; box-shadow: 0 -4px 15px rgba(0,0,0,0.1); z-index: 99999; padding: 15px; flex-direction: row; justify-content: space-between; align-items: center; border-top-left-radius: 15px; border-top-right-radius: 15px;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <img src="{% static 'assets/images/icons/pwa-192x192.png' %}" alt="EdukAngola" style="width: 50px; height: 50px; border-radius: 12px; object-fit: cover;">
-            <div>
-                <h6 style="margin: 0; font-size: 15px; font-weight: bold; color: #1f1f25;">EdukAngola</h6>
-                <p style="margin: 0; font-size: 12px; color: #757589; line-height: 1.2; margin-top: 2px;">Instale o app oficial para uma melhor experiência.</p>
-            </div>
-        </div>
-        <div style="display: flex; gap: 15px; align-items: center;">
-            <button id="pwa-install-close" style="background: none; border: none; color: #757589; font-size: 24px; cursor: pointer; padding: 0;">&times;</button>
-            <button id="pwa-install-btn" class="rbt-btn btn-sm btn-gradient" style="padding: 0 16px; height: 36px; line-height: 36px; font-size: 13px; font-weight: bold; border-radius: 6px;">Instalar</button>
-        </div>
-    </div>
+<body class="rbt-header-sticky">
 
     {% include 'include/header.html' %}
-    {% include 'include/loading.html' %}
 
-    <main class="rbt-main-wrapper">
-        
-        <!-- Banner Principal / Slider -->
-        {% include 'core/includes/home/banner.html' %}
-        
-        <!-- Lista de Escolas / Parceiros Premium -->
-        {% include 'core/includes/home/partners_strip.html' %}
+    <main class="rbt-main-wrapper" style="padding-bottom: 60px;">
+        <div class="container" style="max-width: 1400px;">
 
-        <!-- Barra de Pesquisa -->
-        <div class="rbt-search-area ptb--60">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <form action="{% url 'buscar_cursos' %}" method="get" class="search-form-with-suggestions d-flex align-items-center gap-3">
-                            <input type="text" name="q" class="rbt-search-autocomplete w-100" placeholder="{% trans 'O que você quer assistir/aprender?' %}" autocomplete="off">
-                            <div class="search-suggestions-wrapper"></div>
-                            <button type="submit" class="rbt-btn btn-gradient btn-md">{% trans "Pesquisar" %}</button>
-                        </form>
+            <!-- SUB NAV CATEGORIAS -->
+            <div class="drawing-subnav" style="display: flex; align-items: center; gap: 26px; padding: 12px 24px; background: #ffffff; border: 1px solid #e6e3f1; border-radius: 12px; margin-top: 20px; font-size: 13.5px; overflow-x: auto; white-space: nowrap;">
+                <a href="{% url 'todo_curso' %}" style="display: flex; align-items: center; gap: 7px; font-weight: 600; color: #2f57ef; flex-shrink: 0;"><i class="feather-grid"></i> Todas as categorias</a>
+                <span style="width: 1px; height: 18px; background: #e6e3f1; flex-shrink: 0"></span>
+                {% for cat in categorias|slice:":8" %}
+                    <a href="{% url 'cursos_por_categoria' cat.slug %}" style="flex-shrink: 0">{{ cat.nome }}</a>
+                {% endfor %}
+                <span style="width: 1px; height: 18px; background: #e6e3f1; flex-shrink: 0"></span>
+                <a href="{% url 'todo_curso' %}" style="font-weight: 600; flex-shrink: 0">Internacional</a>
+                <a href="{% url 'buscar_cursos' %}?desconto=1" style="margin-left: auto; color: #2f57ef; font-weight: 600; flex-shrink: 0">Bolsas e descontos</a>
+            </div>
+
+            <!-- HERO DRAWING LAYOUT COM SLIDER SUAVE DE PUBLICIDADE -->
+            <div class="drawing-hero-grid" style="padding: 20px 0 0;">
+                <div class="drawing-hero-main-slider shadow-sm" style="border-radius: 16px; overflow: hidden; position: relative; min-height: 350px;">
+                    <div class="swiper hero-pub-swiper h-100">
+                        <div class="swiper-wrapper h-100">
+                            {% if publicidades %}
+                                {% for pub in publicidades %}
+                                <div class="swiper-slide h-100">
+                                    <div class="rbt-banner-card-pub h-100 p-4 p-md-5 d-flex align-items-center justify-content-between position-relative" style="{% if pub.imagem_fundo %}background: linear-gradient(90deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.85) 100%), url('{{ pub.imagem_fundo.url }}') center/cover;{% else %}background: linear-gradient(135deg, #0f172a 0%, #1e3bb3 60%, #2f57ef 100%);{% endif %} border-radius: 16px; min-height: 350px;">
+                                        <div class="slide-content-box" style="max-width: 520px; z-index: 2;">
+                                            <div class="badge-tag mb-3">
+                                                <span class="rbt-badge-2 text-white border-0 px-3 py-1 radius-round" style="background: rgba(255,255,255,0.18); backdrop-filter: blur(8px);">
+                                                    <i class="feather-award me-1"></i> {{ pub.tag_label|default:"Publicidade · EdukaAngola" }}
+                                                </span>
+                                            </div>
+                                            <h2 class="title color-white fw-bold display-6 mb-3" style="color: #ffffff !important; line-height: 1.15;">
+                                                {{ pub.titulo|default:"Bolsas de 50% em Cursos de Tecnologia" }}
+                                            </h2>
+                                            <p class="description color-white-50 mb-4" style="color: rgba(255,255,255,0.85) !important; font-size: 1.05rem;">
+                                                {{ pub.subtitulo|default:pub.descricao|truncatechars:180 }}
+                                            </p>
+                                            <a href="{{ pub.url_destino|default:'/cursos/' }}" class="rbt-btn btn-white radius-round icon-hover shadow-sm">
+                                                <span class="btn-text">{{ pub.texto_botao|default:"Saber mais" }}</span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            </a>
+                                        </div>
+                                        {% if pub.imagem_fundo %}
+                                        <div class="slide-thumb-box d-none d-lg-block flex-shrink-0 ms-4" style="width: 220px; height: 260px; z-index: 2;">
+                                            <img src="{{ pub.imagem_fundo.url }}" alt="{{ pub.titulo }}" class="w-100 h-100 rounded-4 shadow-lg" style="object-fit: cover; border: 3px solid rgba(255,255,255,0.25);">
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                
+                                <!-- Se houver apenas 1 item no BD, renderiza o 2º slide padrão para garantir no mínimo 2 -->
+                                {% if publicidades|length == 1 %}
+                                <div class="swiper-slide h-100">
+                                    <div class="rbt-banner-card-pub h-100 p-4 p-md-5 d-flex align-items-center justify-content-between position-relative" style="background: linear-gradient(135deg, #0f172a 0%, #059669 60%, #10b981 100%); border-radius: 16px; min-height: 350px;">
+                                        <div class="slide-content-box" style="max-width: 520px; z-index: 2;">
+                                            <div class="badge-tag mb-3">
+                                                <span class="rbt-badge-2 text-white border-0 px-3 py-1 radius-round" style="background: rgba(255,255,255,0.18); backdrop-filter: blur(8px);">
+                                                    <i class="feather-star me-1"></i> Destaque · Formação Intensiva
+                                                </span>
+                                            </div>
+                                            <h2 class="title color-white fw-bold display-6 mb-3" style="color: #ffffff !important; line-height: 1.15;">
+                                                Inglês em 3 meses com Certificação Internacional
+                                            </h2>
+                                            <p class="description color-white-50 mb-4" style="color: rgba(255,255,255,0.85) !important; font-size: 1.05rem;">
+                                                Aprenda com professores nativos e garanta o certificado reconhecido no mercado de trabalho em Luanda.
+                                            </p>
+                                            <a href="{% url 'buscar_cursos' %}?q=ingles" class="rbt-btn btn-white radius-round icon-hover shadow-sm">
+                                                <span class="btn-text">Ver Cursos</span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            </a>
+                                        </div>
+                                        <div class="slide-thumb-box d-none d-lg-block flex-shrink-0 ms-4" style="width: 220px; height: 260px; z-index: 2;">
+                                            <img src="{% static 'assets/images/banner/hero_bolsas_photo.png' %}" alt="Inglês em 3 meses" class="w-100 h-100 rounded-4 shadow-lg" style="object-fit: cover; border: 3px solid rgba(255,255,255,0.25);">
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                            {% else %}
+                                <!-- Fallback: Exibir os 4 primeiros cursos cadastrados do banco de dados com visual fluido e imagem 16:9 -->
+                                {% for curso in cursos_destaque|slice:":4" %}
+                                <div class="swiper-slide h-100">
+                                    <div class="rbt-banner-card-pub h-100 p-4 p-md-5 d-flex align-items-center justify-content-between position-relative" style="background: linear-gradient(90deg, #0f172a 0%, rgba(15, 23, 42, 0.92) 55%, rgba(15, 23, 42, 0.45) 100%), url('{{ curso.get_imagem_url }}') center/cover; border-radius: 16px; min-height: 350px;">
+                                        <div class="slide-content-box" style="max-width: 540px; z-index: 2;">
+                                            <div class="badge-tag mb-3 d-flex flex-wrap align-items-center gap-2">
+                                                <span class="rbt-badge-2 text-white border-0 px-3 py-1 radius-round" style="background: rgba(255,255,255,0.2); backdrop-filter: blur(8px);">
+                                                    <i class="feather-award me-1"></i> {% if curso.categoria %}{{ curso.categoria.nome }}{% else %}Curso em Destaque{% endif %}
+                                                </span>
+                                                <span class="badge bg-white-opacity text-white px-3 py-1 radius-round" style="background: rgba(255,255,255,0.15);">
+                                                    <i class="feather-user me-1 text-info"></i> {{ curso.centro.nome }}
+                                                </span>
+                                            </div>
+                                            <h2 class="title color-white fw-bold display-6 mb-2" style="color: #ffffff !important; line-height: 1.15; font-size: 2.1rem;">
+                                                {{ curso.titulo }}
+                                            </h2>
+                                            <p class="description color-white-50 mb-4" style="color: rgba(255,255,255,0.85) !important; font-size: 1.05rem; line-height: 1.6;">
+                                                {% if curso.descricao_curta %}{{ curso.descricao_curta }}{% else %}{{ curso.descricao|striptags|truncatechars:140 }}{% endif %}
+                                            </p>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <a href="{% url 'curso_detalhe' curso.id %}" class="rbt-btn btn-white radius-round icon-hover shadow-sm">
+                                                    <span class="btn-text">Ver Formação</span>
+                                                    <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                                </a>
+                                                <div class="price-tag bg-white text-dark font-bold px-3 py-2 radius-round shadow-sm" style="border-radius: 50px;">
+                                                    {% if curso.preco_promocional %}
+                                                        <span class="fw-bold text-primary">{{ curso.preco_promocional|floatformat:"0" }} Kz</span>
+                                                        <span class="text-muted text-decoration-line-through ms-1 small">{{ curso.preco|floatformat:"0" }} Kz</span>
+                                                    {% elif curso.preco > 0 %}
+                                                        <span class="fw-bold text-dark">{{ curso.preco|floatformat:"0" }} Kz</span>
+                                                    {% else %}
+                                                        <span class="fw-bold text-success">Gratuito</span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slide-thumb-box d-none d-lg-block flex-shrink-0 ms-4" style="width: 300px; height: 175px; z-index: 2;">
+                                            <img src="{{ curso.get_imagem_url }}" alt="{{ curso.titulo }}" class="w-100 h-100 rounded-4 shadow-lg" style="object-fit: cover; border: 2px solid rgba(255,255,255,0.3);" onerror="this.onerror=null; this.src='{% static 'assets/images/course/course-01.jpg' %}';">
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <!-- Fallback se não houver cursos -->
+                                <div class="swiper-slide h-100">
+                                    <div class="rbt-banner-card-pub h-100 p-4 p-md-5 d-flex align-items-center justify-content-between position-relative" style="background: linear-gradient(135deg, #020c26 0%, #1e3bb3 60%, #2f57ef 100%); border-radius: 16px; min-height: 350px;">
+                                        <div class="slide-content-box" style="max-width: 520px; z-index: 2;">
+                                            <div class="badge-tag mb-3">
+                                                <span class="rbt-badge-2 text-white border-0 px-3 py-1 radius-round" style="background: rgba(255,255,255,0.2); backdrop-filter: blur(8px);">
+                                                    EdukaAngola · Plataforma de Formação
+                                                </span>
+                                            </div>
+                                            <h2 class="title color-white fw-bold display-6 mb-3" style="color: #ffffff !important; line-height: 1.15;">
+                                                Encontre as melhores formações em Angola
+                                            </h2>
+                                            <p class="description color-white-50 mb-4" style="color: rgba(255,255,255,0.85) !important; font-size: 1.05rem;">
+                                                Explore cursos presenciais e online dos centros de formação mais conceituados do país.
+                                            </p>
+                                            <a href="{% url 'todo_curso' %}" class="rbt-btn btn-white radius-round icon-hover shadow-sm">
+                                                <span class="btn-text">Explorar Cursos</span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Paginação Swiper Suave -->
+                        <div class="hero-pub-pagination swiper-pagination" style="bottom: 15px !important;"></div>
+                    </div>
+                </div>
+
+                <div class="drawing-hero-side">
+                    <div class="drawing-side-card" style="border-radius: 14px; background: #ffffff; border: 1px solid #e6e3f1; padding: 22px 24px; display: flex; flex-direction: column; justify-content: center">
+                        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: #2f57ef; margin-bottom: 10px">Destaque</div>
+                        <div class="drawing-title-text" style="font-family: Archivo, sans-serif; font-weight: 700; font-size: 20px; letter-spacing: -0.025em; line-height: 1.15; margin-bottom: 8px;">Inglês em 3 meses, com certificado internacional</div>
+                        <div class="drawing-sub-text" style="font-size: 13px; color: #6b7385; margin-bottom: 14px">British Language Centre · Luanda</div>
+                        <a href="{% url 'buscar_cursos' %}?q=ingles" style="font-size: 13px; font-weight: 600; color: #2f57ef; align-self: flex-start;">Saber mais →</a>
+                    </div>
+                    <div class="drawing-side-card" style="border-radius: 14px; background: #ffffff; border: 1px solid #e6e3f1; padding: 22px 24px; display: flex; flex-direction: column; justify-content: center">
+                        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: #3EB75E; margin-bottom: 10px">Facilidade</div>
+                        <div class="drawing-title-text" style="font-family: Archivo, sans-serif; font-weight: 700; font-size: 20px; letter-spacing: -0.025em; line-height: 1.15; margin-bottom: 8px;">Pague o seu curso em 6 prestações sem juros</div>
+                        <div class="drawing-sub-text" style="font-size: 13px; color: #6b7385; margin-bottom: 14px">Disponível em {{ centros.count|default:"68" }} centros parceiros</div>
+                        <a href="{% url 'faq' %}" style="font-size: 13px; font-weight: 600; color: #3EB75E; align-self: flex-start;">Como funciona →</a>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Banner Estudantil Modernizado -->
-        <div class="rbt-text-area ptb--40">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-10">
-                        <div style="background-color: #020c26; border-radius: 12px; position: relative; overflow: hidden; display: flex; align-items: center; min-height: 220px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
-                            
-                            <!-- Gradiente de fundo (direita) -->
-                            <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 45%; background: linear-gradient(135deg, #00c6ff 0%, #6025F5 100%); clip-path: circle(75% at 100% 50%); z-index: 1;"></div>
-                            
-                            <!-- Imagem do Estudante (direita, dentro do gradiente) -->
-                            <div style="position: absolute; right: 2%; bottom: 0; z-index: 2; height: 100%; display: flex; align-items: flex-end;">
-                                <img src="{% static 'assets/images/bg/student_helmet.png' %}" alt="Estudante de Engenharia" style="height: 120%; max-height: 280px; object-fit: contain; filter: drop-shadow(-5px 5px 15px rgba(0,0,0,0.4)); margin-bottom: -15px;">
-                            </div>
+            <!-- 8 NUMBERED CATEGORY CARDS (01, 02... 08) -->
+            <div style="padding: 28px 0 0">
+                <div class="drawing-num-grid">
+                    {% for cat in categorias|slice:":8" %}
+                        <a href="{% url 'cursos_por_categoria' cat.slug %}" class="drawing-num-card" style="background: #ffffff; border: 1px solid #e6e3f1; border-radius: 10px; padding: 14px 12px; display: block; text-align: center">
+                            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #2f57ef; margin-bottom: 10px">0{{ forloop.counter }}</div>
+                            <div class="drawing-title-text" style="font-family: Archivo, sans-serif; font-weight: 600; font-size: 13.5px; line-height: 1.2;">{{ cat.nome }}</div>
+                            <div class="drawing-sub-text" style="font-size: 11.5px; color: #6b7385; margin-top: 3px">{{ cat.num_cursos|default:"0" }}</div>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
 
-                            <!-- Conteúdo (esquerda) -->
-                            <div style="position: relative; z-index: 3; width: 65%;">
-                                <h3 style="color: #ffffff; font-weight: 700; margin-bottom: 15px; font-size: 26px;">{% trans "Alcance os Seus Objetivos" %}</h3>
-                                <p style="color: #cbd5e1; font-size: 15px; line-height: 1.6; margin-bottom: 25px; max-width: 85%;">
-                                    {% trans "Acredite no seu potencial. Os cursos abaixo são ministrados pelos melhores centros de formação de Angola para impulsionar o seu futuro." %}
-                                </p>
-                                <a href="{% url 'index' %}#recomendados" style="color: #ffffff; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s;" onmouseover="this.style.color='#00c6ff'" onmouseout="this.style.color='#ffffff'">
-                                    {% trans "Saber mais" %} <i class="feather-arrow-right"></i>
-                                </a>
+            <!-- CURSOS EM DESTAQUE -->
+            <div style="padding: 44px 0 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px">
+                <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                    <div>
+                        <h2 class="drawing-heading" style="font-family: Archivo, sans-serif; font-weight: 700; font-size: 30px; letter-spacing: -0.03em; margin: 0; line-height: 1.05;">Cursos em destaque</h2>
+                        <div class="drawing-sub-text" style="font-size: 13.5px; color: #6b7385; margin-top: 6px">{{ cursos_destaque.count|default:"1 248" }} cursos com inscrições abertas · actualizado hoje</div>
+                    </div>
+                    <!-- BOTÕES PRESENCIAL E ONLINE -->
+                    <div class="section-modalidade-pills" style="display: flex; align-items: center; gap: 4px; background: #edf2f7; padding: 4px 6px; border-radius: 999px;">
+                        <button type="button" onclick="filterSectionModalidade(this, 'grid-destaque', 'ALL')" class="pill-btn active" style="border:none; background:#2f57ef; color:#fff; padding:6px 14px; border-radius:999px; font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.2s;">Todos</button>
+                        <button type="button" onclick="filterSectionModalidade(this, 'grid-destaque', 'PRESENCIAL')" class="pill-btn" style="border:none; background:transparent; color:#475569; padding:6px 14px; border-radius:999px; font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.2s;"><i class="fas fa-building me-1"></i> Presencial</button>
+                        <button type="button" onclick="filterSectionModalidade(this, 'grid-destaque', 'ONLINE')" class="pill-btn" style="border:none; background:transparent; color:#475569; padding:6px 14px; border-radius:999px; font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.2s;"><i class="fas fa-video me-1"></i> Online</button>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px">
+                    <a href="{% url 'todo_curso' %}" style="font-size: 13px; font-weight: 600; color: #2f57ef;">Ver todos →</a>
+                </div>
+            </div>
+
+            <!-- CURSOS GRID DRAWING STYLE -->
+            <div id="grid-destaque" class="drawing-card-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px">
+                {% for curso in cursos_destaque|slice:":10" %}
+                    <a href="{% if curso.slug and curso.duracao_total %}{% url 'cursovideoapp:detalhe_curso' curso.slug %}{% else %}{% url 'curso_detalhe' curso.id %}{% endif %}" class="drawing-card" data-modalidade="{{ curso.modalidade|default:'PRESENCIAL' }}" style="background: #ffffff; border: 1px solid #e6e3f1; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; text-decoration: none;">
+                        <div style="height: 140px; background: #e2e8f0; border-bottom: 1px solid #e6e3f1; position: relative">
+                            <img src="{{ curso.get_imagem_url }}" alt="{{ curso.titulo }}" style="width:100%; height:100%; object-fit:cover;" onerror="this.onerror=null; this.src='{% static 'assets/images/course/course-01.jpg' %}';">
+                            <div style="position: absolute; top: 10px; left: 10px; display: flex; gap: 6px">
+                                <span style="font-size: 10.5px; font-weight: 600; padding: 4px 9px; border-radius: 999px; background: {% if curso.modalidade == 'ONLINE' %}#DCEAE6; color: #1F5F55{% else %}#e0e7ff; color: #2f57ef{% endif %}">
+                                    {{ curso.get_modalidade_display|default:curso.modalidade|default:"Presencial" }}
+                                </span>
+                                {% if curso.preco_promocional %}
+                                    <span style="font-size: 10.5px; font-weight: 700; padding: 4px 9px; border-radius: 999px; background: #FF0003; color: #ffffff">-25%</span>
+                                {% endif %}
                             </div>
                         </div>
+                        <div style="padding: 16px; display: flex; flex-direction: column; flex: 1">
+                            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase; color: #2f57ef">{{ curso.categoria.nome }}</div>
+                            <div class="drawing-title-text" style="font-family: Archivo, sans-serif; font-weight: 600; font-size: 16px; letter-spacing: -0.02em; line-height: 1.25; margin: 7px 0 6px;">{{ curso.titulo }}</div>
+                            <div class="drawing-sub-text" style="font-size: 12.5px; color: #6b7385; margin-bottom: 10px">{{ curso.centro.nome }}</div>
+                            <div class="drawing-sub-text" style="display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: #6b7385; margin-bottom: 14px">
+                                <span style="color: #ff9d2d; font-weight: 600"><i class="fas fa-star me-1"></i>4.8</span>
+                                <span>(312)</span>
+                                <span>·</span>
+                                <span>{{ curso.duracao|default:"6 meses" }}</span>
+                            </div>
+                            <div style="display: flex; align-items: baseline; gap: 8px; margin-top: auto; padding-top: 12px; border-top: 1px solid rgba(230,227,241,0.5)">
+                                <span class="drawing-title-text" style="font-family: Archivo, sans-serif; font-weight: 700; font-size: 17px;">
+                                    {% if curso.is_gratuito %}Gratuito{% else %}{{ curso.preco|floatformat:0 }} Kz{% endif %}
+                                </span>
+                                {% if curso.preco_promocional %}
+                                    <span style="font-size: 12.5px; color: #94a3b8; text-decoration: line-through">{{ curso.preco_promocional|floatformat:0 }} Kz</span>
+                                {% endif %}
+                                <span style="margin-left: auto; font-size: 12px; font-weight: 600; color: #2f57ef">Inscrever →</span>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+
+            <!-- BANNER EMPRESAS -->
+            <div style="padding: 32px 0 0">
+                <div class="drawing-banner-empresas">
+                    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: #ff9d2d; border: 1px solid rgba(255,255,255,0.2); padding: 4px 9px; border-radius: 999px; flex-shrink: 0">
+                        {{ banner_empresas.tag_label|default:"Publicidade" }}
                     </div>
+                    <div style="font-family: Archivo, sans-serif; font-weight: 700; font-size: 22px; letter-spacing: -0.03em; line-height: 1.2; color: #ffffff !important; flex: 1;">
+                        {{ banner_empresas.titulo|default:"Formação para empresas: forme a sua equipa com desconto por volume" }}
+                    </div>
+                    <div style="font-size: 13.5px; color: rgba(255,255,255,0.8) !important; max-width: 260px; flex-shrink: 0">
+                            {% if banner_empresas %}
+                                {{ banner_empresas.subtitulo|default:banner_empresas.descricao }}
+                            {% else %}
+                                A partir de 10 colaboradores, em qualquer centro parceiro.
+                            {% endif %}
+                    </div>
+                    <a href="{{ banner_empresas.url_destino|default:'/contato/' }}" class="rbt-btn btn-gradient radius-round" style="flex-shrink: 0;">
+                        {{ banner_empresas.texto_botao|default:"Pedir proposta" }}
+                    </a>
                 </div>
             </div>
+
+            <!-- MAIS PROCURADOS ESTA SEMANA (01 A 06) -->
+            <div style="padding: 44px 0 16px; display: flex; align-items: flex-end; justify-content: space-between">
+                <div>
+                    <h2 class="drawing-heading" style="font-family: Archivo, sans-serif; font-weight: 700; font-size: 30px; letter-spacing: -0.03em; margin: 0; line-height: 1.05;">Mais procurados esta semana</h2>
+                    <div class="drawing-sub-text" style="font-size: 13.5px; color: #6b7385; margin-top: 6px">Ranking por número de inscrições confirmadas</div>
+                </div>
+                <a href="{% url 'todo_curso' %}" style="font-size: 13px; font-weight: 600; color: #2f57ef;">Ver o top 50 →</a>
+            </div>
+
+            <div class="drawing-ranking-grid">
+                {% for curso in cursos_destaque|slice:":6" %}
+                    <a href="{% url 'curso_detalhe' curso.id %}" class="drawing-ranking-card" style="background: #ffffff; border: 1px solid #e6e3f1; border-radius: 12px; padding: 16px 18px; display: flex; align-items: center; gap: 16px">
+                        <span style="font-family: Archivo, sans-serif; font-weight: 800; font-size: 26px; letter-spacing: -0.04em; color: #cbd5e1; flex-shrink: 0; width: 38px">0{{ forloop.counter }}</span>
+                        <div style="flex: 1; min-width: 0">
+                            <div class="drawing-title-text" style="font-family: Archivo, sans-serif; font-weight: 600; font-size: 15px; letter-spacing: -0.015em; line-height: 1.25;">{{ curso.titulo }}</div>
+                            <div class="drawing-sub-text" style="font-size: 12px; color: #6b7385; margin-top: 3px">{{ curso.centro.nome }}</div>
+                        </div>
+                        <span style="font-family: Archivo, sans-serif; font-weight: 700; font-size: 14.5px; color: #2f57ef; flex-shrink: 0">
+                            {% if curso.is_gratuito %}Gratuito{% else %}{{ curso.preco|floatformat:0 }} Kz{% endif %}
+                        </span>
+                    </a>
+                {% endfor %}
+            </div>
+
+            <!-- CATEGORIA 01 TECNOLOGIA -->
+            <div style="padding: 48px 0 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px">
+                <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                    <div>
+                        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #2f57ef; margin-bottom: 8px">Categoria 01</div>
+                        <h2 class="drawing-heading" style="font-family: Archivo, sans-serif; font-weight: 700; font-size: 30px; letter-spacing: -0.03em; margin: 0; line-height: 1.05;">Tecnologia e Informática</h2>
+                    </div>
+                    <!-- BOTÕES PRESENCIAL E ONLINE -->
+                    <div class="section-modalidade-pills" style="display: flex; align-items: center; gap: 4px; background: #edf2f7; padding: 4px 6px; border-radius: 999px;">
+                        <button type="button" onclick="filterSectionModalidade(this, 'grid-tecnologia', 'ALL')" class="pill-btn active" style="border:none; background:#2f57ef; color:#fff; padding:6px 14px; border-radius:999px; font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.2s;">Todos</button>
+                        <button type="button" onclick="filterSectionModalidade(this, 'grid-tecnologia', 'PRESENCIAL')" class="pill-btn" style="border:none; background:transparent; color:#475569; padding:6px 14px; border-radius:999px; font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.2s;"><i class="fas fa-building me-1"></i> Presencial</button>
+                        <button type="button" onclick="filterSectionModalidade(this, 'grid-tecnologia', 'ONLINE')" class="pill-btn" style="border:none; background:transparent; color:#475569; padding:6px 14px; border-radius:999px; font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.2s;"><i class="fas fa-video me-1"></i> Online</button>
+                    </div>
+                </div>
+                <a href="{% url 'buscar_cursos' %}?q=tecnologia" style="font-size: 13px; font-weight: 600; color: #2f57ef;">Ver os 312 cursos →</a>
+            </div>
+
+            <div id="grid-tecnologia" class="drawing-card-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px">
+                {% for curso in cursos_tecnologia %}
+                    <a href="{% if curso.slug and curso.duracao_total %}{% url 'cursovideoapp:detalhe_curso' curso.slug %}{% else %}{% url 'curso_detalhe' curso.id %}{% endif %}" class="drawing-card" data-modalidade="{{ curso.modalidade|default:'PRESENCIAL' }}" style="background: #ffffff; border: 1px solid #e6e3f1; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; text-decoration: none;">
+                        <div style="height: 120px; background: #e2e8f0; border-bottom: 1px solid #e6e3f1; position: relative">
+                            <img src="{{ curso.get_imagem_url }}" alt="{{ curso.titulo }}" style="width:100%; height:100%; object-fit:cover;" onerror="this.onerror=null; this.src='{% static 'assets/images/course/course-01.jpg' %}';">
+                            <div style="position: absolute; top: 8px; left: 8px;">
+                                <span style="font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {% if curso.modalidade == 'ONLINE' %}#DCEAE6; color: #1F5F55{% else %}#e0e7ff; color: #2f57ef{% endif %}">
+                                    {{ curso.get_modalidade_display|default:curso.modalidade|default:"Presencial" }}
+                                </span>
+                            </div>
+                        </div>
+                        <div style="padding: 14px 16px 16px; display: flex; flex-direction: column; flex: 1">
+                            <div class="drawing-title-text" style="font-family: Archivo, sans-serif; font-weight: 600; font-size: 15px; letter-spacing: -0.02em; line-height: 1.25; margin-bottom: 5px;">{{ curso.titulo }}</div>
+                            <div class="drawing-sub-text" style="font-size: 12px; color: #6b7385; margin-bottom: 9px">{{ curso.centro.nome|default:"EdukAngola" }}</div>
+                            <div style="display: flex; align-items: baseline; gap: 7px; margin-top: auto; padding-top: 11px; border-top: 1px solid rgba(230,227,241,0.5)">
+                                <span class="drawing-title-text" style="font-family: Archivo, sans-serif; font-weight: 700; font-size: 15.5px;">
+                                    {% if curso.is_gratuito %}Gratuito{% else %}{{ curso.preco|floatformat:0 }} Kz{% endif %}
+                                </span>
+                                <span style="margin-left: auto; font-size: 11.5px; font-weight: 600; color: #2f57ef">Inscrever →</span>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+
+            <!-- CATEGORIA 02 IDIOMAS -->
+            <div style="padding: 48px 0 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px">
+                <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                    <div>
+                        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #2f57ef; margin-bottom: 8px">Categoria 02</div>
+                        <h2 class="drawing-heading" style="font-family: Archivo, sans-serif; font-weight: 700; font-size: 30px; letter-spacing: -0.03em; margin: 0; line-height: 1.05;">Idiomas</h2>
+                    </div>
+                    <!-- BOTÕES PRESENCIAL E ONLINE -->
+                    <div class="section-modalidade-pills" style="display: flex; align-items: center; gap: 4px; background: #edf2f7; padding: 4px 6px; border-radius: 999px;">
+                        <button type="button" onclick="filterSectionModalidade(this, 'grid-idiomas', 'ALL')" class="pill-btn active" style="border:none; background:#2f57ef; color:#fff; padding:6px 14px; border-radius:999px; font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.2s;">Todos</button>
+                        <button type="button" onclick="filterSectionModalidade(this, 'grid-idiomas', 'PRESENCIAL')" class="pill-btn" style="border:none; background:transparent; color:#475569; padding:6px 14px; border-radius:999px; font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.2s;"><i class="fas fa-building me-1"></i> Presencial</button>
+                        <button type="button" onclick="filterSectionModalidade(this, 'grid-idiomas', 'ONLINE')" class="pill-btn" style="border:none; background:transparent; color:#475569; padding:6px 14px; border-radius:999px; font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.2s;"><i class="fas fa-video me-1"></i> Online</button>
+                    </div>
+                </div>
+                <a href="{% url 'buscar_cursos' %}?q=ingles" style="font-size: 13px; font-weight: 600; color: #2f57ef;">Ver os 164 cursos →</a>
+            </div>
+
+            <div id="grid-idiomas" class="drawing-card-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px">
+                {% for curso in cursos_idiomas %}
+                    <a href="{% if curso.slug and curso.duracao_total %}{% url 'cursovideoapp:detalhe_curso' curso.slug %}{% else %}{% url 'curso_detalhe' curso.id %}{% endif %}" class="drawing-card" data-modalidade="{{ curso.modalidade|default:'PRESENCIAL' }}" style="background: #ffffff; border: 1px solid #e6e3f1; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; text-decoration: none;">
+                        <div style="height: 120px; background: #e2e8f0; border-bottom: 1px solid #e6e3f1; position: relative">
+                            <img src="{{ curso.get_imagem_url }}" alt="{{ curso.titulo }}" style="width:100%; height:100%; object-fit:cover;" onerror="this.onerror=null; this.src='{% static 'assets/images/course/course-01.jpg' %}';">
+                            <div style="position: absolute; top: 8px; left: 8px;">
+                                <span style="font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {% if curso.modalidade == 'ONLINE' %}#DCEAE6; color: #1F5F55{% else %}#e0e7ff; color: #2f57ef{% endif %}">
+                                    {{ curso.get_modalidade_display|default:curso.modalidade|default:"Presencial" }}
+                                </span>
+                            </div>
+                        </div>
+                        <div style="padding: 14px 16px 16px; display: flex; flex-direction: column; flex: 1">
+                            <div class="drawing-title-text" style="font-family: Archivo, sans-serif; font-weight: 600; font-size: 15px; letter-spacing: -0.02em; line-height: 1.25; margin-bottom: 5px;">{{ curso.titulo }}</div>
+                            <div class="drawing-sub-text" style="font-size: 12px; color: #6b7385; margin-bottom: 9px">{{ curso.centro.nome|default:"EdukAngola" }}</div>
+                            <div style="display: flex; align-items: baseline; gap: 7px; margin-top: auto; padding-top: 11px; border-top: 1px solid rgba(230,227,241,0.5)">
+                                <span class="drawing-title-text" style="font-family: Archivo, sans-serif; font-weight: 700; font-size: 15.5px;">
+                                    {% if curso.is_gratuito %}Gratuito{% else %}{{ curso.preco|floatformat:0 }} Kz{% endif %}
+                                </span>
+                                <span style="margin-left: auto; font-size: 11.5px; font-weight: 600; color: #2f57ef">Inscrever →</span>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+
+            <!-- NOVOS NA PLATAFORMA -->
+            <div style="padding: 48px 0 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px">
+                <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                    <div>
+                        <h2 class="drawing-heading" style="font-family: Archivo, sans-serif; font-weight: 700; font-size: 30px; letter-spacing: -0.03em; margin: 0; line-height: 1.05;">Novos na plataforma</h2>
+                        <div class="drawing-sub-text" style="font-size: 13.5px; color: #6b7385; margin-top: 6px">Publicados nos últimos 14 dias</div>
+                    </div>
+                    <!-- BOTÕES PRESENCIAL E ONLINE -->
+                    <div class="section-modalidade-pills" style="display: flex; align-items: center; gap: 4px; background: #edf2f7; padding: 4px 6px; border-radius: 999px;">
+                        <button type="button" onclick="filterSectionModalidade(this, 'grid-novos', 'ALL')" class="pill-btn active" style="border:none; background:#2f57ef; color:#fff; padding:6px 14px; border-radius:999px; font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.2s;">Todos</button>
+                        <button type="button" onclick="filterSectionModalidade(this, 'grid-novos', 'PRESENCIAL')" class="pill-btn" style="border:none; background:transparent; color:#475569; padding:6px 14px; border-radius:999px; font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.2s;"><i class="fas fa-building me-1"></i> Presencial</button>
+                        <button type="button" onclick="filterSectionModalidade(this, 'grid-novos', 'ONLINE')" class="pill-btn" style="border:none; background:transparent; color:#475569; padding:6px 14px; border-radius:999px; font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.2s;"><i class="fas fa-video me-1"></i> Online</button>
+                    </div>
+                </div>
+                <a href="{% url 'todo_curso' %}" style="font-size: 13px; font-weight: 600; color: #2f57ef;">Ver novidades →</a>
+            </div>
+
+            <div id="grid-novos" class="drawing-card-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px">
+                {% for curso in cursos_novos %}
+                    <a href="{% if curso.slug and curso.duracao_total %}{% url 'cursovideoapp:detalhe_curso' curso.slug %}{% else %}{% url 'curso_detalhe' curso.id %}{% endif %}" class="drawing-card" data-modalidade="{{ curso.modalidade|default:'PRESENCIAL' }}" style="background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; text-decoration: none;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px">
+                            <span style="font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: #020c26; color: #ff9d2d">NOVO</span>
+                            <span style="font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {% if curso.modalidade == 'ONLINE' %}#DCEAE6; color: #1F5F55{% else %}#e0e7ff; color: #2f57ef{% endif %}">
+                                {{ curso.get_modalidade_display|default:curso.modalidade|default:"Presencial" }}
+                            </span>
+                        </div>
+                        <div class="drawing-title-text" style="font-family: Archivo, sans-serif; font-weight: 600; font-size: 15.5px; letter-spacing: -0.02em; line-height: 1.25; margin-bottom: 6px;">{{ curso.titulo }}</div>
+                        <div class="drawing-sub-text" style="font-size: 12px; color: #6b7385; margin-bottom: 6px">{{ curso.centro.nome|default:"EdukAngola" }}</div>
+                        <div style="display: flex; align-items: baseline; margin-top: auto; padding-top: 11px; border-top: 1px solid rgba(230,227,241,0.5)">
+                            <span class="drawing-title-text" style="font-family: Archivo, sans-serif; font-weight: 700; font-size: 15.5px;">
+                                {% if curso.is_gratuito %}Gratuito{% else %}{{ curso.preco|floatformat:0 }} Kz{% endif %}
+                            </span>
+                            <span style="margin-left: auto; font-size: 11.5px; font-weight: 600; color: #2f57ef">Inscrever →</span>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+
+            <!-- INTERNACIONAL -->
+            <div class="drawing-intl-box" style="margin: 56px 0 0; padding: 44px; background: #ffffff; border-radius: 16px; border: 1px solid #e6e3f1;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 14px">
+                    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                        <div>
+                            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #2f57ef; margin-bottom: 8px">Internacional</div>
+                            <h2 class="drawing-heading" style="font-family: Archivo, sans-serif; font-weight: 700; font-size: 30px; letter-spacing: -0.03em; margin: 0; line-height: 1.05;">Cursos de instituições estrangeiras</h2>
+                            <div class="drawing-sub-text" style="font-size: 13.5px; color: #6b7385; margin-top: 6px">Estuda online a partir de Angola ou candidata-te a vagas presenciais no estrangeiro. Preços convertidos a Kz.</div>
+                        </div>
+                        <!-- BOTÕES PRESENCIAL E ONLINE -->
+                        <div class="section-modalidade-pills" style="display: flex; align-items: center; gap: 4px; background: #edf2f7; padding: 4px 6px; border-radius: 999px;">
+                            <button type="button" onclick="filterSectionModalidade(this, 'grid-intl', 'ALL')" class="pill-btn active" style="border:none; background:#2f57ef; color:#fff; padding:6px 14px; border-radius:999px; font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.2s;">Todos</button>
+                            <button type="button" onclick="filterSectionModalidade(this, 'grid-intl', 'PRESENCIAL')" class="pill-btn" style="border:none; background:transparent; color:#475569; padding:6px 14px; border-radius:999px; font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.2s;"><i class="fas fa-building me-1"></i> Presencial</button>
+                            <button type="button" onclick="filterSectionModalidade(this, 'grid-intl', 'ONLINE')" class="pill-btn" style="border:none; background:transparent; color:#475569; padding:6px 14px; border-radius:999px; font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.2s;"><i class="fas fa-video me-1"></i> Online</button>
+                        </div>
+                    </div>
+                    <a href="{% url 'todo_curso' %}" style="font-size: 13px; font-weight: 600; color: #2f57ef;">Ver os 214 cursos internacionais →</a>
+                </div>
+
+                <div id="grid-intl" class="drawing-card-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px">
+                    {% for curso in cursos_internacionais %}
+                        <a href="{% if curso.slug and curso.duracao_total %}{% url 'cursovideoapp:detalhe_curso' curso.slug %}{% else %}{% url 'curso_detalhe' curso.id %}{% endif %}" class="drawing-intl-card" data-modalidade="{{ curso.modalidade|default:'ONLINE' }}" style="background: #F5F7FA; border: 1px solid #e6e3f1; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; text-decoration: none;">
+                            <div style="display: flex; align-items: center; gap: 9px; margin-bottom: 13px">
+                                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; background: #020c26; color: #ffffff; padding: 4px 8px; border-radius: 5px">PT</span>
+                                <span class="drawing-sub-text" style="font-size: 12px; color: #6b7385">Portugal</span>
+                                <span style="margin-left: auto; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {% if curso.modalidade == 'ONLINE' %}#DCEAE6; color: #1F5F55{% else %}#e0e7ff; color: #2f57ef{% endif %}">
+                                    {{ curso.get_modalidade_display|default:curso.modalidade|default:"Online" }}
+                                </span>
+                            </div>
+                            <div class="drawing-title-text" style="font-family: Archivo, sans-serif; font-weight: 600; font-size: 15.5px; letter-spacing: -0.02em; line-height: 1.25; margin-bottom: 6px;">{{ curso.titulo }}</div>
+                            <div class="drawing-sub-text" style="font-size: 12px; color: #6b7385; margin-bottom: 10px">{{ curso.centro.nome|default:"Universidade Parceira" }}</div>
+                            <div style="margin-top: auto; padding-top: 12px; border-top: 1px solid rgba(230,227,241,0.5)">
+                                <div style="display: flex; align-items: baseline">
+                                    <span class="drawing-title-text" style="font-family: Archivo, sans-serif; font-weight: 700; font-size: 15.5px;">
+                                        {% if curso.is_gratuito %}Gratuito{% else %}{{ curso.preco|floatformat:0 }} Kz{% endif %}
+                                    </span>
+                                    <span style="margin-left: auto; font-size: 11.5px; font-weight: 600; color: #2f57ef">Candidatar →</span>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- CENTROS DE FORMAÇÃO -->
+            <div style="padding: 44px 0 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px">
+                <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                    <div>
+                        <h2 class="drawing-heading" style="font-family: Archivo, sans-serif; font-weight: 700; font-size: 30px; letter-spacing: -0.03em; margin: 0; line-height: 1.05;">Centros de formação</h2>
+                        <div class="drawing-sub-text" style="font-size: 13.5px; color: #6b7385; margin-top: 6px">{{ centros.count|default:"142" }} instituições certificadas em Angola</div>
+                    </div>
+                    <!-- BOTÕES NACIONAIS E INTERNACIONAIS -->
+                    <div class="section-modalidade-pills" style="display: flex; align-items: center; gap: 4px; background: #edf2f7; padding: 4px 6px; border-radius: 999px;">
+                        <button type="button" onclick="filterSectionCentros(this, 'grid-centros', 'ALL')" class="pill-btn active" style="border:none; background:#2f57ef; color:#fff; padding:6px 14px; border-radius:999px; font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.2s;">Todos</button>
+                        <button type="button" onclick="filterSectionCentros(this, 'grid-centros', 'NACIONAL')" class="pill-btn" style="border:none; background:transparent; color:#475569; padding:6px 14px; border-radius:999px; font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.2s;"><i class="fas fa-flag me-1"></i> Nacionais</button>
+                        <button type="button" onclick="filterSectionCentros(this, 'grid-centros', 'INTERNACIONAL')" class="pill-btn" style="border:none; background:transparent; color:#475569; padding:6px 14px; border-radius:999px; font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.2s;"><i class="fas fa-globe me-1"></i> Internacionais</button>
+                    </div>
+                </div>
+                <a href="{% url 'lista_centros' %}" style="font-size: 13px; font-weight: 600; color: #2f57ef;">Ver todos os centros →</a>
+            </div>
+
+            <div id="grid-centros" class="drawing-card-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px">
+                {% for ct in centros %}
+                    <a href="{% url 'cursos_por_centro' ct.id %}" class="drawing-centro-card" data-tipo-centro="{% if ct.pais and ct.pais != 'AO' %}INTERNACIONAL{% else %}NACIONAL{% endif %}" style="background: #ffffff; border: 1px solid #e6e3f1; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; text-decoration: none;">
+                        <div style="display: flex; align-items: center; gap: 11px; margin-bottom: 14px">
+                            <div style="width: 44px; height: 44px; border-radius: 9px; background: #F5F7FA; border: 1px solid #e6e3f1; display: flex; align-items: center; justify-content: center; font-family: Archivo, sans-serif; font-weight: 700; font-size: 16px; color: #2f57ef; flex-shrink: 0; overflow: hidden;">
+                                {% if ct.perfil.imagem %}
+                                    <img src="{{ ct.perfil.imagem.url }}" alt="{{ ct.nome }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                {% else %}
+                                    {{ ct.nome|slice:":2"|upper }}
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div class="drawing-title-text" style="font-family: Archivo, sans-serif; font-weight: 600; font-size: 14.5px; line-height: 1.2">
+                                    {% if ct.nome and ct.nome != 'None' %}{{ ct.nome }}{% else %}Centro de Formação{% endif %}
+                                </div>
+                                <div class="drawing-sub-text" style="font-size: 12px; color: #6b7385; margin-top: 2px">
+                                    {% if ct.pais and ct.pais != 'AO' %}
+                                        <i class="feather-globe me-1"></i>{{ ct.get_pais_display|default:ct.pais }}
+                                    {% else %}
+                                        <i class="feather-map-pin me-1"></i>{{ ct.provincia|default:"Luanda" }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="drawing-sub-text" style="display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 12px; border-top: 1px solid rgba(230,227,241,0.5); font-size: 12px;">
+                            <span>{{ ct.cursos.count|default:"10" }} cursos</span>
+                            <span style="color: #ff9d2d; font-weight: 600"><i class="fas fa-star me-1"></i>4.8</span>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+
+            <div style="display: flex; justify-content: center; margin-top: 28px; margin-bottom: 40px;">
+                <a href="{% url 'lista_centros' %}" class="rbt-btn btn-border radius-round">Carregar mais centros</a>
+            </div>
+
         </div>
-
-        <!-- Recomendados para si -->
-        {% include 'core/includes/home/recommended_courses.html' %}
-
-        <!-- Eduka Originals (Cursos em Vídeo da Plataforma) -->
-        {% include 'core/includes/home/video_courses_originals.html' %}
-
-        <!-- Cursos dos Nossos Parceiros (Cursos em Vídeo dos Centros) -->
-        {% include 'core/includes/home/video_courses_partners.html' %}
-
-        <!-- Trilhas de Carreira (Novo Estilo Coursera) -->
-        {% include 'core/includes/home/career_paths.html' %}
-
-        <!-- Secções Dinâmicas de Cursos (Injetadas via Contexto) -->
-        {% for secao in secoes_dinamicas %}
-            {% if secao.config.slug == 'tecnologia' %}
-                <!-- Retome sua exploração (Histórico) -->
-                {% include 'core/includes/home/recently_viewed.html' %}
-            {% endif %}
-            
-            {% include 'components/home_course_section.html' with secao=secao %}
-            
-            {% if secao.config.slug == 'novos' %}
-                <!-- Centros em Destaque / Centros Próximos de Ti (Movido para aqui) -->
-                {% include 'core/includes/home/featured_centers.html' %}
-            {% endif %}
-            
-            {% if secao.config.slug == 'negocios' %}
-                <!-- Banners de Publicidade Dinâmicos -->
-                {% include 'core/includes/home/dynamic_ads.html' %}
-            {% endif %}
-        {% endfor %}
-
     </main>
 
     {% include 'include/footer.html' %}
     {% include 'include/java.html' %}
 
-    <!-- Scripts da Home -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    
     <script>
-        const csrftoken = '{{ csrf_token }}';
-    </script>
-    
-    <!-- Lógica de Animações e Swipers Customizados -->
-    <style>
-        @media (max-width: 767px) {
-            [class*="dynamicCourseSwiper-"] .swiper-slide {
-                width: 280px !important;
-                height: auto;
+    function filterSectionCentros(btn, gridId, mode) {
+        const parent = btn.parentElement;
+        const buttons = parent.querySelectorAll('.pill-btn');
+        buttons.forEach(b => {
+            b.style.background = 'transparent';
+            b.style.color = document.body.classList.contains('active-dark-mode') ? '#94a3b8' : '#475569';
+            b.classList.remove('active');
+        });
+        btn.style.background = '#2f57ef';
+        btn.style.color = '#ffffff';
+        btn.classList.add('active');
+
+        const grid = document.getElementById(gridId);
+        if (!grid) return;
+        const cards = grid.querySelectorAll('.drawing-centro-card');
+        let countVisible = 0;
+
+        cards.forEach(card => {
+            const tipo = (card.getAttribute('data-tipo-centro') || 'NACIONAL').toUpperCase().trim();
+            let show = false;
+
+            if (mode === 'ALL') {
+                show = true;
+            } else if (mode === 'NACIONAL') {
+                show = (tipo === 'NACIONAL');
+            } else if (mode === 'INTERNACIONAL') {
+                show = (tipo === 'INTERNACIONAL');
             }
+
+            if (show) {
+                card.style.display = 'flex';
+                countVisible++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        let emptyMsg = grid.querySelector('.empty-centros-msg');
+        if (countVisible === 0) {
+            if (!emptyMsg) {
+                emptyMsg = document.createElement('div');
+                emptyMsg.className = 'empty-centros-msg';
+                emptyMsg.style.cssText = 'grid-column: 1 / -1; padding: 24px; text-align: center; color: #64748b; font-size: 13.5px; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1; margin: 8px 0;';
+                grid.appendChild(emptyMsg);
+            }
+            emptyMsg.innerHTML = mode === 'INTERNACIONAL' ? 
+                '<i class="fas fa-globe me-2" style="color:#2f57ef;"></i>Nenhum centro internacional nesta seleção. <a href="/centros/" style="color:#2f57ef; font-weight:600; text-decoration:underline; margin-left:6px;">Ver todos os centros →</a>' : 
+                '<i class="fas fa-flag me-2" style="color:#2f57ef;"></i>Nenhum centro nacional nesta seleção. <a href="/centros/" style="color:#2f57ef; font-weight:600; text-decoration:underline; margin-left:6px;">Ver todos os centros →</a>';
+            emptyMsg.style.display = 'block';
+        } else if (emptyMsg) {
+            emptyMsg.style.display = 'none';
         }
-    </style>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Inicializar Swipers
-            
-            // Banner Principal
-            new Swiper(".rbt-home-banner-activation", {
-                slidesPerView: 2.2,
-                spaceBetween: 30,
+    }
+
+    function filterSectionModalidade(btn, gridId, mode) {
+        // 1. Atualizar estilos dos botões da pílula
+        const parent = btn.parentElement;
+        const buttons = parent.querySelectorAll('.pill-btn');
+        buttons.forEach(b => {
+            b.style.background = 'transparent';
+            b.style.color = document.body.classList.contains('active-dark-mode') ? '#94a3b8' : '#475569';
+            b.classList.remove('active');
+        });
+        btn.style.background = '#2f57ef';
+        btn.style.color = '#ffffff';
+        btn.classList.add('active');
+
+        // 2. Filtrar os cards no grid alvo
+        const grid = document.getElementById(gridId);
+        if (!grid) return;
+        const cards = grid.querySelectorAll('.drawing-card, .drawing-intl-card');
+        let countVisible = 0;
+
+        cards.forEach(card => {
+            const mod = (card.getAttribute('data-modalidade') || 'PRESENCIAL').toUpperCase().trim();
+            let show = false;
+
+            if (mode === 'ALL') {
+                show = true;
+            } else if (mode === 'PRESENCIAL') {
+                show = (mod === 'PRESENCIAL' || mod === 'HIBRIDO');
+            } else if (mode === 'ONLINE') {
+                show = (mod === 'ONLINE');
+            }
+
+            if (show) {
+                card.style.display = 'flex';
+                countVisible++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // 3. Feedback se não houver cursos daquela modalidade no trecho
+        let emptyMsg = grid.querySelector('.empty-modalidade-msg');
+        if (countVisible === 0) {
+            if (!emptyMsg) {
+                emptyMsg = document.createElement('div');
+                emptyMsg.className = 'empty-modalidade-msg';
+                emptyMsg.style.cssText = 'grid-column: 1 / -1; padding: 24px; text-align: center; color: #64748b; font-size: 13.5px; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1; margin: 8px 0;';
+                grid.appendChild(emptyMsg);
+            }
+            emptyMsg.innerHTML = mode === 'ONLINE' ? 
+                '<i class="fas fa-video me-2" style="color:#2f57ef;"></i>Nenhum curso online nesta seção. <a href="/curso_video/" style="color:#2f57ef; font-weight:600; text-decoration:underline; margin-left:6px;">Ver Cursos Online →</a>' : 
+                '<i class="fas fa-building me-2" style="color:#2f57ef;"></i>Nenhum curso presencial nesta seção. <a href="/todo_curso/" style="color:#2f57ef; font-weight:600; text-decoration:underline; margin-left:6px;">Ver Cursos Presenciais →</a>';
+            emptyMsg.style.display = 'block';
+        }
+    }
+
+    // Inicialização do Slider Suave de Publicidade
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof Swiper !== 'undefined') {
+            new Swiper('.hero-pub-swiper', {
+                slidesPerView: 1,
+                spaceBetween: 0,
                 loop: true,
-                autoplay: { delay: 5000, disableOnInteraction: false },
-                pagination: { el: '.rbt-swiper-pagination', clickable: true },
-                breakpoints: {
-                    0: { slidesPerView: 1.1, spaceBetween: 20 },
-                    768: { slidesPerView: 1.5, spaceBetween: 25 },
-                    1200: { slidesPerView: 2.2, spaceBetween: 30 }
-                }
-            });
-
-            // Categorias - inicializado aqui (prevalece sobre main.js)
-            if (document.querySelector('.category-activation-four')) {
-                new Swiper(".category-activation-four", {
-                    slidesPerView: 2,
-                    spaceBetween: 12,
-                    loop: false,
-                    watchOverflow: true,
-                    freeMode: true,
-                    navigation: { nextEl: '.rbt-swiper-arrow.rbt-arrow-right', prevEl: '.rbt-swiper-arrow.rbt-arrow-left' },
-                    breakpoints: {
-                        0:    { slidesPerView: 2, spaceBetween: 10 },
-                        576:  { slidesPerView: 2, spaceBetween: 15 },
-                        992:  { slidesPerView: 3, spaceBetween: 20 },
-                        1200: { slidesPerView: 4, spaceBetween: 20 }
-                    }
-                });
-            }
-
-            // Secções Dinâmicas
-            document.querySelectorAll('[class*="dynamicCourseSwiper-"]').forEach(function(swiperContainer) {
-                let classList = Array.from(swiperContainer.classList);
-                let swiperClass = classList.find(c => c.startsWith('dynamicCourseSwiper-'));
-                let slug = swiperClass.replace('dynamicCourseSwiper-', '');
-
-                new Swiper("." + swiperClass, {
-                    slidesPerView: 3,
-                    spaceBetween: 25,
-                    loop: true,
-                    watchOverflow: true,
-                    navigation: { 
-                        nextEl: '.swiper-next-' + slug, 
-                        prevEl: '.swiper-prev-' + slug 
-                    },
-                    breakpoints: {
-                        0: { slidesPerView: 'auto', spaceBetween: 15 },
-                        768: { slidesPerView: 2 },
-                        992: { slidesPerView: 3 },
-                        1200: { slidesPerView: 3.2 }
-                    }
-                });
-            });
-
-            // Instrutores
-            new Swiper(".instrutoresSwiper", {
-                slidesPerView: 5,
-                spaceBetween: 25,
-                loop: true,
-                watchOverflow: true,
-                autoplay: { delay: 4000, disableOnInteraction: false },
-                pagination: { el: '.rbt-swiper-pagination', clickable: true },
-                breakpoints: {
-                    0: { slidesPerView: 1.2, spaceBetween: 15 },
-                    576: { slidesPerView: 2, spaceBetween: 20 },
-                    992: { slidesPerView: 4, spaceBetween: 25 },
-                    1200: { slidesPerView: 5, spaceBetween: 25 }
-                }
-            });
-        });
-    </script>
-    
-
-    <!-- PWA Service Worker Registration e Banner -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
+                speed: 700,
+                autoplay: {
+                    delay: 4500,
+                    disableOnInteraction: false,
+                },
+                pagination: {
+                    el: '.hero-pub-pagination',
+                    clickable: true,
+                },
             });
         }
-
-        // Lógica do Banner de Instalação PWA
-        let deferredPrompt;
-        const installBanner = document.getElementById('pwa-install-banner');
-        const installBtn = document.getElementById('pwa-install-btn');
-        const closeBtn = document.getElementById('pwa-install-close');
-
-        // Styles specific for PWA native feel (standalone mode)
-        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-            document.body.classList.add('is-pwa-standalone');
-        }
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Impede o Chrome de exibir o prompt padrão
-            e.preventDefault();
-            // Guarda o evento para usá-lo quando clicarmos no botão
-            deferredPrompt = e;
-            // Exibe o nosso banner customizado se o usuário ainda não o tiver fechado nesta sessão
-            if (!sessionStorage.getItem('pwaPromptDismissed')) {
-                installBanner.style.display = 'flex';
-            }
-        });
-
-        installBtn.addEventListener('click', async () => {
-            // Esconde o banner
-            installBanner.style.display = 'none';
-            // Se o evento estiver guardado, aciona o prompt nativo
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                // Aguarda a resposta do usuário
-                const { outcome } = await deferredPrompt.userChoice;
-                console.log(`Escolha de instalação: ${outcome}`);
-                // Limpa a variável
-                deferredPrompt = null;
-            }
-        });
-
-        closeBtn.addEventListener('click', () => {
-            installBanner.style.display = 'none';
-            sessionStorage.setItem('pwaPromptDismissed', 'true');
-        });
-        
-        // Esconde o banner permanentemente se o app já foi instalado
-        window.addEventListener('appinstalled', (evt) => {
-            installBanner.style.display = 'none';
-        });
+    });
     </script>
 </body>
 </html>

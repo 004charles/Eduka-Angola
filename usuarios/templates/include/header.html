@@ -2,6 +2,73 @@
 {% load i18n %}
 {% load language_tags %}
 
+<style>
+/* HEADER UL/LI & MEGAMENU RESET */
+.rbt-main-navigation ul,
+.rbt-main-navigation li,
+.mainmenu,
+.mainmenu li,
+.mega-menu-item,
+.mega-menu-item li,
+.submenu,
+.submenu li {
+  list-style: none !important;
+  margin: 0;
+  padding: 0;
+}
+.mainmenu {
+  display: flex !important;
+  align-items: center !important;
+  gap: 24px !important;
+}
+.mainmenu li.with-megamenu,
+.mainmenu li.has-dropdown,
+.mainmenu li.has-menu-child-item {
+  position: relative !important;
+}
+.mainmenu-nav .rbt-megamenu,
+.mainmenu-nav .submenu {
+  display: none !important;
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  background-color: #ffffff !important;
+  border: 1px solid #e6e3f1 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+  padding: 20px !important;
+  z-index: 99999 !important;
+  min-width: 240px !important;
+}
+body.active-dark-mode .mainmenu-nav .rbt-megamenu,
+body.active-dark-mode .mainmenu-nav .submenu {
+  background-color: #1e1e1e !important;
+  border-color: rgba(255,255,255,0.15) !important;
+}
+.mainmenu li:hover > .rbt-megamenu,
+.mainmenu li:hover > .submenu {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* HIDE SEARCH POPUP & MOBILE MENU DRAWERS UNLESS OPENED */
+.rbt-search-dropdown,
+.popup-mobile-menu {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+.rbt-search-dropdown.active,
+.rbt-search-dropdown.open,
+.popup-mobile-menu.active,
+.popup-mobile-menu.open {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+</style>
+
 <header class="rbt-header rbt-header-4 rbt-header-4-container-var">
     {% csrf_token %}
     {% include 'include/theme_switcher.html' %}
@@ -134,6 +201,7 @@
                             <li><a href="{% url 'index' %}">Home</a></li>
                             <li><a href="{% url 'lista_centros' %}">{% trans "Centros de Formação" %}</a></li>
                             <li><a href="{% url 'escolas:lista_escolas' %}">{% trans "Escolas e Liceus" %}</a></li>
+                            <li><a href="{% url 'fundo_bolsas' %}">{% trans "Bolsas de Estudo" %}</a></li>
                             <li class="with-megamenu has-menu-child-item">
                                 <a href="#">{% trans "Explorar" %} <i class="feather-chevron-down"></i></a>
                                 <!-- Start Mega Menu  -->
@@ -162,10 +230,10 @@
                                                 </ul>
                                             </div>
                                             <div class="col-lg-12 col-xl-6 col-xxl-6 single-mega-item">
-                                                <h3 class="rbt-short-title">{% trans "Carreira" %}</h3>
+                                                <h3 class="rbt-short-title">{% trans "Informaçāo & Notícias" %}</h3>
                                                 <ul class="mega-menu-item">
-                                                    <li><a href="{% url 'carreira:job_board' %}">{% trans "Mural de Vagas" %}</a></li>
-                                                    <li><a href="{% url 'blog:lista_posts' %}">{% trans "Notícias" %}</a></li>
+                                                    <li><a href="{% url 'blog:lista_posts' %}">{% trans "Notícias & Artigos" %}</a></li>
+                                                    <li><a href="{% url 'sobre' %}">{% trans "Sobre a Plataforma" %}</a></li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -177,8 +245,6 @@
                                 <a href="#">Plataforma <i class="feather-chevron-down"></i></a>
                                 <ul class="submenu">
                                     <li><a href="{% url 'cursovideoapp:home_videos' %}">EdukAngola Play</a></li>
-                                    <li><a href="{% url 'cursovideoapp:analytics_mercado' %}">Analytics</a></li>
-                                    <li><a href="{% url 'cursovideoapp:orientador_ia' %}">Orientador IA</a></li>
                                     <li><a href="{% url 'blog:lista_posts' %}">Blog</a></li>
                                 </ul>
                             </li>
