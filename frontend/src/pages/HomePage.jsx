@@ -29,7 +29,7 @@ export default function HomePage({ data, loading, onNavigate, onAnnounce }) {
       </section>
       <CareerCompetenciesSection data={data} onNavigate={onNavigate} />
       <SkillsDiscoverySection data={data} loading={loading} onAnnounce={onAnnounce} />
-      <DynamicCatalogShelves data={data} loading={loading} onAnnounce={onAnnounce} collectionHref="/cursos" includeCatalog={false} />
+      <DynamicCatalogShelves data={data} loading={loading} onAnnounce={onAnnounce} onNavigate={onNavigate} collectionHref="/cursos" includeCatalog={false} />
       <RecommendedCoursesSection onNavigate={onNavigate} />
     </main>
   );

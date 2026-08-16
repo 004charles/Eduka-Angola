@@ -1,4 +1,5 @@
 import CourseShelf from "./CourseShelf";
+import LibraryHomepageShelf from "./LibraryHomepageShelf";
 import { backendUrl } from "../lib/backend-url";
 import { etiquetaProduto, isVideoCurso, rotaDetalheProduto, textoRodapeProduto, tipoProduto } from "../lib/product-type";
 import "./dynamic-catalog-shelves.css";
@@ -115,7 +116,7 @@ function construirColecoes(data, incluirCatalogo = true) {
   return { cartoes, colecoes };
 }
 
-export default function DynamicCatalogShelves({ data, loading, query, onAnnounce, collectionHref, limitCollections, includeCatalog = true }) {
+export default function DynamicCatalogShelves({ data, loading, query, onAnnounce, onNavigate, collectionHref, limitCollections, includeCatalog = true }) {
   const { cartoes, colecoes } = construirColecoes(data, includeCatalog);
   const consulta = normalizar(query);
   const resultados = consulta
@@ -137,5 +138,6 @@ export default function DynamicCatalogShelves({ data, loading, query, onAnnounce
     return <section id="catalogo" className="page-width catalog-state"><span className="eyebrow muted">Catálogo real</span><h2>Não existem cursos publicados neste momento.</h2><p>Quando um centro publicar um curso, ele aparecerá automaticamente nesta área.</p></section>;
   }
 
-  return <>{colecoes.slice(0, limitCollections).map((colecao) => <CourseShelf key={colecao.id} {...colecao} onAnnounce={onAnnounce} collectionHref={collectionHref} />)}</>;
+  const visibleCollections = colecoes.slice(0, limitCollections);
+  return <>{visibleCollections.map((colecao) => <span key={colecao.id}>{colecao.id === "destaques" && <LibraryHomepageShelf onNavigate={onNavigate} />}<CourseShelf {...colecao} onAnnounce={onAnnounce} collectionHref={collectionHref} /></span>)}</>;
 }
