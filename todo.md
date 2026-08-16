@@ -55,3 +55,7 @@
 - [x] Criar submissão autenticada de depoimento sobre a plataforma com consentimento e pendência
 - [x] Integrar experiências reais e convite de participação na página Sobre nós
 - [ ] Validar moderação, permissões e apresentação pública dos depoimentos
+
+- [x] Auditar a arquitectura editorial da página inicial e os dados públicos disponíveis no backend
+- [x] Substituir a sequência repetitiva de listagens de cursos por secções de descoberta orientadas a percursos, necessidades e oportunidades
+- [x] Validar a nova página inicial em desktop e garantir que todas as secções conduzem a cursos, centros ou acções relevantes

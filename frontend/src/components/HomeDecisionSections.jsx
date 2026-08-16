@@ -16,8 +16,8 @@ export default function HomeDecisionSections({ data, loading, error, onAnnounce 
   return (
     <>
       <section className="page-width decision-section decision-section-first" id="turmas-abertas">
-        <div className="section-heading">
-          <div><span className="eyebrow muted"><CalendarDays size={14} /> Próximas oportunidades</span><h2>Turmas abertas para começar em breve.</h2><p>Datas, horários, vagas e pagamento exibidos conforme a configuração real de cada curso.</p></div>
+          <div className="section-heading">
+          <div><span className="eyebrow muted"><CalendarDays size={14} /> Próximas oportunidades</span><h2>Turmas abertas que permitem decidir com clareza.</h2><p>Veja a data, o horário, as vagas e o pagamento configurados pelo centro antes de abrir o curso.</p></div>
           <span className="data-status">{loading ? "A atualizar" : "Dados do portal"}</span>
         </div>
         {error ? <EmptyState>Não foi possível carregar as turmas neste momento.</EmptyState> : turmas.length === 0 ? <EmptyState>Não existem turmas abertas neste momento.</EmptyState> : (
@@ -38,7 +38,7 @@ export default function HomeDecisionSections({ data, loading, error, onAnnounce 
       </section>
 
       <section className="page-width decision-section" id="centros-destaque">
-        <div className="section-heading"><div><span className="eyebrow muted"><ShieldCheck size={14} /> Centros no portal</span><h2>Centros de formação em destaque.</h2><p>Veja centros com cursos publicados, modalidades disponíveis e identificação de verificação quando aplicável.</p></div></div>
+        <div className="section-heading"><div><span className="eyebrow muted"><ShieldCheck size={14} /> Centros no portal</span><h2>Escolha também quem vai acompanhar a sua formação.</h2><p>Compare os centros que já publicam cursos, modalidades e informação de localização no portal.</p></div></div>
         {loading ? <EmptyState>A carregar centros publicados.</EmptyState> : centros.length === 0 ? <EmptyState>Ainda não existem centros com cursos publicados para apresentar.</EmptyState> : (
           <div className="centre-discovery-grid">
             {centros.slice(0, 4).map((centro) => <a className="centre-discovery-card" href={centro.perfil_url} key={centro.id}><div className="centre-initial">{centro.nome.slice(0, 1)}</div><div className="centre-discovery-main"><div><h3>{formatarMarca(centro.nome)}</h3>{centro.verificado && <span className="verified-label"><CheckCircle2 size={13} /> Verificado</span>}</div><p>{[centro.cidade, centro.provincia].filter(Boolean).join(", ") || "Localização a confirmar"}</p><span>{centro.total_cursos} {centro.total_cursos === 1 ? "curso publicado" : "cursos publicados"} · {centro.modalidades.join(", ") || "Modalidade a confirmar"}</span></div><ChevronRight size={19} /></a>)}
