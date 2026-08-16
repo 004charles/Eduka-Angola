@@ -111,3 +111,4 @@
 - [x] Validar os cartões corrigidos na página inicial sem remover funcionalidades existentes
 - [x] Distribuir os novos cursos de demonstração pelas prateleiras da página inicial sem repetição indevida
 - [x] Repor a apresentação de cursos da página inicial ao padrão anterior à reformulação editorial, preservando preços, favoritos e cursos novos
+- [x] Recolocar a secção Carreiras e competências logo após as categorias na página inicial

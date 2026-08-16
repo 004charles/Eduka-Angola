@@ -1,5 +1,6 @@
 import { ArrowRight, BookOpen, ChevronRight, GraduationCap, MapPin, SlidersHorizontal } from "lucide-react";
 import CampaignCarousel from "../components/CampaignCarousel";
+import CareerCompetenciesSection from "../components/CareerCompetenciesSection";
 import DynamicCatalogShelves from "../components/DynamicCatalogShelves";
 import SkillsDiscoverySection from "../components/SkillsDiscoverySection";
 import RecommendedCoursesSection from "../components/RecommendedCoursesSection";
@@ -26,6 +27,7 @@ export default function HomePage({ data, loading, onNavigate, onAnnounce }) {
         <div className="section-heading"><div><span className="eyebrow muted"><SlidersHorizontal size={14} /> {t("home.eyebrow")}</span><h2>{t("home.title")}</h2></div><button className="text-action" onClick={() => goToCatalogue()}>{t("home.allAreas")} <ArrowRight size={16} /></button></div>
         <div className="category-grid">{categories.map((category) => <button className="category-card" key={category.key} onClick={() => goToCatalogue(category.query)}><span className="category-icon">{category.icon}</span><span><strong>{t(`category.${category.key}`)}</strong><small>{t(`category.${category.key}Copy`)}</small></span><ChevronRight size={17} /></button>)}</div>
       </section>
+      <CareerCompetenciesSection data={data} onNavigate={onNavigate} />
       <SkillsDiscoverySection data={data} loading={loading} onAnnounce={onAnnounce} />
       <DynamicCatalogShelves data={data} loading={loading} onAnnounce={onAnnounce} collectionHref="/cursos" includeCatalog={false} />
       <RecommendedCoursesSection onNavigate={onNavigate} />
