@@ -367,3 +367,4 @@
 }
 
 @keyframes auth-course-in { from { opacity: 0; transform: translateX(-16px) scale(.99); } to { opacity: 1; transform: translateX(0) scale(1); } }
+.auth-card-footer small a{color:var(--brand);font-weight:800;text-decoration:none}.auth-card-footer small a:hover{text-decoration:underline}

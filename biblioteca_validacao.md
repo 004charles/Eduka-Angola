@@ -18,3 +18,7 @@ A homepage apresenta a estante “Livros para continuar a aprender.” depois da
 ## FAQ e navegação compacta
 
 A página Perguntas frequentes foi validada com pesquisa, respostas expansíveis e acessos para cursos e explicação da plataforma. O menu principal foi reduzido para Explorar, Biblioteca, Notícias, Eventos e Centros; Como funciona, Sobre e Perguntas frequentes estão agrupados no submenu Mais.
+
+## Política de privacidade
+
+A página pública de Política de privacidade foi validada em português e é acessível pelo submenu Mais. O formulário de criação de conta mostra o link de política em nova aba, permitindo a consulta sem perder os dados já preenchidos.
