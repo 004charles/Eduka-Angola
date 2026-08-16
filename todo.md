@@ -118,3 +118,6 @@
 - [x] Implementar API, acesso pessoal, leitura e escuta de obras digitais
 - [x] Criar a experiência editorial React da Biblioteca sem grelha de cartões
 - [x] Adicionar obras próprias de demonstração e validar a Biblioteca Edukangola
+- [x] Guardar a página exacta de leitura e perguntar se o aluno quer continuar ou começar novamente
+- [x] Adicionar leitura em voz alta com reproduzir, pausar, velocidade e acessibilidade
+- [x] Validar retoma, reinício, progresso e leitura em voz alta na Biblioteca

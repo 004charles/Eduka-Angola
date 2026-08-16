@@ -61,7 +61,7 @@ def _book_data(request, book, include_content=False, library_entry=None):
         "selecao_semana": book.selecao_semana,
     }
     if library_entry:
-        data["biblioteca_pessoal"] = {"guardado": library_entry.guardado, "progresso_leitura": library_entry.progresso_leitura, "progresso_audio_segundos": library_entry.progresso_audio_segundos}
+        data["biblioteca_pessoal"] = {"guardado": library_entry.guardado, "progresso_leitura": library_entry.progresso_leitura, "pagina_leitura": library_entry.pagina_leitura, "progresso_audio_segundos": library_entry.progresso_audio_segundos}
     if include_content:
         data["conteudo_leitura"] = book.conteudo_leitura
         data["capitulos_audio"] = [{"id": chapter.id, "titulo": chapter.titulo, "ordem": chapter.ordem, "duracao_segundos": chapter.duracao_segundos, "duracao_label": _seconds_label(chapter.duracao_segundos), "audio_url": _image_url(request, chapter.audio), "descricao": chapter.descricao} for chapter in audio_chapters]
@@ -128,10 +128,13 @@ def read_book(request, slug):
 def update_reading_progress(request, slug):
     book = get_object_or_404(_published_books(), slug=slug)
     entry, _ = BibliotecaPessoal.objects.get_or_create(usuario=request.user, livro=book)
+    payload = _request_data(request)
     try:
-        progress = max(0, min(100, int(_request_data(request).get("progresso", 0))))
+        progress = max(0, min(100, int(payload.get("progresso", 0))))
+        page = max(0, int(payload.get("pagina", 0)))
     except (TypeError, ValueError):
         return JsonResponse({"detail": "Progresso inválido."}, status=400)
     entry.progresso_leitura = progress
-    entry.save(update_fields=("progresso_leitura", "ultima_atividade"))
-    return JsonResponse({"progresso_leitura": entry.progresso_leitura})
+    entry.pagina_leitura = page
+    entry.save(update_fields=("progresso_leitura", "pagina_leitura", "ultima_atividade"))
+    return JsonResponse({"progresso_leitura": entry.progresso_leitura, "pagina_leitura": entry.pagina_leitura})

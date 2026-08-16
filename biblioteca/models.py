@@ -114,6 +114,7 @@ class BibliotecaPessoal(models.Model):
     livro = models.ForeignKey(Livro, on_delete=models.CASCADE, related_name="presencas_biblioteca")
     guardado = models.BooleanField(default=True)
     progresso_leitura = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0)])
+    pagina_leitura = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0)])
     progresso_audio_segundos = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0)])
     ultima_atividade = models.DateTimeField(auto_now=True)
     criado_em = models.DateTimeField(auto_now_add=True)
