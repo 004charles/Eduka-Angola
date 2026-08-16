@@ -10,6 +10,7 @@ class PostViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = Post.objects.filter(status='publicado').select_related('categoria').prefetch_related('tags').order_by('-publicado_em')
     serializer_class = PostSerializer
+    lookup_field = 'slug'
     permission_classes = [permissions.AllowAny]
     filter_backends = [filters.SearchFilter]
     search_fields = ['titulo', 'conteudo', 'resumo']

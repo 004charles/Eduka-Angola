@@ -27,6 +27,7 @@ export default function PublicLayout({ children, student, theme, language, onThe
 
   const items = [
     { href: "/cursos", label: t("nav.explore") },
+    { href: "/blog", label: t("nav.news") },
     { href: "/centros", label: t("nav.centres") },
     { href: "/como-funciona", label: t("nav.how") },
   ];
@@ -55,7 +56,7 @@ export default function PublicLayout({ children, student, theme, language, onThe
           </nav>
           <div className="topbar-actions">
             <button className="header-search-trigger" onClick={() => setQuickSearchOpen(true)} aria-label={t("nav.openSearch")}><Search size={18} /></button>
-            <a className="header-centres-link" href="/centros" onClick={(event) => goTo(event, "/centros")}>{t("nav.forCentres")}</a>
+            <a className="header-centres-link" href="/para-centros" onClick={(event) => goTo(event, "/para-centros")}>{t("nav.forCentres")}</a>
             <label className="language-picker"><span className="sr-only">{t("nav.language")}</span><select value={language} onChange={(event) => onLanguageChange(event.target.value)} aria-label={t("nav.language")}>{LANGUAGES.map((item) => <option key={item.code} value={item.code}>{item.short}</option>)}</select></label>
             <button className="theme-button" onClick={onThemeChange} aria-label={t("nav.theme")}>{theme === "light" ? <Moon size={18} /> : <Sun size={18} />}</button>
             {student ? <a className="student-account-link" href="/aluno" onClick={(event) => goTo(event, "/aluno")} aria-label={t("nav.openStudent", { name: studentFirstName })}><span className="student-account-avatar" aria-hidden="true"><UserRound size={15} /></span><span className="student-account-copy"><small>{t("nav.activeAccount")}</small><strong>{studentFirstName}</strong></span></a> : <><a className="login-link" href="/entrar" onClick={(event) => goTo(event, "/entrar")}>{t("nav.login")}</a><a className="header-cta" href="/criar-conta" onClick={(event) => goTo(event, "/criar-conta")}>{t("nav.createAccount")}</a></>}

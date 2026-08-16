@@ -38,6 +38,10 @@ class Post(models.Model):
         ('rascunho', 'Rascunho'),
         ('publicado', 'Publicado'),
     )
+    TIPO_CONTEUDO_CHOICES = (
+        ('artigo', 'Artigo'),
+        ('video', 'Notícia em vídeo'),
+    )
 
     titulo = models.CharField(_('Título'), max_length=200)
     slug = models.SlugField(_('Slug'), max_length=220, unique=True)
@@ -51,6 +55,9 @@ class Post(models.Model):
         help_text="Breve descrição que aparecerá nas listagens"
     )
     imagem_capa = models.ImageField(_('Imagem de Capa'), upload_to='posts/capas/', blank=True, null=True)
+    tipo_conteudo = models.CharField(_('Tipo de conteúdo'), max_length=12, choices=TIPO_CONTEUDO_CHOICES, default='artigo')
+    video_url = models.URLField(_('URL do vídeo'), blank=True, help_text='URL pública do vídeo, por exemplo YouTube ou Vimeo.')
+    duracao_video = models.CharField(_('Duração do vídeo'), max_length=20, blank=True)
     publicado_em = models.DateTimeField(_('Publicado em'), default=timezone.now)
     atualizado_em = models.DateTimeField(_('Atualizado em'), auto_now=True)
     status = models.CharField(_('Status'), max_length=20, choices=STATUS_CHOICES, default='rascunho')

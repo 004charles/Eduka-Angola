@@ -6,20 +6,22 @@ from .models import Categoria, Tag, Post, Comentario
 from django.utils.html import format_html
 
 class PostAdmin(UnfoldModelAdmin):
-    list_display = ('titulo', 'categoria', 'status', 'publicado_em', 'visualizacoes')
-    list_filter = ('status', 'categoria', 'tags', 'publicado_em')
+    list_display = ('titulo', 'tipo_conteudo', 'categoria', 'status', 'publicado_em', 'visualizacoes')
+
+    list_filter = ('tipo_conteudo', 'status', 'categoria', 'tags', 'publicado_em')
+
     search_fields = ('titulo', 'conteudo')
     prepopulated_fields = {'slug': ('titulo',)}
     date_hierarchy = 'publicado_em'
     ordering = ('-publicado_em',)
     filter_horizontal = ('tags',)
-    
+
     fieldsets = (
         (None, {
             'fields': ('titulo', 'slug', 'categoria', 'tags', 'status')
         }),
-        ('Conteúdo', {
-            'fields': ('imagem_capa', 'resumo', 'conteudo')
+('Conteúdo', {
+            'fields': ('imagem_capa', 'tipo_conteudo', 'video_url', 'duracao_video', 'resumo', 'conteudo')
         }),
         ('Datas', {
             'fields': ('publicado_em',)

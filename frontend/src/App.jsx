@@ -11,6 +11,9 @@ import AuthPage from "./pages/AuthPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import StudentDashboardPage from "./pages/StudentDashboardPage";
 import CenterProfilePage from "./pages/CenterProfilePage";
+import ForCentersPage from "./pages/ForCentersPage";
+import BlogPage from "./pages/BlogPage";
+import BlogPostPage from "./pages/BlogPostPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import { getStudentSession } from "./lib/auth-api";
 import { I18nProvider, LANGUAGES } from "./lib/i18n";
@@ -73,12 +76,14 @@ function App() {
   const [pathname, queryString = ""] = route.split("?");
   const searchParams = new URLSearchParams(queryString);
   const catalogFilters = Object.fromEntries(searchParams.entries());
+  const centerInviteToken = searchParams.get("convite");
   const authModes = { "/entrar": "login", "/criar-conta": "register", "/verificar-email": "verify", "/recuperar-palavra-passe": "recover", "/redefinir-palavra-passe": "reset" };
   const courseRouteMatch = pathname.match(/^\/cursos\/(\d+)\/?$/);
   const videoCourseRouteMatch = pathname.match(/^\/video-cursos\/([^/]+)\/?$/);
   const checkoutCourseRouteMatch = pathname.match(/^\/inscrever\/(\d+)\/?$/);
   const checkoutVideoRouteMatch = pathname.match(/^\/comprar\/([^/]+)\/?$/);
   const centerRouteMatch = pathname.match(/^\/centros\/(\d+)\/?$/);
+  const blogPostRouteMatch = pathname.match(/^\/blog\/([^/]+)\/?$/);
   const courseId = courseRouteMatch ? Number(courseRouteMatch[1]) : null;
   const checkoutCourseId = checkoutCourseRouteMatch ? Number(checkoutCourseRouteMatch[1]) : null;
   const selectedCourse = courseId ? homeData?.cursos?.find((course) => course.id === courseId) : null;
@@ -94,6 +99,9 @@ function App() {
   else if (courseRouteMatch) page = <CourseDetailPage course={selectedCourse} courses={homeData?.cursos} turmas={homeData?.turmas_abertas} loading={homeDataLoading} onNavigate={navigate} onAnnounce={announce} />;
   else if (videoCourseRouteMatch) page = <VideoCourseDetailPage slug={decodeURIComponent(videoCourseRouteMatch[1])} onNavigate={navigate} />;
   else if (pathname === "/centros") page = <CentersPage data={homeData} loading={homeDataLoading} onNavigate={navigate} />;
+  else if (pathname === "/para-centros") page = <ForCentersPage inviteToken={centerInviteToken} onNavigate={navigate} onAnnounce={announce} />;
+  else if (blogPostRouteMatch) page = <BlogPostPage slug={decodeURIComponent(blogPostRouteMatch[1])} onNavigate={navigate} />;
+  else if (pathname === "/blog" || pathname === "/blog/") page = <BlogPage language={language} onNavigate={navigate} />;
   else if (pathname === "/como-funciona") page = <HowItWorksPage onNavigate={navigate} />;
   else page = <NotFoundPage onNavigate={navigate} />;
 
