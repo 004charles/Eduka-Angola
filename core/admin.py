@@ -2,7 +2,7 @@ from django.contrib import admin
 from unfold.admin import ModelAdmin as UnfoldModelAdmin
 from unfold.admin import TabularInline as UnfoldTabularInline
 from unfold.admin import StackedInline as UnfoldStackedInline
-from .models import SobreNos, MensagemContato, Galeria, Publicidade, ClienteAPIKey
+from .models import SobreNos, MensagemContato, Galeria, Publicidade, ClienteAPIKey, PerguntaFrequente
 
 @admin.register(Galeria)
 class GaleriaAdmin(UnfoldModelAdmin):
@@ -42,3 +42,11 @@ class ClienteAPIKeyAdmin(UnfoldModelAdmin):
     search_fields = ('nome_cliente',)
     readonly_fields = ('chave', 'criado_em', 'ultimo_uso')
 
+
+@admin.register(PerguntaFrequente)
+class PerguntaFrequenteAdmin(UnfoldModelAdmin):
+    list_display = ('pergunta', 'categoria', 'idioma', 'ordem', 'publicada', 'atualizado_em')
+    list_filter = ('publicada', 'idioma', 'categoria')
+    search_fields = ('pergunta', 'resposta', 'categoria')
+    list_editable = ('ordem', 'publicada')
+    ordering = ('idioma', 'categoria', 'ordem')

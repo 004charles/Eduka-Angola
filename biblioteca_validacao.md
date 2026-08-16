@@ -22,3 +22,7 @@ A página Perguntas frequentes foi validada com pesquisa, respostas expansíveis
 ## Política de privacidade
 
 A página pública de Política de privacidade foi validada em português e é acessível pelo submenu Mais. O formulário de criação de conta mostra o link de política em nova aba, permitindo a consulta sem perder os dados já preenchidos.
+
+## FAQ dinâmica no Django Admin
+
+A página FAQ passou a carregar exclusivamente o endpoint público `/api/public/faq/`, filtrado por idioma e estado de publicação. Foram validadas perguntas publicadas em português e inglês, incluindo agrupamento por categoria e pesquisa no frontend.

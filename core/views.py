@@ -36,7 +36,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
-from .models import Galeria, SobreNos, MensagemContato, Publicidade
+from .models import Galeria, SobreNos, MensagemContato, Publicidade, PerguntaFrequente
 from avaliacoes.utils import get_centro_da_semana
 from cursos_app.utils_secoes import get_home_sections_data
 
@@ -1706,3 +1706,24 @@ def dashboard_callback(request, context):
         "chart_python": chart_image_base64,
     })
     return context
+
+@require_GET
+def public_faq(request):
+    idioma = (request.GET.get('idioma') or 'pt').lower()
+    idiomas_validos = {choice[0] for choice in PerguntaFrequente.IDIOMA_CHOICES}
+    if idioma not in idiomas_validos:
+        idioma = 'pt'
+    perguntas = PerguntaFrequente.objects.filter(publicada=True, idioma=idioma).order_by('categoria', 'ordem', 'id')
+    return JsonResponse({
+        'idioma': idioma,
+        'perguntas': [
+            {
+                'id': item.id,
+                'categoria': item.categoria,
+                'pergunta': item.pergunta,
+                'resposta': item.resposta,
+                'ordem': item.ordem,
+            }
+            for item in perguntas
+        ],
+    })

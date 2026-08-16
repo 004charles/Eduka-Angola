@@ -106,3 +106,33 @@ class ClienteAPIKey(models.Model):
     def __str__(self):
         return f"{self.nome_cliente} ({'Ativo' if self.ativo else 'Inativo'})"
 
+
+class PerguntaFrequente(models.Model):
+    IDIOMA_PT = 'pt'
+    IDIOMA_EN = 'en'
+    IDIOMA_FR = 'fr'
+    IDIOMA_ZH = 'zh'
+    IDIOMA_CHOICES = (
+        (IDIOMA_PT, 'Português'),
+        (IDIOMA_EN, 'English'),
+        (IDIOMA_FR, 'Français'),
+        (IDIOMA_ZH, '中文'),
+    )
+
+    categoria = models.CharField('Categoria', max_length=120, db_index=True)
+    pergunta = models.CharField('Pergunta', max_length=420)
+    resposta = models.TextField('Resposta')
+    idioma = models.CharField('Idioma', max_length=8, choices=IDIOMA_CHOICES, default=IDIOMA_PT, db_index=True)
+    ordem = models.PositiveIntegerField('Ordem', default=0)
+    publicada = models.BooleanField('Publicada', default=False, db_index=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Pergunta frequente'
+        verbose_name_plural = 'Perguntas frequentes'
+        ordering = ('idioma', 'categoria', 'ordem', 'id')
+        constraints = [models.UniqueConstraint(fields=('idioma', 'categoria', 'pergunta'), name='core_faq_idioma_categoria_pergunta_unica')]
+
+    def __str__(self):
+        return f'[{self.get_idioma_display()}] {self.pergunta}'
