@@ -27,7 +27,7 @@ function takeUnique(candidates, usedIds, limit = 3) {
   return selected;
 }
 
-export default function CourseEditorialShowcase({ data, onNavigate }) {
+export default function CourseEditorialShowcase({ data, onNavigate, onAnnounce }) {
   const groups = useMemo(() => courseGroups(data), [data]);
   const [activeCareer, setActiveCareer] = useState("");
   const currentCareer = groups.find(([name]) => name === activeCareer) || groups[0] || ["", []];
@@ -57,7 +57,8 @@ export default function CourseEditorialShowcase({ data, onNavigate }) {
 
       {spotlightCourses.length > 0 && <section className="course-spotlights" aria-label="Cursos em destaque"><div className="course-spotlight-list">{spotlightCourses.map((course, index) => <a className={`course-spotlight spotlight-${index}`} href={rotaDetalheProduto(course)} key={course.id}><div><span className="eyebrow">{etiquetaProduto(course)}</span><h2>{course.titulo}</h2><p>Com {course.centro || "Edukangola"}</p><strong>Ver curso <ArrowRight size={17} /></strong></div><img src={course.imagem_url} alt="" /></a>)}</div></section>}
 
-      <section className="editorial-trending" aria-labelledby="trending-title"><div className="editorial-section-title"><span className="eyebrow muted"><Sparkles size={14} /> Cursos em alta</span><h2 id="trending-title">Encontre algo novo para aprender.</h2></div><CourseDiscoveryShelves collections={collections} onNavigate={onNavigate} /></section>
+      <nav className="editorial-category-nav" aria-label="Explorar cursos por categoria"><span>Explorar por área</span><div>{groups.slice(0, 6).map(([name]) => <a href={`/cursos?categoria=${encodeURIComponent(name)}`} key={name}>{name}</a>)}</div></nav>
+      <section className="editorial-trending" aria-labelledby="trending-title"><div className="editorial-section-title"><span className="eyebrow muted"><Sparkles size={14} /> Cursos em alta</span><h2 id="trending-title">Encontre algo novo para aprender.</h2></div><CourseDiscoveryShelves collections={collections} onNavigate={onNavigate} onAnnounce={onAnnounce} /></section>
 
 
       <section className="editorial-promo" aria-label="Explorar cursos"><div><span className="eyebrow">Edukangola</span><h2>Cursos para começar, mudar ou avançar.</h2><button onClick={() => onNavigate("/cursos")}>Explorar cursos <ArrowRight size={17} /></button></div><div className="editorial-promo-art" aria-hidden="true"><span /><span /><PlayCircle size={48} /></div></section>
