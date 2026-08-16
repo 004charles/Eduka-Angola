@@ -1,0 +1,10 @@
+import { ArrowRight, CheckCircle2, MapPin, ShieldCheck, UsersRound } from "lucide-react";
+import "./public-pages.css";
+
+function displayName(nome) { return nome?.replace(/Eduka-Angola/gi, "Edukangola") ?? "Centro de formação"; }
+
+export default function CentersPage({ data, loading, onNavigate }) {
+  const centres = data?.centros_destaque ?? [];
+  const abrirCentro = (event, id) => { event.preventDefault(); onNavigate(`/centros/${id}`); };
+  return <main><section className="subpage-hero centres-page-hero"><div className="page-width"><span className="eyebrow"><UsersRound size={15} /> Centros de formação</span><h1>Encontre o centro certo para a sua formação.</h1><p>Veja centros com cursos publicados, modalidades disponíveis e informação de localização antes de comparar os seus cursos.</p></div></section><section className="page-width centres-directory"><div className="section-heading"><div><span className="eyebrow muted"><ShieldCheck size={14} /> Centros no portal</span><h2>Centros com cursos publicados.</h2><p>O selo de verificação é apresentado apenas quando existe no perfil do centro.</p></div></div>{loading ? <p className="page-empty">A carregar centros publicados.</p> : !centres.length ? <p className="page-empty">Ainda não existem centros com cursos publicados para apresentar.</p> : <div className="centres-page-grid">{centres.map((centre) => <a key={centre.id} className="centres-page-card" href={`/centros/${centre.id}`} onClick={(event) => abrirCentro(event, centre.id)}><span className="centre-initial">{centre.nome.slice(0, 1)}</span><div><div className="centre-title-row"><h3>{displayName(centre.nome)}</h3>{centre.verificado && <span className="verified-label"><CheckCircle2 size={13} /> Verificado</span>}</div><p><MapPin size={15} /> {[centre.cidade, centre.provincia].filter(Boolean).join(", ") || "Localização a confirmar"}</p><small>{centre.total_cursos} {centre.total_cursos === 1 ? "curso publicado" : "cursos publicados"} · {centre.modalidades.join(", ") || "Modalidade a confirmar"}</small></div><ArrowRight size={18} /></a>)}</div>}</section></main>;
+}

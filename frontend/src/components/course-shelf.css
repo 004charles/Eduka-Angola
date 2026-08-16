@@ -1,0 +1,18 @@
+.course-shelf {
+  padding: 34px 0;
+}
+
+.course-shelf-featured {
+  padding-top: 42px;
+}
+
+.course-shelf + .course-shelf {
+  border-top: 1px solid var(--line);
+}
+
+
+@media (max-width: 620px) {
+  .course-shelf {
+    padding: 32px 0;
+  }
+}

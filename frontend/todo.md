@@ -1,0 +1,100 @@
+# Project TODO
+
+- [x] Criar e validar a página index pública em React
+- [x] Aplicar identidade Eduka-Angola em modos claro e escuro
+- [x] Ligar pesquisa e catálogo ao backend Django
+- [x] Criar página de resultados e filtros reais
+- [x] Criar detalhe de curso com turmas, vagas e condições de pagamento
+- [x] Integrar login e inscrição sem alterar o GestorEduka
+- [x] Definir um componente visual único para cartões de curso em toda a Eduka-Angola
+- [x] Reduzir a largura dos cartões de curso na index e incluir mais cartões por área visível
+- [x] Adicionar um carrossel de cursos com navegação manual e deslocamento automático acessível
+- [x] Adicionar novas secções relevantes à index pública
+- [x] Corrigir o carrossel para não deslocar a página verticalmente ao navegar
+- [x] Adicionar várias secções temáticas de cursos com carrosséis reutilizáveis na index
+- [x] Criar coleções de cursos para tecnologia, novos cursos, idiomas e gestão
+- [x] Validar que cada secção de cursos mantém a navegação horizontal independente
+- [x] Adicionar secção de próximas turmas abertas com condições reais de inscrição
+- [x] Adicionar descoberta de cursos por localização com estado honesto até existir filtro real
+- [x] Adicionar centros em destaque com informação de verificação e modalidades
+- [x] Adicionar resumo claro do processo de inscrição e pagamento
+- [x] Remover a secção de cursos publicados por província da index
+- [x] Aproximar a primeira prateleira de cursos da secção imediatamente anterior
+- [x] Restaurar a primeira prateleira como secção independente com maior espaçamento visual antes dela
+- [x] Adicionar uma página de carregamento com logótipo centralizado durante o processamento
+- [x] Corrigir a grafia visível da marca para Edukangola
+- [x] Substituir as coleções de exemplo por cursos reais publicados pelo Django
+- [x] Criar coleções dinâmicas por categoria, recência e disponibilidade de turma
+- [x] Tornar a pesquisa da index funcional sobre o catálogo público real
+- [x] Apresentar estados honestos quando uma coleção não tiver cursos publicados
+- [x] Criar páginas React separadas para cursos, centros e como funciona
+- [x] Ligar a navegação superior às páginas públicas próprias
+- [x] Reutilizar as rotas públicas Django existentes para detalhe, inscrição e autenticação
+- [x] Reduzir a index a descoberta e encaminhamento para as páginas adequadas
+- [x] Implementar filtros reais de categoria, modalidade, província e condição de pagamento no catálogo React
+- [x] Adicionar ordenação e limpeza de filtros sem copiar a estrutura do catálogo Django anterior
+- [x] Mostrar contagem e estado vazio com os cursos reais filtrados
+- [x] Mover os filtros reais do catálogo para um painel lateral esquerdo responsivo
+- [x] Reorganizar a grelha de cursos ao lado do painel sem alterar a lógica dos filtros
+- [x] Mostrar Presencial, Online e Híbrido no filtro de modalidade mesmo sem cursos publicados em todas as opções
+- [x] Adicionar ícone de pesquisa na barra superior com caixa de pesquisa rápida
+- [x] Encaminhar a pesquisa rápida para o catálogo React com os resultados reais
+- [x] Adicionar abertura e fecho acessíveis por teclado ao controlo de pesquisa
+- [x] Adicionar campo de pesquisa sempre visível na barra superior em desktop
+- [x] Adicionar ações institucionais e acesso rápido ao catálogo no cabeçalho
+- [x] Preservar o painel de pesquisa rápida em larguras reduzidas
+- [x] Remover o campo de pesquisa fixo e manter apenas o ícone que abre a pesquisa rápida
+- [x] Adicionar carrossel de campanhas no topo da página inicial
+- [x] Preparar cartões identificados para parceiros e publicidade futura
+- [x] Garantir navegação, pausa de movimento e indicação visual clara das campanhas
+- [x] Remover o hero de apresentação redundante da index
+- [x] Reduzir a altura e a escala visual dos cards promocionais no topo
+- [x] Adicionar pré-visualização de curso ao passar o rato sobre os cards
+- [x] Criar secção de competências na index com separadores temáticos e cursos reais
+- [x] Criar 20 cursos de demonstração distribuídos por 5 categorias
+- [x] Reequilibrar a index com secções complementares orientadas ao aluno
+- [x] Adicionar várias prateleiras de cursos dinâmicas à index, inspiradas na Udemy
+- [x] Reduzir o espaçamento vertical entre as prateleiras de cursos da index
+- [x] Mostrar ícone de vídeo nos cartões de cursos online e híbridos
+- [x] Criar página React de detalhe de curso com turmas e inscrição
+- [x] Adicionar cursos recomendados no final da página de detalhe
+- [x] Mostrar módulos e aulas reais do backend no detalhe dos cursos em vídeo
+- [x] Diferenciar turmas de vídeo-cursos originais da Edukangola e de centros
+- [x] Corrigir compra ou acesso gratuito e aulas no detalhe dos vídeo-cursos
+- [x] Repor o ícone de vídeo nos cartões de vídeo-cursos reais
+- [x] Reorganizar cartões, filtros e detalhes por tipo de curso
+- [x] Simplificar a oferta pública para presencial e vídeo-cursos
+- [x] Analisar o backend e simplificar os passos após inscrição ou compra de curso
+- [x] Analisar e redesenhar as páginas de login e cadastro de aluno
+- [x] Substituir login, cadastro e verificação antigos por telas React no estilo Edukangola
+- [x] Centralizar as telas React de login e cadastro e adicionar animação suave
+- [x] Animar suavemente a troca entre os formulários de login e cadastro
+- [x] Eliminar a rolagem vertical desnecessária nas telas de login e cadastro
+- [x] Corrigir o erro apresentado ao criar conta pelo formulário React
+- [x] Redesenhar o login com cursos reais em rotação na área esquerda
+- [x] Inventariar as páginas antigas ainda não migradas para React
+- [x] Criar a Área do Aluno em React com dados reais de inscrições e cursos
+- [x] Apresentar preços e condições de pagamento nos cartões de cursos
+- [ ] Diagnosticar e configurar a entrega de códigos de verificação por e-mail
+- [ ] Configurar a chave Brevo e validar o envio real de códigos de verificação
+- [ ] Verificar e guardar de forma segura a configuração antiga dos serviços externos
+- [ ] Validar a nova chave Brevo para o envio de e-mails transacionais
+- [ ] Aplicar e testar a nova API Key Brevo recebida
+- [ ] Diagnosticar a não receção do código Brevo e confirmar a autorização do remetente
+- [ ] Emitir um código temporário de verificação para o cadastro pendente
+- [x] Substituir os botões Entrar e Criar conta por ações da conta após o login
+- [x] Corrigir regressão em que os botões de visitante permanecem após o login
+- [x] Remover o link público para o GestorEduka da navegação da Edukangola
+- [x] Comparar o perfil antigo de centro e criar uma página React completa com capa e identidade visual
+- [x] Redirecionar a rota antiga de perfil de centro para a nova página React
+- [x] Incluir no perfil React todos os conteúdos públicos do centro e a ação de seguir centro
+- [x] Adicionar paginação ao catálogo React de cursos, preservando filtros e pesquisa
+- [x] Adicionar suporte de interface em português, inglês, francês e chinês com preferência guardada
+- [ ] Traduzir conteúdos cadastrados de cursos, centros e blocos públicos para inglês, francês e chinês
+- [ ] Criar área pública React de Blog e Notícias com publicações em texto e vídeo
+- [x] Rever alterações e fazer push para o GitHub sem incluir chaves, tokens ou ficheiros de ambiente
+- [x] Confirmar que o servidor de desenvolvimento React está responsivo após o reinício
+
+- [ ] Integrar o frontend React no versionamento do repositório GitHub sem incluir node_modules, builds, .env ou segredos
+- [ ] Confirmar no GitHub a presença dos ficheiros do frontend React
+

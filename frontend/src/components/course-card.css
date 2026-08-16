@@ -1,0 +1,35 @@
+.course-card-shell { position:relative; height:354px; z-index:0; }
+.course-card-shell.is-preview-open { z-index:20; }
+.course-card-shell .course-card { height:100%; }
+.course-image > img { width:100%; height:100%; object-fit:cover; transform:scale(1.01); }
+.course-image::after { position:absolute; inset:0; content:""; background:linear-gradient(135deg,rgba(101,28,242,.08),rgba(66,16,168,.20)); pointer-events:none; }
+.course-image > .course-mode-badge { position:absolute; z-index:1; top:12px; left:12px; }
+.course-video-indicator { position:absolute; z-index:2; right:11px; bottom:11px; display:grid; width:34px; height:34px; place-items:center; border:1px solid rgba(255,255,255,.7); border-radius:50%; background:rgba(28,21,44,.76); color:#fff; box-shadow:0 5px 14px rgba(0,0,0,.2); backdrop-filter:blur(6px); }
+.course-video-indicator svg { margin-left:1px; }
+.course-content h3 a { color:inherit; text-decoration:none; }
+.course-content h3 a:hover { color:var(--brand); }
+.course-price { display:grid; gap:3px; margin:12px 0 2px; }
+.course-price strong { color:var(--ink); font-family:"Manrope",sans-serif; font-size:15px; letter-spacing:-.025em; }
+.course-price span { color:var(--muted); font-size:10px; font-weight:650; line-height:1.35; }
+.course-price.is-free strong { color:var(--success); }
+
+.course-preview { position:fixed; z-index:100; width:344px; max-height:calc(100vh - 32px); overflow-y:auto; padding:22px; border:1px solid color-mix(in srgb,var(--brand) 21%,var(--line)); border-radius:14px; background:var(--surface); color:var(--ink); box-shadow:0 22px 52px color-mix(in srgb,var(--ink) 20%,transparent); animation:course-preview-in 140ms cubic-bezier(.23,1,.32,1); }
+.course-preview::before { position:absolute; top:28px; width:13px; height:13px; content:""; border-top:1px solid color-mix(in srgb,var(--brand) 21%,var(--line)); border-left:1px solid color-mix(in srgb,var(--brand) 21%,var(--line)); background:var(--surface); transform:rotate(-45deg); }
+.course-preview--right::before { left:-8px; }
+.course-preview--left::before { right:-8px; transform:rotate(135deg); }
+.course-preview-kicker { display:block; color:var(--brand); font-size:10px; font-weight:850; letter-spacing:.085em; text-transform:uppercase; }
+.course-preview h3 { margin:8px 0 7px; font-family:"Manrope",sans-serif; font-size:20px; line-height:1.2; letter-spacing:-.045em; }
+.course-preview-meta { margin:0; color:var(--muted); font-size:12px; font-weight:650; }
+.course-preview-price { display:grid; gap:3px; margin:14px 0 0; color:var(--muted); font-size:11px; line-height:1.4; }
+.course-preview-price strong { color:var(--ink); font-family:"Manrope",sans-serif; font-size:15px; }
+.course-preview-price.is-free strong { color:var(--success); }
+.course-preview-description { display:-webkit-box; overflow:hidden; margin:13px 0 16px; color:var(--muted); font-size:13px; line-height:1.55; -webkit-box-orient:vertical; -webkit-line-clamp:3; }
+.course-preview-facts { display:grid; gap:11px; margin:0; padding:0; list-style:none; }
+.course-preview-facts li { display:grid; grid-template-columns:17px 1fr; gap:9px; align-items:start; color:var(--muted); font-size:12px; line-height:1.42; }
+.course-preview-facts svg { margin-top:1px; color:var(--brand); }
+.course-preview-facts b { display:block; color:var(--ink); font-size:12px; }
+.course-preview-action { display:flex; align-items:center; justify-content:center; gap:7px; width:100%; margin-top:19px; padding:11px 13px; border-radius:8px; background:var(--brand); color:#fff; font-size:12px; font-weight:850; text-decoration:none; transition:transform 160ms ease,box-shadow 160ms ease; }
+.course-preview-action:hover { box-shadow:0 8px 18px color-mix(in srgb,var(--brand) 28%,transparent); transform:translateY(-1px); }
+@keyframes course-preview-in { from { opacity:0; transform:translateX(-6px) scale(.985); } to { opacity:1; transform:translateX(0) scale(1); } }
+@media (hover:none),(pointer:coarse) { .course-preview { display:none; } }
+@media (max-width:620px) { .course-card-shell { height:354px; } }

@@ -1,0 +1,32 @@
+import { useEffect, useState } from "react";
+import { ArrowRight, BadgeCheck, BookOpen, CalendarDays, CircleAlert, Clock3, GraduationCap, PlayCircle, WalletCards } from "lucide-react";
+import { backendUrl } from "../lib/backend-url";
+import "./student-dashboard-page.css";
+
+function Stat({ icon: Icon, label, value, tone }) { return <article className={`student-stat ${tone}`}><span><Icon size={20} /></span><div><small>{label}</small><strong>{value}</strong></div></article>; }
+
+function statusClass(status) { return status === "A" ? "active" : status === "P" ? "pending" : status === "N" ? "denied" : "cancelled"; }
+
+export default function StudentDashboardPage({ onNavigate }) {
+  const [state, setState] = useState({ loading: true, data: null, error: "" });
+  useEffect(() => {
+    let active = true;
+    fetch(backendUrl("/auth/api/react/aluno/resumo/"), { credentials: "same-origin" })
+      .then(async (response) => ({ response, data: await response.json().catch(() => ({})) }))
+      .then(({ response, data }) => {
+        if (!active) return;
+        if (response.status === 401) { setState({ loading: false, data: null, error: "login" }); return; }
+        if (!response.ok || !data.ok) throw new Error(data.message || "Não foi possível carregar a sua área.");
+        setState({ loading: false, data, error: "" });
+      })
+      .catch((error) => active && setState({ loading: false, data: null, error: error.message }));
+    return () => { active = false; };
+  }, []);
+
+  if (state.loading) return <main className="student-page"><div className="page-width student-loading">A preparar a sua área de aprendizagem.</div></main>;
+  if (state.error === "login") return <main className="student-page"><section className="page-width student-gate"><span className="eyebrow"><GraduationCap size={15} /> Área do aluno</span><h1>Entre para acompanhar o seu percurso.</h1><p>Os seus cursos, inscrições e comprovativos ficam reunidos aqui.</p><button className="primary-action" onClick={() => onNavigate("/entrar?next=/aluno")}>Entrar <ArrowRight size={17} /></button></section></main>;
+  if (state.error) return <main className="student-page"><section className="page-width student-gate"><CircleAlert size={26} /><h1>Não foi possível abrir a sua área.</h1><p>{state.error}</p><button className="primary-action" onClick={() => window.location.reload()}>Tentar novamente</button></section></main>;
+
+  const { aluno, resumo, continuar_aprender: cursos, inscricoes } = state.data;
+  return <main className="student-page"><section className="student-hero"><div className="page-width"><span className="eyebrow"><GraduationCap size={15} /> Área do aluno</span><h1>Olá, {aluno.nome.split(" ")[0]}.</h1><p>Acompanhe as suas formações, inscrições e próximos passos num só lugar.</p><div className="student-stats"><Stat icon={BookOpen} label="Cursos ativos" value={resumo.cursos_ativos} tone="purple" /><Stat icon={Clock3} label="Inscrições pendentes" value={resumo.inscricoes_pendentes} tone="amber" /><Stat icon={BadgeCheck} label="Certificados emitidos" value={resumo.certificados} tone="green" /></div></div></section><section className="page-width student-section"><div className="student-section-heading"><div><span className="eyebrow muted">A sua aprendizagem</span><h2>Continue de onde parou.</h2><p>Mostramos apenas cursos e inscrições associados à sua conta.</p></div><button className="text-action" onClick={() => onNavigate("/cursos")}>Explorar cursos <ArrowRight size={16} /></button></div>{cursos.length ? <div className="student-course-grid">{cursos.map((curso) => <article className="student-course" key={curso.id}><div className="student-course-image">{curso.imagem_url && <img src={curso.imagem_url} alt="" />}{curso.is_video ? <span><PlayCircle size={15} /> Vídeo-curso</span> : <span><CalendarDays size={15} /> Presencial</span>}</div><div className="student-course-body"><p>{curso.centro}</p><h3>{curso.titulo}</h3>{curso.is_video ? <><div className="student-progress"><span><i style={{ width: `${curso.progresso}%` }} /></span><small>{curso.progresso}% concluído · {curso.aulas_concluidas}/{curso.total_aulas} aulas</small></div><button onClick={() => onNavigate(curso.detalhe_url)}>Ver curso <ArrowRight size={15} /></button></> : <><small className="student-course-status">Inscrição confirmada</small>{curso.inicio_formatado && <span className="student-course-date">Início {curso.inicio_formatado}{curso.horario ? ` · ${curso.horario}` : ""}</span>}<button onClick={() => onNavigate(curso.detalhe_url)}>Ver curso <ArrowRight size={15} /></button></>}</div></article>)}</div> : <div className="student-empty"><BookOpen size={25} /><h3>Ainda não tem cursos ativos.</h3><p>Explore cursos presenciais e vídeo-cursos publicados para começar o seu percurso.</p><button className="primary-action" onClick={() => onNavigate("/cursos")}>Explorar cursos <ArrowRight size={16} /></button></div>}</section><section className="page-width student-section student-enrollments"><div className="student-section-heading"><div><span className="eyebrow muted">Inscrições presenciais</span><h2>Acompanhe cada inscrição.</h2><p>Veja o estado da aprovação e aceda à ficha quando estiver disponível.</p></div></div>{inscricoes.length ? <div className="student-enrollment-list">{inscricoes.map((inscricao) => <article key={inscricao.id} className="student-enrollment"><div className="student-enrollment-main"><img src={inscricao.imagem_url} alt="" /><div><span className={`student-status ${statusClass(inscricao.status)}`}>{inscricao.status_label}</span><h3>{inscricao.titulo}</h3><p>{inscricao.centro}{inscricao.turma ? ` · ${inscricao.turma}` : ""}</p>{inscricao.inicio_formatado && <small><CalendarDays size={14} /> Início {inscricao.inicio_formatado}{inscricao.horario ? ` · ${inscricao.horario}` : ""}</small>}</div></div><div className="student-enrollment-payment"><small>Pagamento registado</small><strong>{inscricao.valor_pago_formatado}</strong></div><div className="student-enrollment-actions"><button onClick={() => onNavigate(inscricao.detalhe_url)}>Ver curso</button>{inscricao.ficha_url && <a href={backendUrl(inscricao.ficha_url)}><WalletCards size={15} /> Ficha</a>}</div></article>)}</div> : <div className="student-empty compact"><CalendarDays size={23} /><h3>Nenhuma inscrição presencial encontrada.</h3><p>Quando se inscrever numa turma, o estado aparecerá aqui.</p></div>}</section></main>;
+}
