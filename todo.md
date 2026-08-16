@@ -93,3 +93,6 @@
 - [x] Tornar funcionais os corações de favoritos nos cartões das prateleiras horizontais
 - [x] Validar a persistência de favoritos e o comportamento para visitantes sem sessão
 - [x] Confirmar e corrigir a visibilidade das categorias antes das colecções na página inicial
+- [x] Restaurar a prévia detalhada de curso ao passar ou focar cartões horizontais em desktop
+- [x] Manter o clique directo e a experiência de toque sem prévia em dispositivos móveis
+- [x] Validar conteúdo, posicionamento e acessibilidade da prévia de cursos
