@@ -47,6 +47,7 @@ urlpatterns = [
     path('api/public/centros/<int:centro_id>/', views.public_center_profile, name='api_public_center_profile'),
     path('api/public/centros/planos/', CentroPlanosView.as_view(), name='api_public_centro_planos'),
     path('api/public/video-cursos/<slug:slug>/', views.public_video_course_detail, name='api_public_video_course_detail'),
+    path('api/public/biblioteca/', include('biblioteca.urls')),
     path('api/react/recomendacoes/', views.react_course_recommendations, name='api_react_course_recommendations'),
     path('api/react/aluno/dashboard/', views.react_student_dashboard, name='api_react_student_dashboard'),
     path('auth/api/react/aluno/favoritos/', views.react_student_favorites, name='react_student_favorites'),
@@ -91,6 +92,7 @@ urlpatterns = [
     path('api/notificacoes/nao-lidas/', usuarios_views.api_notificacoes_nao_lidas, name='api_notificacoes_nao_lidas_root'),
 
     path('api/react/pagamentos/resultado/', views.react_payment_result, name='api_react_payment_result'),
+    path('api/react/biblioteca/', include('biblioteca.urls')),
     path('pagamento/sucesso/', views.pagamento_sucesso, name='pagamento_sucesso'),
     path('pagamento/cancelado/', views.pagamento_cancelado, name='pagamento_cancelado'),
     path('faq/', views.faq, name = 'faq'),

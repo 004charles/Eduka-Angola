@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'escolas',
     'pagamentos',  # Novo app de pagamentos
     'eventos_marketplace',
+    'biblioteca',
 ]
 
 

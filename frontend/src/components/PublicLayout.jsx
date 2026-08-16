@@ -27,6 +27,7 @@ export default function PublicLayout({ children, student, theme, language, onThe
 
   const items = [
     { href: "/cursos", label: t("nav.explore") },
+    { href: "/biblioteca", label: "Biblioteca" },
     { href: "/blog", label: t("nav.news") },
     { href: "/eventos", label: "Eventos" },
     { href: "/centros", label: t("nav.centres") },

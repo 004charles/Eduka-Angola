@@ -21,6 +21,9 @@ import PaymentResultPage from "./pages/PaymentResultPage";
 import EventsPage from "./pages/EventsPage";
 import EventDetailPage from "./pages/EventDetailPage";
 import EventTicketsPage from "./pages/EventTicketsPage";
+import LibraryPage from "./pages/LibraryPage";
+import BookDetailPage from "./pages/BookDetailPage";
+import BookReaderPage from "./pages/BookReaderPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import { getStudentSession } from "./lib/auth-api";
 import { I18nProvider, LANGUAGES } from "./lib/i18n";
@@ -116,6 +119,8 @@ function App() {
   const centerRouteMatch = pathname.match(/^\/centros\/(\d+)\/?$/);
   const blogPostRouteMatch = pathname.match(/^\/blog\/([^/]+)\/?$/);
   const eventRouteMatch = pathname.match(/^\/eventos\/([^/]+)\/?$/);
+  const libraryBookRouteMatch = pathname.match(/^\/biblioteca\/([^/]+)\/?$/);
+  const libraryReaderRouteMatch = pathname.match(/^\/ler\/([^/]+)\/?$/);
   const courseId = courseRouteMatch ? Number(courseRouteMatch[1]) : null;
   const checkoutCourseId = checkoutCourseRouteMatch ? Number(checkoutCourseRouteMatch[1]) : null;
   const selectedCourse = courseId ? homeData?.cursos?.find((course) => course.id === courseId) : null;
@@ -132,6 +137,9 @@ function App() {
   else if (centerRouteMatch) page = <CenterProfilePage centerId={Number(centerRouteMatch[1])} onNavigate={navigate} />;
   else if (eventRouteMatch) page = <EventDetailPage slug={decodeURIComponent(eventRouteMatch[1])} student={student} onNavigate={navigate} onAnnounce={announce} />;
   else if (pathname === "/eventos" || pathname === "/eventos/" || pathname === "/eventosv" || pathname === "/eventosv/") page = <EventTicketsPage student={student} onNavigate={navigate} onAnnounce={announce} />;
+  else if (libraryReaderRouteMatch) page = <BookReaderPage slug={decodeURIComponent(libraryReaderRouteMatch[1])} student={student} onNavigate={navigate} onAnnounce={announce} />;
+  else if (libraryBookRouteMatch) page = <BookDetailPage slug={decodeURIComponent(libraryBookRouteMatch[1])} student={student} onNavigate={navigate} onAnnounce={announce} />;
+  else if (pathname === "/biblioteca" || pathname === "/biblioteca/") page = <LibraryPage onNavigate={navigate} />;
   else if (pathname === "/cursos") page = <CoursesPage data={homeData} loading={homeDataLoading} initialFilters={catalogFilters} onNavigate={navigate} onAnnounce={announce} />;
   else if (courseRouteMatch) page = <CourseDetailPage course={selectedCourse} courses={homeData?.cursos} turmas={homeData?.turmas_abertas} loading={homeDataLoading} onNavigate={navigate} onAnnounce={announce} />;
   else if (videoCourseRouteMatch) page = <VideoCourseDetailPage slug={decodeURIComponent(videoCourseRouteMatch[1])} student={student} onNavigate={navigate} />;

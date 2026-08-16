@@ -113,3 +113,8 @@
 - [x] Repor a apresentação de cursos da página inicial ao padrão anterior à reformulação editorial, preservando preços, favoritos e cursos novos
 - [x] Recolocar a secção Carreiras e competências logo após as categorias na página inicial
 - [x] Uniformizar a terminologia pública de vídeo para “curso em vídeo” e “cursos em vídeo”
+- [x] Planear a Biblioteca Edukangola para livros físicos, digitais e em áudio, com venda, publicação gratuita e apoio de IA
+- [x] Criar aplicação Django de biblioteca para obras digitais próprias e gratuitas
+- [x] Implementar API, acesso pessoal, leitura e escuta de obras digitais
+- [x] Criar a experiência editorial React da Biblioteca sem grelha de cartões
+- [x] Adicionar obras próprias de demonstração e validar a Biblioteca Edukangola
