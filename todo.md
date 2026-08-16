@@ -96,3 +96,6 @@
 - [x] Restaurar a prévia detalhada de curso ao passar ou focar cartões horizontais em desktop
 - [x] Manter o clique directo e a experiência de toque sem prévia em dispositivos móveis
 - [x] Validar conteúdo, posicionamento e acessibilidade da prévia de cursos
+- [x] Auditar centros, capas e metadados disponíveis para destaque na página inicial
+- [x] Criar uma selecção visual de centros de formação com ligação à vitrina completa
+- [x] Validar imagens, informação e navegação da nova secção de centros
