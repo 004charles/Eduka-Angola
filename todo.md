@@ -83,3 +83,6 @@
 - [x] Adicionar faixas promocionais horizontais para destacar cursos com capas reais
 - [x] Garantir que cada faixa promocional usa cursos diferentes das colecções já visíveis
 - [x] Validar a apresentação horizontal e a navegação para cada curso destacado
+- [x] Substituir as colecções compactas abaixo de “Encontre algo novo para aprender” por quatro prateleiras horizontais de cursos
+- [x] Mostrar em cada cartão a capa, modalidade, categoria e centro, com navegação lateral por colecção
+- [x] Distribuir cursos exclusivos pelas quatro prateleiras sem repetição

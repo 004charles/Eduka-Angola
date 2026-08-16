@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { ArrowRight, ArrowUpRight, BriefcaseBusiness, PlayCircle, Sparkles } from "lucide-react";
 import { etiquetaProduto, isVideoCurso, rotaDetalheProduto } from "../lib/product-type";
 import "./course-editorial-showcase.css";
+import CourseDiscoveryShelves from "./CourseDiscoveryShelves";
 
 function courseGroups(data) {
   return Object.entries((data?.cursos || []).filter((course) => !isVideoCurso(course)).reduce((groups, course) => {
@@ -39,10 +40,10 @@ export default function CourseEditorialShowcase({ data, onNavigate }) {
   const newCourses = takeUnique(newest, usedIds);
   const exploreCourses = takeUnique(allCourses, usedIds);
   const collections = [
-    { label: "Mais procurados", courses: popular },
-    { label: "Novidades", courses: newCourses },
-    { label: "Aprenda ao seu ritmo", courses: videoCourses },
-    { label: "Para explorar", courses: exploreCourses },
+    { slug: "mais-procurados", eyebrow: "Cursos em destaque", title: "Mais procurados", href: "/cursos", courses: popular },
+    { slug: "novidades", eyebrow: "Formações recentes", title: "Novidades", href: "/cursos?ordem=recentes", courses: newCourses },
+    { slug: "aprenda-ao-seu-ritmo", eyebrow: "Estude como preferir", title: "Aprenda ao seu ritmo", href: "/cursos?tipo=video", courses: videoCourses },
+    { slug: "para-explorar", eyebrow: "Descoberta orientada", title: "Para explorar agora", href: "/cursos", courses: exploreCourses },
   ].filter((collection) => collection.courses.length);
   const careerBands = groups.slice(1).map(([name, courses], index) => ({
     name,
@@ -61,7 +62,7 @@ export default function CourseEditorialShowcase({ data, onNavigate }) {
 
       {spotlightCourses.length > 0 && <section className="course-spotlights" aria-label="Cursos em destaque"><div className="course-spotlight-list">{spotlightCourses.map((course, index) => <a className={`course-spotlight spotlight-${index}`} href={rotaDetalheProduto(course)} key={course.id}><div><span className="eyebrow">{etiquetaProduto(course)}</span><h2>{course.titulo}</h2><p>Com {course.centro || "Edukangola"}</p><strong>Ver curso <ArrowRight size={17} /></strong></div><img src={course.imagem_url} alt="" /></a>)}</div></section>}
 
-      <section className="editorial-trending" aria-labelledby="trending-title"><div className="editorial-section-title"><span className="eyebrow muted"><Sparkles size={14} /> Cursos em alta</span><h2 id="trending-title">Encontre algo novo para aprender.</h2></div><div className="editorial-collections">{collections.map((collection) => <article key={collection.label}><h3>{collection.label} <ArrowRight size={16} /></h3><div>{collection.courses.map((course) => <MiniCourse key={course.id} course={course} />)}</div></article>)}</div></section>
+      <section className="editorial-trending" aria-labelledby="trending-title"><div className="editorial-section-title"><span className="eyebrow muted"><Sparkles size={14} /> Cursos em alta</span><h2 id="trending-title">Encontre algo novo para aprender.</h2></div><CourseDiscoveryShelves collections={collections} onNavigate={onNavigate} /></section>
 
       <div className="editorial-career-bands">{careerBands.map((band) => <section className={`editorial-career-band band-tone-${band.tone}`} key={band.name} aria-labelledby={`band-${band.name}`}><aside><span className="eyebrow"><BriefcaseBusiness size={14} /> Área de aprendizagem</span><h2 id={`band-${band.name}`}>{band.name}</h2><p>Escolha cursos para desenvolver competências nesta área.</p><button onClick={() => onNavigate(`/cursos?categoria=${encodeURIComponent(band.name)}`)}>Ver cursos <ArrowRight size={16} /></button></aside><div className="editorial-band-courses">{band.courses.map((course) => <a className="editorial-band-card" href={rotaDetalheProduto(course)} key={course.id}><img src={course.imagem_url} alt="" /><span><small>{course.centro || "Edukangola"}</small><strong>{course.titulo}</strong><em>{etiquetaProduto(course)}</em></span></a>)}</div></section>)}</div>
 
