@@ -440,6 +440,10 @@ class Depoimento(models.Model):
         ('PLATAFORMA', _('Sobre a Plataforma')),
         ('CENTRO', _('Sobre o Centro de Formação')),
     ]
+    ORIGEM_CHOICES = [
+        ('GESTOR', _('Adicionado por gestor')),
+        ('ALUNO', _('Submetido por aluno')),
+    ]
 
     tipo = models.CharField(_('Tipo'), max_length=20, choices=TIPO_CHOICES, default='PLATAFORMA')
     centro = models.ForeignKey(
@@ -462,6 +466,9 @@ class Depoimento(models.Model):
     texto = models.TextField(_('Depoimento'))
     nota = models.PositiveIntegerField(_('Nota (1-5)'), default=5)
     data = models.DateField(_('Data'), auto_now_add=True)
+    origem = models.CharField(_('Origem'), max_length=12, choices=ORIGEM_CHOICES, default='GESTOR')
+    consentimento_publico = models.BooleanField(_('Consentimento para publicação'), default=False)
+    publicar_nome = models.BooleanField(_('Mostrar nome completo publicamente'), default=False)
     aprovado = models.BooleanField(_('Aprovado?'), default=False)
 
     class Meta:

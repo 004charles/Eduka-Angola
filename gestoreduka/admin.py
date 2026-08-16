@@ -355,8 +355,8 @@ class EquipeAdmin(UnfoldModelAdmin):
 
 @admin.register(Depoimento)
 class DepoimentoAdmin(UnfoldModelAdmin):
-    list_display = ['nome', 'cargo', 'nota', 'centro', 'aprovado', 'data']
-    list_filter = ['aprovado', 'nota', 'data']
+    list_display = ['nome', 'tipo', 'origem', 'cargo', 'nota', 'centro', 'consentimento_publico', 'aprovado', 'data']
+    list_filter = ['tipo', 'origem', 'aprovado', 'consentimento_publico', 'nota', 'data']
     search_fields = ['nome', 'cargo', 'centro__nome', 'texto']
     list_editable = ['aprovado']
     actions = [aprovar_depoimentos]

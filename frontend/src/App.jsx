@@ -141,7 +141,7 @@ function App() {
   else if (blogPostRouteMatch) page = <BlogPostPage slug={decodeURIComponent(blogPostRouteMatch[1])} onNavigate={navigate} />;
   else if (pathname === "/blog" || pathname === "/blog/") page = <BlogPage language={language} onNavigate={navigate} />;
   else if (pathname === "/como-funciona") page = <HowItWorksPage onNavigate={navigate} />;
-  else if (pathname === "/sobre" || pathname === "/sobre-a-edukangola") page = <AboutPage data={homeData} onNavigate={navigate} />;
+  else if (pathname === "/sobre" || pathname === "/sobre-a-edukangola") page = <AboutPage data={homeData} student={student} onNavigate={navigate} />;
   else page = <NotFoundPage onNavigate={navigate} />;
 
   return <I18nProvider language={language} onLanguageChange={setLanguage}><PublicLayout suggestions={homeData?.cursos || []} student={student} theme={theme} language={language} path={pathname} onThemeChange={() => setTheme(theme === "light" ? "dark" : "light")} onLanguageChange={setLanguage} onNavigate={navigate}>{page}{notice && <div className="notice" role="status">{notice}</div>}</PublicLayout></I18nProvider>;

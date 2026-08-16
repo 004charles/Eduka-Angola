@@ -1,5 +1,6 @@
 import { ArrowRight, BookOpenCheck, Building2, Camera, CheckCircle2, Globe2, HeartHandshake, Image as ImageIcon, Lightbulb, MapPinned, ShieldCheck, Sparkles, UsersRound } from "lucide-react";
 import { useI18n } from "../lib/i18n";
+import CommunityTestimonials from "../components/CommunityTestimonials";
 import "./about-page.css";
 
 const copy = {
@@ -43,7 +44,7 @@ const copy = {
 
 function Stat({ value, label }) { return <div className="about-stat"><strong>{value}</strong><span>{label}</span></div>; }
 
-export default function AboutPage({ data, onNavigate }) {
+export default function AboutPage({ data, onNavigate, student }) {
   const { language } = useI18n();
   const text = copy[language] || copy.pt;
   const courses = data?.cursos || [];
@@ -66,6 +67,7 @@ export default function AboutPage({ data, onNavigate }) {
     <section className="about-hero"><div className="page-width about-hero-grid"><div><span className="eyebrow"><Sparkles size={15} /> {text.eyebrow}</span><h1>{text.title}</h1><p className="about-lead">{text.intro}</p><div className="about-actions"><button className="subpage-cta" onClick={() => onNavigate("/cursos")}>{text.browse} <ArrowRight size={16} /></button><button className="about-secondary-action" onClick={() => onNavigate("/centros")}>{text.centres}</button></div></div><div className="about-hero-card"><div className="about-orbit about-orbit-one" /><div className="about-orbit about-orbit-two" /><div className="about-hero-icon"><Globe2 size={34} /></div><span>AO</span><strong>Edukangola</strong><small>{text.proof}</small></div></div></section>
     <section className="page-width about-proof"><div className="about-proof-copy"><span className="eyebrow muted">{text.proof}</span><h2>{text.proofCopy}</h2></div><div className="about-stats"><Stat value={courses.length || "—"} label={text.statCourses} /><Stat value={centres.length || "—"} label={text.statCentres} /><Stat value={formats} label={text.statFormats} /></div></section>
     <section className="about-impact"><div className="page-width"><div className="about-impact-heading"><div><span className="eyebrow"><Sparkles size={15} /> Edukangola</span><h2>{text.impact}</h2><p>{text.impactCopy}</p></div></div><div className="about-impact-grid">{impactItems.map(({ value, label, icon: Icon }) => <article key={label}><Icon size={21} /><strong>{value == null ? "—" : value}</strong><span>{label}</span></article>)}</div></div></section>
+    <CommunityTestimonials testimonials={data?.depoimentos || []} student={student} language={language} onNavigate={onNavigate} />
     <section className="page-width about-principles"><div className="about-principles-intro"><span className="eyebrow muted"><HeartHandshake size={15} /> Edukangola</span><h2>{text.mission}</h2><p>{text.missionCopy}</p><div className="about-vision"><Lightbulb size={22} /><div><strong>{text.vision}</strong><p>{text.visionCopy}</p></div></div></div><div className="about-values"><span className="eyebrow muted">{text.values}</span><h2>{text.valuesCopy}</h2><div className="about-value-grid"><article><ShieldCheck size={22} /><h3>{text.value1}</h3><p>{text.value1Copy}</p></article><article><Building2 size={22} /><h3>{text.value2}</h3><p>{text.value2Copy}</p></article><article><BookOpenCheck size={22} /><h3>{text.value3}</h3><p>{text.value3Copy}</p></article></div></div></section>
     <section className="about-bridge"><div className="page-width about-bridge-grid"><div><span className="eyebrow"><UsersRound size={15} /> Edukangola</span><h2>{text.journey}</h2><p>{text.journeyCopy}</p></div><div className="about-bridge-visual"><div className="about-bridge-node"><BookOpenCheck size={20} /><span>Aluno</span></div><div className="about-bridge-line" /><div className="about-bridge-node"><Building2 size={20} /><span>Centro</span></div><div className="about-bridge-check"><CheckCircle2 size={18} /></div></div></div></section>
     <section className="page-width about-gallery"><div className="about-gallery-heading"><div><span className="eyebrow muted"><ImageIcon size={15} /> Edukangola</span><h2>{text.gallery}</h2><p>{text.galleryCopy}</p></div></div>{gallery.length > 0 ? <div className="about-gallery-grid">{gallery.map((item) => <figure key={item.id}><img src={item.url} alt={item.legenda} /><figcaption>{item.legenda}</figcaption></figure>)}</div> : <div className="about-gallery-grid">{galleryPlaceholders.map(({ icon: Icon, title }) => <article className="about-gallery-placeholder" key={title}><Icon size={25} /><strong>{title}</strong><span>{text.galleryEmpty}</span></article>)}</div>}</section>

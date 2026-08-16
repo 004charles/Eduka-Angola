@@ -3,6 +3,7 @@ from datetime import timedelta
 import json
 import os
 import requests
+from datetime import timedelta
 
 from django.conf import settings
 from django.http import JsonResponse
@@ -464,6 +465,7 @@ def index(request):
     return render(request, 'core/index.html', context)
 
 
+@ensure_csrf_cookie
 def public_home_data(request):
     """Dados públicos, factuais e compactos para a index React da Eduka-Angola."""
     hoje = timezone.localdate()
@@ -687,6 +689,31 @@ def public_home_data(request):
     except OperationalError:
         galeria = []
 
+    depoimentos = []
+    try:
+        depoimentos_publicos = Depoimento.objects.filter(tipo='PLATAFORMA', aprovado=True).filter(
+            Q(consentimento_publico=True) | Q(origem='GESTOR', aluno__isnull=True)
+        ).select_related('aluno').order_by('-data', '-id')[:6]
+        for depoimento in depoimentos_publicos:
+            nome = (depoimento.nome or 'Membro da comunidade').strip()
+            if not depoimento.publicar_nome and nome:
+                partes = nome.split()
+                nome = f"{partes[0]} {partes[-1][0]}." if len(partes) > 1 else partes[0]
+            foto = ''
+            if depoimento.foto and (depoimento.publicar_nome or (depoimento.origem == 'GESTOR' and not depoimento.aluno_id)):
+                foto = depoimento.foto.url
+            depoimentos.append({
+                'id': depoimento.id,
+                'nome': nome,
+                'contexto': depoimento.cargo or 'Comunidade Edukangola',
+                'texto': depoimento.texto,
+                'nota': depoimento.nota,
+                'foto': foto,
+                'data': depoimento.data.isoformat() if depoimento.data else '',
+            })
+    except OperationalError:
+        depoimentos = []
+
     return JsonResponse({
         'turmas_abertas': turmas,
         'cursos': cursos,
@@ -696,8 +723,43 @@ def public_home_data(request):
         'centros_destaque': centros,
         'impacto': impacto,
         'galeria': galeria,
+        'depoimentos': depoimentos,
         'atualizado_em': timezone.now().isoformat(),
     })
+
+
+@require_POST
+def public_platform_testimonial_submit(request):
+    """Recebe opiniões autenticadas sobre a plataforma; toda submissão fica pendente de moderação."""
+    if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'ALUNO':
+        return JsonResponse({'detail': 'Inicie sessão como aluno para partilhar a sua experiência.'}, status=401)
+    aluno = getattr(request.user, 'aluno_profile', None)
+    if not aluno:
+        return JsonResponse({'detail': 'Perfil de aluno não encontrado.'}, status=404)
+    try:
+        payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'Dados de depoimento inválidos.'}, status=400)
+    texto = ' '.join(str(payload.get('texto', '')).split())
+    try:
+        nota = int(payload.get('nota', 5))
+    except (TypeError, ValueError):
+        nota = 0
+    if not payload.get('consentimento_publico'):
+        return JsonResponse({'detail': 'Confirme que autoriza a análise do seu depoimento para publicação.'}, status=400)
+    if len(texto) < 30 or len(texto) > 1000:
+        return JsonResponse({'detail': 'Escreva um depoimento entre 30 e 1000 caracteres.'}, status=400)
+    if nota not in range(1, 6):
+        return JsonResponse({'detail': 'Indique uma nota entre 1 e 5.'}, status=400)
+    limite = timezone.now().date() - timedelta(days=14)
+    if Depoimento.objects.filter(aluno=aluno, tipo='PLATAFORMA', data__gte=limite).count() >= 2:
+        return JsonResponse({'detail': 'Já recebemos duas experiências suas nas últimas duas semanas. Obrigado pela participação.'}, status=429)
+    Depoimento.objects.create(
+        tipo='PLATAFORMA', aluno=aluno, nome=(aluno.nome or 'Aluno Edukangola')[:100],
+        cargo='Aluno da Edukangola', texto=texto, nota=nota, origem='ALUNO',
+        consentimento_publico=True, publicar_nome=bool(payload.get('publicar_nome')), aprovado=False,
+    )
+    return JsonResponse({'ok': True, 'detail': 'Recebemos a sua experiência. Ela ficará visível após a revisão da equipa Edukangola.'}, status=201)
 
 
 def public_center_profile(request, centro_id):

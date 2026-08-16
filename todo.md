@@ -30,9 +30,28 @@
 - [x] Reduzir altura, espaçamento e dimensão visual dos cartões de notícias
 - [x] Validar pesquisa, filtros e navegação da área editorial
 
-- [ ] Reestruturar a página de centros como vitrina de descoberta, não apenas grelha
-- [ ] Adicionar um centro em destaque, descoberta por província e lista secundária compacta
-- [ ] Preservar pesquisa, filtros e navegação para o perfil do centro
-- [ ] Validar a vitrina de centros em desktop e mobile
+- [x] Reestruturar a página de centros como vitrina de descoberta, não apenas grelha
+- [x] Adicionar um centro em destaque, descoberta por província e lista secundária compacta
+- [x] Preservar pesquisa, filtros e navegação para o perfil do centro
+- [x] Validar a vitrina de centros em desktop e mobile
 
 - [x] Validar e fazer push das melhorias actuais da área de notícias
+
+- [x] Redesenhar agora a página /centros como vitrina de descoberta com destaque e cartões compactos
+
+- [x] Mostrar as capas reais dos centros no destaque e na lista de descoberta
+- [x] Enriquecer a vitrina de centros com contexto de cursos, localização e confiança
+- [x] Validar capas e miniaturas no frontend público
+
+- [x] Garantir um único centro em destaque na vitrina pública
+- [x] Realinhar a página Sobre nós com o padrão visual da Edukangola
+- [x] Validar navegação, métricas e responsividade das duas páginas
+
+- [x] Auditar galeria institucional, avaliações e depoimentos existentes no backend
+- [x] Definir comentários de utilizadores com autenticação, aprovação e moderação
+- [ ] Melhorar a página Sobre nós com galeria e depoimentos reais
+
+- [ ] Expor depoimentos aprovados e galeria curada na API pública da página Sobre nós
+- [x] Criar submissão autenticada de depoimento sobre a plataforma com consentimento e pendência
+- [x] Integrar experiências reais e convite de participação na página Sobre nós
+- [ ] Validar moderação, permissões e apresentação pública dos depoimentos
