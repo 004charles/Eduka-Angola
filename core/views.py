@@ -483,6 +483,7 @@ def public_home_data(request):
 
     def serializar_curso(curso):
         valor_inicial = curso.valor_a_cobrar_online()
+        preco_atual = curso.preco_atual
         imagem_url = curso.get_imagem_url
         return {
             'id': curso.id,
@@ -502,6 +503,8 @@ def public_home_data(request):
             'modalidade_codigo': curso.modalidade,
             'modalidade': curso.get_modalidade_display(),
             'is_gratuito': curso.is_gratuito,
+            'preco': float(preco_atual),
+            'preco_formatado': 'Gratuito' if curso.is_gratuito else formatar_valor(preco_atual),
             'certificado': curso.certificado,
             'destaque': curso.destaque,
             'imagem_url': imagem_url,

@@ -27,6 +27,16 @@ function takeUnique(candidates, usedIds, limit = 3) {
   return selected;
 }
 
+function alternateCourses(first, second) {
+  const result = [];
+  const max = Math.max(first.length, second.length);
+  for (let index = 0; index < max; index += 1) {
+    if (first[index]) result.push(first[index]);
+    if (second[index]) result.push(second[index]);
+  }
+  return result;
+}
+
 export default function CourseEditorialShowcase({ data, onNavigate, onAnnounce }) {
   const groups = useMemo(() => courseGroups(data), [data]);
   const [activeCareer, setActiveCareer] = useState("");
@@ -35,10 +45,10 @@ export default function CourseEditorialShowcase({ data, onNavigate, onAnnounce }
   const usedIds = new Set(currentCareer[1].slice(0, 3).map((course) => course.id));
   const newest = [...allCourses].sort((left, right) => new Date(right.data_publicacao) - new Date(left.data_publicacao));
   const spotlightCourses = takeUnique([...allCourses.filter((course) => course.destaque), ...allCourses], usedIds, 2);
-  const popular = takeUnique([...allCourses.filter((course) => course.destaque), ...allCourses], usedIds, 4);
-  const videoCourses = takeUnique(allCourses.filter(isVideoCurso), usedIds, 4);
-  const newCourses = takeUnique(newest, usedIds, 4);
-  const exploreCourses = takeUnique(allCourses, usedIds, 4);
+  const popular = takeUnique(alternateCourses(newest, allCourses.filter((course) => course.destaque)), usedIds, 6);
+  const videoCourses = takeUnique(allCourses.filter(isVideoCurso), usedIds, 6);
+  const newCourses = takeUnique(newest, usedIds, 6);
+  const exploreCourses = takeUnique(allCourses, usedIds, 6);
   const collections = [
     { slug: "mais-procurados", eyebrow: "Cursos em destaque", title: "Mais procurados", href: "/cursos", courses: popular },
     { slug: "novidades", eyebrow: "Formações recentes", title: "Novidades", href: "/cursos?ordem=recentes", courses: newCourses },

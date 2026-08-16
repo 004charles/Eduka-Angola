@@ -106,3 +106,7 @@
 - [x] Auditar cursos existentes e imagens disponíveis para evitar duplicações
 - [x] Criar mais cursos de demonstração com capas existentes e dados coerentes
 - [x] Validar os novos cursos no catálogo e na página inicial
+- [x] Restaurar preços e condições de inscrição nos cartões das prateleiras de cursos
+- [x] Reduzir o espaçamento entre secções e melhorar a densidade visual das prateleiras
+- [x] Validar os cartões corrigidos na página inicial sem remover funcionalidades existentes
+- [x] Distribuir os novos cursos de demonstração pelas prateleiras da página inicial sem repetição indevida
