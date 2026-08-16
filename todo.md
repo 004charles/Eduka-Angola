@@ -35,4 +35,4 @@
 - [ ] Preservar pesquisa, filtros e navegação para o perfil do centro
 - [ ] Validar a vitrina de centros em desktop e mobile
 
-- [ ] Validar e fazer push das melhorias actuais da área de notícias
+- [x] Validar e fazer push das melhorias actuais da área de notícias
