@@ -80,3 +80,6 @@
 - [x] Acrescentar novas faixas editoriais de cursos no mesmo formato visual do bloco de carreiras
 - [x] Distribuir cursos distintos entre as novas secções sem repetições
 - [x] Validar a página inicial completa até ao rodapé, preservando a parte superior actual
+- [x] Adicionar faixas promocionais horizontais para destacar cursos com capas reais
+- [x] Garantir que cada faixa promocional usa cursos diferentes das colecções já visíveis
+- [x] Validar a apresentação horizontal e a navegação para cada curso destacado
