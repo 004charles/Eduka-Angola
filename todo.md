@@ -86,3 +86,6 @@
 - [x] Substituir as colecções compactas abaixo de “Encontre algo novo para aprender” por quatro prateleiras horizontais de cursos
 - [x] Mostrar em cada cartão a capa, modalidade, categoria e centro, com navegação lateral por colecção
 - [x] Distribuir cursos exclusivos pelas quatro prateleiras sem repetição
+- [x] Refinar o acabamento profissional das quatro prateleiras horizontais de cursos
+- [x] Uniformizar a hierarquia visual, cartões, imagens e controlos de navegação da descoberta de cursos
+- [x] Validar a versão refinada em página completa antes de publicar
