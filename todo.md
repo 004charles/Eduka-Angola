@@ -99,3 +99,5 @@
 - [x] Auditar centros, capas e metadados disponíveis para destaque na página inicial
 - [x] Criar uma selecção visual de centros de formação com ligação à vitrina completa
 - [x] Validar imagens, informação e navegação da nova secção de centros
+- [x] Remover a secção de centros da página inicial sem alterar a vitrina própria `/centros`
+- [x] Validar a página inicial e a rota de centros depois da remoção
