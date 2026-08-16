@@ -94,7 +94,7 @@ export default function CourseCard({ course, onSave }) {
   const temVideo = isVideoCurso(course);
   const etiqueta = course.productLabel || etiquetaProduto(course);
   const acao = course.ctaLabel || acaoProduto(course);
-  const pagamentoAgora = course.is_gratuito ? "Gratuito" : (course.pagamento?.agora || "Condições a confirmar");
+  const pagamentoAgora = course.is_gratuito ? "Gratuito" : (course.preco_formatado || course.preco_label || course.pagamento?.agora || "Condições a confirmar");
   const condicaoPagamento = course.is_gratuito ? "Acesso sem pagamento" : course.pagamento?.descricao;
   const toggleFavorite = async () => {
     if (savingFavorite) return;
