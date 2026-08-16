@@ -103,3 +103,6 @@
 - [x] Validar a página inicial e a rota de centros depois da remoção
 - [x] Remover a faixa azul final da página inicial depois das colecções de cursos
 - [x] Validar que o rodapé fica directamente após o conteúdo de cursos
+- [x] Auditar cursos existentes e imagens disponíveis para evitar duplicações
+- [x] Criar mais cursos de demonstração com capas existentes e dados coerentes
+- [x] Validar os novos cursos no catálogo e na página inicial
