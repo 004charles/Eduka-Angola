@@ -24,6 +24,7 @@ import EventTicketsPage from "./pages/EventTicketsPage";
 import LibraryPage from "./pages/LibraryPage";
 import BookDetailPage from "./pages/BookDetailPage";
 import BookReaderPage from "./pages/BookReaderPage";
+import FAQPage from "./pages/FAQPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import { getStudentSession } from "./lib/auth-api";
 import { I18nProvider, LANGUAGES } from "./lib/i18n";
@@ -149,6 +150,7 @@ function App() {
   else if (blogPostRouteMatch) page = <BlogPostPage slug={decodeURIComponent(blogPostRouteMatch[1])} onNavigate={navigate} />;
   else if (pathname === "/blog" || pathname === "/blog/") page = <BlogPage language={language} onNavigate={navigate} />;
   else if (pathname === "/como-funciona") page = <HowItWorksPage onNavigate={navigate} />;
+  else if (pathname === "/perguntas-frequentes" || pathname === "/faq") page = <FAQPage onNavigate={navigate} />;
   else if (pathname === "/sobre" || pathname === "/sobre-a-edukangola") page = <AboutPage data={homeData} student={student} onNavigate={navigate} />;
   else page = <NotFoundPage onNavigate={navigate} />;
 

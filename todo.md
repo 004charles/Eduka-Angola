@@ -122,3 +122,4 @@
 - [x] Adicionar leitura em voz alta com reproduzir, pausar, velocidade e acessibilidade
 - [x] Validar retoma, reinício, progresso e leitura em voz alta na Biblioteca
 - [x] Inserir uma estante editorial de livros entre as secções de compra única e cursos recomendados na página inicial
+- [x] Criar a página de Perguntas frequentes e reorganizar o menu público com submenu de ajuda e informação institucional

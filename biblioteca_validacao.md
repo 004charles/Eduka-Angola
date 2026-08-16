@@ -14,3 +14,7 @@ A leitura agora grava o índice exacto da página/parte no modelo pessoal. Ao re
 ## Estante na página inicial
 
 A homepage apresenta a estante “Livros para continuar a aprender.” depois da colecção “Aprenda ao seu ritmo, com compra única.” e antes da colecção “Cursos recomendados para explorar agora.”. A estante carrega as obras da API pública da Biblioteca, usa capas verticais com lombadas, permite deslocação horizontal e liga cada título ao detalhe editorial.
+
+## FAQ e navegação compacta
+
+A página Perguntas frequentes foi validada com pesquisa, respostas expansíveis e acessos para cursos e explicação da plataforma. O menu principal foi reduzido para Explorar, Biblioteca, Notícias, Eventos e Centros; Como funciona, Sobre e Perguntas frequentes estão agrupados no submenu Mais.
