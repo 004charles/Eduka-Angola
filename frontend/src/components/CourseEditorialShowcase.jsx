@@ -50,6 +50,7 @@ export default function CourseEditorialShowcase({ data, onNavigate, onAnnounce }
 
   return <section className="course-editorial" aria-label="Descoberta de cursos">
     <div className="page-width">
+      <nav className="editorial-category-nav editorial-category-nav--top" aria-label="Explorar cursos por categoria"><span>Explorar por área</span><div>{groups.slice(0, 6).map(([name]) => <a href={`/cursos?categoria=${encodeURIComponent(name)}`} key={name}>{name}</a>)}</div></nav>
       {groups.length > 0 && <section className="career-program" aria-labelledby="career-program-title">
         <aside className="career-program-intro"><span className="eyebrow"><BriefcaseBusiness size={14} /> Carreiras e competências</span><h2 id="career-program-title">Prepare-se para o próximo passo da sua carreira.</h2><p>Escolha uma área e explore os cursos disponíveis.</p><button className="editorial-light-action" onClick={() => onNavigate("/cursos")}>Explorar todos <ArrowRight size={16} /></button></aside>
         <div className="career-program-content"><div className="career-tabs" role="tablist" aria-label="Áreas de carreira">{groups.slice(0, 6).map(([name]) => <button key={name} type="button" role="tab" aria-selected={currentCareer[0] === name} className={currentCareer[0] === name ? "is-active" : ""} onClick={() => setActiveCareer(name)}>{name}</button>)}</div><div className="career-program-cards">{currentCareer[1].slice(0, 3).map((course) => <a href={rotaDetalheProduto(course)} className="career-program-card" key={course.id}><img src={course.imagem_url} alt="" /><span><small>{course.centro || "Edukangola"}</small><strong>{course.titulo}</strong><em>{etiquetaProduto(course)}</em></span></a>)}</div></div>
@@ -57,7 +58,6 @@ export default function CourseEditorialShowcase({ data, onNavigate, onAnnounce }
 
       {spotlightCourses.length > 0 && <section className="course-spotlights" aria-label="Cursos em destaque"><div className="course-spotlight-list">{spotlightCourses.map((course, index) => <a className={`course-spotlight spotlight-${index}`} href={rotaDetalheProduto(course)} key={course.id}><div><span className="eyebrow">{etiquetaProduto(course)}</span><h2>{course.titulo}</h2><p>Com {course.centro || "Edukangola"}</p><strong>Ver curso <ArrowRight size={17} /></strong></div><img src={course.imagem_url} alt="" /></a>)}</div></section>}
 
-      <nav className="editorial-category-nav" aria-label="Explorar cursos por categoria"><span>Explorar por área</span><div>{groups.slice(0, 6).map(([name]) => <a href={`/cursos?categoria=${encodeURIComponent(name)}`} key={name}>{name}</a>)}</div></nav>
       <section className="editorial-trending" aria-labelledby="trending-title"><div className="editorial-section-title"><span className="eyebrow muted"><Sparkles size={14} /> Cursos em alta</span><h2 id="trending-title">Encontre algo novo para aprender.</h2></div><CourseDiscoveryShelves collections={collections} onNavigate={onNavigate} onAnnounce={onAnnounce} /></section>
 
 

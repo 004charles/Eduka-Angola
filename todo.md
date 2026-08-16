@@ -92,3 +92,4 @@
 - [x] Restaurar o acesso por categorias antes das colecções de cursos da página inicial
 - [x] Tornar funcionais os corações de favoritos nos cartões das prateleiras horizontais
 - [x] Validar a persistência de favoritos e o comportamento para visitantes sem sessão
+- [x] Confirmar e corrigir a visibilidade das categorias antes das colecções na página inicial
