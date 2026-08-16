@@ -7,6 +7,6 @@
 - [ ] Validar a index em ambiente web
 - [ ] Manter o GestorEduka e o backend Django inalterados nesta primeira entrega
 - [ ] Construir este novo frontend como aplicação web React, não como aplicação mobile
-- [ ] Integrar o frontend React separado em /home/ubuntu/eduka-web-react no repositório Eduka-Angola
-- [ ] Validar build e excluir dependências geradas e ficheiros de ambiente do push do frontend
-- [ ] Fazer push do frontend React integrado para o GitHub
+- [x] Integrar o frontend React separado em /home/ubuntu/eduka-web-react no repositório Eduka-Angola
+- [x] Validar build e excluir dependências geradas e ficheiros de ambiente do push do frontend
+- [x] Fazer push do frontend React integrado para o GitHub
