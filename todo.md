@@ -68,3 +68,5 @@
 
 - [x] Aumentar o número de cursos mostrados nas colecções editoriais mantendo cada curso numa única colecção
 - [x] Validar que não existem cursos repetidos entre carreira em destaque, cursos em alta e vídeo-cursos
+
+- [x] Diagnosticar e corrigir a pré-visualização que não reflecte a versão actual da página inicial
