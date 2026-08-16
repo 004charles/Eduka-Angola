@@ -1,0 +1,19 @@
+.payment-result-page { display:grid; min-height:72vh; place-items:center; padding:55px 20px 90px; background:radial-gradient(circle at 50% 0%,var(--brand-pale),transparent 48%),var(--surface-soft); }
+.payment-result-card { width:min(100%,580px); padding:42px; border:1px solid var(--line); border-radius:20px; background:var(--surface); box-shadow:0 22px 60px color-mix(in srgb,var(--ink) 12%,transparent); text-align:center; }
+.payment-result-icon { display:grid; width:68px; height:68px; margin:0 auto 20px; place-items:center; border-radius:50%; background:var(--brand-pale); color:var(--brand); }
+.payment-result-card.is-success .payment-result-icon { background:#e8f8ee; color:#18834a; }
+.payment-result-card.is-failed .payment-result-icon { background:#fff0f0; color:#bd3030; }
+.payment-result-card h1 { margin:12px 0 12px; font-family:"Manrope",sans-serif; font-size:clamp(28px,5vw,42px); line-height:1.06; letter-spacing:-.065em; }
+.payment-result-card p { max-width:450px; margin:0 auto; color:var(--muted); line-height:1.6; }
+.payment-pending-note { display:inline-flex; align-items:center; gap:7px; margin-top:20px; padding:9px 12px; border-radius:999px; background:var(--brand-pale); color:var(--brand); font-size:12px; font-weight:750; }
+.payment-pending-note svg { animation:payment-spin .9s linear infinite; }
+.payment-reference { display:grid; gap:5px; margin:25px auto 0; padding:12px; border:1px solid var(--line); border-radius:9px; background:var(--surface-soft); }
+.payment-reference span { color:var(--muted); font-size:11px; }
+.payment-reference strong { overflow-wrap:anywhere; color:var(--text); font-size:12px; }
+.payment-course { display:inline-flex; align-items:center; gap:7px; margin-top:16px; color:var(--text); font-size:13px; font-weight:750; }
+.payment-course svg { color:var(--brand); }
+.payment-result-actions { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:28px; }
+.payment-secondary { display:inline-flex; align-items:center; gap:7px; min-height:44px; padding:10px 15px; border:1px solid var(--line); border-radius:9px; background:var(--surface); color:var(--text); font:inherit; font-size:13px; font-weight:800; cursor:pointer; }
+.payment-secondary:hover { border-color:var(--brand); color:var(--brand); }
+@keyframes payment-spin { to { transform:rotate(360deg); } }
+@media (max-width:540px) { .payment-result-card { padding:30px 20px; } .payment-result-actions { flex-direction:column; } .payment-result-actions button { justify-content:center; width:100%; } }

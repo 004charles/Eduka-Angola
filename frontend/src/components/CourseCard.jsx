@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ArrowRight, Award, CalendarDays, Clock3, Heart, MapPin, UsersRound, Video } from "lucide-react";
 import { acaoProduto, etiquetaProduto, isVideoCurso } from "../lib/product-type";
+import { backendUrl } from "../lib/backend-url";
 import "./course-card.css";
 
 const PREVIEW_WIDTH = 344;
@@ -22,6 +23,12 @@ function resumir(texto) {
  * o cartão mantém a navegação direta para o detalhe completo do curso.
  */
 export default function CourseCard({ course, onSave }) {
+  const cursoId = String(course.id);
+  const favoritoInicial = typeof window !== "undefined" && Array.isArray(window.__edukaFavoriteIds)
+    ? window.__edukaFavoriteIds.includes(cursoId)
+    : Boolean(course.favorito || course.isFavorite);
+  const [isFavorite, setIsFavorite] = useState(favoritoInicial);
+  const [savingFavorite, setSavingFavorite] = useState(false);
   const cardRef = useRef(null);
   const closeTimer = useRef(null);
   const [preview, setPreview] = useState(null);
@@ -69,6 +76,15 @@ export default function CourseCard({ course, onSave }) {
     };
   }, [preview, calcularPosicao]);
 
+  useEffect(() => {
+    const sincronizarFavorito = (event) => {
+      const ids = event.detail?.ids || window.__edukaFavoriteIds || [];
+      setIsFavorite(ids.map(String).includes(cursoId));
+    };
+    window.addEventListener("eduka:favorites-changed", sincronizarFavorito);
+    return () => window.removeEventListener("eduka:favorites-changed", sincronizarFavorito);
+  }, [cursoId]);
+
   useEffect(() => () => window.clearTimeout(closeTimer.current), []);
 
   const turma = course.turma;
@@ -80,6 +96,25 @@ export default function CourseCard({ course, onSave }) {
   const acao = course.ctaLabel || acaoProduto(course);
   const pagamentoAgora = course.is_gratuito ? "Gratuito" : (course.pagamento?.agora || "Condições a confirmar");
   const condicaoPagamento = course.is_gratuito ? "Acesso sem pagamento" : course.pagamento?.descricao;
+  const toggleFavorite = async () => {
+    if (savingFavorite) return;
+    if (!document.cookie.includes("csrftoken=")) await fetch(backendUrl("/auth/api/react/aluno/favoritos/"), { credentials: "same-origin" });
+    const token = document.cookie.split(";").map((item) => item.trim()).find((item) => item.startsWith("csrftoken="))?.split("=").slice(1).join("=") || "";
+    setSavingFavorite(true);
+    try {
+      const response = await fetch(backendUrl("/auth/api/react/aluno/favoritos/alternar/"), { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", Accept: "application/json", "X-CSRFToken": token }, body: JSON.stringify({ curso_id: course.id }) });
+      const data = await response.json().catch(() => ({}));
+      if (response.status === 401) { onSave?.("AUTH_REQUIRED"); return; }
+      if (!response.ok) throw new Error(data.detail || "Não foi possível guardar o curso.");
+      const favorito = Boolean(data.favorito);
+      setIsFavorite(favorito);
+      const idsAtuais = new Set((window.__edukaFavoriteIds || []).map(String));
+      if (favorito) idsAtuais.add(cursoId); else idsAtuais.delete(cursoId);
+      window.__edukaFavoriteIds = [...idsAtuais];
+      window.dispatchEvent(new CustomEvent("eduka:favorites-changed", { detail: { ids: window.__edukaFavoriteIds } }));
+      onSave?.(data.message);
+    } catch (error) { onSave?.(error.message); } finally { setSavingFavorite(false); }
+  };
 
   return (
     <article
@@ -103,8 +138,8 @@ export default function CourseCard({ course, onSave }) {
           <div className={`course-price${course.is_gratuito ? " is-free" : ""}`}><strong>{pagamentoAgora}</strong>{condicaoPagamento && <span>{condicaoPagamento}</span>}</div>
           <div className="course-footer">
             <span title={course.schedule}><Clock3 size={14} /> {course.schedule}</span>
-            <button type="button" aria-label={`Guardar ${course.title}`} onClick={() => onSave(course.title)}>
-              <Heart size={18} />
+            <button type="button" className={isFavorite ? "is-favorite" : ""} aria-label={isFavorite ? `Remover ${course.title} dos guardados` : `Guardar ${course.title}`} aria-pressed={isFavorite} disabled={savingFavorite} onClick={toggleFavorite}>
+              <Heart size={18} fill={isFavorite ? "currentColor" : "none"} />
             </button>
           </div>
         </div>

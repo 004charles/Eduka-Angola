@@ -28,8 +28,10 @@ export default function PublicLayout({ children, student, theme, language, onThe
   const items = [
     { href: "/cursos", label: t("nav.explore") },
     { href: "/blog", label: t("nav.news") },
+    { href: "/eventos", label: "Eventos" },
     { href: "/centros", label: t("nav.centres") },
     { href: "/como-funciona", label: t("nav.how") },
+    { href: "/sobre", label: t("nav.about") },
   ];
   const studentFirstName = student?.nome?.trim().split(/\s+/)[0] || "Aluno";
 
@@ -65,7 +67,7 @@ export default function PublicLayout({ children, student, theme, language, onThe
         </div>
       </header>
       {children}
-      {!isAuthPath && <footer className="footer"><div className="page-width footer-inner"><Brand onNavigate={onNavigate} label="Edukangola" /><p>{t("footer.tagline")}</p><span>© 2026 Edukangola</span></div></footer>}
+      {!isAuthPath && <footer className="footer"><div className="page-width footer-inner"><Brand onNavigate={onNavigate} label="Edukangola" /><p>{t("footer.tagline")}</p><span>Feito por Carlos Muquissi e Nelson Muquissi</span><span>© 2026 Edukangola</span></div></footer>}
       {quickSearchOpen && <QuickSearch suggestions={suggestions} onClose={() => setQuickSearchOpen(false)} onNavigate={onNavigate} />}
     </div>
   );

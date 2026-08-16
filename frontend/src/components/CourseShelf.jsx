@@ -68,7 +68,7 @@ export default function CourseShelf({
         <div className="course-track" ref={trackRef} aria-label={title} aria-roledescription="carrossel">
           {courses.map((course, index) => (
             <div className="course-slide" data-course-index={index} key={`${id}-${course.title}-${index}`}>
-              <CourseCard course={course} onSave={() => onAnnounce("Os cursos guardados estarão disponíveis após o login.")} />
+              <CourseCard course={course} onSave={(message) => onAnnounce?.(message === "AUTH_REQUIRED" ? "Os cursos guardados estarão disponíveis após o login." : message)} />
             </div>
           ))}
         </div>

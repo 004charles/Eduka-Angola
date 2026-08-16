@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, BookOpenCheck, CalendarDays, CheckCircle2, Clock3, GraduationCap, LockKeyhole, MonitorPlay, PlayCircle, UserRound, UsersRound, Video } from "lucide-react";
 import "./video-course-detail-page.css";
 
-export default function VideoCourseDetailPage({ slug, onNavigate }) {
+export default function VideoCourseDetailPage({ slug, student, onNavigate }) {
   const [status, setStatus] = useState("loading");
   const [course, setCourse] = useState(null);
 
@@ -40,7 +40,7 @@ export default function VideoCourseDetailPage({ slug, onNavigate }) {
         <section className="video-learning-note"><CheckCircle2 size={20} /><div><b>Aprenda no seu ritmo</b><p>Depois da compra ou acesso gratuito, as aulas ficam disponíveis no ambiente de aprendizagem da Edukangola.</p></div></section>
         {course.tem_turmas ? <section className="video-classes" id="turmas"><span className="eyebrow muted">Turmas do centro</span><h2>Acompanhamento disponível para este vídeo-curso.</h2>{course.turmas.length ? <div className="video-class-list">{course.turmas.map((turma) => <article key={turma.id}><div><b>{turma.nome}</b><span><CalendarDays size={15} /> Início em {turma.inicio_formatado}</span><span><Clock3 size={15} /> {turma.dias} · {turma.horario}</span></div><strong><UsersRound size={15} /> {turma.vagas_disponiveis} vagas</strong></article>)}</div> : <div className="video-empty-curriculum"><UsersRound size={22} /><div><b>O centro ainda não abriu uma turma.</b><p>O conteúdo em vídeo está publicado, mas o acompanhamento por turma será anunciado pelo centro.</p></div></div>}</section> : <section className="video-original-note"><MonitorPlay size={20} /><div><b>Vídeo-curso original da Edukangola</b><p>Este curso é publicado pela plataforma e é estudado ao seu ritmo; não depende de turma, horário ou vagas.</p></div></section>}
       </div>
-      <aside className="video-detail-aside"><div className="video-enrollment-card"><span>{course.is_gratuito ? 'ACESSO GRATUITO' : 'COMPRA DO VÍDEO-CURSO'}</span><strong>{course.pagamento?.agora}</strong><p>{course.pagamento?.descricao || resumoComercial}</p>{course.tem_turmas && <a className="video-class-link" href="#turmas">Ver turmas de acompanhamento</a>}<button type="button" onClick={() => onNavigate(`/comprar/${encodeURIComponent(slug)}`)}>{acaoComercial}</button><small>{course.tem_turmas ? 'O centro pode associar acompanhamento por turma; a compra dá acesso ao vídeo-curso.' : 'Depois da compra ou acesso gratuito, as aulas ficam disponíveis no ambiente de aprendizagem da Edukangola.'}</small></div></aside>
+      <aside className="video-detail-aside"><div className="video-enrollment-card"><span>{course.is_gratuito ? 'ACESSO GRATUITO' : 'COMPRA DO VÍDEO-CURSO'}</span><strong>{course.pagamento?.agora}</strong><p>{course.pagamento?.descricao || resumoComercial}</p>{course.tem_turmas && <a className="video-class-link" href="#turmas">Ver turmas de acompanhamento</a>}<button type="button" onClick={() => onNavigate(`/comprar/${encodeURIComponent(slug)}`)}>{acaoComercial}</button>{student && <button type="button" className="video-learning-link" onClick={() => onNavigate(`/aprender/video/${encodeURIComponent(slug)}`)}>Abrir sala de aprendizagem</button>}<small>{course.tem_turmas ? 'O centro pode associar acompanhamento por turma; a compra dá acesso ao vídeo-curso.' : 'Depois da compra ou acesso gratuito, as aulas ficam disponíveis no ambiente de aprendizagem da Edukangola.'}</small></div></aside>
     </section>
   </main>;
 }

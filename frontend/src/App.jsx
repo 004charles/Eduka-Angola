@@ -7,13 +7,20 @@ import CourseDetailPage from "./pages/CourseDetailPage";
 import VideoCourseDetailPage from "./pages/VideoCourseDetailPage";
 import CentersPage from "./pages/CentersPage";
 import HowItWorksPage from "./pages/HowItWorksPage";
+import AboutPage from "./pages/AboutPage";
 import AuthPage from "./pages/AuthPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import StudentDashboardPage from "./pages/StudentDashboardPage";
+import StudentPreferencesPage from "./pages/StudentPreferencesPage";
 import CenterProfilePage from "./pages/CenterProfilePage";
 import ForCentersPage from "./pages/ForCentersPage";
 import BlogPage from "./pages/BlogPage";
 import BlogPostPage from "./pages/BlogPostPage";
+import VideoLearningPage from "./pages/VideoLearningPage";
+import PaymentResultPage from "./pages/PaymentResultPage";
+import EventsPage from "./pages/EventsPage";
+import EventDetailPage from "./pages/EventDetailPage";
+import EventTicketsPage from "./pages/EventTicketsPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import { getStudentSession } from "./lib/auth-api";
 import { I18nProvider, LANGUAGES } from "./lib/i18n";
@@ -57,6 +64,29 @@ function App() {
   useEffect(() => { refreshStudentSession(); }, [refreshStudentSession, route]);
 
   useEffect(() => {
+    let active = true;
+    const sincronizarFavoritos = async () => {
+      if (!student) {
+        window.__edukaFavoriteIds = [];
+        window.dispatchEvent(new CustomEvent("eduka:favorites-changed", { detail: { ids: [] } }));
+        return;
+      }
+      try {
+        const response = await fetch("/backend/auth/api/react/aluno/favoritos/", { credentials: "same-origin", headers: { Accept: "application/json" } });
+        const data = await response.json().catch(() => ({}));
+        if (!active || !response.ok) return;
+        const ids = (data.cursos || []).map((curso) => String(curso.id));
+        window.__edukaFavoriteIds = ids;
+        window.dispatchEvent(new CustomEvent("eduka:favorites-changed", { detail: { ids } }));
+      } catch {
+        // A interface mantém o estado anterior se a sincronização de sessão falhar.
+      }
+    };
+    sincronizarFavoritos();
+    return () => { active = false; };
+  }, [student]);
+
+  useEffect(() => {
     const syncSessionOnReturn = () => refreshStudentSession();
     const syncVisibleSession = () => {
       if (document.visibilityState === "visible") refreshStudentSession();
@@ -80,10 +110,12 @@ function App() {
   const authModes = { "/entrar": "login", "/criar-conta": "register", "/verificar-email": "verify", "/recuperar-palavra-passe": "recover", "/redefinir-palavra-passe": "reset" };
   const courseRouteMatch = pathname.match(/^\/cursos\/(\d+)\/?$/);
   const videoCourseRouteMatch = pathname.match(/^\/video-cursos\/([^/]+)\/?$/);
+  const learningVideoRouteMatch = pathname.match(/^\/aprender\/video\/([^/]+)\/?$/);
   const checkoutCourseRouteMatch = pathname.match(/^\/inscrever\/(\d+)\/?$/);
   const checkoutVideoRouteMatch = pathname.match(/^\/comprar\/([^/]+)\/?$/);
   const centerRouteMatch = pathname.match(/^\/centros\/(\d+)\/?$/);
   const blogPostRouteMatch = pathname.match(/^\/blog\/([^/]+)\/?$/);
+  const eventRouteMatch = pathname.match(/^\/eventos\/([^/]+)\/?$/);
   const courseId = courseRouteMatch ? Number(courseRouteMatch[1]) : null;
   const checkoutCourseId = checkoutCourseRouteMatch ? Number(checkoutCourseRouteMatch[1]) : null;
   const selectedCourse = courseId ? homeData?.cursos?.find((course) => course.id === courseId) : null;
@@ -92,17 +124,24 @@ function App() {
   if (pathname === "/") page = <HomePage data={homeData} loading={homeDataLoading} onNavigate={navigate} onAnnounce={announce} />;
   else if (authModes[pathname]) page = <AuthPage key={pathname} mode={authModes[pathname]} courses={homeData?.cursos || []} onNavigate={navigate} onSessionReady={refreshStudentSession} />;
   else if (pathname === "/aluno") page = <StudentDashboardPage onNavigate={navigate} />;
+  else if (pathname === "/aluno/preferencias") page = <StudentPreferencesPage onNavigate={navigate} />;
+  else if (pathname === "/pagamento/sucesso" || pathname === "/pagamento/sucesso/") page = <PaymentResultPage onNavigate={navigate} />;
+  else if (pathname === "/pagamento/cancelado" || pathname === "/pagamento/cancelado/") page = <PaymentResultPage onNavigate={navigate} />;
   else if (checkoutCourseRouteMatch) page = <CheckoutPage kind="presencial" course={checkoutCourse} turmas={homeData?.turmas_abertas || []} onNavigate={navigate} />;
   else if (checkoutVideoRouteMatch) page = <CheckoutPage kind="video" slug={decodeURIComponent(checkoutVideoRouteMatch[1])} onNavigate={navigate} />;
   else if (centerRouteMatch) page = <CenterProfilePage centerId={Number(centerRouteMatch[1])} onNavigate={navigate} />;
+  else if (eventRouteMatch) page = <EventDetailPage slug={decodeURIComponent(eventRouteMatch[1])} student={student} onNavigate={navigate} onAnnounce={announce} />;
+  else if (pathname === "/eventos" || pathname === "/eventos/" || pathname === "/eventosv" || pathname === "/eventosv/") page = <EventTicketsPage student={student} onNavigate={navigate} onAnnounce={announce} />;
   else if (pathname === "/cursos") page = <CoursesPage data={homeData} loading={homeDataLoading} initialFilters={catalogFilters} onNavigate={navigate} onAnnounce={announce} />;
   else if (courseRouteMatch) page = <CourseDetailPage course={selectedCourse} courses={homeData?.cursos} turmas={homeData?.turmas_abertas} loading={homeDataLoading} onNavigate={navigate} onAnnounce={announce} />;
-  else if (videoCourseRouteMatch) page = <VideoCourseDetailPage slug={decodeURIComponent(videoCourseRouteMatch[1])} onNavigate={navigate} />;
+  else if (videoCourseRouteMatch) page = <VideoCourseDetailPage slug={decodeURIComponent(videoCourseRouteMatch[1])} student={student} onNavigate={navigate} />;
+  else if (learningVideoRouteMatch) page = <VideoLearningPage slug={decodeURIComponent(learningVideoRouteMatch[1])} onNavigate={navigate} />;
   else if (pathname === "/centros") page = <CentersPage data={homeData} loading={homeDataLoading} onNavigate={navigate} />;
   else if (pathname === "/para-centros") page = <ForCentersPage inviteToken={centerInviteToken} onNavigate={navigate} onAnnounce={announce} />;
   else if (blogPostRouteMatch) page = <BlogPostPage slug={decodeURIComponent(blogPostRouteMatch[1])} onNavigate={navigate} />;
   else if (pathname === "/blog" || pathname === "/blog/") page = <BlogPage language={language} onNavigate={navigate} />;
   else if (pathname === "/como-funciona") page = <HowItWorksPage onNavigate={navigate} />;
+  else if (pathname === "/sobre" || pathname === "/sobre-a-edukangola") page = <AboutPage data={homeData} onNavigate={navigate} />;
   else page = <NotFoundPage onNavigate={navigate} />;
 
   return <I18nProvider language={language} onLanguageChange={setLanguage}><PublicLayout suggestions={homeData?.cursos || []} student={student} theme={theme} language={language} path={pathname} onThemeChange={() => setTheme(theme === "light" ? "dark" : "light")} onLanguageChange={setLanguage} onNavigate={navigate}>{page}{notice && <div className="notice" role="status">{notice}</div>}</PublicLayout></I18nProvider>;

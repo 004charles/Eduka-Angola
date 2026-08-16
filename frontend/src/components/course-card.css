@@ -33,3 +33,4 @@
 @keyframes course-preview-in { from { opacity:0; transform:translateX(-6px) scale(.985); } to { opacity:1; transform:translateX(0) scale(1); } }
 @media (hover:none),(pointer:coarse) { .course-preview { display:none; } }
 @media (max-width:620px) { .course-card-shell { height:354px; } }
+.course-footer button.is-favorite { color:#d53b67; background:color-mix(in srgb,#d53b67 10%,transparent); }

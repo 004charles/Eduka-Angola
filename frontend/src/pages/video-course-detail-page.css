@@ -51,5 +51,7 @@
 .video-enrollment-card a { display:flex; justify-content:center; padding:13px; border-radius:8px; background:var(--brand); color:#fff; font-size:14px; font-weight:850; text-decoration:none; }
 .video-enrollment-card .video-class-link { margin-bottom:9px; border:1px solid var(--brand); background:transparent; color:var(--brand); }
 .video-enrollment-card small { display:block; margin-top:13px; color:var(--muted); font-size:11px; line-height:1.45; }
+.video-learning-link { width:100%; margin-top:9px; padding:11px 14px; border:1px solid var(--brand-soft); border-radius:8px; background:var(--brand-pale); color:var(--brand); font:inherit; font-size:13px; font-weight:800; cursor:pointer; transition:background 160ms ease,border-color 160ms ease; }
+.video-learning-link:hover { border-color:var(--brand); background:var(--surface); }
 @media (max-width:880px) { .video-detail-hero-grid,.video-detail-layout { grid-template-columns:1fr; gap:26px; } .video-detail-cover { max-width:560px; } .video-enrollment-card { position:static; } }
 @media (max-width:620px) { .video-detail-hero { padding:20px 0 34px; } .video-detail-hero h1 { font-size:35px; } .video-detail-cover { height:190px; } .video-detail-layout { padding-top:30px; } .video-lessons summary { grid-template-columns:30px minmax(0,1fr) 18px; } .video-lesson-duration { display:none; } .video-lessons details > p { padding-left:16px; } }

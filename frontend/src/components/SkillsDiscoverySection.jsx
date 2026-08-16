@@ -83,7 +83,7 @@ export default function SkillsDiscoverySection({ data, onAnnounce }) {
             {cursosVisiveis.length > 1 && <div className="carousel-controls" aria-label={`Controlos dos cursos em ${temaAtivo === "todos" ? "todas as competências" : temaAtivo}`}><button className="carousel-arrow" type="button" onClick={() => avancar(-1)} aria-label="Ver cursos anteriores"><ChevronLeft size={18} /></button><button className="carousel-arrow" type="button" onClick={() => avancar(1)} aria-label="Ver próximos cursos"><ChevronRight size={18} /></button></div>}
           </div>
           <div ref={trackRef} className="skills-courses-track" aria-label="Cursos por competência">
-            {cursosVisiveis.map((curso) => <div className="skills-course-slide" key={curso.id}><CourseCard course={curso} onSave={() => onAnnounce?.("Os cursos guardados estarão disponíveis após o login.")} /></div>)}
+            {cursosVisiveis.map((curso) => <div className="skills-course-slide" key={curso.id}><CourseCard course={curso} onSave={(message) => onAnnounce?.(message === "AUTH_REQUIRED" ? "Os cursos guardados estarão disponíveis após o login." : message)} /></div>)}
           </div>
         </div>
       </div>
