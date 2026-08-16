@@ -18,6 +18,16 @@ def _send_mail_async(subject, message, from_email, recipient_list):
 @receiver(post_save, sender=CentroDeFormacao)
 def criar_convite(sender, instance, created, **kwargs):
     if created:
+        # Cadastros públicos concluídos já têm gestor associado e não precisam do convite legado.
+        if instance.usuario_id:
+            plano_gratuito = Plano.objects.filter(preco=0, ativo=True).first()
+            if plano_gratuito:
+                AssinaturaMembro.objects.get_or_create(
+                    centro=instance,
+                    defaults={'plano': plano_gratuito, 'status': 'ATIVO'},
+                )
+            return
+
         convite = ConviteCentro.objects.create(centro=instance)
         
         # Atribuir Plano Gratuito (Preço 0) automaticamente

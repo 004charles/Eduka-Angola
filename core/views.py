@@ -1,15 +1,24 @@
 from datetime import timedelta
 
+import json
+import os
+import requests
+
 from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.db.models import Count, Q, Prefetch, Value, F
+from django.db.utils import OperationalError
 from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.dateparse import parse_date
 
-from cursos_app.models import Curso, Categoria, Favorito, Instrutor, Turma
-from usuarios.models import Aluno, PerfilAluno
+from cursos_app.models import Curso, Categoria, Favorito, Instrutor, Turma, Inscricao
+from usuarios.models import Aluno, PerfilAluno, PreferenciaAprendizagem
 from usuarios.decorators import aluno_logado_e_centros
 
 from blog.models import Post
@@ -18,7 +27,7 @@ from gestoreduka.models import (
     CentroSeguimento, Depoimento, Diferencial, Equipe, Estatistica,
     Evento, Filial, Parceria, ReelCentro, Recurso,
 )
-from cursovideoapp.models import Curso_video, FavoritoCursoVideo, TurmaVideo
+from cursovideoapp.models import Curso_video, FavoritoCursoVideo, TurmaVideo, ProgressoAula, Aula
 from estagio.models import Estagio
 
 from django.contrib import messages
@@ -41,6 +50,223 @@ def recomendar_cursos(aluno, limite=8):
         return ai_recomendar(aluno, limite)
     except (ImportError, Exception):
         return list(Curso.objects.filter(publicado=True, ativo=True).select_related('centro').order_by('-id')[:limite])
+
+
+@require_GET
+def react_student_dashboard(request):
+    if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'ALUNO':
+        return JsonResponse({'detail': 'Inicie sessão para abrir a sua área de aluno.'}, status=401)
+    aluno = getattr(request.user, 'aluno_profile', None)
+    if not aluno:
+        return JsonResponse({'detail': 'Perfil de aluno não encontrado.'}, status=404)
+    inscricoes = list(Inscricao.objects.filter(aluno=aluno).select_related('curso__centro', 'curso__categoria', 'turma_escolhida').order_by('-data_inscricao')[:30])
+    continuar = []
+    inscricoes_ativas = 0
+    inscricoes_pendentes = 0
+    for inscricao in inscricoes:
+        curso = inscricao.curso
+        if inscricao.status == 'A':
+            inscricoes_ativas += 1
+            turma = inscricao.turma_escolhida
+            continuar.append({'id': curso.id, 'titulo': curso.titulo, 'centro': curso.centro.nome if curso.centro else 'Centro de formação', 'imagem_url': curso.get_imagem_url, 'is_video': False, 'progresso': 0, 'aulas_concluidas': 0, 'total_aulas': 0, 'detalhe_url': reverse('curso_detalhe', kwargs={'id': curso.id}), 'inicio_formatado': turma.data_inicio.strftime('%d/%m/%Y') if turma else '', 'horario': turma.get_turno_display() if turma else ''})
+        elif inscricao.status == 'P':
+            inscricoes_pendentes += 1
+    video_cursos = Curso_video.objects.filter(inscritos=aluno).prefetch_related('aulas').order_by('-data_publicacao')
+    for video in video_cursos:
+        total_aulas = video.aulas.count()
+        concluidas = ProgressoAula.objects.filter(aluno=aluno, aula__curso=video, concluida=True).count()
+        continuar.append({'id': video.id, 'titulo': video.titulo, 'centro': video.centro.nome if video.centro else 'Edukangola', 'imagem_url': video.get_imagem_url, 'is_video': True, 'progresso': round((concluidas / total_aulas) * 100) if total_aulas else 0, 'aulas_concluidas': concluidas, 'total_aulas': total_aulas, 'detalhe_url': video.get_absolute_url(), 'inicio_formatado': '', 'horario': ''})
+    certificados = 0
+    try:
+        from cursovideoapp.models import Certificado
+        certificados = Certificado.objects.filter(aluno=aluno, status='EMITIDO').count()
+    except Exception:
+        pass
+    return JsonResponse({'ok': True, 'aluno': {'nome': aluno.nome}, 'resumo': {'cursos_ativos': len(continuar), 'inscricoes_pendentes': inscricoes_pendentes, 'certificados': certificados}, 'continuar_aprender': continuar, 'inscricoes': [{'id': item.id, 'titulo': item.curso.titulo, 'centro': item.curso.centro.nome if item.curso.centro else 'Centro de formação', 'status': item.status, 'status_label': item.get_status_display(), 'turma': item.turma_escolhida.nome if item.turma_escolhida else '', 'inicio_formatado': item.turma_escolhida.data_inicio.strftime('%d/%m/%Y') if item.turma_escolhida else '', 'horario': item.turma_escolhida.get_turno_display() if item.turma_escolhida else '', 'imagem_url': item.curso.get_imagem_url, 'valor_pago_formatado': f'{item.valor_pago:,.0f} Kz'.replace(',', ' ') if item.valor_pago else 'Por confirmar', 'detalhe_url': reverse('curso_detalhe', kwargs={'id': item.curso_id}), 'ficha_url': ''} for item in inscricoes]})
+
+
+def _serializar_curso_favorito(curso):
+    valor = curso.valor_a_cobrar_online()
+    return {'id': curso.id, 'titulo': curso.titulo, 'categoria': curso.categoria.nome if curso.categoria else 'Sem categoria', 'centro': curso.centro.nome if curso.centro else 'Centro de formação', 'imagem_url': curso.get_imagem_url, 'preco_label': f'{valor:,.0f} Kz'.replace(',', ' ') if valor > 0 else 'Gratuito', 'is_gratuito': curso.is_gratuito, 'certificado': curso.certificado, 'modalidade': curso.get_modalidade_display(), 'detalhe_url': reverse('curso_detalhe', kwargs={'id': curso.id})}
+
+
+@ensure_csrf_cookie
+@require_GET
+def react_student_favorites(request):
+    if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'ALUNO':
+        return JsonResponse({'detail': 'Inicie sessão como aluno para ver os cursos guardados.'}, status=401)
+    aluno = getattr(request.user, 'aluno_profile', None)
+    if not aluno:
+        return JsonResponse({'detail': 'Perfil de aluno não encontrado.'}, status=404)
+    favoritos = Favorito.objects.filter(aluno=aluno, curso__publicado=True, curso__ativo=True).select_related('curso__categoria', 'curso__centro').order_by('-id')
+    return JsonResponse({'ok': True, 'favorito_ids': list(favoritos.values_list('curso_id', flat=True)), 'cursos': [_serializar_curso_favorito(item.curso) for item in favoritos]})
+
+
+@require_POST
+def react_student_favorite_toggle(request):
+    if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'ALUNO':
+        return JsonResponse({'detail': 'Inicie sessão como aluno para guardar cursos.'}, status=401)
+    aluno = getattr(request.user, 'aluno_profile', None)
+    if not aluno:
+        return JsonResponse({'detail': 'Perfil de aluno não encontrado.'}, status=404)
+    try:
+        payload = json.loads(request.body or '{}')
+        curso_id = int(payload.get('curso_id'))
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'Curso inválido.'}, status=400)
+    curso = Curso.objects.filter(id=curso_id, publicado=True, ativo=True).first()
+    if not curso:
+        return JsonResponse({'detail': 'Curso não encontrado ou indisponível.'}, status=404)
+    favorito, created = Favorito.objects.get_or_create(aluno=aluno, curso=curso)
+    if not created:
+        favorito.delete()
+    return JsonResponse({'ok': True, 'favorito': created, 'curso_id': curso.id, 'message': 'Curso guardado.' if created else 'Curso removido dos guardados.'})
+
+
+@ensure_csrf_cookie
+@require_GET
+def react_student_preferences(request):
+    """Ler preferências do aluno sem expor dados pessoais; exige sessão de aluno."""
+    if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'ALUNO':
+        return JsonResponse({'detail': 'Inicie sessão como aluno para gerir preferências.'}, status=401)
+    aluno = getattr(request.user, 'aluno_profile', None)
+    if not aluno:
+        return JsonResponse({'detail': 'Perfil de aluno não encontrado.'}, status=404)
+    preferencias, created = PreferenciaAprendizagem.objects.get_or_create(aluno=aluno)
+    if created:
+        perfil = getattr(aluno, 'perfil', None)
+        if perfil:
+            preferencias.categorias.set(perfil.interesses.all())
+    categorias = list(Categoria.objects.order_by('nome').values('id', 'nome', 'slug'))
+    modalidades = [{'value': value, 'label': label} for value, label in Curso.MODALIDADE_CHOICES if Curso.objects.filter(publicado=True, ativo=True, modalidade=value).exists()]
+    provincias = list(Curso.objects.filter(publicado=True, ativo=True).exclude(centro__provincia__isnull=True).exclude(centro__provincia='').values_list('centro__provincia', flat=True).distinct().order_by('centro__provincia'))
+    return JsonResponse({'ok': True, 'categorias': categorias, 'opcoes': {'modalidades': modalidades, 'provincias': provincias, 'objectivos': ['Emprego e carreira', 'Negócio próprio', 'Aperfeiçoamento profissional', 'Interesse pessoal'], 'disponibilidades': ['Manhã', 'Tarde', 'Noite', 'Fim-de-semana']}, 'preferencias': {'categoria_ids': list(preferencias.categorias.values_list('id', flat=True)), 'modalidades': preferencias.modalidades or [], 'objectivos': preferencias.objectivos or [], 'disponibilidades': preferencias.disponibilidades or [], 'provincias': preferencias.provincias or [], 'faixa_preco': preferencias.faixa_preco, 'quer_certificado': preferencias.quer_certificado}})
+
+
+@require_POST
+def react_student_preferences_update(request):
+    """Actualizar apenas campos permitidos das preferências do próprio aluno."""
+    if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'ALUNO':
+        return JsonResponse({'detail': 'Inicie sessão como aluno para gerir preferências.'}, status=401)
+    aluno = getattr(request.user, 'aluno_profile', None)
+    if not aluno:
+        return JsonResponse({'detail': 'Perfil de aluno não encontrado.'}, status=404)
+    try:
+        payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'Dados inválidos.'}, status=400)
+    preferencias, _ = PreferenciaAprendizagem.objects.get_or_create(aluno=aluno)
+    categoria_ids = payload.get('categoria_ids', [])
+    if not isinstance(categoria_ids, list) or len(categoria_ids) > 8:
+        return JsonResponse({'detail': 'Escolha no máximo oito categorias.'}, status=400)
+    categorias = list(Categoria.objects.filter(id__in=categoria_ids))
+    if len(categorias) != len(set(categoria_ids)):
+        return JsonResponse({'detail': 'Uma ou mais categorias não existem.'}, status=400)
+    preferencias.categorias.set(categorias)
+    for field in ('modalidades', 'objectivos', 'disponibilidades', 'provincias'):
+        value = payload.get(field, [])
+        if not isinstance(value, list) or len(value) > 8 or not all(isinstance(item, str) and len(item) <= 80 for item in value):
+            return JsonResponse({'detail': f'Valor inválido para {field}.'}, status=400)
+        setattr(preferencias, field, value)
+    faixa_preco = payload.get('faixa_preco', 'QUALQUER')
+    allowed_ranges = {choice[0] for choice in PreferenciaAprendizagem.FAIXA_PRECO_CHOICES}
+    if faixa_preco not in allowed_ranges:
+        return JsonResponse({'detail': 'Faixa de preço inválida.'}, status=400)
+    preferencias.faixa_preco = faixa_preco
+    quer_certificado = payload.get('quer_certificado', None)
+    if quer_certificado not in (True, False, None):
+        return JsonResponse({'detail': 'Preferência de certificado inválida.'}, status=400)
+    preferencias.quer_certificado = quer_certificado
+    preferencias.save()
+    return JsonResponse({'ok': True, 'message': 'Preferências actualizadas.'})
+
+
+@require_GET
+def react_course_recommendations(request):
+    """Recomenda cursos publicados com regras transparentes e sem expor dados do aluno."""
+    try:
+        limit = max(1, min(int(request.GET.get('limit', 8)), 12))
+    except (TypeError, ValueError):
+        limit = 8
+    cursos = list(Curso.objects.filter(publicado=True, ativo=True).select_related('centro', 'categoria').annotate(
+        inscricoes_ativas=Count('inscricoes', filter=Q(inscricoes__status='A'))
+    ))
+    aluno = getattr(request.user, 'aluno_profile', None) if request.user.is_authenticated else None
+    excluded_ids = set()
+    favourite_ids = set()
+    interest_ids = set()
+    history_category_ids = set()
+    preferred_level = None
+    preferred_modalities = set()
+    preferred_provinces = set()
+    preferred_price = 'QUALQUER'
+    preferred_certificate = None
+    personalized = False
+    if aluno:
+        personalized = True
+        excluded_ids = set(Inscricao.objects.filter(aluno=aluno, status__in=['A', 'P']).values_list('curso_id', flat=True))
+        favourite_ids = set(Favorito.objects.filter(aluno=aluno).values_list('curso_id', flat=True))
+        perfil = getattr(aluno, 'perfil', None)
+        if perfil:
+            interest_ids = set(perfil.interesses.values_list('id', flat=True))
+            preferred_level = perfil.nivel_conhecimento
+        preferencias = getattr(aluno, 'preferencias_aprendizagem', None)
+        if preferencias:
+            preferred_modalities = set(preferencias.modalidades or [])
+            preferred_provinces = set(preferencias.provincias or [])
+            preferred_price = preferencias.faixa_preco or 'QUALQUER'
+            preferred_certificate = preferencias.quer_certificado
+            interest_ids.update(preferencias.categorias.values_list('id', flat=True))
+        history_category_ids = set(Inscricao.objects.filter(aluno=aluno, status='A').values_list('curso__categoria_id', flat=True))
+    items = []
+    for curso in cursos:
+        if curso.id in excluded_ids:
+            continue
+        score = 0
+        reasons = []
+        if curso.categoria_id in interest_ids:
+            score += 6
+            reasons.append('Combina com os seus interesses')
+        if curso.categoria_id in history_category_ids:
+            score += 4
+            reasons.append('Relacionado com cursos que já frequentou')
+        if curso.id in favourite_ids:
+            score += 3
+            reasons.append('Está nos seus favoritos')
+        if preferred_level and curso.nivel == preferred_level:
+            score += 2
+            reasons.append('Adequado ao seu nível')
+        if preferred_modalities and curso.modalidade in preferred_modalities:
+            score += 3
+            reasons.append('Tem a modalidade que prefere')
+        if preferred_provinces and curso.centro.provincia in preferred_provinces:
+            score += 2
+            reasons.append('Está disponível na sua província')
+        if preferred_certificate is True and curso.certificado:
+            score += 2
+            reasons.append('Inclui certificado')
+        if preferred_price == 'GRATUITOS' and curso.is_gratuito:
+            score += 3
+            reasons.append('É gratuito')
+        elif preferred_price == 'ATE_25000' and float(curso.valor_a_cobrar_online()) <= 25000:
+            score += 3
+            reasons.append('Está dentro do seu orçamento')
+        elif preferred_price == 'ATE_50000' and float(curso.valor_a_cobrar_online()) <= 50000:
+            score += 3
+            reasons.append('Está dentro do seu orçamento')
+        if curso.destaque:
+            score += 1
+            reasons.append('Em destaque na plataforma')
+        score += min(float(curso.inscricoes_ativas or 0) / 20, 2)
+        if not reasons:
+            reasons.append('Popular entre os alunos')
+        valor = curso.valor_a_cobrar_online()
+        items.append({'id': curso.id, 'titulo': curso.titulo, 'slug': curso.slug, 'categoria': curso.categoria.nome if curso.categoria else 'Sem categoria', 'categoria_id': curso.categoria_id, 'centro': curso.centro.nome or 'Centro de formação', 'descricao_curta': curso.descricao_curta or curso.descricao[:180], 'imagem_url': curso.get_imagem_url, 'nivel': curso.get_nivel_display(), 'modalidade': curso.get_modalidade_display(), 'is_gratuito': curso.is_gratuito, 'certificado': curso.certificado, 'preco': float(valor), 'preco_label': f'{valor:,.0f} Kz'.replace(',', ' ') if valor > 0 else 'Gratuito', 'detalhe_url': reverse('curso_detalhe', kwargs={'id': curso.id}), 'motivo': reasons[0], '_score': score, '_created': curso.data_criacao})
+    items.sort(key=lambda item: (item['_score'], item['_created']), reverse=True)
+    for item in items:
+        item.pop('_score', None)
+        item.pop('_created', None)
+    return JsonResponse({'personalized': personalized, 'items': items[:limit]})
 
 
 from django.core.cache import cache
@@ -287,30 +513,36 @@ def public_home_data(request):
             },
         }
 
-    turmas_qs = Turma.objects.filter(
-        status='ABERTA',
-        data_inicio__gte=hoje,
-        vagas_disponiveis__gt=0,
-        curso__publicado=True,
-        curso__ativo=True,
-    ).select_related('curso', 'curso__centro', 'curso__categoria', 'filial').order_by('data_inicio', 'horario_inicio')[:24]
-
     turmas = []
-    for turma in turmas_qs:
-        curso = serializar_curso(turma.curso)
-        curso.update({
-            'turma_id': turma.id,
-            'turma_nome': turma.nome,
-            'inicio': turma.data_inicio.isoformat(),
-            'inicio_formatado': turma.data_inicio.strftime('%d/%m/%Y'),
-            'turno': turma.get_turno_display(),
-            'horario': turma.horario_formatado,
-            'dias': turma.dias_semana_formatado,
-            'vagas_disponiveis': turma.vagas_disponiveis,
-            'local': turma.local or (turma.filial.nome if turma.filial else turma.curso.centro.nome),
-            'sala': turma.sala or '',
-        })
-        turmas.append(curso)
+    try:
+        turmas_qs = Turma.objects.filter(
+            status='ABERTA',
+            data_inicio__gte=hoje,
+            vagas_disponiveis__gt=0,
+            curso__publicado=True,
+            curso__ativo=True,
+        ).select_related('curso', 'curso__centro', 'curso__categoria', 'filial').order_by('data_inicio', 'horario_inicio')[:24]
+
+        for turma in turmas_qs:
+            curso = serializar_curso(turma.curso)
+            curso.update({
+                'turma_id': turma.id,
+                'turma_nome': turma.nome,
+                'inicio': turma.data_inicio.isoformat(),
+                'inicio_formatado': turma.data_inicio.strftime('%d/%m/%Y'),
+                'turno': turma.get_turno_display(),
+                'horario': turma.horario_formatado,
+                'dias': turma.dias_semana_formatado,
+                'vagas_disponiveis': turma.vagas_disponiveis,
+                'local': turma.local or (turma.filial.nome if turma.filial else turma.curso.centro.nome),
+                'sala': turma.sala or '',
+            })
+            turmas.append(curso)
+    except OperationalError:
+        # Bases antigas podem não ter ainda a coluna curso_id em Turma.
+        # O catálogo continua a disponibilizar cursos publicados; as turmas
+        # voltam a ser incluídas depois da correção estrutural da base.
+        turmas = []
 
     centros_qs = CentroDeFormacao.objects.filter(
         ativo=True,
@@ -384,12 +616,86 @@ def public_home_data(request):
         })
     provincias = sorted({curso['provincia'] for curso in cursos if curso['provincia']})
 
+    estagios = []
+    try:
+        estagios_qs = Estagio.objects.filter(
+            ativo=True,
+            vagas_disponiveis__gt=0,
+            data_limite_inscricao__gte=hoje,
+            centro_formacao__ativo=True,
+        ).select_related('area', 'centro_formacao').order_by('-destaque', 'data_limite_inscricao', '-data_publicacao')[:10]
+        for estagio in estagios_qs:
+            try:
+                imagem_estagio = estagio.imagem_principal.url if estagio.imagem_principal else ''
+            except (ValueError, AttributeError):
+                imagem_estagio = ''
+            estagios.append({
+                'id': estagio.id,
+                'slug': estagio.slug,
+                'titulo': estagio.titulo,
+                'resumo': estagio.resumo,
+                'area': estagio.area.nome if estagio.area else 'Área profissional',
+                'centro_id': estagio.centro_formacao_id,
+                'centro': estagio.centro_formacao.nome or 'Centro de formação',
+                'modalidade': estagio.get_modalidade_display(),
+                'tipo_remuneracao': estagio.get_tipo_remuneracao_display(),
+                'valor_remuneracao': float(estagio.valor_remuneracao) if estagio.valor_remuneracao is not None else None,
+                'vagas_restantes': max(0, estagio.vagas_restantes),
+                'cidade': estagio.cidade,
+                'provincia': estagio.provincia,
+                'local_trabalho': estagio.local_trabalho,
+                'duracao_meses': estagio.duracao_meses,
+                'carga_horaria_semanal': estagio.carga_horaria_semanal,
+                'data_inicio': estagio.data_inicio.isoformat(),
+                'data_inicio_formatada': estagio.data_inicio.strftime('%d/%m/%Y'),
+                'data_limite': estagio.data_limite_inscricao.isoformat(),
+                'data_limite_formatada': estagio.data_limite_inscricao.strftime('%d/%m/%Y'),
+                'imagem_url': imagem_estagio,
+                'destaque': estagio.destaque,
+                'detalhe_url': f'/centros/{estagio.centro_formacao_id}',
+            })
+    except OperationalError:
+        estagios = []
+
+    # Métricas agregadas e não identificáveis para a página pública Sobre.
+    # O frontend recebe apenas contagens; nenhum dado pessoal de alunos é exposto.
+    try:
+        impacto = {
+            'alunos_ativos': Aluno.objects.filter(ativo=True, usuario__is_active=True).count(),
+            'centros_ativos': CentroDeFormacao.objects.filter(ativo=True).count(),
+            'cursos_publicados': Curso.objects.filter(publicado=True, ativo=True).count(),
+            'inscricoes_confirmadas': Inscricao.objects.filter(status='A').count(),
+        }
+    except OperationalError:
+        impacto = {
+            'alunos_ativos': None,
+            'centros_ativos': None,
+            'cursos_publicados': None,
+            'inscricoes_confirmadas': None,
+        }
+
+    galeria = []
+    try:
+        for imagem in Galeria.objects.all().order_by('-criado_em')[:8]:
+            if imagem.imagem:
+                galeria.append({
+                    'id': imagem.id,
+                    'url': imagem.imagem.url,
+                    'legenda': imagem.usuario or 'Edukangola',
+                    'link': imagem.link or '',
+                })
+    except OperationalError:
+        galeria = []
+
     return JsonResponse({
         'turmas_abertas': turmas,
         'cursos': cursos,
         'video_cursos': video_cursos,
+        'estagios': estagios,
         'provincias': provincias,
         'centros_destaque': centros,
+        'impacto': impacto,
+        'galeria': galeria,
         'atualizado_em': timezone.now().isoformat(),
     })
 
@@ -637,6 +943,262 @@ def public_video_course_detail(request, slug):
     })
 
 
+@require_GET
+def react_video_learning(request, slug):
+    """Dados protegidos da sala React para um aluno inscrito num vídeo-curso."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'detail': 'Inicie sessão para abrir a sala de aprendizagem.'}, status=401)
+    if getattr(request.user, 'tipo_usuario', None) != 'ALUNO':
+        return JsonResponse({'detail': 'A sala de aprendizagem é exclusiva para alunos.'}, status=403)
+    aluno = getattr(request.user, 'aluno_profile', None)
+    curso = Curso_video.objects.select_related('instrutor', 'centro', 'categoria').filter(slug=slug).first()
+    if not aluno or not curso or not curso.inscritos.filter(pk=aluno.pk).exists():
+        return JsonResponse({'detail': 'Não tem acesso a este vídeo-curso.'}, status=403)
+
+    aulas = list(curso.aulas.all().order_by('ordem', 'id'))
+    progressos = {item.aula_id: item for item in ProgressoAula.objects.filter(aluno=aluno, aula__curso=curso)}
+    concluidas = {aula_id for aula_id, item in progressos.items() if item.concluida}
+    aulas_payload = []
+    for index, aula in enumerate(aulas):
+        desbloqueada = index == 0 or not aula.requer_conclusao_anterior or aulas[index - 1].id in concluidas
+        progresso = progressos.get(aula.id)
+        aulas_payload.append({
+            'id': aula.id,
+            'ordem': aula.ordem,
+            'titulo': aula.titulo,
+            'descricao': aula.descricao or '',
+            'resumo_ia': aula.resumo_ia or '',
+            'duracao': aula.duracao_formatada(),
+            'duracao_segundos': aula.duracao_segundos,
+            'video_url': aula.video_url if desbloqueada else '',
+            'desbloqueada': desbloqueada,
+            'concluida': bool(progresso and progresso.concluida),
+            'tempo_assistido': progresso.tempo_assistido if progresso else 0,
+            'requer_conclusao_anterior': aula.requer_conclusao_anterior,
+        })
+
+    from cursovideoapp.models import NotaAula, ComentarioAula, Exercicio, MaterialAula, MaterialCurso, AvisoCurso
+    notas = {nota.aula_id: nota for nota in NotaAula.objects.filter(aluno=aluno, aula__curso=curso)}
+    comentarios_qs = ComentarioAula.objects.filter(aula__curso=curso).select_related('aluno', 'instrutor').prefetch_related('respostas__aluno', 'respostas__instrutor')
+    comentarios_por_aula = {}
+    for comentario in comentarios_qs:
+        if comentario.parent_id:
+            continue
+        respostas = []
+        for resposta in comentario.respostas.all():
+            respostas.append({'id': resposta.id, 'texto': resposta.texto, 'autor': resposta.aluno.nome if resposta.aluno else (resposta.instrutor.nome if resposta.instrutor else 'Eduka'), 'tipo': 'instrutor' if resposta.instrutor else 'aluno', 'data': resposta.data_criacao.isoformat()})
+        comentarios_por_aula.setdefault(comentario.aula_id, []).append({'id': comentario.id, 'texto': comentario.texto, 'autor': comentario.aluno.nome if comentario.aluno else (comentario.instrutor.nome if comentario.instrutor else 'Eduka'), 'tipo': 'instrutor' if comentario.instrutor else 'aluno', 'data': comentario.data_criacao.isoformat(), 'respostas': respostas})
+    exercicios = {}
+    for exercicio in Exercicio.objects.filter(aula__curso=curso).prefetch_related('questoes__alternativas'):
+        resultado = exercicio.resultados.filter(aluno=aluno).first()
+        exercicios[exercicio.aula_id] = {'id': exercicio.id, 'titulo': exercicio.titulo, 'descricao': exercicio.descricao or '', 'resultado': {'pontuacao': float(resultado.pontuacao), 'acertos': resultado.acertos, 'total_questoes': resultado.total_questoes} if resultado else None, 'questoes': [{'id': questao.id, 'texto': questao.texto, 'explicacao': questao.explicacao or '', 'alternativas': [{'id': alternativa.id, 'texto': alternativa.texto} for alternativa in questao.alternativas.all()]} for questao in exercicio.questoes.all()]}
+    materiais = []
+    for material in MaterialCurso.objects.filter(curso=curso):
+        materiais.append({'id': material.id, 'titulo': material.titulo, 'url': request.build_absolute_uri(material.arquivo.url) if material.arquivo else ''})
+    avisos = [{'id': aviso.id, 'titulo': aviso.titulo, 'mensagem': aviso.mensagem, 'data': aviso.data_criacao.isoformat()} for aviso in AvisoCurso.objects.filter(curso=curso)]
+    for aula_payload in aulas_payload:
+        aula_id = aula_payload['id']
+        nota = notas.get(aula_id)
+        aula_payload['nota'] = {'id': nota.id, 'conteudo': nota.conteudo, 'atualizada_em': nota.data_atualizacao.isoformat()} if nota else None
+        aula_payload['duvidas'] = comentarios_por_aula.get(aula_id, [])
+        aula_payload['exercicio'] = exercicios.get(aula_id)
+        aula_obj = next((aula for aula in aulas if aula.id == aula_id), None)
+        aula_payload['materiais'] = [{'id': item.id, 'titulo': item.titulo, 'url': request.build_absolute_uri(item.arquivo.url) if item.arquivo else ''} for item in aula_obj.materiais.all()] if aula_obj else []
+
+    total = len(aulas_payload)
+    concluidas_total = sum(1 for aula in aulas_payload if aula['concluida'])
+    return JsonResponse({
+        'curso': {
+            'id': curso.id,
+            'slug': curso.slug,
+            'titulo': curso.titulo,
+            'descricao': curso.descricao or '',
+            'capa': curso.get_imagem_url,
+            'instrutor': curso.instrutor.nome if curso.instrutor else '',
+            'centro': curso.centro.nome if curso.centro else 'Edukangola',
+            'is_original_edukangola': curso.is_original_edukangola,
+        },
+        'aulas': aulas_payload,
+        'progresso_percentual': int((concluidas_total / total) * 100) if total else 0,
+        'aulas_concluidas': concluidas_total,
+        'total_aulas': total,
+        'avisos': avisos,
+        'materiais': materiais,
+    })
+
+
+def _react_video_access(request, slug, aula_id=None):
+    """Resolve aluno, curso e opcionalmente aula, sempre validando acesso."""
+    from cursovideoapp.models import Curso_video, Aula
+    if not request.user.is_authenticated:
+        return None, None, None, JsonResponse({'detail': 'Inicie sessão para usar esta área.'}, status=401)
+    if getattr(request.user, 'tipo_usuario', None) != 'ALUNO':
+        return None, None, None, JsonResponse({'detail': 'Apenas alunos podem usar esta área.'}, status=403)
+    aluno = getattr(request.user, 'aluno_profile', None)
+    curso = Curso_video.objects.filter(slug=slug).first()
+    if not aluno or not curso or not curso.inscritos.filter(pk=aluno.pk).exists():
+        return None, None, None, JsonResponse({'detail': 'Não tem acesso a este vídeo-curso.'}, status=403)
+    aula = Aula.objects.filter(pk=aula_id, curso=curso).first() if aula_id is not None else None
+    if aula_id is not None and not aula:
+        return None, None, None, JsonResponse({'detail': 'Aula não encontrada neste curso.'}, status=404)
+    return aluno, curso, aula, None
+
+
+@require_POST
+def react_video_note(request, slug, aula_id):
+    aluno, curso, aula, error = _react_video_access(request, slug, aula_id)
+    if error:
+        return error
+    from cursovideoapp.models import NotaAula
+    try:
+        payload = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        payload = {}
+    conteudo = str(payload.get('conteudo', '')).strip()
+    nota, _ = NotaAula.objects.update_or_create(aluno=aluno, aula=aula, defaults={'conteudo': conteudo})
+    return JsonResponse({'ok': True, 'nota': {'id': nota.id, 'conteudo': nota.conteudo, 'atualizada_em': nota.data_atualizacao.isoformat()}})
+
+
+@require_POST
+def react_video_comment(request, slug, aula_id):
+    aluno, curso, aula, error = _react_video_access(request, slug, aula_id)
+    if error:
+        return error
+    from cursovideoapp.models import ComentarioAula
+    try:
+        payload = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        payload = {}
+    texto = str(payload.get('texto', '')).strip()
+    if not texto:
+        return JsonResponse({'detail': 'Escreva uma dúvida ou comentário antes de enviar.'}, status=400)
+    parent = None
+    parent_id = payload.get('parent_id')
+    if parent_id:
+        parent = ComentarioAula.objects.filter(pk=parent_id, aula=aula).first()
+        if not parent:
+            return JsonResponse({'detail': 'A dúvida à qual pretende responder não existe.'}, status=404)
+    comentario = ComentarioAula.objects.create(aluno=aluno, aula=aula, texto=texto, parent=parent)
+    return JsonResponse({'ok': True, 'comentario': {'id': comentario.id, 'texto': comentario.texto, 'autor': aluno.nome, 'data': comentario.data_criacao.isoformat(), 'parent_id': parent.id if parent else None}})
+
+
+@require_POST
+def react_video_ai_answer(request, slug, aula_id):
+    aluno, curso, aula, error = _react_video_access(request, slug, aula_id)
+    if error:
+        return error
+    api_key = getattr(settings, 'GROQ_API_KEY', '') or os.environ.get('GROQ_API_KEY', '')
+    if not api_key:
+        return JsonResponse({'detail': 'A ajuda inteligente ainda não está configurada.'}, status=503)
+    try:
+        payload = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        payload = {}
+    question = str(payload.get('question', '')).strip()
+    if not question:
+        return JsonResponse({'detail': 'Escreva uma dúvida primeiro.'}, status=400)
+    prompt = f"Curso: {curso.titulo}\nAula: {aula.titulo}\nDescrição: {aula.descricao or ''}\nResumo: {aula.resumo_ia or ''}\n\nResponda em português europeu, de forma curta, pedagógica e honesta. Se a informação não estiver no contexto, diga que não é possível confirmar. Não invente factos.\nDúvida do aluno: {question}"
+    try:
+        response = requests.post('https://api.groq.com/openai/v1/chat/completions', headers={'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'}, json={'model': os.environ.get('GROQ_MODEL', 'llama-3.1-8b-instant'), 'messages': [{'role': 'system', 'content': 'És a Eduka AI, um assistente de apoio ao estudo. Não substituis o formador.'}, {'role': 'user', 'content': prompt}], 'temperature': 0.2, 'max_tokens': 350}, timeout=12)
+        response.raise_for_status()
+        answer = response.json().get('choices', [{}])[0].get('message', {}).get('content', '').strip()
+    except (requests.RequestException, ValueError, KeyError, IndexError):
+        return JsonResponse({'detail': 'A ajuda inteligente está temporariamente indisponível.'}, status=502)
+    if not answer:
+        return JsonResponse({'detail': 'Não foi possível gerar uma resposta.'}, status=502)
+    return JsonResponse({'ok': True, 'answer': answer})
+
+
+@require_POST
+def react_video_exercise(request, slug, aula_id):
+    aluno, curso, aula, error = _react_video_access(request, slug, aula_id)
+    if error:
+        return error
+    from cursovideoapp.models import Exercicio, ResultadoExercicio, RespostaEstudante, Alternativa
+    exercicio = Exercicio.objects.filter(aula=aula).first()
+    if not exercicio:
+        return JsonResponse({'detail': 'Esta aula não tem exercício.'}, status=404)
+    try:
+        payload = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        payload = {}
+    respostas = payload.get('respostas') or []
+    mapa = {str(item.get('questao_id')): item.get('alternativa_id') for item in respostas if item.get('questao_id') and item.get('alternativa_id')}
+    questoes = list(exercicio.questoes.prefetch_related('alternativas').all())
+    resultado, _ = ResultadoExercicio.objects.get_or_create(aluno=aluno, exercicio=exercicio, defaults={'pontuacao': 0, 'acertos': 0, 'total_questoes': len(questoes)})
+    resultado.respostas.all().delete()
+    acertos = 0
+    revisao = []
+    for questao in questoes:
+        alternativa = Alternativa.objects.filter(pk=mapa.get(str(questao.id)), questao=questao).first()
+        if alternativa:
+            correta = alternativa.is_correta
+            acertos += int(correta)
+            RespostaEstudante.objects.create(resultado=resultado, questao=questao, alternativa_escolhida=alternativa, correta=correta)
+        else:
+            correta = False
+        correta_alt = questao.alternativas.filter(is_correta=True).first()
+        revisao.append({'questao_id': questao.id, 'correta': correta, 'escolhida': alternativa.texto if alternativa else '', 'resposta_correta': correta_alt.texto if correta_alt else '', 'explicacao': questao.explicacao or ''})
+    total = len(questoes)
+    resultado.acertos = acertos
+    resultado.total_questoes = total
+    resultado.pontuacao = (acertos / total * 100) if total else 0
+    resultado.save()
+    return JsonResponse({'ok': True, 'resultado': {'id': resultado.id, 'pontuacao': float(resultado.pontuacao), 'acertos': acertos, 'total_questoes': total, 'revisao': revisao}})
+
+
+@require_GET
+def react_video_certificate(request, slug):
+    aluno, curso, _aula, error = _react_video_access(request, slug)
+    if error:
+        return error
+    from cursovideoapp.models import Certificado
+    concluido = curso.verificar_conclusao(aluno)
+    certificado = Certificado.objects.filter(aluno=aluno, curso=curso).first()
+    return JsonResponse({'disponivel': bool(certificado and certificado.status == 'EMITIDO'), 'elegivel': concluido, 'certificado': {'id': str(certificado.id), 'codigo_verificacao': certificado.codigo_verificacao, 'data_emissao': certificado.data_emissao.isoformat(), 'nota_final': float(certificado.nota_final), 'total_exercicios_concluidos': certificado.total_exercicios_concluidos, 'status': certificado.status} if certificado else None})
+
+
+@require_POST
+def react_video_issue_certificate(request, slug):
+    aluno, curso, _aula, error = _react_video_access(request, slug)
+    if error:
+        return error
+    if not curso.verificar_conclusao(aluno):
+        return JsonResponse({'detail': 'Conclua todas as aulas antes de emitir o certificado.'}, status=409)
+    from cursovideoapp.models import Certificado
+    certificado, _ = Certificado.objects.get_or_create(aluno=aluno, curso=curso)
+    return JsonResponse({'ok': True, 'certificado': {'id': str(certificado.id), 'codigo_verificacao': certificado.codigo_verificacao, 'data_emissao': certificado.data_emissao.isoformat(), 'nota_final': float(certificado.nota_final), 'total_exercicios_concluidos': certificado.total_exercicios_concluidos, 'status': certificado.status}})
+
+
+@require_POST
+def react_video_progress(request, slug, aula_id):
+    """Guardar o progresso do aluno apenas na aula do curso a que tem acesso."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'detail': 'Inicie sessão para guardar o progresso.'}, status=401)
+    if getattr(request.user, 'tipo_usuario', None) != 'ALUNO':
+        return JsonResponse({'detail': 'Apenas alunos podem guardar progresso.'}, status=403)
+    aluno = getattr(request.user, 'aluno_profile', None)
+    curso = Curso_video.objects.filter(slug=slug).first()
+    aula = Aula.objects.filter(pk=aula_id, curso=curso).first() if curso else None
+    if not aluno or not curso or not aula or not curso.inscritos.filter(pk=aluno.pk).exists():
+        return JsonResponse({'detail': 'Não tem acesso a esta aula.'}, status=403)
+    try:
+        import json
+        payload = json.loads(request.body.decode('utf-8') or '{}')
+        tempo = max(0, int(payload.get('tempo_assistido', 0)))
+    except (TypeError, ValueError, UnicodeDecodeError):
+        return JsonResponse({'detail': 'Dados de progresso inválidos.'}, status=400)
+    if aula.duracao_segundos:
+        tempo = min(tempo, aula.duracao_segundos)
+    concluida = bool(payload.get('concluida', False))
+    progresso, _ = ProgressoAula.objects.update_or_create(
+        aluno=aluno,
+        aula=aula,
+        defaults={'tempo_assistido': tempo, 'concluida': concluida},
+    )
+    return JsonResponse({'ok': True, 'aula_id': aula.id, 'tempo_assistido': progresso.tempo_assistido, 'concluida': progresso.concluida})
+
+
 def offline_view(request):
     """
     Renderiza a página offline quando o utilizador perde a ligação à Internet.
@@ -827,6 +1389,88 @@ def faq(request):
             pass
 
     return render(request, 'core/faq.html', context)
+
+
+@require_GET
+def react_payment_result(request):
+    """Consulta o estado real de um pagamento para a página React de retorno."""
+    from pagamentos.models import Pagamento
+    from pagamentos.services import get_payment_service, PagamentoException
+    from django.db.models import Q
+
+    reference = (request.GET.get('reference') or request.GET.get('reference_id') or '').strip()
+    transaction_id = (request.GET.get('transaction_id') or request.GET.get('id') or '').strip()
+    pedido_ref = (request.GET.get('pedido') or '').strip()
+    pedido_bilhete = None
+    if pedido_ref:
+        from eventos_marketplace.models import PedidoBilhete
+        pedidos = PedidoBilhete.objects.select_related('evento', 'lote').prefetch_related('bilhetes').filter(referencia=pedido_ref)
+        if request.user.is_authenticated:
+            pedidos = pedidos.filter(utilizador=request.user)
+        pedido_bilhete = pedidos.first()
+        if pedido_bilhete and not (reference or transaction_id):
+            reference = pedido_bilhete.referencia_pagamento.strip()
+    token = reference or transaction_id
+    if not token and pedido_bilhete:
+        estado_pedido = 'SUCCESS' if pedido_bilhete.status == 'PAGO' else 'PENDING' if pedido_bilhete.status == 'PENDENTE' else 'FAILED'
+        return JsonResponse({
+            'ok': True,
+            'status': estado_pedido,
+            'titulo': 'Bilhete confirmado.' if estado_pedido == 'SUCCESS' else 'A confirmar bilhete.',
+            'mensagem': 'O seu bilhete digital está disponível.' if estado_pedido == 'SUCCESS' else 'Estamos a aguardar a confirmação do pagamento.',
+            'pedido': pedido_bilhete.referencia,
+            'evento': pedido_bilhete.evento.titulo,
+            'bilhetes': pedido_bilhete.bilhetes.count(),
+            'referencia_pagamento': pedido_bilhete.referencia_pagamento,
+        })
+    if not token:
+        return JsonResponse({'ok': False, 'status': 'UNKNOWN', 'message': 'Referência de pagamento ausente.'}, status=400)
+
+    filtros = Q(referencia_pagamento=token)
+    if transaction_id:
+        filtros |= Q(referencia_gateway=transaction_id)
+    pagamentos = Pagamento.objects.select_related('curso').filter(filtros)
+    if request.user.is_authenticated:
+        pagamentos = pagamentos.filter(usuario=request.user)
+    pagamento = pagamentos.order_by('-data_criacao').first()
+    if not pagamento:
+        return JsonResponse({'ok': False, 'status': 'UNKNOWN', 'message': 'Não foi possível localizar este pagamento.'}, status=404)
+
+    consulta_erro = ''
+    if pagamento.status in {'PENDING', 'REQUESTED', 'PROCESSING'} and pagamento.referencia_gateway:
+        try:
+            pagamento = get_payment_service().verificar_status_atualizado(pagamento)
+        except PagamentoException as exc:
+            consulta_erro = str(exc)
+        except Exception:
+            consulta_erro = 'A confirmação automática está temporariamente indisponível.'
+
+    status_map = {
+        'ACCEPTED': ('SUCCESS', 'Pagamento processado com sucesso.', 'O acesso será disponibilizado na sua conta.'),
+        'PENDING': ('PENDING', 'Pagamento pendente.', 'Estamos a aguardar a confirmação da Prontu.'),
+        'REQUESTED': ('PENDING', 'Pagamento pendente.', 'A transação foi criada e aguarda confirmação.'),
+        'PROCESSING': ('PENDING', 'Pagamento em processamento.', 'A Prontu ainda está a processar a transação.'),
+        'REJECTED': ('FAILED', 'Pagamento não processado.', 'A transação foi recusada. Pode tentar novamente.'),
+        'EXPIRED': ('FAILED', 'Pagamento expirado.', 'O prazo desta transação terminou.'),
+        'CANCELLED': ('FAILED', 'Pagamento cancelado.', 'A transação foi cancelada.'),
+        'REFUNDED': ('FAILED', 'Pagamento reembolsado.', 'Este pagamento foi reembolsado.'),
+    }
+    estado, titulo, mensagem = status_map.get(pagamento.status, ('PENDING', 'A confirmar pagamento.', 'Estamos a confirmar o estado da transação.'))
+    return JsonResponse({
+        'ok': True,
+        'status': estado,
+        'status_gateway': pagamento.status,
+        'titulo': titulo,
+        'mensagem': mensagem,
+        'referencia_pagamento': pagamento.referencia_pagamento,
+        'transaction_id': pagamento.referencia_gateway or transaction_id,
+        'curso': pagamento.curso.titulo if pagamento.curso else '',
+        'pedido': pedido_bilhete.referencia if pedido_bilhete else '',
+        'evento': pedido_bilhete.evento.titulo if pedido_bilhete else '',
+        'bilhetes': pedido_bilhete.bilhetes.count() if pedido_bilhete else 0,
+        'data_pagamento': pagamento.data_pagamento.isoformat() if pagamento.data_pagamento else None,
+        'consulta_erro': consulta_erro,
+    })
 
 
 def pagamento_sucesso(request):

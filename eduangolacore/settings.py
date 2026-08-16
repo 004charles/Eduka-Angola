@@ -13,7 +13,7 @@ ALLOWED_HOSTS = ['*']
 
 GOOGLE_MAPS_API_KEY = config("GOOGLE_MAPS_API_KEY", default="")
 EDUKA_INTEGRATION_KEY = config("EDUKA_INTEGRATION_KEY", default="")
-YOUTUBE_API_KEY = config("YOUTUBE_API_KEY", default="AIzaSyCphPp1Ps-TE_FlLlkKqBTgpxDLE_cMpZE")
+YOUTUBE_API_KEY = config("YOUTUBE_API_KEY", default="")
 GEMINI_API_KEY = config("GEMINI_API_KEY", default="")
 
 
@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'carreira',
     'escolas',
     'pagamentos',  # Novo app de pagamentos
+    'eventos_marketplace',
 ]
 
 

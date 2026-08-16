@@ -284,6 +284,44 @@ class ConviteCentro(models.Model):
         return f"Convite para {self.centro.email}"
 
 
+class CandidaturaCentro(models.Model):
+    """Pedido público de adesão de um centro antes da criação da conta de gestor."""
+    STATUS_CHOICES = [
+        ('PENDENTE', _('Pendente')),
+        ('VERIFICADA', _('Email verificado')),
+        ('CONCLUIDA', _('Cadastro concluído')),
+        ('EXPIRADA', _('Expirada')),
+        ('CANCELADA', _('Cancelada')),
+    ]
+
+    email = models.EmailField(_('E-mail'), db_index=True)
+    nif = models.CharField(_('NIF'), max_length=18, db_index=True)
+    codigo_hash = models.CharField(_('Código de verificação'), max_length=128)
+    link_token = models.UUIDField(_('Token do link'), default=uuid.uuid4, unique=True, editable=False)
+    link_criado_em = models.DateTimeField(_('Link criado em'), default=timezone.now)
+    link_expira_em = models.DateTimeField(_('Link expira em'), default=timezone.now)
+    link_usado = models.BooleanField(_('Link usado'), default=False)
+    codigo_criado_em = models.DateTimeField(_('Código criado em'), default=timezone.now)
+    codigo_expira_em = models.DateTimeField(_('Código expira em'))
+    tentativas = models.PositiveSmallIntegerField(_('Tentativas'), default=0)
+    verificado_em = models.DateTimeField(_('Verificado em'), null=True, blank=True)
+    status = models.CharField(_('Estado'), max_length=12, choices=STATUS_CHOICES, default='PENDENTE', db_index=True)
+    centro = models.OneToOneField(CentroDeFormacao, on_delete=models.SET_NULL, null=True, blank=True, related_name='candidatura_publica')
+    data_criacao = models.DateTimeField(_('Data de criação'), auto_now_add=True)
+    data_atualizacao = models.DateTimeField(_('Data de atualização'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Candidatura de Centro')
+        verbose_name_plural = _('Candidaturas de Centros')
+        ordering = ['-data_criacao']
+        indexes = [
+            models.Index(fields=['email', 'nif', 'status']),
+        ]
+
+    def __str__(self):
+        return f"{self.email} · {self.nif} · {self.get_status_display()}"
+
+
 class Certificacao(models.Model):
     """
     Modelo para gerenciar certificações oferecidas por um centro de formação.

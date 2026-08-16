@@ -202,7 +202,33 @@ class PerfilAluno(models.Model):
         verbose_name = 'Perfil do Aluno'
         verbose_name_plural = 'Perfis dos Alunos'
                 
+
+
+class PreferenciaAprendizagem(models.Model):
+    """Preferências explícitas do aluno, separadas da actividade e fáceis de evoluir."""
+    FAIXA_PRECO_CHOICES = [
+        ('QUALQUER', 'Qualquer valor'),
+        ('GRATUITOS', 'Apenas gratuitos'),
+        ('ATE_25000', 'Até 25 000 Kz'),
+        ('ATE_50000', 'Até 50 000 Kz'),
+    ]
+    aluno = models.OneToOneField('Aluno', on_delete=models.CASCADE, related_name='preferencias_aprendizagem')
+    categorias = models.ManyToManyField('cursos_app.Categoria', blank=True, related_name='preferencias_aprendizagem')
+    modalidades = models.JSONField(default=list, blank=True)
+    objectivos = models.JSONField(default=list, blank=True)
+    disponibilidades = models.JSONField(default=list, blank=True)
+    provincias = models.JSONField(default=list, blank=True)
+    faixa_preco = models.CharField(max_length=20, choices=FAIXA_PRECO_CHOICES, default='QUALQUER')
+    quer_certificado = models.BooleanField(null=True, blank=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Preferência de aprendizagem'
+        verbose_name_plural = 'Preferências de aprendizagem'
+
+
 # models.py (adicione ou atualize esta classe)
+
 
 # usuarios/models.py
 # Biblioteca, Empresa and Comentario models removed from here.

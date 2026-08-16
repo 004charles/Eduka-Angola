@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<title>Recibo {{ recebimento.referencia }}</title>
+<style>
+body { font-family: Arial, sans-serif; color: #202938; margin: 42px; }
+.header { display:flex; justify-content:space-between; border-bottom:2px solid #1463ff; padding-bottom:18px; }
+h1 { margin:0; color:#1463ff; font-size:24px; } h2 { font-size:18px; margin-top:28px; }
+.meta { color:#64748b; font-size:12px; } table { width:100%; border-collapse:collapse; margin-top:16px; }
+th,td { text-align:left; padding:11px 8px; border-bottom:1px solid #e2e8f0; } th { background:#f8fafc; }
+.total { margin-top:22px; text-align:right; font-size:20px; font-weight:bold; color:#1463ff; }
+.footer { margin-top:64px; color:#64748b; font-size:11px; border-top:1px solid #e2e8f0; padding-top:14px; }
+</style>
+</head>
+<body>
+<div class="header"><div><h1>{{ centro.nome }}</h1><div class="meta">Recibo de pagamento presencial</div></div><div class="meta"><strong>{{ recebimento.referencia }}</strong><br>{{ recebimento.data_recebimento|date:"d/m/Y H:i" }}</div></div>
+<h2>Dados do aluno</h2>
+<table><tr><th>Nome</th><td>{{ recebimento.aluno.nome }}</td></tr><tr><th>Email</th><td>{{ recebimento.aluno.usuario.email|default:"—" }}</td></tr><tr><th>Matrícula</th><td>{{ recebimento.matricula.codigo_matricula }}</td></tr></table>
+<h2>Detalhes</h2>
+<table><tr><th>Curso</th><td>{{ recebimento.matricula.curso.titulo }}</td></tr><tr><th>Turma</th><td>{{ recebimento.matricula.turma.nome }}</td></tr><tr><th>Forma de pagamento</th><td>{{ recebimento.get_forma_display }}</td></tr></table>
+<div class="total">Total recebido: {{ recebimento.valor|floatformat:2 }} Kz</div>
+<div class="footer">Documento emitido pelo GestorEduka. Responsável: {{ recebimento.recebido_por.nome|default:recebimento.recebido_por.email }}.</div>
+</body></html>

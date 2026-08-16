@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from django.db.models import Q
+from cursos_app.models import Curso
 from .models import CentroDeFormacao, PerfilCentroDeFormacao, Parceria, CandidaturaExterna
 
 class PerfilCentroSerializer(serializers.ModelSerializer):
@@ -8,10 +10,40 @@ class PerfilCentroSerializer(serializers.ModelSerializer):
 
 class CentroDeFormacaoSerializer(serializers.ModelSerializer):
     perfil = PerfilCentroSerializer(read_only=True)
-    
+    logo_url = serializers.SerializerMethodField()
+    banner_url = serializers.SerializerMethodField()
+    verificado = serializers.SerializerMethodField()
+    total_cursos = serializers.IntegerField(source='total_cursos_publicos', read_only=True)
+    modalidades = serializers.SerializerMethodField()
+
+    def _arquivo_url(self, obj, field):
+        perfil = getattr(obj, 'perfil', None)
+        arquivo = getattr(perfil, field, None) if perfil else None
+        if not arquivo:
+            return ''
+        try:
+            request = self.context.get('request')
+            return request.build_absolute_uri(arquivo.url) if request else arquivo.url
+        except (ValueError, AttributeError):
+            return ''
+
+    def get_logo_url(self, obj):
+        return self._arquivo_url(obj, 'imagem')
+
+    def get_banner_url(self, obj):
+        return self._arquivo_url(obj, 'banner')
+
+    def get_verificado(self, obj):
+        perfil = getattr(obj, 'perfil', None)
+        return bool(perfil and perfil.verificado)
+
+    def get_modalidades(self, obj):
+        choices = dict(Curso.MODALIDADE_CHOICES)
+        return [choices.get(code, code) for code in obj.cursos.filter(publicado=True, ativo=True).values_list('modalidade', flat=True).distinct()]
+
     class Meta:
         model = CentroDeFormacao
-        fields = ['id', 'nome', 'email', 'telefone', 'cidade', 'provincia', 'perfil']
+        fields = ['id', 'nome', 'email', 'telefone', 'cidade', 'provincia', 'perfil', 'logo_url', 'banner_url', 'verificado', 'total_cursos', 'modalidades']
 
 class ParceriaSerializer(serializers.ModelSerializer):
     centro_nome = serializers.CharField(source='centro.nome', read_only=True)

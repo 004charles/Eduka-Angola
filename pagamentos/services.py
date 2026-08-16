@@ -16,7 +16,7 @@ import requests
 from django.utils import timezone
 from django.conf import settings
 from django.core.cache import cache
-from django.db import transaction
+from django.db import models, transaction
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 
@@ -806,6 +806,41 @@ class PaymentService:
                         logger.info(f"Inscrição {inscricao.id} já estava ativa.")
                 else:
                     logger.warning(f"Nenhuma inscrição correspondente encontrada para pagamento {pagamento.referencia_pagamento}")
+
+            elif pagamento.tipo_pagamento == 'BILHETE_EVENTO':
+                from eventos_marketplace.models import Bilhete, LoteBilhete, PedidoBilhete
+                metadados = pagamento.metadados or {}
+                if isinstance(metadados, str):
+                    try:
+                        metadados = json.loads(metadados)
+                    except (TypeError, ValueError):
+                        metadados = {}
+                pedido_id = metadados.get('pedido_bilhete_id')
+                if pedido_id:
+                    with transaction.atomic():
+                        pedido = PedidoBilhete.objects.select_for_update().select_related('lote', 'evento').get(id=pedido_id)
+                        if pedido.status != 'PAGO':
+                            lote = LoteBilhete.objects.select_for_update().get(id=pedido.lote_id)
+                            quantidade = pedido.quantidade
+                            if lote.lugares_disponiveis < quantidade:
+                                logger.error(f'Inventário insuficiente para o pedido de bilhete {pedido.referencia}.')
+                                return
+                            for _ in range(quantidade):
+                                Bilhete.objects.create(
+                                    pedido=pedido,
+                                    lote=lote,
+                                    nome_participante=pedido.nome_comprador,
+                                    email_participante=pedido.email_comprador,
+                                )
+                            lote.quantidade_vendida += quantidade
+                            lote.save(update_fields=['quantidade_vendida'])
+                            pedido.status = 'PAGO'
+                            pedido.pago_em = timezone.now()
+                            pedido.save(update_fields=['status', 'pago_em'])
+                            if pedido.evento.lotes.filter(activo=True, quantidade_vendida__lt=models.F('quantidade_total')).count() == 0:
+                                pedido.evento.status = 'ESGOTADO'
+                                pedido.evento.save(update_fields=['status', 'actualizado_em'])
+                            logger.info(f'Pedido de bilhetes {pedido.referencia} confirmado e {quantidade} bilhete(s) emitido(s).')
 
             elif pagamento.tipo_pagamento == 'INSCRICAO_VIDEO':
                 curso_video_id = None

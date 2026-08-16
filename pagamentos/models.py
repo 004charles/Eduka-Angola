@@ -49,6 +49,7 @@ class Pagamento(models.Model):
         ('PARCELAMENTO', _('Parcela do Curso')),
         ('ASSINATURA_PLANO', _('Subscrição de Plano de Centro')),
         ('TAXA_ADMINISTRATIVO', _('Taxa Administrativa')),
+        ('BILHETE_EVENTO', _('Bilhete de Evento')),
         ('OUTRO', _('Outro')),
     ]
     

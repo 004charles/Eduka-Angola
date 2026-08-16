@@ -208,8 +208,8 @@ def api_react_iniciar_pagamento_inscricao(request, inscricao_id):
             valor=inscricao.curso.valor_a_cobrar_online(),
             moeda='AOA',
             curso=inscricao.curso,
-            url_sucesso=request.build_absolute_uri(reverse('pagamento_sucesso')),
-            url_cancelamento=request.build_absolute_uri(reverse('pagamento_cancelado')),
+            url_sucesso=settings.FRONTEND_RETURN_URL,
+            url_cancelamento=settings.FRONTEND_CANCEL_URL,
             metadados={'inscricao_id': str(inscricao.id)},
         )
         if not pagamento.url_pagamento:
@@ -395,8 +395,8 @@ def tela_pagamento_inscricao(request, inscricao_id):
                 valor=curso.valor_a_cobrar_online(),
                 moeda='AOA',
                 curso=curso,
-                url_sucesso=request.build_absolute_uri(reverse('pagamento_sucesso')),
-                url_cancelamento=request.build_absolute_uri(reverse('pagamento_cancelado')),
+                url_sucesso=settings.FRONTEND_RETURN_URL,
+                url_cancelamento=settings.FRONTEND_CANCEL_URL,
                 metadados={'inscricao_id': str(inscricao.id)}
             )
             

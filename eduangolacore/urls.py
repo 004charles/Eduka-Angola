@@ -9,7 +9,10 @@ from rest_framework import routers
 from cursos_app.api_views import CourseViewSet, CategoryViewSet
 from cursovideoapp.api_views import CursoVideoViewSet, ExercicioViewSet, AulaViewSet
 from usuarios.api_views import AlunoViewSet
-from gestoreduka.api_views import CentroViewSet, ParceriaViewSet, CandidaturaExternaViewSet
+from gestoreduka.api_views import (
+    CentroViewSet, ParceriaViewSet, CandidaturaExternaViewSet,
+    CentroPlanosView, CentroCandidaturaRequestView, CentroCandidaturaVerifyView, CentroCandidaturaConfirmView, CentroCandidaturaCompleteView,
+)
 from blog.api_views import PostViewSet
 # from estagio.api_views import EstagioViewSet
 from django.views.decorators.csrf import csrf_exempt
@@ -39,8 +42,28 @@ urlpatterns = [
 
     path('', views.index, name = 'index'),
     path('api/public/home/', views.public_home_data, name='api_public_home_data'),
+    path('api/public/eventos/', include('eventos_marketplace.urls')),
     path('api/public/centros/<int:centro_id>/', views.public_center_profile, name='api_public_center_profile'),
+    path('api/public/centros/planos/', CentroPlanosView.as_view(), name='api_public_centro_planos'),
     path('api/public/video-cursos/<slug:slug>/', views.public_video_course_detail, name='api_public_video_course_detail'),
+    path('api/react/recomendacoes/', views.react_course_recommendations, name='api_react_course_recommendations'),
+    path('api/react/aluno/dashboard/', views.react_student_dashboard, name='api_react_student_dashboard'),
+    path('auth/api/react/aluno/favoritos/', views.react_student_favorites, name='react_student_favorites'),
+    path('auth/api/react/aluno/favoritos/alternar/', views.react_student_favorite_toggle, name='react_student_favorite_toggle'),
+    path('auth/api/react/aluno/preferencias/', views.react_student_preferences, name='react_student_preferences'),
+    path('auth/api/react/aluno/preferencias/actualizar/', views.react_student_preferences_update, name='react_student_preferences_update'),
+    path('api/react/video-cursos/<slug:slug>/sala/', views.react_video_learning, name='api_react_video_learning'),
+    path('api/react/video-cursos/<slug:slug>/aulas/<int:aula_id>/nota/', views.react_video_note, name='api_react_video_note'),
+    path('api/react/video-cursos/<slug:slug>/aulas/<int:aula_id>/duvida/', views.react_video_comment, name='api_react_video_comment'),
+    path('api/react/video-cursos/<slug:slug>/aulas/<int:aula_id>/ajuda-ia/', views.react_video_ai_answer, name='api_react_video_ai_answer'),
+    path('api/react/video-cursos/<slug:slug>/aulas/<int:aula_id>/exercicio/', views.react_video_exercise, name='api_react_video_exercise'),
+    path('api/react/video-cursos/<slug:slug>/certificado/', views.react_video_certificate, name='api_react_video_certificate'),
+    path('api/react/video-cursos/<slug:slug>/certificado/emitir/', views.react_video_issue_certificate, name='api_react_video_issue_certificate'),
+    path('api/react/video-cursos/<slug:slug>/aulas/<int:aula_id>/progresso/', views.react_video_progress, name='api_react_video_progress'),
+    path('api/public/centros/candidatura/solicitar/', CentroCandidaturaRequestView.as_view(), name='api_public_centro_candidatura_solicitar'),
+    path('api/public/centros/candidatura/verificar/', CentroCandidaturaVerifyView.as_view(), name='api_public_centro_candidatura_verificar'),
+    path('api/public/centros/candidatura/confirmar/', CentroCandidaturaConfirmView.as_view(), name='api_public_centro_candidatura_confirmar'),
+    path('api/public/centros/candidatura/concluir/', CentroCandidaturaCompleteView.as_view(), name='api_public_centro_candidatura_concluir'),
     path('test-404/', views.erro_404_view, kwargs={'exception': Exception("Teste 404")}),
     path('test-500/', views.erro_500_view),
     path('i18n/setlang/', csrf_exempt(set_language), name='set_language'),
@@ -66,6 +89,7 @@ urlpatterns = [
     path('contato/', views.contato, name = 'contato'),
     path('api/notificacoes/nao-lidas/', usuarios_views.api_notificacoes_nao_lidas, name='api_notificacoes_nao_lidas_root'),
 
+    path('api/react/pagamentos/resultado/', views.react_payment_result, name='api_react_payment_result'),
     path('pagamento/sucesso/', views.pagamento_sucesso, name='pagamento_sucesso'),
     path('pagamento/cancelado/', views.pagamento_cancelado, name='pagamento_cancelado'),
     path('faq/', views.faq, name = 'faq'),
