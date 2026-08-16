@@ -59,3 +59,6 @@
 - [x] Auditar a arquitectura editorial da página inicial e os dados públicos disponíveis no backend
 - [x] Substituir a sequência repetitiva de listagens de cursos por secções de descoberta orientadas a percursos, necessidades e oportunidades
 - [x] Validar a nova página inicial em desktop e garantir que todas as secções conduzem a cursos, centros ou acções relevantes
+
+- [x] Remover da página inicial os blocos extensos de turmas, centros e explicação de inscrição introduzidos na reformulação editorial
+- [x] Concentrar a página inicial numa descoberta visual de cursos e carreiras, deixando dados operacionais para catálogo e detalhe

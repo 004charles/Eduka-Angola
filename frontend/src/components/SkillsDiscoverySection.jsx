@@ -54,7 +54,7 @@ export default function SkillsDiscoverySection({ data, onAnnounce }) {
 
   if (!cards.length) return null;
 
-  const cursosVisiveis = temaAtivo === "todos" ? cards : cards.filter((curso) => curso.category === temaAtivo);
+  const cursosVisiveis = (temaAtivo === "todos" ? cards : cards.filter((curso) => curso.category === temaAtivo)).slice(0, 10);
   const destinoCatalogo = temaAtivo === "todos" ? "/cursos?tipo=formacao" : `/cursos?tipo=formacao&categoria=${encodeURIComponent(temaAtivo)}`;
   const avancar = (direcao) => {
     trackRef.current?.scrollBy({ left: direcao * Math.max(240, trackRef.current.clientWidth * 0.76), behavior: "smooth" });
@@ -65,11 +65,11 @@ export default function SkillsDiscoverySection({ data, onAnnounce }) {
       <div className="page-width">
         <div className="skills-discovery-heading">
           <div>
-            <span className="eyebrow muted"><Sparkles size={14} /> Descubra por competência</span>
-            <h2 id="skills-discovery-title">Competências que podem abrir novas oportunidades.</h2>
-            <p>Explore formações publicadas por centros, com turma, horários e vagas antes de decidir.</p>
+            <span className="eyebrow muted"><Sparkles size={14} /> Cursos em destaque</span>
+            <h2 id="skills-discovery-title">Escolha um curso para começar a aprender.</h2>
+            <p>Explore por área e encontre formações que combinam com os seus interesses.</p>
           </div>
-          <a className="text-action" href={destinoCatalogo}>Ver formações com turma <ArrowRight size={16} /></a>
+          <a className="text-action" href={destinoCatalogo}>Ver cursos presenciais <ArrowRight size={16} /></a>
         </div>
 
         <div className="skills-tabs" role="tablist" aria-label="Áreas de competência">
@@ -79,7 +79,7 @@ export default function SkillsDiscoverySection({ data, onAnnounce }) {
 
         <div id="competencia-painel" role="tabpanel" aria-labelledby={temaAtivo === "todos" ? "competencia-todos" : `competencia-${temaAtivo}`} className="skills-courses-panel">
           <div className="skills-courses-head">
-            <p>{temaAtivo === "todos" ? "Formações publicadas com turma e acompanhamento do centro." : `Formações publicadas em ${temaAtivo}.`}</p>
+            <p>{temaAtivo === "todos" ? "Cursos disponíveis agora." : `Cursos em ${temaAtivo}.`}</p>
             {cursosVisiveis.length > 1 && <div className="carousel-controls" aria-label={`Controlos dos cursos em ${temaAtivo === "todos" ? "todas as competências" : temaAtivo}`}><button className="carousel-arrow" type="button" onClick={() => avancar(-1)} aria-label="Ver cursos anteriores"><ChevronLeft size={18} /></button><button className="carousel-arrow" type="button" onClick={() => avancar(1)} aria-label="Ver próximos cursos"><ChevronRight size={18} /></button></div>}
           </div>
           <div ref={trackRef} className="skills-courses-track" aria-label="Cursos por competência">
