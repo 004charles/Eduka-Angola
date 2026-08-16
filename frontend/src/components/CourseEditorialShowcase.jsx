@@ -61,7 +61,6 @@ export default function CourseEditorialShowcase({ data, onNavigate, onAnnounce }
       <section className="editorial-trending" aria-labelledby="trending-title"><div className="editorial-section-title"><span className="eyebrow muted"><Sparkles size={14} /> Cursos em alta</span><h2 id="trending-title">Encontre algo novo para aprender.</h2></div><CourseDiscoveryShelves collections={collections} onNavigate={onNavigate} onAnnounce={onAnnounce} /></section>
 
 
-      <section className="editorial-promo" aria-label="Explorar cursos"><div><span className="eyebrow">Edukangola</span><h2>Cursos para começar, mudar ou avançar.</h2><button onClick={() => onNavigate("/cursos")}>Explorar cursos <ArrowRight size={17} /></button></div><div className="editorial-promo-art" aria-hidden="true"><span /><span /><PlayCircle size={48} /></div></section>
     </div>
   </section>;
 }

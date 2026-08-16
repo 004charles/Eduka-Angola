@@ -101,3 +101,5 @@
 - [x] Validar imagens, informação e navegação da nova secção de centros
 - [x] Remover a secção de centros da página inicial sem alterar a vitrina própria `/centros`
 - [x] Validar a página inicial e a rota de centros depois da remoção
+- [x] Remover a faixa azul final da página inicial depois das colecções de cursos
+- [x] Validar que o rodapé fica directamente após o conteúdo de cursos
