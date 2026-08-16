@@ -1,0 +1,43 @@
+import { useMemo, useState } from "react";
+import { ArrowRight, ArrowUpRight, BriefcaseBusiness, PlayCircle, Sparkles } from "lucide-react";
+import { etiquetaProduto, isVideoCurso, rotaDetalheProduto } from "../lib/product-type";
+import "./course-editorial-showcase.css";
+
+function courseGroups(data) {
+  return Object.entries((data?.cursos || []).filter((course) => !isVideoCurso(course)).reduce((groups, course) => {
+    const name = course.categoria || "Outras competências";
+    groups[name] = [...(groups[name] || []), course];
+    return groups;
+  }, {})).sort(([left], [right]) => left.localeCompare(right, "pt-PT"));
+}
+
+function MiniCourse({ course }) {
+  return <a className="editorial-mini-course" href={rotaDetalheProduto(course)}><img src={course.imagem_url} alt="" /><span><small>{course.centro || "Edukangola"}</small><strong>{course.titulo}</strong><em>{etiquetaProduto(course)}</em></span><ArrowUpRight size={16} /></a>;
+}
+
+export default function CourseEditorialShowcase({ data, onNavigate }) {
+  const groups = useMemo(() => courseGroups(data), [data]);
+  const [activeCareer, setActiveCareer] = useState("");
+  const currentCareer = groups.find(([name]) => name === activeCareer) || groups[0] || ["", []];
+  const allCourses = data?.cursos || [];
+  const collections = [
+    { label: "Mais procurados", courses: allCourses.filter((course) => course.destaque).slice(0, 3), fallback: allCourses.slice(0, 3) },
+    { label: "Novidades", courses: [...allCourses].sort((left, right) => new Date(right.data_publicacao) - new Date(left.data_publicacao)).slice(0, 3) },
+    { label: "Aprenda ao seu ritmo", courses: allCourses.filter(isVideoCurso).slice(0, 3), fallback: allCourses.slice(0, 3) },
+  ];
+
+  if (!allCourses.length) return null;
+
+  return <section className="course-editorial" aria-label="Descoberta de cursos">
+    <div className="page-width">
+      {groups.length > 0 && <section className="career-program" aria-labelledby="career-program-title">
+        <aside className="career-program-intro"><span className="eyebrow"><BriefcaseBusiness size={14} /> Carreiras e competências</span><h2 id="career-program-title">Prepare-se para o próximo passo da sua carreira.</h2><p>Escolha uma área e explore os cursos disponíveis.</p><button className="editorial-light-action" onClick={() => onNavigate("/cursos")}>Explorar todos <ArrowRight size={16} /></button></aside>
+        <div className="career-program-content"><div className="career-tabs" role="tablist" aria-label="Áreas de carreira">{groups.slice(0, 6).map(([name]) => <button key={name} type="button" role="tab" aria-selected={currentCareer[0] === name} className={currentCareer[0] === name ? "is-active" : ""} onClick={() => setActiveCareer(name)}>{name}</button>)}</div><div className="career-program-cards">{currentCareer[1].slice(0, 3).map((course) => <a href={rotaDetalheProduto(course)} className="career-program-card" key={course.id}><img src={course.imagem_url} alt="" /><span><small>{course.centro || "Edukangola"}</small><strong>{course.titulo}</strong><em>{etiquetaProduto(course)}</em></span></a>)}</div></div>
+      </section>}
+
+      <section className="editorial-trending" aria-labelledby="trending-title"><div className="editorial-section-title"><span className="eyebrow muted"><Sparkles size={14} /> Cursos em alta</span><h2 id="trending-title">Encontre algo novo para aprender.</h2></div><div className="editorial-collections">{collections.map((collection) => <article key={collection.label}><h3>{collection.label} <ArrowRight size={16} /></h3><div>{(collection.courses.length ? collection.courses : collection.fallback || []).map((course) => <MiniCourse key={course.id} course={course} />)}</div></article>)}</div></section>
+
+      <section className="editorial-promo" aria-label="Explorar cursos"><div><span className="eyebrow">Edukangola</span><h2>Cursos para começar, mudar ou avançar.</h2><button onClick={() => onNavigate("/cursos")}>Explorar cursos <ArrowRight size={17} /></button></div><div className="editorial-promo-art" aria-hidden="true"><span /><span /><PlayCircle size={48} /></div></section>
+    </div>
+  </section>;
+}

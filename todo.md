@@ -62,3 +62,6 @@
 
 - [x] Remover da página inicial os blocos extensos de turmas, centros e explicação de inscrição introduzidos na reformulação editorial
 - [x] Concentrar a página inicial numa descoberta visual de cursos e carreiras, deixando dados operacionais para catálogo e detalhe
+
+- [x] Redesenhar apenas a área de cursos da página inicial com blocos editoriais inspirados nas referências enviadas
+- [x] Preservar sem alterações a parte superior actual da página inicial durante o redesenho dos cursos
