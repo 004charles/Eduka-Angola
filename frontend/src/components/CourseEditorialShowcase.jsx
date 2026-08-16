@@ -43,6 +43,11 @@ export default function CourseEditorialShowcase({ data, onNavigate }) {
     { label: "Aprenda ao seu ritmo", courses: videoCourses },
     { label: "Para explorar", courses: exploreCourses },
   ].filter((collection) => collection.courses.length);
+  const careerBands = groups.slice(1).map(([name, courses], index) => ({
+    name,
+    courses: takeUnique(courses, usedIds),
+    tone: index % 3,
+  })).filter((band) => band.courses.length >= 2);
 
   if (!allCourses.length) return null;
 
@@ -54,6 +59,8 @@ export default function CourseEditorialShowcase({ data, onNavigate }) {
       </section>}
 
       <section className="editorial-trending" aria-labelledby="trending-title"><div className="editorial-section-title"><span className="eyebrow muted"><Sparkles size={14} /> Cursos em alta</span><h2 id="trending-title">Encontre algo novo para aprender.</h2></div><div className="editorial-collections">{collections.map((collection) => <article key={collection.label}><h3>{collection.label} <ArrowRight size={16} /></h3><div>{collection.courses.map((course) => <MiniCourse key={course.id} course={course} />)}</div></article>)}</div></section>
+
+      <div className="editorial-career-bands">{careerBands.map((band) => <section className={`editorial-career-band band-tone-${band.tone}`} key={band.name} aria-labelledby={`band-${band.name}`}><aside><span className="eyebrow"><BriefcaseBusiness size={14} /> Área de aprendizagem</span><h2 id={`band-${band.name}`}>{band.name}</h2><p>Escolha cursos para desenvolver competências nesta área.</p><button onClick={() => onNavigate(`/cursos?categoria=${encodeURIComponent(band.name)}`)}>Ver cursos <ArrowRight size={16} /></button></aside><div className="editorial-band-courses">{band.courses.map((course) => <a className="editorial-band-card" href={rotaDetalheProduto(course)} key={course.id}><img src={course.imagem_url} alt="" /><span><small>{course.centro || "Edukangola"}</small><strong>{course.titulo}</strong><em>{etiquetaProduto(course)}</em></span></a>)}</div></section>)}</div>
 
       <section className="editorial-promo" aria-label="Explorar cursos"><div><span className="eyebrow">Edukangola</span><h2>Cursos para começar, mudar ou avançar.</h2><button onClick={() => onNavigate("/cursos")}>Explorar cursos <ArrowRight size={17} /></button></div><div className="editorial-promo-art" aria-hidden="true"><span /><span /><PlayCircle size={48} /></div></section>
     </div>

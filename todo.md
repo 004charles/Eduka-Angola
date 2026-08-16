@@ -70,3 +70,13 @@
 - [x] Validar que não existem cursos repetidos entre carreira em destaque, cursos em alta e vídeo-cursos
 
 - [x] Diagnosticar e corrigir a pré-visualização que não reflecte a versão actual da página inicial
+
+- [x] Diagnosticar por que motivo a página inicial termina depois da faixa promocional em vez de continuar com todo o conteúdo esperado
+- [x] Corrigir a renderização ou altura da página inicial sem alterar a parte superior aprovada
+- [x] Validar a página completa até ao rodapé
+
+> Registado em 2026-08-16 após a indicação de que a página termina logo depois da faixa “Cursos para começar, mudar ou avançar”.
+
+- [x] Acrescentar novas faixas editoriais de cursos no mesmo formato visual do bloco de carreiras
+- [x] Distribuir cursos distintos entre as novas secções sem repetições
+- [x] Validar a página inicial completa até ao rodapé, preservando a parte superior actual
