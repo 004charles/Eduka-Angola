@@ -25,7 +25,7 @@ function CourseTile({ course, onNavigate }) {
 }
 
 function VideoCourseTile({ course, onNavigate }) {
-  return <article className="center-media-course"><div>{course.imagem_url ? <img src={course.imagem_url} alt="" /> : <CirclePlay size={27} />}<span><Play size={12} /> {course.total_aulas} {course.total_aulas === 1 ? "aula" : "aulas"}</span></div><section><p>{course.categoria}</p><h3>{course.titulo}</h3><small>{course.preco}</small><button type="button" onClick={() => onNavigate(`/video-cursos/${course.slug}`)}>Ver vídeo-curso <ArrowRight size={14} /></button></section></article>;
+  return <article className="center-media-course"><div>{course.imagem_url ? <img src={course.imagem_url} alt="" /> : <CirclePlay size={27} />}<span><Play size={12} /> {course.total_aulas} {course.total_aulas === 1 ? "aula" : "aulas"}</span></div><section><p>{course.categoria}</p><h3>{course.titulo}</h3><small>{course.preco}</small><button type="button" onClick={() => onNavigate(`/video-cursos/${course.slug}`)}>Ver curso em vídeo <ArrowRight size={14} /></button></section></article>;
 }
 
 function ImageOrInitial({ src, label, className = "" }) {
@@ -123,7 +123,7 @@ export default function CenterProfilePage({ centerId, onNavigate }) {
 
         <section id="formacoes" className="center-profile-section"><SectionHeading eyebrow="Formações" title="Formações publicadas" icon={BookOpen}><p>Informações, condições e inscrições são geridas pelo próprio centro.</p></SectionHeading>{center.cursos?.length ? <div className="center-profile-course-grid">{center.cursos.map((course) => <CourseTile key={course.id} course={course} onNavigate={onNavigate} />)}</div> : <div className="center-profile-empty"><BookOpen size={24} /><p>Este centro ainda não tem formações públicas para apresentar.</p></div>}</section>
 
-        {center.cursos_video?.length > 0 && <section className="center-profile-section"><SectionHeading eyebrow="Aprendizagem em vídeo" title="Vídeo-cursos do centro" icon={CirclePlay} /><div className="center-media-course-grid">{center.cursos_video.map((course) => <VideoCourseTile key={course.id} course={course} onNavigate={onNavigate} />)}</div></section>}
+        {center.cursos_video?.length > 0 && <section className="center-profile-section"><SectionHeading eyebrow="Aprendizagem em vídeo" title="Cursos em vídeo do centro" icon={CirclePlay} /><div className="center-media-course-grid">{center.cursos_video.map((course) => <VideoCourseTile key={course.id} course={course} onNavigate={onNavigate} />)}</div></section>}
 
         {center.eventos?.length > 0 && <section className="center-profile-section"><SectionHeading eyebrow="Agenda" title="Próximos eventos" icon={CalendarDays} /><div className="center-profile-event-grid">{center.eventos.map((event) => <article key={event.id}><div>{event.imagem_url ? <img src={event.imagem_url} alt="" /> : <CalendarDays size={26} />}</div><section><span>{event.tipo}</span><h3>{event.titulo}</h3><p><CalendarDays size={14} /> {event.inicio_formatado}</p><p><MapPin size={14} /> {event.local}</p>{event.link_inscricao && <a href={event.link_inscricao} target="_blank" rel="noreferrer">Mais informações <ArrowRight size={14} /></a>}</section></article>)}</div></section>}
 

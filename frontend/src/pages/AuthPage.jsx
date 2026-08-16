@@ -7,7 +7,7 @@ const CONTENT = {
   login: {
     eyebrow: "Área do aluno",
     title: "Continue o seu percurso.",
-    description: "Entre para acompanhar inscrições, vídeo-cursos e certificados.",
+    description: "Entre para acompanhar inscrições, cursos em vídeo e certificados.",
     action: "Entrar",
   },
   register: {
@@ -61,7 +61,7 @@ function CourseShowcase({ courses }) {
     <div className="auth-course-viewport">
       <article className="auth-course-slide" key={`${currentCourse.id}-${currentIndex}`}>
         <div className="auth-course-image">{image ? <img src={image} alt="" /> : <div className="auth-course-image-fallback"><ShieldCheck size={48} /></div>}<span className="auth-course-image-shade" /></div>
-        <div className="auth-course-copy"><span className="auth-course-type">{isVideo ? <><Video size={14} /> Vídeo-curso</> : "Curso presencial"}</span><h2>{currentCourse.titulo}</h2><p>{currentCourse.descricao_curta || currentCourse.descricao || "Formação publicada na Edukangola."}</p><div className="auth-course-meta"><span>{currentCourse.categoria || "Formação"}</span>{currentCourse.centro && <span>{currentCourse.centro}</span>}</div></div>
+        <div className="auth-course-copy"><span className="auth-course-type">{isVideo ? <><Video size={14} /> Curso em vídeo</> : "Curso presencial"}</span><h2>{currentCourse.titulo}</h2><p>{currentCourse.descricao_curta || currentCourse.descricao || "Formação publicada na Edukangola."}</p><div className="auth-course-meta"><span>{currentCourse.categoria || "Formação"}</span>{currentCourse.centro && <span>{currentCourse.centro}</span>}</div></div>
       </article>
     </div>
     {publishedCourses.length > 1 && <div className="auth-course-pagination" aria-label="Selecionar formação em destaque">{publishedCourses.map((course, index) => <button key={course.id || index} className={index === currentIndex ? "active" : ""} type="button" onClick={() => setCurrentIndex(index)} aria-label={`Mostrar ${course.titulo}`} />)}</div>}

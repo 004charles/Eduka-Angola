@@ -57,7 +57,7 @@ function construirColecoes(data, incluirCatalogo = true) {
     });
   }
 
-  adicionarColecao({ id: "video-cursos", eyebrow: "Vídeo-cursos", title: "Aprenda ao seu ritmo, com compra única.", description: "Cursos em vídeo com aulas gravadas e acesso após compra ou acesso gratuito. Turmas só aparecem quando um centro disponibiliza acompanhamento.", courses: videos, featured: true, autoAdvance: videos.length > 1 });
+  adicionarColecao({ id: "video-cursos", eyebrow: "Cursos em vídeo", title: "Aprenda ao seu ritmo, com compra única.", description: "Cursos em vídeo com aulas gravadas e acesso após compra ou acesso gratuito. Turmas só aparecem quando um centro disponibiliza acompanhamento.", courses: videos, featured: true, autoAdvance: videos.length > 1 });
 
   const porCategoria = formacoes.reduce((grupos, cartao) => {
     const chave = cartao.category || "Outras formações";

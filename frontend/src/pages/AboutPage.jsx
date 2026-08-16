@@ -11,7 +11,7 @@ const copy = {
     browse: "Explorar cursos",
     centres: "Conhecer centros",
     proof: "Uma plataforma feita para o contexto local",
-    proofCopy: "Organizamos cursos presenciais, turmas, vídeo-cursos e centros de formação num só espaço, com as condições publicadas por cada entidade.",
+    proofCopy: "Organizamos cursos presenciais, turmas, cursos em vídeo e centros de formação num só espaço, com as condições publicadas por cada entidade.",
     mission: "A nossa missão",
     missionCopy: "Tornar a formação mais fácil de encontrar, comparar e acompanhar, ajudando estudantes e centros a criar relações de aprendizagem mais transparentes.",
     vision: "A nossa visão",

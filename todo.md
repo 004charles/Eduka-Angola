@@ -112,3 +112,4 @@
 - [x] Distribuir os novos cursos de demonstração pelas prateleiras da página inicial sem repetição indevida
 - [x] Repor a apresentação de cursos da página inicial ao padrão anterior à reformulação editorial, preservando preços, favoritos e cursos novos
 - [x] Recolocar a secção Carreiras e competências logo após as categorias na página inicial
+- [x] Uniformizar a terminologia pública de vídeo para “curso em vídeo” e “cursos em vídeo”

@@ -24,7 +24,7 @@ const copy = {
     monthly: "/ mês",
     free: "Grátis",
     courses: "cursos publicados",
-    videos: "vídeo-cursos",
+    videos: "cursos em vídeo",
     verification: "Selo de verificação",
     reports: "Relatórios",
     manual: "Inscrições manuais",
