@@ -258,8 +258,38 @@
         progressLine.style.width = `${progress}%`;
     }
     
+    function validateCurrentStep() {
+        const step = document.querySelector(`.step-content[data-step="${currentStep}"]`);
+        if (!step) return true;
+        const fields = [...step.querySelectorAll('input, select, textarea')].filter(field => !field.disabled && field.type !== 'hidden');
+        let valid = true;
+        fields.forEach(field => {
+            field.classList.remove('border-danger', 'ring-2', 'ring-danger/20');
+            if (!field.checkValidity()) {
+                field.classList.add('border-danger', 'ring-2', 'ring-danger/20');
+                valid = false;
+            }
+        });
+        if (currentStep === 3) {
+            const senha = document.querySelector('[name="senha"]');
+            const confirmacao = document.querySelector('[name="confirm_senha"]');
+            if (senha && confirmacao && senha.value && senha.value !== confirmacao.value) {
+                confirmacao.setCustomValidity('As palavras-passe não coincidem.');
+                confirmacao.classList.add('border-danger', 'ring-2', 'ring-danger/20');
+                valid = false;
+            } else if (confirmacao) {
+                confirmacao.setCustomValidity('');
+            }
+        }
+        if (!valid) {
+            const firstInvalid = step.querySelector(':invalid');
+            firstInvalid?.focus();
+        }
+        return valid;
+    }
+
     nextBtn.addEventListener('click', () => {
-        if (currentStep < totalSteps) {
+        if (currentStep < totalSteps && validateCurrentStep()) {
             currentStep++;
             updateStepper();
         }
@@ -270,6 +300,16 @@
             currentStep--;
             updateStepper();
         }
+    });
+
+    document.getElementById('registration-form')?.addEventListener('submit', (event) => {
+        if (!validateCurrentStep()) {
+            event.preventDefault();
+            return;
+        }
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-70', 'cursor-wait');
+        submitBtn.innerHTML = '<i class="ki-filled ki-loading animate-spin mr-1"></i> A guardar cadastro...';
     });
 
     function previewLogo(input) {

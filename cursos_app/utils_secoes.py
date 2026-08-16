@@ -114,7 +114,7 @@ def get_home_sections_data():
     Retorna uma lista de dicionários contendo os dados de cada secção para a Home.
     Utiliza cache para evitar múltiplas consultas pesadas em cada refresh.
     """
-    cache_key = 'home_sections_data'
+    cache_key = 'home_sections_data_v2'
     cached_data = cache.get(cache_key)
     
     if cached_data is not None:

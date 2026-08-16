@@ -1,5 +1,6 @@
 import random
 import string
+import json
 from datetime import timedelta
 
 from django.conf import settings
@@ -38,7 +39,7 @@ from cursos_app.models import (
     PreRequisitoCurso,
 )
 
-from usuarios.models import Aluno
+from usuarios.models import Aluno, Usuario, PerfilAluno
 from usuarios.decorators import aluno_logado_e_centros
 from gestoreduka.models import (
     CentroDeFormacao, GaleriaImagem, CentroSeguimento, 
@@ -48,28 +49,197 @@ from avaliacoes.models import Comentario
 from cursovideoapp.models import Curso_video
 
 
+def _corpo_json(request):
+    try:
+        return json.loads(request.body.decode('utf-8') or '{}')
+    except (TypeError, ValueError, UnicodeDecodeError):
+        return {}
+
+
+def _aluno_visitante_para_checkout(nome, email, telefone):
+    """Cria ou atualiza o perfil mínimo usado na inscrição pública sem login."""
+    nome = str(nome or '').strip()
+    email = str(email or '').strip().lower()
+    telefone = str(telefone or '').strip()
+    if not nome or not email or not telefone:
+        return None, 'Indique nome, e-mail e WhatsApp para continuar.'
+
+    usuario, criado = Usuario.objects.get_or_create(
+        email=email,
+        defaults={'nome': nome, 'tipo_usuario': 'ALUNO', 'is_active': True},
+    )
+    if usuario.tipo_usuario != 'ALUNO':
+        return None, 'Este e-mail está associado a uma conta de centro ou administração.'
+    if criado:
+        usuario.set_unusable_password()
+        usuario.save(update_fields=['password'])
+    elif usuario.nome != nome:
+        usuario.nome = nome
+        usuario.save(update_fields=['nome'])
+
+    aluno, _ = Aluno.objects.get_or_create(usuario=usuario, defaults={'nome': nome})
+    if aluno.nome != nome:
+        aluno.nome = nome
+        aluno.save(update_fields=['nome'])
+    perfil, _ = PerfilAluno.objects.get_or_create(aluno=aluno)
+    if perfil.telefone != telefone:
+        perfil.telefone = telefone
+        perfil.save(update_fields=['telefone'])
+    return aluno, None
+
+
+def _dados_turma_checkout(turma):
+    horario = ''
+    if turma.horario_inicio and turma.horario_fim:
+        horario = f'{turma.horario_inicio.strftime("%H:%M")} – {turma.horario_fim.strftime("%H:%M")}'
+    return {
+        'id': turma.id,
+        'nome': turma.nome or 'Turma aberta',
+        'inicio': turma.data_inicio.strftime('%d/%m/%Y') if turma.data_inicio else 'A confirmar',
+        'dias': turma.dias_semana or '',
+        'horario': horario or 'A confirmar',
+        'local': turma.local or '',
+        'sala': turma.sala or '',
+        'vagas': turma.vagas_disponiveis,
+    }
+
+
+@require_POST
+def api_react_iniciar_inscricao(request, curso_id):
+    """Reserva uma turma a partir do checkout React, sem exigir login prévio."""
+    curso = get_object_or_404(Curso, id=curso_id, publicado=True, ativo=True)
+    if not curso.inscricoes_abertas:
+        return JsonResponse({'ok': False, 'message': 'As inscrições para esta formação estão encerradas.'}, status=409)
+    dados = _corpo_json(request)
+    turma_id = dados.get('turma_id')
+    turma = curso.turmas.filter(id=turma_id, status='ABERTA').first()
+    if not turma or turma.vagas_disponiveis <= 0:
+        return JsonResponse({'ok': False, 'message': 'A turma escolhida já não tem vagas. Escolha outra turma.'}, status=409)
+
+    if request.user.is_authenticated:
+        if request.user.tipo_usuario != 'ALUNO' or not hasattr(request.user, 'aluno_profile'):
+            return JsonResponse({'ok': False, 'message': 'Esta inscrição é exclusiva para alunos.'}, status=403)
+        aluno = request.user.aluno_profile
+        is_guest = False
+    else:
+        aluno, erro = _aluno_visitante_para_checkout(dados.get('nome'), dados.get('email'), dados.get('telefone'))
+        if erro:
+            return JsonResponse({'ok': False, 'message': erro}, status=400)
+        is_guest = True
+
+    inscricao = Inscricao.objects.filter(aluno=aluno, curso=curso).order_by('-id').first()
+    if inscricao:
+        if is_guest:
+            request.session['guest_inscricao_id'] = inscricao.id
+            request.session['guest_email'] = aluno.usuario.email
+        return JsonResponse({
+            'ok': True,
+            'inscricao_id': inscricao.id,
+            'status': 'confirmada' if inscricao.status == 'A' else 'pendente',
+            'requires_payment': inscricao.status != 'A' and float(curso.valor_a_cobrar_online()) > 0,
+            'curso': curso.titulo,
+            'turma': _dados_turma_checkout(inscricao.turma_escolhida),
+            'valor_agora': float(curso.valor_a_cobrar_online()),
+            'descricao_pagamento': curso.descricao_cobranca_online(),
+            'message': 'Esta inscrição já existe. Pode continuar a partir do seu resumo.',
+        })
+
+    import random
+    inscricao = Inscricao.objects.create(
+        aluno=aluno,
+        curso=curso,
+        turma_escolhida=turma,
+        status='P',
+        tipo_inscricao='ONLINE',
+        codigo_simulacao=str(random.randint(100000000, 999999999)),
+        observacoes=f"Inscrição iniciada pelo checkout público em {timezone.now().strftime('%d/%m/%Y %H:%M')}",
+    )
+    valor_agora = curso.valor_a_cobrar_online()
+    if valor_agora <= 0:
+        inscricao.forma_pagamento = 'ISENTO'
+        inscricao.valor_pago = 0
+        inscricao.data_pagamento = timezone.now()
+        inscricao.status = 'A'
+        inscricao.data_confirmacao = timezone.now()
+        inscricao.save(update_fields=['forma_pagamento', 'valor_pago', 'data_pagamento', 'status', 'data_confirmacao'])
+        status_inscricao = 'confirmada'
+    else:
+        try:
+            enviar_email_inscricao(inscricao, tipo='pendente')
+        except Exception:
+            pass
+        status_inscricao = 'pendente'
+
+    if is_guest:
+        request.session['guest_inscricao_id'] = inscricao.id
+        request.session['guest_email'] = aluno.usuario.email
+    return JsonResponse({
+        'ok': True,
+        'inscricao_id': inscricao.id,
+        'status': status_inscricao,
+        'requires_payment': status_inscricao == 'pendente',
+        'curso': curso.titulo,
+        'turma': _dados_turma_checkout(turma),
+        'valor_agora': float(valor_agora),
+        'descricao_pagamento': curso.descricao_cobranca_online(),
+        'message': 'Vaga reservada. Confirme o resumo antes de seguir para o pagamento.' if status_inscricao == 'pendente' else 'Inscrição confirmada. A sua vaga está garantida.',
+    }, status=201)
+
+
+@require_POST
+def api_react_iniciar_pagamento_inscricao(request, inscricao_id):
+    """Gera o link Prontu a partir de uma inscrição previamente revista no React."""
+    inscricao = get_object_or_404(Inscricao.objects.select_related('aluno__usuario', 'curso'), id=inscricao_id)
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
+        autorizado = getattr(request.user, 'aluno_profile', None) and inscricao.aluno_id == request.user.aluno_profile.id
+    else:
+        autorizado = request.session.get('guest_inscricao_id') == inscricao.id
+    if not autorizado:
+        return JsonResponse({'ok': False, 'message': 'Esta sessão não pode iniciar este pagamento.'}, status=403)
+    if inscricao.status == 'A':
+        return JsonResponse({'ok': True, 'status': 'confirmada', 'message': 'Esta inscrição já está confirmada.'})
+
+    try:
+        from pagamentos.services import get_payment_service, PagamentoException
+        servico = get_payment_service()
+        pagamento = servico.criar_pagamento(
+            usuario=inscricao.aluno.usuario,
+            tipo_pagamento='INSCRICAO',
+            valor=inscricao.curso.valor_a_cobrar_online(),
+            moeda='AOA',
+            curso=inscricao.curso,
+            url_sucesso=request.build_absolute_uri(reverse('pagamento_sucesso')),
+            url_cancelamento=request.build_absolute_uri(reverse('pagamento_cancelado')),
+            metadados={'inscricao_id': str(inscricao.id)},
+        )
+        if not pagamento.url_pagamento:
+            raise PagamentoException('O gateway não devolveu uma página de pagamento.')
+        return JsonResponse({'ok': True, 'payment_url': pagamento.url_pagamento})
+    except Exception:
+        return JsonResponse({'ok': False, 'message': 'Não foi possível preparar o pagamento. Tente novamente.'}, status=502)
 
 
 
 
-@login_required(login_url='login_aluno')
+
 def inscrever_curso(request, curso_id):
     """View para inscrição em curso com simulação de pagamento"""
     curso = get_object_or_404(Curso, id=curso_id, publicado=True, ativo=True)
     
-    # Verificar se aluno está logado e é ALUNO
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
-        messages.error(request, "Você precisa estar logado como aluno.")
-        return redirect('login_aluno')
-    
-    try:
-        aluno = request.user.aluno_profile
-    except AttributeError:
-        messages.error(request, "Perfil de aluno não encontrado.")
-        return redirect('login_aluno')
+    is_guest = not request.user.is_authenticated
+    aluno = None
+    if not is_guest:
+        if request.user.tipo_usuario != 'ALUNO':
+            messages.error(request, "A inscrição é reservada a alunos.")
+            return redirect('login_aluno')
+        try:
+            aluno = request.user.aluno_profile
+        except AttributeError:
+            messages.error(request, "Perfil de aluno não encontrado.")
+            return redirect('login_aluno')
 
-    # Verificar se já está inscrito
-    inscricao_existente = Inscricao.objects.filter(aluno=aluno, curso=curso).first()
+    # Verificar se já está inscrito quando já existe uma conta autenticada
+    inscricao_existente = Inscricao.objects.filter(aluno=aluno, curso=curso).first() if aluno else None
     if inscricao_existente:
         messages.info(request, "Você já está inscrito neste curso.")
         return redirect('curso_detalhe', id=curso_id)
@@ -94,6 +264,47 @@ def inscrever_curso(request, curso_id):
     turma_disponivel = curso.get_turma_menos_lotada()
     
     if request.method == 'POST':
+        if is_guest:
+            nome_visitante = request.POST.get('nome', '').strip()
+            email_visitante = request.POST.get('email', '').strip().lower()
+            telefone_visitante = request.POST.get('telefone', '').strip()
+            if not nome_visitante or not email_visitante or not telefone_visitante:
+                messages.error(request, "Preencha nome, email e telefone para continuar.")
+                return redirect('ficha_inscricao', curso_id=curso.id)
+            try:
+                user_guest, created = Usuario.objects.get_or_create(
+                    email=email_visitante,
+                    defaults={'nome': nome_visitante, 'tipo_usuario': 'ALUNO', 'is_active': True},
+                )
+                if user_guest.tipo_usuario != 'ALUNO':
+                    messages.error(request, "Este email já está associado a uma conta de centro ou administração.")
+                    return redirect('ficha_inscricao', curso_id=curso.id)
+                if created:
+                    user_guest.set_unusable_password()
+                    user_guest.save(update_fields=['password'])
+                elif user_guest.nome != nome_visitante:
+                    user_guest.nome = nome_visitante
+                    user_guest.save(update_fields=['nome'])
+                aluno, _ = Aluno.objects.get_or_create(
+                    usuario=user_guest,
+                    defaults={'nome': nome_visitante},
+                )
+                if aluno.nome != nome_visitante:
+                    aluno.nome = nome_visitante
+                    aluno.save(update_fields=['nome'])
+                perfil_aluno, _ = PerfilAluno.objects.get_or_create(aluno=aluno)
+                perfil_aluno.telefone = telefone_visitante
+                perfil_aluno.save(update_fields=['telefone'])
+                inscricao_existente = Inscricao.objects.filter(aluno=aluno, curso=curso).first()
+                if inscricao_existente:
+                    request.session['guest_inscricao_id'] = inscricao_existente.id
+                    request.session['guest_email'] = aluno.usuario.email
+                    messages.info(request, "Já recebemos uma inscrição sua para este curso.")
+                    return redirect('curso_detalhe', id=curso.id)
+            except Exception:
+                messages.error(request, "Não foi possível validar os seus dados. Verifique o email e tente novamente.")
+                return redirect('ficha_inscricao', curso_id=curso.id)
+
         import random
         codigo_gerado = str(random.randint(100000000, 999999999))
         
@@ -140,7 +351,11 @@ def inscrever_curso(request, curso_id):
             inscricao.data_confirmacao = timezone.now()
             inscricao.save()
             
-            messages.success(request, "Inscrição realizada com sucesso! A sua vaga está confirmada (Isento de Pagamento Online).")
+            messages.success(request, "Inscrição realizada com sucesso! A sua vaga está confirmada.")
+            if is_guest:
+                request.session['guest_inscricao_id'] = inscricao.id
+                request.session['guest_email'] = aluno.usuario.email
+                return redirect('curso_detalhe', id=curso_id)
             return redirect('painel_curso', curso_id=curso_id)
             
         from cursos_app.utils import enviar_email_inscricao
@@ -149,13 +364,22 @@ def inscrever_curso(request, curso_id):
         except Exception:
             pass
         
-        messages.success(request, "Inscrição iniciada. Prossiga com o pagamento para confirmar a sua vaga.")
+        messages.success(request, "Inscrição recebida. Prossiga para o pagamento para confirmar a sua vaga.")
+        if is_guest:
+            request.session['guest_inscricao_id'] = inscricao.id
+            request.session['guest_email'] = aluno.usuario.email
         return redirect('tela_pagamento_inscricao', inscricao_id=inscricao.id)
         
-@login_required(login_url='login_aluno')
 def tela_pagamento_inscricao(request, inscricao_id):
-    """View para intermediar o pagamento após a inscrição"""
-    inscricao = get_object_or_404(Inscricao, id=inscricao_id, aluno=request.user.aluno_profile)
+    """Intermedeia o pagamento para alunos autenticados ou visitantes com sessão de inscrição."""
+    inscricao = get_object_or_404(Inscricao, id=inscricao_id)
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
+        if inscricao.aluno_id != request.user.aluno_profile.id:
+            messages.error(request, "Não tem permissão para aceder a este pagamento.")
+            return redirect('login_aluno')
+    elif request.session.get('guest_inscricao_id') != inscricao.id:
+        messages.error(request, "A sessão desta inscrição expirou. Inicie novamente o processo.")
+        return redirect('curso_detalhe', id=inscricao.curso_id)
     curso = inscricao.curso
     
     if request.method == 'POST':
@@ -166,7 +390,7 @@ def tela_pagamento_inscricao(request, inscricao_id):
             
             # Criar transação real com o valor a cobrar online
             pagamento = servico.criar_pagamento(
-                usuario=request.user,
+                usuario=inscricao.aluno.usuario,
                 tipo_pagamento='INSCRICAO',
                 valor=curso.valor_a_cobrar_online(),
                 moeda='AOA',
@@ -656,8 +880,14 @@ def curso_detalhe(request, id):
         publicado=True,
         ativo=True
     ).exclude(id=curso.id)
-    
-    
+
+    turmas_publicas = list(
+        curso.turmas.filter(
+            status='ABERTA',
+            vagas_disponiveis__gt=0,
+        ).select_related('filial', 'instrutor_principal').order_by('data_inicio', 'turno')[:8]
+    )
+    proxima_turma = turmas_publicas[0] if turmas_publicas else None
     
     comentarios = Comentario.objects.select_related('aluno').filter(
         curso=curso,
@@ -745,6 +975,8 @@ def curso_detalhe(request, id):
         'cursos_relacionados': cursos_relacionados,
         'cursos_relacionados_lista': cursos_relacionados_lista,
         'outras_localizacoes': outras_localizacoes,
+        'turmas_publicas': turmas_publicas,
+        'proxima_turma': proxima_turma,
         'video_preview': video_preview,
         'imagem': imagem,
         'media_avaliacoes': round(media_avaliacoes, 1),
@@ -1092,6 +1324,11 @@ def instrutor_detalhes(request, id):
     return render(request, 'cursos_app/curso_detalhe.html', context)
 
 def cursos_por_centro(request, centro_id):
+    # O perfil institucional público foi migrado para o frontend React.
+    # A rota Django é preservada para links antigos, mas deixa de renderizar
+    # o template legado e encaminha para a nova experiência do centro.
+    return redirect(f'/centros/{centro_id}/')
+
     context = {
         'aluno_logado': False,
     }
@@ -1130,15 +1367,27 @@ def cursos_por_centro(request, centro_id):
         except:
             pass
 
+    cursos_publicados_qs = centro.cursos.filter(publicado=True, ativo=True)
+    stats_centro = Comentario.objects.filter(
+        curso__centro=centro,
+        aprovado=True,
+        parent__isnull=True,
+    ).aggregate(media=Avg('avaliacao'), total=Count('id'))
+    centro_media_avaliacoes = round(stats_centro['media'] or 0, 1)
+    centro_total_avaliacoes = stats_centro['total'] or 0
+
     context.update({
         'centro': centro,
         'aluno_segue': aluno_segue,
         'seguidores_count': centro.seguidores.count(),
-        'todos_os_cursos': centro.cursos.filter(publicado=True).order_by('-destaque', '-data_criacao')
+        'total_cursos_publicados': cursos_publicados_qs.count(),
+        'centro_media_avaliacoes': centro_media_avaliacoes,
+        'centro_total_avaliacoes': centro_total_avaliacoes,
+        'todos_os_cursos': cursos_publicados_qs.order_by('-destaque', '-data_criacao')
     })
 
     # Cursos por categoria (Otimizado: Uma única consulta + agrupamento em Python)
-    cursos_do_centro = centro.cursos.filter(publicado=True).select_related('categoria').order_by('-destaque', 'data_inicio')
+    cursos_do_centro = cursos_publicados_qs.select_related('categoria').order_by('-destaque', 'data_inicio')
     
     from collections import defaultdict
     grupos = defaultdict(list)
@@ -1493,33 +1742,30 @@ def todo_curso(request):
 
     return render(request, 'todo_curso.html', context)
     
-@login_required(login_url='login_aluno')
 def ficha_inscricao(request, curso_id):
-    if request.user.tipo_usuario != 'ALUNO':
-        messages.error(request, "Você precisa estar logado como aluno.")
+    curso = get_object_or_404(Curso, id=curso_id, publicado=True, ativo=True)
+
+    if request.user.is_authenticated and request.user.tipo_usuario != 'ALUNO':
+        messages.error(request, "A inscrição é reservada a alunos.")
         return redirect('login_aluno')
 
-    curso = get_object_or_404(Curso, id=curso_id)
-
-    # Verificar se curso está lotado, se não possui turmas ativas ou se inscrições estão fechadas
-    if curso.lotado or not curso.possui_turmas_ativas or not curso.inscricoes_abertas:
-        if curso.lotado:
-            messages.error(request, "Este curso não possui mais vagas disponíveis.")
-        elif not curso.possui_turmas_ativas:
-            messages.error(request, "Este curso não possui turmas ativas planejadas de momento.")
+    turmas_disponiveis = curso.turmas.filter(status='ABERTA', vagas_disponiveis__gt=0)
+    if not turmas_disponiveis.exists() or not curso.inscricoes_abertas:
+        if not turmas_disponiveis.exists():
+            messages.error(request, "Este curso não possui turmas abertas com vagas de momento.")
         else:
             messages.error(request, "As inscrições para este curso estão encerradas.")
         return redirect('curso_detalhe', id=curso_id)
 
     aluno = None
-    try:
-        aluno = request.user.aluno_profile
-    except AttributeError:
-        messages.error(request, "Perfil de aluno não encontrado.")
-        return redirect('login_aluno')
+    if request.user.is_authenticated:
+        try:
+            aluno = request.user.aluno_profile
+        except AttributeError:
+            messages.error(request, "Perfil de aluno não encontrado.")
+            return redirect('login_aluno')
 
     # Obter turmas disponíveis
-    turmas_disponiveis = curso.turmas.filter(status='ABERTA', vagas_disponiveis__gt=0)
     turma_disponivel = curso.get_turma_menos_lotada()
 
     contexto = {
@@ -1781,11 +2027,20 @@ def lista_centros(request):
     """
     from gestoreduka.models import CentroDeFormacao, CategoriaCentro
     
-    query = request.GET.get('q', '')
-    provincia = request.GET.get('provincia', '')
+    query = request.GET.get('q', '').strip()
+    provincia = request.GET.get('provincia', '').strip()
+    tipo = request.GET.get('tipo', '').strip()
+    modalidade = request.GET.get('modalidade', '').strip()
+    categoria = request.GET.get('categoria', '').strip()
+    verificado = request.GET.get('verificado', '').strip()
+    parcelamento = request.GET.get('parcelamento', '').strip()
+    ordenar = request.GET.get('sort', 'relevantes').strip()
     
-    centros_qs = CentroDeFormacao.objects.filter(ativo=True).select_related('perfil').annotate(
-        total_cursos=Count('cursos', filter=Q(cursos__publicado=True, cursos__ativo=True))
+    centros_qs = CentroDeFormacao.objects.filter(ativo=True).select_related(
+        'perfil', 'avaliacao_hibrida'
+    ).annotate(
+        total_cursos=Count('cursos', filter=Q(cursos__publicado=True, cursos__ativo=True)),
+        media_avaliacoes=Coalesce('avaliacao_hibrida__media_alunos', Value(0.0))
     )
     
     if query:
@@ -1799,6 +2054,29 @@ def lista_centros(request):
         centros_qs = centros_qs.filter(
             Q(provincia__icontains=provincia) | Q(cidade__icontains=provincia)
         )
+
+    if tipo:
+        centros_qs = centros_qs.filter(perfil__tipo__iexact=tipo)
+
+    if modalidade:
+        centros_qs = centros_qs.filter(perfil__modalidade__iexact=modalidade)
+
+    if categoria:
+        centros_qs = centros_qs.filter(categorias__slug=categoria)
+
+    if verificado == '1':
+        centros_qs = centros_qs.filter(perfil__verificado=True)
+
+    if parcelamento == '1':
+        centros_qs = centros_qs.filter(cursos__publicado=True, cursos__ativo=True, cursos__permite_parcelamento=True)
+
+    centros_qs = centros_qs.distinct()
+    if ordenar == 'avaliados':
+        centros_qs = centros_qs.order_by('-media_avaliacoes', '-total_cursos', 'nome')
+    elif ordenar == 'cursos':
+        centros_qs = centros_qs.order_by('-total_cursos', '-perfil__destaque', 'nome')
+    else:
+        centros_qs = centros_qs.order_by('-perfil__destaque', '-total_cursos', 'nome')
 
     # --- Sessões Temáticas ---
     sessoes = []
@@ -1840,12 +2118,13 @@ def lista_centros(request):
         })
 
     # Os 3 primeiros centros para o banner Swiper
-    centros_banner = CentroDeFormacao.objects.filter(ativo=True).select_related('perfil').annotate(
-        total_cursos=Count('cursos', filter=Q(cursos__publicado=True, cursos__ativo=True))
-    ).order_by('-perfil__destaque', 'data_criacao')[:3]
+    centros_banner = CentroDeFormacao.objects.filter(ativo=True).select_related('perfil', 'avaliacao_hibrida').annotate(
+        total_cursos=Count('cursos', filter=Q(cursos__publicado=True, cursos__ativo=True)),
+        media_avaliacoes=Coalesce('avaliacao_hibrida__media_alunos', Value(0.0))
+    ).order_by('-perfil__destaque', '-total_cursos', 'nome')[:3]
     
     # Paginação para a lista geral (Todos os Centros)
-    paginator = Paginator(centros_qs.order_by('-perfil__destaque', 'data_criacao'), 12)
+    paginator = Paginator(centros_qs, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
@@ -1870,7 +2149,16 @@ def lista_centros(request):
         'centros_banner': centros_banner,
         'q': query,
         'provincia_selecionada': provincia,
+        'tipo_selecionado': tipo,
+        'modalidade_selecionada': modalidade,
+        'categoria_selecionada': categoria,
+        'verificado_selecionado': verificado,
+        'parcelamento_selecionado': parcelamento,
+        'ordenar': ordenar,
         'provincias': provincias,
+        'categorias_centros': CategoriaCentro.objects.filter(ativa=True),
+        'tipos_instituicao': ['Centro de formação', 'Escola técnica', 'Instituto médio', 'Centro de línguas'],
+        'modalidades_centros': ['Presencial', 'Online', 'Híbrido'],
         'total_centros': centros_qs.count(),
     }
     

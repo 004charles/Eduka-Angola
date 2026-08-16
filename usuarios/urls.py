@@ -4,6 +4,16 @@ from django.contrib.auth import views as auth_views
 
 
 urlpatterns = [
+    # Contratos JSON usados pelas telas React públicas. As páginas Django
+    # continuam disponíveis para compatibilidade com ligações antigas.
+    path('api/react/csrf/', views.api_auth_csrf, name='api_auth_csrf'),
+    path('api/react/aluno/resumo/', views.api_auth_aluno_resumo, name='api_auth_aluno_resumo'),
+    path('api/react/login/', views.api_auth_login, name='api_auth_login'),
+    path('api/react/registro/', views.api_auth_registro, name='api_auth_registro'),
+    path('api/react/verificar-email/', views.api_auth_verificar_email, name='api_auth_verificar_email'),
+    path('api/react/reenviar-codigo/', views.api_auth_reenviar_codigo, name='api_auth_reenviar_codigo'),
+    path('api/react/recuperar-senha/', views.api_auth_recuperar_senha, name='api_auth_recuperar_senha'),
+    path('api/react/redefinir-senha/', views.api_auth_redefinir_senha, name='api_auth_redefinir_senha'),
     path('onboarding/', views.aluno_onboarding, name='aluno_onboarding'),
     path('conta_aluno/', views.conta_aluno, name = 'conta_aluno'),
     path('aluno/', views.aluno_dashboard, name='aluno'),

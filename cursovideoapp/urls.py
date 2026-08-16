@@ -4,6 +4,8 @@ from . import views
 app_name = 'cursovideoapp'
 
 urlpatterns = [
+    path('api/react/<slug:slug>/acesso/', views.api_react_iniciar_acesso, name='api_react_iniciar_acesso'),
+    path('api/react/<slug:slug>/pagamento/', views.api_react_iniciar_pagamento, name='api_react_iniciar_pagamento'),
     path('', views.home_videos, name="home_videos"), # Replacing empty path
     path('lista/', views.lista_cursos, name="lista_cursos"),
     path('api/toggle_favorito/', views.toggle_favorito_video, name='api_toggle_favorito_video'),

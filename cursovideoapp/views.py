@@ -13,8 +13,126 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from cursos_app.models import Categoria, Instrutor
 from cursovideoapp.models import Curso_video, FavoritoCursoVideo, Aula, ProgressoAula, Certificado, Exercicio, Questao, Alternativa, ResultadoExercicio, RespostaEstudante
+from usuarios.models import Aluno, Usuario, PerfilAluno
 from django.core.cache import cache
 from .utils import fetch_playlist_videos
+
+
+def _corpo_json_checkout(request):
+    try:
+        return json.loads(request.body.decode('utf-8') or '{}')
+    except (TypeError, ValueError, UnicodeDecodeError):
+        return {}
+
+
+def _aluno_visitante_video(nome, email):
+    nome = str(nome or '').strip()
+    email = str(email or '').strip().lower()
+    if not nome or not email:
+        return None, 'Indique nome e e-mail para continuar.'
+    usuario, criado = Usuario.objects.get_or_create(
+        email=email,
+        defaults={'nome': nome, 'tipo_usuario': 'ALUNO', 'is_active': True},
+    )
+    if usuario.tipo_usuario != 'ALUNO':
+        return None, 'Este e-mail está associado a uma conta de centro ou administração.'
+    if criado:
+        usuario.set_unusable_password()
+        usuario.save(update_fields=['password'])
+    elif usuario.nome != nome:
+        usuario.nome = nome
+        usuario.save(update_fields=['nome'])
+    aluno, _ = Aluno.objects.get_or_create(usuario=usuario, defaults={'nome': nome})
+    if aluno.nome != nome:
+        aluno.nome = nome
+        aluno.save(update_fields=['nome'])
+    PerfilAluno.objects.get_or_create(aluno=aluno)
+    return aluno, None
+
+
+@require_POST
+def api_react_iniciar_acesso(request, slug):
+    """Prepara o acesso a um vídeo-curso para uma conta ou visitante."""
+    curso = get_object_or_404(Curso_video, slug=slug)
+    dados = _corpo_json_checkout(request)
+    if request.user.is_authenticated:
+        if request.user.tipo_usuario != 'ALUNO' or not hasattr(request.user, 'aluno_profile'):
+            return JsonResponse({'ok': False, 'message': 'Este acesso é exclusivo para alunos.'}, status=403)
+        aluno = request.user.aluno_profile
+        visitante = False
+    else:
+        aluno, erro = _aluno_visitante_video(dados.get('nome'), dados.get('email'))
+        if erro:
+            return JsonResponse({'ok': False, 'message': erro}, status=400)
+        visitante = True
+
+    if curso.inscritos.filter(id=aluno.id).exists():
+        return JsonResponse({
+            'ok': True,
+            'status': 'liberado',
+            'curso': curso.titulo,
+            'message': 'Este vídeo-curso já está disponível para si.',
+            'next_lesson_url': f'/backend/curso_video/{curso.slug}/',
+        })
+
+    pago = bool(curso.is_pago and curso.preco > 0)
+    if not pago:
+        curso.inscritos.add(aluno)
+        return JsonResponse({
+            'ok': True,
+            'status': 'liberado',
+            'curso': curso.titulo,
+            'valor_agora': 0,
+            'message': 'Acesso gratuito confirmado. Já pode começar a aprender.',
+            'next_lesson_url': f'/backend/curso_video/{curso.slug}/',
+        })
+
+    if visitante:
+        request.session['guest_video_course_id'] = curso.id
+        request.session['guest_video_aluno_id'] = aluno.id
+    return JsonResponse({
+        'ok': True,
+        'status': 'pendente',
+        'curso': curso.titulo,
+        'valor_agora': float(curso.preco),
+        'message': 'Reveja o valor e continue para o pagamento seguro.',
+    })
+
+
+@require_POST
+def api_react_iniciar_pagamento(request, slug):
+    """Cria o pagamento Prontu de um vídeo-curso iniciado no checkout React."""
+    curso = get_object_or_404(Curso_video, slug=slug)
+    if not curso.is_pago or curso.preco <= 0:
+        return JsonResponse({'ok': False, 'message': 'Este vídeo-curso não requer pagamento.'}, status=400)
+    if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
+        aluno = getattr(request.user, 'aluno_profile', None)
+        autorizado = aluno is not None
+    else:
+        aluno_id = request.session.get('guest_video_aluno_id')
+        autorizado = request.session.get('guest_video_course_id') == curso.id and aluno_id
+        aluno = Aluno.objects.filter(id=aluno_id).select_related('usuario').first() if autorizado else None
+    if not autorizado or not aluno:
+        return JsonResponse({'ok': False, 'message': 'Comece novamente o acesso ao vídeo-curso.'}, status=403)
+
+    try:
+        from pagamentos.services import PaymentService
+        servico = PaymentService()
+        pagamento = servico.criar_pagamento(
+            usuario=aluno.usuario,
+            tipo_pagamento='INSCRICAO_VIDEO',
+            valor=curso.preco,
+            moeda='AOA',
+            curso=None,
+            url_sucesso=request.build_absolute_uri(reverse('cursovideoapp:detalhe_curso', kwargs={'slug': slug})),
+            url_cancelamento=request.build_absolute_uri(reverse('cursovideoapp:detalhe_curso', kwargs={'slug': slug})),
+            metadados={'acao': 'inscricao_video', 'curso_video_id': str(curso.id)},
+        )
+        if not pagamento.url_pagamento:
+            raise ValueError('O gateway não devolveu um link de pagamento.')
+        return JsonResponse({'ok': True, 'payment_url': pagamento.url_pagamento})
+    except Exception:
+        return JsonResponse({'ok': False, 'message': 'Não foi possível preparar o pagamento. Tente novamente.'}, status=502)
 
 @login_required
 def importar_playlist_youtube(request, curso_id):

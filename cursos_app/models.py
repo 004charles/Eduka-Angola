@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import MinLengthValidator, MinValueValidator
+from django.core.validators import MinLengthValidator, MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
 from django.db.models import Avg, Count, Sum
@@ -141,9 +141,10 @@ class Curso(models.Model):
     ]
 
     TIPO_COBRANCA_INSCRICAO_CHOICES = [
-        ('APENAS_TAXA', 'Apenas Taxa de Inscrição'),
-        ('TAXA_E_MENSALIDADE', 'Taxa de Inscrição + 1ª Mensalidade'),
-        ('CURSO_COMPLETO', 'Preço Total do Curso'),
+        ('SEM_PAGAMENTO', 'Inscrição direta — sem pagamento no ato'),
+        ('APENAS_TAXA', 'Cobrar apenas a taxa de inscrição'),
+        ('TAXA_E_MENSALIDADE', 'Cobrar taxa de inscrição + 1ª mensalidade'),
+        ('CURSO_COMPLETO', 'Cobrar o preço total do curso'),
     ]
 
     DURACAO_CHOICES = [
@@ -389,34 +390,36 @@ class Curso(models.Model):
         return len(turmas_insuficientes)
 
     def valor_a_cobrar_online(self):
-        """Retorna o valor exato que o aluno tem de pagar no checkout online."""
+        """Retorna o valor que o aluno deve pagar no checkout inicial."""
         if self.is_gratuito:
             return 0
-            
+
+        if self.tipo_cobranca_inscricao == 'SEM_PAGAMENTO':
+            return 0
         if self.tipo_cobranca_inscricao == 'APENAS_TAXA':
             return self.preco_inscricao
-        elif self.tipo_cobranca_inscricao == 'TAXA_E_MENSALIDADE':
+        if self.tipo_cobranca_inscricao == 'TAXA_E_MENSALIDADE':
             return self.preco_inscricao + self.mensalidade
-        elif self.tipo_cobranca_inscricao == 'CURSO_COMPLETO':
-            # Geralmente cobra o curso todo + taxa de inscrição? Ou só o curso?
-            # Assumimos que "Preço Total" cobra tudo.
-            return self.preco_atual + self.preco_inscricao
-        
-        return self.preco_inscricao
+        if self.tipo_cobranca_inscricao == 'CURSO_COMPLETO':
+            return self.preco_atual
+
+        return 0
 
     def descricao_cobranca_online(self):
         """Texto explicativo sobre o que está a ser cobrado."""
         if self.is_gratuito:
-            return "Inscrição Gratuita"
-            
+            return "Inscrição gratuita"
+
+        if self.tipo_cobranca_inscricao == 'SEM_PAGAMENTO':
+            return "Inscrição direta — pagamento posterior ao centro"
         if self.tipo_cobranca_inscricao == 'APENAS_TAXA':
-            return "Apenas Taxa de Inscrição"
-        elif self.tipo_cobranca_inscricao == 'TAXA_E_MENSALIDADE':
-            return "Taxa de Inscrição + 1ª Mensalidade"
-        elif self.tipo_cobranca_inscricao == 'CURSO_COMPLETO':
-            return "Preço Total do Curso + Inscrição"
-            
-        return "Taxa de Inscrição"
+            return "Taxa de inscrição"
+        if self.tipo_cobranca_inscricao == 'TAXA_E_MENSALIDADE':
+            return "Taxa de inscrição + 1ª mensalidade"
+        if self.tipo_cobranca_inscricao == 'CURSO_COMPLETO':
+            return "Preço total do curso"
+
+        return "Inscrição direta"
 
     @property
     def get_imagem_url(self):
@@ -680,7 +683,7 @@ class Turma(models.Model):
         super().save(*args, **kwargs)
 
     def atualizar_vagas_turma(self):
-        self.vagas_ocupadas = self.inscricoes_turma.filter(inscricao__status='A').count()
+        self.vagas_ocupadas = self.inscricoes_turma.filter(status='A').count()
         self.vagas_disponiveis = self.vagas_totais - self.vagas_ocupadas
         self.save(update_fields=['vagas_ocupadas', 'vagas_disponiveis'])
 
@@ -713,6 +716,11 @@ class Turma(models.Model):
     @property
     def horario_formatado(self):
         return f"{self.horario_inicio.strftime('%H:%M')} - {self.horario_fim.strftime('%H:%M')}"
+
+    @property
+    def dias_semana_formatado(self):
+        nomes = dict(self.DIAS_SEMANA_CHOICES)
+        return ', '.join(nomes.get(dia.strip(), dia.strip()) for dia in self.dias_semana.split(',') if dia.strip())
 
     @property
     def duracao_semanas(self):
@@ -996,3 +1004,153 @@ class CertificadoCurso(models.Model):
 
     def __str__(self):
         return f"Certificado - {self.inscricao.aluno.nome} - {self.inscricao.curso.titulo}"
+
+
+class Presenca(models.Model):
+    """Registo diário de assiduidade lançado pelo centro para uma matrícula."""
+    ESTADO_CHOICES = [
+        ('PRESENTE', _('Presente')),
+        ('FALTA', _('Falta')),
+        ('ATRASO', _('Atraso')),
+        ('JUSTIFICADA', _('Falta justificada')),
+    ]
+
+    turma = models.ForeignKey(Turma, on_delete=models.CASCADE, related_name='presencas')
+    inscricao = models.ForeignKey(Inscricao, on_delete=models.CASCADE, related_name='presencas')
+    data = models.DateField(_('Data da Aula'), default=timezone.localdate)
+    estado = models.CharField(_('Estado'), max_length=12, choices=ESTADO_CHOICES, default='PRESENTE')
+    observacao = models.CharField(_('Observação'), max_length=255, blank=True)
+    registada_em = models.DateTimeField(_('Registada em'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Presença')
+        verbose_name_plural = _('Presenças')
+        ordering = ['-data', 'inscricao__aluno__nome']
+        constraints = [
+            models.UniqueConstraint(fields=['turma', 'inscricao', 'data'], name='unique_presenca_turma_inscricao_data')
+        ]
+
+    def __str__(self):
+        return f"{self.inscricao.aluno.nome} - {self.data} - {self.get_estado_display()}"
+
+    @property
+    def conta_como_presente(self):
+        return self.estado in ('PRESENTE', 'ATRASO')
+
+
+class NotaAluno(models.Model):
+    """Nota registada pelo centro para uma matrícula numa turma."""
+    turma = models.ForeignKey(Turma, on_delete=models.CASCADE, related_name='notas')
+    inscricao = models.ForeignKey(Inscricao, on_delete=models.CASCADE, related_name='notas')
+    avaliacao = models.CharField(_('Avaliação'), max_length=100, default='Nota Final')
+    nota = models.DecimalField(_('Nota'), max_digits=5, decimal_places=2, validators=[MinValueValidator(0), MaxValueValidator(20)])
+    observacao = models.CharField(_('Observação'), max_length=255, blank=True)
+    registada_em = models.DateTimeField(_('Registada em'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Nota do Aluno')
+        verbose_name_plural = _('Notas dos Alunos')
+        ordering = ['inscricao__aluno__nome', 'avaliacao']
+        constraints = [
+            models.UniqueConstraint(fields=['turma', 'inscricao', 'avaliacao'], name='unique_nota_turma_inscricao_avaliacao')
+        ]
+
+    def __str__(self):
+        return f"{self.inscricao.aluno.nome} - {self.avaliacao}: {self.nota}"
+
+
+class Matricula(models.Model):
+    """Participação confirmada de um aluno numa turma do centro."""
+    ORIGEM_CHOICES = [
+        ('EDUKA_ANGOLA', _('Eduka-Angola')),
+        ('PRESENCIAL', _('Atendimento presencial')),
+        ('TELEFONE', _('Telefone')),
+        ('WHATSAPP', _('WhatsApp')),
+        ('IMPORTACAO', _('Importação')),
+    ]
+    ESTADO_CHOICES = [
+        ('PENDENTE', _('Pendente')),
+        ('ATIVA', _('Ativa')),
+        ('SUSPENSA', _('Suspensa')),
+        ('CONCLUIDA', _('Concluída')),
+        ('CANCELADA', _('Cancelada')),
+        ('TRANSFERIDA', _('Transferida')),
+    ]
+
+    aluno = models.ForeignKey('usuarios.Aluno', on_delete=models.PROTECT, related_name='matriculas')
+    curso = models.ForeignKey(Curso, on_delete=models.PROTECT, related_name='matriculas')
+    turma = models.ForeignKey(Turma, on_delete=models.PROTECT, related_name='matriculas')
+    inscricao = models.OneToOneField(
+        Inscricao,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='matricula_confirmada',
+    )
+    codigo_matricula = models.CharField(_('Código da Matrícula'), max_length=24, unique=True, blank=True)
+    origem = models.CharField(_('Origem'), max_length=20, choices=ORIGEM_CHOICES, default='PRESENCIAL', db_index=True)
+    estado = models.CharField(_('Estado'), max_length=16, choices=ESTADO_CHOICES, default='ATIVA', db_index=True)
+    valor_acordado = models.DecimalField(_('Valor Acordado'), max_digits=12, decimal_places=3, default=0, validators=[MinValueValidator(0)])
+    desconto = models.DecimalField(_('Desconto'), max_digits=12, decimal_places=3, default=0, validators=[MinValueValidator(0)])
+    data_matricula = models.DateTimeField(_('Data da Matrícula'), default=timezone.now, db_index=True)
+    responsavel = models.ForeignKey(
+        'usuarios.Usuario',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='matriculas_registadas',
+    )
+    observacoes = models.TextField(_('Observações'), blank=True)
+    data_conclusao = models.DateTimeField(_('Data de Conclusão'), null=True, blank=True)
+    data_cancelamento = models.DateTimeField(_('Data de Cancelamento'), null=True, blank=True)
+
+    class Meta:
+        verbose_name = _('Matrícula')
+        verbose_name_plural = _('Matrículas')
+        ordering = ['-data_matricula']
+        constraints = [
+            models.UniqueConstraint(fields=['aluno', 'turma'], name='unique_matricula_aluno_turma')
+        ]
+        indexes = [
+            models.Index(fields=['curso', 'estado']),
+            models.Index(fields=['origem', 'data_matricula']),
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.codigo_matricula:
+            import uuid
+            self.codigo_matricula = f"MAT-{uuid.uuid4().hex[:8].upper()}"
+        if not self.curso_id and self.turma_id:
+            self.curso = self.turma.curso
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.codigo_matricula} - {self.aluno.nome} - {self.turma.nome}"
+
+
+class ParcelaMatricula(models.Model):
+    STATUS_CHOICES = [
+        ('PENDENTE', _('Pendente')),
+        ('PAGA', _('Paga')),
+        ('ATRASADA', _('Atrasada')),
+        ('CANCELADA', _('Cancelada')),
+    ]
+    matricula = models.ForeignKey(Matricula, on_delete=models.CASCADE, related_name='parcelas')
+    numero = models.PositiveIntegerField(_('Número da Parcela'))
+    descricao = models.CharField(_('Descrição'), max_length=120, blank=True)
+    valor = models.DecimalField(_('Valor'), max_digits=12, decimal_places=2, validators=[MinValueValidator(0)])
+    vencimento = models.DateField(_('Vencimento'))
+    status = models.CharField(_('Estado'), max_length=10, choices=STATUS_CHOICES, default='PENDENTE', db_index=True)
+    valor_pago = models.DecimalField(_('Valor Pago'), max_digits=12, decimal_places=2, default=0, validators=[MinValueValidator(0)])
+    data_pagamento = models.DateTimeField(_('Data do Pagamento'), null=True, blank=True)
+    recebimento = models.ForeignKey('pagamentos.RecebimentoCentro', on_delete=models.SET_NULL, null=True, blank=True, related_name='parcelas_pagas')
+    observacoes = models.TextField(_('Observações'), blank=True)
+
+    class Meta:
+        verbose_name = _('Parcela de Matrícula')
+        verbose_name_plural = _('Parcelas de Matrícula')
+        ordering = ['matricula', 'numero']
+        constraints = [models.UniqueConstraint(fields=['matricula', 'numero'], name='unique_parcela_matricula_numero')]
+
+    def __str__(self):
+        return f"{self.matricula.codigo_matricula} - Parcela {self.numero}"

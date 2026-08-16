@@ -3,9 +3,10 @@ import os
 from datetime import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
+from django.template.loader import render_to_string
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 import json
@@ -23,13 +24,15 @@ from .models import (
     Diferencial, AreaFormacao, Equipe, Recurso, Depoimento,
     Estatistica, Parceria, Evento, GaleriaImagem, ReelCentro,
     Filial, ConviteCentro, Conversa, Mensagem, CentroSeguimento,
-    CategoriaCentro, AnuncioCentro
+    CategoriaCentro, AnuncioCentro, EventoIntegracao, AuditoriaCentro
 )
-from cursos_app.models import Curso, Categoria, Instrutor, Inscricao, Turma
+from cursos_app.models import Curso, Categoria, Instrutor, Inscricao, Turma, Presenca, NotaAluno, Matricula, ParcelaMatricula
+from pagamentos.models import RecebimentoCentro
 from planos.models import AssinaturaMembro, Plano
 from usuarios.models import Aluno
 from usuarios.decorators import aluno_logado_e_centros
 from .forms import CursoForm, AnuncioForm
+from .plan_permissions import permite, get_plano_ativo, limite
 
 @aluno_logado_e_centros
 def buscar_centros(request):
@@ -517,6 +520,9 @@ def gerenciar_inscricoes(request):
         'aprovadas_count': aprovadas_count,
         'rejeitadas_count': rejeitadas_count,
         'cursos_ativos': Curso.objects.filter(centro=centro, publicado=True, ativo=True) if not filial else Curso.objects.filter(filiais=filial, publicado=True, ativo=True),
+        'turmas_ativas': Turma.objects.filter(curso__centro=centro, status__in=['ABERTA', 'EM_ANDAMENTO']).select_related('curso').order_by('data_inicio'),
+        'formas_pagamento': Inscricao.FORMA_PAGAMENTO_CHOICES,
+        'origens_matricula': Matricula.ORIGEM_CHOICES,
         'prontu_payment_link': prontu_payment_link
     })
 
@@ -526,95 +532,146 @@ from django.contrib.auth import get_user_model
 
 @require_POST
 def matricular_aluno_manual(request):
-    """
-    Permite ao Gestor matricular manualmente um aluno num curso (venda offline).
-    O aluno fica registado na base de dados mas inativo para login na plataforma Eduka.
-    """
+    """Regista uma matrícula presencial completa no centro."""
     if not request.user.is_authenticated:
         return redirect('login_gestor')
-        
+
     centro, filial = get_gestor_context(request.user)
     if not centro:
         return redirect('login_gestor')
-        
-    # Validar Assinatura e Permissão do Plano
-    assinatura = getattr(centro, 'assinatura', None)
-    if not assinatura or not assinatura.esta_ativa:
-        messages.error(request, "A sua assinatura não está ativa. Impossível realizar inscrições.")
-        return redirect('gerenciar_inscricoes')
-        
-    if not assinatura.plano or not assinatura.plano.permite_inscricao_manual:
-        messages.error(request, "O seu plano atual não permite realizar inscrições manuais.")
+
+    if not permite(centro, 'permite_inscricao_manual', permitir_periodo_teste=True):
+        messages.error(request, 'O seu plano atual não permite inscrições manuais. Atualize a subscrição para continuar.')
         return redirect('gerenciar_assinatura')
-        
+
     curso_id = request.POST.get('curso_id')
-    email = request.POST.get('email')
-    nome = request.POST.get('nome')
-    telefone = request.POST.get('telefone', '')
-    
+
+    turma_id = request.POST.get('turma_id')
+    nome = request.POST.get('nome', '').strip()
+    email = request.POST.get('email', '').strip().lower()
+    telefone = request.POST.get('telefone', '').strip()
+    origem = request.POST.get('origem', 'PRESENCIAL')
+    forma_pagamento = request.POST.get('forma_pagamento', 'DINHEIRO')
+    pagamento_confirmado = request.POST.get('pagamento_confirmado') == 'on'
+
     try:
         curso = Curso.objects.get(id=curso_id, centro=centro)
-        if filial and curso.filial != filial:
-            messages.error(request, "Permissão negada.")
+        turma = Turma.objects.get(id=turma_id, curso=curso)
+        if filial and not curso.filiais.filter(pk=filial.pk).exists():
+            messages.error(request, 'Esta turma não pertence à filial selecionada.')
             return redirect('gerenciar_inscricoes')
-            
+        if not nome or not email:
+            messages.error(request, 'Nome e email são obrigatórios para criar a ficha do aluno.')
+            return redirect('gerenciar_inscricoes')
+        if turma.status in ('CONCLUIDA', 'CANCELADA'):
+            messages.error(request, 'Não é possível matricular alunos numa turma encerrada ou cancelada.')
+            return redirect('gerenciar_inscricoes')
+        if turma.vagas_disponiveis <= 0:
+            messages.error(request, 'A turma selecionada não tem vagas disponíveis.')
+            return redirect('gerenciar_inscricoes')
+
         User = get_user_model()
-        user, user_created = User.objects.get_or_create(email=email, defaults={
+        user, _ = User.objects.get_or_create(email=email, defaults={
             'nome': nome,
-            'is_active': False, # Fica restrito apenas ao banco de dados do centro
+            'is_active': False,
             'tipo_usuario': 'ALUNO',
         })
-        
-        # Se o utilizador já existia e estava ativo, mantemos ativo.
-        # Se foi criado agora, ele nasce inativo para não subir na plataforma global.
-        
-        aluno, aluno_created = Aluno.objects.get_or_create(usuario=user, defaults={
-            'nome': nome,
-        })
-        
-        forma_pagamento = request.POST.get('forma_pagamento', 'DINHEIRO')
-        valor_pago_str = request.POST.get('valor_pago', '0.00')
-        
-        try:
-            valor_pago = float(valor_pago_str)
-        except ValueError:
-            valor_pago = 0.00
-        
-        if Inscricao.objects.filter(aluno=aluno, curso=curso).exists():
-            messages.warning(request, f"O aluno {nome} já está matriculado neste curso.")
-        else:
-            inscricao = Inscricao.objects.create(
-                aluno=aluno,
-                curso=curso,
-                status='P',
-                tipo_inscricao='PRESENCIAL' if curso.modalidade == 'PRESENCIAL' else 'ONLINE',
-                forma_pagamento='PRONTU',
-                valor_pago=valor_pago,
-                observacoes="Inscrição manual via Gestor (Aguardando Pagamento Prontu)"
+        if not user.nome:
+            user.nome = nome
+        if telefone:
+            perfil, _ = __import__('usuarios.models', fromlist=['PerfilAluno']).PerfilAluno.objects.get_or_create(
+                aluno=Aluno.objects.get_or_create(usuario=user, defaults={'nome': nome})[0]
             )
-            
-            from pagamentos.services import PaymentService, PagamentoException
-            try:
-                servico = PaymentService()
-                pagamento = servico.criar_pagamento(
-                    usuario=user,
-                    tipo_pagamento='INSCRICAO',
-                    valor=valor_pago,
-                    moeda='AOA',
-                    curso=curso,
-                    url_sucesso=request.build_absolute_uri(reverse('pagamento_sucesso')),
-                    url_cancelamento=request.build_absolute_uri(reverse('pagamento_cancelado')),
-                    metadados={'inscricao_id': str(inscricao.id)}
-                )
-                request.session['prontu_payment_link'] = pagamento.url_pagamento
-                messages.success(request, f"Matrícula pendente gerada para {nome}. O link de pagamento Prontu está pronto.")
-            except Exception as ex:
-                messages.error(request, f"Erro ao gerar pagamento Prontu: {ex}")
-                inscricao.delete()
-            
-    except Exception as e:
-        messages.error(request, f"Erro ao matricular aluno: {str(e)}")
-        
+            perfil.telefone = telefone
+            perfil.save(update_fields=['telefone'])
+        user.save()
+        aluno, _ = Aluno.objects.get_or_create(usuario=user, defaults={'nome': nome})
+        aluno.nome = nome
+        aluno.save(update_fields=['nome'])
+
+        if Matricula.objects.filter(aluno=aluno, turma=turma, estado__in=['PENDENTE', 'ATIVA', 'SUSPENSA']).exists():
+            messages.warning(request, f'O aluno {nome} já possui uma matrícula nesta turma.')
+            return redirect('gerenciar_inscricoes')
+
+        valor = request.POST.get('valor_acordado', '') or str(curso.preco_atual or 0)
+        desconto = request.POST.get('desconto', '0') or '0'
+        try:
+            from decimal import Decimal
+            valor = Decimal(valor.replace(',', '.'))
+            desconto = Decimal(desconto.replace(',', '.'))
+        except Exception:
+            messages.error(request, 'O valor ou desconto informado não é válido.')
+            return redirect('gerenciar_inscricoes')
+
+        inscricao, _ = Inscricao.objects.get_or_create(
+            aluno=aluno,
+            curso=curso,
+            defaults={
+                'status': 'A' if pagamento_confirmado else 'P',
+                'tipo_inscricao': 'PRESENCIAL',
+                'turma_escolhida': turma,
+                'forma_pagamento': forma_pagamento,
+                'valor_pago': valor if pagamento_confirmado else 0,
+                'data_pagamento': timezone.now() if pagamento_confirmado else None,
+                'observacoes': 'Registo presencial no GestorEduka',
+            },
+        )
+        if inscricao.turma_escolhida_id != turma.pk:
+            inscricao.turma_escolhida = turma
+        inscricao.tipo_inscricao = 'PRESENCIAL'
+        inscricao.forma_pagamento = forma_pagamento
+        inscricao.valor_pago = valor if pagamento_confirmado else (inscricao.valor_pago or 0)
+        inscricao.status = 'A' if pagamento_confirmado else 'P'
+        if pagamento_confirmado and not inscricao.data_pagamento:
+            inscricao.data_pagamento = timezone.now()
+        inscricao.save()
+
+        matricula = Matricula.objects.create(
+            aluno=aluno,
+            curso=curso,
+            turma=turma,
+            inscricao=inscricao,
+            origem=origem if origem in dict(Matricula.ORIGEM_CHOICES) else 'PRESENCIAL',
+            estado='ATIVA' if pagamento_confirmado else 'PENDENTE',
+            valor_acordado=valor,
+            desconto=desconto,
+            responsavel=request.user,
+            observacoes='Matrícula criada presencialmente pelo centro.',
+        )
+        from datetime import timedelta
+        ParcelaMatricula.objects.create(
+            matricula=matricula,
+            numero=1,
+            descricao='Pagamento inicial da matrícula',
+            valor=max(valor - desconto, 0),
+            vencimento=timezone.localdate(),
+            status='PAGA' if pagamento_confirmado else 'PENDENTE',
+            valor_pago=max(valor - desconto, 0) if pagamento_confirmado else 0,
+            data_pagamento=timezone.now() if pagamento_confirmado else None,
+        )
+        if pagamento_confirmado:
+            recebimento = RecebimentoCentro.objects.create(
+                centro=centro,
+                matricula=matricula,
+                aluno=aluno,
+                valor=max(valor - desconto, 0),
+                forma=forma_pagamento if forma_pagamento in dict(RecebimentoCentro.FORMA_CHOICES) else 'OUTRO',
+                recebido_por=request.user,
+                observacoes='Recebimento registado no atendimento presencial.',
+            )
+            parcela = matricula.parcelas.first()
+            if parcela:
+                parcela.recebimento = recebimento
+                parcela.save(update_fields=['recebimento'])
+            turma.atualizar_vagas_turma()
+            AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='CRIAR_MATRICULA', entidade='Matricula', objeto_id=str(matricula.pk), dados={'origem': matricula.origem, 'pagamento': True, 'recibo': recebimento.referencia})
+            messages.success(request, f'Matrícula {matricula.codigo_matricula} criada e recibo emitido para {nome}.')
+        else:
+            messages.success(request, f'Pré-matrícula {matricula.codigo_matricula} criada. Aguarda confirmação do pagamento.')
+    except (Curso.DoesNotExist, Turma.DoesNotExist):
+        messages.error(request, 'Curso ou turma não encontrados.')
+    except Exception as exc:
+        messages.error(request, f'Erro ao criar matrícula presencial: {exc}')
     return redirect('gerenciar_inscricoes')
 
 from cursos_app.models import CertificadoCurso
@@ -648,9 +705,32 @@ def emitir_certificado_manual(request, inscricao_id):
             
         inscricao = inscricoes_qs.get(id=inscricao_id)
         
+        # Validação académica mínima do MVP presencial
+        if not inscricao.turma_escolhida:
+            messages.error(request, 'O aluno precisa de estar associado a uma turma antes de receber certificado.')
+            return redirect('gerenciar_inscricoes')
+
+        registos_presenca = Presenca.objects.filter(turma=inscricao.turma_escolhida, inscricao=inscricao)
+        total_presencas = registos_presenca.count()
+        presencas_validas = registos_presenca.filter(estado__in=['PRESENTE', 'ATRASO']).count()
+        percentagem_presenca = (presencas_validas / total_presencas * 100) if total_presencas else 0
+        if total_presencas == 0 or percentagem_presenca < 75:
+            messages.error(request, f'Certificado bloqueado: a assiduidade atual é de {percentagem_presenca:.0f}% e o mínimo exigido é 75%.')
+            return redirect('gerenciar_inscricoes')
+
+        nota_final = NotaAluno.objects.filter(
+            turma=inscricao.turma_escolhida,
+            inscricao=inscricao,
+            avaliacao='Nota Final',
+        ).first()
+        if not nota_final or nota_final.nota < 10:
+            nota_display = nota_final.nota if nota_final else 'não registada'
+            messages.error(request, f'Certificado bloqueado: a nota final é {nota_display}; o mínimo exigido é 10 valores.')
+            return redirect('gerenciar_inscricoes')
+
         # Cria ou devolve o existente
         certificado, created = CertificadoCurso.objects.get_or_create(inscricao=inscricao)
-        
+
         if created:
             messages.success(request, f"Certificado para {inscricao.aluno.nome} gerado com sucesso!")
         else:
@@ -698,10 +778,17 @@ def assinar_plano_prontu(request, plano_id):
         return redirect('login_gestor')
         
     plano = get_object_or_404(Plano, id=plano_id, ativo=True)
-    
+
+    # Criar a subscrição pendente antes do checkout para que o webhook
+    # consiga ativar a relação correta quando o pagamento for confirmado.
+    assinatura, _ = AssinaturaMembro.objects.get_or_create(
+        centro=centro,
+        defaults={'status': 'PENDENTE'}
+    )
+
     try:
         service = PaymentService()
-        
+
         pagamento = service.criar_pagamento(
             usuario=request.user,
             tipo_pagamento='ASSINATURA_PLANO',
@@ -785,7 +872,8 @@ def gerenciar_turmas(request):
     if filial:
         turmas_qs = turmas_qs.filter(curso__filiais=filial)
         
-    turmas = turmas_qs.select_related('curso', 'instrutor_principal').order_by('-data_inicio')
+    # O centro gere todo o processo; o instrutor não tem painel operacional no MVP.
+    turmas = turmas_qs.select_related('curso').order_by('-data_inicio')
     
     paginator = Paginator(turmas, 15)
     page_number = request.GET.get('page')
@@ -809,7 +897,7 @@ def criar_turma(request):
         return redirect('login_gestor')
         
     cursos_context = filial.cursos_disponiveis.filter(ativo=True) if filial else centro.cursos.filter(ativo=True)
-    instrutores_context = filial.instrutores.filter(ativo=True) if filial else centro.instrutores.filter(ativo=True)
+
     
     if request.method == 'POST':
         curso_id = request.POST.get('curso')
@@ -822,14 +910,13 @@ def criar_turma(request):
         horario_fim = request.POST.get('horario_fim')
         dias_semana = request.POST.get('dias_semana')
         vagas_totais = request.POST.get('vagas_totais')
-        instrutor_id = request.POST.get('instrutor_principal')
-        
+
         try:
             curso = get_object_or_404(Curso, id=curso_id, centro=centro)
-            if filial and curso.filial != filial:
+            if filial and not curso.filiais.filter(pk=filial.pk).exists():
                 raise Exception("Curso não pertence à sua filial.")
                 
-            instrutor = Instrutor.objects.get(id=instrutor_id) if instrutor_id else None
+            
             
             turma = Turma.objects.create(
                 curso=curso,
@@ -841,8 +928,8 @@ def criar_turma(request):
                 horario_inicio=horario_inicio,
                 horario_fim=horario_fim,
                 dias_semana=dias_semana,
-                vagas_totais=int(vagas_totais),
-                instrutor_principal=instrutor
+                vagas_totais=int(vagas_totais)
+
             )
             
             messages.success(request, f'Turma "{turma.nome}" criada com sucesso!')
@@ -854,7 +941,6 @@ def criar_turma(request):
         'centro': centro,
         'filial': filial,
         'cursos': cursos_context,
-        'instrutores': instrutores_context,
         'action': 'Criar'
     })
 
@@ -870,12 +956,12 @@ def editar_turma(request, turma_id):
         return redirect('login_gestor')
         
     turma = get_object_or_404(Turma, id=turma_id, curso__centro=centro)
-    if filial and turma.curso.filial != filial:
+    if filial and not turma.curso.filiais.filter(pk=filial.pk).exists():
         messages.error(request, "Permissão negada.")
         return redirect('gerenciar_turmas')
         
     cursos_context = filial.cursos_disponiveis.filter(ativo=True) if filial else centro.cursos.filter(ativo=True)
-    instrutores_context = filial.instrutores.filter(ativo=True) if filial else centro.instrutores.filter(ativo=True)
+
     
     if request.method == 'POST':
         turma.nome = request.POST.get('nome')
@@ -888,8 +974,6 @@ def editar_turma(request, turma_id):
         turma.vagas_totais = int(request.POST.get('vagas_totais'))
         turma.status = request.POST.get('status')
         
-        instrutor_id = request.POST.get('instrutor_principal')
-        turma.instrutor_principal = Instrutor.objects.get(id=instrutor_id) if instrutor_id else None
         
         turma.save()
         messages.success(request, f'Turma "{turma.nome}" atualizada com sucesso!')
@@ -900,7 +984,6 @@ def editar_turma(request, turma_id):
         'filial': filial,
         'turma': turma,
         'cursos': cursos_context,
-        'instrutores': instrutores_context,
         'action': 'Editar'
     })
 
@@ -1259,7 +1342,7 @@ def confirmar_cadastro(request, token):
         if errors:
             for error in errors:
                 messages.error(request, error)
-            return render(request, "confirmar_cadastro.html", {"convite": convite, "post_data": request.POST})
+            return render(request, "confirmar_cadastro.html", {"convite": convite, "post_data": request.POST, "GOOGLE_MAPS_API_KEY": settings.GOOGLE_MAPS_API_KEY})
 
         try:
             centro = convite.centro
@@ -1315,6 +1398,7 @@ def confirmar_cadastro(request, token):
             messages.error(request, f"Ocorreu um erro ao processar o cadastro: {str(e)}")
             return render(request, "confirmar_cadastro.html", {
                 "convite": convite,
+                "post_data": request.POST,
                 "GOOGLE_MAPS_API_KEY": settings.GOOGLE_MAPS_API_KEY
             })
 
@@ -2877,13 +2961,14 @@ def criar_curso(request):
             try:
                 curso = form.save(commit=False)
                 curso.centro = centro
-                curso.filial = filial  # Associa à filial se existir
                 
                 # Se for salvar como rascunho
                 if request.POST.get('rascunho'):
                     curso.rascunho = True
                     curso.publicado = False
                     curso.save()
+                    if filial:
+                        curso.filiais.add(filial)
                     form.save_m2m()
                     save_turmas_from_json(curso, request.POST.get('turmas_json'))
                     messages.success(request, 'Curso salvo como rascunho com sucesso!')
@@ -2893,6 +2978,8 @@ def criar_curso(request):
                     curso.rascunho = True
                     curso.publicado = False
                     curso.save()
+                    if filial:
+                        curso.filiais.add(filial)
                     form.save_m2m()
                     save_turmas_from_json(curso, request.POST.get('turmas_json'))
                     return redirect('curso_overview', curso_id=curso.id)
@@ -2928,7 +3015,7 @@ def curso_overview(request, curso_id):
         return redirect('login_gestor')
         
     curso = get_object_or_404(Curso, id=curso_id, centro=centro)
-    if filial and curso.filial != filial:
+    if filial and not curso.filiais.filter(pk=filial.pk).exists():
         messages.error(request, "Permissão negada.")
         return redirect('listar_cursos')
     
@@ -2951,7 +3038,7 @@ def publicar_curso_final(request, curso_id):
     
     try:
         curso = Curso.objects.get(id=curso_id, centro=centro)
-        if filial and curso.filial != filial:
+        if filial and not curso.filiais.filter(pk=filial.pk).exists():
             messages.error(request, "Permissão negada.")
             return redirect('listar_cursos')
             
@@ -2974,13 +3061,12 @@ def publicar_curso_final(request, curso_id):
             return redirect('curso_overview', curso_id=curso_id)
         
         if not curso.instrutores.exists():
-            messages.error(request, "O curso precisa ter pelo menos um instrutor.")
+            messages.error(request, "Atribua pelo menos um formador antes de publicar o curso.")
             return redirect('curso_overview', curso_id=curso_id)
         
+        
         # Publica o curso
-        curso.rascunho = False
         curso.publicado = True
-        curso.data_publicacao = timezone.now()
         curso.save()
         
         messages.success(request, 'Curso publicado com sucesso!')
@@ -3037,7 +3123,7 @@ def editar_curso(request, curso_id):
         return redirect('login_gestor')
     
     curso = get_object_or_404(Curso, id=curso_id, centro=centro)
-    if filial and curso.filial != filial:
+    if filial and not curso.filiais.filter(pk=filial.pk).exists():
         messages.error(request, "Permissão negada.")
         return redirect('listar_cursos')
     
@@ -3099,7 +3185,7 @@ def publicar_curso(request, curso_id):
     
     try:
         curso = Curso.objects.get(id=curso_id, centro=centro)
-        if filial and curso.filial != filial:
+        if filial and not curso.filiais.filter(pk=filial.pk).exists():
             return JsonResponse({'success': False, 'error': 'Permissão negada'})
             
         curso.publicado = True
@@ -3126,7 +3212,7 @@ def despublicar_curso(request, curso_id):
     
     try:
         curso = Curso.objects.get(id=curso_id, centro=centro)
-        if filial and curso.filial != filial:
+        if filial and not curso.filiais.filter(pk=filial.pk).exists():
             return JsonResponse({'success': False, 'error': 'Permissão negada'})
             
         curso.publicado = False
@@ -3154,7 +3240,7 @@ def excluir_curso(request, curso_id):
     
     try:
         curso = Curso.objects.get(id=curso_id, centro=centro)
-        if filial and curso.filial != filial:
+        if filial and not curso.filiais.filter(pk=filial.pk).exists():
             messages.error(request, "Permissão negada.")
             return redirect('listar_cursos')
             
@@ -3170,7 +3256,7 @@ def excluir_curso(request, curso_id):
 
 
 # views.py
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 import json
@@ -3890,7 +3976,8 @@ def gerenciar_alunos(request):
     # Encontrar todas as inscrições nesses cursos
     from cursos_app.models import Inscricao
     inscricoes = Inscricao.objects.filter(curso_id__in=cursos_ids)
-    alunos_ids = inscricoes.values_list('aluno_id', flat=True).distinct()
+    matriculas = Matricula.objects.filter(curso_id__in=cursos_ids)
+    alunos_ids = set(inscricoes.values_list('aluno_id', flat=True)) | set(matriculas.values_list('aluno_id', flat=True))
     
     from usuarios.models import Aluno
     alunos = Aluno.objects.filter(id__in=alunos_ids).select_related('usuario', 'perfil')
@@ -3929,8 +4016,9 @@ def dossie_aluno(request, aluno_id):
     
     from cursos_app.models import Inscricao
     inscricoes = Inscricao.objects.filter(aluno=aluno, curso_id__in=cursos_ids).select_related('curso', 'turma_escolhida').order_by('-data_inscricao')
+    matriculas = Matricula.objects.filter(aluno=aluno, curso_id__in=cursos_ids).select_related('curso', 'turma', 'inscricao').order_by('-data_matricula')
     
-    if not inscricoes.exists():
+    if not inscricoes.exists() and not matriculas.exists():
         messages.warning(request, "O aluno selecionado não possui histórico neste Centro/Filial.")
         return redirect('gerenciar_alunos')
         
@@ -3938,7 +4026,8 @@ def dossie_aluno(request, aluno_id):
         'centro': centro,
         'filial': filial,
         'aluno': aluno,
-        'inscricoes': inscricoes
+        'inscricoes': inscricoes,
+        'matriculas': matriculas,
     })
 
 from django.db.models import Sum
@@ -3990,7 +4079,14 @@ def gerenciar_financeiro(request):
         receita_centro_mae = 0
         filiais_receita = []
 
-    # Pagamentos recentes
+    # Recebimentos presenciais confirmados
+    recebimentos_qs = RecebimentoCentro.objects.filter(centro=centro, estado='CONFIRMADO')
+    if filial:
+        recebimentos_qs = recebimentos_qs.filter(matricula__turma__filial=filial)
+    recebimentos_recentes = recebimentos_qs.select_related('aluno__usuario', 'matricula__curso', 'matricula__turma').order_by('-data_recebimento')[:50]
+    total_recebimentos = recebimentos_qs.aggregate(Sum('valor'))['valor__sum'] or 0
+
+    # Pagamentos recentes da plataforma
     pagamentos_recentes = inscricoes_pagas[:50]
     
     return render(request, 'gestor/financeiro/dashboard.html', {
@@ -3999,7 +4095,9 @@ def gerenciar_financeiro(request):
         'total_receita': total_receita,
         'receita_centro_mae': receita_centro_mae,
         'filiais_receita': filiais_receita,
-        'pagamentos_recentes': pagamentos_recentes
+        'pagamentos_recentes': pagamentos_recentes,
+        'recebimentos_recentes': recebimentos_recentes,
+        'total_recebimentos': total_recebimentos
     })
 @login_required
 def listar_anuncios(request):
@@ -4386,3 +4484,287 @@ def atribuir_cursos_filial(request, filial_id):
     }
     return render(request, 'gestor/filiais/atribuir_cursos.html', context)
 
+
+
+@login_required
+def gerir_presencas_turma(request, turma_id):
+    """Permite ao gestor marcar a assiduidade diária da turma."""
+    try:
+        centro = request.user.centro_profile
+    except Exception:
+        messages.error(request, 'Não foi possível identificar o centro associado à sua conta.')
+        return redirect('login_gestor')
+
+    turma = get_object_or_404(Turma, pk=turma_id, curso__centro=centro)
+    data_str = request.POST.get('data') or request.GET.get('data')
+    try:
+        data_aula = datetime.strptime(data_str, '%Y-%m-%d').date() if data_str else timezone.localdate()
+    except ValueError:
+        data_aula = timezone.localdate()
+
+    inscricoes = list(
+        Inscricao.objects.filter(turma_escolhida=turma, status='A')
+        .select_related('aluno')
+        .order_by('aluno__nome')
+    )
+
+    if request.method == 'POST':
+        estados_validos = {choice[0] for choice in Presenca.ESTADO_CHOICES}
+        for inscricao in inscricoes:
+            estado = request.POST.get(f'estado_{inscricao.pk}', 'PRESENTE')
+            if estado not in estados_validos:
+                estado = 'PRESENTE'
+            Presenca.objects.update_or_create(
+                turma=turma,
+                inscricao=inscricao,
+                data=data_aula,
+                defaults={
+                    'estado': estado,
+                    'observacao': request.POST.get(f'observacao_{inscricao.pk}', '').strip(),
+                },
+            )
+        messages.success(request, f'Presenças de {data_aula.strftime("%d/%m/%Y")} registadas com sucesso.')
+        return redirect(f'{reverse("gerir_presencas_turma", args=[turma.pk])}?data={data_aula.isoformat()}')
+
+    registos = {
+        reg.inscricao_id: reg
+        for reg in Presenca.objects.filter(turma=turma, data=data_aula)
+    }
+    return render(request, 'gestor/turmas/presencas.html', {
+        'turma': turma,
+        'inscricoes': inscricoes,
+        'registos': registos,
+        'data_aula': data_aula,
+        'estados_presenca': Presenca.ESTADO_CHOICES,
+    })
+
+
+@login_required
+def gerir_notas_turma(request, turma_id):
+    """Permite ao gestor lançar a nota final dos alunos matriculados."""
+    try:
+        centro = request.user.centro_profile
+    except Exception:
+        messages.error(request, 'Não foi possível identificar o centro associado à sua conta.')
+        return redirect('login_gestor')
+
+    turma = get_object_or_404(Turma, pk=turma_id, curso__centro=centro)
+    inscricoes = list(
+        Inscricao.objects.filter(turma_escolhida=turma, status='A')
+        .select_related('aluno')
+        .order_by('aluno__nome')
+    )
+
+    if request.method == 'POST':
+        for inscricao in inscricoes:
+            valor = request.POST.get(f'nota_{inscricao.pk}', '').strip().replace(',', '.')
+            if not valor:
+                continue
+            try:
+                nota = float(valor)
+            except ValueError:
+                messages.error(request, f'A nota de {inscricao.aluno.nome} não é válida.')
+                continue
+            if nota < 0 or nota > 20:
+                messages.error(request, f'A nota de {inscricao.aluno.nome} deve estar entre 0 e 20.')
+                continue
+            NotaAluno.objects.update_or_create(
+                turma=turma,
+                inscricao=inscricao,
+                avaliacao='Nota Final',
+                defaults={'nota': nota, 'observacao': request.POST.get(f'observacao_{inscricao.pk}', '').strip()},
+            )
+        messages.success(request, 'Notas finais guardadas com sucesso.')
+        return redirect('gerir_notas_turma', turma_id=turma.pk)
+
+    notas = {
+        nota.inscricao_id: nota
+        for nota in NotaAluno.objects.filter(turma=turma, avaliacao='Nota Final')
+    }
+    return render(request, 'gestor/turmas/notas.html', {
+        'turma': turma,
+        'inscricoes': inscricoes,
+        'notas': notas,
+    })
+
+
+@csrf_exempt
+@require_POST
+def receber_integracao_eduka(request):
+    """Recebe uma inscrição externa e processa-a sem duplicar alunos ou eventos."""
+    chave_esperada = getattr(settings, 'EDUKA_INTEGRATION_KEY', '') or (getattr(settings, 'DEBUG', False) and 'eduka-dev-key')
+    chave_recebida = request.headers.get('X-Eduka-Integration-Key', '')
+    if not chave_esperada or chave_recebida != chave_esperada:
+        return JsonResponse({'ok': False, 'erro': 'Credenciais de integração inválidas.'}, status=401)
+
+    try:
+        payload = json.loads(request.body.decode('utf-8'))
+    except (ValueError, UnicodeDecodeError):
+        return JsonResponse({'ok': False, 'erro': 'O corpo deve conter JSON válido.'}, status=400)
+
+    external_id = str(payload.get('external_id') or payload.get('inscricao_id') or '').strip()
+    centro_id = payload.get('centro_id')
+    if not external_id or not centro_id:
+        return JsonResponse({'ok': False, 'erro': 'external_id e centro_id são obrigatórios.'}, status=400)
+
+    try:
+        centro = CentroDeFormacao.objects.get(pk=centro_id, ativo=True)
+    except CentroDeFormacao.DoesNotExist:
+        return JsonResponse({'ok': False, 'erro': 'Centro não encontrado.'}, status=404)
+
+    evento, criado = EventoIntegracao.objects.get_or_create(
+        centro=centro,
+        external_id=external_id,
+        tipo=str(payload.get('tipo') or 'INSCRICAO'),
+        defaults={'payload': payload},
+    )
+    if not criado and evento.status == 'PROCESSADO':
+        return JsonResponse({'ok': True, 'duplicado': True, 'evento_id': evento.pk})
+
+    try:
+        from django.db import transaction
+        with transaction.atomic():
+            evento.payload = payload
+            aluno_data = payload.get('aluno') or {}
+            email = (aluno_data.get('email') or payload.get('email') or '').strip().lower()
+            nome = (aluno_data.get('nome') or payload.get('nome') or '').strip()
+            if not email or not nome:
+                raise ValueError('Os dados do aluno exigem nome e email.')
+
+            User = get_user_model()
+            user, _ = User.objects.get_or_create(email=email, defaults={'nome': nome, 'tipo_usuario': 'ALUNO', 'is_active': True})
+            if nome and user.nome != nome:
+                user.nome = nome
+                user.save(update_fields=['nome'])
+            aluno, _ = Aluno.objects.get_or_create(usuario=user, defaults={'nome': nome})
+            if aluno.nome != nome:
+                aluno.nome = nome
+                aluno.save(update_fields=['nome'])
+
+            curso_id = payload.get('curso_id') or (payload.get('curso') or {}).get('id')
+            curso_slug = payload.get('curso_slug') or (payload.get('curso') or {}).get('slug')
+            curso_qs = Curso.objects.filter(centro=centro)
+            curso = curso_qs.filter(pk=curso_id).first() if curso_id else None
+            if not curso and curso_slug:
+                curso = curso_qs.filter(slug=curso_slug).first()
+            if not curso:
+                raise ValueError('Curso não encontrado no centro.')
+
+            turma_id = payload.get('turma_id') or (payload.get('turma') or {}).get('id')
+            turma_codigo = payload.get('turma_codigo') or (payload.get('turma') or {}).get('codigo')
+            turma = Turma.objects.filter(curso=curso, pk=turma_id).first() if turma_id else None
+            if not turma and turma_codigo:
+                turma = Turma.objects.filter(curso=curso, codigo=turma_codigo).first()
+
+            inscricao, _ = Inscricao.objects.get_or_create(
+                aluno=aluno,
+                curso=curso,
+                defaults={
+                    'turma_escolhida': turma,
+                    'tipo_inscricao': 'ONLINE',
+                    'status': 'P',
+                    'observacoes': 'Recebida através da integração Eduka-Angola.',
+                },
+            )
+            if turma and inscricao.turma_escolhida_id != turma.pk:
+                inscricao.turma_escolhida = turma
+            inscricao.tipo_inscricao = 'ONLINE'
+            inscricao.observacoes = 'Recebida através da integração Eduka-Angola.'
+            pago = bool(payload.get('pagamento_confirmado') or payload.get('status_pagamento') in ('ACCEPTED', 'CONFIRMED', 'PAGO'))
+            inscricao.status = 'A' if pago else 'P'
+            if payload.get('valor_pago') is not None:
+                from decimal import Decimal
+                inscricao.valor_pago = Decimal(str(payload.get('valor_pago')))
+            if pago and not inscricao.data_pagamento:
+                inscricao.data_pagamento = timezone.now()
+            inscricao.save()
+
+            if pago and turma:
+                matricula, _ = Matricula.objects.get_or_create(
+                    inscricao=inscricao,
+                    defaults={
+                        'aluno': aluno, 'curso': curso, 'turma': turma,
+                        'origem': 'EDUKA_ANGOLA', 'estado': 'ATIVA',
+                        'valor_acordado': inscricao.valor_pago or curso.preco_atual,
+                    },
+                )
+                if matricula.estado != 'ATIVA':
+                    matricula.estado = 'ATIVA'
+                    matricula.save(update_fields=['estado'])
+
+            evento.status = 'PROCESSADO'
+            evento.processado_em = timezone.now()
+            AuditoriaCentro.objects.create(centro=centro, acao='SINCRONIZAR_INSCRICAO', entidade='EventoIntegracao', objeto_id=str(evento.pk), dados={'external_id': external_id, 'inscricao_id': inscricao.pk})
+            evento.erro = ''
+            evento.save(update_fields=['payload', 'status', 'processado_em', 'erro'])
+        return JsonResponse({'ok': True, 'evento_id': evento.pk, 'inscricao_id': inscricao.pk, 'matricula_criada': bool(pago and turma)})
+    except Exception as exc:
+        evento.status = 'ERRO'
+        evento.erro = str(exc)
+        evento.save(update_fields=['payload', 'status', 'erro'])
+        return JsonResponse({'ok': False, 'evento_id': evento.pk, 'erro': str(exc)}, status=422)
+
+
+@login_required
+def descarregar_recibo_presencial(request, recibo_id):
+    """Gera o recibo PDF para um recebimento pertencente ao centro atual."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
+    recibo = get_object_or_404(
+        RecebimentoCentro.objects.select_related('centro', 'aluno__usuario', 'matricula__curso', 'matricula__turma', 'recebido_por'),
+        pk=recibo_id,
+        centro=centro,
+    )
+    if filial and recibo.matricula.turma.filial_id != filial.pk:
+        messages.error(request, 'Não tem permissão para consultar este recibo.')
+        return redirect('gerenciar_financeiro')
+    try:
+        from weasyprint import HTML
+        html_string = render_to_string('gestor/financeiro/recibo.html', {'centro': centro, 'recebimento': recibo, 'request': request})
+        response = HttpResponse(HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(), content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="recibo_{recibo.referencia}.pdf"'
+        return response
+    except Exception as exc:
+        messages.error(request, f'Não foi possível gerar o recibo: {exc}')
+        return redirect('gerenciar_financeiro')
+
+
+@login_required
+@require_POST
+def alterar_matricula(request, matricula_id):
+    """Executa uma transição controlada numa matrícula do centro."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return redirect('login_gestor')
+    matricula = get_object_or_404(Matricula.objects.select_related('curso', 'turma', 'inscricao', 'aluno'), pk=matricula_id, curso__centro=centro)
+    action = request.POST.get('action')
+    if action == 'suspender':
+        matricula.estado = 'SUSPENSA'
+    elif action == 'reativar':
+        matricula.estado = 'ATIVA'
+    elif action == 'cancelar':
+        matricula.estado = 'CANCELADA'
+        matricula.data_cancelamento = timezone.now()
+        if matricula.inscricao:
+            matricula.inscricao.status = 'C'
+            matricula.inscricao.save(update_fields=['status', 'data_cancelamento'])
+    elif action == 'concluir':
+        matricula.estado = 'CONCLUIDA'
+        matricula.data_conclusao = timezone.now()
+    elif action == 'transferir':
+        nova_turma = get_object_or_404(Turma, pk=request.POST.get('nova_turma_id'), curso=matricula.curso)
+        if nova_turma.vagas_disponiveis <= 0:
+            messages.error(request, 'A nova turma não tem vagas disponíveis.')
+            return redirect('dossie_aluno', aluno_id=matricula.aluno_id)
+        matricula.turma = nova_turma
+        if matricula.inscricao:
+            matricula.inscricao.turma_escolhida = nova_turma
+            matricula.inscricao.save(update_fields=['turma_escolhida'])
+    else:
+        messages.error(request, 'Operação de matrícula inválida.')
+        return redirect('dossie_aluno', aluno_id=matricula.aluno_id)
+    matricula.save()
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao=f'MATRICULA_{action.upper()}', entidade='Matricula', objeto_id=str(matricula.pk), dados={'estado': matricula.estado})
+    messages.success(request, f'Matrícula {matricula.codigo_matricula} atualizada com sucesso.')
+    return redirect('dossie_aluno', aluno_id=matricula.aluno_id)

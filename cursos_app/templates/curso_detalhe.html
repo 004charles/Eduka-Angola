@@ -113,9 +113,19 @@
 
                             <ul class="rbt-meta">
                                 <li><i class="feather-clock"></i>{{ curso.carga_horaria }}h</li>
-                                <li><i class="feather-globe"></i>{{ curso.idioma|default:"Português" }}</li>
+                                <li><i class="feather-globe"></i>{{ curso.get_idioma_display|default:curso.idioma|default:"Português" }}</li>
                                 <li><i class="feather-award"></i>{% if curso.certificado %}{% trans "Curso Certificado" %}{% else %}{% trans "Sem Certificado" %}{% endif %}</li>
                             </ul>
+
+                            {% if proxima_turma %}
+                            <div class="course-next-cohort mt--20 p-3 rounded-3" style="background: rgba(47, 87, 239, 0.14); border: 1px solid rgba(255,255,255,0.18);">
+                                <div class="small text-uppercase fw-bold" style="letter-spacing: .08em; opacity: .75;">Próxima turma</div>
+                                <div class="fw-bold mt-1">{{ proxima_turma.data_inicio|date:"d/m/Y" }} · {{ proxima_turma.get_turno_display }}</div>
+                                <div class="small mt-1">{{ proxima_turma.dias_semana_formatado }} · {{ proxima_turma.horario_formatado }}</div>
+                                <div class="small mt-1"><i class="feather-map-pin me-1"></i>{{ proxima_turma.local|default:curso.centro.get_endereco_completo }}{% if proxima_turma.sala %} · {{ proxima_turma.sala }}{% endif %}</div>
+                                <div class="small mt-1"><i class="feather-users me-1"></i>{% if proxima_turma.vagas_disponiveis == 1 %}1 vaga disponível{% else %}{{ proxima_turma.vagas_disponiveis }} vagas disponíveis{% endif %}</div>
+                            </div>
+                            {% endif %}
 
                         </div>
                     </div>
@@ -269,7 +279,7 @@
                                                 <h5 class="title">
                                                     <a class="hover-flip-item-wrapper" href="{% url 'cursos_por_centro' curso.centro.id %}">{{ curso.centro.nome }}</a>
                                                 </h5>
-                                                <span class="b3 subtitle">{% trans "Centro de Formação Verificado" %}</span>
+                                                <span class="b3 subtitle">{% if curso.centro.perfil.verificado %}Centro verificado{% else %}Instituição formadora{% endif %}</span>
                                                 <ul class="rbt-meta mb--20 mt--10">
                                                     <li><i class="fa fa-star color-warning"></i>{{ media_avaliacoes }} <span class="rbt-badge-5 ml--5">{% trans "Avaliação" %}</span></li>
                                                     <li><i class="feather-users"></i>{{ curso.inscricoes.count }} {% trans "Alunos" %}</li>
@@ -438,7 +448,7 @@
                                                                 </div>
                                                                 <div class="flex-grow-1">
                                                                     <h6 class="mb-0 small fw-bold">{{ resposta.aluno.nome }}</h6>
-                                                                    <p class="text-body small mb-0">${resposta.comentario}</p>
+                                                                    <p class="text-body small mb-0">{{ resposta.comentario }}</p>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -493,21 +503,52 @@
                                 <!-- End Video Wrapper -->
 
                                 <div class="content-item-content">
+                                    {% if proxima_turma %}
+                                    <div class="mb--15 p-3 rounded-3" style="background: #f5f7fa; border: 1px solid #e6e3f1;">
+                                        <div class="small text-uppercase fw-bold text-primary" style="letter-spacing: .06em;">Próxima turma</div>
+                                        <div class="fw-bold mt-1">{{ proxima_turma.data_inicio|date:"d/m/Y" }} · {{ proxima_turma.get_turno_display }}</div>
+                                        <div class="small text-muted mt-1">{{ proxima_turma.dias_semana_formatado }} · {{ proxima_turma.horario_formatado }}</div>
+                                        <div class="small text-muted mt-1"><i class="feather-map-pin me-1"></i>{{ proxima_turma.local|default:curso.centro.get_endereco_completo }}{% if proxima_turma.sala %} · {{ proxima_turma.sala }}{% endif %}</div>
+                                        <div class="small text-muted mt-1"><i class="feather-users me-1"></i>{% if proxima_turma.vagas_disponiveis == 1 %}1 vaga disponível{% else %}{{ proxima_turma.vagas_disponiveis }} vagas disponíveis{% endif %}</div>
+                                    </div>
+                                    {% else %}
+                                    <div class="mb--15 p-3 rounded-3" style="background: #fff7ed; border: 1px solid #fed7aa;">
+                                        <div class="small fw-bold text-warning-emphasis">Sem turma aberta neste momento</div>
+                                        <div class="small text-muted mt-1">Contacta o centro para saber quando abre a próxima turma.</div>
+                                    </div>
+                                    {% endif %}
+
                                     <div class="rbt-price-wrapper d-flex flex-wrap align-items-center justify-content-between">
                                         <div class="rbt-price">
-                                            {% if curso.preco_promocional %}
+                                            {% if curso.is_gratuito %}
+                                                <span class="current-price">{% trans "Gratuito" %}</span>
+                                            {% elif curso.preco_promocional %}
                                                 <span class="current-price">{{ curso.preco_promocional|floatformat:"0" }} Kz</span>
                                                 <span class="off-price">{{ curso.preco|floatformat:"0" }} Kz</span>
-                                            {% elif curso.preco > 0 %}
-                                                <span class="current-price">{{ curso.preco|floatformat:"0" }} Kz</span>
                                             {% else %}
-                                                <span class="current-price">{% trans "Gratuito" %}</span>
+                                                <span class="current-price">{{ curso.preco_atual|floatformat:"0" }} Kz</span>
                                             {% endif %}
                                         </div>
                                         {% if curso.preco_promocional %}
                                         <div class="discount-time">
                                             <span class="rbt-badge color-danger bg-color-danger-opacity"><i class="feather-clock"></i> {% trans "Promoção" %}</span>
                                         </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="mt--15 p-3 rounded-3" style="background: rgba(13, 110, 253, 0.08); border: 1px solid rgba(13, 110, 253, 0.18);">
+                                        <div class="d-flex justify-content-between align-items-start gap-2">
+                                            <span class="small fw-bold">Na inscrição</span>
+                                            <span class="small text-primary fw-bold text-end">{{ curso.descricao_cobranca_online }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mt-2 pt-2" style="border-top: 1px solid rgba(13, 110, 253, 0.12);">
+                                            <span class="small text-muted">A pagar agora</span>
+                                            <span class="fw-bold">{% if curso.valor_a_cobrar_online > 0 %}{{ curso.valor_a_cobrar_online|floatformat:"0" }} Kz{% else %}0 Kz{% endif %}</span>
+                                        </div>
+                                        {% if curso.tipo_cobranca_inscricao == 'TAXA_E_MENSALIDADE' %}
+                                        <div class="small text-muted mt-2">Mensalidades seguintes: {{ curso.mensalidade|floatformat:"0" }} Kz cada.</div>
+                                        {% elif curso.tipo_cobranca_inscricao == 'SEM_PAGAMENTO' and not curso.is_gratuito %}
+                                        <div class="small text-muted mt-2">O centro explicará o pagamento posterior.</div>
                                         {% endif %}
                                     </div>
 
@@ -534,13 +575,13 @@
                                                 <span class="btn-text">{% trans "Ir para o Painel" %}</span>
                                                 <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                                             </a>
-                                        {% elif curso.lotado or not curso.possui_turmas_ativas or not curso.inscricoes_abertas %}
+                                        {% elif not turmas_publicas or not curso.inscricoes_abertas %}
                                             <button class="rbt-btn btn-secondary w-100 d-block text-center disabled" disabled style="opacity: 0.75; cursor: not-allowed;">
                                                 <span class="btn-text">
                                                     {% if curso.lotado %}
                                                         {% trans "Sem Vagas Disponíveis" %}
-                                                    {% elif not curso.possui_turmas_ativas %}
-                                                        {% trans "Sem Turmas Ativas" %}
+                                                    {% elif not turmas_publicas %}
+                                                        {% trans "Sem Turmas Abertas" %}
                                                     {% else %}
                                                         {% trans "Inscrições Encerradas" %}
                                                     {% endif %}
@@ -563,11 +604,11 @@
                                     <div class="rbt-widget-details has-show-more mt--20">
                                         <ul class="has-show-more-inner-content rbt-course-details-list-wrapper">
                                             <li><span>{% trans "Carga Horária" %}</span><span class="rbt-feature-value rbt-badge-5">{{ curso.carga_horaria }}h</span></li>
-                                            <li><span>{% trans "Modalidade" %}</span><span class="rbt-feature-value rbt-badge-5">{{ curso.modalidade }}</span></li>
+                                            <li><span>{% trans "Modalidade" %}</span><span class="rbt-feature-value rbt-badge-5">{{ curso.get_modalidade_display|default:curso.modalidade }}</span></li>
                                             <li><span>{% trans "Inscritos" %}</span><span class="rbt-feature-value rbt-badge-5">{{ curso.inscricoes.count }}</span></li>
-                                            <li><span>{% trans "Idioma" %}</span><span class="rbt-feature-value rbt-badge-5">{{ curso.idioma|default:"Português" }}</span></li>
+                                            <li><span>{% trans "Idioma" %}</span><span class="rbt-feature-value rbt-badge-5">{{ curso.get_idioma_display|default:curso.idioma|default:"Português" }}</span></li>
                                             <li><span>{% trans "Certificado" %}</span><span class="rbt-feature-value rbt-badge-5">{% if curso.certificado %}{% trans "Sim" %}{% else %}{% trans "Não" %}{% endif %}</span></li>
-                                            <li><span>{% trans "Nível" %}</span><span class="rbt-feature-value rbt-badge-5">{{ curso.nivel|default:"Geral" }}</span></li>
+                                            <li><span>{% trans "Nível" %}</span><span class="rbt-feature-value rbt-badge-5">{{ curso.get_nivel_display|default:curso.nivel|default:"Geral" }}</span></li>
                                         </ul>
                                         <div class="rbt-show-more-btn">{% trans "Ver Mais" %}</div>
                                     </div>

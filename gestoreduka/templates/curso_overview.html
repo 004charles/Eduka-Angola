@@ -139,14 +139,37 @@
                 
                 <div class="flex flex-col gap-4">
                     <div class="flex items-center justify-between pb-3 border-b border-white/10">
-                        <span class="text-sm text-muted-foreground">Preço Padrão</span>
-                        <span class="text-lg font-bold text-foreground">{{ curso.preco|floatformat:2 }} AOA</span>
+                        <span class="text-sm text-muted-foreground">Preço do curso</span>
+                        <span class="text-lg font-bold text-foreground">{% if curso.is_gratuito %}Gratuito{% else %}{{ curso.preco_atual|floatformat:2 }} AOA{% endif %}</span>
+                    </div>
+
+                    <div class="rounded-xl border border-primary/20 bg-primary/5 p-4 flex flex-col gap-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-primary">Regra da inscrição online</span>
+                        <span class="text-sm font-semibold text-foreground">{{ curso.descricao_cobranca_online }}</span>
+                        <div class="flex items-center justify-between pt-2 border-t border-primary/10">
+                            <span class="text-xs text-muted-foreground">A pagar agora</span>
+                            <span class="text-sm font-bold text-foreground">{{ curso.valor_a_cobrar_online|floatformat:2 }} AOA</span>
+                        </div>
                     </div>
                     
                     {% if curso.preco_inscricao %}
                     <div class="flex items-center justify-between pb-3 border-b border-white/10">
-                        <span class="text-sm text-muted-foreground">Taxa de Matrícula</span>
+                        <span class="text-sm text-muted-foreground">Taxa de inscrição</span>
                         <span class="text-sm font-semibold text-foreground">{{ curso.preco_inscricao|floatformat:2 }} AOA</span>
+                    </div>
+                    {% endif %}
+
+                    {% if curso.mensalidade %}
+                    <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                        <span class="text-sm text-muted-foreground">Mensalidade seguinte</span>
+                        <span class="text-sm font-semibold text-foreground">{{ curso.mensalidade|floatformat:2 }} AOA</span>
+                    </div>
+                    {% endif %}
+
+                    {% if curso.permite_parcelamento %}
+                    <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                        <span class="text-sm text-muted-foreground">Parcelamento</span>
+                        <span class="text-sm font-semibold text-foreground">Até {{ curso.max_parcelas }} parcelas</span>
                     </div>
                     {% endif %}
                     

@@ -8,18 +8,303 @@ from bolsas.models import Bolsa, CandidaturaBolsa
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout as auth_logout, update_session_auth_hash
 from django.contrib.auth.hashers import check_password
-from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.db import IntegrityError, models
 from django.core.exceptions import ValidationError
+from django.urls import reverse
 from hashlib import sha256
 from .decorators import aluno_logado_e_centros
 import random
 import json
+from datetime import timedelta
+from django.utils import timezone
+
+
+def _dados_json(request):
+    """Lê com segurança o corpo JSON usado pelo frontend público React."""
+    try:
+        return json.loads(request.body.decode('utf-8') or '{}')
+    except (TypeError, ValueError, UnicodeDecodeError):
+        return {}
+
+
+def _destino_publico_seguro(destino):
+    """Permite apenas caminhos locais ao concluir uma ação pública."""
+    destino = str(destino or '').strip()
+    return destino if destino.startswith('/') and not destino.startswith('//') else '/'
+
+
+@ensure_csrf_cookie
+def api_auth_csrf(request):
+    """Emite o cookie CSRF para formulários React servidos pelo proxy local."""
+    return JsonResponse({'ok': True})
+
+
+@require_GET
+def api_auth_aluno_resumo(request):
+    """Resumo autenticado da jornada do aluno consumido pelo painel React."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'code': 'NAO_AUTENTICADO', 'message': 'Entre para consultar a sua área.'}, status=401)
+    if request.user.tipo_usuario != 'ALUNO':
+        return JsonResponse({'ok': False, 'message': 'Esta área é exclusiva para alunos.'}, status=403)
+
+    aluno = getattr(request.user, 'aluno_profile', None)
+    if not aluno:
+        return JsonResponse({'ok': False, 'message': 'Não encontrámos o perfil de aluno desta conta.'}, status=404)
+
+    from cursovideoapp.models import ProgressoAula
+
+    def imagem_curso(curso):
+        try:
+            return curso.get_imagem_url
+        except Exception:
+            return ''
+
+    inscricoes = Inscricao.objects.filter(aluno=aluno).select_related(
+        'curso', 'curso__centro', 'turma_escolhida'
+    ).order_by('-data_inscricao')
+    presenciais = []
+    for inscricao in inscricoes:
+        turma = inscricao.turma_escolhida
+        presenciais.append({
+            'id': f'presencial-{inscricao.id}',
+            'is_video': False,
+            'titulo': inscricao.curso.titulo,
+            'centro': inscricao.curso.centro.nome if inscricao.curso.centro else 'Centro de formação',
+            'imagem_url': imagem_curso(inscricao.curso),
+            'status': inscricao.status,
+            'status_label': inscricao.get_status_display(),
+            'turma': turma.nome if turma else '',
+            'inicio': turma.data_inicio.isoformat() if turma and turma.data_inicio else '',
+            'inicio_formatado': turma.data_inicio.strftime('%d/%m/%Y') if turma and turma.data_inicio else '',
+            'horario': turma.horario_formatado if turma else '',
+            'local': turma.local if turma else '',
+            'valor_pago': float(inscricao.valor_pago or 0),
+            'valor_pago_formatado': f"{inscricao.valor_pago:,.0f} Kz".replace(',', ' ') if inscricao.valor_pago else 'Sem valor pago registado',
+            'detalhe_url': f'/cursos/{inscricao.curso_id}',
+            'ficha_url': reverse('baixar_ficha_inscricao', kwargs={'inscricao_id': inscricao.id}),
+        })
+
+    videos = aluno.cursos_inscritos_video.select_related('centro', 'categoria').prefetch_related('aulas').all()
+    video_itens = []
+    for curso in videos:
+        total_aulas = curso.aulas.count()
+        concluidas = ProgressoAula.objects.filter(aluno=aluno, aula__curso=curso, concluida=True).count()
+        progresso = int((concluidas / total_aulas) * 100) if total_aulas else 0
+        video_itens.append({
+            'id': f'video-{curso.id}',
+            'is_video': True,
+            'titulo': curso.titulo,
+            'centro': curso.centro.nome if curso.centro else 'Edukangola',
+            'imagem_url': imagem_curso(curso),
+            'progresso': progresso,
+            'aulas_concluidas': concluidas,
+            'total_aulas': total_aulas,
+            'detalhe_url': f'/video-cursos/{curso.slug}',
+        })
+
+    ativos = [item for item in presenciais if item['status'] == 'A'] + video_itens
+    pendentes = [item for item in presenciais if item['status'] == 'P']
+    total_certificados = aluno.certificados.filter(status='EMITIDO').count() if hasattr(aluno, 'certificados') else 0
+
+    return JsonResponse({
+        'ok': True,
+        'aluno': {'nome': aluno.nome or request.user.nome or request.user.email.split('@')[0], 'email': request.user.email},
+        'resumo': {
+            'cursos_ativos': len(ativos),
+            'inscricoes_pendentes': len(pendentes),
+            'certificados': total_certificados,
+        },
+        'continuar_aprender': (video_itens + [item for item in presenciais if item['status'] == 'A'])[:6],
+        'inscricoes': presenciais[:12],
+    })
+
+
+@require_POST
+def api_auth_login(request):
+    dados = _dados_json(request)
+    email = str(dados.get('email') or '').strip().lower()
+    senha = str(dados.get('senha') or '')
+    destino = _destino_publico_seguro(dados.get('next'))
+
+    if not email or not senha:
+        return JsonResponse({'ok': False, 'message': 'Indique o e-mail e a palavra-passe.'}, status=400)
+
+    user = authenticate(request, username=email, password=senha)
+    if user is None:
+        return JsonResponse({'ok': False, 'message': 'E-mail ou palavra-passe incorretos.'}, status=401)
+    if user.tipo_usuario != 'ALUNO':
+        return JsonResponse({'ok': False, 'message': 'Esta área de acesso é exclusiva para alunos.'}, status=403)
+    if not user.is_active:
+        request.session['email_verificacao'] = user.email
+        request.session['public_auth_next'] = destino
+        return JsonResponse({
+            'ok': False,
+            'code': 'EMAIL_NAO_VERIFICADO',
+            'message': 'Confirme o código enviado para o seu e-mail antes de entrar.',
+        }, status=403)
+
+    login(request, user)
+    return JsonResponse({'ok': True, 'redirect': destino, 'nome': user.nome or ''})
+
+
+@require_POST
+def api_auth_registro(request):
+    dados = _dados_json(request)
+    nome = str(dados.get('nome') or '').strip()
+    email = str(dados.get('email') or '').strip().lower()
+    senha = str(dados.get('senha') or '')
+    confirmar_senha = str(dados.get('confirmar_senha') or '')
+    destino = _destino_publico_seguro(dados.get('next'))
+
+    if not nome or not email or not senha:
+        return JsonResponse({'ok': False, 'message': 'Preencha nome, e-mail e palavra-passe.'}, status=400)
+    if len(senha) < 8:
+        return JsonResponse({'ok': False, 'message': 'A palavra-passe deve ter pelo menos 8 caracteres.'}, status=400)
+    if senha != confirmar_senha:
+        return JsonResponse({'ok': False, 'message': 'As palavras-passe não coincidem.'}, status=400)
+
+    usuario = Usuario.objects.filter(email=email).first()
+    if usuario and usuario.tipo_usuario != 'ALUNO':
+        return JsonResponse({'ok': False, 'message': 'Este e-mail está associado a uma conta de centro ou administração.'}, status=409)
+    if usuario and usuario.is_active and usuario.has_usable_password():
+        return JsonResponse({
+            'ok': False,
+            'code': 'CONTA_EXISTENTE',
+            'message': 'Já existe uma conta ativa com este e-mail. Entre para continuar.',
+        }, status=409)
+
+    try:
+        if usuario is None:
+            usuario = Usuario.objects.create_user(email=email, nome=nome, password=senha, tipo_usuario='ALUNO')
+        else:
+            usuario.nome = nome
+            usuario.set_password(senha)
+
+        # Uma conta criada automaticamente numa inscrição de visitante ganha
+        # palavra-passe somente depois de o e-mail ser confirmado.
+        usuario.is_active = False
+        usuario.save()
+        aluno, _ = Aluno.objects.get_or_create(usuario=usuario, defaults={'nome': nome, 'ativo': False})
+        aluno.nome = nome
+        aluno.ativo = False
+        aluno.save(update_fields=['nome', 'ativo'])
+        PerfilAluno.objects.get_or_create(aluno=aluno)
+    except Exception:
+        return JsonResponse({'ok': False, 'message': 'Não foi possível criar a conta. Tente novamente.'}, status=500)
+
+    try:
+        enviar_codigo_verificacao(email, 'CADASTRO')
+        request.session['email_verificacao'] = email
+        request.session['public_auth_next'] = destino
+        return JsonResponse({'ok': True, 'requires_verification': True, 'email': email})
+    except Exception:
+        return JsonResponse({'ok': False, 'message': 'A conta foi preparada, mas não foi possível enviar o código. Tente reenviar.'}, status=500)
+
+
+@require_POST
+def api_auth_verificar_email(request):
+    dados = _dados_json(request)
+    codigo = str(dados.get('codigo') or '').strip()
+    email = request.session.get('email_verificacao')
+    if not email:
+        return JsonResponse({'ok': False, 'message': 'A sessão de verificação expirou. Crie a conta novamente.'}, status=400)
+    if len(codigo) != 6 or not codigo.isdigit():
+        return JsonResponse({'ok': False, 'message': 'Introduza o código de seis dígitos enviado por e-mail.'}, status=400)
+
+    verificacao = CodigoVerificacao.objects.filter(
+        email=email,
+        codigo=codigo,
+        tipo='CADASTRO',
+        criado_em__gte=timezone.now() - timedelta(minutes=10),
+    ).order_by('-criado_em').first()
+    if not verificacao:
+        return JsonResponse({'ok': False, 'message': 'O código é inválido ou expirou. Peça um novo código.'}, status=400)
+
+    usuario = Usuario.objects.filter(email=email, tipo_usuario='ALUNO').first()
+    if not usuario:
+        return JsonResponse({'ok': False, 'message': 'Não encontrámos a conta associada a este código.'}, status=404)
+    usuario.is_active = True
+    usuario.save(update_fields=['is_active'])
+    Aluno.objects.filter(usuario=usuario).update(ativo=True)
+    CodigoVerificacao.objects.filter(email=email, tipo='CADASTRO').delete()
+    request.session.pop('email_verificacao', None)
+    destino = _destino_publico_seguro(request.session.pop('public_auth_next', '/'))
+    login(request, usuario, backend='usuarios.backends.EmailBackend')
+    try:
+        enviar_email_confirmacao_aluno(usuario.nome, usuario.email)
+    except Exception:
+        pass
+    return JsonResponse({'ok': True, 'redirect': destino})
+
+
+@require_POST
+def api_auth_reenviar_codigo(request):
+    email = request.session.get('email_verificacao')
+    if not email:
+        return JsonResponse({'ok': False, 'message': 'A sessão de verificação expirou. Crie a conta novamente.'}, status=400)
+    try:
+        enviar_codigo_verificacao(email, 'CADASTRO')
+        return JsonResponse({'ok': True, 'message': 'Enviámos um novo código para o seu e-mail.'})
+    except Exception:
+        return JsonResponse({'ok': False, 'message': 'Não foi possível reenviar o código. Tente novamente.'}, status=500)
+
+
+@require_POST
+def api_auth_recuperar_senha(request):
+    dados = _dados_json(request)
+    email = str(dados.get('email') or '').strip().lower()
+    destino = _destino_publico_seguro(dados.get('next'))
+    usuario = Usuario.objects.filter(email=email, tipo_usuario='ALUNO').first()
+    if usuario:
+        try:
+            enviar_codigo_verificacao(email, 'RECUPERACAO')
+            request.session['email_recuperacao'] = email
+            request.session['public_auth_next'] = destino
+        except Exception:
+            return JsonResponse({'ok': False, 'message': 'Não foi possível enviar o código. Tente novamente.'}, status=500)
+    # A resposta não revela se um e-mail está ou não associado a uma conta.
+    return JsonResponse({'ok': True, 'message': 'Se existir uma conta com este e-mail, enviámos um código de recuperação.'})
+
+
+@require_POST
+def api_auth_redefinir_senha(request):
+    dados = _dados_json(request)
+    codigo = str(dados.get('codigo') or '').strip()
+    senha = str(dados.get('senha') or '')
+    confirmar_senha = str(dados.get('confirmar_senha') or '')
+    email = request.session.get('email_recuperacao')
+    if not email:
+        return JsonResponse({'ok': False, 'message': 'A sessão de recuperação expirou. Comece novamente.'}, status=400)
+    if len(senha) < 8:
+        return JsonResponse({'ok': False, 'message': 'A palavra-passe deve ter pelo menos 8 caracteres.'}, status=400)
+    if senha != confirmar_senha:
+        return JsonResponse({'ok': False, 'message': 'As palavras-passe não coincidem.'}, status=400)
+
+    verificacao = CodigoVerificacao.objects.filter(
+        email=email,
+        codigo=codigo,
+        tipo='RECUPERACAO',
+        criado_em__gte=timezone.now() - timedelta(minutes=10),
+    ).order_by('-criado_em').first()
+    if not verificacao:
+        return JsonResponse({'ok': False, 'message': 'O código é inválido ou expirou. Peça um novo código.'}, status=400)
+
+    usuario = Usuario.objects.filter(email=email, tipo_usuario='ALUNO').first()
+    if not usuario:
+        return JsonResponse({'ok': False, 'message': 'Não encontrámos a conta associada a este código.'}, status=404)
+    usuario.set_password(senha)
+    usuario.save(update_fields=['password'])
+    CodigoVerificacao.objects.filter(email=email, tipo='RECUPERACAO').delete()
+    request.session.pop('email_recuperacao', None)
+    destino = _destino_publico_seguro(request.session.pop('public_auth_next', '/'))
+    login(request, usuario, backend='usuarios.backends.EmailBackend')
+    return JsonResponse({'ok': True, 'redirect': destino})
 
 
 def api_notificacoes_nao_lidas(request):
@@ -180,7 +465,10 @@ def aluno_dashboard(request):
             'concluidas': concluidas,
             'imagem_url': curso.imagem.url if curso.imagem else None,
             'titulo': curso.titulo,
-            'id': curso.id
+            'id': curso.id,
+            'turma': getattr(inscricao, 'turma_escolhida', None),
+            'status_label': 'Inscrição ativa' if inscricao.status == 'A' else inscricao.get_status_display(),
+            'inscricao_status': inscricao.status,
         })
         
     # Cursos do catálogo em vídeo
@@ -202,6 +490,11 @@ def aluno_dashboard(request):
         })
     
     total_cursos_ativos = context['inscricoes_reais'].filter(status='A').count() + cursos_videos.count()
+    cursos_inscritos_ids = context['inscricoes_reais'].values_list('curso_id', flat=True)
+    cursos_recomendados = Curso.objects.filter(
+        publicado=True,
+        ativo=True,
+    ).exclude(id__in=cursos_inscritos_ids).select_related('centro', 'categoria').order_by('-destaque', '-data_criacao')[:4]
     
     # Contar certificados
     total_certificados = 0
@@ -239,7 +532,10 @@ def aluno_dashboard(request):
         'total_cursos': context['inscricoes_reais'].count() + cursos_videos.count(),
         'total_cursos_ativos': total_cursos_ativos,
         'total_certificados': total_certificados,
-        'inscricoes_com_progresso': inscricoes_com_progresso[:4], 
+        'total_cursos_concluidos': total_certificados,
+        'inscricoes_com_progresso': inscricoes_com_progresso,
+        'curso_em_destaque': inscricoes_com_progresso[0] if inscricoes_com_progresso else None,
+        'cursos_recomendados': cursos_recomendados,
         'favoritos_dashboard': favoritos_dashboard,
         'bolsas_aluno': bolsas_aluno,
         'candidaturas_aluno': candidaturas_aluno,

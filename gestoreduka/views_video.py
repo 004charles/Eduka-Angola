@@ -8,6 +8,7 @@ from cursovideoapp.models import Curso_video, Aula, Certificado
 from gestoreduka.models import CentroDeFormacao
 from gestoreduka.views import get_gestor_context
 from gestoreduka.forms import CursoVideoForm, AulaForm
+from gestoreduka.plan_permissions import get_plano_ativo, limite
 
 @login_required
 def listar_cursos_video(request):
@@ -32,9 +33,16 @@ def criar_curso_video(request):
     if not centro:
         return redirect('login_gestor')
 
-    # Verifica limite do plano (ex: 5 cursos em vídeo no plano atual)
-    # assinatura = getattr(centro, 'assinatura', None)
-    # TODO: Integrar limite de cursos em vídeo do plano se necessário
+    plano = get_plano_ativo(centro)
+    if not plano or not plano.permite_cursos_video:
+        messages.error(request, 'O seu plano atual não permite publicar cursos em vídeo.')
+        return redirect('gerenciar_assinatura')
+
+    limite_video_cursos = limite(centro, 'limite_cursos_video', padrao=0)
+    total_video_cursos = Curso_video.objects.filter(centro=centro).count()
+    if total_video_cursos >= limite_video_cursos:
+        messages.warning(request, f'Atingiu o limite de vídeo-cursos do seu plano ({limite_video_cursos}).')
+        return redirect('gerenciar_assinatura')
 
     if request.method == 'POST':
         form = CursoVideoForm(request.POST, request.FILES)
@@ -99,17 +107,17 @@ def gerenciar_aulas_video(request, curso_id):
 
     curso = get_object_or_404(Curso_video, id=curso_id, centro=centro)
     
-    # Validação do Plano Free = máx 4 aulas
-    assinatura = getattr(centro, 'assinatura', None)
-    limite_aulas = 4 # Padrão plano free
-    if assinatura and assinatura.plano:
-        # Se houver configuração de limite no plano, aplicar aqui. 
-        # Ex: limite_aulas = assinatura.plano.limite_aulas_video ou infinito se plano Pro
-        if assinatura.plano.preco > 0: # Exemplo: Se for pago, limite maior ou infinito
-            limite_aulas = 999 
+    plano = get_plano_ativo(centro)
+    pode_publicar_video = bool(plano and plano.permite_cursos_video)
+    if not pode_publicar_video:
+        messages.error(request, 'O seu plano atual não permite gerir aulas de vídeo.')
+        return redirect('gerenciar_assinatura')
 
+    # O plano limita o número de vídeo-cursos, não o número de aulas de cada curso.
+    # As aulas ficam sem limite artificial até existir um campo comercial específico.
+    limite_aulas = None
     total_aulas = curso.aulas.count()
-    pode_adicionar = total_aulas < limite_aulas
+    pode_adicionar = True
 
     if request.method == 'POST' and pode_adicionar:
         form = AulaForm(request.POST)

@@ -38,6 +38,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('', views.index, name = 'index'),
+    path('api/public/home/', views.public_home_data, name='api_public_home_data'),
+    path('api/public/centros/<int:centro_id>/', views.public_center_profile, name='api_public_center_profile'),
+    path('api/public/video-cursos/<slug:slug>/', views.public_video_course_detail, name='api_public_video_course_detail'),
     path('test-404/', views.erro_404_view, kwargs={'exception': Exception("Teste 404")}),
     path('test-500/', views.erro_500_view),
     path('i18n/setlang/', csrf_exempt(set_language), name='set_language'),

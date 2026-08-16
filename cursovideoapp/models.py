@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 from django.utils.text import slugify
 from django.core.validators import FileExtensionValidator
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 import os
@@ -196,6 +197,70 @@ class Aula(models.Model):
     
     def __str__(self):
         return f"{self.ordem} - {self.titulo}"
+
+
+class TurmaVideo(models.Model):
+    """Edição calendarizada de um vídeo-curso publicado por um centro.
+
+    Cursos originais da Edukangola são consumidos ao ritmo do aluno e não podem
+    ter turma. A turma existe apenas para centros que complementam o vídeo com
+    acompanhamento, calendário ou sessões orientadas.
+    """
+    STATUS_CHOICES = [
+        ('ABERTA', 'Aberta'),
+        ('EM_ANDAMENTO', 'Em andamento'),
+        ('CONCLUIDA', 'Concluída'),
+        ('CANCELADA', 'Cancelada'),
+    ]
+    TURNO_CHOICES = [
+        ('MANHA', 'Manhã'),
+        ('TARDE', 'Tarde'),
+        ('NOITE', 'Noite'),
+        ('INTEGRAL', 'Integral'),
+        ('SABADO', 'Sábado'),
+    ]
+
+    curso = models.ForeignKey(Curso_video, on_delete=models.CASCADE, related_name='turmas')
+    nome = models.CharField(_('Nome da Turma'), max_length=100)
+    codigo = models.CharField(_('Código da Turma'), max_length=30, unique=True)
+    data_inicio = models.DateField(_('Data de Início'))
+    data_fim = models.DateField(_('Data de Término'), null=True, blank=True)
+    turno = models.CharField(_('Turno'), max_length=10, choices=TURNO_CHOICES, default='NOITE')
+    horario_inicio = models.TimeField(_('Horário de Início'), null=True, blank=True)
+    horario_fim = models.TimeField(_('Horário de Fim'), null=True, blank=True)
+    dias_semana = models.CharField(_('Dias da Semana'), max_length=100, blank=True)
+    vagas_totais = models.PositiveIntegerField(_('Vagas Totais'), default=0)
+    vagas_ocupadas = models.PositiveIntegerField(_('Vagas Ocupadas'), default=0)
+    vagas_disponiveis = models.PositiveIntegerField(_('Vagas Disponíveis'), default=0)
+    status = models.CharField(_('Status'), max_length=20, choices=STATUS_CHOICES, default='ABERTA', db_index=True)
+    observacoes = models.TextField(_('Observações'), blank=True)
+    data_criacao = models.DateTimeField(auto_now_add=True)
+    data_atualizacao = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('Turma de Vídeo-Curso')
+        verbose_name_plural = _('Turmas de Vídeo-Curso')
+        ordering = ['data_inicio', 'turno']
+        unique_together = ['curso', 'codigo']
+
+    def clean(self):
+        if self.curso_id and (self.curso.is_original_edukangola or not self.curso.centro_id):
+            raise ValidationError({'curso': 'Apenas vídeo-cursos publicados por centros podem ter turmas.'})
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        self.vagas_disponiveis = max(0, self.vagas_totais - self.vagas_ocupadas)
+        super().save(*args, **kwargs)
+
+    def horario_formatado(self):
+        if not self.horario_inicio:
+            return self.get_turno_display()
+        inicio = self.horario_inicio.strftime('%H:%M')
+        fim = self.horario_fim.strftime('%H:%M') if self.horario_fim else ''
+        return f'{self.get_turno_display()} · {inicio}{f" - {fim}" if fim else ""}'
+
+    def __str__(self):
+        return f'{self.nome} - {self.curso.titulo}'
 
 class ProgressoAula(models.Model):
     aluno = models.ForeignKey('usuarios.Aluno', on_delete=models.CASCADE, null=True)

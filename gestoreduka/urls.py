@@ -1,9 +1,11 @@
 from django.urls import path, include
 from gestoreduka import views
 from gestoreduka import views_video
+from django.views.generic import RedirectView
 
 
 urlpatterns = [
+    path('', RedirectView.as_view(pattern_name='login_gestor', permanent=False), name='gestoreduka_home'),
     path('dashboard/centro/', views.centro_dashboard, name='centro_dashboard'),
     path('dashboard/seguidores/', views.listar_seguidores, name='listar_seguidores'),
     path('perfil/', views.perfil_institucional_interno, name='perfil_institucional_interno'),
@@ -43,6 +45,7 @@ urlpatterns = [
     path('inscricoes/', views.gerenciar_inscricoes, name='gerenciar_inscricoes'),
     path('inscricoes/validar/', views.validar_inscricao, name='validar_inscricao'),
     path('inscricoes/manual/', views.matricular_aluno_manual, name='matricular_aluno_manual'),
+    path('api/integracao/inscricoes/', views.receber_integracao_eduka, name='receber_integracao_eduka'),
     path('inscricoes/<int:inscricao_id>/emitir-certificado/', views.emitir_certificado_manual, name='emitir_certificado_manual'),
     path('assinatura/', views.gerenciar_assinatura, name='gerenciar_assinatura'),
     path('assinatura/assinar-prontu/<int:plano_id>/', views.assinar_plano_prontu, name='assinar_plano_prontu'),
@@ -54,6 +57,8 @@ urlpatterns = [
     path('turmas/', views.gerenciar_turmas, name='gerenciar_turmas'),
     path('turmas/criar/', views.criar_turma, name='criar_turma'),
     path('turmas/editar/<int:turma_id>/', views.editar_turma, name='editar_turma'),
+    path('turmas/<int:turma_id>/presencas/', views.gerir_presencas_turma, name='gerir_presencas_turma'),
+    path('turmas/<int:turma_id>/notas/', views.gerir_notas_turma, name='gerir_notas_turma'),
 
     # Filiais
     path('filiais/', views.gerenciar_filiais, name='gerenciar_filiais'),
@@ -99,9 +104,11 @@ urlpatterns = [
     # Alunos (Motor de Busca e Dossiê)
     path('alunos/', views.gerenciar_alunos, name='gerenciar_alunos'),
     path('alunos/<int:aluno_id>/dossie/', views.dossie_aluno, name='dossie_aluno'),
+    path('matriculas/<int:matricula_id>/alterar/', views.alterar_matricula, name='alterar_matricula'),
     
     # Administrativo / Financeiro
     path('financeiro/', views.gerenciar_financeiro, name='gerenciar_financeiro'),
+    path('financeiro/recibos/<int:recibo_id>/pdf/', views.descarregar_recibo_presencial, name='descarregar_recibo_presencial'),
     path('centros/seguir/<int:centro_id>/', views.seguir_centro_ajax, name='seguir_centro_ajax'),
     
     # Anúncios Institucionais

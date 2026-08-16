@@ -118,17 +118,57 @@
                 </div>
                 <div class="p-6 flex flex-col gap-6">
                     
+                    <div class="rounded-xl border border-primary/20 bg-primary/5 p-4 flex items-start gap-3">
+                        {{ form.is_gratuito }}
+                        <div class="flex flex-col gap-1">
+                            <label class="text-sm font-semibold text-foreground">{{ form.is_gratuito.label }}</label>
+                            <p class="text-xs text-muted-foreground">O aluno faz a inscrição sem pagar online.</p>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="flex flex-col gap-2">
-                            <label class="text-sm font-semibold text-foreground">{{ form.preco.label }} (AOA) *</label>
+                            <label class="text-sm font-semibold text-foreground">{{ form.preco.label }} (AOA)</label>
                             {{ form.preco }}
                             {% if form.preco.errors %}
                                 <span class="text-xs text-danger">{{ form.preco.errors.as_text }}</span>
                             {% endif %}
                         </div>
                         <div class="flex flex-col gap-2">
+                            <label class="text-sm font-semibold text-foreground">{{ form.tipo_cobranca_inscricao.label }}</label>
+                            {{ form.tipo_cobranca_inscricao }}
+                            <span class="text-xs text-muted-foreground">Define exatamente o que será cobrado no primeiro passo.</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex flex-col gap-2">
                             <label class="text-sm font-semibold text-foreground">{{ form.preco_inscricao.label }} (AOA)</label>
                             {{ form.preco_inscricao }}
+                            {% if form.preco_inscricao.errors %}
+                                <span class="text-xs text-danger">{{ form.preco_inscricao.errors.as_text }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-semibold text-foreground">{{ form.mensalidade.label }} (AOA)</label>
+                            {{ form.mensalidade }}
+                            {% if form.mensalidade.errors %}
+                                <span class="text-xs text-danger">{{ form.mensalidade.errors.as_text }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            {{ form.permite_parcelamento }}
+                            <span class="text-sm font-semibold text-foreground">{{ form.permite_parcelamento.label }}</span>
+                        </label>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-semibold text-foreground">{{ form.max_parcelas.label }}</label>
+                            {{ form.max_parcelas }}
+                            {% if form.max_parcelas.errors %}
+                                <span class="text-xs text-danger">{{ form.max_parcelas.errors.as_text }}</span>
+                            {% endif %}
                         </div>
                     </div>
 

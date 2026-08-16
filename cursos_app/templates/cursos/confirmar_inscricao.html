@@ -303,17 +303,25 @@
                              <!-- Hidden input to store selected class ID -->
                              <input type="hidden" name="turma_escolhida" id="id_turma_escolhida" value="{% if turmas_disponiveis.first %}{{ turmas_disponiveis.first.id }}{% endif %}">
 
-                            <h5 class="fw-bold mb-3 mt-5">Confirmar Seus Dados</h5>
-                            <p class="text-muted small mb-4">Verifique se as informações abaixo estão corretas para a emissão do certificado.</p>
+                            <h5 class="fw-bold mb-3 mt-5">Os seus dados</h5>
+                            {% if aluno %}
+                            <p class="text-muted small mb-4">Confirme os dados usados para comunicar consigo e emitir o certificado.</p>
+                            {% else %}
+                            <p class="text-muted small mb-4">Não precisa de criar uma conta agora. Usaremos estes dados para processar a inscrição e enviar a confirmação.</p>
+                            {% endif %}
                             
                             <div class="data-grid">
                                 <div class="form-group">
-                                    <label class="small fw-bold text-uppercase mb-2">Nome Completo</label>
-                                    <input type="text" value="{% if request.user.is_authenticated %}{{ aluno.nome|default:request.user.nome }}{% endif %}" readonly class="form-control border-0 fw-medium" style="background-color: var(--input-bg);">
+                                    <label class="small fw-bold text-uppercase mb-2" for="id_nome">Nome Completo</label>
+                                    <input type="text" id="id_nome" name="nome" value="{% if aluno %}{{ aluno.nome|default:request.user.nome }}{% endif %}" {% if aluno %}readonly{% else %}required{% endif %} class="form-control border-0 fw-medium" style="background-color: var(--input-bg);">
                                 </div>
                                 <div class="form-group">
-                                    <label class="small fw-bold text-uppercase mb-2">E-mail de Acesso</label>
-                                    <input type="email" value="{% if request.user.is_authenticated %}{{ request.user.email|default:aluno.usuario.email }}{% endif %}" readonly class="form-control border-0 fw-medium" style="background-color: var(--input-bg);">
+                                    <label class="small fw-bold text-uppercase mb-2" for="id_email">E-mail</label>
+                                    <input type="email" id="id_email" name="email" value="{% if aluno %}{{ request.user.email|default:aluno.usuario.email }}{% endif %}" {% if aluno %}readonly{% else %}required{% endif %} class="form-control border-0 fw-medium" style="background-color: var(--input-bg);">
+                                </div>
+                                <div class="form-group">
+                                    <label class="small fw-bold text-uppercase mb-2" for="id_telefone">Telefone / WhatsApp</label>
+                                    <input type="tel" id="id_telefone" name="telefone" value="{% if aluno and aluno.perfil %}{{ aluno.perfil.telefone }}{% endif %}" {% if aluno %}readonly{% else %}required{% endif %} class="form-control border-0 fw-medium" placeholder="Ex.: +244 923 000 000" style="background-color: var(--input-bg);">
                                 </div>
                             </div>
 
@@ -332,10 +340,10 @@
                         </div>
 
                         <!-- 2. Métodos de Pagamento -->
-                        {% if not curso.is_gratuito %}
+                        {% if curso.valor_a_cobrar_online > 0 %}
                         <div class="glass-card">
                             <h4 class="fw-bold mb-4">Pagamento Seguro</h4>
-                            <p class="text-muted small mb-4">Na próxima etapa será redirecionado para a plataforma de pagamento seguro Prontu.</p>
+                            <p class="text-muted small mb-4">Na próxima etapa será redirecionado para a plataforma de pagamento seguro Prontu. A matrícula só será ativada após a confirmação.</p>
                             
                             <div class="d-flex align-items-center gap-3 p-4 rounded-4" style="background-color: var(--input-bg); border: 1px solid var(--border-color);">
                                 <div class="icon-box bg-white shadow-sm d-flex align-items-center justify-center rounded-3" style="width: 48px; height: 48px; color: var(--color-primary);">
@@ -346,6 +354,11 @@
                                     <p class="mb-0 small text-muted">A sua inscrição será finalizada após a confirmação do pagamento.</p>
                                 </div>
                             </div>
+                        </div>
+                        {% else %}
+                        <div class="glass-card">
+                            <h4 class="fw-bold mb-3">Sem pagamento no ato</h4>
+                            <p class="text-muted small mb-0">O centro receberá a sua inscrição e entrará em contacto para explicar o pagamento posterior, se aplicável.</p>
                         </div>
                         {% endif %}
                     </div>
@@ -359,10 +372,21 @@
                                 <span>Custo do Curso</span>
                                 <span>{% if curso.is_gratuito %}Grátis{% else %}{{ curso.preco_atual }} Kz{% endif %}</span>
                             </div>
-                            <div class="d-flex justify-content-between mb-3 text-muted">
-                                <span>A Pagar Agora</span>
-                                <span class="text-primary">{{ curso.descricao_cobranca_online }}</span>
+                            <div class="d-flex justify-content-between mb-3 text-muted gap-3">
+                                <span>Condição da inscrição</span>
+                                <span class="text-primary text-end">{{ curso.descricao_cobranca_online }}</span>
                             </div>
+                            {% if curso.tipo_cobranca_inscricao == 'TAXA_E_MENSALIDADE' %}
+                            <div class="d-flex justify-content-between mb-3 text-muted">
+                                <span>Mensalidades seguintes</span>
+                                <span>{{ curso.mensalidade }} Kz cada</span>
+                            </div>
+                            {% elif curso.tipo_cobranca_inscricao == 'SEM_PAGAMENTO' and not curso.is_gratuito %}
+                            <div class="d-flex justify-content-between mb-3 text-muted">
+                                <span>Pagamento agora</span>
+                                <span>Não aplicável</span>
+                            </div>
+                            {% endif %}
                             
                             <hr class="my-4">
                             
@@ -372,7 +396,7 @@
                             </div>
 
                             <button type="submit" class="rbt-btn btn-gradient w-100 btn-md icon-hover py-4" style="border-radius: 16px;">
-                                <span class="btn-text">{% if curso.valor_a_cobrar_online <= 0 %}Confirmar Inscrição Gratuita{% else %}Confirmar e Avançar{% endif %}</span>
+                                <span class="btn-text">{% if curso.is_gratuito %}Confirmar Inscrição Gratuita{% elif curso.valor_a_cobrar_online <= 0 %}Enviar Inscrição{% else %}Confirmar e Avançar{% endif %}</span>
                                 <span class="btn-icon"><i class="feather-arrow-right"></i></span>
                             </button>
 

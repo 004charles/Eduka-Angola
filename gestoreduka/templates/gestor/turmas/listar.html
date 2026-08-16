@@ -42,7 +42,6 @@
                     <tr>
                         <th class="pb-3 font-semibold">Turma / Código</th>
                         <th class="pb-3 font-semibold">Curso Associado</th>
-                        <th class="pb-3 font-semibold">Instrutor Principal</th>
                         <th class="pb-3 font-semibold">Duração & Calendário</th>
                         <th class="pb-3 font-semibold text-center">Vagas Preenchidas</th>
                         <th class="pb-3 font-semibold text-right">Ações</th>
@@ -59,14 +58,6 @@
                         </td>
                         <td class="py-4">
                             <span class="text-sm font-medium text-foreground">{{ turma.curso.titulo }}</span>
-                        </td>
-                        <td class="py-4">
-                            <div class="flex items-center gap-2.5">
-                                <div class="size-7 rounded-full bg-primary/10 border border-white/10 flex items-center justify-center text-xs font-bold text-primary">
-                                    {{ turma.instrutor_principal.nome|make_list|first|default:"I" }}
-                                </div>
-                                <span class="text-xs font-semibold text-foreground">{{ turma.instrutor_principal.nome|default:"Não atribuído" }}</span>
-                            </div>
                         </td>
                         <td class="py-4">
                             <div class="flex flex-col gap-0.5">
@@ -89,6 +80,12 @@
                         </td>
                         <td class="py-4 text-right">
                             <div class="flex items-center justify-end gap-1.5">
+                                <a href="{% url 'gerir_presencas_turma' turma.id %}" class="inline-flex items-center justify-center size-8 rounded-lg border border-white/10 bg-white/5 text-muted-foreground hover:text-success hover:bg-success/10 hover:border-success/20 transition-all duration-300" title="Registar presenças">
+                                    <i class="ki-filled ki-check-circle text-base"></i>
+                                </a>
+                                <a href="{% url 'gerir_notas_turma' turma.id %}" class="inline-flex items-center justify-center size-8 rounded-lg border border-white/10 bg-white/5 text-muted-foreground hover:text-primary hover:bg-primary/10 hover:border-primary/20 transition-all duration-300" title="Lançar notas">
+                                    <i class="ki-filled ki-notepad text-base"></i>
+                                </a>
                                 <a href="{% url 'editar_turma' turma.id %}" class="inline-flex items-center justify-center size-8 rounded-lg border border-white/10 bg-white/5 text-muted-foreground hover:text-warning hover:bg-warning/10 hover:border-warning/20 transition-all duration-300" title="Editar Turma">
                                     <i class="ki-filled ki-pencil text-base"></i>
                                 </a>

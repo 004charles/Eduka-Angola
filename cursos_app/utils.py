@@ -40,7 +40,7 @@ def enviar_email_inscricao(inscricao, tipo='pendente', link_curso=None):
         subject=assunto,
         body=txt,
         from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[aluno.email],
+        to=[aluno.usuario.email],
     )
     msg.attach_alternative(html, "text/html")
     msg.send()

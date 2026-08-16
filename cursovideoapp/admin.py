@@ -5,7 +5,7 @@ from unfold.admin import StackedInline as UnfoldStackedInline
 from django.urls import path
 from django.shortcuts import redirect
 from django.utils.html import format_html
-from .models import Curso_video, Aula, Exercicio, Questao, Alternativa
+from .models import Curso_video, Aula, Exercicio, Questao, Alternativa, TurmaVideo
 # from inteligencia.ai_utils import gerar_exercicios_ia
 from django.contrib.auth.models import Group
 
@@ -64,6 +64,13 @@ class AulaAdmin(UnfoldModelAdmin):
                         is_correta=a_data['correta']
                     )
         self.message_user(request, "Processamento concluído.")
+
+
+@admin.register(TurmaVideo)
+class TurmaVideoAdmin(UnfoldModelAdmin):
+    list_display = ('nome', 'curso', 'data_inicio', 'turno', 'vagas_disponiveis', 'status')
+    list_filter = ('status', 'turno', 'curso__centro')
+    search_fields = ('nome', 'codigo', 'curso__titulo')
 
 class AlternativaInline(UnfoldTabularInline):
     model = Alternativa

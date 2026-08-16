@@ -22,14 +22,14 @@
                 <div class="flex flex-col">
                     <span class="text-xs font-bold text-primary uppercase tracking-widest">Plano Atual</span>
                     <h2 class="text-2xl font-extrabold text-foreground">{{ assinatura.plano.nome|default:"Demo / Gratuito" }}</h2>
-                    <span class="text-sm text-muted-foreground">Vencimento em: {{ assinatura.data_expiracao|date:"d/m/Y"|default:"Indeterminado" }}</span>
+                    <span class="text-sm text-muted-foreground">Vencimento em: {{ assinatura.data_fim|date:"d/m/Y"|default:"Indeterminado" }}</span>
                 </div>
             </div>
             
             <div class="flex flex-col items-end gap-2">
                 <span class="text-xs text-muted-foreground">Estado da Conta</span>
-                <span class="kt-badge kt-badge-lg {% if assinatura.ativo %}kt-badge-success{% else %}kt-badge-danger{% endif %} kt-badge-outline">
-                    {% if assinatura.ativo %}Ativa e Funcional{% else %}Expirada ou Inativa{% endif %}
+                <span class="kt-badge kt-badge-lg {% if assinatura.esta_ativa %}kt-badge-success{% else %}kt-badge-danger{% endif %} kt-badge-outline">
+                    {% if assinatura.esta_ativa %}Ativa e Funcional{% else %}{{ assinatura.get_status_display|default:"Expirada ou Inativa" }}{% endif %}
                 </span>
             </div>
         </div>

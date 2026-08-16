@@ -3,102 +3,107 @@
 {% load i18n %}
 
 {% block content %}
-<div class="rbt-page-banner-wrapper">
-    <!-- Start Banner BG Image  -->
-    <div class="rbt-banner-image"></div>
-    <!-- End Banner BG Image  -->
-</div>
-
-<!-- Start Card Style -->
-<div class="rbt-dashboard-area rbt-section-overlayping-top rbt-section-gapBottom">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <!-- Start Dashboard Top  -->
-                <div class="rbt-dashboard-content-wrapper">
-                    {% if perfil.foto_de_capa %}
-                        <div class="tutor-bg-photo bg_image height-350" style="background-image: url('{{ perfil.foto_de_capa.url }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
-                    {% else %}
-                        <div class="tutor-bg-photo bg_image height-350" style="background-image: url('{% static 'assets/images/bg/student-bg.png' %}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
-                    {% endif %}
-                    <!-- Start Tutor Information  -->
-                    <div class="rbt-tutor-information">
-                        <div class="rbt-tutor-information-left">
-                            <div class="thumbnail rbt-avatars size-lg">
-                                {% if perfil.foto_de_perfil %}
-                                    <img src="{{ perfil.foto_de_perfil.url }}" alt="{{ aluno_nome }}">
-                                {% elif perfil.imagem %}
-                                    <img src="{{ perfil.imagem.url }}" alt="{{ aluno_nome }}">
-                                {% else %}
-                                    <div class="student-avatar-initial" style="width:120px; height:120px; border-radius:50%; background:var(--color-primary); color:white; display:flex; align-items:center; justify-content:center; font-size:48px; margin:0 auto; border: 4px solid #fff;">{{ aluno_nome.0|upper }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="tutor-content">
-                                <h5 class="title">{{ aluno_nome }}</h5>
-                                <ul class="rbt-meta rbt-meta-white mt--5">
-                                    <li><i class="feather-book"></i>{{ total_cursos_ativos|default:"0" }} {% trans "Cursos Inscritos" %}</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="rbt-tutor-information-right">
-                            <div class="tutor-btn">
-                                <a class="rbt-btn btn-md hover-icon-reverse" href="{% url 'index' %}">
-                                    <span class="icon-reverse-wrapper">
-                                        <span class="btn-text">{% trans "Explorar Cursos" %}</span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                        <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                                    </span>
-                                </a>
-                            </div>
-                        </div>
+<div class="student-area">
+    <div class="student-shell-header">
+        <div class="container">
+            <div class="student-shell-inner">
+                <div class="student-shell-identity">
+                    <div class="student-shell-avatar">
+                        {% if perfil.foto_de_perfil %}
+                            <img src="{{ perfil.foto_de_perfil.url }}" alt="{{ aluno_nome }}">
+                        {% elif perfil.imagem %}
+                            <img src="{{ perfil.imagem.url }}" alt="{{ aluno_nome }}">
+                        {% else %}
+                            {{ aluno_nome.0|upper }}
+                        {% endif %}
                     </div>
-                    <!-- End Tutor Information  -->
+                    <div>
+                        <div class="student-shell-eyebrow">{% trans "Área do aluno" %}</div>
+                        <h1 class="student-shell-title" id="student-greeting">{% trans "Bom dia" %}, {{ aluno_nome }}</h1>
+                        <p class="student-shell-subtitle">{% trans "Continue a sua formação e acompanhe os seus próximos passos." %}</p>
+                    </div>
                 </div>
-                <!-- End Dashboard Top  -->
+                <a class="student-shell-cta" href="{% url 'index' %}">
+                    <i class="feather-search"></i>
+                    <span>{% trans "Explorar cursos" %}</span>
+                </a>
+            </div>
+        </div>
+    </div>
 
-                <div class="row g-5">
-                    <div class="col-lg-3">
-                        <!-- Start Dashboard Sidebar  -->
-                        <div class="rbt-default-sidebar sticky-top rbt-shadow-box rbt-gradient-border">
-                            <div class="inner">
-                                <div class="content-item-content">
-                                    {% include 'include/sidebar_app_aluno.html' %}
-                                </div>
-                            </div>
-                        </div>
-                        <!-- End Dashboard Sidebar  -->
-                    </div>
-
-                    <div class="col-lg-9">
-                        <!-- Mensagens de Feedback -->
-                        {% if messages %}
+    <div class="student-dashboard-area">
+        <div class="container">
+            <div class="row g-4 g-xl-5">
+                <div class="col-lg-3">
+                    <aside class="student-sidebar sticky-top">
+                        {% include 'include/sidebar_app_aluno.html' %}
+                    </aside>
+                </div>
+                <div class="col-lg-9">
+                    {% if messages %}
+                        <div class="student-messages mb-4">
                             {% for message in messages %}
-                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show rbt-shadow-box mb--30" role="alert" style="border-radius: 10px; padding: 20px;">
-                                    <strong>{% if message.tags == 'success' %}Sucesso!{% elif message.tags == 'error' %}Erro!{% else %}Aviso!{% endif %}</strong> {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="top: 15px; right: 15px;"></button>
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
                                 </div>
                             {% endfor %}
-                        {% endif %}
-
-                        {% block dashboard_content_full %}{% endblock %}
-                        
-                        {% block dashboard_content_wrapper %}
-                        <div class="rbt-dashboard-content bg-color-white rbt-shadow-box mb--60">
-                            <div class="content">
-                                {% block dashboard_content %}{% endblock %}
-                            </div>
                         </div>
-                        {% endblock %}
-                    </div>
+                    {% endif %}
+                    {% block dashboard_content_full %}{% endblock %}
+                    {% block dashboard_content_wrapper %}
+                        <div class="rbt-dashboard-content bg-color-white rbt-shadow-box mb--60">
+                            <div class="content">{% block dashboard_content %}{% endblock %}</div>
+                        </div>
+                    {% endblock %}
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .student-area { background: #f7f8fb; min-height: 100vh; }
+    .student-shell-header { background: #fff; border-bottom: 1px solid #e7eaf0; }
+    .student-shell-inner { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:30px 0; }
+    .student-shell-identity { display:flex; align-items:center; gap:16px; min-width:0; }
+    .student-shell-avatar { width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; overflow:hidden; background:linear-gradient(135deg,#315bea,#6f45e8); color:#fff; font-size:25px; font-weight:800; flex:0 0 auto; }
+    .student-shell-avatar img { width:100%; height:100%; object-fit:cover; }
+    .student-shell-eyebrow { color:#64748b; font-size:11px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; margin-bottom:4px; }
+    .student-shell-title { color:#172033; font-size:25px; line-height:1.2; font-weight:800; letter-spacing:-.03em; margin:0; }
+    .student-shell-subtitle { color:#64748b; font-size:14px; margin:6px 0 0; }
+    .student-shell-cta { display:inline-flex; align-items:center; gap:8px; padding:12px 17px; border-radius:10px; background:#315bea; color:#fff; font-size:13px; font-weight:750; text-decoration:none; transition:transform .18s ease, box-shadow .18s ease; white-space:nowrap; }
+    .student-shell-cta:hover { color:#fff; transform:translateY(-1px); box-shadow:0 8px 20px rgba(49,91,234,.22); }
+    .student-dashboard-area { padding:30px 0 70px; }
+    .student-sidebar { top:24px; }
+    .student-sidebar .rbt-default-sidebar { background:#fff; }
+    .student-messages .alert { border:0; border-radius:12px; box-shadow:0 5px 20px rgba(15,23,42,.05); }
+    body.active-dark-mode .student-area { background:#0f172a; }
+    body.active-dark-mode .student-shell-header { background:#111c31; border-color:#24344f; }
+    body.active-dark-mode .student-shell-title { color:#f8fafc; }
+    body.active-dark-mode .student-shell-subtitle, body.active-dark-mode .student-shell-eyebrow { color:#9fb0c8; }
+    body.active-dark-mode .student-sidebar .rbt-default-sidebar, body.active-dark-mode .student-sidebar .rbt-shadow-box { background:#111c31; }
+    @media (max-width: 767px) {
+        .student-shell-inner { align-items:flex-start; flex-direction:column; padding:22px 0; }
+        .student-shell-title { font-size:21px; }
+        .student-shell-cta { width:100%; justify-content:center; }
+        .student-dashboard-area { padding-top:20px; }
+        .student-sidebar { position:static !important; }
+    }
+</style>
 {% endblock %}
 
 {% block extra_js %}
-    <!-- Odometer JS for counters -->
     <script src="{% static 'assets/js/vendor/odometer.js' %}"></script>
     <script src="{% static 'assets/js/vendor/appear.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const greeting = document.getElementById('student-greeting');
+            if (!greeting) return;
+            const hour = new Date().getHours();
+            const prefix = hour < 12 ? 'Bom dia' : (hour < 18 ? 'Boa tarde' : 'Boa noite');
+            const name = greeting.textContent.split(',').slice(1).join(',').trim();
+            if (name) greeting.textContent = prefix + ', ' + name;
+        });
+    </script>
 {% endblock %}

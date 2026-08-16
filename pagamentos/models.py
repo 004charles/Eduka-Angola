@@ -564,3 +564,45 @@ def registrar_mudanca_pagamento(sender, instance, created, **kwargs):
             motivo='Pagamento criado',
             criado_por='SISTEMA'
         )
+
+
+class RecebimentoCentro(models.Model):
+    """Pagamento recebido presencialmente pelo centro de formação."""
+    FORMA_CHOICES = [
+        ('DINHEIRO', _('Dinheiro')),
+        ('TRANSFERENCIA', _('Transferência')),
+        ('CARTAO_CREDITO', _('Cartão de Crédito')),
+        ('CARTAO_DEBITO', _('Cartão de Débito')),
+        ('DEPOSITO', _('Depósito')),
+        ('OUTRO', _('Outro')),
+    ]
+    ESTADO_CHOICES = [
+        ('CONFIRMADO', _('Confirmado')),
+        ('ANULADO', _('Anulado')),
+    ]
+
+    centro = models.ForeignKey('gestoreduka.CentroDeFormacao', on_delete=models.PROTECT, related_name='recebimentos')
+    matricula = models.ForeignKey('cursos_app.Matricula', on_delete=models.PROTECT, related_name='recebimentos')
+    aluno = models.ForeignKey('usuarios.Aluno', on_delete=models.PROTECT, related_name='recebimentos')
+    referencia = models.CharField(_('Referência do Recibo'), max_length=30, unique=True, blank=True)
+    valor = models.DecimalField(_('Valor Recebido'), max_digits=12, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
+    forma = models.CharField(_('Forma de Pagamento'), max_length=20, choices=FORMA_CHOICES, default='DINHEIRO')
+    estado = models.CharField(_('Estado'), max_length=12, choices=ESTADO_CHOICES, default='CONFIRMADO')
+    recebido_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name='recebimentos_registados')
+    data_recebimento = models.DateTimeField(_('Data do Recebimento'), default=timezone.now, db_index=True)
+    observacoes = models.TextField(_('Observações'), blank=True)
+
+    class Meta:
+        verbose_name = _('Recebimento do Centro')
+        verbose_name_plural = _('Recebimentos do Centro')
+        ordering = ['-data_recebimento']
+        indexes = [models.Index(fields=['centro', 'data_recebimento']), models.Index(fields=['matricula', 'estado'])]
+
+    def save(self, *args, **kwargs):
+        if not self.referencia:
+            import uuid
+            self.referencia = f"REC-{uuid.uuid4().hex[:8].upper()}"
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.referencia} - {self.valor} Kz"

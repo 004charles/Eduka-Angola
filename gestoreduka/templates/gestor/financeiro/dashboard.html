@@ -58,6 +58,33 @@
 
     </div>
 
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-7.5 mt-2">
+        <div class="kt-card flex flex-col p-6 bg-background border border-border rounded-xl shadow-sm">
+            <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Recebimentos presenciais</span>
+            <span class="mt-2 text-2xl font-bold text-success">{{ total_recebimentos|floatformat:2 }} Kz</span>
+            <span class="mt-2 text-xs text-muted-foreground">Valores confirmados no atendimento do centro.</span>
+        </div>
+        <div class="kt-card flex flex-col p-6 bg-background border border-border rounded-xl shadow-sm">
+            <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Origem dos dados</span>
+            <span class="mt-2 text-2xl font-bold text-foreground">Online + presencial</span>
+            <span class="mt-2 text-xs text-muted-foreground">O financeiro reúne pagamentos da Eduka-Angola e da secretaria.</span>
+        </div>
+    </div>
+
+    <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm overflow-hidden mt-2">
+        <div class="flex items-center justify-between border-b border-border px-5 py-4">
+            <h3 class="font-semibold text-base text-foreground">Recibos presenciais recentes</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="table-auto w-full text-left text-sm whitespace-nowrap">
+                <thead class="text-xs text-muted-foreground bg-accent/5"><tr><th class="px-5 py-3 font-medium">Referência</th><th class="px-5 py-3 font-medium">Aluno</th><th class="px-5 py-3 font-medium">Curso / Turma</th><th class="px-5 py-3 font-medium text-right">Valor</th><th class="px-5 py-3 font-medium text-right">Documento</th></tr></thead>
+                <tbody class="divide-y divide-border">
+                {% for item in recebimentos_recentes %}<tr><td class="px-5 py-4 font-mono text-xs">{{ item.referencia }}</td><td class="px-5 py-4">{{ item.aluno.nome }}</td><td class="px-5 py-4"><span class="font-medium">{{ item.matricula.curso.titulo }}</span><span class="block text-xs text-muted-foreground">{{ item.matricula.turma.nome }}</span></td><td class="px-5 py-4 text-right font-bold text-success">{{ item.valor|floatformat:2 }} Kz</td><td class="px-5 py-4 text-right"><a class="kt-btn kt-btn-ghost kt-btn-sm" href="{% url 'descarregar_recibo_presencial' item.id %}">PDF</a></td></tr>{% empty %}<tr><td colspan="5" class="px-5 py-8 text-center text-muted-foreground">Nenhum recibo presencial registado.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <!-- Payment List -->
     <div class="kt-card flex flex-col bg-background border border-border rounded-xl shadow-sm overflow-hidden mt-2">
         <div class="flex items-center justify-between border-b border-border px-5 py-4">

@@ -34,7 +34,7 @@ class CursoForm(forms.ModelForm):
         fields = [
             'titulo', 'descricao', 'descricao_curta', 'nivel', 'idioma', 'categoria',
             'certificado', 'instrutores', 'carga_horaria', 'duracao', 
-            'moeda', 'preco', 'preco_inscricao', 'mensalidade', 'tipo_cobranca_inscricao', 'preco_promocional', 
+            'moeda', 'is_gratuito', 'preco', 'preco_inscricao', 'mensalidade', 'tipo_cobranca_inscricao', 'permite_parcelamento', 'max_parcelas', 'preco_promocional', 
             'data_inicio_promocao', 'data_fim_promocao',
             'modalidade', 'publicado', 'imagem', 'destaque', 'documento_requerido'
         ]
@@ -81,6 +81,10 @@ class CursoForm(forms.ModelForm):
                 'min': '1',
                 'max': '1000'
             }),
+            'is_gratuito': forms.CheckboxInput(attrs={
+                'class': 'kt-checkbox',
+                'style': 'width: 18px; height: 18px;'
+            }),
             'preco': forms.NumberInput(attrs={
                 'class': 'kt-input',
                 'placeholder': '0.000',
@@ -101,6 +105,16 @@ class CursoForm(forms.ModelForm):
             }),
             'tipo_cobranca_inscricao': forms.Select(attrs={
                 'class': 'kt-select'
+            }),
+            'permite_parcelamento': forms.CheckboxInput(attrs={
+                'class': 'kt-checkbox',
+                'style': 'width: 18px; height: 18px;'
+            }),
+            'max_parcelas': forms.NumberInput(attrs={
+                'class': 'kt-input',
+                'placeholder': 'Ex: 3',
+                'min': '1',
+                'max': '24'
             }),
             'preco_promocional': forms.NumberInput(attrs={
                 'class': 'kt-input',
@@ -145,13 +159,16 @@ class CursoForm(forms.ModelForm):
             'idioma': 'Idioma *',
             'categoria': 'Categoria *',
             'certificado': 'Oferece Certificado?',
-            'instrutores': 'Instrutores *',
+            'instrutores': 'Formadores responsáveis *',
             'carga_horaria': 'Carga Horária (horas) *',
             'moeda': 'Moeda do Curso *',
+            'is_gratuito': 'Curso gratuito',
             'preco': 'Preço Normal *',
             'preco_inscricao': 'Taxa de Inscrição',
             'mensalidade': 'Valor da Mensalidade (opcional)',
-            'tipo_cobranca_inscricao': 'O que cobrar online?',
+            'tipo_cobranca_inscricao': 'O que cobrar na inscrição online?',
+            'permite_parcelamento': 'Permitir pagamento parcelado',
+            'max_parcelas': 'Número máximo de parcelas',
             'preco_promocional': 'Preço Promocional',
             'data_inicio_promocao': 'Início da Promoção',
             'data_fim_promocao': 'Fim da Promoção',
@@ -198,17 +215,49 @@ class CursoForm(forms.ModelForm):
             })
 
         preco_inscricao = cleaned_data.get('preco_inscricao')
+        mensalidade = cleaned_data.get('mensalidade')
+        tipo_cobranca = cleaned_data.get('tipo_cobranca_inscricao')
+        permite_parcelamento = cleaned_data.get('permite_parcelamento')
+        max_parcelas = cleaned_data.get('max_parcelas') or 1
+
         if preco_inscricao is not None and preco_inscricao < 0:
             raise forms.ValidationError({
                 'preco_inscricao': 'A taxa de inscrição não pode ser negativa.'
             })
+        if mensalidade is not None and mensalidade < 0:
+            raise forms.ValidationError({
+                'mensalidade': 'A mensalidade não pode ser negativa.'
+            })
+        if permite_parcelamento and max_parcelas < 2:
+            raise forms.ValidationError({
+                'max_parcelas': 'Defina pelo menos 2 parcelas quando o parcelamento estiver ativo.'
+            })
+        if not permite_parcelamento:
+            cleaned_data['max_parcelas'] = 1
+        is_gratuito = cleaned_data.get('is_gratuito')
+        if is_gratuito:
+            cleaned_data['preco'] = 0
+            cleaned_data['preco_inscricao'] = 0
+            cleaned_data['mensalidade'] = 0
+            cleaned_data['tipo_cobranca_inscricao'] = 'SEM_PAGAMENTO'
+            cleaned_data['permite_parcelamento'] = False
+            cleaned_data['max_parcelas'] = 1
+        elif tipo_cobranca == 'TAXA_E_MENSALIDADE' and (preco_inscricao or 0) + (mensalidade or 0) <= 0:
+            raise forms.ValidationError('Para cobrar taxa + primeira mensalidade, informe valores maiores que zero.')
+        elif tipo_cobranca == 'CURSO_COMPLETO' and (preco or 0) <= 0:
+            raise forms.ValidationError({'preco': 'Informe o preço total do curso ou marque-o como gratuito.'})
 
         return cleaned_data
 
     def clean_instrutores(self):
+        """Cada curso precisa de pelo menos um formador atribuído.
+
+        A relação é Many-to-Many: o mesmo formador pode lecionar vários cursos.
+        O formador não precisa de ter um painel operacional próprio no MVP.
+        """
         instrutores = self.cleaned_data.get('instrutores')
         if not instrutores:
-            raise forms.ValidationError('Selecione pelo menos um instrutor.')
+            raise forms.ValidationError('Atribua pelo menos um formador ao curso.')
         return instrutores
 
     def clean_titulo(self):

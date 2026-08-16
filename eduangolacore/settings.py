@@ -12,6 +12,7 @@ DEBUG = config("DEBUG", default=True, cast=bool)
 ALLOWED_HOSTS = ['*']
 
 GOOGLE_MAPS_API_KEY = config("GOOGLE_MAPS_API_KEY", default="")
+EDUKA_INTEGRATION_KEY = config("EDUKA_INTEGRATION_KEY", default="")
 YOUTUBE_API_KEY = config("YOUTUBE_API_KEY", default="AIzaSyCphPp1Ps-TE_FlLlkKqBTgpxDLE_cMpZE")
 GEMINI_API_KEY = config("GEMINI_API_KEY", default="")
 
@@ -94,6 +95,12 @@ CSRF_TRUSTED_ORIGINS = [
     'https://eduka-angola.onrender.com',
     'https://edukangola.com',
     'https://www.edukangola.com',
+    # O frontend React é servido por subdomínios temporários na pré-visualização.
+    # O proxy preserva a sessão Django e, por isso, a origem precisa ser confiável
+    # para que os POSTs de login, cadastro e checkout passem na validação CSRF.
+    'https://*.manus.computer',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
 ]
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
@@ -190,6 +197,13 @@ if DATABASE_URL:
                 conn_health_checks=True,
             )
         }
+        # PyMySQL requer que a opção SSL seja um dicionário. Algumas URLs de
+        # ligação codificam este valor como texto (por exemplo, "true").
+        # Normalizamos esse formato sem alterar a URL fornecida pelo ambiente.
+        if DATABASES['default'].get('ENGINE') == 'django.db.backends.mysql':
+            db_options = DATABASES['default'].setdefault('OPTIONS', {})
+            if isinstance(db_options.get('ssl'), str):
+                db_options['ssl'] = {}
     except ImportError:
         # Fallback para SQLite se dj_database_url não estiver disponível
         DATABASES = {

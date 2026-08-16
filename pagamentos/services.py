@@ -832,14 +832,58 @@ class PaymentService:
             elif pagamento.tipo_pagamento == 'ASSINATURA_PLANO' and pagamento.plano:
                 from planos.models import AssinaturaMembro
                 try:
-                    # Encontrar a assinatura do centro do usuário
-                    assinatura = AssinaturaMembro.objects.get(centro__responsavel=pagamento.usuario)
+                    # O pagamento da subscrição é feito pelo utilizador associado à sede do centro.
+                    assinatura = AssinaturaMembro.objects.get(centro__usuario=pagamento.usuario)
+
+                    # Webhooks repetidos não podem prolongar a mesma subscrição duas vezes.
+                    metadados = pagamento.metadados or {}
+                    if isinstance(metadados, str):
+                        try:
+                            metadados = json.loads(metadados)
+                        except (TypeError, ValueError):
+                            metadados = {}
+                    if metadados.get('assinatura_ativada_em'):
+                        logger.info(
+                            f"Assinatura já processada para o pagamento {pagamento.referencia_pagamento}."
+                        )
+                        return
+
+                    agora = timezone.now()
+                    mesma_assinatura_ativa = (
+                        assinatura.status == 'ATIVO'
+                        and assinatura.plano_id == pagamento.plano_id
+                        and assinatura.data_fim
+                        and assinatura.data_fim > agora
+                    )
+
                     assinatura.plano = pagamento.plano
-                    assinatura.data_inicio = timezone.now().date()
-                    assinatura.data_fim = assinatura.data_inicio + timedelta(days=30)
-                    assinatura.status = 'A'
-                    assinatura.save()
-                    logger.info(f"Assinatura do centro {assinatura.centro.nome} atualizada para plano {pagamento.plano.nome} com sucesso!")
+                    assinatura.data_inicio = assinatura.data_fim if mesma_assinatura_ativa else agora
+                    assinatura.data_fim = (
+                        assinatura.data_fim + timedelta(days=30)
+                        if mesma_assinatura_ativa
+                        else agora + timedelta(days=30)
+                    )
+                    assinatura.status = 'ATIVO'
+                    assinatura.save(update_fields=['plano', 'data_inicio', 'data_fim', 'status'])
+
+                    metadados['assinatura_ativada_em'] = agora.isoformat()
+                    metadados['assinatura_id'] = assinatura.pk
+                    pagamento.metadados = metadados
+                    pagamento.save(update_fields=['metadados'])
+
+                    logger.info(
+                        f"Assinatura do centro {assinatura.centro.nome} atualizada para plano "
+                        f"{pagamento.plano.nome} com sucesso!"
+                    )
+                except AssinaturaMembro.DoesNotExist:
+                    logger.error(
+                        f"Nenhuma assinatura encontrada para o utilizador {pagamento.usuario_id} "
+                        f"ao processar o pagamento {pagamento.referencia_pagamento}."
+                    )
+                except AssinaturaMembro.MultipleObjectsReturned:
+                    logger.error(
+                        f"Mais de uma assinatura encontrada para o utilizador {pagamento.usuario_id}."
+                    )
                 except Exception as e:
                     logger.error(f"Erro ao processar ASSINATURA_PLANO: {e}")
 

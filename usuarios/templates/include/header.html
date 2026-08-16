@@ -98,12 +98,12 @@ body.active-dark-mode .mainmenu-nav .submenu {
                                 <li><a href="#"><i class="fab fa-youtube"></i></a></li>
                             </ul>
                         </div>
-                        {% if request.user.is_authenticated %}
+                        {% if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO' %}
                         <div class="rbt-separator"></div>
                         <div class="header-info">
                             <ul class="rbt-information-list">
                                 <li>
-                                    <a href="#"><i class="feather-user"></i>Bem-vindo, {{ request.user.nome|default:request.user.email }}</a>
+                                    <a href="{% url 'aluno_perfil' %}"><i class="feather-user"></i>Bem-vindo, {{ request.user.nome|default:request.user.email }}</a>
                                 </li>
                             </ul>
                         </div>

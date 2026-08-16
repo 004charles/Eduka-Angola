@@ -2,331 +2,191 @@
 {% load static %}
 {% load i18n %}
 
-{% block title %}{% trans "Meu Aprendizado" %} | EdukAngola{% endblock %}
+{% block title %}{% trans "Meu Aprendizado" %} | EdukaAngola{% endblock %}
 
 {% block dashboard_content_full %}
-    <!-- Conteúdo do Dashboard (As abas agora estão na Sidebar) -->
-
-    <!-- Cartões de Resumo Rápidos (Dashboard) -->
-    <div class="row g-5 mb--40">
-        <!-- Start Single Card  -->
-        <div class="col-lg-4 col-md-4 col-sm-6 col-12">
-            <div class="rbt-counterup variation-01 rbt-hover-03 rbt-border-dashed bg-primary-opacity">
-                <div class="inner">
-                    <div class="rbt-round-icon bg-primary-opacity">
-                        <i class="feather-book-open"></i>
-                    </div>
-                    <div class="content">
-                        <h3 class="counter without-icon color-primary"><span class="odometer" data-count="{{ total_cursos_ativos }}">00</span>
-                        </h3>
-                        <span class="rbt-title-style-2 d-block">{% trans "Em Andamento" %}</span>
-                    </div>
-                </div>
-            </div>
+<div class="learner-dashboard" id="overview">
+    <div class="learner-welcome-row">
+        <div>
+            <div class="learner-kicker">{% trans "O seu percurso" %}</div>
+            <h2>{% trans "Continue a aprender" %}</h2>
+            <p>{% trans "Retome de onde parou ou encontre a próxima formação para os seus objetivos." %}</p>
         </div>
-        <!-- End Single Card  -->
-
-        <!-- Start Single Card  -->
-        <div class="col-lg-4 col-md-4 col-sm-6 col-12">
-            <div class="rbt-counterup variation-01 rbt-hover-03 rbt-border-dashed bg-secondary-opacity">
-                <div class="inner">
-                    <div class="rbt-round-icon bg-secondary-opacity">
-                        <i class="feather-award"></i>
-                    </div>
-                    <div class="content">
-                        <h3 class="counter without-icon color-secondary"><span class="odometer" data-count="0">00</span>
-                        </h3>
-                        <span class="rbt-title-style-2 d-block">{% trans "Concluídos" %}</span>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-        <!-- End Single Card  -->
-
-        <!-- Start Single Card  -->
-        <div class="col-lg-4 col-md-4 col-sm-6 col-12">
-            <div class="rbt-counterup variation-01 rbt-hover-03 rbt-border-dashed bg-violet-opacity">
-                <div class="inner">
-                    <div class="rbt-round-icon bg-violet-opacity">
-                        <i class="feather-bookmark"></i>
-                    </div>
-                    <div class="content">
-                        <h3 class="counter without-icon color-violet"><span class="odometer" data-count="{{ favoritos_dashboard|length }}">00</span>
-                        </h3>
-                        <span class="rbt-title-style-2 d-block">{% trans "Favoritos" %}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- End Single Card  -->
+        <a href="{% url 'aluno_cursos' %}" class="learner-text-link">{% trans "Ver todos os meus cursos" %} <i class="feather-arrow-right"></i></a>
     </div>
 
-    <!-- Área de Conteúdo das Abas -->
-    <div class="rbt-dashboard-content bg-color-white rbt-shadow-box">
-        <div class="content">
-            <div class="tab-content" id="myTabContent">
-        
-        <!-- Tab 1: Em andamento -->
-        <div class="tab-pane fade show active" id="ongoing">
-            {% if total_cursos_ativos > 0 %}
-                <div class="row g-5 mt--20">
-                    {% for item in inscricoes_com_progresso %}
-                        {% if item.progresso < 100 %}
-                        <div class="col-lg-4 col-md-6 col-12">
-                            {% include 'components/curso_card.html' with curso=item.curso modo="aluno" inscricao=item.inscricao %}
-                        </div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
+    {% if curso_em_destaque %}
+    <section class="continue-card">
+        <div class="continue-card-media">
+            {% if curso_em_destaque.imagem_url %}
+                <img src="{{ curso_em_destaque.imagem_url }}" alt="{{ curso_em_destaque.titulo }}">
             {% else %}
-                <div class="empty-state-v2 text-center">
-                    <img src="{% static 'assets/images/illustrations/student_dashboard_hero_3d.png' %}" alt="Empty" class="mb--30" style="max-width: 140px; filter: saturate(0.8); opacity: 0.5;">
-                    <h2 class="empty-h2">{% trans "Seu próximo curso está à espera!" %}</h2>
-                    <p class="empty-p">
-                        {% trans "Você não tem cursos em andamento no momento. Explore nosso catálogo e comece a aprender hoje mesmo." %}
-                    </p>
-                    <div class="mt--30">
-                        <a href="{% url 'index' %}" class="rbt-btn btn-gradient btn-sm">{% trans "Explorar Cursos" %}</a>
-                    </div>
-                </div>
+                <img src="{% static 'assets/images/course/course-01.jpg' %}" alt="{{ curso_em_destaque.titulo }}">
             {% endif %}
+            <span class="continue-badge"><i class="feather-play-circle"></i> {% trans "Continuar" %}</span>
         </div>
-        
-        <!-- Tab 2: Concluído -->
-        <div class="tab-pane fade" id="completed">
-            <div class="empty-state-v2 text-center py-5">
-                <i class="feather-check-circle" style="font-size: 80px; color: #e2e8f0; margin-bottom: 20px; display: block;"></i>
-                <h2 class="empty-h2">{% trans "Nenhum curso concluído ainda" %}</h2>
-                <p class="empty-p">
-                    {% trans "Continue seus estudos para ver seus cursos finalizados aqui." %}
-                </p>
+        <div class="continue-card-body">
+            <div class="continue-meta">
+                <span>{% if curso_em_destaque.is_video %}{% trans "Curso online" %}{% else %}{% trans "Formação presencial" %}{% endif %}</span>
+                <span class="continue-status">{{ curso_em_destaque.status_label|default:"Inscrição ativa" }}</span>
             </div>
-        </div>
-
-        <!-- Tab 3: Favoritos (Adicionado a pedido do utilizador) -->
-        <div class="tab-pane fade" id="favorites">
-            {% if favoritos_dashboard %}
-                <div class="row g-5 mt--20">
-                    {% for item in favoritos_dashboard %}
-                        <div class="col-lg-4 col-md-6 col-12">
-                            {% include 'components/curso_card.html' with curso=item.curso modo="aluno" inscricao=item.inscricao %}
-                        </div>
-                    {% endfor %}
-                </div>
+            <h3>{{ curso_em_destaque.titulo }}</h3>
+            {% if curso_em_destaque.turma %}
+                <p class="continue-detail"><i class="feather-calendar"></i> {{ curso_em_destaque.turma.nome }}</p>
+                <p class="continue-detail"><i class="feather-map-pin"></i> {{ curso_em_destaque.turma.local|default:curso_em_destaque.curso.centro.nome }}</p>
             {% else %}
-                <div class="empty-state-v2 text-center py-5">
-                    <i class="feather-bookmark" style="font-size: 80px; color: #e2e8f0; margin-bottom: 20px; display: block;"></i>
-                    <h2 class="empty-h2">{% trans "Sua lista de desejos está vazia" %}</h2>
-                    <p class="empty-p">
-                        {% trans "Adicione cursos aos seus favoritos para acompanhá-los mais tarde." %}
-                    </p>
-                </div>
+                <p class="continue-detail"><i class="feather-video"></i> {% trans "Aprendizagem ao seu ritmo" %}</p>
             {% endif %}
-        </div>
-
-        <!-- Tab 4: Certificados -->
-        <div class="tab-pane fade" id="certificates">
-            <!-- Alerta de Verificação de Nome -->
-            <div class="name-verification-box d-flex align-items-center justify-content-between mb--40">
-                <div class="verification-info">
-                    <h4 class="v-title">{% trans "Verificação do nome" %}</h4>
-                    <p class="v-text">{% trans "Verifique seu nome verdadeiro para ter certeza de que poderá receber um certificado ao concluir um curso ou especialização." %}</p>
+            {% if curso_em_destaque.total_aulas %}
+                <div class="progress-line-row">
+                    <span>{% trans "Progresso" %}</span><strong>{{ curso_em_destaque.progresso }}%</strong>
                 </div>
-                <div class="verification-action">
-                    <a href="{% url 'aluno_perfil' %}" class="btn-verify-name">{% trans "Verificar meu nome" %}</a>
-                </div>
-            </div>
-
-            <div class="empty-state-v2 text-center">
-                <div class="cert-illustration-box">
-                    <img src="{% static 'assets/images/illustrations/certificate_empty.png' %}" alt="Certificado" class="mb--30" style="max-width: 180px;">
-                </div>
-                <h2 class="empty-h2">{% trans "Seu primeiro certificado está esperando!" %}</h2>
-                <p class="empty-p">
-                    {% trans "Seu próximo passo na carreira começa com um certificado. Conclua um curso e obtenha uma credencial que você pode compartilhar com orgulho com os empregadores e sua rede de contatos." %}
-                </p>
-            </div>
-        </div>
-
-        <!-- Tab 5: Competências -->
-        <div class="tab-pane fade" id="skills">
-            <div class="row g-5 mt--20">
-                <div class="col-lg-12">
-                    <div class="section-title text-start mb--30">
-                        <h4 class="title">Suas Competências Comprovadas</h4>
-                        <p class="description">Competências adquiridas através da conclusão de cursos na EdukAngola.</p>
-                    </div>
-                </div>
-                
-                {% if skills_comprovadas %}
-                    {% for item in skills_comprovadas %}
-                    <div class="col-lg-4">
-                        <div class="rbt-card variation-01 rbt-hover p-4" style="border-left: 4px solid var(--color-primary);">
-                            <div class="d-flex align-items-center">
-                                <div class="icon-box mr--15">
-                                    <i class="{{ item.skill.icone }}" style="font-size: 24px; color: var(--color-primary);"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-0">{{ item.skill.nome }}</h6>
-                                    <small class="text-success"><i class="feather-check-circle"></i> {% trans "Comprovada" %}</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
+                <div class="progress-line"><span style="width: {{ curso_em_destaque.progresso }}%"></span></div>
+                <div class="progress-caption">{{ curso_em_destaque.concluidas }} de {{ curso_em_destaque.total_aulas }} aulas concluídas</div>
+            {% else %}
+                <div class="enrollment-state"><i class="feather-check-circle"></i> {% trans "Inscrição confirmada. Consulte os detalhes da turma para começar." %}</div>
+            {% endif %}
+            <div class="continue-actions">
+                {% if curso_em_destaque.is_video %}
+                    <a href="{% url 'cursovideoapp:detalhe_curso' slug=curso_em_destaque.slug %}" class="learner-primary-btn">{% trans "Continuar curso" %} <i class="feather-arrow-right"></i></a>
                 {% else %}
-                    <div class="col-12">
-                        <div class="alert alert-info">
-                            {% trans "Você ainda não possui competências comprovadas. Conclua cursos para ganhá-las!" %}
-                        </div>
-                    </div>
-                {% endif %}
-
-                <div class="col-lg-12 mt--50">
-                    <div class="section-title text-start mb--30">
-                        <h4 class="title">Em Desenvolvimento</h4>
-                        <p class="description">Competências que você está aprendendo nos seus cursos atuais.</p>
-                    </div>
-                </div>
-
-                {% if skills_em_desenvolvimento %}
-                    {% for skill in skills_em_desenvolvimento %}
-                    <div class="col-lg-4">
-                        <div class="rbt-card variation-01 rbt-hover p-4" style="border-left: 4px solid #cbd5e1;">
-                            <div class="d-flex align-items-center">
-                                <div class="icon-box mr--15">
-                                    <i class="{{ skill.icone }}" style="font-size: 24px; color: #64748b;"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-0">{{ skill.nome }}</h6>
-                                    <small class="text-muted">{% trans "Em progresso" %}</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="col-12">
-                        <p class="text-muted">Nenhuma competência em desenvolvimento detectada.</p>
-                    </div>
+                    <a href="{% url 'curso_detalhe' id=curso_em_destaque.id %}" class="learner-primary-btn">{% trans "Ver curso" %} <i class="feather-arrow-right"></i></a>
+                    {% if curso_em_destaque.inscricao %}<a href="{% url 'gerar_comprovante_inscricao' curso_em_destaque.inscricao.id %}" class="learner-secondary-btn">{% trans "Comprovativo" %}</a>{% endif %}
                 {% endif %}
             </div>
         </div>
+    </section>
+    {% else %}
+    <section class="learner-empty-hero">
+        <div>
+            <span class="learner-kicker">{% trans "Comece hoje" %}</span>
+            <h3>{% trans "A sua próxima oportunidade de aprendizagem está à espera." %}</h3>
+            <p>{% trans "Explore cursos presenciais e online publicados por centros de formação em Angola." %}</p>
+            <a href="{% url 'index' %}" class="learner-primary-btn">{% trans "Explorar cursos" %} <i class="feather-arrow-right"></i></a>
         </div>
-    </div>
+        <img src="{% static 'assets/images/illustrations/student_dashboard_hero_3d.png' %}" alt="">
+    </section>
+    {% endif %}
+
+    <section class="learner-stat-grid">
+        <a href="{% url 'aluno_cursos' %}" class="learner-stat-card stat-blue">
+            <span class="stat-icon"><i class="feather-book-open"></i></span>
+            <span class="stat-value">{{ total_cursos_ativos }}</span>
+            <span class="stat-label">{% trans "Cursos ativos" %}</span>
+            <i class="feather-arrow-up-right stat-arrow"></i>
+        </a>
+        <a href="#certificates" class="learner-stat-card stat-purple">
+            <span class="stat-icon"><i class="feather-award"></i></span>
+            <span class="stat-value">{{ total_certificados }}</span>
+            <span class="stat-label">{% trans "Certificados" %}</span>
+            <i class="feather-arrow-up-right stat-arrow"></i>
+        </a>
+        <a href="#favorites" class="learner-stat-card stat-orange">
+            <span class="stat-icon"><i class="feather-bookmark"></i></span>
+            <span class="stat-value">{{ favoritos_dashboard|length }}</span>
+            <span class="stat-label">{% trans "Favoritos" %}</span>
+            <i class="feather-arrow-up-right stat-arrow"></i>
+        </a>
+        <a href="#skills" class="learner-stat-card stat-green">
+            <span class="stat-icon"><i class="feather-target"></i></span>
+            <span class="stat-value">{{ total_skills }}</span>
+            <span class="stat-label">{% trans "Competências" %}</span>
+            <i class="feather-arrow-up-right stat-arrow"></i>
+        </a>
+    </section>
+
+    <section class="learner-section" id="my-learning">
+        <div class="learner-section-heading">
+            <div><div class="learner-kicker">{% trans "A sua biblioteca" %}</div><h3>{% trans "Os meus cursos" %}</h3></div>
+            <a href="{% url 'aluno_cursos' %}" class="learner-text-link">{% trans "Ver tudo" %} <i class="feather-arrow-right"></i></a>
+        </div>
+        {% if inscricoes_com_progresso|length > 1 %}
+        <div class="learner-course-list">
+            {% for item in inscricoes_com_progresso|slice:"1:4" %}
+            <a class="learner-mini-course" href="{% if item.is_video %}{% url 'cursovideoapp:detalhe_curso' slug=item.slug %}{% else %}{% url 'curso_detalhe' id=item.id %}{% endif %}">
+                <div class="mini-course-image"><img src="{% if item.imagem_url %}{{ item.imagem_url }}{% else %}{% static 'assets/images/course/course-01.jpg' %}{% endif %}" alt="{{ item.titulo }}"></div>
+                <div class="mini-course-content"><span class="mini-course-type">{% if item.is_video %}{% trans "Online" %}{% else %}{% trans "Presencial" %}{% endif %}</span><h4>{{ item.titulo }}</h4><div class="mini-progress"><span style="width:{{ item.progresso }}%"></span></div><small>{{ item.progresso }}% concluído</small></div><i class="feather-chevron-right"></i>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="learner-inline-empty"><i class="feather-book-open"></i><div><strong>{% trans "Tem um curso ativo em destaque acima." %}</strong><p>{% trans "Quando se inscrever noutros cursos, eles aparecerão aqui para acesso rápido." %}</p></div><a href="{% url 'index' %}" class="learner-secondary-btn">{% trans "Descobrir mais" %}</a></div>
+        {% endif %}
+    </section>
+
+    <section class="learner-section recommendations-section">
+        <div class="learner-section-heading"><div><div class="learner-kicker">{% trans "Para si" %}</div><h3>{% trans "Continue a explorar" %}</h3></div><a href="{% url 'index' %}" class="learner-text-link">{% trans "Ver catálogo" %} <i class="feather-arrow-right"></i></a></div>
+        {% if cursos_recomendados %}
+        <div class="row g-4">{% for curso in cursos_recomendados %}<div class="col-md-6">{% include 'components/curso_card.html' with curso=curso modo="publico" %}</div>{% endfor %}</div>
+        {% else %}
+        <div class="learner-recommendation-empty"><div class="recommendation-icon"><i class="feather-compass"></i></div><div><h4>{% trans "Descubra a próxima formação" %}</h4><p>{% trans "Veja novos cursos e compare centros, horários e condições de inscrição." %}</p></div><a href="{% url 'index' %}" class="learner-primary-btn">{% trans "Explorar catálogo" %}</a></div>
+        {% endif %}
+    </section>
+
+    <section class="learner-lower-grid">
+        <div class="learner-section compact-section" id="certificates"><div class="learner-section-heading"><div><div class="learner-kicker">{% trans "Conquistas" %}</div><h3>{% trans "Certificados" %}</h3></div></div>{% if total_certificados %}<div class="lower-empty success-empty"><i class="feather-award"></i><p>{{ total_certificados }} certificado{{ total_certificados|pluralize:"s" }} disponível{{ total_certificados|pluralize:"s" }} no seu perfil.</p><a href="{% url 'aluno_perfil' %}">{% trans "Ver perfil" %}</a></div>{% else %}<div class="lower-empty"><i class="feather-award"></i><p>{% trans "Conclua um curso para receber o seu primeiro certificado." %}</p></div>{% endif %}</div>
+        <div class="learner-section compact-section" id="favorites"><div class="learner-section-heading"><div><div class="learner-kicker">{% trans "Guardados" %}</div><h3>{% trans "Favoritos" %}</h3></div></div>{% if favoritos_dashboard %}<div class="favorite-lines">{% for item in favoritos_dashboard|slice:":3" %}<a href="{% url 'curso_detalhe' id=item.curso.id %}"><i class="feather-bookmark"></i><span>{{ item.curso.titulo }}</span><i class="feather-chevron-right"></i></a>{% endfor %}</div>{% else %}<div class="lower-empty"><i class="feather-bookmark"></i><p>{% trans "Guarde cursos que quer acompanhar mais tarde." %}</p><a href="{% url 'index' %}">{% trans "Explorar cursos" %}</a></div>{% endif %}</div>
+    </section>
+
+    <section class="learner-section skills-section" id="skills"><div class="learner-section-heading"><div><div class="learner-kicker">{% trans "Desenvolvimento" %}</div><h3>{% trans "As suas competências" %}</h3></div><a href="{% url 'aluno_perfil' %}" class="learner-text-link">{% trans "Gerir perfil" %} <i class="feather-arrow-right"></i></a></div>{% if skills_comprovadas %}<div class="skill-pill-list">{% for skill in skills_comprovadas|slice:":6" %}<span><i class="feather-check-circle"></i>{{ skill.skill.nome }}</span>{% endfor %}</div>{% else %}<div class="learner-inline-empty"><i class="feather-target"></i><div><strong>{% trans "Construa o seu perfil profissional." %}</strong><p>{% trans "As competências comprovadas aparecem aqui quando concluir formações elegíveis." %}</p></div><a href="{% url 'aluno_perfil' %}" class="learner-secondary-btn">{% trans "Ver perfil" %}</a></div>{% endif %}</section>
 </div>
 
-{% block dashboard_content_wrapper %}
-{% endblock %}
-
 <style>
-    /* Global Container Fix - não precisamos mais do background forçado pois usamos as caixas shadow do tema */
-    
-    /* Empty State Styles */
-    .empty-state-v2 {
-        padding: 60px 0;
-    }
-
-    .empty-h2 {
-        font-size: 32px;
-        font-weight: 700;
-        color: #000;
-        margin-bottom: 15px;
-        letter-spacing: -0.5px;
-    }
-    
-    body.active-dark-mode .empty-h2 {
-        color: #f8fafc;
-    }
-
-    .empty-p {
-        font-size: 14px;
-        color: #1f1f1f;
-        max-width: 700px;
-        margin: 0 auto;
-        line-height: 1.6;
-    }
-    
-    body.active-dark-mode .empty-p {
-        color: #94a3b8;
-    }
-
-    /* Name Verification Box */
-    .name-verification-box {
-        border: 1px solid #d1d7dc;
-        border-radius: 8px;
-        padding: 24px;
-        background-color: #fff;
-    }
-    
-    body.active-dark-mode .name-verification-box {
-        background-color: #1e293b;
-        border-color: #334155;
-    }
-
-    .v-title {
-        font-size: 16px;
-        font-weight: 700;
-        color: #000;
-        margin-bottom: 8px;
-    }
-    
-    body.active-dark-mode .v-title {
-        color: #f8fafc;
-    }
-
-    .v-text {
-        font-size: 14px;
-        color: #1f1f1f;
-        margin-bottom: 0;
-    }
-    
-    body.active-dark-mode .v-text {
-        color: #94a3b8;
-    }
-
-    .btn-verify-name {
-        display: inline-block;
-        padding: 10px 24px;
-        border: 1px solid #0056d2;
-        color: #0056d2;
-        border-radius: 4px;
-        font-weight: 600;
-        text-decoration: none;
-        font-size: 14px;
-        transition: all 0.2s;
-    }
-
-    .btn-verify-name:hover {
-        background-color: rgba(0, 86, 210, 0.05);
-    }
+    .learner-dashboard { color:#172033; }
+    .learner-welcome-row, .learner-section-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; }
+    .learner-welcome-row { margin-bottom:18px; }
+    .learner-kicker { color:#315bea; font-size:11px; font-weight:850; letter-spacing:.12em; text-transform:uppercase; margin-bottom:6px; }
+    .learner-welcome-row h2, .learner-section-heading h3 { margin:0; color:#172033; font-weight:850; letter-spacing:-.04em; }
+    .learner-welcome-row h2 { font-size:28px; }
+    .learner-section-heading h3 { font-size:21px; }
+    .learner-welcome-row p { margin:6px 0 0; color:#64748b; font-size:14px; }
+    .learner-text-link { color:#315bea; font-size:13px; font-weight:750; text-decoration:none; white-space:nowrap; }
+    .learner-text-link:hover { color:#1d3fc0; }
+    .continue-card { display:grid; grid-template-columns:290px 1fr; overflow:hidden; background:#fff; border:1px solid #e6eaf1; border-radius:18px; box-shadow:0 10px 28px rgba(15,23,42,.06); margin-bottom:22px; }
+    .continue-card-media { min-height:245px; position:relative; overflow:hidden; background:#172554; }
+    .continue-card-media img { width:100%; height:100%; min-height:245px; object-fit:cover; }
+    .continue-card-media:after { content:""; position:absolute; inset:0; background:linear-gradient(180deg,transparent 38%,rgba(15,23,42,.62)); }
+    .continue-badge { position:absolute; z-index:1; bottom:16px; left:18px; padding:8px 11px; color:#fff; background:#315bea; border-radius:8px; font-size:12px; font-weight:800; }
+    .continue-card-body { padding:25px 28px; }
+    .continue-meta { display:flex; align-items:center; justify-content:space-between; gap:10px; color:#64748b; text-transform:uppercase; letter-spacing:.08em; font-size:10px; font-weight:850; }
+    .continue-status { color:#198754; background:#eaf8f0; border-radius:999px; padding:5px 8px; letter-spacing:0; text-transform:none; }
+    .continue-card h3 { margin:15px 0 13px; font-size:23px; color:#172033; font-weight:850; letter-spacing:-.03em; }
+    .continue-detail { margin:7px 0; color:#64748b; font-size:13px; }
+    .continue-detail i { width:18px; color:#315bea; }
+    .progress-line-row { display:flex; justify-content:space-between; margin-top:18px; color:#64748b; font-size:12px; }
+    .progress-line-row strong { color:#315bea; }
+    .progress-line, .mini-progress { height:7px; overflow:hidden; border-radius:999px; background:#e9edf4; }
+    .progress-line { margin-top:7px; }
+    .progress-line span, .mini-progress span { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,#315bea,#7052e8); }
+    .progress-caption { color:#94a3b8; font-size:11px; margin-top:7px; }
+    .enrollment-state { margin-top:18px; padding:10px 12px; border-radius:9px; color:#146c43; background:#edf9f2; font-size:12px; font-weight:650; }
+    .enrollment-state i { margin-right:5px; }
+    .continue-actions { display:flex; gap:10px; margin-top:19px; }
+    .learner-primary-btn, .learner-secondary-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:11px 15px; border-radius:9px; font-size:12px; font-weight:800; text-decoration:none; transition:transform .18s ease, box-shadow .18s ease; }
+    .learner-primary-btn { color:#fff; background:#315bea; }
+    .learner-primary-btn:hover { color:#fff; transform:translateY(-1px); box-shadow:0 8px 18px rgba(49,91,234,.22); }
+    .learner-secondary-btn { color:#315bea; border:1px solid #d9e1f2; background:#fff; }
+    .learner-secondary-btn:hover { color:#315bea; border-color:#315bea; }
+    .learner-empty-hero { display:flex; align-items:center; justify-content:space-between; gap:20px; overflow:hidden; padding:31px; background:linear-gradient(120deg,#eef3ff,#f7f4ff); border:1px solid #dce5ff; border-radius:18px; margin-bottom:22px; }
+    .learner-empty-hero h3 { max-width:470px; color:#172033; font-size:24px; font-weight:850; letter-spacing:-.04em; }
+    .learner-empty-hero p { max-width:500px; color:#64748b; font-size:14px; margin:8px 0 18px; }
+    .learner-empty-hero img { width:170px; opacity:.85; }
+    .learner-stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:31px; }
+    .learner-stat-card { position:relative; display:flex; flex-direction:column; padding:17px; border-radius:14px; min-height:125px; text-decoration:none; overflow:hidden; transition:transform .18s ease, box-shadow .18s ease; }
+    .learner-stat-card:hover { transform:translateY(-2px); box-shadow:0 10px 24px rgba(15,23,42,.08); }
+    .stat-blue { background:#eef3ff; color:#315bea; }.stat-purple { background:#f4efff; color:#7b43d5; }.stat-orange { background:#fff5e9; color:#d17a17; }.stat-green { background:#eaf9f1; color:#198754; }
+    .stat-icon { display:flex; align-items:center; justify-content:center; width:33px; height:33px; border-radius:10px; background:rgba(255,255,255,.72); font-size:16px; }
+    .stat-value { margin-top:13px; font-size:25px; line-height:1; font-weight:850; }.stat-label { margin-top:5px; color:#64748b; font-size:11px; font-weight:750; }.stat-arrow { position:absolute; top:18px; right:17px; font-size:15px; }
+    .learner-section { padding:24px; background:#fff; border:1px solid #e6eaf1; border-radius:16px; margin-bottom:22px; box-shadow:0 7px 22px rgba(15,23,42,.035); }
+    .learner-section-heading { margin-bottom:18px; }
+    .learner-course-list { display:flex; flex-direction:column; gap:9px; }
+    .learner-mini-course { display:flex; align-items:center; gap:13px; padding:10px; border:1px solid #edf0f5; border-radius:11px; text-decoration:none; color:inherit; transition:border-color .18s ease, background .18s ease; }.learner-mini-course:hover { color:inherit; background:#f8faff; border-color:#ccd8ff; }.mini-course-image { width:78px; height:57px; border-radius:8px; overflow:hidden; flex:0 0 auto; }.mini-course-image img { width:100%; height:100%; object-fit:cover; }.mini-course-content { min-width:0; flex:1; }.mini-course-type { color:#315bea; font-size:10px; font-weight:850; text-transform:uppercase; letter-spacing:.07em; }.mini-course-content h4 { overflow:hidden; margin:3px 0 7px; color:#172033; font-size:14px; font-weight:800; text-overflow:ellipsis; white-space:nowrap; }.mini-progress { height:5px; max-width:250px; }.mini-course-content small { color:#94a3b8; font-size:10px; }.learner-mini-course > i { color:#94a3b8; }
+    .recommendations-section .rbt-card { border:1px solid #edf0f5; box-shadow:none; }
+    .learner-recommendation-empty, .learner-inline-empty { display:flex; align-items:center; gap:15px; padding:17px; background:#f8faff; border:1px dashed #cbd8ff; border-radius:12px; }.learner-recommendation-empty { justify-content:space-between; }.recommendation-icon { display:flex; align-items:center; justify-content:center; width:44px; height:44px; border-radius:12px; color:#315bea; background:#eaf0ff; font-size:20px; flex:0 0 auto; }.learner-recommendation-empty h4 { margin:0; color:#172033; font-size:15px; font-weight:800; }.learner-recommendation-empty p, .learner-inline-empty p { margin:3px 0 0; color:#64748b; font-size:12px; }.learner-inline-empty > i { color:#315bea; font-size:23px; }.learner-inline-empty > div { flex:1; }.learner-inline-empty strong { color:#172033; font-size:13px; }
+    .learner-lower-grid { display:grid; grid-template-columns:1fr 1fr; gap:22px; }.compact-section { margin-bottom:0; }.lower-empty { text-align:center; padding:17px 10px 5px; color:#94a3b8; }.lower-empty i { display:block; color:#cbd5e1; font-size:27px; margin-bottom:8px; }.lower-empty p { margin:0 auto 8px; max-width:260px; font-size:12px; }.lower-empty a { color:#315bea; font-size:12px; font-weight:750; text-decoration:none; }.success-empty i { color:#198754; }.favorite-lines { display:flex; flex-direction:column; gap:8px; }.favorite-lines a { display:flex; align-items:center; gap:9px; color:#172033; padding:9px 0; border-bottom:1px solid #edf0f5; font-size:12px; text-decoration:none; }.favorite-lines a i:first-child { color:#315bea; }.favorite-lines a i:last-child { margin-left:auto; color:#94a3b8; }.skills-section { margin-top:22px; }.skill-pill-list { display:flex; flex-wrap:wrap; gap:8px; }.skill-pill-list span { display:inline-flex; align-items:center; gap:6px; padding:8px 11px; color:#146c43; background:#edf9f2; border-radius:999px; font-size:12px; font-weight:700; }.skill-pill-list i { font-size:13px; }
+    body.active-dark-mode .learner-dashboard, body.active-dark-mode .learner-welcome-row h2, body.active-dark-mode .learner-section-heading h3, body.active-dark-mode .continue-card h3, body.active-dark-mode .mini-course-content h4, body.active-dark-mode .learner-empty-hero h3, body.active-dark-mode .learner-recommendation-empty h4, body.active-dark-mode .learner-inline-empty strong, body.active-dark-mode .favorite-lines a { color:#f8fafc; }
+    body.active-dark-mode .continue-card, body.active-dark-mode .learner-section { background:#111c31; border-color:#24344f; }.body.active-dark-mode .learner-shell-subtitle { color:#9fb0c8; }
+    @media (max-width: 991px) { .learner-stat-grid { grid-template-columns:repeat(2,1fr); }.continue-card { grid-template-columns:1fr; }.continue-card-media { min-height:190px; }.continue-card-media img { min-height:190px; }.learner-lower-grid { grid-template-columns:1fr; gap:0; }.compact-section { margin-bottom:22px; } }
+    @media (max-width: 575px) { .learner-welcome-row, .learner-section-heading { align-items:flex-start; flex-direction:column; gap:8px; }.learner-welcome-row h2 { font-size:24px; }.learner-section { padding:18px; }.continue-card-body { padding:20px; }.continue-actions { flex-direction:column; }.learner-primary-btn, .learner-secondary-btn { width:100%; }.learner-stat-grid { gap:9px; }.learner-stat-card { min-height:113px; padding:13px; }.learner-recommendation-empty, .learner-inline-empty { align-items:flex-start; flex-wrap:wrap; }.learner-recommendation-empty .learner-primary-btn, .learner-inline-empty .learner-secondary-btn { width:auto; margin-left:59px; }.learner-empty-hero { padding:22px; }.learner-empty-hero img { display:none; } }
 </style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Verificar se existe uma hash na URL (ex: #completed)
-    if(window.location.hash) {
-        var hash = window.location.hash;
-        // Encontrar a aba que corresponde à hash
-        var tabTriggerEl = document.querySelector('a[data-bs-target="' + hash + '"]');
-        if (tabTriggerEl) {
-            // Se existir, ativar a aba usando a API do Bootstrap
-            var tab = new bootstrap.Tab(tabTriggerEl);
-            tab.show();
-        }
-    }
-
-    // Opcional: Atualizar a URL (sem recarregar) quando clica nas abas do dashboard
-    var triggerTabList = [].slice.call(document.querySelectorAll('#sidebar-tabs a[data-bs-toggle="tab"]'))
-    triggerTabList.forEach(function (tabEl) {
-        tabEl.addEventListener('shown.bs.tab', function (event) {
-            var target = event.target.getAttribute('data-bs-target');
-            if(target) {
-                history.replaceState(null, null, target);
-            }
-        });
-    });
-});
-</script>
 {% endblock %}

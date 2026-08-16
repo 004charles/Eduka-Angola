@@ -929,3 +929,69 @@ class NotificacaoGestor(models.Model):
 
     def __str__(self):
         return f"{self.titulo} - {self.centro.nome}"
+
+
+class EventoIntegracao(models.Model):
+    """Evento recebido de uma plataforma externa, com controlo de processamento."""
+    STATUS_CHOICES = [
+        ('RECEBIDO', _('Recebido')),
+        ('PROCESSADO', _('Processado')),
+        ('ERRO', _('Erro')),
+    ]
+
+    centro = models.ForeignKey(CentroDeFormacao, on_delete=models.PROTECT, related_name='eventos_integracao')
+    external_id = models.CharField(_('ID Externo'), max_length=120)
+    tipo = models.CharField(_('Tipo de Evento'), max_length=60, default='INSCRICAO')
+    payload = models.JSONField(_('Dados Recebidos'), default=dict)
+    status = models.CharField(_('Estado'), max_length=12, choices=STATUS_CHOICES, default='RECEBIDO', db_index=True)
+    erro = models.TextField(_('Erro'), blank=True)
+    recebido_em = models.DateTimeField(_('Recebido em'), auto_now_add=True)
+    processado_em = models.DateTimeField(_('Processado em'), null=True, blank=True)
+
+    class Meta:
+        verbose_name = _('Evento de Integração')
+        verbose_name_plural = _('Eventos de Integração')
+        constraints = [models.UniqueConstraint(fields=['centro', 'external_id', 'tipo'], name='unique_centro_external_event')]
+        ordering = ['-recebido_em']
+
+
+class MembroCentro(models.Model):
+    FUNCAO_CHOICES = [
+        ('GESTOR', _('Gestor')),
+        ('SECRETARIA', _('Secretaria')),
+        ('CAIXA', _('Caixa')),
+        ('COORDENACAO', _('Coordenação pedagógica')),
+        ('CONSULTA', _('Consulta')),
+    ]
+    centro = models.ForeignKey(CentroDeFormacao, on_delete=models.CASCADE, related_name='membros_operacionais')
+    usuario = models.ForeignKey('usuarios.Usuario', on_delete=models.CASCADE, related_name='funcoes_centro')
+    funcao = models.CharField(_('Função'), max_length=16, choices=FUNCAO_CHOICES, default='SECRETARIA')
+    ativo = models.BooleanField(_('Ativo'), default=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('Membro Operacional do Centro')
+        verbose_name_plural = _('Membros Operacionais do Centro')
+        constraints = [models.UniqueConstraint(fields=['centro', 'usuario'], name='unique_membro_operacional_centro')]
+
+    def __str__(self):
+        return f"{self.usuario.nome} - {self.centro.nome} ({self.get_funcao_display()})"
+
+
+class AuditoriaCentro(models.Model):
+    acao = models.CharField(_('Ação'), max_length=80)
+    entidade = models.CharField(_('Entidade'), max_length=80)
+    objeto_id = models.CharField(_('ID do Objeto'), max_length=80, blank=True)
+    centro = models.ForeignKey(CentroDeFormacao, on_delete=models.CASCADE, related_name='auditorias')
+    utilizador = models.ForeignKey('usuarios.Usuario', on_delete=models.SET_NULL, null=True, blank=True, related_name='auditorias_centro')
+    dados = models.JSONField(_('Dados'), default=dict, blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        verbose_name = _('Auditoria do Centro')
+        verbose_name_plural = _('Auditorias do Centro')
+        ordering = ['-criado_em']
+        indexes = [models.Index(fields=['centro', 'entidade', 'criado_em'])]
+
+    def __str__(self):
+        return f"{self.acao} - {self.entidade} - {self.criado_em:%d/%m/%Y %H:%M}"

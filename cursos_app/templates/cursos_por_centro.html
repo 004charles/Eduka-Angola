@@ -541,9 +541,13 @@
                         <div class="profile-meta d-flex justify-content-center justify-content-md-start gap-3 fw-medium" style="color: var(--color-body);">
                             <span id="count-seguidores-topo"><strong>{{ seguidores_count|default:"0" }}</strong> seguidores</span>
                             <span>•</span>
-                            <span><strong>{{ centro.cursos.count }}</strong> cursos ativos</span>
+                            <span><strong>{{ total_cursos_publicados }}</strong> curso{{ total_cursos_publicados|pluralize:"s" }} publicado{{ total_cursos_publicados|pluralize:"s" }}</span>
                             <span>•</span>
-                            <span class="d-flex align-items-center"><i class="fa fa-star text-warning me-1"></i> <strong>4.8</strong> ({{centro.perfil.total_avaliacoes|default:"120"}})</span>
+                            {% if centro_total_avaliacoes %}
+                            <span class="d-flex align-items-center"><i class="fa fa-star text-warning me-1"></i> <strong>{{ centro_media_avaliacoes|floatformat:1 }}</strong> ({{ centro_total_avaliacoes }} avaliação{{ centro_total_avaliacoes|pluralize:"s" }})</span>
+                            {% else %}
+                            <span class="text-muted">Ainda sem avaliações</span>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -644,7 +648,7 @@
                             <ul class="rbt-information-list small mb-0" style="list-style: none; padding-left: 0;">
                                 <li class="d-flex mb-3 align-items-start">
                                     <i class="feather-map-pin me-3 text-muted fs-5"></i> 
-                                    <span class="text-body fw-medium">{{ centro.endereco|default:"Luanda, Angola"}}</span>
+                                    <span class="text-body fw-medium">{{ centro.get_endereco_completo }}</span>
                                 </li>
                                 {% if centro.perfil.telefone or centro.telefone %}
                                 <li class="d-flex mb-3 align-items-center">
@@ -660,7 +664,7 @@
                                 {% endif %}
                                 <li class="d-flex mb-3 align-items-center">
                                     <i class="feather-clock me-3 text-muted fs-5"></i> 
-                                    <span class="text-body fw-medium">{{centro.perfil.horario_funcionamento|default:"Seg-Sex: 8h-20h"}}</span>
+                                    <span class="text-body fw-medium">{% if centro.perfil.horario_funcionamento %}{{ centro.perfil.horario_funcionamento }}{% else %}Horário não informado{% endif %}</span>
                                 </li>
                             </ul>
                             
@@ -832,11 +836,13 @@
                                 <div class="row g-4">
                                     <div class="col-md-6">
                                         <h6 class="title"><i class="feather-target text-primary me-2"></i>Missão</h6>
-                                        <p class="small text-muted">{{ perfil.missao|default:"Promover ensino de qualidade." }}</p>
+                                                                                                <p class="small text-muted">{{ perfil.missao|default:"Missão não informada pelo centro." }}</p>
+
                                     </div>
                                     <div class="col-md-6">
                                         <h6 class="title"><i class="feather-eye text-success me-2"></i>Visão</h6>
-                                        <p class="small text-muted">{{ perfil.visao|default:"Ser referência nacional em educação." }}</p>
+                                                                                                <p class="small text-muted">{{ perfil.visao|default:"Visão não informada pelo centro." }}</p>
+
                                     </div>
                                 </div>
                                 
@@ -844,9 +850,10 @@
                                 
                                 <h5 class="title mb-3">Informações Adicionais</h5>
                                 <ul class="rbt-list-style-1">
-                                    <li><i class="feather-check text-success"></i> Fundado em: {{ centro.perfil.ano_fundacao|default:"2008" }}</li>
-                                    <li><i class="feather-check text-success"></i> Certificações: {{ centro.perfil.certificacoes|default:"DGERT" }}</li>
-                                    <li><i class="feather-check text-success"></i> Taxa de Empregabilidade: {{ centro.perfil.taxa_empregabilidade|default:"87%" }}</li>
+                                    {% if centro.perfil.ano_fundacao %}<li><i class="feather-check text-success"></i> Fundado em: {{ centro.perfil.ano_fundacao }}</li>{% endif %}
+                                    {% if centro.perfil.certificacoes %}<li><i class="feather-check text-success"></i> Certificações: {{ centro.perfil.certificacoes }}</li>{% endif %}
+                                    {% if centro.perfil.taxa_empregabilidade %}<li><i class="feather-check text-success"></i> Taxa de Empregabilidade: {{ centro.perfil.taxa_empregabilidade }}</li>{% endif %}
+                                    {% if not centro.perfil.ano_fundacao and not centro.perfil.certificacoes and not centro.perfil.taxa_empregabilidade %}<li class="text-muted"><i class="feather-info"></i> O centro ainda não disponibilizou informações adicionais.</li>{% endif %}
                                 </ul>
                             </div>
                         </div>

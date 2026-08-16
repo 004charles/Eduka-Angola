@@ -5,6 +5,8 @@ from django.conf.urls.static import static
 from cursos_app import views
 
 urlpatterns = [
+    path('api/react/checkout/<int:curso_id>/', views.api_react_iniciar_inscricao, name='api_react_iniciar_inscricao'),
+    path('api/react/checkout/inscricao/<int:inscricao_id>/pagamento/', views.api_react_iniciar_pagamento_inscricao, name='api_react_iniciar_pagamento_inscricao'),
     path('curso_detalhe/<int:id>/', views.curso_detalhe, name='curso_detalhe'),
     path('centro/<int:centro_id>/cursos/', views.cursos_por_centro, name='cursos_por_centro'),
     path('categoria/<slug:slug>/', views.cursos_por_categoria, name='cursos_por_categoria'),
