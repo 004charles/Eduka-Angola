@@ -15,16 +15,34 @@ function MiniCourse({ course }) {
   return <a className="editorial-mini-course" href={rotaDetalheProduto(course)}><img src={course.imagem_url} alt="" /><span><small>{course.centro || "Edukangola"}</small><strong>{course.titulo}</strong><em>{etiquetaProduto(course)}</em></span><ArrowUpRight size={16} /></a>;
 }
 
+function takeUnique(candidates, usedIds, limit = 3) {
+  const selected = [];
+  for (const course of candidates) {
+    if (usedIds.has(course.id)) continue;
+    selected.push(course);
+    usedIds.add(course.id);
+    if (selected.length === limit) break;
+  }
+  return selected;
+}
+
 export default function CourseEditorialShowcase({ data, onNavigate }) {
   const groups = useMemo(() => courseGroups(data), [data]);
   const [activeCareer, setActiveCareer] = useState("");
   const currentCareer = groups.find(([name]) => name === activeCareer) || groups[0] || ["", []];
   const allCourses = data?.cursos || [];
+  const usedIds = new Set(currentCareer[1].slice(0, 3).map((course) => course.id));
+  const newest = [...allCourses].sort((left, right) => new Date(right.data_publicacao) - new Date(left.data_publicacao));
+  const popular = takeUnique([...allCourses.filter((course) => course.destaque), ...allCourses], usedIds);
+  const videoCourses = takeUnique(allCourses.filter(isVideoCurso), usedIds);
+  const newCourses = takeUnique(newest, usedIds);
+  const exploreCourses = takeUnique(allCourses, usedIds);
   const collections = [
-    { label: "Mais procurados", courses: allCourses.filter((course) => course.destaque).slice(0, 3), fallback: allCourses.slice(0, 3) },
-    { label: "Novidades", courses: [...allCourses].sort((left, right) => new Date(right.data_publicacao) - new Date(left.data_publicacao)).slice(0, 3) },
-    { label: "Aprenda ao seu ritmo", courses: allCourses.filter(isVideoCurso).slice(0, 3), fallback: allCourses.slice(0, 3) },
-  ];
+    { label: "Mais procurados", courses: popular },
+    { label: "Novidades", courses: newCourses },
+    { label: "Aprenda ao seu ritmo", courses: videoCourses },
+    { label: "Para explorar", courses: exploreCourses },
+  ].filter((collection) => collection.courses.length);
 
   if (!allCourses.length) return null;
 
@@ -35,7 +53,7 @@ export default function CourseEditorialShowcase({ data, onNavigate }) {
         <div className="career-program-content"><div className="career-tabs" role="tablist" aria-label="Áreas de carreira">{groups.slice(0, 6).map(([name]) => <button key={name} type="button" role="tab" aria-selected={currentCareer[0] === name} className={currentCareer[0] === name ? "is-active" : ""} onClick={() => setActiveCareer(name)}>{name}</button>)}</div><div className="career-program-cards">{currentCareer[1].slice(0, 3).map((course) => <a href={rotaDetalheProduto(course)} className="career-program-card" key={course.id}><img src={course.imagem_url} alt="" /><span><small>{course.centro || "Edukangola"}</small><strong>{course.titulo}</strong><em>{etiquetaProduto(course)}</em></span></a>)}</div></div>
       </section>}
 
-      <section className="editorial-trending" aria-labelledby="trending-title"><div className="editorial-section-title"><span className="eyebrow muted"><Sparkles size={14} /> Cursos em alta</span><h2 id="trending-title">Encontre algo novo para aprender.</h2></div><div className="editorial-collections">{collections.map((collection) => <article key={collection.label}><h3>{collection.label} <ArrowRight size={16} /></h3><div>{(collection.courses.length ? collection.courses : collection.fallback || []).map((course) => <MiniCourse key={course.id} course={course} />)}</div></article>)}</div></section>
+      <section className="editorial-trending" aria-labelledby="trending-title"><div className="editorial-section-title"><span className="eyebrow muted"><Sparkles size={14} /> Cursos em alta</span><h2 id="trending-title">Encontre algo novo para aprender.</h2></div><div className="editorial-collections">{collections.map((collection) => <article key={collection.label}><h3>{collection.label} <ArrowRight size={16} /></h3><div>{collection.courses.map((course) => <MiniCourse key={course.id} course={course} />)}</div></article>)}</div></section>
 
       <section className="editorial-promo" aria-label="Explorar cursos"><div><span className="eyebrow">Edukangola</span><h2>Cursos para começar, mudar ou avançar.</h2><button onClick={() => onNavigate("/cursos")}>Explorar cursos <ArrowRight size={17} /></button></div><div className="editorial-promo-art" aria-hidden="true"><span /><span /><PlayCircle size={48} /></div></section>
     </div>

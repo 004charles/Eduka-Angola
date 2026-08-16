@@ -65,3 +65,6 @@
 
 - [x] Redesenhar apenas a área de cursos da página inicial com blocos editoriais inspirados nas referências enviadas
 - [x] Preservar sem alterações a parte superior actual da página inicial durante o redesenho dos cursos
+
+- [x] Aumentar o número de cursos mostrados nas colecções editoriais mantendo cada curso numa única colecção
+- [x] Validar que não existem cursos repetidos entre carreira em destaque, cursos em alta e vídeo-cursos
