@@ -171,3 +171,53 @@ def criar_pedido_bilhete(request):
         return JsonResponse({"sucesso": False, "erro": str(error)}, status=400)
     except Exception:
         return JsonResponse({"sucesso": False, "erro": "Não foi possível iniciar o pagamento do bilhete."}, status=500)
+
+@login_required
+@require_GET
+def meus_bilhetes(request):
+    pedidos = PedidoBilhete.objects.filter(
+        utilizador=request.user,
+        status='PAGO',
+        bilhetes__isnull=False,
+    ).select_related('evento', 'evento__organizador', 'lote').prefetch_related('bilhetes').distinct().order_by('-pago_em', '-criado_em')
+    itens = []
+    for pedido in pedidos:
+        for bilhete in pedido.bilhetes.all():
+            evento = pedido.evento
+            lote = bilhete.lote
+            itens.append({
+                'id': bilhete.id,
+                'codigo': str(bilhete.codigo),
+                'status': bilhete.status,
+                'status_label': bilhete.get_status_display(),
+                'emitido_em': bilhete.emitido_em.isoformat(),
+                'participante': bilhete.nome_participante,
+                'email_participante': bilhete.email_participante,
+                'referencia_pedido': pedido.referencia,
+                'referencia_pagamento': pedido.referencia_pagamento,
+                'pago_em': pedido.pago_em.isoformat() if pedido.pago_em else '',
+                'evento': {
+                    'titulo': evento.titulo,
+                    'slug': evento.slug,
+                    'imagem_url': _media_url(evento.imagem_capa),
+                    'data_inicio': evento.data_inicio.isoformat(),
+                    'data_inicio_formatada': timezone.localtime(evento.data_inicio).strftime('%d/%m/%Y · %H:%M'),
+                    'data_fim_formatada': timezone.localtime(evento.data_fim).strftime('%d/%m/%Y · %H:%M') if evento.data_fim else '',
+                    'local': evento.local,
+                    'cidade': evento.cidade,
+                    'provincia': evento.provincia,
+                    'modalidade': evento.get_modalidade_display(),
+                    'organizador': evento.organizador.nome,
+                },
+                'lote': {
+                    'nome': lote.nome,
+                    'texto_ingresso': lote.texto_ingresso,
+                    'beneficios': [item.strip() for item in lote.beneficios.splitlines() if item.strip()],
+                    'regras': [item.strip() for item in lote.regras.splitlines() if item.strip()],
+                    'cor_primaria': lote.cor_primaria,
+                    'cor_secundaria': lote.cor_secundaria,
+                    'imagem_ingresso_url': _media_url(lote.imagem_ingresso),
+                },
+                'detalhe_url': f'/eventos/{evento.slug}',
+            })
+    return JsonResponse({'bilhetes': itens})

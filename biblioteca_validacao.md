@@ -26,3 +26,7 @@ A página pública de Política de privacidade foi validada em português e é a
 ## FAQ dinâmica no Django Admin
 
 A página FAQ passou a carregar exclusivamente o endpoint público `/api/public/faq/`, filtrado por idioma e estado de publicação. Foram validadas perguntas publicadas em português e inglês, incluindo agrupamento por categoria e pesquisa no frontend.
+
+## Os meus bilhetes
+
+A API autenticada devolve somente bilhetes emitidos de pedidos pagos do utilizador actual. Foram validados a rota `/aluno/bilhetes`, o estado vazio sem compras confirmadas e o atalho Os meus bilhetes dentro da área do aluno.
