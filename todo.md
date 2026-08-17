@@ -207,5 +207,6 @@
 - [ ] Migrar a experiência completa de assinatura para o GestorEduka React
 - [x] Migrar certificados de cursos em vídeo para o GestorEduka React
 - [x] Migrar analytics de centro e filial para o GestorEduka React
-- [ ] Migrar atribuição de cursos a filiais, dossiê de alunos e alteração administrativa de matrículas para o GestorEduka React
+- [ ] Migrar atribuição de cursos a filiais e alteração administrativa de matrículas para o GestorEduka React
+- [x] Migrar pesquisa e dossiê de alunos para o GestorEduka React
 - [ ] Executar validação funcional com uma conta real de gestor antes de remover a dependência das rotas HTML legadas
