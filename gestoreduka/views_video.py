@@ -1,14 +1,133 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.views.decorators.http import require_http_methods
+import json
 
 from cursovideoapp.models import Curso_video, Aula, Certificado
-from gestoreduka.models import CentroDeFormacao
+from gestoreduka.models import CentroDeFormacao, AuditoriaCentro
 from gestoreduka.views import get_gestor_context
 from gestoreduka.forms import CursoVideoForm, AulaForm
 from gestoreduka.plan_permissions import get_plano_ativo, limite
+
+
+def _react_video_course_payload(curso, include_lessons=False):
+    try:
+        capa = curso.capa.url if curso.capa else ''
+    except ValueError:
+        capa = ''
+    result = {'id': curso.id, 'titulo': curso.titulo, 'descricao': curso.descricao, 'categoria_id': curso.categoria_id, 'categoria': curso.categoria.nome, 'is_pago': curso.is_pago, 'preco': str(curso.preco), 'destaque': curso.destaque, 'capa_url': capa, 'total_aulas': curso.aulas.count(), 'total_inscritos': curso.inscritos.count(), 'data_publicacao': curso.data_publicacao.isoformat()}
+    if include_lessons:
+        result['aulas'] = [{'id': aula.id, 'titulo': aula.titulo, 'video_url': aula.video_url, 'descricao': aula.descricao or '', 'ordem': aula.ordem} for aula in curso.aulas.order_by('ordem', 'id')]
+    return result
+
+
+def _react_video_data(request):
+    if request.content_type and request.content_type.startswith('application/json'):
+        try:
+            return json.loads(request.body or '{}'), None
+        except (TypeError, ValueError):
+            return None, JsonResponse({'detail': 'O pedido deve conter dados JSON válidos.'}, status=400)
+    return request.POST, None
+
+
+def _react_video_access(request):
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return None, None, JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    plano = get_plano_ativo(centro)
+    if not plano or not plano.permite_cursos_video:
+        return None, None, JsonResponse({'detail': 'O plano actual não permite gerir cursos em vídeo.'}, status=403)
+    return centro, filial, None
+
+
+@login_required
+@require_http_methods(['GET', 'POST'])
+def react_gestor_video_courses(request):
+    """Lista ou cria cursos em vídeo no centro autenticado, respeitando os limites do plano."""
+    centro, filial, response = _react_video_access(request)
+    if response:
+        return response
+    if request.method == 'GET':
+        form = CursoVideoForm()
+        return JsonResponse({'cursos': [_react_video_course_payload(curso) for curso in Curso_video.objects.filter(centro=centro).select_related('categoria').order_by('-data_publicacao')], 'categorias': [{'id': categoria.id, 'nome': categoria.nome} for categoria in form.fields['categoria'].queryset.order_by('nome')], 'limite': limite(centro, 'limite_cursos_video', padrao=0)})
+    if Curso_video.objects.filter(centro=centro).count() >= limite(centro, 'limite_cursos_video', padrao=0):
+        return JsonResponse({'detail': 'O limite de cursos em vídeo do plano foi atingido.'}, status=403)
+    payload, response = _react_video_data(request)
+    if response:
+        return response
+    form = CursoVideoForm(payload, request.FILES)
+    if not form.is_valid():
+        return JsonResponse({'detail': 'Verifique os dados do curso em vídeo.', 'errors': form.errors.get_json_data()}, status=400)
+    curso = form.save(commit=False)
+    curso.centro = centro
+    curso.save()
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='CURSO_VIDEO_CRIADO', entidade='Curso_video', objeto_id=str(curso.pk), dados={'titulo': curso.titulo})
+    return JsonResponse({'ok': True, 'curso': _react_video_course_payload(curso)}, status=201)
+
+
+@login_required
+@require_http_methods(['GET', 'PATCH', 'DELETE'])
+def react_gestor_video_course_detail(request, curso_id):
+    """Consulta, actualiza ou remove um curso em vídeo pertencente ao centro autenticado."""
+    centro, filial, response = _react_video_access(request)
+    if response:
+        return response
+    curso = get_object_or_404(Curso_video.objects.select_related('categoria'), id=curso_id, centro=centro)
+    if request.method == 'GET':
+        return JsonResponse({'curso': _react_video_course_payload(curso, include_lessons=True)})
+    if request.method == 'DELETE':
+        titulo = curso.titulo
+        curso.delete()
+        AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='CURSO_VIDEO_REMOVIDO', entidade='Curso_video', objeto_id=str(curso_id), dados={'titulo': titulo})
+        return JsonResponse({'ok': True, 'curso_id': curso_id})
+    payload, response = _react_video_data(request)
+    if response:
+        return response
+    form = CursoVideoForm(payload, request.FILES, instance=curso)
+    if not form.is_valid():
+        return JsonResponse({'detail': 'Verifique os dados do curso em vídeo.', 'errors': form.errors.get_json_data()}, status=400)
+    curso = form.save()
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='CURSO_VIDEO_ACTUALIZADO', entidade='Curso_video', objeto_id=str(curso.pk), dados={'titulo': curso.titulo})
+    return JsonResponse({'ok': True, 'curso': _react_video_course_payload(curso, include_lessons=True)})
+
+
+@login_required
+@require_http_methods(['POST'])
+def react_gestor_video_lessons(request, curso_id):
+    """Acrescenta uma aula validada a um curso em vídeo do centro autenticado."""
+    centro, filial, response = _react_video_access(request)
+    if response:
+        return response
+    curso = get_object_or_404(Curso_video, id=curso_id, centro=centro)
+    payload, response = _react_video_data(request)
+    if response:
+        return response
+    form = AulaForm(payload)
+    if not form.is_valid():
+        return JsonResponse({'detail': 'Verifique os dados da aula.', 'errors': form.errors.get_json_data()}, status=400)
+    aula = form.save(commit=False)
+    aula.curso = curso
+    aula.save()
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='AULA_VIDEO_CRIADA', entidade='Aula', objeto_id=str(aula.pk), dados={'curso_id': curso.pk, 'titulo': aula.titulo})
+    return JsonResponse({'ok': True, 'aula': {'id': aula.id, 'titulo': aula.titulo, 'video_url': aula.video_url, 'descricao': aula.descricao or '', 'ordem': aula.ordem}}, status=201)
+
+
+@login_required
+@require_http_methods(['DELETE'])
+def react_gestor_video_lesson_detail(request, aula_id):
+    """Remove uma aula de um curso em vídeo pertencente ao centro autenticado."""
+    centro, filial, response = _react_video_access(request)
+    if response:
+        return response
+    aula = get_object_or_404(Aula, id=aula_id, curso__centro=centro)
+    curso_id, titulo = aula.curso_id, aula.titulo
+    aula.delete()
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='AULA_VIDEO_REMOVIDA', entidade='Aula', objeto_id=str(aula_id), dados={'curso_id': curso_id, 'titulo': titulo})
+    return JsonResponse({'ok': True, 'aula_id': aula_id})
 
 @login_required
 def listar_cursos_video(request):

@@ -5444,6 +5444,74 @@ def react_gestor_branch_detail(request, filial_id):
     return JsonResponse({'ok': True, 'filial': _react_branch_payload(branch)})
 
 
+def _react_event_payload(evento):
+    return {'id': evento.id, 'titulo': evento.titulo, 'descricao': evento.descricao, 'data_inicio': evento.data_inicio.isoformat(), 'data_fim': evento.data_fim.isoformat() if evento.data_fim else '', 'local': evento.local, 'tipo': evento.tipo, 'link_inscricao': evento.link_inscricao or '', 'destaque': evento.destaque}
+
+
+def _react_event_values(payload, instance=None):
+    titulo = str(payload.get('titulo', instance.titulo if instance else '')).strip()
+    descricao = str(payload.get('descricao', instance.descricao if instance else '')).strip()
+    local = str(payload.get('local', instance.local if instance else '')).strip()
+    tipo = str(payload.get('tipo', instance.tipo if instance else ''))
+    try:
+        data_inicio = datetime.fromisoformat(str(payload.get('data_inicio', instance.data_inicio.isoformat() if instance else '')).replace('Z', '+00:00'))
+        data_fim_raw = payload.get('data_fim', instance.data_fim.isoformat() if instance and instance.data_fim else '')
+        data_fim = datetime.fromisoformat(str(data_fim_raw).replace('Z', '+00:00')) if data_fim_raw else None
+    except (TypeError, ValueError):
+        return None, 'Indique datas de início e fim válidas.'
+    if len(titulo) < 3 or len(descricao) < 10 or not local or tipo not in dict(Evento._meta.get_field('tipo').choices) or (data_fim and data_fim < data_inicio):
+        return None, 'Preencha título, descrição, local, tipo e datas válidos.'
+    return {'titulo': titulo, 'descricao': descricao, 'local': local, 'tipo': tipo, 'data_inicio': data_inicio, 'data_fim': data_fim, 'link_inscricao': str(payload.get('link_inscricao', instance.link_inscricao if instance else '')).strip(), 'destaque': bool(payload.get('destaque', instance.destaque if instance else False))}, None
+
+
+@login_required
+@require_http_methods(['GET', 'POST'])
+def react_gestor_events(request):
+    """Lista e cria eventos associados ao centro do gestor autenticado."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    if request.method == 'GET':
+        return JsonResponse({'eventos': [_react_event_payload(evento) for evento in centro.eventos.all().order_by('-data_inicio')], 'tipos': [{'value': value, 'label': label} for value, label in Evento._meta.get_field('tipo').choices]})
+    try:
+        payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'O pedido deve conter dados JSON válidos.'}, status=400)
+    values, error = _react_event_values(payload)
+    if error:
+        return JsonResponse({'detail': error}, status=400)
+    evento = Evento.objects.create(centro=centro, **values)
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='EVENTO_CRIADO', entidade='Evento', objeto_id=str(evento.pk), dados={'titulo': evento.titulo})
+    return JsonResponse({'ok': True, 'evento': _react_event_payload(evento)}, status=201)
+
+
+@login_required
+@require_http_methods(['PATCH', 'DELETE'])
+def react_gestor_event_detail(request, evento_id):
+    """Actualiza ou remove um evento pertencente ao centro do gestor autenticado."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    evento = get_object_or_404(Evento, id=evento_id, centro=centro)
+    if request.method == 'DELETE':
+        titulo = evento.titulo
+        evento.delete()
+        AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='EVENTO_REMOVIDO', entidade='Evento', objeto_id=str(evento_id), dados={'titulo': titulo})
+        return JsonResponse({'ok': True, 'evento_id': evento_id})
+    try:
+        payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'O pedido deve conter dados JSON válidos.'}, status=400)
+    values, error = _react_event_values(payload, instance=evento)
+    if error:
+        return JsonResponse({'detail': error}, status=400)
+    for field, value in values.items():
+        setattr(evento, field, value)
+    evento.save()
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='EVENTO_ACTUALIZADO', entidade='Evento', objeto_id=str(evento.pk), dados={'titulo': evento.titulo})
+    return JsonResponse({'ok': True, 'evento': _react_event_payload(evento)})
+
+
 def _react_media_url(field):
     try:
         return field.url if field else ''
