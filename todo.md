@@ -213,3 +213,4 @@
 - [x] Executar validação técnica automatizada do Django e da compilação React do GestorEduka
 - [ ] Executar validação funcional com uma conta real de gestor antes de remover a dependência das rotas HTML legadas
 - [ ] Executar validação manual do GestorEduka React com uma conta real de gestor quando o utilizador tiver acesso ao computador
+- [x] Criar e validar uma conta isolada de gestor para testes no ambiente de desenvolvimento
