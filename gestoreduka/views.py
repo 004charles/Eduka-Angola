@@ -5312,6 +5312,33 @@ def react_gestor_profile_media(request):
 
 
 @login_required
+@require_http_methods(['POST'])
+def react_gestor_enrollment_certificate(request, inscricao_id):
+    """Emite certificado presencial apenas quando os critérios académicos mínimos estiverem cumpridos."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    if not permite(centro, 'permite_gerar_certificado', permitir_periodo_teste=True):
+        return JsonResponse({'detail': 'O plano actual não permite a emissão de certificados.'}, status=403)
+    inscricao = get_object_or_404(_react_gestor_inscricoes_queryset(centro, filial).filter(status='A'), id=inscricao_id)
+    if not inscricao.turma_escolhida:
+        return JsonResponse({'detail': 'O aluno deve estar associado a uma turma antes de receber certificado.'}, status=400)
+    presencas = Presenca.objects.filter(turma=inscricao.turma_escolhida, inscricao=inscricao)
+    total = presencas.count()
+    percentagem = (presencas.filter(estado__in=['PRESENTE', 'ATRASO']).count() / total * 100) if total else 0
+    if total == 0 or percentagem < 75:
+        return JsonResponse({'detail': f'Certificado bloqueado: a assiduidade actual é de {percentagem:.0f}% e o mínimo exigido é 75%.'}, status=400)
+    nota_final = NotaAluno.objects.filter(turma=inscricao.turma_escolhida, inscricao=inscricao, avaliacao='Nota Final').first()
+    if not nota_final or nota_final.nota < 10:
+        nota = str(nota_final.nota) if nota_final else 'não registada'
+        return JsonResponse({'detail': f'Certificado bloqueado: a nota final é {nota}; o mínimo exigido é 10 valores.'}, status=400)
+    from cursos_app.models import CertificadoCurso
+    certificado, criado = CertificadoCurso.objects.get_or_create(inscricao=inscricao)
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='CERTIFICADO_EMITIDO' if criado else 'CERTIFICADO_CONFIRMADO', entidade='CertificadoCurso', objeto_id=str(certificado.pk), dados={'inscricao_id': inscricao.pk})
+    return JsonResponse({'ok': True, 'criado': criado, 'certificado': {'id': str(certificado.id), 'codigo_verificacao': certificado.codigo_verificacao}})
+
+
+@login_required
 @require_http_methods(['GET', 'POST'])
 def react_gestor_courses(request):
     """Lista os metadados necessários ao formulário React e cria cursos no centro da sessão."""
