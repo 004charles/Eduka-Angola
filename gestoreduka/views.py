@@ -5313,6 +5313,46 @@ def react_gestor_profile_media(request):
 
 @login_required
 @require_http_methods(['POST'])
+def react_gestor_profile_gallery(request):
+    """Adiciona uma imagem à galeria pública do centro principal com validação de ficheiro e categoria."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    if filial:
+        return JsonResponse({'detail': 'A edição da galeria institucional é reservada ao gestor principal do centro.'}, status=403)
+    ficheiro = request.FILES.get('imagem')
+    categoria = request.POST.get('categoria', 'OUTRO')
+    if not ficheiro or categoria not in {'SALAS', 'LABS', 'EVENTOS', 'OUTRO'}:
+        return JsonResponse({'detail': 'Selecione uma imagem e uma categoria válidas.'}, status=400)
+    if not str(ficheiro.content_type or '').startswith('image/') or ficheiro.size > 5 * 1024 * 1024:
+        return JsonResponse({'detail': 'Envie uma imagem com até 5 MB.'}, status=400)
+    imagem = GaleriaImagem.objects.create(
+        centro=centro, imagem=ficheiro, categoria=categoria,
+        titulo=request.POST.get('titulo', '').strip()[:100],
+        descricao=request.POST.get('descricao', '').strip() or None,
+        ordem=centro.galeria_imagens.count(),
+    )
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='GALERIA_IMAGEM_ADICIONADA', entidade='GaleriaImagem', objeto_id=str(imagem.pk), dados={'categoria': categoria})
+    return JsonResponse({'ok': True, 'imagem': {'id': imagem.id, 'titulo': imagem.titulo or '', 'url': _react_media_url(imagem.imagem), 'ordem': imagem.ordem}}, status=201)
+
+
+@login_required
+@require_http_methods(['DELETE'])
+def react_gestor_profile_gallery_detail(request, imagem_id):
+    """Remove uma imagem de galeria pertencente ao centro principal autenticado."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    if filial:
+        return JsonResponse({'detail': 'A edição da galeria institucional é reservada ao gestor principal do centro.'}, status=403)
+    imagem = get_object_or_404(GaleriaImagem, id=imagem_id, centro=centro)
+    imagem.delete()
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='GALERIA_IMAGEM_REMOVIDA', entidade='GaleriaImagem', objeto_id=str(imagem_id), dados={})
+    return JsonResponse({'ok': True, 'imagem_id': imagem_id})
+
+
+@login_required
+@require_http_methods(['POST'])
 def react_gestor_enrollment_certificate(request, inscricao_id):
     """Emite certificado presencial apenas quando os critérios académicos mínimos estiverem cumpridos."""
     centro, filial = get_gestor_context(request.user)

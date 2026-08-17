@@ -19,6 +19,8 @@ urlpatterns = [
     path('api/react/inscricoes/<int:inscricao_id>/certificado/', views.react_gestor_enrollment_certificate, name='react_gestor_enrollment_certificate'),
     path('api/react/perfil/', views.react_gestor_profile, name='react_gestor_profile'),
     path('api/react/perfil/media/', views.react_gestor_profile_media, name='react_gestor_profile_media'),
+    path('api/react/perfil/galeria/', views.react_gestor_profile_gallery, name='react_gestor_profile_gallery'),
+    path('api/react/perfil/galeria/<int:imagem_id>/', views.react_gestor_profile_gallery_detail, name='react_gestor_profile_gallery_detail'),
     path('', RedirectView.as_view(pattern_name='login_gestor', permanent=False), name='gestoreduka_home'),
     path('dashboard/centro/', views.centro_dashboard, name='centro_dashboard'),
     path('dashboard/seguidores/', views.listar_seguidores, name='listar_seguidores'),
