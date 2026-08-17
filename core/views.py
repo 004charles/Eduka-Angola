@@ -1107,6 +1107,7 @@ def public_video_course_detail(request, slug):
         },
         'aulas': aulas,
         'turmas': turmas,
+        'tem_acesso': aluno_inscrito,
         'avaliacoes': {
             'media': round(estatisticas_avaliacao['media'] or 0, 1),
             'total': total_avaliacoes,
