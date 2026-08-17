@@ -176,3 +176,4 @@
 - [x] Refazer o destaque editorial dos cursos em vídeo de acordo com a identidade visual própria da Edukangola
 - [x] Reconstruir toda a página de cursos em vídeo no estilo Edukangola com descoberta tipo streaming
 - [x] Compactar a navegação pública e organizar opções secundárias num painel Explorar
+- [x] Cadastrar vinte cursos em vídeo diversos no catálogo da Edukangola
