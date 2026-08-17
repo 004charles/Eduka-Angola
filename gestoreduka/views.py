@@ -6,7 +6,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, QueryDict
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 import json
@@ -4835,6 +4835,74 @@ def react_gestor_course_delete(request, curso_id):
     curso.delete()
     AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='CURSO_REMOVIDO', entidade='Curso', objeto_id=str(curso_id), dados={'titulo': titulo})
     return JsonResponse({'ok': True, 'curso_id': curso_id})
+
+
+def _react_course_form_payload(curso):
+    """Serializa os campos que o formulário React de cursos pode actualizar."""
+    return {
+        'id': curso.id, 'titulo': curso.titulo, 'descricao': curso.descricao,
+        'descricao_curta': curso.descricao_curta, 'categoria': curso.categoria_id,
+        'nivel': curso.nivel, 'idioma': curso.idioma, 'duracao': curso.duracao,
+        'moeda': curso.moeda, 'modalidade': curso.modalidade,
+        'carga_horaria': curso.carga_horaria, 'preco': str(curso.preco),
+        'preco_inscricao': str(curso.preco_inscricao), 'mensalidade': str(curso.mensalidade),
+        'tipo_cobranca_inscricao': curso.tipo_cobranca_inscricao,
+        'documento_requerido': curso.documento_requerido, 'certificado': curso.certificado,
+        'is_gratuito': curso.is_gratuito, 'publicado': curso.publicado,
+        'destaque': curso.destaque, 'permite_parcelamento': curso.permite_parcelamento,
+        'max_parcelas': curso.max_parcelas, 'preco_promocional': str(curso.preco_promocional or ''),
+        'data_inicio_promocao': curso.data_inicio_promocao.isoformat() if curso.data_inicio_promocao else '',
+        'data_fim_promocao': curso.data_fim_promocao.isoformat() if curso.data_fim_promocao else '',
+        'instrutores': list(curso.instrutores.values_list('id', flat=True)),
+        'turmas': [
+            {
+                'id': turma.id, 'nome': turma.nome, 'turno': turma.turno,
+                'horario_inicio': turma.horario_inicio.strftime('%H:%M') if turma.horario_inicio else '',
+                'horario_fim': turma.horario_fim.strftime('%H:%M') if turma.horario_fim else '',
+                'dias_semana': turma.dias_semana.split(',') if turma.dias_semana else [],
+                'data_inicio': turma.data_inicio.strftime('%Y-%m-%d') if turma.data_inicio else '',
+                'data_fim': turma.data_fim.strftime('%Y-%m-%d') if turma.data_fim else '',
+                'vagas_totais': turma.vagas_totais, 'local': turma.local, 'sala': turma.sala,
+                'status': turma.status, 'observacoes': turma.observacoes,
+            }
+            for turma in curso.turmas.all().order_by('data_inicio', 'nome')
+        ],
+    }
+
+
+@login_required
+@require_http_methods(['GET', 'PATCH'])
+def react_gestor_course_detail(request, curso_id):
+    """Lê ou actualiza um curso do centro da sessão através do CursoForm existente."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    curso = get_object_or_404(Curso.objects.prefetch_related('instrutores', 'turmas'), id=curso_id, centro=centro)
+    if filial and not filial.cursos_disponiveis.filter(id=curso.id).exists():
+        return JsonResponse({'detail': 'Não pode gerir cursos de outra filial.'}, status=403)
+    if request.method == 'GET':
+        return JsonResponse({'curso': _react_course_form_payload(curso)})
+    try:
+        payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'O pedido de edição deve conter dados JSON válidos.'}, status=400)
+    data = QueryDict('', mutable=True)
+    for key, value in payload.items():
+        if key == 'turmas':
+            continue
+        if isinstance(value, list):
+            data.setlist(key, [str(item) for item in value])
+        elif isinstance(value, bool):
+            if value:
+                data[key] = 'on'
+        elif value is not None:
+            data[key] = str(value)
+    form = CursoForm(data, instance=curso, centro=centro)
+    if not form.is_valid():
+        return JsonResponse({'detail': 'Corrija os campos assinalados.', 'errors': form.errors.get_json_data()}, status=400)
+    curso = form.save()
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='CURSO_ACTUALIZADO', entidade='Curso', objeto_id=str(curso.pk), dados={'titulo': curso.titulo})
+    return JsonResponse({'ok': True, 'curso': _react_course_form_payload(curso)})
 
 
 @login_required
