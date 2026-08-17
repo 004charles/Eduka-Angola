@@ -167,3 +167,5 @@
 - [x] Redesenhar a área de cursos em vídeo com experiência visual cinematográfica de streaming
 - [x] Criar uma entrada de vídeo com mosaico de capas e mensagem central de plataforma
 - [x] Adaptar a área de vídeo ao modo claro/escuro global e aumentar a densidade do mosaico
+- [x] Adicionar mais colecções editoriais à biblioteca de cursos em vídeo
+- [x] Diferenciar os cartões de cursos em vídeo da grelha de formações presenciais
