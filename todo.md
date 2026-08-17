@@ -225,3 +225,6 @@
 - [x] Separar o painel, cursos, turmas, inscrições, equipa, comunicação, finanças e perfil em páginas próprias
 - [x] Recuperar estilos consistentes para todos os módulos e respectivos estados vazios
 - [x] Validar a navegação, permissões e dados reais na experiência multipágina
+- [x] Auditar o estilo actual da página Perfil público do GestorEduka
+- [x] Redesenhar o Perfil público com composição institucional, meios visuais e formulário organizado
+- [x] Validar o formulário, uploads e apresentação do Perfil público no domínio de desenvolvimento
