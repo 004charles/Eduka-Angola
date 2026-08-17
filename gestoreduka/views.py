@@ -5512,6 +5512,38 @@ def react_gestor_event_detail(request, evento_id):
     return JsonResponse({'ok': True, 'evento': _react_event_payload(evento)})
 
 
+@login_required
+@require_http_methods(['GET'])
+def react_gestor_finance(request):
+    """Devolve o resumo financeiro real do centro, respeitando a restrição da filial autenticada."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    inscricoes = Inscricao.objects.filter(curso__centro=centro, valor_pago__gt=0).select_related('curso', 'aluno')
+    if filial:
+        inscricoes = inscricoes.filter(curso__filiais=filial)
+    recebimentos = RecebimentoCentro.objects.filter(centro=centro, estado='CONFIRMADO').select_related('aluno', 'matricula__curso', 'matricula__turma')
+    if filial:
+        recebimentos = recebimentos.filter(matricula__turma__filial=filial)
+    total_plataforma = inscricoes.aggregate(total=Sum('valor_pago'))['total'] or 0
+    total_presencial = recebimentos.aggregate(total=Sum('valor'))['total'] or 0
+    movimentos = [
+        {'tipo': 'PLATAFORMA', 'referencia': item.codigo_inscricao or f'INS-{item.id}', 'aluno': item.aluno.nome, 'curso': item.curso.titulo, 'valor': str(item.valor_pago), 'forma': item.get_forma_pagamento_display(), 'data': (item.data_pagamento or item.data_inscricao).isoformat()}
+        for item in inscricoes.order_by('-data_pagamento', '-data_inscricao')[:30]
+    ] + [
+        {'tipo': 'PRESENCIAL', 'referencia': item.referencia, 'aluno': item.aluno.nome, 'curso': item.matricula.curso.titulo, 'valor': str(item.valor), 'forma': item.get_forma_display(), 'data': item.data_recebimento.isoformat()}
+        for item in recebimentos.order_by('-data_recebimento')[:30]
+    ]
+    movimentos.sort(key=lambda item: item['data'], reverse=True)
+    por_filial = []
+    if not filial:
+        for branch in centro.filiais.all().order_by('nome'):
+            valor = Inscricao.objects.filter(curso__filiais=branch, valor_pago__gt=0).aggregate(total=Sum('valor_pago'))['total'] or 0
+            presencial = RecebimentoCentro.objects.filter(centro=centro, estado='CONFIRMADO', matricula__turma__filial=branch).aggregate(total=Sum('valor'))['total'] or 0
+            por_filial.append({'id': branch.id, 'nome': branch.nome, 'valor': str(valor + presencial)})
+    return JsonResponse({'metricas': {'plataforma': str(total_plataforma), 'presencial': str(total_presencial), 'total': str(total_plataforma + total_presencial), 'quantidade_movimentos': inscricoes.count() + recebimentos.count()}, 'movimentos': movimentos[:50], 'por_filial': por_filial})
+
+
 def _react_media_url(field):
     try:
         return field.url if field else ''
