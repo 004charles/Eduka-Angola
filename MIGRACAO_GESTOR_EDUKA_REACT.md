@@ -28,7 +28,7 @@ Substituir progressivamente a experiência HTML do GestorEduka por uma aplicaç�
 
 ## Estado da primeira fundação
 
-O GestorEduka React já tem uma rota protegida, ecrã de acesso, identidade Edukangola, modo claro/escuro, métricas reais do centro, lista real de cursos e operação rápida de publicar ou retirar um curso. A validação sem sessão mostrou o ecrã de entrada React e a ligação ao login de gestor, sem expor dados administrativos.
+O GestorEduka React já tem uma rota protegida, ecrã de acesso, identidade Edukangola, modo claro/escuro, métricas reais do centro, lista real de cursos, operação rápida de publicar ou retirar um curso e criação React de cursos presenciais. O formulário usa as validações Django existentes para categorias, formadores, preços, modalidade, certificados, destaque e publicação. A validação sem sessão mostrou o ecrã de entrada React e a ligação ao login de gestor, sem expor dados administrativos.
 
 Os testes `gestoreduka.test_react_dashboard` validam que o painel recusa visitantes sem sessão, entrega apenas o centro associado ao gestor autenticado e permite alterar a publicação de um curso pertencente a esse centro.
 
