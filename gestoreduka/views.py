@@ -5777,6 +5777,37 @@ def react_gestor_internship_detail(request, estagio_id):
     return JsonResponse({'ok': True, 'estagio': _react_internship_payload(estagio)})
 
 
+@login_required
+@require_http_methods(['GET'])
+def react_gestor_analytics(request):
+    """Devolve indicadores operacionais do centro ou da filial autenticada para o painel React."""
+    from datetime import timedelta
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    limite = timezone.now() - timedelta(days=30)
+    inscricoes = Inscricao.objects.filter(curso__centro=centro)
+    cursos = centro.cursos.all()
+    if filial:
+        inscricoes, cursos = inscricoes.filter(curso__filiais=filial), filial.cursos_disponiveis.all()
+    receita = inscricoes.filter(status='A', data_confirmacao__gte=limite).aggregate(total=Sum('valor_pago'))['total'] or 0
+    top = cursos.annotate(total_alunos=Count('inscricoes', filter=Q(inscricoes__status='A'))).order_by('-total_alunos', 'titulo')[:5]
+    return JsonResponse({'metricas': {'receita_30_dias': str(receita), 'inscricoes_30_dias': inscricoes.filter(data_inscricao__gte=limite).count(), 'inscricoes_confirmadas': inscricoes.filter(status='A').count(), 'cursos_publicados': cursos.filter(publicado=True).count()}, 'top_cursos': [{'id': curso.id, 'titulo': curso.titulo, 'alunos': curso.total_alunos} for curso in top]})
+
+
+@login_required
+@require_http_methods(['GET'])
+def react_gestor_subscription(request):
+    """Expõe somente dados de assinatura e planos disponíveis; não inicia pagamentos no endpoint React."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro or filial:
+        return JsonResponse({'detail': 'A gestão de assinaturas é reservada ao gestor principal do centro.'}, status=403)
+    assinatura = getattr(centro, 'assinatura', None)
+    plano_actual = assinatura.plano if assinatura and assinatura.plano_id else None
+    planos = Plano.objects.filter(ativo=True).exclude(id=plano_actual.id if plano_actual else None).order_by('preco')
+    return JsonResponse({'assinatura': {'status': assinatura.status if assinatura else 'SEM_ASSINATURA', 'plano': {'id': plano_actual.id, 'nome': plano_actual.nome, 'preco': str(plano_actual.preco)} if plano_actual else None}, 'planos': [{'id': plano.id, 'nome': plano.nome, 'preco': str(plano.preco), 'permite_cursos_video': plano.permite_cursos_video} for plano in planos], 'checkout_legacy_url': '/backend/gestoreduka/assinatura/'})
+
+
 def _react_media_url(field):
     try:
         return field.url if field else ''

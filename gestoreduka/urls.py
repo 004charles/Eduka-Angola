@@ -42,6 +42,8 @@ urlpatterns = [
     path('api/react/comentarios/<int:comentario_id>/', views.react_gestor_comment_detail, name='react_gestor_comment_detail'),
     path('api/react/estagios/', views.react_gestor_internships, name='react_gestor_internships'),
     path('api/react/estagios/<int:estagio_id>/', views.react_gestor_internship_detail, name='react_gestor_internship_detail'),
+    path('api/react/analytics/', views.react_gestor_analytics, name='react_gestor_analytics'),
+    path('api/react/assinatura/', views.react_gestor_subscription, name='react_gestor_subscription'),
     path('', RedirectView.as_view(pattern_name='login_gestor', permanent=False), name='gestoreduka_home'),
     path('dashboard/centro/', views.centro_dashboard, name='centro_dashboard'),
     path('dashboard/seguidores/', views.listar_seguidores, name='listar_seguidores'),
