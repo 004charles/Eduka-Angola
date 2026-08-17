@@ -1094,6 +1094,12 @@ def logout_usuario(request):
     """
     auth_logout(request)
     return redirect('/')
+
+
+@require_POST
+def api_react_logout(request):
+    auth_logout(request)
+    return JsonResponse({'ok': True, 'message': 'Sessão terminada.'})
   
 def tipo_user(request):
     """

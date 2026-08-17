@@ -29,7 +29,7 @@ import BookReaderPage from "./pages/BookReaderPage";
 import FAQPage from "./pages/FAQPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import NotFoundPage from "./pages/NotFoundPage";
-import { getStudentSession } from "./lib/auth-api";
+import { getStudentSession, logoutStudent } from "./lib/auth-api";
 import { I18nProvider, LANGUAGES } from "./lib/i18n";
 
 function getRoute() { return `${window.location.pathname}${window.location.search}`; }
@@ -108,6 +108,18 @@ function App() {
 
   const navigate = (destination, scroll = true) => { window.history.pushState({}, "", destination); setRoute(getRoute()); if (scroll) window.scrollTo({ top: 0, behavior: "smooth" }); };
   const announce = (message) => { setNotice(message); window.setTimeout(() => setNotice(""), 3200); };
+  const handleLogout = async () => {
+    if (!window.confirm("Tem a certeza de que quer terminar a sessão?")) return;
+    try {
+      await logoutStudent();
+      setStudent(null);
+      window.__edukaFavoriteIds = [];
+      window.dispatchEvent(new CustomEvent("eduka:favorites-changed", { detail: { ids: [] } }));
+      navigate("/");
+    } catch {
+      announce("Não foi possível terminar a sessão. Tente novamente.");
+    }
+  };
   if (appLoading) return <LoadingScreen theme={theme} />;
 
   const [pathname, queryString = ""] = route.split("?");
@@ -134,7 +146,7 @@ function App() {
   else if (authModes[pathname]) page = <AuthPage key={pathname} mode={authModes[pathname]} courses={homeData?.cursos || []} onNavigate={navigate} onSessionReady={refreshStudentSession} />;
   else if (pathname === "/aluno") page = <StudentDashboardPage onNavigate={navigate} />;
   else if (pathname === "/aluno/preferencias") page = <StudentPreferencesPage onNavigate={navigate} />;
-  else if (pathname === "/aluno/configuracoes") page = <StudentSettingsPage onNavigate={navigate} />;
+  else if (pathname === "/aluno/configuracoes") page = <StudentSettingsPage onNavigate={navigate} onLogout={handleLogout} />;
   else if (pathname === "/aluno/bilhetes") page = <MyTicketsPage onNavigate={navigate} />;
   else if (pathname === "/pagamento/sucesso" || pathname === "/pagamento/sucesso/") page = <PaymentResultPage onNavigate={navigate} />;
   else if (pathname === "/pagamento/cancelado" || pathname === "/pagamento/cancelado/") page = <PaymentResultPage onNavigate={navigate} />;
@@ -160,7 +172,7 @@ function App() {
   else if (pathname === "/sobre" || pathname === "/sobre-a-edukangola") page = <AboutPage data={homeData} student={student} onNavigate={navigate} />;
   else page = <NotFoundPage onNavigate={navigate} />;
 
-  return <I18nProvider language={language} onLanguageChange={setLanguage}><PublicLayout suggestions={homeData?.cursos || []} student={student} theme={theme} language={language} path={pathname} onThemeChange={() => setTheme(theme === "light" ? "dark" : "light")} onLanguageChange={setLanguage} onNavigate={navigate}>{page}{notice && <div className="notice" role="status">{notice}</div>}</PublicLayout></I18nProvider>;
+  return <I18nProvider language={language} onLanguageChange={setLanguage}><PublicLayout suggestions={homeData?.cursos || []} student={student} theme={theme} language={language} path={pathname} onThemeChange={() => setTheme(theme === "light" ? "dark" : "light")} onLanguageChange={setLanguage} onNavigate={navigate} onLogout={handleLogout}>{page}{notice && <div className="notice" role="status">{notice}</div>}</PublicLayout></I18nProvider>;
 }
 
 export default App;

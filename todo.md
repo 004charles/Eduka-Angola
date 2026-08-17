@@ -146,3 +146,7 @@
 
 - [ ] Configurar no provedor actual o gateway web e o worker independente de notificações
 - [ ] Definir os segredos do ambiente do mesmo provedor sem os guardar no GitHub
+
+- [x] Adicionar Terminar sessão ao menu da conta do aluno
+- [x] Adicionar Terminar sessão à página de Configurações do aluno
+- [x] Validar limpeza da sessão e redireccionamento após logout
