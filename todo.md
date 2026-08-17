@@ -178,3 +178,5 @@
 - [x] Compactar a navegação pública e organizar opções secundárias num painel Explorar
 - [x] Cadastrar vinte cursos em vídeo diversos no catálogo da Edukangola
 - [x] Mostrar cursos em vídeo iniciados e não concluídos na secção Continue a aprender
+- [x] Corrigir o estilo do botão de acesso gratuito nos cursos em vídeo
+- [x] Verificar e disponibilizar avaliações por estrelas e comentários nos cursos em vídeo

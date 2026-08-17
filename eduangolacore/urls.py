@@ -57,6 +57,7 @@ urlpatterns = [
     path('auth/api/react/aluno/preferencias/', views.react_student_preferences, name='react_student_preferences'),
     path('auth/api/react/aluno/preferencias/actualizar/', views.react_student_preferences_update, name='react_student_preferences_update'),
     path('api/react/video-cursos/<slug:slug>/sala/', views.react_video_learning, name='api_react_video_learning'),
+    path('api/react/video-cursos/<slug:slug>/avaliacao/', views.react_video_course_review, name='api_react_video_course_review'),
     path('api/react/video-cursos/<slug:slug>/aulas/<int:aula_id>/nota/', views.react_video_note, name='api_react_video_note'),
     path('api/react/video-cursos/<slug:slug>/aulas/<int:aula_id>/duvida/', views.react_video_comment, name='api_react_video_comment'),
     path('api/react/video-cursos/<slug:slug>/aulas/<int:aula_id>/ajuda-ia/', views.react_video_ai_answer, name='api_react_video_ai_answer'),

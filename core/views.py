@@ -11,7 +11,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.db.models import Count, Q, Prefetch, Value, F
+from django.db.models import Avg, Count, Q, Prefetch, Value, F
 from django.db.utils import OperationalError
 from django.db.models.functions import Coalesce
 from django.urls import reverse
@@ -38,6 +38,7 @@ from django.utils.html import strip_tags
 
 from .models import Galeria, SobreNos, MensagemContato, Publicidade, PerguntaFrequente
 from avaliacoes.utils import get_centro_da_semana
+from avaliacoes.models import Comentario
 from cursos_app.utils_secoes import get_home_sections_data
 
 
@@ -1010,6 +1011,7 @@ def public_center_profile(request, centro_id):
     })
 
 
+@ensure_csrf_cookie
 def public_video_course_detail(request, slug):
     """Currículo público de um vídeo-curso, com aulas reais sem expor URLs privadas."""
     curso = Curso_video.objects.select_related('instrutor', 'centro', 'categoria').prefetch_related('aulas', 'turmas').filter(slug=slug).first()
@@ -1040,6 +1042,45 @@ def public_video_course_detail(request, slug):
                 'horario': turma.horario_formatado(),
                 'vagas_disponiveis': turma.vagas_disponiveis,
             })
+
+    comentarios_qs = Comentario.objects.filter(curso_video=curso, aprovado=True, parent__isnull=True).select_related('aluno').order_by('-data_comentario')
+    estatisticas_avaliacao = comentarios_qs.aggregate(media=Avg('avaliacao'), total=Count('id'))
+    total_avaliacoes = estatisticas_avaliacao['total'] or 0
+    distribuicao = []
+    for estrelas in range(5, 0, -1):
+        quantidade = comentarios_qs.filter(avaliacao=estrelas).count()
+        distribuicao.append({'estrelas': estrelas, 'quantidade': quantidade, 'percentagem': round((quantidade / total_avaliacoes) * 100) if total_avaliacoes else 0})
+
+    aluno = getattr(request.user, 'aluno_profile', None) if request.user.is_authenticated and getattr(request.user, 'tipo_usuario', None) == 'ALUNO' else None
+    aluno_inscrito = bool(aluno and curso.inscritos.filter(pk=aluno.pk).exists())
+    aluno_iniciou = bool(aluno and ProgressoAula.objects.filter(aluno=aluno, aula__curso=curso).exists())
+    minha_avaliacao = Comentario.objects.filter(aluno=aluno, curso_video=curso, parent__isnull=True).first() if aluno else None
+    comentarios = []
+    for comentario in comentarios_qs[:8]:
+        partes_nome = (comentario.aluno.nome or 'Aluno').split()
+        autor = f'{partes_nome[0]} {partes_nome[-1][0]}.' if len(partes_nome) > 1 else partes_nome[0]
+        comentarios.append({
+            'id': comentario.id,
+            'autor': autor,
+            'avaliacao': comentario.avaliacao,
+            'comentario': comentario.comentario,
+            'data': comentario.data_comentario.strftime('%d/%m/%Y'),
+            'resposta': comentario.resposta or '',
+            'resposta_data': comentario.resposta_data.strftime('%d/%m/%Y') if comentario.resposta_data else '',
+        })
+
+    if not aluno:
+        estado_avaliacao = 'INICIE_SESSAO'
+        mensagem_avaliacao = 'Inicie sessão para avaliar este curso.'
+    elif not aluno_inscrito:
+        estado_avaliacao = 'SEM_ACESSO'
+        mensagem_avaliacao = 'Adquira ou active o acesso ao curso para partilhar a sua experiência.'
+    elif not aluno_iniciou:
+        estado_avaliacao = 'AINDA_NAO_INICIOU'
+        mensagem_avaliacao = 'Assista pelo menos uma aula antes de avaliar este curso.'
+    else:
+        estado_avaliacao = 'DISPONIVEL'
+        mensagem_avaliacao = ''
     return JsonResponse({
         'id': curso.id,
         'slug': curso.slug,
@@ -1066,6 +1107,53 @@ def public_video_course_detail(request, slug):
         },
         'aulas': aulas,
         'turmas': turmas,
+        'avaliacoes': {
+            'media': round(estatisticas_avaliacao['media'] or 0, 1),
+            'total': total_avaliacoes,
+            'distribuicao': distribuicao,
+            'comentarios': comentarios,
+        },
+        'minha_avaliacao': {'avaliacao': minha_avaliacao.avaliacao, 'comentario': minha_avaliacao.comentario} if minha_avaliacao else None,
+        'permissao_avaliacao': {'estado': estado_avaliacao, 'pode_avaliar': estado_avaliacao == 'DISPONIVEL', 'mensagem': mensagem_avaliacao},
+    })
+
+
+@require_POST
+def react_video_course_review(request, slug):
+    """Cria ou actualiza a avaliação do próprio aluno num curso em vídeo já iniciado."""
+    if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'ALUNO':
+        return JsonResponse({'detail': 'Inicie sessão como aluno para avaliar este curso.'}, status=401)
+    aluno = getattr(request.user, 'aluno_profile', None)
+    curso = Curso_video.objects.filter(slug=slug).first()
+    if not aluno or not curso:
+        return JsonResponse({'detail': 'Curso ou perfil de aluno não encontrado.'}, status=404)
+    if not curso.inscritos.filter(pk=aluno.pk).exists():
+        return JsonResponse({'detail': 'Só pode avaliar cursos aos quais tem acesso.'}, status=403)
+    if not ProgressoAula.objects.filter(aluno=aluno, aula__curso=curso).exists():
+        return JsonResponse({'detail': 'Assista pelo menos uma aula antes de avaliar este curso.'}, status=403)
+    try:
+        payload = json.loads(request.body or '{}')
+        avaliacao = int(payload.get('avaliacao'))
+        comentario = str(payload.get('comentario') or '').strip()
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return JsonResponse({'detail': 'Dados de avaliação inválidos.'}, status=400)
+    if avaliacao not in {1, 2, 3, 4, 5}:
+        return JsonResponse({'detail': 'Escolha entre uma e cinco estrelas.'}, status=400)
+    if len(comentario) < 10:
+        return JsonResponse({'detail': 'O comentário deve ter pelo menos 10 caracteres.'}, status=400)
+    if len(comentario) > 1000:
+        return JsonResponse({'detail': 'O comentário não pode ultrapassar 1000 caracteres.'}, status=400)
+    avaliacao_obj, criada = Comentario.objects.update_or_create(
+        aluno=aluno,
+        curso_video=curso,
+        parent__isnull=True,
+        defaults={'avaliacao': avaliacao, 'comentario': comentario, 'aprovado': True},
+    )
+    return JsonResponse({
+        'ok': True,
+        'criada': criada,
+        'message': 'Avaliação publicada.' if criada else 'Avaliação actualizada.',
+        'avaliacao': {'avaliacao': avaliacao_obj.avaliacao, 'comentario': avaliacao_obj.comentario},
     })
 
 
