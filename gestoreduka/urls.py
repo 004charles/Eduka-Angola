@@ -15,6 +15,7 @@ urlpatterns = [
     path('api/react/turmas/<int:turma_id>/presencas/', views.react_gestor_class_attendance, name='react_gestor_class_attendance'),
     path('api/react/turmas/<int:turma_id>/notas/', views.react_gestor_class_grades, name='react_gestor_class_grades'),
     path('api/react/inscricoes/', views.react_gestor_enrollments, name='react_gestor_enrollments'),
+    path('api/react/inscricoes/manual/', views.react_gestor_manual_enrollment, name='react_gestor_manual_enrollment'),
     path('api/react/inscricoes/<int:inscricao_id>/', views.react_gestor_enrollment_detail, name='react_gestor_enrollment_detail'),
     path('api/react/inscricoes/<int:inscricao_id>/certificado/', views.react_gestor_enrollment_certificate, name='react_gestor_enrollment_certificate'),
     path('api/react/perfil/', views.react_gestor_profile, name='react_gestor_profile'),

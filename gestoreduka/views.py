@@ -5185,6 +5185,10 @@ def react_gestor_enrollments(request):
         'inscricoes': [_react_inscricao_payload(item) for item in inscricoes.order_by('-data_inscricao')[:100]],
         'metricas': {'total': base.count(), 'pendentes': base.filter(status='P').count(), 'aceites': base.filter(status='A').count(), 'negadas': base.filter(status='N').count()},
         'escolhas': {'status': [{'value': value, 'label': label} for value, label in Inscricao.STATUS_CHOICES]},
+        'cursos': list((filial.cursos_disponiveis.filter(ativo=True) if filial else centro.cursos.filter(ativo=True)).values('id', 'titulo').order_by('titulo')),
+        'turmas': [{'id': turma.id, 'curso_id': turma.curso_id, 'nome': turma.nome, 'vagas_disponiveis': turma.vagas_disponiveis} for turma in _react_gestor_turmas_queryset(centro, filial).filter(status__in=['ABERTA', 'EM_ANDAMENTO'], vagas_disponiveis__gt=0).order_by('data_inicio')],
+        'formas_pagamento': [{'value': value, 'label': label} for value, label in Inscricao.FORMA_PAGAMENTO_CHOICES],
+        'origens_matricula': [{'value': value, 'label': label} for value, label in Matricula.ORIGEM_CHOICES],
         'permissoes': {'inscricao_manual': permite(centro, 'permite_inscricao_manual', permitir_periodo_teste=True)},
     })
 
@@ -5211,6 +5215,71 @@ def react_gestor_enrollment_detail(request, inscricao_id):
     inscricao.save()
     AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='INSCRICAO_ACTUALIZADA', entidade='Inscricao', objeto_id=str(inscricao.pk), dados={'anterior': estado_anterior, 'estado': status})
     return JsonResponse({'ok': True, 'inscricao': _react_inscricao_payload(inscricao)})
+
+
+@login_required
+@require_http_methods(['POST'])
+def react_gestor_manual_enrollment(request):
+    """Cria matrícula presencial com inscrição, parcela e recebimento no mesmo fluxo transaccional."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    if not permite(centro, 'permite_inscricao_manual', permitir_periodo_teste=True):
+        return JsonResponse({'detail': 'O plano actual não permite inscrições manuais.'}, status=403)
+    try:
+        payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'O pedido deve conter dados JSON válidos.'}, status=400)
+    nome, email = str(payload.get('nome', '')).strip(), str(payload.get('email', '')).strip().lower()
+    if len(nome) < 3 or '@' not in email:
+        return JsonResponse({'detail': 'Nome completo e e-mail válido são obrigatórios.'}, status=400)
+    try:
+        curso = Curso.objects.get(id=int(payload.get('curso_id')), centro=centro, ativo=True)
+        turma = Turma.objects.get(id=int(payload.get('turma_id')), curso=curso)
+        if filial and not curso.filiais.filter(pk=filial.pk).exists():
+            raise Turma.DoesNotExist
+    except (Curso.DoesNotExist, Turma.DoesNotExist, TypeError, ValueError):
+        return JsonResponse({'detail': 'Selecione um curso e uma turma válidos deste centro.'}, status=400)
+    if turma.status in {'CONCLUIDA', 'CANCELADA'} or turma.vagas_disponiveis <= 0:
+        return JsonResponse({'detail': 'A turma selecionada não está disponível para novas matrículas.'}, status=400)
+    from decimal import Decimal, InvalidOperation
+    try:
+        valor = Decimal(str(payload.get('valor_acordado', curso.preco_atual or 0)).replace(',', '.'))
+        desconto = Decimal(str(payload.get('desconto', 0)).replace(',', '.'))
+        if valor < 0 or desconto < 0 or desconto > valor:
+            raise InvalidOperation
+    except (InvalidOperation, ValueError, TypeError):
+        return JsonResponse({'detail': 'Indique valores válidos para a matrícula e o desconto.'}, status=400)
+    pago = bool(payload.get('pagamento_confirmado'))
+    forma, origem = str(payload.get('forma_pagamento', 'DINHEIRO')), str(payload.get('origem', 'PRESENCIAL'))
+    if forma not in dict(Inscricao.FORMA_PAGAMENTO_CHOICES):
+        return JsonResponse({'detail': 'Selecione uma forma de pagamento válida.'}, status=400)
+    try:
+        from django.contrib.auth import get_user_model
+        from django.db import transaction
+        with transaction.atomic():
+            User = get_user_model()
+            user, _ = User.objects.get_or_create(email=email, defaults={'nome': nome, 'is_active': False, 'tipo_usuario': 'ALUNO'})
+            aluno, _ = Aluno.objects.get_or_create(usuario=user, defaults={'nome': nome})
+            if Matricula.objects.filter(aluno=aluno, turma=turma, estado__in=['PENDENTE', 'ATIVA', 'SUSPENSA']).exists():
+                raise ValueError('Este aluno já possui uma matrícula activa ou pendente nesta turma.')
+            inscricao, _ = Inscricao.objects.get_or_create(aluno=aluno, curso=curso, defaults={'status': 'A' if pago else 'P', 'tipo_inscricao': 'PRESENCIAL', 'turma_escolhida': turma, 'forma_pagamento': forma, 'valor_pago': valor if pago else 0, 'data_pagamento': timezone.now() if pago else None, 'observacoes': 'Registo presencial no GestorEduka React'})
+            inscricao.turma_escolhida, inscricao.tipo_inscricao, inscricao.forma_pagamento = turma, 'PRESENCIAL', forma
+            inscricao.valor_pago, inscricao.status = (valor if pago else (inscricao.valor_pago or 0)), ('A' if pago else 'P')
+            if pago and not inscricao.data_pagamento:
+                inscricao.data_pagamento = timezone.now()
+            inscricao.save()
+            matricula = Matricula.objects.create(aluno=aluno, curso=curso, turma=turma, inscricao=inscricao, origem=origem if origem in dict(Matricula.ORIGEM_CHOICES) else 'PRESENCIAL', estado='ATIVA' if pago else 'PENDENTE', valor_acordado=valor, desconto=desconto, responsavel=request.user, observacoes='Matrícula criada presencialmente pelo GestorEduka React.')
+            parcela = ParcelaMatricula.objects.create(matricula=matricula, numero=1, descricao='Pagamento inicial da matrícula', valor=max(valor - desconto, 0), vencimento=timezone.localdate(), status='PAGA' if pago else 'PENDENTE', valor_pago=max(valor - desconto, 0) if pago else 0, data_pagamento=timezone.now() if pago else None)
+            if pago:
+                recebimento = RecebimentoCentro.objects.create(centro=centro, matricula=matricula, aluno=aluno, valor=max(valor - desconto, 0), forma=forma if forma in dict(RecebimentoCentro.FORMA_CHOICES) else 'OUTRO', recebido_por=request.user, observacoes='Recebimento presencial registado pelo GestorEduka React.')
+                parcela.recebimento = recebimento
+                parcela.save(update_fields=['recebimento'])
+                turma.atualizar_vagas_turma()
+            AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='CRIAR_MATRICULA', entidade='Matricula', objeto_id=str(matricula.pk), dados={'origem': matricula.origem, 'pagamento': pago})
+    except Exception as exc:
+        return JsonResponse({'detail': f'Não foi possível criar a matrícula presencial: {exc}'}, status=400)
+    return JsonResponse({'ok': True, 'matricula': {'id': matricula.id, 'codigo': matricula.codigo_matricula}, 'inscricao': _react_inscricao_payload(inscricao)}, status=201)
 
 
 def _react_media_url(field):
