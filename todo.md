@@ -160,3 +160,4 @@
 - [x] Corrigir a rota de Continuação de aprendizagem dos cursos em vídeo
 - [x] Corrigir a resposta da Eduka AI às dúvidas na sala de aprendizagem
 - [ ] Configurar a chave GROQ_API_KEY no ambiente de produção da Eduka AI
+- [x] Adicionar controlo de ecrã inteiro ao leitor da sala de aprendizagem

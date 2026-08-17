@@ -10,7 +10,8 @@
 .learning-progress-summary strong { color: var(--brand); font-family: "Manrope", sans-serif; font-size: 18px; }
 .learning-layout { display: grid; grid-template-columns: minmax(0, 1fr) 355px; gap: 24px; padding-top: 30px; padding-bottom: 70px; }
 .learning-main { min-width: 0; }
-.learning-player-wrap { display: grid; min-height: 440px; overflow: hidden; border-radius: 16px; background: #120e18; box-shadow: 0 20px 45px rgba(31,19,53,.14); }
+.learning-player-wrap { position:relative; display: grid; min-height: 440px; overflow: hidden; border-radius: 16px; background: #120e18; box-shadow: 0 20px 45px rgba(31,19,53,.14); }
+.learning-player-wrap:fullscreen{width:100%;height:100%;border-radius:0}.learning-player-wrap:fullscreen .learning-video{min-height:100vh;height:100vh;object-fit:contain}.learning-fullscreen{position:absolute;z-index:3;right:13px;top:13px;display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(255,255,255,.28);border-radius:8px;background:rgba(17,12,24,.78);color:#fff;cursor:pointer;font:inherit;font-size:12px;font-weight:800;padding:8px 10px;backdrop-filter:blur(8px)}.learning-fullscreen:hover{background:var(--brand)}.learning-fullscreen:focus-visible{outline:3px solid #fff;outline-offset:3px}@media(max-width:580px){.learning-fullscreen span{display:none}.learning-fullscreen{padding:9px}}
 .learning-video { display: block; width: 100%; min-height: 440px; border: 0; background: #120e18; }
 .learning-no-video { display: grid; place-content: center; justify-items: center; gap: 12px; min-height: 440px; padding: 30px; color: rgba(255,255,255,.8); text-align: center; }
 .learning-no-video svg { color: #c6a9ff; }
