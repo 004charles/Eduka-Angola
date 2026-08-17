@@ -100,6 +100,19 @@ class ReactGestorDashboardTests(TestCase):
         inscricao.refresh_from_db()
         self.assertEqual(inscricao.status, 'A')
 
+    def test_gestor_actualiza_o_perfil_institucional_pelo_react(self):
+        self.client.force_login(self.user)
+        payload = self.client.get('/gestoreduka/api/react/perfil/').json()
+        payload['centro']['nome'] = 'Centro React Renovado'
+        payload['perfil']['descricao'] = 'Uma descrição institucional actualizada para o perfil público do centro.'
+
+        response = self.client.patch('/gestoreduka/api/react/perfil/', data=json.dumps({'centro': payload['centro'], 'perfil': payload['perfil']}), content_type='application/json')
+
+        self.assertEqual(response.status_code, 200, response.content.decode())
+        self.centro.refresh_from_db()
+        self.assertEqual(self.centro.nome, 'Centro React Renovado')
+        self.assertEqual(self.centro.perfil.descricao, 'Uma descrição institucional actualizada para o perfil público do centro.')
+
     def test_formulario_react_de_cursos_devolve_apenas_metadados_do_centro(self):
         self.client.force_login(self.user)
         response = self.client.get('/gestoreduka/api/react/cursos/')

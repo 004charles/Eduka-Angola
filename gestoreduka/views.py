@@ -5213,6 +5213,104 @@ def react_gestor_enrollment_detail(request, inscricao_id):
     return JsonResponse({'ok': True, 'inscricao': _react_inscricao_payload(inscricao)})
 
 
+def _react_media_url(field):
+    try:
+        return field.url if field else ''
+    except (ValueError, AttributeError):
+        return ''
+
+
+def _react_profile_payload(centro, perfil):
+    return {
+        'centro': {
+            'nome': centro.nome or '', 'email': centro.email or '', 'telefone': centro.telefone or '',
+            'site': centro.site or '', 'pais': centro.pais, 'endereco': centro.endereco or '',
+            'cidade': centro.cidade or '', 'provincia': centro.provincia or '',
+        },
+        'perfil': {
+            'descricao': perfil.descricao or '', 'missao': perfil.missao or '', 'visao': perfil.visao or '',
+            'valores': perfil.valores or '', 'ano_fundacao': perfil.ano_fundacao or '',
+            'horario_funcionamento': perfil.horario_funcionamento or '', 'tipo': perfil.tipo or '',
+            'modalidade': perfil.modalidade, 'facebook': perfil.facebook or '', 'instagram': perfil.instagram or '',
+            'linkedin': perfil.linkedin or '', 'youtube': perfil.youtube or '', 'tiktok': perfil.tiktok or '',
+            'whatsapp': perfil.whatsapp or '', 'imagem_url': _react_media_url(perfil.imagem), 'banner_url': _react_media_url(perfil.banner),
+        },
+        'galeria': [{'id': imagem.id, 'titulo': imagem.titulo or '', 'url': _react_media_url(imagem.imagem), 'ordem': imagem.ordem} for imagem in centro.galeria_imagens.all().order_by('ordem', 'id')],
+    }
+
+
+@login_required
+@require_http_methods(['GET', 'PATCH'])
+def react_gestor_profile(request):
+    """Consulta e actualiza os dados institucionais públicos do centro principal."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    if filial:
+        return JsonResponse({'detail': 'A edição do perfil institucional é reservada ao gestor principal do centro.'}, status=403)
+    perfil, _ = PerfilCentroDeFormacao.objects.get_or_create(centro=centro)
+    if request.method == 'GET':
+        return JsonResponse(_react_profile_payload(centro, perfil))
+    try:
+        payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'O pedido deve conter dados JSON válidos.'}, status=400)
+    dados_centro = payload.get('centro', {})
+    dados_perfil = payload.get('perfil', {})
+    if not isinstance(dados_centro, dict) or not isinstance(dados_perfil, dict):
+        return JsonResponse({'detail': 'Os dados do centro e do perfil devem ser objectos válidos.'}, status=400)
+    nome = str(dados_centro.get('nome', centro.nome or '')).strip()
+    email = str(dados_centro.get('email', centro.email or '')).strip().lower()
+    if len(nome) < 3 or '@' not in email:
+        return JsonResponse({'detail': 'Indique um nome de centro e e-mail institucionais válidos.'}, status=400)
+    if CentroDeFormacao.objects.exclude(pk=centro.pk).filter(email__iexact=email).exists():
+        return JsonResponse({'detail': 'Já existe outro centro com este e-mail institucional.'}, status=400)
+    for field in ['nome', 'email', 'telefone', 'site', 'pais', 'endereco', 'cidade', 'provincia']:
+        if field in dados_centro:
+            setattr(centro, field, str(dados_centro[field]).strip() or None)
+    if centro.pais not in dict(CentroDeFormacao.PAIS_CHOICES):
+        return JsonResponse({'detail': 'Selecione um país válido.'}, status=400)
+    for field in ['descricao', 'missao', 'visao', 'valores', 'horario_funcionamento', 'tipo', 'facebook', 'instagram', 'linkedin', 'youtube', 'tiktok', 'whatsapp']:
+        if field in dados_perfil:
+            setattr(perfil, field, str(dados_perfil[field]).strip() or None)
+    if 'ano_fundacao' in dados_perfil:
+        try:
+            perfil.ano_fundacao = int(dados_perfil['ano_fundacao']) if dados_perfil['ano_fundacao'] else None
+        except (TypeError, ValueError):
+            return JsonResponse({'detail': 'Indique um ano de fundação válido.'}, status=400)
+    if 'modalidade' in dados_perfil:
+        modalidade = str(dados_perfil['modalidade'])
+        if modalidade not in {'Presencial', 'Online', 'Híbrido'}:
+            return JsonResponse({'detail': 'Selecione uma modalidade institucional válida.'}, status=400)
+        perfil.modalidade = modalidade
+    centro.save()
+    perfil.save()
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='PERFIL_INSTITUCIONAL_ACTUALIZADO', entidade='CentroDeFormacao', objeto_id=str(centro.pk), dados={'nome': centro.nome})
+    return JsonResponse({'ok': True, **_react_profile_payload(centro, perfil)})
+
+
+@login_required
+@require_http_methods(['POST'])
+def react_gestor_profile_media(request):
+    """Recebe exclusivamente a imagem de identidade ou o banner público do centro principal."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    if filial:
+        return JsonResponse({'detail': 'A edição do perfil institucional é reservada ao gestor principal do centro.'}, status=403)
+    campo = request.POST.get('campo')
+    ficheiro = request.FILES.get('ficheiro')
+    if campo not in {'imagem', 'banner'} or not ficheiro:
+        return JsonResponse({'detail': 'Indique um tipo de imagem permitido e selecione um ficheiro.'}, status=400)
+    if not str(ficheiro.content_type or '').startswith('image/') or ficheiro.size > 5 * 1024 * 1024:
+        return JsonResponse({'detail': 'Envie uma imagem com até 5 MB.'}, status=400)
+    perfil, _ = PerfilCentroDeFormacao.objects.get_or_create(centro=centro)
+    setattr(perfil, campo, ficheiro)
+    perfil.save(update_fields=[campo])
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='PERFIL_MEDIA_ACTUALIZADA', entidade='PerfilCentroDeFormacao', objeto_id=str(perfil.pk), dados={'campo': campo})
+    return JsonResponse({'ok': True, 'campo': campo, 'url': _react_media_url(getattr(perfil, campo))})
+
+
 @login_required
 @require_http_methods(['GET', 'POST'])
 def react_gestor_courses(request):
