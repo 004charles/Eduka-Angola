@@ -165,3 +165,4 @@
 - [x] Criar uma área editorial dedicada para cursos em vídeo
 - [x] Preservar links, compra e acesso existentes durante a separação de catálogos
 - [x] Redesenhar a área de cursos em vídeo com experiência visual cinematográfica de streaming
+- [x] Criar uma entrada de vídeo com mosaico de capas e mensagem central de plataforma
