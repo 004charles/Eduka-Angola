@@ -11,3 +11,7 @@ Com os dados publicados actualmente, existem apenas duas categorias e dois curso
 A vista inicial activa agora o filtro **Todos** e mostra os dois programas lado a lado, permitindo que a área de cartões preencha a largura disponível. Os filtros por categoria continuam disponíveis para uma navegação sem recarregamento, enquanto a estrutura do módulo preserva a hierarquia e o gradiente da referência.
 
 O filtro **Gestão e Negócios** foi accionado no preview e passou a mostrar apenas o programa correspondente, sem recarregamento de página. Quando uma categoria possui apenas um curso publicado, o cartão usa a largura editorial disponível em vez de deixar espaço vazio.
+
+## Ajuste de densidade
+
+Os cartões do destaque foram reduzidos em largura visual, altura de imagem, corpo de texto e espaçamentos. Em desktop, a grelha mantém espaço para três cartões, enquanto os dois cursos actualmente publicados ficam compactos à esquerda e preservam uma terceira área livre no gradiente, sem inventar ou repetir conteúdo.

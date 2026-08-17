@@ -172,3 +172,4 @@
 - [x] Adicionar botões de scroll às faixas de cursos em vídeo
 - [x] Corrigir o espaçamento e composição da secção Carreiras e competências na página inicial
 - [x] Redesenhar o destaque editorial dos cursos em vídeo com a composição panorâmica indicada na referência
+- [x] Reduzir a dimensão dos cartões no destaque editorial de cursos em vídeo
