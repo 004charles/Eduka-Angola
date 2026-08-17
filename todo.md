@@ -199,3 +199,7 @@
 - [x] Construir o shell React do GestorEduka com navegação, sessão, permissões, logótipo e temas claro/escuro
 - [ ] Migrar para React o painel principal e os módulos administrativos prioritários do GestorEduka
 - [ ] Validar todos os fluxos administrativos React e retirar a dependência pública das páginas HTML legadas
+- [ ] Migrar edição, remoção e visão geral de cursos presenciais para o GestorEduka React
+- [ ] Migrar turmas, presenças e notas para o GestorEduka React
+- [ ] Migrar inscrições, matrículas presenciais e certificados para o GestorEduka React
+- [ ] Migrar perfil institucional, filiais e formadores para o GestorEduka React
