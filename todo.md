@@ -220,3 +220,8 @@
 - [x] Substituir a entrada do GestorEduka por uma tela de autenticação React profissional com cursos publicados em destaque
 - [x] Criar estado limpo de entrada para centros ainda sem cursos publicados
 - [x] Validar o login Ajax React e o retorno ao painel com a conta de demonstração
+- [x] Auditar o painel React actual para identificar todas as secções indevidamente concentradas numa única página
+- [x] Definir rotas React internas para cada módulo administrativo do GestorEduka
+- [x] Separar o painel, cursos, turmas, inscrições, equipa, comunicação, finanças e perfil em páginas próprias
+- [x] Recuperar estilos consistentes para todos os módulos e respectivos estados vazios
+- [x] Validar a navegação, permissões e dados reais na experiência multipágina
