@@ -5808,6 +5808,44 @@ def react_gestor_subscription(request):
     return JsonResponse({'assinatura': {'status': assinatura.status if assinatura else 'SEM_ASSINATURA', 'plano': {'id': plano_actual.id, 'nome': plano_actual.nome, 'preco': str(plano_actual.preco)} if plano_actual else None}, 'planos': [{'id': plano.id, 'nome': plano.nome, 'preco': str(plano.preco), 'permite_cursos_video': plano.permite_cursos_video} for plano in planos], 'checkout_legacy_url': '/backend/gestoreduka/assinatura/'})
 
 
+def _react_gestor_course_ids(centro, filial):
+    return filial.cursos_disponiveis.values_list('id', flat=True) if filial else centro.cursos.values_list('id', flat=True)
+
+
+@login_required
+@require_http_methods(['GET'])
+def react_gestor_students(request):
+    """Pesquisa alunos com inscrições ou matrículas pertencentes ao centro/filial autenticado."""
+    from usuarios.models import Aluno
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    cursos_ids = _react_gestor_course_ids(centro, filial)
+    alunos_ids = Inscricao.objects.filter(curso_id__in=cursos_ids).values_list('aluno_id', flat=True).union(Matricula.objects.filter(curso_id__in=cursos_ids).values_list('aluno_id', flat=True))
+    alunos = Aluno.objects.filter(id__in=alunos_ids).select_related('usuario').order_by('nome')
+    pesquisa = request.GET.get('q', '').strip()
+    if pesquisa:
+        alunos = alunos.filter(Q(nome__icontains=pesquisa) | Q(usuario__email__icontains=pesquisa) | Q(id__icontains=pesquisa))
+    return JsonResponse({'alunos': [{'id': aluno.id, 'nome': aluno.nome, 'email': aluno.usuario.email if aluno.usuario_id else ''} for aluno in alunos[:100]]})
+
+
+@login_required
+@require_http_methods(['GET'])
+def react_gestor_student_detail(request, aluno_id):
+    """Devolve o dossiê académico do aluno apenas dentro do centro ou filial autenticada."""
+    from usuarios.models import Aluno
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    aluno = get_object_or_404(Aluno, id=aluno_id)
+    cursos_ids = _react_gestor_course_ids(centro, filial)
+    inscricoes = Inscricao.objects.filter(aluno=aluno, curso_id__in=cursos_ids).select_related('curso', 'turma_escolhida').order_by('-data_inscricao')
+    matriculas = Matricula.objects.filter(aluno=aluno, curso_id__in=cursos_ids).select_related('curso', 'turma').order_by('-data_matricula')
+    if not inscricoes.exists() and not matriculas.exists():
+        return JsonResponse({'detail': 'O aluno não possui histórico neste centro ou filial.'}, status=404)
+    return JsonResponse({'aluno': {'id': aluno.id, 'nome': aluno.nome, 'email': aluno.usuario.email if aluno.usuario_id else ''}, 'inscricoes': [{'id': item.id, 'curso': item.curso.titulo, 'status': item.status, 'turma': item.turma_escolhida.nome if item.turma_escolhida else '', 'data': item.data_inscricao.isoformat()} for item in inscricoes], 'matriculas': [{'id': item.id, 'curso': item.curso.titulo, 'turma': item.turma.nome if item.turma else '', 'data': item.data_matricula.isoformat()} for item in matriculas]})
+
+
 def _react_media_url(field):
     try:
         return field.url if field else ''
