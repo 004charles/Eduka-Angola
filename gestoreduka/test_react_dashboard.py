@@ -88,6 +88,18 @@ class ReactGestorDashboardTests(TestCase):
         self.assertEqual(Presenca.objects.get(turma=turma, inscricao=inscricao).estado, 'ATRASO')
         self.assertEqual(str(NotaAluno.objects.get(turma=turma, inscricao=inscricao).nota), '17.50')
 
+    def test_gestor_aprova_inscricao_do_proprio_centro_pelo_react(self):
+        turma = Turma.objects.create(curso=self.curso, nome='Turma de Inscrições', codigo='REACT-INSCR', data_inicio='2026-09-01', data_fim='2026-10-01', turno='MANHA', horario_inicio='08:00', horario_fim='11:00', dias_semana='SEG,QUA', vagas_totais=10)
+        aluno = Aluno.objects.create(nome='Aluno Inscrição React')
+        inscricao = Inscricao.objects.create(aluno=aluno, curso=self.curso, turma_escolhida=turma, status='P')
+        self.client.force_login(self.user)
+
+        response = self.client.patch(f'/gestoreduka/api/react/inscricoes/{inscricao.id}/', data=json.dumps({'status': 'A'}), content_type='application/json')
+
+        self.assertEqual(response.status_code, 200, response.content.decode())
+        inscricao.refresh_from_db()
+        self.assertEqual(inscricao.status, 'A')
+
     def test_formulario_react_de_cursos_devolve_apenas_metadados_do_centro(self):
         self.client.force_login(self.user)
         response = self.client.get('/gestoreduka/api/react/cursos/')

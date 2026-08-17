@@ -5152,6 +5152,67 @@ def react_gestor_class_grades(request, turma_id):
     return JsonResponse({'ok': True, 'total': len(registos)})
 
 
+def _react_gestor_inscricoes_queryset(centro, filial):
+    inscricoes = Inscricao.objects.filter(curso__centro=centro).select_related('aluno', 'curso', 'turma_escolhida')
+    return inscricoes.filter(curso__filiais=filial) if filial else inscricoes
+
+
+def _react_inscricao_payload(inscricao):
+    return {
+        'id': inscricao.id, 'codigo': inscricao.codigo_inscricao, 'aluno': inscricao.aluno.nome,
+        'curso': inscricao.curso.titulo, 'curso_id': inscricao.curso_id,
+        'turma': inscricao.turma_escolhida.nome if inscricao.turma_escolhida else 'Sem turma definida',
+        'turma_id': inscricao.turma_escolhida_id, 'status': inscricao.status,
+        'tipo': inscricao.tipo_inscricao, 'forma_pagamento': inscricao.forma_pagamento,
+        'valor_pago': str(inscricao.valor_pago or 0), 'data_inscricao': inscricao.data_inscricao.isoformat(),
+        'documento_enviado': bool(inscricao.documento_inscricao),
+    }
+
+
+@login_required
+@require_http_methods(['GET'])
+def react_gestor_enrollments(request):
+    """Lista inscrições do centro e disponibiliza os totais usados pelo painel React."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    inscricoes = _react_gestor_inscricoes_queryset(centro, filial)
+    status = request.GET.get('status', '').strip().upper()
+    if status in dict(Inscricao.STATUS_CHOICES):
+        inscricoes = inscricoes.filter(status=status)
+    base = _react_gestor_inscricoes_queryset(centro, filial)
+    return JsonResponse({
+        'inscricoes': [_react_inscricao_payload(item) for item in inscricoes.order_by('-data_inscricao')[:100]],
+        'metricas': {'total': base.count(), 'pendentes': base.filter(status='P').count(), 'aceites': base.filter(status='A').count(), 'negadas': base.filter(status='N').count()},
+        'escolhas': {'status': [{'value': value, 'label': label} for value, label in Inscricao.STATUS_CHOICES]},
+        'permissoes': {'inscricao_manual': permite(centro, 'permite_inscricao_manual', permitir_periodo_teste=True)},
+    })
+
+
+@login_required
+@require_http_methods(['PATCH'])
+def react_gestor_enrollment_detail(request, inscricao_id):
+    """Actualiza apenas o estado de uma inscrição pertencente ao centro ou filial do gestor."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    inscricao = get_object_or_404(_react_gestor_inscricoes_queryset(centro, filial), id=inscricao_id)
+    try:
+        payload = json.loads(request.body or '{}')
+        status = str(payload.get('status', '')).upper()
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'O pedido deve conter dados JSON válidos.'}, status=400)
+    if status not in dict(Inscricao.STATUS_CHOICES):
+        return JsonResponse({'detail': 'Indique um estado de inscrição válido.'}, status=400)
+    if status == 'A' and inscricao.turma_escolhida and inscricao.turma_escolhida.vagas_disponiveis <= 0 and inscricao.status != 'A':
+        return JsonResponse({'detail': 'A turma escolhida já não possui vagas disponíveis.'}, status=400)
+    estado_anterior = inscricao.status
+    inscricao.status = status
+    inscricao.save()
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='INSCRICAO_ACTUALIZADA', entidade='Inscricao', objeto_id=str(inscricao.pk), dados={'anterior': estado_anterior, 'estado': status})
+    return JsonResponse({'ok': True, 'inscricao': _react_inscricao_payload(inscricao)})
+
+
 @login_required
 @require_http_methods(['GET', 'POST'])
 def react_gestor_courses(request):

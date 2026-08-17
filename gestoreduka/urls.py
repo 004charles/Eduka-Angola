@@ -14,6 +14,8 @@ urlpatterns = [
     path('api/react/turmas/<int:turma_id>/', views.react_gestor_class_detail, name='react_gestor_class_detail'),
     path('api/react/turmas/<int:turma_id>/presencas/', views.react_gestor_class_attendance, name='react_gestor_class_attendance'),
     path('api/react/turmas/<int:turma_id>/notas/', views.react_gestor_class_grades, name='react_gestor_class_grades'),
+    path('api/react/inscricoes/', views.react_gestor_enrollments, name='react_gestor_enrollments'),
+    path('api/react/inscricoes/<int:inscricao_id>/', views.react_gestor_enrollment_detail, name='react_gestor_enrollment_detail'),
     path('', RedirectView.as_view(pattern_name='login_gestor', permanent=False), name='gestoreduka_home'),
     path('dashboard/centro/', views.centro_dashboard, name='centro_dashboard'),
     path('dashboard/seguidores/', views.listar_seguidores, name='listar_seguidores'),
