@@ -37,7 +37,7 @@ function construirColecoes(data, incluirCatalogo = true) {
     if (!atual || turma.inicio < atual.inicio) turmasPorCurso.set(turma.id, turma);
   });
 
-  const cartoes = (data?.cursos || []).map((curso) => criarCartao(curso, isVideoCurso(curso) ? null : turmasPorCurso.get(curso.id)));
+  const cartoes = [...(data?.cursos || []), ...(data?.video_cursos || [])].map((curso) => criarCartao(curso, isVideoCurso(curso) ? null : turmasPorCurso.get(curso.id)));
   const formacoes = cartoes.filter((curso) => curso.productType !== "video");
   const videos = cartoes.filter((curso) => curso.productType === "video");
   const colecoes = [];

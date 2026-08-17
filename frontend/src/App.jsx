@@ -15,6 +15,7 @@ import StudentPreferencesPage from "./pages/StudentPreferencesPage";
 import StudentSettingsPage from "./pages/StudentSettingsPage";
 import MyTicketsPage from "./pages/MyTicketsPage";
 import StudentCertificatesPage from "./pages/StudentCertificatesPage";
+import VideoCoursesPage from "./pages/VideoCoursesPage";
 import CenterProfilePage from "./pages/CenterProfilePage";
 import ForCentersPage from "./pages/ForCentersPage";
 import BlogPage from "./pages/BlogPage";
@@ -54,7 +55,7 @@ function App() {
   useEffect(() => { const syncRoute = () => setRoute(getRoute()); window.addEventListener("popstate", syncRoute); return () => window.removeEventListener("popstate", syncRoute); }, []);
   useEffect(() => {
     let active = true; let finishTimer; const startedAt = Date.now();
-    fetch("/api/public/home/").then((response) => { if (!response.ok) throw new Error("Falha ao carregar os dados públicos."); return response.json(); }).then((data) => active && setHomeData({ ...data, cursos: [...(data.cursos || []), ...(data.video_cursos || [])] })).catch(() => active && setHomeData({ cursos: [], turmas_abertas: [], centros_destaque: [] })).finally(() => { finishTimer = window.setTimeout(() => { if (active) { setHomeDataLoading(false); setAppLoading(false); } }, Math.max(0, 700 - (Date.now() - startedAt))); });
+    fetch("/api/public/home/").then((response) => { if (!response.ok) throw new Error("Falha ao carregar os dados públicos."); return response.json(); }).then((data) => active && setHomeData(data)).catch(() => active && setHomeData({ cursos: [], video_cursos: [], turmas_abertas: [], centros_destaque: [] })).finally(() => { finishTimer = window.setTimeout(() => { if (active) { setHomeDataLoading(false); setAppLoading(false); } }, Math.max(0, 700 - (Date.now() - startedAt))); });
     return () => { active = false; window.clearTimeout(finishTimer); };
   }, []);
   useEffect(() => { window.scrollTo({ top: 0, behavior: "auto" }); }, [route]);
@@ -142,6 +143,7 @@ function App() {
   const checkoutCourseId = checkoutCourseRouteMatch ? Number(checkoutCourseRouteMatch[1]) : null;
   const selectedCourse = courseId ? homeData?.cursos?.find((course) => course.id === courseId) : null;
   const checkoutCourse = checkoutCourseId ? homeData?.cursos?.find((course) => course.id === checkoutCourseId) : null;
+  const legacyVideoCatalogue = pathname === "/cursos" && searchParams.get("tipo") === "video";
   let page;
   if (pathname === "/") page = <HomePage data={homeData} loading={homeDataLoading} onNavigate={navigate} onAnnounce={announce} />;
   else if (authModes[pathname]) page = <AuthPage key={pathname} mode={authModes[pathname]} courses={homeData?.cursos || []} onNavigate={navigate} onSessionReady={refreshStudentSession} />;
@@ -160,6 +162,7 @@ function App() {
   else if (libraryReaderRouteMatch) page = <BookReaderPage slug={decodeURIComponent(libraryReaderRouteMatch[1])} student={student} onNavigate={navigate} onAnnounce={announce} />;
   else if (libraryBookRouteMatch) page = <BookDetailPage slug={decodeURIComponent(libraryBookRouteMatch[1])} student={student} onNavigate={navigate} onAnnounce={announce} />;
   else if (pathname === "/biblioteca" || pathname === "/biblioteca/") page = <LibraryPage onNavigate={navigate} />;
+  else if (pathname === "/cursos-em-video" || legacyVideoCatalogue) page = <VideoCoursesPage data={homeData} loading={homeDataLoading} onNavigate={navigate} onAnnounce={announce} />;
   else if (pathname === "/cursos") page = <CoursesPage data={homeData} loading={homeDataLoading} initialFilters={catalogFilters} onNavigate={navigate} onAnnounce={announce} />;
   else if (courseRouteMatch) page = <CourseDetailPage course={selectedCourse} courses={homeData?.cursos} turmas={homeData?.turmas_abertas} loading={homeDataLoading} onNavigate={navigate} onAnnounce={announce} />;
   else if (videoCourseRouteMatch) page = <VideoCourseDetailPage slug={decodeURIComponent(videoCourseRouteMatch[1])} student={student} onNavigate={navigate} />;
@@ -174,7 +177,7 @@ function App() {
   else if (pathname === "/sobre" || pathname === "/sobre-a-edukangola") page = <AboutPage data={homeData} student={student} onNavigate={navigate} />;
   else page = <NotFoundPage onNavigate={navigate} />;
 
-  return <I18nProvider language={language} onLanguageChange={setLanguage}><PublicLayout suggestions={homeData?.cursos || []} student={student} theme={theme} language={language} path={pathname} onThemeChange={() => setTheme(theme === "light" ? "dark" : "light")} onLanguageChange={setLanguage} onNavigate={navigate} onLogout={handleLogout}>{page}{notice && <div className="notice" role="status">{notice}</div>}</PublicLayout></I18nProvider>;
+  return <I18nProvider language={language} onLanguageChange={setLanguage}><PublicLayout suggestions={[...(homeData?.cursos || []), ...(homeData?.video_cursos || [])]} student={student} theme={theme} language={language} path={pathname} onThemeChange={() => setTheme(theme === "light" ? "dark" : "light")} onLanguageChange={setLanguage} onNavigate={navigate} onLogout={handleLogout}>{page}{notice && <div className="notice" role="status">{notice}</div>}</PublicLayout></I18nProvider>;
 }
 
 export default App;

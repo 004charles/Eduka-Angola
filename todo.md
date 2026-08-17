@@ -161,3 +161,7 @@
 - [x] Corrigir a resposta da Eduka AI às dúvidas na sala de aprendizagem
 - [ ] Configurar a chave GROQ_API_KEY no ambiente de produção da Eduka AI
 - [x] Adicionar controlo de ecrã inteiro ao leitor da sala de aprendizagem
+- [x] Separar o catálogo de cursos presenciais dos centros
+- [x] Criar uma área editorial dedicada para cursos em vídeo
+- [x] Preservar links, compra e acesso existentes durante a separação de catálogos
+- [x] Redesenhar a área de cursos em vídeo com experiência visual cinematográfica de streaming

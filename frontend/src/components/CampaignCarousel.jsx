@@ -14,7 +14,7 @@ const copy = {
 export default function CampaignCarousel({ onNavigate }) {
   const { language, t } = useI18n();
   const [active, setActive] = useState(0); const [paused, setPaused] = useState(false);
-  const campaigns = useMemo(() => copy[language].map((item, index) => ({ tag: item[0], title: item[1], text: item[2], action: item[3], href: index === 1 ? "/cursos?tipo=video" : "/cursos", type: "internal", tone: ["lavender", "gold", "sky"][index], symbol: `0${index + 1}`, partner: false })), [language]);
+  const campaigns = useMemo(() => copy[language].map((item, index) => ({ tag: item[0], title: item[1], text: item[2], action: item[3], href: index === 1 ? "/cursos-em-video" : "/cursos", type: "internal", tone: ["lavender", "gold", "sky"][index], symbol: `0${index + 1}`, partner: false })), [language]);
   const activeCampaign = campaigns[active]; const previous = campaigns[(active - 1 + campaigns.length) % campaigns.length]; const next = campaigns[(active + 1) % campaigns.length]; const reducedMotion = useRef(typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   useEffect(() => { if (paused || reducedMotion.current) return undefined; const timer = window.setInterval(() => setActive((current) => (current + 1) % campaigns.length), 6500); return () => window.clearInterval(timer); }, [paused, campaigns.length]);
   const advance = (direction) => setActive((current) => (current + direction + campaigns.length) % campaigns.length);

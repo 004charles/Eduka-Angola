@@ -16,7 +16,7 @@ export default function PublicLayout({ children, student, theme, language, onThe
   const [accountOpen, setAccountOpen] = useState(false);
   const isAuthPath = ["/entrar", "/criar-conta", "/verificar-email", "/recuperar-palavra-passe", "/redefinir-palavra-passe"].includes(path);
   const goTo = (event, destination) => { if (event.metaKey || event.ctrlKey || event.shiftKey) return; event.preventDefault(); setMenuOpen(false); setMoreOpen(false); setAccountOpen(false); onNavigate(destination); };
-  const items = [{ href: "/cursos", label: t("nav.explore") }, { href: "/biblioteca", label: "Biblioteca" }, { href: "/blog", label: t("nav.news") }, { href: "/eventos", label: "Eventos" }, { href: "/centros", label: t("nav.centres") }];
+  const items = [{ href: "/cursos", label: t("nav.classCourses") }, { href: "/cursos-em-video", label: t("nav.videoCourses") }, { href: "/biblioteca", label: "Biblioteca" }, { href: "/blog", label: t("nav.news") }, { href: "/eventos", label: "Eventos" }, { href: "/centros", label: t("nav.centres") }];
   const moreItems = [{ href: "/como-funciona", label: t("nav.how"), icon: Info }, { href: "/sobre", label: t("nav.about"), icon: Info }, { href: "/perguntas-frequentes", label: "Perguntas frequentes", icon: CircleHelp }, { href: "/politica-de-privacidade", label: "Política de privacidade", icon: LockKeyhole }];
   const moreIsActive = moreItems.some((item) => path === item.href);
   const studentFirstName = student?.nome?.trim().split(/\s+/)[0] || "Aluno";
