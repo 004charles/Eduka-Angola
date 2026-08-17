@@ -954,6 +954,10 @@ def public_center_profile(request, centro_id):
 
     categorias = list(dict.fromkeys(cursos_qs.values_list('categoria__nome', flat=True)))
     localizacao = ', '.join(item for item in [centro.cidade, centro.provincia] if item)
+    localizacao_completa = ', '.join(item for item in [centro.cidade, centro.provincia, centro.get_pais_display()] if item)
+    ponto = getattr(centro, 'localizacao', None)
+    latitude = ponto.y if hasattr(ponto, 'y') else None
+    longitude = ponto.x if hasattr(ponto, 'x') else None
     sociais = {
         'facebook': perfil.facebook if perfil else '',
         'instagram': perfil.instagram if perfil else '',
@@ -975,8 +979,16 @@ def public_center_profile(request, centro_id):
         'ano_fundacao': perfil.ano_fundacao if perfil else None,
         'tipo': (perfil.tipo if perfil else '') or '',
         'modalidade': (perfil.modalidade if perfil else '') or '',
+        'pais': centro.pais,
+        'pais_nome': centro.get_pais_display(),
+        'is_internacional': centro.pais != 'AO',
+        'cidade': centro.cidade or '',
+        'provincia': centro.provincia or '',
         'localizacao': localizacao,
+        'localizacao_completa': localizacao_completa,
         'endereco': centro.endereco or '',
+        'latitude': latitude,
+        'longitude': longitude,
         'telefone': centro.telefone or '',
         'email': centro.email or '',
         'site': centro.site or '',

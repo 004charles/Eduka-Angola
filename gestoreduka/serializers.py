@@ -15,6 +15,11 @@ class CentroDeFormacaoSerializer(serializers.ModelSerializer):
     verificado = serializers.SerializerMethodField()
     total_cursos = serializers.IntegerField(source='total_cursos_publicos', read_only=True)
     modalidades = serializers.SerializerMethodField()
+    pais_nome = serializers.SerializerMethodField()
+    localizacao = serializers.SerializerMethodField()
+    latitude = serializers.SerializerMethodField()
+    longitude = serializers.SerializerMethodField()
+    is_internacional = serializers.SerializerMethodField()
 
     def _arquivo_url(self, obj, field):
         perfil = getattr(obj, 'perfil', None)
@@ -41,9 +46,26 @@ class CentroDeFormacaoSerializer(serializers.ModelSerializer):
         choices = dict(Curso.MODALIDADE_CHOICES)
         return [choices.get(code, code) for code in obj.cursos.filter(publicado=True, ativo=True).values_list('modalidade', flat=True).distinct()]
 
+    def get_pais_nome(self, obj):
+        return obj.get_pais_display()
+
+    def get_localizacao(self, obj):
+        return ', '.join(item for item in [obj.cidade, obj.provincia, obj.get_pais_display()] if item)
+
+    def get_latitude(self, obj):
+        ponto = getattr(obj, 'localizacao', None)
+        return ponto.y if hasattr(ponto, 'y') else None
+
+    def get_longitude(self, obj):
+        ponto = getattr(obj, 'localizacao', None)
+        return ponto.x if hasattr(ponto, 'x') else None
+
+    def get_is_internacional(self, obj):
+        return obj.pais != 'AO'
+
     class Meta:
         model = CentroDeFormacao
-        fields = ['id', 'nome', 'email', 'telefone', 'cidade', 'provincia', 'perfil', 'logo_url', 'banner_url', 'verificado', 'total_cursos', 'modalidades']
+        fields = ['id', 'nome', 'email', 'telefone', 'pais', 'pais_nome', 'cidade', 'provincia', 'endereco', 'localizacao', 'latitude', 'longitude', 'is_internacional', 'perfil', 'logo_url', 'banner_url', 'verificado', 'total_cursos', 'modalidades']
 
 class ParceriaSerializer(serializers.ModelSerializer):
     centro_nome = serializers.CharField(source='centro.nome', read_only=True)

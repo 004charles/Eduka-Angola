@@ -188,3 +188,6 @@
 - [ ] Validar os fluxos de conta de aluno e candidatura de centros em staging
 - [x] Preparar a activação operacional do serviço de notificações
 - [ ] Activar gateway e worker de notificações no provedor de staging
+- [ ] Definir e implementar o MVP de centros estrangeiros e candidaturas para estudo/formação no exterior
+- [ ] Integrar mapas para localização de centros sem expor a chave de API
+- [x] Adicionar filtros geográficos e ligação Google Maps às páginas públicas de centros
