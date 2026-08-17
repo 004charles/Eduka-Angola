@@ -4819,3 +4819,32 @@ def react_gestor_course_publish(request, curso_id):
     curso.save(update_fields=['publicado'])
     AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='CURSO_PUBLICADO' if publicado else 'CURSO_DESPUBLICADO', entidade='Curso', objeto_id=str(curso.pk), dados={'publicado': publicado})
     return JsonResponse({'ok': True, 'curso_id': curso.id, 'publicado': curso.publicado})
+
+
+@login_required
+@require_http_methods(['GET', 'POST'])
+def react_gestor_courses(request):
+    """Lista os metadados necessários ao formulário React e cria cursos no centro da sessão."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    if request.method == 'POST':
+        if filial:
+            return JsonResponse({'detail': 'A criação de cursos deve ser realizada pelo gestor principal do centro.'}, status=403)
+        form = CursoForm(request.POST, request.FILES, centro=centro)
+        if not form.is_valid():
+            return JsonResponse({'detail': 'Corrija os campos assinalados.', 'errors': form.errors.get_json_data()}, status=400)
+        curso = form.save(commit=False)
+        curso.centro = centro
+        curso.save()
+        form.save_m2m()
+        AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='CURSO_CRIADO', entidade='Curso', objeto_id=str(curso.pk), dados={'titulo': curso.titulo})
+        return JsonResponse({'ok': True, 'curso': {'id': curso.id, 'titulo': curso.titulo, 'publicado': curso.publicado}}, status=201)
+    form = CursoForm(centro=centro)
+    def choices(name):
+        return [{'value': value, 'label': label} for value, label in form.fields[name].choices if value not in (None, '')]
+    return JsonResponse({
+        'categorias': list(Categoria.objects.values('id', 'nome').order_by('nome')),
+        'instrutores': list(Instrutor.objects.filter(centro_de_formacao=centro, ativo=True).values('id', 'nome').order_by('nome')),
+        'escolhas': {nome: choices(nome) for nome in ['nivel', 'idioma', 'duracao', 'moeda', 'modalidade', 'tipo_cobranca_inscricao', 'documento_requerido']},
+    })
