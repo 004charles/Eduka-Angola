@@ -5845,7 +5845,39 @@ def react_gestor_student_detail(request, aluno_id):
     matriculas = Matricula.objects.filter(aluno=aluno, curso_id__in=cursos_ids).select_related('curso', 'turma').order_by('-data_matricula')
     if not inscricoes.exists() and not matriculas.exists():
         return JsonResponse({'detail': 'O aluno não possui histórico neste centro ou filial.'}, status=404)
-    return JsonResponse({'aluno': {'id': aluno.id, 'nome': aluno.nome, 'email': aluno.usuario.email if aluno.usuario_id else ''}, 'inscricoes': [{'id': item.id, 'curso': item.curso.titulo, 'status': item.status, 'turma': item.turma_escolhida.nome if item.turma_escolhida else '', 'data': item.data_inscricao.isoformat()} for item in inscricoes], 'matriculas': [{'id': item.id, 'curso': item.curso.titulo, 'turma': item.turma.nome if item.turma else '', 'data': item.data_matricula.isoformat()} for item in matriculas]})
+    return JsonResponse({'aluno': {'id': aluno.id, 'nome': aluno.nome, 'email': aluno.usuario.email if aluno.usuario_id else ''}, 'inscricoes': [{'id': item.id, 'curso': item.curso.titulo, 'status': item.status, 'turma': item.turma_escolhida.nome if item.turma_escolhida else '', 'data': item.data_inscricao.isoformat()} for item in inscricoes], 'matriculas': [{'id': item.id, 'codigo': item.codigo_matricula, 'curso': item.curso.titulo, 'turma': item.turma.nome if item.turma else '', 'estado': item.estado, 'data': item.data_matricula.isoformat()} for item in matriculas]})
+
+
+@login_required
+@require_http_methods(['PATCH'])
+def react_gestor_enrollment_record_detail(request, matricula_id):
+    """Aplica uma transição controlada a uma matrícula pertencente ao centro ou filial autenticada."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    cursos_ids = _react_gestor_course_ids(centro, filial)
+    matricula = get_object_or_404(Matricula.objects.select_related('curso', 'turma', 'inscricao', 'aluno'), pk=matricula_id, curso__id__in=cursos_ids)
+    try:
+        payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'O pedido deve conter dados JSON válidos.'}, status=400)
+    action = payload.get('action')
+    if action == 'suspender':
+        matricula.estado = 'SUSPENSA'
+    elif action == 'reativar':
+        matricula.estado = 'ATIVA'
+    elif action == 'cancelar':
+        matricula.estado, matricula.data_cancelamento = 'CANCELADA', timezone.now()
+        if matricula.inscricao:
+            matricula.inscricao.status, matricula.inscricao.data_cancelamento = 'C', timezone.now()
+            matricula.inscricao.save(update_fields=['status', 'data_cancelamento'])
+    elif action == 'concluir':
+        matricula.estado, matricula.data_conclusao = 'CONCLUIDA', timezone.now()
+    else:
+        return JsonResponse({'detail': 'Operação de matrícula inválida.'}, status=400)
+    matricula.save()
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao=f'MATRICULA_{action.upper()}', entidade='Matricula', objeto_id=str(matricula.pk), dados={'estado': matricula.estado})
+    return JsonResponse({'ok': True, 'matricula': {'id': matricula.id, 'estado': matricula.estado, 'turma': matricula.turma.nome if matricula.turma else ''}})
 
 
 @login_required
