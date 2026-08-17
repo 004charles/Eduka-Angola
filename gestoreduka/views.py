@@ -5807,7 +5807,25 @@ def react_gestor_subscription(request):
     planos = Plano.objects.filter(ativo=True).exclude(id=plano_actual.id if plano_actual else None).order_by('preco')
     def plano_payload(plano):
         return {'id': plano.id, 'nome': plano.nome, 'descricao': plano.descricao, 'preco': str(plano.preco), 'limite_cursos': plano.limite_cursos, 'limite_cursos_video': plano.limite_cursos_video, 'alcance_km': plano.alcance_km, 'permite_inscricao_manual': plano.permite_inscricao_manual, 'permite_gerar_certificado': plano.permite_gerar_certificado, 'permite_cursos_video': plano.permite_cursos_video, 'acesso_relatorios': plano.acesso_relatorios}
-    return JsonResponse({'assinatura': {'status': assinatura.status if assinatura else 'SEM_ASSINATURA', 'renovacao_automatica': assinatura.renovacao_automatica if assinatura else False, 'data_fim': assinatura.data_fim.isoformat() if assinatura and assinatura.data_fim else '', 'plano': plano_payload(plano_actual) if plano_actual else None}, 'planos': [plano_payload(plano) for plano in planos], 'checkout_legacy_url': '/backend/gestoreduka/assinatura/'})
+    return JsonResponse({'assinatura': {'status': assinatura.status if assinatura else 'SEM_ASSINATURA', 'renovacao_automatica': assinatura.renovacao_automatica if assinatura else False, 'data_fim': assinatura.data_fim.isoformat() if assinatura and assinatura.data_fim else '', 'plano': plano_payload(plano_actual) if plano_actual else None}, 'planos': [plano_payload(plano) for plano in planos]})
+
+
+@login_required
+@require_http_methods(['POST'])
+def react_gestor_subscription_checkout(request, plano_id):
+    """Cria um checkout somente depois de uma acção explícita do gestor principal no React."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro or filial:
+        return JsonResponse({'detail': 'A gestão de assinaturas é reservada ao gestor principal do centro.'}, status=403)
+    plano = get_object_or_404(Plano, id=plano_id, ativo=True)
+    AssinaturaMembro.objects.get_or_create(centro=centro, defaults={'status': 'PENDENTE'})
+    try:
+        pagamento = PaymentService().criar_pagamento(usuario=request.user, tipo_pagamento='ASSINATURA_PLANO', valor=plano.preco, plano=plano, moeda='AOA', url_sucesso=request.build_absolute_uri('/gestoreduka/?assinatura=sucesso'), url_cancelamento=request.build_absolute_uri('/gestoreduka/?assinatura=cancelada'))
+    except PagamentoException as exc:
+        return JsonResponse({'detail': f'Não foi possível iniciar o pagamento: {exc}'}, status=400)
+    except Exception:
+        return JsonResponse({'detail': 'Não foi possível iniciar a ligação segura ao pagamento.'}, status=502)
+    return JsonResponse({'checkout_url': pagamento.url_pagamento})
 
 
 def _react_gestor_course_ids(centro, filial):

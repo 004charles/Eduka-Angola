@@ -46,6 +46,7 @@ urlpatterns = [
     path('api/react/estagios/<int:estagio_id>/', views.react_gestor_internship_detail, name='react_gestor_internship_detail'),
     path('api/react/analytics/', views.react_gestor_analytics, name='react_gestor_analytics'),
     path('api/react/assinatura/', views.react_gestor_subscription, name='react_gestor_subscription'),
+    path('api/react/assinatura/checkout/<int:plano_id>/', views.react_gestor_subscription_checkout, name='react_gestor_subscription_checkout'),
     path('api/react/alunos/', views.react_gestor_students, name='react_gestor_students'),
     path('api/react/alunos/<int:aluno_id>/', views.react_gestor_student_detail, name='react_gestor_student_detail'),
     path('api/react/filiais/<int:filial_id>/cursos/', views.react_gestor_branch_courses, name='react_gestor_branch_courses'),
