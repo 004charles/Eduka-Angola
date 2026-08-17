@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 import json
+import math
 import os
 import requests
 from datetime import timedelta
@@ -40,6 +41,21 @@ from .models import Galeria, SobreNos, MensagemContato, Publicidade, PerguntaFre
 from avaliacoes.utils import get_centro_da_semana
 from avaliacoes.models import Comentario
 from cursos_app.utils_secoes import get_home_sections_data
+
+
+def coordenadas_publicas(centro):
+    """Lê coordenadas confirmadas de um Point GIS ou do fallback texto latitude,longitude."""
+    ponto = getattr(centro, 'localizacao', None)
+    if hasattr(ponto, 'y') and hasattr(ponto, 'x'):
+        return ponto.y, ponto.x
+    if isinstance(ponto, str) and ',' in ponto:
+        try:
+            latitude, longitude = (float(valor.strip()) for valor in ponto.split(',', 1))
+            if -90 <= latitude <= 90 and -180 <= longitude <= 180:
+                return latitude, longitude
+        except (TypeError, ValueError):
+            pass
+    return None, None
 
 
 def recomendar_cursos(aluno, limite=8):
@@ -504,14 +520,21 @@ def public_home_data(request):
         valor_inicial = curso.valor_a_cobrar_online()
         preco_atual = curso.preco_atual
         imagem_url = curso.get_imagem_url
+        latitude, longitude = coordenadas_publicas(curso.centro)
         return {
             'id': curso.id,
             'titulo': curso.titulo,
             'categoria_id': curso.categoria_id,
             'categoria': curso.categoria.nome if curso.categoria else 'Sem categoria',
+            'centro_id': curso.centro_id,
             'centro': curso.centro.nome or 'Centro de formação',
+            'pais': curso.centro.pais,
+            'pais_nome': curso.centro.get_pais_display(),
+            'is_internacional': curso.centro.pais != 'AO',
             'provincia': curso.centro.provincia or '',
             'cidade': curso.centro.cidade or '',
+            'latitude': latitude,
+            'longitude': longitude,
             'descricao_curta': curso.descricao_curta or '',
             'descricao': curso.descricao,
             'carga_horaria': curso.carga_horaria,
@@ -583,6 +606,9 @@ def public_home_data(request):
         centros.append({
             'id': centro.id,
             'nome': centro.nome or 'Centro de formação',
+            'pais': centro.pais,
+            'pais_nome': centro.get_pais_display(),
+            'is_internacional': centro.pais != 'AO',
             'provincia': centro.provincia or '',
             'cidade': centro.cidade or '',
             'verificado': bool(perfil and perfil.verificado),
@@ -791,6 +817,82 @@ def public_home_data(request):
         'depoimentos': depoimentos,
         'atualizado_em': timezone.now().isoformat(),
     })
+
+
+@require_GET
+def public_nearby_courses(request):
+    """Devolve cursos presenciais perto das coordenadas autorizadas pelo visitante, sem as guardar."""
+    try:
+        latitude = float(request.GET.get('lat', ''))
+        longitude = float(request.GET.get('lng', ''))
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'Indique coordenadas válidas para procurar centros próximos.'}, status=400)
+
+    if not (-90 <= latitude <= 90 and -180 <= longitude <= 180):
+        return JsonResponse({'detail': 'As coordenadas estão fora do intervalo permitido.'}, status=400)
+
+    try:
+        raio_km = max(10, min(float(request.GET.get('raio_km', 75)), 150))
+        limite = max(1, min(int(request.GET.get('limite', 8)), 12))
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'Parâmetros de proximidade inválidos.'}, status=400)
+
+    def distancia_km(latitude_centro, longitude_centro):
+        raio_terra = 6371.0
+        delta_latitude = math.radians(latitude_centro - latitude)
+        delta_longitude = math.radians(longitude_centro - longitude)
+        componente = math.sin(delta_latitude / 2) ** 2 + math.cos(math.radians(latitude)) * math.cos(math.radians(latitude_centro)) * math.sin(delta_longitude / 2) ** 2
+        return raio_terra * 2 * math.atan2(math.sqrt(componente), math.sqrt(1 - componente))
+
+    cursos_proximos = []
+    cursos = Curso.objects.filter(
+        publicado=True,
+        ativo=True,
+        modalidade='PRESENCIAL',
+        centro__ativo=True,
+    ).select_related('centro', 'categoria')
+    for curso in cursos:
+        latitude_centro, longitude_centro = coordenadas_publicas(curso.centro)
+        if latitude_centro is None or longitude_centro is None:
+            continue
+        distancia = distancia_km(latitude_centro, longitude_centro)
+        if distancia > raio_km:
+            continue
+        valor_inicial = curso.valor_a_cobrar_online()
+        preco_atual = curso.preco_atual
+        cursos_proximos.append({
+            'id': curso.id,
+            'titulo': curso.titulo,
+            'categoria': curso.categoria.nome if curso.categoria else 'Sem categoria',
+            'centro_id': curso.centro_id,
+            'centro': curso.centro.nome or 'Centro de formação',
+            'pais': curso.centro.pais,
+            'pais_nome': curso.centro.get_pais_display(),
+            'provincia': curso.centro.provincia or '',
+            'cidade': curso.centro.cidade or '',
+            'descricao_curta': curso.descricao_curta or '',
+            'carga_horaria': curso.carga_horaria,
+            'nivel_label': curso.get_nivel_display(),
+            'idioma_label': curso.get_idioma_display(),
+            'modalidade_codigo': curso.modalidade,
+            'modalidade': curso.get_modalidade_display(),
+            'is_gratuito': curso.is_gratuito,
+            'preco_formatado': 'Gratuito' if curso.is_gratuito else f"{preco_atual:,.0f} Kz".replace(',', ' '),
+            'destaque': curso.destaque,
+            'imagem_url': curso.get_imagem_url,
+            'data_publicacao': curso.data_criacao.isoformat(),
+            'detalhe_url': reverse('curso_detalhe', kwargs={'id': curso.id}),
+            'inscricao_url': reverse('ficha_inscricao', kwargs={'curso_id': curso.id}),
+            'distancia_km': round(distancia, 1),
+            'pagamento': {
+                'valor_inicial': float(valor_inicial),
+                'agora': f"{valor_inicial:,.0f} Kz".replace(',', ' ') if valor_inicial > 0 else 'Sem pagamento no ato',
+                'descricao': curso.descricao_cobranca_online(),
+            },
+        })
+
+    cursos_proximos.sort(key=lambda curso: (curso['distancia_km'], not curso['destaque'], curso['titulo']))
+    return JsonResponse({'ok': True, 'raio_km': raio_km, 'cursos': cursos_proximos[:limite]})
 
 
 @require_POST

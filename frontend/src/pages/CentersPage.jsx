@@ -9,6 +9,7 @@ const CENTRE_FALLBACK_COVERS = ["/static/img/banners/training_center_lab_1_17699
 function centreCover(centre) { return safeImageUrl(centre.banner_url) || CENTRE_FALLBACK_COVERS[Number(centre.id || 0) % CENTRE_FALLBACK_COVERS.length]; }
 function centreLocation(centre) { return centre.localizacao || [centre.cidade, centre.provincia, centre.is_internacional ? centre.pais_nome : ""].filter(Boolean).join(", "); }
 function mapsSearchUrl(centre) { const query = [centre.endereco, centre.cidade, centre.provincia, centre.pais_nome].filter(Boolean).join(", "); return query ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}` : ""; }
+function normalise(value) { return String(value || "").toLocaleLowerCase("pt-PT").normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
 
 export default function CentersPage({ data, loading: homeLoading, onNavigate }) {
   const [centres, setCentres] = useState([]);
@@ -17,6 +18,7 @@ export default function CentersPage({ data, loading: homeLoading, onNavigate }) 
   const [country, setCountry] = useState("");
   const [province, setProvince] = useState("");
   const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [locationSuggestionsOpen, setLocationSuggestionsOpen] = useState(false);
   const [page, setPage] = useState(1);
   const pageSize = 7;
 
@@ -33,6 +35,18 @@ export default function CentersPage({ data, loading: homeLoading, onNavigate }) 
   const countries = useMemo(() => [...new Map(centres.filter((centre) => centre.pais).map((centre) => [centre.pais, centre.pais_nome || centre.pais])).entries()].sort(([codeA, nameA], [codeB, nameB]) => (codeA === "AO" ? -1 : codeB === "AO" ? 1 : nameA.localeCompare(nameB))), [centres]);
   const provinces = useMemo(() => [...new Set(centres.filter((centre) => !country || centre.pais === country).map((centre) => centre.provincia).filter(Boolean))].sort((a, b) => a.localeCompare(b)), [centres, country]);
   const provinceCounts = useMemo(() => provinces.map((name) => ({ name, count: centres.filter((centre) => (!country || centre.pais === country) && centre.provincia === name).length })), [centres, provinces, country]);
+  const locationSuggestions = useMemo(() => {
+    const term = normalise(search.trim());
+    if (term.length < 2) return [];
+    const cities = new Map();
+    centres.forEach((centre) => {
+      if (centre.cidade && normalise(`${centre.cidade} ${centre.provincia} ${centre.pais_nome}`).includes(term)) {
+        const key = `${centre.cidade}-${centre.provincia}-${centre.pais}`;
+        if (!cities.has(key)) cities.set(key, { key, cidade: centre.cidade, provincia: centre.provincia, pais: centre.pais_nome });
+      }
+    });
+    return [...cities.values()].slice(0, 5);
+  }, [centres, search]);
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
     return centres.filter((centre) => {
@@ -48,12 +62,13 @@ export default function CentersPage({ data, loading: homeLoading, onNavigate }) 
   useEffect(() => { setPage(1); }, [country, search, province, verifiedOnly]);
 
   const openCentre = (event, id) => { event.preventDefault(); onNavigate(`/centros/${id}`); };
+  const chooseLocationSuggestion = (suggestion) => { setSearch(suggestion.cidade); setLocationSuggestionsOpen(false); };
   const isLoading = loading || homeLoading;
   const hasActiveFilters = Boolean(search || country || province || verifiedOnly);
   const featuredMapsUrl = featured ? mapsSearchUrl(featured) : "";
 
   return <main className="centres-vitrine-page">
-    <section className="subpage-hero centres-page-hero"><div className="page-width"><span className="eyebrow"><UsersRound size={15} /> Centros de formação</span><h1>Descubra onde o seu próximo passo pode começar.</h1><p>Conheça centros ativos, compare a formação disponível e encontre uma instituição próxima dos seus objetivos — em Angola e noutros países da CPLP.</p><div className="centres-vitrine-search"><Search size={18} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Pesquisar centro, cidade, país ou modalidade" aria-label="Pesquisar centros" /></div></div></section>
+    <section className="subpage-hero centres-page-hero"><div className="page-width"><span className="eyebrow"><UsersRound size={15} /> Centros de formação</span><h1>Descubra onde o seu próximo passo pode começar.</h1><p>Conheça centros ativos, compare a formação disponível e encontre uma instituição próxima dos seus objetivos — em Angola e noutros países da CPLP.</p><div className="centres-vitrine-search"><Search size={18} /><input value={search} onFocus={() => setLocationSuggestionsOpen(true)} onBlur={() => window.setTimeout(() => setLocationSuggestionsOpen(false), 120)} onChange={(event) => { setSearch(event.target.value); setLocationSuggestionsOpen(true); }} placeholder="Pesquisar centro, cidade, país ou modalidade" aria-label="Pesquisar centros" aria-autocomplete="list" aria-expanded={locationSuggestionsOpen && locationSuggestions.length > 0} />{locationSuggestionsOpen && locationSuggestions.length > 0 && <div className="centre-search-suggestions" role="listbox" aria-label="Sugestões de cidade">{locationSuggestions.map((suggestion) => <button key={suggestion.key} type="button" role="option" onMouseDown={(event) => event.preventDefault()} onClick={() => chooseLocationSuggestion(suggestion)}><MapPin size={15} /><span><strong>{suggestion.cidade}</strong><small>{[suggestion.provincia, suggestion.pais].filter(Boolean).join(" · ")}</small></span></button>)}</div>}</div></div></section>
     <section className="page-width centres-vitrine-content">
       <div className="centres-overview"><div><span className="eyebrow muted"><ShieldCheck size={14} /> Vitrine Edukangola</span><h2>Centros para conhecer agora.</h2><p>{filtered.length} {filtered.length === 1 ? "centro encontrado" : "centros encontrados"} com informação publicada pelos próprios centros.</p></div><div className="centres-filters"><label><span>País</span><select value={country} onChange={(event) => { setCountry(event.target.value); setProvince(""); }}><option value="">Todos</option>{countries.map(([code, name]) => <option key={code} value={code}>{name}</option>)}</select></label><label><span>Província ou região</span><select value={province} onChange={(event) => setProvince(event.target.value)}><option value="">Todas</option>{provinces.map((item) => <option key={item} value={item}>{item}</option>)}</select></label><label className="filter-check"><input type="checkbox" checked={verifiedOnly} onChange={(event) => setVerifiedOnly(event.target.checked)} /><Filter size={14} /> Só verificados</label></div></div>
       {!isLoading && provinceCounts.length > 0 && <div className="province-discovery"><div className="province-copy"><span className="eyebrow muted"><MapPin size={14} /> Explorar por região</span><strong>Comece pela região que faz sentido para si.</strong></div><div className="province-chips"><button className={!province ? "active" : ""} onClick={() => setProvince("")}>Todas <small>{country ? filtered.length : centres.length}</small></button>{provinceCounts.map((item) => <button key={item.name} className={province === item.name ? "active" : ""} onClick={() => setProvince(item.name)}>{item.name} <small>{item.count}</small></button>)}</div></div>}

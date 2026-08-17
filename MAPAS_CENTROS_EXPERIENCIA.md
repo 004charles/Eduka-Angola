@@ -19,6 +19,8 @@ O mapa não deve substituir a lista de centros. A lista continua a ser a forma m
 3. Estado de verificação da localização.
 4. Para centros estrangeiros: fuso horário e contacto de admissões.
 
+> Em ambientes sem PostGIS, o campo de localização aceita temporariamente o formato `latitude,longitude`, por exemplo `-8.8390,13.2894`. As coordenadas devem corresponder ao endereço publicado e ser confirmadas no GestorEduka antes de serem usadas em resultados de proximidade.
+
 ## Implementação por etapas
 
 ### Etapa 1 — Sem dependência de mapa interactivo
@@ -26,6 +28,18 @@ O mapa não deve substituir a lista de centros. A lista continua a ser a forma m
 Usar os campos actuais de país, cidade, região e endereço. Adicionar no perfil um link seguro de pesquisa/direcções para Google Maps, gerado a partir do endereço. Esta etapa funciona mesmo sem chave de API.
 
 **Estado: concluída e validada localmente.** A vitrine pública permite filtrar centros por país e por província/região, os centros internacionais recebem identificação explícita e o perfil do centro disponibiliza a ligação `Google Maps Search` construída exclusivamente com os dados públicos de endereço. Não há carregamento de SDK, mapa incorporado ou chave de Google Maps no frontend.
+
+### Descoberta na página inicial
+
+A página inicial apresenta duas zonas complementares: **Cursos de centros internacionais**, que fica pronta para listar formações publicadas por centros estrangeiros verificados, e **Cursos de centros perto de si**. A segunda zona solicita a posição do visitante somente depois de este carregar no botão próprio. A coordenada é enviada apenas para o cálculo pontual da distância e não é guardada pela Edukangola. Caso a permissão seja recusada, não existam coordenadas de centros confirmadas ou o navegador não suporte localização, a pessoa pode explorar cursos por província sem partilhar a posição.
+
+**Validação local:** a alternativa por província foi testada com Luanda e apresentou uma prateleira de cursos correspondentes sem desencadear qualquer pedido de localização.
+
+### Sugestões de pesquisa
+
+A pesquisa da vitrine de centros apresenta sugestões de cidade a partir do segundo carácter, com a respectiva província e país. A validação local com o termo `Lua` apresentou a sugestão **Luanda · Luanda · Angola** e filtrou os centros correspondentes.
+
+No catálogo presencial, a pesquisa também apresenta cursos compatíveis enquanto se escreve. A validação local com `Pyt` mostrou **Python Aplicado a Dados** com a área e o centro responsável, além de manter o resultado filtrado no catálogo.
 
 ### Etapa 2 — Mapa compacto no perfil
 

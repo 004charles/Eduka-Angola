@@ -2,6 +2,7 @@ import { ArrowRight, BookOpen, ChevronRight, GraduationCap, MapPin, SlidersHoriz
 import CampaignCarousel from "../components/CampaignCarousel";
 import CareerCompetenciesSection from "../components/CareerCompetenciesSection";
 import DynamicCatalogShelves from "../components/DynamicCatalogShelves";
+import { InternationalCoursesSection, NearbyCoursesSection } from "../components/HomeLocationCourseSections";
 import SkillsDiscoverySection from "../components/SkillsDiscoverySection";
 import RecommendedCoursesSection from "../components/RecommendedCoursesSection";
 import { useI18n } from "../lib/i18n";
@@ -29,6 +30,8 @@ export default function HomePage({ data, loading, onNavigate, onAnnounce }) {
       </section>
       <CareerCompetenciesSection data={data} onNavigate={onNavigate} />
       <SkillsDiscoverySection data={data} loading={loading} onAnnounce={onAnnounce} />
+      <InternationalCoursesSection data={data} onAnnounce={onAnnounce} />
+      <NearbyCoursesSection data={data} onAnnounce={onAnnounce} />
       <DynamicCatalogShelves data={data} loading={loading} onAnnounce={onAnnounce} onNavigate={onNavigate} collectionHref="/cursos" includeCatalog={false} />
       <RecommendedCoursesSection onNavigate={onNavigate} />
     </main>

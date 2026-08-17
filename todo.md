@@ -191,3 +191,6 @@
 - [ ] Definir e implementar o MVP de centros estrangeiros e candidaturas para estudo/formação no exterior
 - [ ] Integrar mapas para localização de centros sem expor a chave de API
 - [x] Adicionar filtros geográficos e ligação Google Maps às páginas públicas de centros
+- [x] Adicionar sugestões de cidade na pesquisa de centros e sugestões relevantes na pesquisa de cursos
+- [x] Mostrar cursos de centros internacionais na página inicial
+- [x] Mostrar cursos de centros próximos na página inicial com consentimento de localização e alternativa por região

@@ -42,6 +42,7 @@ urlpatterns = [
 
     path('', views.index, name = 'index'),
     path('api/public/home/', views.public_home_data, name='api_public_home_data'),
+    path('api/public/cursos/proximos/', views.public_nearby_courses, name='api_public_nearby_courses'),
     path('api/public/faq/', views.public_faq, name='api_public_faq'),
     path('api/public/comunidade/depoimentos/', views.public_platform_testimonial_submit, name='api_public_platform_testimonial_submit'),
     path('api/public/eventos/', include('eventos_marketplace.urls')),

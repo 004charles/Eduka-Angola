@@ -134,7 +134,7 @@ export default function CourseCard({ course, onSave }) {
         <div className="course-content">
           <small>{course.category}</small>
           <h3 title={course.title}>{course.detailUrl ? <a href={course.detailUrl}>{course.title}</a> : course.title}</h3>
-          <p title={course.centre}>{course.centre}</p>
+          <p title={course.centre}>{course.centre}{course.distancia_km !== undefined && <span className="course-distance"><MapPin size={12} /> {course.distancia_km} km de si</span>}</p>
           <div className={`course-price${course.is_gratuito ? " is-free" : ""}`}><strong>{pagamentoAgora}</strong>{condicaoPagamento && <span>{condicaoPagamento}</span>}</div>
           <div className="course-footer">
             <span title={course.schedule}><Clock3 size={14} /> {course.schedule}</span>

@@ -1,0 +1,77 @@
+import { Globe2, LocateFixed, MapPin, RefreshCw } from "lucide-react";
+import { useMemo, useState } from "react";
+import { backendUrl } from "../lib/backend-url";
+import { etiquetaProduto, rotaDetalheProduto, textoRodapeProduto, tipoProduto } from "../lib/product-type";
+import CourseShelf from "./CourseShelf";
+import "./home-location-course-sections.css";
+
+function centreName(name) { return name?.replace(/Eduka-Angola/gi, "Edukangola") || "Centro de formação"; }
+
+function toCourseCard(course) {
+  return {
+    ...course,
+    category: course.categoria,
+    title: course.titulo,
+    centre: centreName(course.centro),
+    productType: tipoProduto(course),
+    productLabel: etiquetaProduto(course),
+    mode: course.modalidade,
+    schedule: textoRodapeProduto(course, null),
+    imageUrl: course.imagem_url,
+    detailUrl: rotaDetalheProduto(course),
+    inscricaoUrl: backendUrl(course.inscricao_url),
+  };
+}
+
+export function InternationalCoursesSection({ data, onAnnounce }) {
+  const internationalCourses = useMemo(() => (data?.cursos || []).filter((course) => course.is_internacional).map(toCourseCard), [data]);
+
+  if (internationalCourses.length) {
+    return <CourseShelf id="cursos-internacionais" eyebrow="Formação no exterior" title="Cursos de centros internacionais." description="Explore formações publicadas por centros fora de Angola. A candidatura académica é analisada directamente pela instituição." courses={internationalCourses} featured onAnnounce={onAnnounce} collectionHref="/centros" />;
+  }
+
+  return <section className="page-width location-course-empty"><div><span className="eyebrow muted"><Globe2 size={14} /> Formação no exterior</span><h2>Cursos de centros internacionais.</h2><p>Esta secção apresentará formações de instituições verificadas de Portugal, Moçambique e outros países da CPLP assim que forem publicadas.</p></div><a className="text-action" href="/centros">Explorar centros <Globe2 size={16} /></a></section>;
+}
+
+export function NearbyCoursesSection({ data, onAnnounce }) {
+  const [status, setStatus] = useState("idle");
+  const [message, setMessage] = useState("");
+  const [nearbyCourses, setNearbyCourses] = useState([]);
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const regions = useMemo(() => [...new Set((data?.cursos || []).map((course) => course.provincia).filter(Boolean))].sort((first, second) => first.localeCompare(second, "pt-PT")), [data]);
+  const regionalCourses = useMemo(() => selectedRegion ? (data?.cursos || []).filter((course) => course.provincia === selectedRegion).slice(0, 8).map(toCourseCard) : [], [data, selectedRegion]);
+
+  const requestLocation = () => {
+    if (!navigator.geolocation) {
+      setStatus("error");
+      setMessage("Este navegador não disponibiliza localização. Escolha uma província para ver formações nessa região.");
+      return;
+    }
+    setStatus("loading");
+    setMessage("A procurar centros próximos. A sua localização não é guardada pela Edukangola.");
+    navigator.geolocation.getCurrentPosition(async ({ coords }) => {
+      try {
+        const response = await fetch(backendUrl(`/api/public/cursos/proximos/?lat=${encodeURIComponent(coords.latitude)}&lng=${encodeURIComponent(coords.longitude)}&raio_km=75&limite=8`), { credentials: "same-origin" });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(payload.detail || "Não foi possível procurar centros próximos.");
+        const results = (payload.cursos || []).map(toCourseCard);
+        setNearbyCourses(results);
+        setStatus("ready");
+        setMessage(results.length ? `Encontrámos ${results.length} ${results.length === 1 ? "curso" : "cursos"} até ${payload.raio_km} km de si.` : "Ainda não existem cursos com localização confirmada num raio de 75 km. Escolha uma província para continuar a explorar.");
+      } catch (error) {
+        setStatus("error");
+        setMessage(error.message || "Não foi possível procurar centros próximos.");
+      }
+    }, (error) => {
+      setStatus("error");
+      setMessage(error.code === error.PERMISSION_DENIED ? "Não autorizou a localização. Pode continuar a explorar por província, sem partilhar a sua posição." : "Não foi possível obter a localização actual. Escolha uma província para continuar a explorar.");
+    }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 });
+  };
+
+  const coursesToShow = nearbyCourses.length ? nearbyCourses : regionalCourses;
+  return <>
+    <section className="page-width nearby-course-intro" aria-live="polite"><div><span className="eyebrow muted"><LocateFixed size={14} /> Perto de si</span><h2>Cursos de centros perto de si.</h2><p>{message || "Autorize a localização apenas nesta pesquisa para encontrar cursos de centros próximos. A posição não é guardada."}</p></div><button type="button" className="nearby-location-button" onClick={requestLocation} disabled={status === "loading"}>{status === "loading" ? <RefreshCw size={17} className="is-spinning" /> : <LocateFixed size={17} />}{status === "loading" ? "A procurar" : "Usar a minha localização"}</button></section>
+    {(status !== "ready" || !nearbyCourses.length) && <section className="page-width nearby-region-picker"><MapPin size={16} /><span>Ou explore por província:</span><div>{regions.map((region) => <button key={region} type="button" className={selectedRegion === region ? "is-selected" : ""} onClick={() => setSelectedRegion(region)}>{region}</button>)}</div></section>}
+    {coursesToShow.length > 0 && <CourseShelf id={nearbyCourses.length ? "cursos-proximos" : "cursos-na-provincia"} eyebrow={nearbyCourses.length ? "Resultados por proximidade" : `Formações em ${selectedRegion}`} title={nearbyCourses.length ? "Formações mais perto de si." : `Cursos disponíveis em ${selectedRegion}.`} description={nearbyCourses.length ? "A distância é calculada nesta pesquisa usando apenas coordenadas de centros com localização confirmada." : "Alternativa por região, sem partilha de localização."} courses={coursesToShow} onAnnounce={onAnnounce} collectionHref={selectedRegion ? `/cursos?provincia=${encodeURIComponent(selectedRegion)}` : "/cursos"} />}
+  </>;
+}
