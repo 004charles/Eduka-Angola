@@ -15,6 +15,8 @@ GOOGLE_MAPS_API_KEY = config("GOOGLE_MAPS_API_KEY", default="")
 EDUKA_INTEGRATION_KEY = config("EDUKA_INTEGRATION_KEY", default="")
 YOUTUBE_API_KEY = config("YOUTUBE_API_KEY", default="")
 GEMINI_API_KEY = config("GEMINI_API_KEY", default="")
+GROQ_API_KEY = config("GROQ_API_KEY", default="")
+GROQ_MODEL = config("GROQ_MODEL", default="llama-3.1-8b-instant")
 
 
 
