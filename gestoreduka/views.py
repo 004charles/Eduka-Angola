@@ -5841,7 +5841,9 @@ def react_gestor_students(request):
     if not centro:
         return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
     cursos_ids = _react_gestor_course_ids(centro, filial)
-    alunos_ids = Inscricao.objects.filter(curso_id__in=cursos_ids).values_list('aluno_id', flat=True).union(Matricula.objects.filter(curso_id__in=cursos_ids).values_list('aluno_id', flat=True))
+    inscricoes_ids = Inscricao.objects.filter(curso_id__in=cursos_ids).order_by().values_list('aluno_id', flat=True)
+    matriculas_ids = Matricula.objects.filter(curso_id__in=cursos_ids).order_by().values_list('aluno_id', flat=True)
+    alunos_ids = inscricoes_ids.union(matriculas_ids)
     alunos = Aluno.objects.filter(id__in=alunos_ids).select_related('usuario').order_by('nome')
     pesquisa = request.GET.get('q', '').strip()
     if pesquisa:

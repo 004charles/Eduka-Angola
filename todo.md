@@ -215,3 +215,8 @@
 - [ ] Executar validação manual do GestorEduka React com uma conta real de gestor quando o utilizador tiver acesso ao computador
 - [x] Criar e validar uma conta isolada de gestor para testes no ambiente de desenvolvimento
 - [x] Corrigir o redireccionamento do login Django para o painel React do GestorEduka
+- [x] Reproduzir e eliminar o erro 404 que persiste após o login do GestorEduka no domínio público
+- [x] Corrigir a resposta de erro da API React de alunos no painel autenticado
+- [x] Substituir a entrada do GestorEduka por uma tela de autenticação React profissional com cursos publicados em destaque
+- [x] Criar estado limpo de entrada para centros ainda sem cursos publicados
+- [x] Validar o login Ajax React e o retorno ao painel com a conta de demonstração

@@ -1,5 +1,6 @@
-import { BarChart3, BookOpen, LogIn, Moon, Pencil, Sun, Trash2, UsersRound } from "lucide-react";
+import { BarChart3, BookOpen, Moon, Pencil, Sun, Trash2, UsersRound } from "lucide-react";
 import { useEffect, useState } from "react";
+import ManagerLoginPage from "./ManagerLoginPage";
 import ManagerClassesPanel from "../components/ManagerClassesPanel";
 import ManagerCourseForm from "../components/ManagerCourseForm";
 import ManagerEnrollmentsPanel from "../components/ManagerEnrollmentsPanel";
@@ -18,7 +19,7 @@ export default function ManagerPortalPage() {
   useEffect(() => { load(); }, []);
   const changePublication = async (course) => { const token = document.cookie.split(";").map((part) => part.trim()).find((part) => part.startsWith("csrftoken="))?.split("=")[1] || ""; const response = await fetch(`/backend/gestoreduka/api/react/cursos/${course.id}/publicacao/`, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", "X-CSRFToken": token }, body: JSON.stringify({ publicado: !course.publicado }) }); if (response.ok) load(); else setError("Não foi possível actualizar a publicação do curso."); };
   const deleteCourse = async (course) => { if (!window.confirm(`Pretende remover definitivamente o curso “${course.titulo}”?`)) return; const token = document.cookie.split(";").map((part) => part.trim()).find((part) => part.startsWith("csrftoken="))?.split("=")[1] || ""; const response = await fetch(`/backend/gestoreduka/api/react/cursos/${course.id}/remover/`, { method: "POST", credentials: "same-origin", headers: { "X-CSRFToken": token } }); if (response.ok) load(); else setError("Não foi possível remover o curso."); };
-  if (error && error.status === 401) return <main className="manager-auth"><span className="manager-mark">E</span><h1>GestorEduka</h1><p>Entre com a conta do seu centro para gerir a formação, as inscrições e a presença pública.</p><a href="/backend/gestoreduka/login_gestor/">Entrar no GestorEduka <LogIn size={17} /></a></main>;
+  if (error && error.status === 401) return <ManagerLoginPage theme={theme} onToggleTheme={() => setTheme(theme === "light" ? "dark" : "light")} onAuthenticated={() => { setError(""); setData(null); load(); }} />;
   if (error) return <main className="manager-auth"><h1>Não foi possível abrir a gestão.</h1><p>{error.message}</p><button onClick={() => { setError(""); load(); }}>Tentar novamente</button></main>;
   if (!data) return <main className="manager-auth"><span className="manager-mark">E</span><p>A preparar o GestorEduka…</p></main>;
   const cards = [[BookOpen, "Cursos", data.metricas.cursos], [BarChart3, "Publicados", data.metricas.cursos_publicados], [UsersRound, "Inscrições", data.metricas.inscricoes], [BarChart3, "Receita confirmada", `${money.format(data.metricas.receita_confirmada)} Kz`]];
