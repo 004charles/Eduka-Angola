@@ -5717,6 +5717,66 @@ def react_gestor_comment_detail(request, comentario_id):
     return JsonResponse({'ok': True, 'comentario': _react_comment_payload(comentario)})
 
 
+def _react_internship_payload(estagio):
+    return {'id': estagio.id, 'titulo': estagio.titulo, 'area_id': estagio.area_id, 'area': estagio.area.nome if estagio.area else '', 'descricao': estagio.descricao, 'resumo': estagio.resumo, 'tipo_remuneracao': estagio.tipo_remuneracao, 'valor_remuneracao': str(estagio.valor_remuneracao or ''), 'modalidade': estagio.modalidade, 'duracao_meses': estagio.duracao_meses, 'carga_horaria_semanal': estagio.carga_horaria_semanal, 'vagas_disponiveis': estagio.vagas_disponiveis, 'vagas_preenchidas': estagio.vagas_preenchidas, 'local_trabalho': estagio.local_trabalho, 'cidade': estagio.cidade, 'provincia': estagio.provincia, 'requisitos': estagio.requisitos, 'competencias_desejadas': estagio.competencias_desejadas, 'data_inicio': estagio.data_inicio.isoformat(), 'data_limite_inscricao': estagio.data_limite_inscricao.isoformat(), 'ativo': estagio.ativo, 'destaque': estagio.destaque}
+
+
+def _react_internship_values(payload, instance=None):
+    from estagio.models import AreaEstagio
+    from decimal import Decimal, InvalidOperation
+    from datetime import date
+    try:
+        area = AreaEstagio.objects.get(id=int(payload['area_id'])) if payload.get('area_id') else None
+        data_inicio = date.fromisoformat(str(payload.get('data_inicio', instance.data_inicio.isoformat() if instance else '')))
+        limite = date.fromisoformat(str(payload.get('data_limite_inscricao', instance.data_limite_inscricao.isoformat() if instance else '')))
+        valor = Decimal(str(payload.get('valor_remuneracao', instance.valor_remuneracao if instance else '')).replace(',', '.')) if payload.get('valor_remuneracao') not in ('', None) else None
+        duracao, carga, vagas = int(payload.get('duracao_meses', instance.duracao_meses if instance else 0)), int(payload.get('carga_horaria_semanal', instance.carga_horaria_semanal if instance else 0)), int(payload.get('vagas_disponiveis', instance.vagas_disponiveis if instance else 0))
+    except (AreaEstagio.DoesNotExist, ValueError, TypeError, InvalidOperation):
+        return None, 'Verifique a área, datas, valores e números do estágio.'
+    titulo, descricao, resumo = str(payload.get('titulo', instance.titulo if instance else '')).strip(), str(payload.get('descricao', instance.descricao if instance else '')).strip(), str(payload.get('resumo', instance.resumo if instance else '')).strip()
+    tipo, modalidade = str(payload.get('tipo_remuneracao', instance.tipo_remuneracao if instance else '')), str(payload.get('modalidade', instance.modalidade if instance else ''))
+    if len(titulo) < 3 or len(descricao) < 10 or len(resumo) < 3 or tipo not in {'remunerado', 'bolsa_auxilio', 'nao_remunerado', 'beneficios'} or modalidade not in {'presencial', 'hibrido', 'remoto'} or duracao not in {3, 4, 5, 6, 8, 12} or carga < 1 or vagas < 1 or limite < data_inicio:
+        return None, 'Preencha os dados obrigatórios do estágio com valores válidos.'
+    return {'titulo': titulo, 'area': area, 'descricao': descricao, 'resumo': resumo, 'tipo_remuneracao': tipo, 'valor_remuneracao': valor, 'modalidade': modalidade, 'duracao_meses': duracao, 'carga_horaria_semanal': carga, 'vagas_disponiveis': vagas, 'local_trabalho': str(payload.get('local_trabalho', instance.local_trabalho if instance else '')).strip(), 'cidade': str(payload.get('cidade', instance.cidade if instance else '')).strip(), 'provincia': str(payload.get('provincia', instance.provincia if instance else '')).strip(), 'requisitos': str(payload.get('requisitos', instance.requisitos if instance else '')).strip(), 'competencias_desejadas': str(payload.get('competencias_desejadas', instance.competencias_desejadas if instance else '')).strip(), 'data_inicio': data_inicio, 'data_limite_inscricao': limite, 'ativo': bool(payload.get('ativo', instance.ativo if instance else True)), 'destaque': bool(payload.get('destaque', instance.destaque if instance else False))}, None
+
+
+@login_required
+@require_http_methods(['GET', 'POST'])
+def react_gestor_internships(request):
+    """Lista ou cria estágios pertencentes ao centro autenticado para o painel React."""
+    from estagio.models import Estagio, AreaEstagio
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    if request.method == 'GET':
+        return JsonResponse({'estagios': [_react_internship_payload(item) for item in Estagio.objects.filter(centro_formacao=centro).select_related('area')], 'areas': [{'id': area.id, 'nome': area.nome} for area in AreaEstagio.objects.filter(ativa=True)]})
+    try: payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError): return JsonResponse({'detail': 'O pedido deve conter dados JSON válidos.'}, status=400)
+    values, error = _react_internship_values(payload)
+    if error: return JsonResponse({'detail': error}, status=400)
+    estagio = Estagio.objects.create(centro_formacao=centro, **values)
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='ESTAGIO_CRIADO', entidade='Estagio', objeto_id=str(estagio.pk), dados={'titulo': estagio.titulo})
+    return JsonResponse({'ok': True, 'estagio': _react_internship_payload(estagio)}, status=201)
+
+
+@login_required
+@require_http_methods(['PATCH'])
+def react_gestor_internship_detail(request, estagio_id):
+    """Actualiza um estágio pertencente ao centro autenticado."""
+    from estagio.models import Estagio
+    centro, filial = get_gestor_context(request.user)
+    if not centro: return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    estagio = get_object_or_404(Estagio, id=estagio_id, centro_formacao=centro)
+    try: payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError): return JsonResponse({'detail': 'O pedido deve conter dados JSON válidos.'}, status=400)
+    values, error = _react_internship_values(payload, instance=estagio)
+    if error: return JsonResponse({'detail': error}, status=400)
+    for field, value in values.items(): setattr(estagio, field, value)
+    estagio.save()
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='ESTAGIO_ACTUALIZADO', entidade='Estagio', objeto_id=str(estagio.pk), dados={'titulo': estagio.titulo})
+    return JsonResponse({'ok': True, 'estagio': _react_internship_payload(estagio)})
+
+
 def _react_media_url(field):
     try:
         return field.url if field else ''
