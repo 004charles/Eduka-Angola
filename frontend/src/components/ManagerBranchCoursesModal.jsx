@@ -1,0 +1,12 @@
+import { X } from "lucide-react";
+import { useEffect, useState } from "react";
+
+const csrfToken = () => document.cookie.split(";").map((part) => part.trim()).find((part) => part.startsWith("csrftoken="))?.split("=")[1] || "";
+
+export default function ManagerBranchCoursesModal({ branch, onClose, onSaved }) {
+  const [data, setData] = useState(null); const [selected, setSelected] = useState([]); const [error, setError] = useState(""); const [saving, setSaving] = useState(false);
+  useEffect(() => { fetch(`/backend/gestoreduka/api/react/filiais/${branch.id}/cursos/`, { credentials: "same-origin" }).then(async (response) => { const payload = await response.json(); if (!response.ok) throw new Error(payload.detail || "Não foi possível carregar os cursos."); setData(payload); setSelected(payload.cursos.filter((course) => course.atribuido).map((course) => course.id)); }).catch((reason) => setError(reason.message)); }, [branch.id]);
+  const toggle = (id) => setSelected((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+  const save = async () => { setSaving(true); setError(""); try { const response = await fetch(`/backend/gestoreduka/api/react/filiais/${branch.id}/cursos/`, { method: "PATCH", credentials: "same-origin", headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken() }, body: JSON.stringify({ curso_ids: selected }) }); const payload = await response.json(); if (!response.ok) throw new Error(payload.detail || "Não foi possível actualizar os cursos da filial."); onSaved(); } catch (reason) { setError(reason.message); } finally { setSaving(false); } };
+  return <div className="manager-modal"><section className="manager-records-modal"><header><div><span className="manager-eyebrow">Operação da filial</span><h2>Cursos de {branch.nome}</h2></div><button onClick={onClose}><X size={18}/></button></header>{error && <p className="manager-form-error">{error}</p>}{data ? <div className="manager-course-list">{data.cursos.map((course) => <label key={course.id} className="manager-checkbox-row"><input type="checkbox" checked={selected.includes(course.id)} onChange={() => toggle(course.id)} />{course.titulo}</label>)}</div> : <p>A preparar cursos…</p>}<footer><button onClick={onClose}>Cancelar</button><button className="primary" disabled={saving || !data} onClick={save}>{saving ? "A guardar…" : "Guardar atribuições"}</button></footer></section></div>;
+}

@@ -5848,6 +5848,30 @@ def react_gestor_student_detail(request, aluno_id):
     return JsonResponse({'aluno': {'id': aluno.id, 'nome': aluno.nome, 'email': aluno.usuario.email if aluno.usuario_id else ''}, 'inscricoes': [{'id': item.id, 'curso': item.curso.titulo, 'status': item.status, 'turma': item.turma_escolhida.nome if item.turma_escolhida else '', 'data': item.data_inscricao.isoformat()} for item in inscricoes], 'matriculas': [{'id': item.id, 'curso': item.curso.titulo, 'turma': item.turma.nome if item.turma else '', 'data': item.data_matricula.isoformat()} for item in matriculas]})
 
 
+@login_required
+@require_http_methods(['GET', 'PATCH'])
+def react_gestor_branch_courses(request, filial_id):
+    """Consulta ou substitui os cursos atribuídos a uma filial pelo gestor principal do centro."""
+    centro, filial_actual = get_gestor_context(request.user)
+    if not centro or filial_actual:
+        return JsonResponse({'detail': 'A atribuição de cursos é reservada ao gestor principal do centro.'}, status=403)
+    filial = get_object_or_404(Filial, id=filial_id, centro_principal=centro, ativo=True)
+    cursos = Curso.objects.filter(centro=centro, ativo=True).order_by('titulo')
+    if request.method == 'GET':
+        return JsonResponse({'filial': {'id': filial.id, 'nome': filial.nome}, 'cursos': [{'id': curso.id, 'titulo': curso.titulo, 'atribuido': filial.cursos_disponiveis.filter(id=curso.id).exists()} for curso in cursos]})
+    try:
+        payload = json.loads(request.body or '{}')
+        ids = [int(item) for item in payload.get('curso_ids', [])]
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'A lista de cursos é inválida.'}, status=400)
+    escolhidos = list(cursos.filter(id__in=ids))
+    if len(escolhidos) != len(set(ids)):
+        return JsonResponse({'detail': 'Só podem ser atribuídos cursos activos deste centro.'}, status=400)
+    filial.cursos_disponiveis.set(escolhidos)
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='CURSOS_FILIAL_ATRIBUIDOS', entidade='Filial', objeto_id=str(filial.pk), dados={'curso_ids': ids})
+    return JsonResponse({'ok': True, 'filial_id': filial.id, 'curso_ids': ids})
+
+
 def _react_media_url(field):
     try:
         return field.url if field else ''
