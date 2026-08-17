@@ -19,3 +19,4 @@ O comando `python3 manage.py popular_centro_demo_gestor` criou um cenário idemp
 | Comentários | A moderação apresenta três avaliações de alunos, incluindo respostas publicadas e um comentário pendente para testar aprovação e resposta. |
 | Estágios | O módulo apresenta três vagas com modalidades presencial e híbrida, localizações e vagas restantes. |
 | Mensagens | O atendimento apresenta três conversas com histórico de mensagem do aluno e resposta do centro, incluindo o campo de envio operacional. |
+| Capas de cursos | O catálogo de cursos presenciais e a secção de cursos recentes apresentam miniaturas, categoria, preço, estado e acções administrativas em cada formação. |

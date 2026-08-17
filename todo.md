@@ -235,3 +235,7 @@
 - [x] Definir dados de teste coerentes para cursos, turmas, alunos, inscrições, finanças e comunicação
 - [x] Popular o Centro Demonstração GestorEduka com dados completos para todos os módulos administrativos
 - [x] Validar os módulos do GestorEduka com o cenário de demonstração criado
+- [x] Auditar imagens disponíveis e o cartão actual de cursos no GestorEduka
+- [x] Associar capas adequadas aos cursos de demonstração sem recorrer a chaves ou recursos secretos
+- [x] Melhorar a listagem administrativa de cursos com capa, informação e acções organizadas
+- [x] Validar a apresentação visual e as acções do catálogo de cursos

@@ -4793,11 +4793,28 @@ def react_gestor_dashboard(request):
     cursos = (filial.cursos_disponiveis.all() if filial else centro.cursos.all()).select_related('categoria').order_by('-data_criacao')
     inscricoes = Inscricao.objects.filter(curso__centro=centro)
     plano = get_plano_ativo(centro)
+    capas_demonstracao = {
+        'Suporte Técnico e Redes': '/manus-storage/demo-suporte-redes_47397ab4.jpg',
+        'Excel e Power BI para Gestão': '/manus-storage/demo-excel-powerbi_4357c742.jpg',
+        'Marketing Digital para Pequenos Negócios': '/manus-storage/demo-marketing-digital_f69e03e2.jpg',
+        'Inglês Profissional para Atendimento': '/manus-storage/demo-ingles-profissional_43ed5c7c.jpg',
+        'Fundamentos de Cibersegurança': '/manus-storage/demo-ciberseguranca_baca9c3e.jpg',
+        'Design de Marca para Empreendedores': '/manus-storage/demo-design-marca_38d38c69.jpg',
+    }
+
+    def imagem_do_curso(curso):
+        if curso.imagem:
+            try:
+                return curso.imagem.url
+            except (ValueError, AttributeError):
+                pass
+        return capas_demonstracao.get(curso.titulo, '')
+
     return JsonResponse({
         'gestor': {'nome': request.user.nome or request.user.email, 'email': request.user.email, 'tipo': request.user.tipo_usuario},
         'centro': {'id': centro.id, 'nome': centro.nome, 'plano': getattr(plano, 'nome', 'Sem plano'), 'filial': filial.nome if filial else ''},
         'metricas': {'cursos': cursos.count(), 'cursos_publicados': cursos.filter(publicado=True, ativo=True).count(), 'inscricoes': inscricoes.count(), 'inscricoes_pendentes': inscricoes.filter(status='P').count(), 'receita_confirmada': float(inscricoes.filter(status='A').aggregate(total=Sum('valor_pago'))['total'] or 0)},
-        'cursos': [{'id': curso.id, 'titulo': curso.titulo, 'categoria': curso.categoria.nome if curso.categoria else 'Sem categoria', 'publicado': curso.publicado, 'ativo': curso.ativo, 'preco': float(curso.preco_atual), 'criado_em': curso.data_criacao.isoformat()} for curso in cursos[:12]],
+        'cursos': [{'id': curso.id, 'titulo': curso.titulo, 'categoria': curso.categoria.nome if curso.categoria else 'Sem categoria', 'publicado': curso.publicado, 'ativo': curso.ativo, 'preco': float(curso.preco_atual), 'imagem_url': imagem_do_curso(curso), 'criado_em': curso.data_criacao.isoformat()} for curso in cursos[:12]],
     })
 
 
