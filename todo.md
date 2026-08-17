@@ -200,6 +200,6 @@
 - [ ] Migrar para React o painel principal e os módulos administrativos prioritários do GestorEduka
 - [ ] Validar todos os fluxos administrativos React e retirar a dependência pública das páginas HTML legadas
 - [x] Migrar edição, remoção e visão geral de cursos presenciais para o GestorEduka React
-- [ ] Migrar turmas, presenças e notas para o GestorEduka React
+- [x] Migrar turmas, presenças e notas para o GestorEduka React
 - [ ] Migrar inscrições, matrículas presenciais e certificados para o GestorEduka React
 - [ ] Migrar perfil institucional, filiais e formadores para o GestorEduka React

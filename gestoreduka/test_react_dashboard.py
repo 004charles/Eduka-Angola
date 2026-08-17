@@ -1,8 +1,8 @@
 from django.test import TestCase
 import json
 
-from cursos_app.models import Categoria, Curso, Instrutor
-from usuarios.models import Usuario
+from cursos_app.models import Categoria, Curso, Instrutor, Turma, Inscricao, NotaAluno, Presenca
+from usuarios.models import Aluno, Usuario
 from .models import CentroDeFormacao
 
 
@@ -51,6 +51,42 @@ class ReactGestorDashboardTests(TestCase):
         self.assertEqual(response.status_code, 200, response.content.decode())
         self.curso.refresh_from_db()
         self.assertEqual(self.curso.titulo, 'Curso React actualizado')
+
+    def test_gestor_cria_e_actualiza_turma_pelos_endpoints_react(self):
+        self.client.force_login(self.user)
+        payload = {
+            'curso_id': self.curso.id, 'nome': 'Turma React A', 'codigo': 'REACT-A',
+            'data_inicio': '2026-09-01', 'data_fim': '2026-10-01', 'turno': 'MANHA',
+            'horario_inicio': '08:00', 'horario_fim': '11:00', 'dias_semana': ['SEG', 'QUA', 'SEX'],
+            'vagas_totais': 20, 'local': 'Sede', 'sala': 'Sala 2', 'status': 'ABERTA',
+            'instrutor_principal_id': self.instrutor.id,
+        }
+        create_response = self.client.post('/gestoreduka/api/react/turmas/', data=json.dumps(payload), content_type='application/json')
+
+        self.assertEqual(create_response.status_code, 201, create_response.content.decode())
+        turma_id = create_response.json()['turma']['id']
+        payload['nome'] = 'Turma React Actualizada'
+        payload['status'] = 'EM_ANDAMENTO'
+        update_response = self.client.patch(f'/gestoreduka/api/react/turmas/{turma_id}/', data=json.dumps(payload), content_type='application/json')
+
+        self.assertEqual(update_response.status_code, 200, update_response.content.decode())
+        turma = Turma.objects.get(pk=turma_id)
+        self.assertEqual(turma.nome, 'Turma React Actualizada')
+        self.assertEqual(turma.status, 'EM_ANDAMENTO')
+
+    def test_gestor_regista_presencas_e_notas_da_turma_pelo_react(self):
+        turma = Turma.objects.create(curso=self.curso, nome='Turma de Avaliação', codigo='REACT-NOTAS', data_inicio='2026-09-01', data_fim='2026-10-01', turno='MANHA', horario_inicio='08:00', horario_fim='11:00', dias_semana='SEG,QUA', vagas_totais=10)
+        aluno = Aluno.objects.create(nome='Aluno React')
+        inscricao = Inscricao.objects.create(aluno=aluno, curso=self.curso, turma_escolhida=turma, status='A')
+        self.client.force_login(self.user)
+
+        presence_response = self.client.put(f'/gestoreduka/api/react/turmas/{turma.id}/presencas/', data=json.dumps({'data': '2026-09-02', 'registos': [{'inscricao_id': inscricao.id, 'estado': 'ATRASO', 'observacao': 'Chegou depois do início.'}]}), content_type='application/json')
+        grade_response = self.client.put(f'/gestoreduka/api/react/turmas/{turma.id}/notas/', data=json.dumps({'registos': [{'inscricao_id': inscricao.id, 'nota': '17.5', 'observacao': 'Bom desempenho.'}]}), content_type='application/json')
+
+        self.assertEqual(presence_response.status_code, 200, presence_response.content.decode())
+        self.assertEqual(grade_response.status_code, 200, grade_response.content.decode())
+        self.assertEqual(Presenca.objects.get(turma=turma, inscricao=inscricao).estado, 'ATRASO')
+        self.assertEqual(str(NotaAluno.objects.get(turma=turma, inscricao=inscricao).nota), '17.50')
 
     def test_formulario_react_de_cursos_devolve_apenas_metadados_do_centro(self):
         self.client.force_login(self.user)

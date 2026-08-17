@@ -4905,6 +4905,253 @@ def react_gestor_course_detail(request, curso_id):
     return JsonResponse({'ok': True, 'curso': _react_course_form_payload(curso)})
 
 
+def _react_gestor_turmas_queryset(centro, filial):
+    turmas = Turma.objects.filter(curso__centro=centro).select_related('curso', 'instrutor_principal')
+    return turmas.filter(curso__filiais=filial) if filial else turmas
+
+
+def _react_turma_payload(turma):
+    return {
+        'id': turma.id, 'curso_id': turma.curso_id, 'curso_titulo': turma.curso.titulo,
+        'nome': turma.nome, 'codigo': turma.codigo, 'data_inicio': turma.data_inicio.isoformat(),
+        'data_fim': turma.data_fim.isoformat(), 'turno': turma.turno,
+        'horario_inicio': turma.horario_inicio.strftime('%H:%M'),
+        'horario_fim': turma.horario_fim.strftime('%H:%M'),
+        'dias_semana': turma.dias_semana.split(','), 'vagas_totais': turma.vagas_totais,
+        'vagas_ocupadas': turma.vagas_ocupadas, 'vagas_disponiveis': turma.vagas_disponiveis,
+        'local': turma.local, 'sala': turma.sala, 'status': turma.status,
+        'observacoes': turma.observacoes, 'instrutor_principal_id': turma.instrutor_principal_id,
+        'instrutor_principal': turma.instrutor_principal.nome if turma.instrutor_principal else '',
+    }
+
+
+def _react_turma_choices():
+    return {
+        'turnos': [{'value': value, 'label': label} for value, label in Turma.TURNO_CHOICES],
+        'status': [{'value': value, 'label': label} for value, label in Turma.STATUS_CHOICES],
+        'dias_semana': [{'value': value, 'label': label} for value, label in Turma.DIAS_SEMANA_CHOICES],
+    }
+
+
+def _parse_react_turma_payload(payload, centro, filial, turma=None):
+    """Normaliza o payload de turma e impede associações fora do contexto do gestor."""
+    errors = {}
+    curso = turma.curso if turma else None
+    if not turma:
+        try:
+            curso = Curso.objects.get(id=int(payload.get('curso_id')), centro=centro, ativo=True)
+            if filial and not curso.filiais.filter(pk=filial.pk).exists():
+                raise Curso.DoesNotExist
+        except (Curso.DoesNotExist, TypeError, ValueError):
+            errors['curso_id'] = ['Selecione um curso activo permitido para este centro.']
+    nome = str(payload.get('nome', turma.nome if turma else '')).strip()
+    if len(nome) < 3:
+        errors['nome'] = ['Indique um nome de turma com pelo menos 3 caracteres.']
+    dias = payload.get('dias_semana', turma.dias_semana.split(',') if turma else [])
+    if not isinstance(dias, list) or not dias or any(dia not in dict(Turma.DIAS_SEMANA_CHOICES) for dia in dias):
+        errors['dias_semana'] = ['Selecione pelo menos um dia de semana válido.']
+    turno = payload.get('turno', turma.turno if turma else '')
+    if turno not in dict(Turma.TURNO_CHOICES):
+        errors['turno'] = ['Selecione um turno válido.']
+    status = payload.get('status', turma.status if turma else 'ABERTA')
+    if status not in dict(Turma.STATUS_CHOICES):
+        errors['status'] = ['Selecione um estado válido.']
+    try:
+        data_inicio = datetime.strptime(payload.get('data_inicio', turma.data_inicio.isoformat() if turma else ''), '%Y-%m-%d').date()
+        data_fim = datetime.strptime(payload.get('data_fim', turma.data_fim.isoformat() if turma else ''), '%Y-%m-%d').date()
+        if data_fim < data_inicio:
+            errors['data_fim'] = ['A data de término não pode ser anterior à data de início.']
+    except (TypeError, ValueError):
+        errors['datas'] = ['Indique datas de início e término válidas.']
+        data_inicio = data_fim = None
+    try:
+        horario_inicio = datetime.strptime(payload.get('horario_inicio', turma.horario_inicio.strftime('%H:%M') if turma else ''), '%H:%M').time()
+        horario_fim = datetime.strptime(payload.get('horario_fim', turma.horario_fim.strftime('%H:%M') if turma else ''), '%H:%M').time()
+        if horario_fim <= horario_inicio:
+            errors['horario_fim'] = ['O horário final deve ser posterior ao horário inicial.']
+    except (TypeError, ValueError):
+        errors['horarios'] = ['Indique horários de início e término válidos.']
+        horario_inicio = horario_fim = None
+    try:
+        vagas_totais = int(payload.get('vagas_totais', turma.vagas_totais if turma else 0))
+        if vagas_totais < (turma.vagas_ocupadas if turma else 1):
+            errors['vagas_totais'] = ['O total de vagas não pode ser inferior às vagas já ocupadas.']
+    except (TypeError, ValueError):
+        errors['vagas_totais'] = ['Indique um número válido de vagas.']
+        vagas_totais = 0
+    instrutor = None
+    instrutor_id = payload.get('instrutor_principal_id', turma.instrutor_principal_id if turma else None)
+    if instrutor_id:
+        try:
+            instrutor = Instrutor.objects.get(id=int(instrutor_id), centro_de_formacao=centro, ativo=True)
+        except (Instrutor.DoesNotExist, TypeError, ValueError):
+            errors['instrutor_principal_id'] = ['Selecione um formador activo deste centro.']
+    if errors:
+        return None, errors
+    return {
+        'curso': curso, 'nome': nome, 'data_inicio': data_inicio, 'data_fim': data_fim,
+        'turno': turno, 'horario_inicio': horario_inicio, 'horario_fim': horario_fim,
+        'dias_semana': ','.join(dias), 'vagas_totais': vagas_totais, 'status': status,
+        'local': str(payload.get('local', turma.local if turma else '')).strip(),
+        'sala': str(payload.get('sala', turma.sala if turma else '')).strip(),
+        'observacoes': str(payload.get('observacoes', turma.observacoes if turma else '')).strip(),
+        'instrutor_principal': instrutor,
+    }, None
+
+
+@login_required
+@require_http_methods(['GET', 'POST'])
+def react_gestor_classes(request):
+    """Lista e cria turmas no contexto do centro ou filial do gestor autenticado."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    if request.method == 'GET':
+        cursos = filial.cursos_disponiveis.filter(ativo=True) if filial else centro.cursos.filter(ativo=True)
+        return JsonResponse({
+            'turmas': [_react_turma_payload(turma) for turma in _react_gestor_turmas_queryset(centro, filial).order_by('-data_inicio', 'nome')],
+            'cursos': list(cursos.values('id', 'titulo').order_by('titulo')),
+            'instrutores': list(Instrutor.objects.filter(centro_de_formacao=centro, ativo=True).values('id', 'nome').order_by('nome')),
+            'escolhas': _react_turma_choices(),
+        })
+    try:
+        payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'O pedido deve conter dados JSON válidos.'}, status=400)
+    data, errors = _parse_react_turma_payload(payload, centro, filial)
+    if errors:
+        return JsonResponse({'detail': 'Corrija os campos assinalados.', 'errors': errors}, status=400)
+    codigo = str(payload.get('codigo', '')).strip()
+    if codigo and Turma.objects.filter(codigo=codigo).exists():
+        return JsonResponse({'detail': 'Já existe uma turma com este código.', 'errors': {'codigo': ['Utilize um código único.']}}, status=400)
+    turma = Turma.objects.create(**data, codigo=codigo, filial=filial)
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='TURMA_CRIADA', entidade='Turma', objeto_id=str(turma.pk), dados={'nome': turma.nome, 'curso_id': turma.curso_id})
+    return JsonResponse({'ok': True, 'turma': _react_turma_payload(turma)}, status=201)
+
+
+@login_required
+@require_http_methods(['PATCH'])
+def react_gestor_class_detail(request, turma_id):
+    """Actualiza uma turma sem expor dados de outro centro ou filial."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    turma = get_object_or_404(_react_gestor_turmas_queryset(centro, filial), id=turma_id)
+    try:
+        payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'O pedido deve conter dados JSON válidos.'}, status=400)
+    data, errors = _parse_react_turma_payload(payload, centro, filial, turma=turma)
+    if errors:
+        return JsonResponse({'detail': 'Corrija os campos assinalados.', 'errors': errors}, status=400)
+    for field, value in data.items():
+        setattr(turma, field, value)
+    turma.save()
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='TURMA_ACTUALIZADA', entidade='Turma', objeto_id=str(turma.pk), dados={'nome': turma.nome, 'curso_id': turma.curso_id})
+    return JsonResponse({'ok': True, 'turma': _react_turma_payload(turma)})
+
+
+def _react_gestor_turma(request, turma_id):
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return None, None, JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    turma = get_object_or_404(_react_gestor_turmas_queryset(centro, filial), id=turma_id)
+    return centro, turma, None
+
+
+def _react_turma_inscricoes(turma):
+    return Inscricao.objects.filter(turma_escolhida=turma, status='A').select_related('aluno').order_by('aluno__nome')
+
+
+@login_required
+@require_http_methods(['GET', 'PUT'])
+def react_gestor_class_attendance(request, turma_id):
+    """Consulta ou guarda presenças da turma, impedindo alterações fora da lista de alunos confirmados."""
+    centro, turma, response = _react_gestor_turma(request, turma_id)
+    if response:
+        return response
+    if request.method == 'GET':
+        data_str = request.GET.get('data')
+        try:
+            data_aula = datetime.strptime(data_str, '%Y-%m-%d').date() if data_str else timezone.localdate()
+        except (TypeError, ValueError):
+            return JsonResponse({'detail': 'Indique uma data válida no formato AAAA-MM-DD.'}, status=400)
+        registos = {item.inscricao_id: item for item in Presenca.objects.filter(turma=turma, data=data_aula)}
+        return JsonResponse({
+            'turma': {'id': turma.id, 'nome': turma.nome, 'curso_titulo': turma.curso.titulo},
+            'data': data_aula.isoformat(),
+            'estados': [{'value': value, 'label': label} for value, label in Presenca.ESTADO_CHOICES],
+            'alunos': [
+                {'inscricao_id': inscricao.id, 'nome': inscricao.aluno.nome, 'estado': registos.get(inscricao.id).estado if inscricao.id in registos else 'PRESENTE', 'observacao': registos.get(inscricao.id).observacao if inscricao.id in registos else ''}
+                for inscricao in _react_turma_inscricoes(turma)
+            ],
+        })
+    try:
+        payload = json.loads(request.body or '{}')
+        data_aula = datetime.strptime(payload.get('data', ''), '%Y-%m-%d').date()
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'Indique uma data válida no formato AAAA-MM-DD.'}, status=400)
+    registos = payload.get('registos')
+    if not isinstance(registos, list):
+        return JsonResponse({'detail': 'Envie a lista de registos de presença.'}, status=400)
+    inscricoes = {item.id: item for item in _react_turma_inscricoes(turma)}
+    estados = dict(Presenca.ESTADO_CHOICES)
+    for item in registos:
+        try:
+            inscricao_id = int(item.get('inscricao_id'))
+        except (TypeError, ValueError):
+            return JsonResponse({'detail': 'Foi encontrada uma inscrição inválida.'}, status=400)
+        if inscricao_id not in inscricoes or item.get('estado') not in estados:
+            return JsonResponse({'detail': 'Só pode registar presenças válidas dos alunos confirmados desta turma.'}, status=400)
+        Presenca.objects.update_or_create(
+            turma=turma, inscricao=inscricoes[inscricao_id], data=data_aula,
+            defaults={'estado': item['estado'], 'observacao': str(item.get('observacao', '')).strip()[:255]},
+        )
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='PRESENCAS_REGISTADAS', entidade='Turma', objeto_id=str(turma.pk), dados={'data': data_aula.isoformat(), 'total': len(registos)})
+    return JsonResponse({'ok': True, 'data': data_aula.isoformat(), 'total': len(registos)})
+
+
+@login_required
+@require_http_methods(['GET', 'PUT'])
+def react_gestor_class_grades(request, turma_id):
+    """Consulta ou guarda notas entre 0 e 20 dos alunos confirmados da turma."""
+    centro, turma, response = _react_gestor_turma(request, turma_id)
+    if response:
+        return response
+    inscricoes = {item.id: item for item in _react_turma_inscricoes(turma)}
+    if request.method == 'GET':
+        notas = {item.inscricao_id: item for item in NotaAluno.objects.filter(turma=turma, avaliacao='Nota Final')}
+        return JsonResponse({
+            'turma': {'id': turma.id, 'nome': turma.nome, 'curso_titulo': turma.curso.titulo},
+            'alunos': [
+                {'inscricao_id': inscricao.id, 'nome': inscricao.aluno.nome, 'nota': str(notas[inscricao.id].nota) if inscricao.id in notas else '', 'observacao': notas[inscricao.id].observacao if inscricao.id in notas else ''}
+                for inscricao in inscricoes.values()
+            ],
+        })
+    try:
+        payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'O pedido deve conter dados JSON válidos.'}, status=400)
+    registos = payload.get('registos')
+    if not isinstance(registos, list):
+        return JsonResponse({'detail': 'Envie a lista de notas.'}, status=400)
+    from decimal import Decimal, InvalidOperation
+    for item in registos:
+        try:
+            inscricao_id = int(item.get('inscricao_id'))
+            nota = Decimal(str(item.get('nota')).replace(',', '.'))
+        except (TypeError, ValueError, InvalidOperation):
+            return JsonResponse({'detail': 'Foi encontrada uma nota inválida.'}, status=400)
+        if inscricao_id not in inscricoes or nota < 0 or nota > 20:
+            return JsonResponse({'detail': 'As notas devem pertencer a alunos confirmados e estar entre 0 e 20.'}, status=400)
+        NotaAluno.objects.update_or_create(
+            turma=turma, inscricao=inscricoes[inscricao_id], avaliacao='Nota Final',
+            defaults={'nota': nota, 'observacao': str(item.get('observacao', '')).strip()[:255]},
+        )
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='NOTAS_REGISTADAS', entidade='Turma', objeto_id=str(turma.pk), dados={'total': len(registos)})
+    return JsonResponse({'ok': True, 'total': len(registos)})
+
+
 @login_required
 @require_http_methods(['GET', 'POST'])
 def react_gestor_courses(request):
