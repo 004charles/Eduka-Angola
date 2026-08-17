@@ -36,6 +36,8 @@ urlpatterns = [
     path('api/react/conversas/', views.react_gestor_conversations, name='react_gestor_conversations'),
     path('api/react/conversas/<int:conversa_id>/', views.react_gestor_conversation_detail, name='react_gestor_conversation_detail'),
     path('api/react/conversas/<int:conversa_id>/mensagens/', views.react_gestor_conversation_message, name='react_gestor_conversation_message'),
+    path('api/react/anuncios/', views.react_gestor_announcements, name='react_gestor_announcements'),
+    path('api/react/anuncios/<int:anuncio_id>/', views.react_gestor_announcement_detail, name='react_gestor_announcement_detail'),
     path('', RedirectView.as_view(pattern_name='login_gestor', permanent=False), name='gestoreduka_home'),
     path('dashboard/centro/', views.centro_dashboard, name='centro_dashboard'),
     path('dashboard/seguidores/', views.listar_seguidores, name='listar_seguidores'),

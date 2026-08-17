@@ -5602,6 +5602,73 @@ def react_gestor_conversation_message(request, conversa_id):
     return JsonResponse({'ok': True, 'mensagem': _react_message_payload(mensagem)}, status=201)
 
 
+def _react_announcement_payload(anuncio):
+    try:
+        imagem_url = anuncio.imagem.url if anuncio.imagem else ''
+    except ValueError:
+        imagem_url = ''
+    return {'id': anuncio.id, 'titulo': anuncio.titulo, 'conteudo': anuncio.conteudo, 'importante': anuncio.importante, 'ativo': anuncio.ativo, 'imagem_url': imagem_url, 'data_publicacao': anuncio.data_publicacao.isoformat()}
+
+
+@login_required
+@require_http_methods(['GET', 'POST'])
+def react_gestor_announcements(request):
+    """Lista ou cria comunicados da sede; um novo comunicado notifica os seguidores do centro."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro or filial:
+        return JsonResponse({'detail': 'A gestão de comunicados é reservada ao gestor principal do centro.'}, status=403)
+    if request.method == 'GET':
+        return JsonResponse({'anuncios': [_react_announcement_payload(anuncio) for anuncio in centro.anuncios.all().order_by('-data_publicacao')]})
+    if request.content_type and request.content_type.startswith('application/json'):
+        try:
+            payload = json.loads(request.body or '{}')
+        except (TypeError, ValueError):
+            return JsonResponse({'detail': 'O pedido deve conter dados JSON válidos.'}, status=400)
+        titulo, conteudo = str(payload.get('titulo', '')).strip(), str(payload.get('conteudo', '')).strip()
+        importante, ativo, imagem = bool(payload.get('importante')), bool(payload.get('ativo', True)), None
+    else:
+        titulo, conteudo = request.POST.get('titulo', '').strip(), request.POST.get('conteudo', '').strip()
+        importante, ativo, imagem = request.POST.get('importante') in {'true', 'on', '1'}, request.POST.get('ativo', 'true') in {'true', 'on', '1'}, request.FILES.get('imagem')
+    if len(titulo) < 3 or len(conteudo) < 10:
+        return JsonResponse({'detail': 'Indique um título e conteúdo válidos para o comunicado.'}, status=400)
+    if imagem and (not str(imagem.content_type or '').startswith('image/') or imagem.size > 5 * 1024 * 1024):
+        return JsonResponse({'detail': 'A imagem do comunicado deve ser uma imagem de até 5 MB.'}, status=400)
+    anuncio = AnuncioCentro.objects.create(centro=centro, titulo=titulo, conteudo=conteudo, importante=importante, ativo=ativo, imagem=imagem)
+    from usuarios.models import NotificacaoAluno
+    notificacoes = [NotificacaoAluno(aluno=seguimento.aluno, titulo=f'Novo comunicado de {centro.nome}', mensagem=anuncio.titulo, link='/cursos/instituicoes/', tipo='ANUNCIO') for seguimento in centro.seguidores.all()]
+    if notificacoes:
+        NotificacaoAluno.objects.bulk_create(notificacoes)
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='ANUNCIO_CRIADO', entidade='AnuncioCentro', objeto_id=str(anuncio.pk), dados={'titulo': anuncio.titulo, 'seguidores_notificados': len(notificacoes)})
+    return JsonResponse({'ok': True, 'anuncio': _react_announcement_payload(anuncio)}, status=201)
+
+
+@login_required
+@require_http_methods(['PATCH', 'DELETE'])
+def react_gestor_announcement_detail(request, anuncio_id):
+    """Actualiza ou remove um comunicado pertencente à sede do centro autenticado."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro or filial:
+        return JsonResponse({'detail': 'A gestão de comunicados é reservada ao gestor principal do centro.'}, status=403)
+    anuncio = get_object_or_404(AnuncioCentro, id=anuncio_id, centro=centro)
+    if request.method == 'DELETE':
+        titulo = anuncio.titulo
+        anuncio.delete()
+        AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='ANUNCIO_REMOVIDO', entidade='AnuncioCentro', objeto_id=str(anuncio_id), dados={'titulo': titulo})
+        return JsonResponse({'ok': True, 'anuncio_id': anuncio_id})
+    try:
+        payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'O pedido deve conter dados JSON válidos.'}, status=400)
+    titulo, conteudo = str(payload.get('titulo', anuncio.titulo)).strip(), str(payload.get('conteudo', anuncio.conteudo)).strip()
+    if len(titulo) < 3 or len(conteudo) < 10:
+        return JsonResponse({'detail': 'Indique um título e conteúdo válidos para o comunicado.'}, status=400)
+    anuncio.titulo, anuncio.conteudo = titulo, conteudo
+    anuncio.importante, anuncio.ativo = bool(payload.get('importante', anuncio.importante)), bool(payload.get('ativo', anuncio.ativo))
+    anuncio.save()
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='ANUNCIO_ACTUALIZADO', entidade='AnuncioCentro', objeto_id=str(anuncio.pk), dados={'titulo': anuncio.titulo})
+    return JsonResponse({'ok': True, 'anuncio': _react_announcement_payload(anuncio)})
+
+
 def _react_media_url(field):
     try:
         return field.url if field else ''
