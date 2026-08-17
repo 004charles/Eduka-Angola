@@ -5354,6 +5354,96 @@ def react_gestor_instructor_detail(request, instrutor_id):
     return JsonResponse({'ok': True, 'instrutor': _react_instructor_payload(instrutor)})
 
 
+def _react_branch_payload(filial):
+    return {'id': filial.id, 'nome': filial.nome, 'endereco': filial.endereco, 'telefone': filial.telefone, 'email': filial.email, 'whatsapp': filial.whatsapp or '', 'latitude': str(filial.latitude or ''), 'longitude': str(filial.longitude or ''), 'ativo': filial.ativo, 'gestor_email': filial.usuario.email if filial.usuario else ''}
+
+
+def _validate_react_branch(payload, instance=None):
+    nome = str(payload.get('nome', instance.nome if instance else '')).strip()
+    endereco = str(payload.get('endereco', instance.endereco if instance else '')).strip()
+    telefone = str(payload.get('telefone', instance.telefone if instance else '')).strip()
+    email = str(payload.get('email', instance.email if instance else '')).strip().lower()
+    if len(nome) < 3 or not endereco or not telefone or '@' not in email:
+        return None, 'Preencha nome, endereço, telefone e e-mail da filial com valores válidos.'
+    try:
+        latitude = float(payload['latitude']) if payload.get('latitude') not in (None, '') else None
+        longitude = float(payload['longitude']) if payload.get('longitude') not in (None, '') else None
+    except (TypeError, ValueError):
+        return None, 'As coordenadas da filial devem ser numéricas.'
+    return {'nome': nome, 'endereco': endereco, 'telefone': telefone, 'email': email, 'whatsapp': str(payload.get('whatsapp', instance.whatsapp if instance else '')).strip() or None, 'latitude': latitude, 'longitude': longitude, 'ativo': bool(payload.get('ativo', instance.ativo if instance else True))}, None
+
+
+@login_required
+@require_http_methods(['GET', 'POST'])
+def react_gestor_branches(request):
+    """Lista e cria filiais; apenas o gestor principal pode executar estas operações."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro or filial:
+        return JsonResponse({'detail': 'A gestão de filiais é reservada ao gestor principal do centro.'}, status=403)
+    if request.method == 'GET':
+        return JsonResponse({'filiais': [_react_branch_payload(item) for item in centro.filiais.select_related('usuario').order_by('nome')]})
+    try:
+        payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'O pedido deve conter dados JSON válidos.'}, status=400)
+    values, error = _validate_react_branch(payload)
+    password = str(payload.get('senha', ''))
+    if error or len(password) < 8:
+        return JsonResponse({'detail': error or 'A palavra-passe inicial do gestor da filial deve ter pelo menos 8 caracteres.'}, status=400)
+    if Filial.objects.filter(email__iexact=values['email']).exists():
+        return JsonResponse({'detail': 'Já existe uma filial com este e-mail.'}, status=400)
+    from usuarios.models import Usuario
+    if Usuario.objects.filter(email__iexact=values['email']).exists():
+        return JsonResponse({'detail': 'Já existe uma conta com este e-mail.'}, status=400)
+    try:
+        from django.db import transaction
+        with transaction.atomic():
+            utilizador = Usuario.objects.create_user(email=values['email'], password=password, nome=f"Gestor - {values['nome']}", tipo_usuario='GESTOR_FILIAL')
+            branch = Filial.objects.create(centro_principal=centro, usuario=utilizador, **values)
+            branch.categorias.set(centro.categorias.all())
+    except Exception as exc:
+        return JsonResponse({'detail': f'Não foi possível criar a filial: {exc}'}, status=400)
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='FILIAL_CRIADA', entidade='Filial', objeto_id=str(branch.pk), dados={'nome': branch.nome})
+    return JsonResponse({'ok': True, 'filial': _react_branch_payload(branch)}, status=201)
+
+
+@login_required
+@require_http_methods(['PATCH', 'DELETE'])
+def react_gestor_branch_detail(request, filial_id):
+    """Actualiza ou remove uma filial pertencente ao centro principal autenticado."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro or filial:
+        return JsonResponse({'detail': 'A gestão de filiais é reservada ao gestor principal do centro.'}, status=403)
+    branch = get_object_or_404(Filial.objects.select_related('usuario'), id=filial_id, centro_principal=centro)
+    if request.method == 'DELETE':
+        usuario = branch.usuario
+        branch.delete()
+        if usuario:
+            usuario.delete()
+        AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='FILIAL_REMOVIDA', entidade='Filial', objeto_id=str(filial_id), dados={})
+        return JsonResponse({'ok': True, 'filial_id': filial_id})
+    try:
+        payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'O pedido deve conter dados JSON válidos.'}, status=400)
+    values, error = _validate_react_branch(payload, instance=branch)
+    if error:
+        return JsonResponse({'detail': error}, status=400)
+    if Filial.objects.exclude(pk=branch.pk).filter(email__iexact=values['email']).exists():
+        return JsonResponse({'detail': 'Já existe outra filial com este e-mail.'}, status=400)
+    for field, value in values.items():
+        setattr(branch, field, value)
+    password = str(payload.get('senha', ''))
+    if password and branch.usuario:
+        if len(password) < 8:
+            return JsonResponse({'detail': 'A nova palavra-passe deve ter pelo menos 8 caracteres.'}, status=400)
+        branch.usuario.set_password(password)
+        branch.usuario.save(update_fields=['password'])
+    branch.save()
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='FILIAL_ACTUALIZADA', entidade='Filial', objeto_id=str(branch.pk), dados={'nome': branch.nome, 'ativa': branch.ativo})
+    return JsonResponse({'ok': True, 'filial': _react_branch_payload(branch)})
+
+
 def _react_media_url(field):
     try:
         return field.url if field else ''
