@@ -41,8 +41,19 @@ function VideoShelf({ eyebrow, title, courses, onNavigate }) {
   );
 }
 
+function ContinueLearningSection({ courses, onNavigate }) {
+  if (!courses.length) return null;
+  return (
+    <section className="page-width continue-learning-section" aria-labelledby="continue-learning-title">
+      <div className="continue-learning-heading"><div><span className="eyebrow">A sua aprendizagem</span><h2 id="continue-learning-title">Continue a aprender.</h2><p>Retome os programas que já começou, a partir da próxima aula.</p></div></div>
+      <div className="continue-learning-grid">{courses.map((course) => <article className="continue-learning-card" key={course.id}><button type="button" onClick={() => onNavigate(course.aprendizagem_url)}><div className="continue-learning-image">{course.imagem_url && <img src={course.imagem_url} alt="" />}<span>{course.progresso}%</span></div><div className="continue-learning-copy"><small>{course.centro}</small><h3>{course.titulo}</h3><p>Próxima aula: <strong>{course.proxima_aula}</strong></p><div className="continue-learning-progress" aria-label={`${course.progresso}% concluído`}><i style={{ width: `${course.progresso}%` }} /></div><div className="continue-learning-footer"><span>{course.aulas_concluidas} de {course.total_aulas} aulas concluídas</span><strong>Retomar <ArrowRight size={14} /></strong></div></div></button></article>)}</div>
+    </section>
+  );
+}
+
 export default function VideoCoursesPage({ data, loading, onNavigate }) {
   const courses = data?.video_cursos || [];
+  const continueLearning = data?.continuar_video || [];
   const [activeCategory, setActiveCategory] = useState("Todos");
   const categories = useMemo(() => Object.entries(courses.reduce((groups, course) => {
     const category = course.categoria || "Outras áreas";
@@ -69,6 +80,8 @@ export default function VideoCoursesPage({ data, loading, onNavigate }) {
           <button className="primary-action" onClick={() => document.getElementById("programas-video")?.scrollIntoView({ behavior: "smooth" })}>Explorar programas <ArrowRight size={17} /></button>
         </div>
       </header>
+
+      <ContinueLearningSection courses={continueLearning} onNavigate={onNavigate} />
 
       <section className="page-width video-featured-section" aria-labelledby="video-featured-title">
         <div className="video-featured-copy">

@@ -631,12 +631,54 @@ def public_home_data(request):
                 'inicio': proxima_turma.data_inicio.isoformat(),
                 'inicio_formatado': proxima_turma.data_inicio.strftime('%d/%m/%Y'),
             } if proxima_turma else None,
-            'pagamento': {
-                'valor_inicial': preco,
-                'agora': formatar_valor(preco) if preco > 0 else 'Sem pagamento no ato',
-                'descricao': 'Acesso gratuito' if video.is_gratuito else 'Pagamento do vídeo-curso',
-            },
-        })
+                'pagamento': {
+                    'valor_inicial': preco,
+                    'agora': formatar_valor(preco) if preco > 0 else 'Sem pagamento no ato',
+                    'descricao': 'Acesso gratuito' if video.is_gratuito else 'Pagamento do vídeo-curso',
+                },
+            })
+
+    continuar_video = []
+    aluno = getattr(request.user, 'aluno_profile', None) if request.user.is_authenticated and getattr(request.user, 'tipo_usuario', None) == 'ALUNO' else None
+    if aluno:
+        cursos_iniciados = Curso_video.objects.filter(inscritos=aluno).select_related('centro').prefetch_related('aulas').order_by('-data_publicacao')
+        for video in cursos_iniciados:
+            aulas = list(video.aulas.all().order_by('ordem', 'id'))
+            if not aulas:
+                continue
+            progressos = {
+                item.aula_id: item for item in ProgressoAula.objects.filter(aluno=aluno, aula__curso=video).select_related('aula')
+            }
+            if not progressos:
+                continue
+            concluidas = {aula_id for aula_id, item in progressos.items() if item.concluida}
+            total_aulas = len(aulas)
+            if len(concluidas) >= total_aulas:
+                continue
+            unidades_concluidas = 0.0
+            for aula in aulas:
+                progresso = progressos.get(aula.id)
+                if not progresso:
+                    continue
+                if progresso.concluida:
+                    unidades_concluidas += 1
+                elif aula.duracao_segundos:
+                    unidades_concluidas += min(progresso.tempo_assistido / aula.duracao_segundos, 0.95)
+            percentagem = min(99, max(1, round((unidades_concluidas / total_aulas) * 100)))
+            proxima_aula = next((aula for aula in aulas if aula.id not in concluidas), aulas[0])
+            continuar_video.append({
+                'id': video.id,
+                'video_slug': video.slug,
+                'titulo': video.titulo,
+                'centro': video.centro.nome if video.centro else 'Edukangola',
+                'imagem_url': video.get_imagem_url,
+                'progresso': percentagem,
+                'aulas_concluidas': len(concluidas),
+                'total_aulas': total_aulas,
+                'proxima_aula': proxima_aula.titulo,
+                'aprendizagem_url': f'/aprender/video/{video.slug}',
+            })
+        continuar_video.sort(key=lambda item: item['progresso'], reverse=True)
     provincias = sorted({curso['provincia'] for curso in cursos if curso['provincia']})
 
     estagios = []
@@ -739,6 +781,7 @@ def public_home_data(request):
         'turmas_abertas': turmas,
         'cursos': cursos,
         'video_cursos': video_cursos,
+        'continuar_video': continuar_video[:8],
         'estagios': estagios,
         'provincias': provincias,
         'centros_destaque': centros,

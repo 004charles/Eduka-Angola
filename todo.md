@@ -177,3 +177,4 @@
 - [x] Reconstruir toda a página de cursos em vídeo no estilo Edukangola com descoberta tipo streaming
 - [x] Compactar a navegação pública e organizar opções secundárias num painel Explorar
 - [x] Cadastrar vinte cursos em vídeo diversos no catálogo da Edukangola
+- [x] Mostrar cursos em vídeo iniciados e não concluídos na secção Continue a aprender
