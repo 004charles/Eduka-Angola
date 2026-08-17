@@ -5544,6 +5544,64 @@ def react_gestor_finance(request):
     return JsonResponse({'metricas': {'plataforma': str(total_plataforma), 'presencial': str(total_presencial), 'total': str(total_plataforma + total_presencial), 'quantidade_movimentos': inscricoes.count() + recebimentos.count()}, 'movimentos': movimentos[:50], 'por_filial': por_filial})
 
 
+def _react_message_payload(mensagem):
+    try:
+        arquivo_url = mensagem.arquivo.url if mensagem.arquivo else ''
+    except ValueError:
+        arquivo_url = ''
+    return {'id': mensagem.id, 'texto': mensagem.mensagem, 'tipo': mensagem.tipo, 'arquivo_url': arquivo_url, 'data': mensagem.data_envio.isoformat(), 'autor': 'CENTRO' if mensagem.remetente_centro_id else 'ALUNO'}
+
+
+@login_required
+@require_http_methods(['GET'])
+def react_gestor_conversations(request):
+    """Lista conversas activas acessíveis ao centro autenticado para a interface React."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    conversas = Conversa.objects.filter(centro=centro, ativa=True).select_related('aluno').order_by('-ultima_mensagem')
+    return JsonResponse({'conversas': [{'id': conversa.id, 'aluno': conversa.aluno.nome, 'ultima_atividade': conversa.ultima_mensagem.isoformat(), 'ultima_mensagem': (Mensagem.objects.filter(conversa=conversa, digitando=False).order_by('-data_envio').values_list('mensagem', flat=True).first() or '')[:100]} for conversa in conversas]})
+
+
+@login_required
+@require_http_methods(['GET'])
+def react_gestor_conversation_detail(request, conversa_id):
+    """Devolve mensagens de uma conversa pertencente ao centro autenticado."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    conversa = get_object_or_404(Conversa.objects.select_related('aluno'), id=conversa_id, centro=centro, ativa=True)
+    mensagens = Mensagem.objects.filter(conversa=conversa, digitando=False).select_related('remetente_aluno', 'remetente_centro').order_by('data_envio')
+    mensagens.filter(remetente_aluno__isnull=False, lida=False).update(lida=True)
+    return JsonResponse({'conversa': {'id': conversa.id, 'aluno': conversa.aluno.nome}, 'mensagens': [_react_message_payload(mensagem) for mensagem in mensagens]})
+
+
+@login_required
+@require_http_methods(['POST'])
+def react_gestor_conversation_message(request, conversa_id):
+    """Envia texto ou um ficheiro limitado para uma conversa do centro autenticado, com CSRF activo."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    conversa = get_object_or_404(Conversa, id=conversa_id, centro=centro, ativa=True)
+    if request.content_type and request.content_type.startswith('application/json'):
+        try:
+            payload = json.loads(request.body or '{}')
+        except (TypeError, ValueError):
+            return JsonResponse({'detail': 'O pedido deve conter dados JSON válidos.'}, status=400)
+        texto, arquivo = str(payload.get('mensagem', '')).strip(), None
+    else:
+        texto, arquivo = request.POST.get('mensagem', '').strip(), request.FILES.get('arquivo')
+    if not texto and not arquivo:
+        return JsonResponse({'detail': 'A mensagem não pode estar vazia.'}, status=400)
+    if arquivo and arquivo.size > 10 * 1024 * 1024:
+        return JsonResponse({'detail': 'O ficheiro anexo não pode ultrapassar 10 MB.'}, status=400)
+    tipo = 'IMAGEM' if arquivo and str(arquivo.content_type or '').startswith('image/') else ('ARQUIVO' if arquivo else 'TEXTO')
+    mensagem = Mensagem.objects.create(conversa=conversa, remetente_centro=centro, mensagem=texto, arquivo=arquivo, tipo=tipo)
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='MENSAGEM_ENVIADA', entidade='Conversa', objeto_id=str(conversa.pk), dados={'mensagem_id': mensagem.pk, 'tipo': tipo})
+    return JsonResponse({'ok': True, 'mensagem': _react_message_payload(mensagem)}, status=201)
+
+
 def _react_media_url(field):
     try:
         return field.url if field else ''
