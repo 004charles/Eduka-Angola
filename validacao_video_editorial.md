@@ -19,3 +19,9 @@ Os cartões do destaque foram reduzidos em largura visual, altura de imagem, cor
 ## Redesenho Edukangola
 
 A composição panorâmica colorida foi substituída por uma superfície editorial clara, com borda, sombra discreta e separação funcional entre a introdução suave e a área de cursos. Os filtros deixaram de usar pílulas sobre gradiente e passaram a funcionar como navegação de baixa ênfase; os cartões usam o mesmo acabamento branco, compacto e contido das restantes áreas públicas da plataforma.
+
+## Reconstrução integral da página
+
+A página foi revista por completo. O mosaico cinematográfico, os blocos repetidos e a estética escura foram removidos. A nova composição usa um herói claro, um programa real em destaque, uma biblioteca com filtros e prateleira horizontal, e cartões por área; o comportamento de streaming fica limitado à descoberta e navegação horizontal, enquanto cores, superfícies e espaçamentos seguem os tokens públicos da Edukangola.
+
+O filtro **Gestão e Negócios** foi testado na página reconstruída e actualizou a prateleira para o programa respectivo, sem recarregamento. Com apenas um curso nessa área, os controlos laterais são ocultados para evitar acções sem efeito.

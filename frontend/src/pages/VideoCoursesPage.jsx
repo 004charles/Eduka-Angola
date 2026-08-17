@@ -1,39 +1,97 @@
-import { ArrowRight, BookOpen, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Layers3, PlayCircle, Sparkles, UsersRound } from "lucide-react";
+import { ArrowRight, BookOpen, ChevronLeft, ChevronRight, Clock3, Layers3, PlayCircle, Sparkles } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import "./video-courses-page.css";
-import "./video-editorial-feature.css";
-import "./video-row-controls.css";
 
-function VideoCard({ course, onNavigate }) {
-  return <article className="video-show-card"><button type="button" onClick={() => onNavigate(`/video-cursos/${course.video_slug}`)}><div className="video-show-art">{course.imagem_url && <img src={course.imagem_url} alt="" />}<div className="video-show-overlay"><span><PlayCircle size={17} /> Curso em vídeo</span>{course.is_original_edukangola && <small>Original Edukangola</small>}</div><i aria-hidden="true"><PlayCircle size={25} /></i></div><div className="video-show-copy"><div className="video-show-meta"><span>{course.categoria}</span><span>{course.is_gratuito ? "Acesso gratuito" : course.pagamento?.agora}</span></div><h3>{course.titulo}</h3><p>{course.instrutor || course.centro}</p><div className="video-show-stats"><span><Layers3 size={14} /> {course.total_aulas || 0} aulas</span><span><Clock3 size={14} /> {course.duracao_total || "Ao seu ritmo"}</span></div><strong>Ver programa <ArrowRight size={14} /></strong></div></button></article>;
+function formatAccess(course) {
+  return course.is_gratuito ? "Acesso gratuito" : course.pagamento?.agora || "Disponível agora";
 }
 
-function VideoEditorialFeature({ categories, onNavigate }) {
-  const [activeCategory, setActiveCategory] = useState("Todos");
-  const currentCategory = categories.find(([category]) => category === activeCategory) || categories[0] || ["", []];
-  const courses = currentCategory[1].slice(0, 3);
-  if (!courses.length) return null;
-  return <section className="video-editorial-feature" aria-labelledby="video-editorial-feature-title"><aside className="video-editorial-intro"><span className="eyebrow"><PlayCircle size={15} /> Biblioteca de cursos em vídeo</span><h2 id="video-editorial-feature-title">Escolha o seu próximo curso.</h2><p>Programas com aulas para assistir ao seu ritmo.</p><button type="button" onClick={() => document.getElementById("colecoes-video")?.scrollIntoView({ behavior: "smooth" })}>Ver todos <ArrowRight size={16} /></button></aside><div className="video-editorial-content"><div className="video-editorial-tabs" role="tablist" aria-label="Áreas dos cursos em vídeo">{categories.slice(0, 6).map(([category]) => <button key={category} type="button" role="tab" aria-selected={currentCategory[0] === category} className={currentCategory[0] === category ? "is-active" : ""} onClick={() => setActiveCategory(category)}>{category}</button>)}</div><div className="video-editorial-cards">{courses.map((course) => <button type="button" className="video-editorial-card" key={course.id} onClick={() => onNavigate(`/video-cursos/${course.video_slug}`)}><div className="video-editorial-art">{course.imagem_url && <img src={course.imagem_url} alt="" />}<span><PlayCircle size={17} /> Ver programa</span></div><div className="video-editorial-copy"><small>{course.is_original_edukangola ? "Original Edukangola" : course.centro || "Edukangola"}</small><h3>{course.titulo}</h3><p><span><Layers3 size={13} /> {course.total_aulas || 0} aulas</span><span><Clock3 size={13} /> {course.duracao_total || "Ao seu ritmo"}</span></p></div></button>)}</div></div></section>;
+function VideoProgrammeCard({ course, onNavigate }) {
+  return (
+    <article className="video-programme-card">
+      <button type="button" onClick={() => onNavigate(`/video-cursos/${course.video_slug}`)}>
+        <div className="video-programme-image">
+          {course.imagem_url && <img src={course.imagem_url} alt="" />}
+          <span><PlayCircle size={15} /> Curso em vídeo</span>
+        </div>
+        <div className="video-programme-copy">
+          <div className="video-programme-topline"><small>{course.categoria || "Edukangola"}</small><em>{formatAccess(course)}</em></div>
+          <h3>{course.titulo}</h3>
+          <p>{course.instrutor || course.centro || "Edukangola"}</p>
+          <div className="video-programme-meta"><span><Layers3 size={13} /> {course.total_aulas || 0} aulas</span><span><Clock3 size={13} /> {course.duracao_total || "Ao seu ritmo"}</span></div>
+          <strong>Ver programa <ArrowRight size={14} /></strong>
+        </div>
+      </button>
+    </article>
+  );
 }
 
-function VideoRow({ title, eyebrow, courses, onNavigate, featured = false }) {
+function VideoShelf({ eyebrow, title, courses, onNavigate }) {
   const railRef = useRef(null);
   if (!courses.length) return null;
-  const scrollRail = (direction) => railRef.current?.scrollBy({ left: direction * Math.max(260, railRef.current.clientWidth * .78), behavior: "smooth" });
-  return <section className={`video-row ${featured ? "is-featured" : ""}`}><div className="video-row-heading"><div><span className="eyebrow muted">{eyebrow}</span><h2>{title}</h2></div><div className="video-row-tools"><span>{courses.length} {courses.length === 1 ? "curso" : "cursos"}</span>{courses.length > 1 && <div className="video-rail-controls" aria-label={`Navegar cursos em ${title}`}><button type="button" onClick={() => scrollRail(-1)} aria-label="Ver cursos anteriores"><ChevronLeft size={18} /></button><button type="button" onClick={() => scrollRail(1)} aria-label="Ver próximos cursos"><ChevronRight size={18} /></button></div>}</div></div><div ref={railRef} className="video-rail" aria-label={title}>{courses.map((course) => <VideoCard key={course.id} course={course} onNavigate={onNavigate} />)}</div></section>;
+  const scrollRail = (direction) => railRef.current?.scrollBy({ left: direction * Math.max(280, railRef.current.clientWidth * .72), behavior: "smooth" });
+  return (
+    <section className="video-shelf" aria-labelledby="video-shelf-title">
+      <div className="video-shelf-heading">
+        <div><span className="eyebrow muted">{eyebrow}</span><h2 id="video-shelf-title">{title}</h2></div>
+        {courses.length > 1 && <div className="video-shelf-controls" aria-label={`Navegar ${title}`}><button type="button" onClick={() => scrollRail(-1)} aria-label="Ver cursos anteriores"><ChevronLeft size={18} /></button><button type="button" onClick={() => scrollRail(1)} aria-label="Ver próximos cursos"><ChevronRight size={18} /></button></div>}
+      </div>
+      <div ref={railRef} className="video-shelf-rail">{courses.map((course) => <VideoProgrammeCard key={course.id} course={course} onNavigate={onNavigate} />)}</div>
+    </section>
+  );
 }
 
 export default function VideoCoursesPage({ data, loading, onNavigate }) {
   const courses = data?.video_cursos || [];
-  const featured = courses.filter((course) => course.destaque);
-  const originals = courses.filter((course) => course.is_original_edukangola);
-  const withMentor = courses.filter((course) => course.tem_turmas);
-  const freeCourses = courses.filter((course) => course.is_gratuito);
-  const compactCourses = courses.filter((course) => (course.total_aulas || 0) > 0 && (course.total_aulas || 0) <= 8);
-  const recent = [...courses].sort((a, b) => new Date(b.data_publicacao) - new Date(a.data_publicacao));
-  const categories = useMemo(() => Object.entries(courses.reduce((groups, course) => ({ ...groups, [course.categoria || "Outras áreas"]: [...(groups[course.categoria || "Outras áreas"] || []), course] }), {})).filter(([, items]) => items.length > 0), [courses]);
-  const editorialCategories = useMemo(() => [["Todos", courses], ...categories], [categories, courses]);
-  const wallCourses = useMemo(() => courses.length ? Array.from({ length: Math.max(48, courses.length * 18) }, (_, index) => courses[index % courses.length]) : [], [courses]);
-  if (loading) return <main className="video-hub"><div className="page-width video-hub-loading">A preparar os cursos em vídeo…</div></main>;
-  return <main className="video-hub"><section className="video-hub-hero video-hub-landing"><div className="video-mosaic" aria-hidden="true">{wallCourses.map((course, index) => <img key={`${course.id}-${index}`} src={course.imagem_url} alt="" />)}</div><div className="video-hub-veil" /><div className="video-hub-landing-copy"><span className="eyebrow"><Sparkles size={15} /> Edukangola vídeo</span><h1>Aprenda no seu ritmo.<br />Avance no seu futuro.</h1><p>Cursos em vídeo para desenvolver competências, rever quando quiser e continuar de onde parou.</p><div className="video-landing-actions"><button className="video-landing-primary" onClick={() => document.getElementById("catalogo-video")?.scrollIntoView({ behavior: "smooth" })}>Explorar cursos <ArrowRight size={18} /></button><button className="video-landing-secondary" onClick={() => onNavigate("/cursos")}>Ver cursos presenciais</button></div></div></section><section id="catalogo-video" className="page-width video-hub-content">{courses.length ? <><section className="video-value-strip"><div><PlayCircle size={19} /><strong>Aceda quando quiser</strong><span>Aprenda sem depender de uma turma.</span></div><div><CheckCircle2 size={19} /><strong>Retome o seu progresso</strong><span>Continue exactamente na aula onde parou.</span></div><div><UsersRound size={19} /><strong>Aprenda com especialistas</strong><span>Conteúdo criado por centros e formadores.</span></div></section><VideoEditorialFeature categories={editorialCategories} onNavigate={onNavigate} /><div id="colecoes-video"><VideoRow eyebrow="Comece aqui" title="Em destaque para si." courses={featured.length ? featured : recent} onNavigate={onNavigate} featured /><VideoRow eyebrow="Séries Edukangola" title="Originais para construir competências." courses={originals} onNavigate={onNavigate} /><VideoRow eyebrow="Curadoria" title="Cursos com acompanhamento disponível." courses={withMentor} onNavigate={onNavigate} /><VideoRow eyebrow="Estude esta semana" title="Cursos compactos para avançar agora." courses={compactCourses} onNavigate={onNavigate} /><VideoRow eyebrow="Comece sem pagar" title="Acesso gratuito para explorar." courses={freeCourses} onNavigate={onNavigate} /><VideoRow eyebrow="Recém-adicionados" title="Novidades na biblioteca." courses={recent} onNavigate={onNavigate} />{categories.map(([category, items]) => <VideoRow key={category} eyebrow={`Área · ${category}`} title={`Aprender ${category}.`} courses={items} onNavigate={onNavigate} />)}</div></> : <div className="video-hub-empty"><BookOpen size={33} /><h2>Os cursos em vídeo chegam em breve.</h2><p>Enquanto preparamos esta biblioteca, explore as formações presenciais publicadas pelos centros.</p><button className="primary-action" onClick={() => onNavigate("/cursos")}>Cursos presenciais <ArrowRight size={16} /></button></div>}</section></main>;
+  const [activeCategory, setActiveCategory] = useState("Todos");
+  const categories = useMemo(() => Object.entries(courses.reduce((groups, course) => {
+    const category = course.categoria || "Outras áreas";
+    groups[category] = [...(groups[category] || []), course];
+    return groups;
+  }, {})).filter(([, items]) => items.length), [courses]);
+  const featuredCourse = courses.find((course) => course.destaque) || courses[0];
+  const visibleCourses = activeCategory === "Todos" ? courses : categories.find(([category]) => category === activeCategory)?.[1] || [];
+  const chooseCategory = (category) => {
+    setActiveCategory(category);
+    document.getElementById("programas-video")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  if (loading) return <main className="video-page"><div className="page-width video-page-loading">A preparar os cursos em vídeo…</div></main>;
+  if (!courses.length) return <main className="video-page"><section className="page-width video-page-empty"><BookOpen size={34} /><span className="eyebrow">Cursos em vídeo</span><h1>A biblioteca está a ser preparada.</h1><p>Enquanto os primeiros programas são publicados, explore as formações presenciais dos centros.</p><button className="primary-action" onClick={() => onNavigate("/cursos")}>Ver cursos presenciais <ArrowRight size={16} /></button></section></main>;
+
+  return (
+    <main className="video-page">
+      <header className="video-page-hero">
+        <div className="page-width video-page-hero-inner">
+          <span className="eyebrow"><Sparkles size={15} /> Edukangola vídeo</span>
+          <h1>Aprenda ao seu ritmo, com programas que acompanham o seu futuro.</h1>
+          <p>Explore cursos em vídeo publicados por centros e formadores, assista quando quiser e retome o que começou.</p>
+          <button className="primary-action" onClick={() => document.getElementById("programas-video")?.scrollIntoView({ behavior: "smooth" })}>Explorar programas <ArrowRight size={17} /></button>
+        </div>
+      </header>
+
+      <section className="page-width video-featured-section" aria-labelledby="video-featured-title">
+        <div className="video-featured-copy">
+          <span className="eyebrow">Programa em destaque</span>
+          <h2 id="video-featured-title">{featuredCourse.titulo}</h2>
+          <p>{featuredCourse.descricao_curta || featuredCourse.descricao || "Um programa para desenvolver competências de forma prática, no seu próprio ritmo."}</p>
+          <div className="video-featured-details"><span>{featuredCourse.instrutor || featuredCourse.centro || "Edukangola"}</span><span>{formatAccess(featuredCourse)}</span></div>
+          <button className="primary-action" onClick={() => onNavigate(`/video-cursos/${featuredCourse.video_slug}`)}>Ver programa <PlayCircle size={17} /></button>
+        </div>
+        <button type="button" className="video-featured-media" onClick={() => onNavigate(`/video-cursos/${featuredCourse.video_slug}`)} aria-label={`Abrir ${featuredCourse.titulo}`}>
+          {featuredCourse.imagem_url && <img src={featuredCourse.imagem_url} alt="" />}
+          <span><PlayCircle size={26} /></span>
+        </button>
+      </section>
+
+      <section className="video-library-section" id="programas-video">
+        <div className="page-width">
+          <div className="video-library-heading"><div><span className="eyebrow muted">Biblioteca de programas</span><h2>Encontre um curso para começar agora.</h2></div><p>{courses.length} {courses.length === 1 ? "curso publicado" : "cursos publicados"}</p></div>
+          <div className="video-category-tabs" role="tablist" aria-label="Filtrar cursos em vídeo por área"><button type="button" role="tab" aria-selected={activeCategory === "Todos"} className={activeCategory === "Todos" ? "is-active" : ""} onClick={() => setActiveCategory("Todos")}>Todos</button>{categories.map(([category]) => <button key={category} type="button" role="tab" aria-selected={activeCategory === category} className={activeCategory === category ? "is-active" : ""} onClick={() => setActiveCategory(category)}>{category}</button>)}</div>
+          <VideoShelf eyebrow={activeCategory === "Todos" ? "Todos os programas" : `Área · ${activeCategory}`} title={activeCategory === "Todos" ? "Cursos em vídeo disponíveis." : `Cursos em ${activeCategory}.`} courses={visibleCourses} onNavigate={onNavigate} />
+          {categories.length > 1 && <section className="video-area-section" aria-labelledby="video-area-title"><div><span className="eyebrow muted">Explorar por área</span><h2 id="video-area-title">Escolha uma área de aprendizagem.</h2></div><div className="video-area-grid">{categories.map(([category, items]) => <button key={category} type="button" onClick={() => chooseCategory(category)}><span><PlayCircle size={17} /></span><div><strong>{category}</strong><small>{items.length} {items.length === 1 ? "curso em vídeo" : "cursos em vídeo"}</small></div><ArrowRight size={17} /></button>)}</div></section>}
+        </div>
+      </section>
+    </main>
+  );
 }
