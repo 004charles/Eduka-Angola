@@ -129,6 +129,45 @@ def react_gestor_video_lesson_detail(request, aula_id):
     AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='AULA_VIDEO_REMOVIDA', entidade='Aula', objeto_id=str(aula_id), dados={'curso_id': curso_id, 'titulo': titulo})
     return JsonResponse({'ok': True, 'aula_id': aula_id})
 
+
+def _react_video_certificate_payload(certificado):
+    return {'id': str(certificado.id), 'aluno': certificado.aluno.nome, 'curso': certificado.curso.titulo, 'data_emissao': certificado.data_emissao.isoformat(), 'codigo_verificacao': certificado.codigo_verificacao, 'status': certificado.status, 'nota_final': str(certificado.nota_final), 'exercicios_concluidos': certificado.total_exercicios_concluidos}
+
+
+@login_required
+@require_http_methods(['GET'])
+def react_gestor_video_certificates(request):
+    """Lista certificados de cursos em vídeo pertencentes ao centro autenticado."""
+    centro, filial, response = _react_video_access(request)
+    if response:
+        return response
+    certificados = Certificado.objects.filter(curso__centro=centro).select_related('aluno', 'curso').order_by('-data_emissao')
+    status = request.GET.get('status')
+    if status in {'PENDENTE', 'EMITIDO', 'REJEITADO'}:
+        certificados = certificados.filter(status=status)
+    return JsonResponse({'certificados': [_react_video_certificate_payload(certificado) for certificado in certificados[:100]], 'status_opcoes': ['PENDENTE', 'EMITIDO', 'REJEITADO']})
+
+
+@login_required
+@require_http_methods(['PATCH'])
+def react_gestor_video_certificate_detail(request, certificado_id):
+    """Actualiza o estado de um certificado em vídeo que pertence ao centro autenticado."""
+    centro, filial, response = _react_video_access(request)
+    if response:
+        return response
+    certificado = get_object_or_404(Certificado.objects.select_related('aluno', 'curso'), id=certificado_id, curso__centro=centro)
+    try:
+        payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'O pedido deve conter dados JSON válidos.'}, status=400)
+    status = payload.get('status')
+    if status not in {'PENDENTE', 'EMITIDO', 'REJEITADO'}:
+        return JsonResponse({'detail': 'O estado do certificado é inválido.'}, status=400)
+    certificado.status, certificado.aprovado_por = status, request.user
+    certificado.save(update_fields=['status', 'aprovado_por'])
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='CERTIFICADO_VIDEO_ACTUALIZADO', entidade='Certificado', objeto_id=str(certificado.pk), dados={'status': status})
+    return JsonResponse({'ok': True, 'certificado': _react_video_certificate_payload(certificado)})
+
 @login_required
 def listar_cursos_video(request):
     centro, filial = get_gestor_context(request.user)
