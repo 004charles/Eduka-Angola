@@ -228,3 +228,10 @@
 - [x] Auditar o estilo actual da página Perfil público do GestorEduka
 - [x] Redesenhar o Perfil público com composição institucional, meios visuais e formulário organizado
 - [x] Validar o formulário, uploads e apresentação do Perfil público no domínio de desenvolvimento
+- [x] Auditar a apresentação actual da área Alunos e do Dossiê académico no GestorEduka
+- [x] Redesenhar a pesquisa e o dossiê do aluno com resumo académico, matrículas e acções organizadas
+- [x] Validar o carregamento, pesquisa e transições administrativas do dossiê no domínio de desenvolvimento
+- [x] Auditar os modelos necessários para criar um centro de demonstração operacional completo
+- [x] Definir dados de teste coerentes para cursos, turmas, alunos, inscrições, finanças e comunicação
+- [x] Popular o Centro Demonstração GestorEduka com dados completos para todos os módulos administrativos
+- [x] Validar os módulos do GestorEduka com o cenário de demonstração criado
