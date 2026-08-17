@@ -157,3 +157,4 @@
 - [ ] Criar a camada React essencial para formadores sem duplicar o GestorEduka
 - [ ] Ligar competências, percursos de carreira, portfólio, bolsas e estágios
 - [ ] Testar e documentar os contratos pedagógicos do Learning Core
+- [x] Corrigir a rota de Continuação de aprendizagem dos cursos em vídeo
