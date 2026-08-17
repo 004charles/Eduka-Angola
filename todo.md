@@ -169,3 +169,5 @@
 - [x] Adaptar a área de vídeo ao modo claro/escuro global e aumentar a densidade do mosaico
 - [x] Adicionar mais colecções editoriais à biblioteca de cursos em vídeo
 - [x] Diferenciar os cartões de cursos em vídeo da grelha de formações presenciais
+- [x] Adicionar botões de scroll às faixas de cursos em vídeo
+- [x] Corrigir o espaçamento e composição da secção Carreiras e competências na página inicial

@@ -1,14 +1,17 @@
-import { ArrowRight, BookOpen, CheckCircle2, Clock3, Layers3, PlayCircle, Sparkles, Star, UsersRound } from "lucide-react";
-import { useMemo } from "react";
+import { ArrowRight, BookOpen, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Layers3, PlayCircle, Sparkles, UsersRound } from "lucide-react";
+import { useMemo, useRef } from "react";
 import "./video-courses-page.css";
+import "./video-row-controls.css";
 
 function VideoCard({ course, onNavigate }) {
   return <article className="video-show-card"><button type="button" onClick={() => onNavigate(`/video-cursos/${course.video_slug}`)}><div className="video-show-art">{course.imagem_url && <img src={course.imagem_url} alt="" />}<div className="video-show-overlay"><span><PlayCircle size={17} /> Curso em vídeo</span>{course.is_original_edukangola && <small>Original Edukangola</small>}</div><i aria-hidden="true"><PlayCircle size={25} /></i></div><div className="video-show-copy"><div className="video-show-meta"><span>{course.categoria}</span><span>{course.is_gratuito ? "Acesso gratuito" : course.pagamento?.agora}</span></div><h3>{course.titulo}</h3><p>{course.instrutor || course.centro}</p><div className="video-show-stats"><span><Layers3 size={14} /> {course.total_aulas || 0} aulas</span><span><Clock3 size={14} /> {course.duracao_total || "Ao seu ritmo"}</span></div><strong>Ver programa <ArrowRight size={14} /></strong></div></button></article>;
 }
 
 function VideoRow({ title, eyebrow, courses, onNavigate, featured = false }) {
+  const railRef = useRef(null);
   if (!courses.length) return null;
-  return <section className={`video-row ${featured ? "is-featured" : ""}`}><div className="video-row-heading"><div><span className="eyebrow muted">{eyebrow}</span><h2>{title}</h2></div><span>{courses.length} {courses.length === 1 ? "curso" : "cursos"}</span></div><div className="video-rail">{courses.map((course) => <VideoCard key={course.id} course={course} onNavigate={onNavigate} />)}</div></section>;
+  const scrollRail = (direction) => railRef.current?.scrollBy({ left: direction * Math.max(260, railRef.current.clientWidth * .78), behavior: "smooth" });
+  return <section className={`video-row ${featured ? "is-featured" : ""}`}><div className="video-row-heading"><div><span className="eyebrow muted">{eyebrow}</span><h2>{title}</h2></div><div className="video-row-tools"><span>{courses.length} {courses.length === 1 ? "curso" : "cursos"}</span>{courses.length > 1 && <div className="video-rail-controls" aria-label={`Navegar cursos em ${title}`}><button type="button" onClick={() => scrollRail(-1)} aria-label="Ver cursos anteriores"><ChevronLeft size={18} /></button><button type="button" onClick={() => scrollRail(1)} aria-label="Ver próximos cursos"><ChevronRight size={18} /></button></div>}</div></div><div ref={railRef} className="video-rail" aria-label={title}>{courses.map((course) => <VideoCard key={course.id} course={course} onNavigate={onNavigate} />)}</div></section>;
 }
 
 export default function VideoCoursesPage({ data, loading, onNavigate }) {
