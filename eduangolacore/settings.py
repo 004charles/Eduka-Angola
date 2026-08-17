@@ -2,14 +2,26 @@ import os
 from pathlib import Path
 
 from decouple import config
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 from django.utils.translation import gettext_lazy as _
 
-SECRET_KEY = config("SECRET_KEY", default="django-insecure-default")
-DEBUG = config("DEBUG", default=True, cast=bool)
+DJANGO_ENV = config("DJANGO_ENV", default="development").strip().lower()
+IS_DEPLOYED_ENV = DJANGO_ENV in {"staging", "production"}
+SECRET_KEY = config("SECRET_KEY", default="")
+if IS_DEPLOYED_ENV and (not SECRET_KEY or SECRET_KEY.startswith("django-insecure-") or len(SECRET_KEY) < 50):
+    raise ImproperlyConfigured("SECRET_KEY segura é obrigatória quando DJANGO_ENV é staging ou production.")
+if not SECRET_KEY:
+    SECRET_KEY = "django-insecure-local-development-only"
+DEBUG = config("DEBUG", default=not IS_DEPLOYED_ENV, cast=bool)
+if IS_DEPLOYED_ENV and DEBUG:
+    raise ImproperlyConfigured("DEBUG deve ser False quando DJANGO_ENV é staging ou production.")
 
-ALLOWED_HOSTS = ['*']
+_allowed_hosts = config("ALLOWED_HOSTS", default="localhost,127.0.0.1")
+ALLOWED_HOSTS = [host.strip() for host in _allowed_hosts.split(",") if host.strip()]
+if IS_DEPLOYED_ENV and not ALLOWED_HOSTS:
+    raise ImproperlyConfigured("ALLOWED_HOSTS deve ser definido em staging ou production.")
 
 GOOGLE_MAPS_API_KEY = config("GOOGLE_MAPS_API_KEY", default="")
 EDUKA_INTEGRATION_KEY = config("EDUKA_INTEGRATION_KEY", default="")
@@ -94,19 +106,23 @@ LOCALE_PATHS = [
     os.path.join(BASE_DIR, 'locale'),
 ]
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://eduka-angola-production.up.railway.app',
-    'https://eduka-angola.onrender.com',
-    'https://edukangola.com',
-    'https://www.edukangola.com',
-    # O frontend React é servido por subdomínios temporários na pré-visualização.
-    # O proxy preserva a sessão Django e, por isso, a origem precisa ser confiável
-    # para que os POSTs de login, cadastro e checkout passem na validação CSRF.
-    'https://*.manus.computer',
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-]
+_default_csrf_origins = "https://edukangola.com,https://www.edukangola.com,http://localhost:5173,http://127.0.0.1:5173"
+if not IS_DEPLOYED_ENV:
+    _default_csrf_origins += ",https://*.manus.computer"
+_csrf_origins = config("CSRF_TRUSTED_ORIGINS", default=_default_csrf_origins)
+CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in _csrf_origins.split(",") if origin.strip()]
+if IS_DEPLOYED_ENV and not CSRF_TRUSTED_ORIGINS:
+    raise ImproperlyConfigured("CSRF_TRUSTED_ORIGINS deve ser definido em staging ou production.")
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=IS_DEPLOYED_ENV, cast=bool)
+SECURE_HSTS_SECONDS = config("SECURE_HSTS_SECONDS", default=31536000 if IS_DEPLOYED_ENV else 0, cast=int)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = config("SECURE_HSTS_INCLUDE_SUBDOMAINS", default=IS_DEPLOYED_ENV, cast=bool)
+SECURE_HSTS_PRELOAD = config("SECURE_HSTS_PRELOAD", default=False, cast=bool)
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = "same-origin"
+SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default=IS_DEPLOYED_ENV, cast=bool)
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=IS_DEPLOYED_ENV, cast=bool)
 
 SITE_DOMAIN = config('SITE_DOMAIN', default='https://www.edukangola.com')
 MIDDLEWARE = [
@@ -354,7 +370,9 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'core.exceptions.custom_exception_handler',
 }
 
-CORS_ALLOW_ALL_ORIGINS = True
+_cors_origins = config("CORS_ALLOWED_ORIGINS", default="")
+CORS_ALLOWED_ORIGINS = [origin.strip() for origin in _cors_origins.split(",") if origin.strip()]
+CORS_ALLOW_ALL_ORIGINS = not IS_DEPLOYED_ENV
 
 # Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -409,7 +427,7 @@ MOEDA_PADRAO = config('MOEDA_PADRAO', default='AOA')
 # Prontu Gateway
 PRONTU_API_URL = config('PRONTU_API_URL', default='https://api.prontu.io')
 PRONTU_API_KEY = config('PRONTU_API_KEY', default='')
-PRONTU_CALLBACK_URL = config('PRONTU_CALLBACK_URL', default='http://localhost:8000/api/v1/pagamentos/webhook/prontu/')
+PRONTU_CALLBACK_URL = config('PRONTU_CALLBACK_URL', default=f'{SITE_DOMAIN.rstrip("/")}/api/v1/pagamentos/webhook/prontu/')
 # Credenciais para autenticação automática via API (preferidas ao token do portal)
 PRONTU_EMAIL = config('PRONTU_EMAIL', default='')
 PRONTU_PASSWORD = config('PRONTU_PASSWORD', default='')
@@ -417,8 +435,8 @@ PRONTU_ENV = config('PRONTU_ENV', default=0, cast=int)  # 0=Sandbox, 1=Productio
 
 
 # URLs de retorno do cliente
-FRONTEND_RETURN_URL = config('FRONTEND_RETURN_URL', default='http://localhost:3000/pagamento/sucesso')
-FRONTEND_CANCEL_URL = config('FRONTEND_CANCEL_URL', default='http://localhost:3000/pagamento/cancelado')
+FRONTEND_RETURN_URL = config('FRONTEND_RETURN_URL', default=f'{SITE_DOMAIN.rstrip("/")}/pagamento/sucesso/')
+FRONTEND_CANCEL_URL = config('FRONTEND_CANCEL_URL', default=f'{SITE_DOMAIN.rstrip("/")}/pagamento/cancelado/')
 
 # Tempo de expiração do link de pagamento (em minutos)
 TEMPO_EXPIRACAO_LINK_MINUTOS = config('TEMPO_EXPIRACAO_LINK_MINUTOS', default=120, cast=int)

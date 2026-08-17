@@ -349,7 +349,9 @@ class PagamentoAPITestCase(APITestCase):
         self.client.force_authenticate(user=self.usuario)
         response = self.client.get(reverse('pagamento-list'))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.json()), 0)
+        payload = response.json()
+        self.assertEqual(payload['count'], 0)
+        self.assertEqual(payload['results'], [])
 
 
 # ============================================================

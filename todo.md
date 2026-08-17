@@ -181,3 +181,10 @@
 - [x] Corrigir o estilo do botão de acesso gratuito nos cursos em vídeo
 - [x] Verificar e disponibilizar avaliações por estrelas e comentários nos cursos em vídeo
 - [x] Redesenhar o detalhe dos cursos em vídeo com experiência de streaming inspirada no YouTube
+- [x] Auditar os fluxos críticos e a prontidão real para lançamento do MVP Edukangola
+- [x] Corrigir a configuração de segurança para produção
+- [ ] Aplicar as variáveis seguras no provedor de staging/produção
+- [x] Estabilizar a suite de testes e bloquear chamadas reais da Prontu em testes
+- [ ] Validar os fluxos de conta de aluno e candidatura de centros em staging
+- [x] Preparar a activação operacional do serviço de notificações
+- [ ] Activar gateway e worker de notificações no provedor de staging
