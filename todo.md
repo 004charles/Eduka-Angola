@@ -150,3 +150,10 @@
 - [x] Adicionar Terminar sessão ao menu da conta do aluno
 - [x] Adicionar Terminar sessão à página de Configurações do aluno
 - [x] Validar limpeza da sessão e redireccionamento após logout
+
+- [x] Definir a fronteira funcional entre Learning Core React, GestorEduka e APIs Django
+- [ ] Consolidar a área de aprendizagem React para cursos em vídeo e formações presenciais
+- [ ] Implementar avaliações, feedback, certificados e histórico académico do aluno
+- [ ] Criar a camada React essencial para formadores sem duplicar o GestorEduka
+- [ ] Ligar competências, percursos de carreira, portfólio, bolsas e estágios
+- [ ] Testar e documentar os contratos pedagógicos do Learning Core

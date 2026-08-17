@@ -54,6 +54,24 @@ def recomendar_cursos(aluno, limite=8):
 
 
 @require_GET
+def react_student_certificates(request):
+    if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'ALUNO':
+        return JsonResponse({'detail': 'Inicie sessão para consultar os seus certificados.'}, status=401)
+    aluno = getattr(request.user, 'aluno_profile', None)
+    if not aluno:
+        return JsonResponse({'detail': 'Perfil de aluno não encontrado.'}, status=404)
+    from cursovideoapp.models import Certificado
+    from cursos_app.models import CertificadoCurso
+    certificados = []
+    for item in Certificado.objects.filter(aluno=aluno, status='EMITIDO').select_related('curso').order_by('-data_emissao'):
+        certificados.append({'id': str(item.id), 'tipo': 'Curso em vídeo', 'curso_titulo': item.curso.titulo, 'data_emissao': item.data_emissao.isoformat(), 'codigo_verificacao': item.codigo_verificacao, 'nota_final': str(item.nota_final), 'verificacao_url': f'/curso_video/verificar-certificado/{item.codigo_verificacao}/'})
+    for item in CertificadoCurso.objects.filter(inscricao__aluno=aluno, inscricao__status='A').select_related('inscricao__curso').order_by('-data_emissao'):
+        certificados.append({'id': str(item.id), 'tipo': 'Formação presencial', 'curso_titulo': item.inscricao.curso.titulo, 'data_emissao': item.data_emissao.isoformat(), 'codigo_verificacao': item.codigo_verificacao, 'nota_final': None, 'verificacao_url': f'/curso_video/verificar-certificado/{item.codigo_verificacao}/'})
+    certificados.sort(key=lambda item: item['data_emissao'], reverse=True)
+    return JsonResponse({'ok': True, 'certificados': certificados})
+
+
+@require_GET
 def react_student_dashboard(request):
     if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'ALUNO':
         return JsonResponse({'detail': 'Inicie sessão para abrir a sua área de aluno.'}, status=401)
@@ -76,7 +94,7 @@ def react_student_dashboard(request):
     for video in video_cursos:
         total_aulas = video.aulas.count()
         concluidas = ProgressoAula.objects.filter(aluno=aluno, aula__curso=video, concluida=True).count()
-        continuar.append({'id': video.id, 'titulo': video.titulo, 'centro': video.centro.nome if video.centro else 'Edukangola', 'imagem_url': video.get_imagem_url, 'is_video': True, 'progresso': round((concluidas / total_aulas) * 100) if total_aulas else 0, 'aulas_concluidas': concluidas, 'total_aulas': total_aulas, 'detalhe_url': video.get_absolute_url(), 'inicio_formatado': '', 'horario': ''})
+        continuar.append({'id': video.id, 'titulo': video.titulo, 'centro': video.centro.nome if video.centro else 'Edukangola', 'imagem_url': video.get_imagem_url, 'is_video': True, 'progresso': round((concluidas / total_aulas) * 100) if total_aulas else 0, 'aulas_concluidas': concluidas, 'total_aulas': total_aulas, 'detalhe_url': video.get_absolute_url(), 'aprendizagem_url': f'/aprender/video/{video.slug}', 'inicio_formatado': '', 'horario': ''})
     certificados = 0
     try:
         from cursovideoapp.models import Certificado
