@@ -194,3 +194,8 @@
 - [x] Adicionar sugestões de cidade na pesquisa de centros e sugestões relevantes na pesquisa de cursos
 - [x] Mostrar cursos de centros internacionais na página inicial
 - [x] Mostrar cursos de centros próximos na página inicial com consentimento de localização e alternativa por região
+- [x] Auditar integralmente as páginas, permissões, operações e APIs do GestorEduka legado
+- [x] Definir e documentar a arquitectura React do GestorEduka e a transição segura de rotas
+- [ ] Construir o shell React do GestorEduka com navegação, sessão, permissões, logótipo e temas claro/escuro
+- [ ] Migrar para React o painel principal e os módulos administrativos prioritários do GestorEduka
+- [ ] Validar todos os fluxos administrativos React e retirar a dependência pública das páginas HTML legadas

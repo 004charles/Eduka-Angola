@@ -30,6 +30,7 @@ import BookDetailPage from "./pages/BookDetailPage";
 import BookReaderPage from "./pages/BookReaderPage";
 import FAQPage from "./pages/FAQPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import ManagerPortalPage from "./pages/ManagerPortalPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import { getStudentSession, logoutStudent } from "./lib/auth-api";
 import { I18nProvider, LANGUAGES } from "./lib/i18n";
@@ -145,6 +146,7 @@ function App() {
   const checkoutCourse = checkoutCourseId ? homeData?.cursos?.find((course) => course.id === checkoutCourseId) : null;
   const legacyVideoCatalogue = pathname === "/cursos" && searchParams.get("tipo") === "video";
   let page;
+  if (pathname === "/gestoreduka" || pathname === "/gestoreduka/") return <ManagerPortalPage />;
   if (pathname === "/") page = <HomePage data={homeData} loading={homeDataLoading} onNavigate={navigate} onAnnounce={announce} />;
   else if (authModes[pathname]) page = <AuthPage key={pathname} mode={authModes[pathname]} courses={homeData?.cursos || []} onNavigate={navigate} onSessionReady={refreshStudentSession} />;
   else if (pathname === "/aluno") page = <StudentDashboardPage onNavigate={navigate} />;

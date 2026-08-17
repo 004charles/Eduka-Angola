@@ -4781,3 +4781,41 @@ def alterar_matricula(request, matricula_id):
     AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao=f'MATRICULA_{action.upper()}', entidade='Matricula', objeto_id=str(matricula.pk), dados={'estado': matricula.estado})
     messages.success(request, f'Matrícula {matricula.codigo_matricula} atualizada com sucesso.')
     return redirect('dossie_aluno', aluno_id=matricula.aluno_id)
+
+
+@login_required
+@require_http_methods(['GET'])
+def react_gestor_dashboard(request):
+    """Contrato inicial do painel React, sempre limitado ao centro do gestor autenticado."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    cursos = (filial.cursos_disponiveis.all() if filial else centro.cursos.all()).select_related('categoria').order_by('-data_criacao')
+    inscricoes = Inscricao.objects.filter(curso__centro=centro)
+    plano = get_plano_ativo(centro)
+    return JsonResponse({
+        'gestor': {'nome': request.user.nome or request.user.email, 'email': request.user.email, 'tipo': request.user.tipo_usuario},
+        'centro': {'id': centro.id, 'nome': centro.nome, 'plano': getattr(plano, 'nome', 'Sem plano'), 'filial': filial.nome if filial else ''},
+        'metricas': {'cursos': cursos.count(), 'cursos_publicados': cursos.filter(publicado=True, ativo=True).count(), 'inscricoes': inscricoes.count(), 'inscricoes_pendentes': inscricoes.filter(status='P').count(), 'receita_confirmada': float(inscricoes.filter(status='A').aggregate(total=Sum('valor_pago'))['total'] or 0)},
+        'cursos': [{'id': curso.id, 'titulo': curso.titulo, 'categoria': curso.categoria.nome if curso.categoria else 'Sem categoria', 'publicado': curso.publicado, 'ativo': curso.ativo, 'preco': float(curso.preco_atual), 'criado_em': curso.data_criacao.isoformat()} for curso in cursos[:12]],
+    })
+
+
+@login_required
+@require_http_methods(['POST'])
+def react_gestor_course_publish(request, curso_id):
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    curso = get_object_or_404(Curso, id=curso_id, centro=centro)
+    if filial and not filial.cursos_disponiveis.filter(id=curso.id).exists():
+        return JsonResponse({'detail': 'Não pode alterar cursos de outra filial.'}, status=403)
+    try:
+        payload = json.loads(request.body or '{}')
+        publicado = bool(payload['publicado'])
+    except (TypeError, ValueError, KeyError):
+        return JsonResponse({'detail': 'Indique o estado de publicação do curso.'}, status=400)
+    curso.publicado = publicado
+    curso.save(update_fields=['publicado'])
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='CURSO_PUBLICADO' if publicado else 'CURSO_DESPUBLICADO', entidade='Curso', objeto_id=str(curso.pk), dados={'publicado': publicado})
+    return JsonResponse({'ok': True, 'curso_id': curso.id, 'publicado': curso.publicado})
