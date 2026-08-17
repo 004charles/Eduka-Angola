@@ -15,3 +15,7 @@ O filtro **Gestão e Negócios** foi accionado no preview e passou a mostrar ape
 ## Ajuste de densidade
 
 Os cartões do destaque foram reduzidos em largura visual, altura de imagem, corpo de texto e espaçamentos. Em desktop, a grelha mantém espaço para três cartões, enquanto os dois cursos actualmente publicados ficam compactos à esquerda e preservam uma terceira área livre no gradiente, sem inventar ou repetir conteúdo.
+
+## Redesenho Edukangola
+
+A composição panorâmica colorida foi substituída por uma superfície editorial clara, com borda, sombra discreta e separação funcional entre a introdução suave e a área de cursos. Os filtros deixaram de usar pílulas sobre gradiente e passaram a funcionar como navegação de baixa ênfase; os cartões usam o mesmo acabamento branco, compacto e contido das restantes áreas públicas da plataforma.
