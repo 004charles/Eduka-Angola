@@ -30,6 +30,7 @@ from cursos_app.models import Curso, Categoria, Instrutor, Inscricao, Turma, Pre
 from pagamentos.models import RecebimentoCentro
 from planos.models import AssinaturaMembro, Plano
 from usuarios.models import Aluno
+from core.notification_events import queue_notification_event
 from usuarios.decorators import aluno_logado_e_centros
 from .forms import CursoForm, AnuncioForm
 from .plan_permissions import permite, get_plano_ativo, limite
@@ -3065,10 +3066,16 @@ def publicar_curso_final(request, curso_id):
             return redirect('curso_overview', curso_id=curso_id)
         
         
-        # Publica o curso
+        # Publica o curso e agenda o evento apenas na transição para publicado.
+        era_publicado = curso.publicado
         curso.publicado = True
         curso.save()
-        
+        if not era_publicado:
+            queue_notification_event(
+                'course.published',
+                f'course.published:{curso.pk}',
+                {'course_id': curso.pk, 'title': curso.titulo, 'center': getattr(curso.centro, 'nome', ''), 'link': f'/cursos/{curso.pk}'},
+            )
         messages.success(request, 'Curso publicado com sucesso!')
         return redirect('listar_cursos')
         
@@ -3188,9 +3195,15 @@ def publicar_curso(request, curso_id):
         if filial and not curso.filiais.filter(pk=filial.pk).exists():
             return JsonResponse({'success': False, 'error': 'Permissão negada'})
             
+        era_publicado = curso.publicado
         curso.publicado = True
         curso.save()
-        
+        if not era_publicado:
+            queue_notification_event(
+                'course.published',
+                f'course.published:{curso.pk}',
+                {'course_id': curso.pk, 'title': curso.titulo, 'center': getattr(curso.centro, 'nome', ''), 'link': f'/cursos/{curso.pk}'},
+            )
         return JsonResponse({
             'success': True, 
             'message': 'Curso publicado com sucesso!',

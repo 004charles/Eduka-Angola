@@ -32,6 +32,8 @@ urlpatterns = [
 
     # API de Notificações
     path('api/notificacoes/nao-lidas/', views.api_notificacoes_nao_lidas, name='api_notificacoes_nao_lidas'),
+    path('api/internal/notificacoes/destinatarios/', views.api_interna_destinatarios_notificacao, name='api_interna_destinatarios_notificacao'),
+    path('api/internal/notificacoes/criar/', views.api_interna_criar_notificacao, name='api_interna_criar_notificacao'),
 
 
     #------------------login---------------------------------

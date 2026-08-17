@@ -3,6 +3,8 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.text import slugify
 
+from core.notification_events import queue_notification_event
+
 
 class Autor(models.Model):
     nome = models.CharField(max_length=180, unique=True)
@@ -75,9 +77,19 @@ class Livro(models.Model):
         verbose_name_plural = "Livros"
 
     def save(self, *args, **kwargs):
+        previous_estado = None
+        if self.pk:
+            previous_estado = type(self).objects.filter(pk=self.pk).values_list('estado', flat=True).first()
         if not self.slug:
             self.slug = slugify(self.titulo)
         super().save(*args, **kwargs)
+        if self.estado == self.ESTADO_PUBLICADO and previous_estado != self.ESTADO_PUBLICADO:
+            queue_notification_event(
+                'book.published',
+                f'book.published:{self.pk}',
+                {'book_id': self.pk, 'title': self.titulo, 'author': self.autor.nome, 'link': f'/biblioteca/{self.slug}'},
+                occurred_at=self.publicado_em or self.atualizado_em,
+            )
 
     @property
     def tem_leitura(self):

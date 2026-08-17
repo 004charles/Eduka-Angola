@@ -2,7 +2,7 @@ from django.contrib import admin
 from unfold.admin import ModelAdmin as UnfoldModelAdmin
 from unfold.admin import TabularInline as UnfoldTabularInline
 from unfold.admin import StackedInline as UnfoldStackedInline
-from .models import SobreNos, MensagemContato, Galeria, Publicidade, ClienteAPIKey, PerguntaFrequente
+from .models import SobreNos, MensagemContato, Galeria, Publicidade, ClienteAPIKey, PerguntaFrequente, EventoNotificacaoOutbox
 
 @admin.register(Galeria)
 class GaleriaAdmin(UnfoldModelAdmin):
@@ -41,6 +41,14 @@ class ClienteAPIKeyAdmin(UnfoldModelAdmin):
     list_filter = ('ativo', 'criado_em')
     search_fields = ('nome_cliente',)
     readonly_fields = ('chave', 'criado_em', 'ultimo_uso')
+
+
+@admin.register(EventoNotificacaoOutbox)
+class EventoNotificacaoOutboxAdmin(UnfoldModelAdmin):
+    list_display = ('event_id', 'event_type', 'tentativas', 'publicado_em', 'criado_em')
+    list_filter = ('event_type', 'publicado_em')
+    search_fields = ('event_id', 'event_type', 'ultimo_erro')
+    readonly_fields = ('event_id', 'event_type', 'payload', 'occurred_at', 'tentativas', 'publicado_em', 'ultimo_erro', 'criado_em')
 
 
 @admin.register(PerguntaFrequente)

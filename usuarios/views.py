@@ -20,6 +20,7 @@ from django.urls import reverse
 from hashlib import sha256
 from .decorators import aluno_logado_e_centros
 import random
+import hmac
 import json
 from datetime import timedelta
 from django.utils import timezone
@@ -358,6 +359,62 @@ def api_notificacoes_nao_lidas(request):
                 })
                 
     return JsonResponse(dados)
+
+
+@require_POST
+def api_interna_criar_notificacao(request):
+    """Cria uma notificação na plataforma a pedido do serviço separado."""
+    segredo = os.getenv('NOTIFICATION_SERVICE_DJANGO_SECRET', '')
+    apresentado = request.headers.get('X-Notification-Service-Key', '')
+    if not segredo:
+        return JsonResponse({'detail': 'Serviço interno não configurado.'}, status=503)
+    if not hmac.compare_digest(apresentado, segredo):
+        return JsonResponse({'detail': 'Não autorizado.'}, status=401)
+    dados = _dados_json(request)
+    aluno_id = dados.get('aluno_id')
+    titulo = str(dados.get('titulo', '')).strip()[:150]
+    mensagem = str(dados.get('mensagem', '')).strip()
+    if not aluno_id or not titulo or not mensagem:
+        return JsonResponse({'detail': 'aluno_id, titulo e mensagem são obrigatórios.'}, status=400)
+    aluno = Aluno.objects.filter(pk=aluno_id, ativo=True).first()
+    if not aluno:
+        return JsonResponse({'detail': 'Aluno não encontrado.'}, status=404)
+    from usuarios.models import NotificacaoAluno
+    notificacao = NotificacaoAluno.objects.create(
+        aluno=aluno,
+        titulo=titulo,
+        mensagem=mensagem[:4000],
+        link=str(dados.get('link', '')).strip()[:255] or None,
+        tipo=str(dados.get('tipo', 'SISTEMA')).strip()[:20] or 'SISTEMA',
+    )
+    return JsonResponse({'ok': True, 'id': notificacao.id}, status=201)
+
+
+@require_GET
+def api_interna_destinatarios_notificacao(request):
+    """Resolve destinatários para o serviço separado sem expor a API publicamente."""
+    segredo = os.getenv('NOTIFICATION_SERVICE_DJANGO_SECRET', '')
+    apresentado = request.headers.get('X-Notification-Service-Key', '')
+    if not segredo:
+        return JsonResponse({'detail': 'Serviço interno não configurado.'}, status=503)
+    if not hmac.compare_digest(apresentado, segredo):
+        return JsonResponse({'detail': 'Não autorizado.'}, status=401)
+    tipos_para_preferencia = {
+        'course.published': 'novos_cursos',
+        'class.opened': 'novas_turmas',
+        'book.published': 'novos_livros',
+        'event.published': 'novos_eventos',
+        'learning.reminder': 'atualizacoes_aprendizagem',
+        'calendar.notice': 'calendario_e_feriados',
+        'weekly.digest.requested': 'resumo_semanal',
+    }
+    event_type = request.GET.get('event_type', '').strip()
+    preferencia = tipos_para_preferencia.get(event_type)
+    if not preferencia:
+        return JsonResponse({'detail': 'Tipo de evento não suportado.'}, status=400)
+    alunos = Aluno.objects.filter(ativo=True, usuario__is_active=True, preferencias_notificacao__receber_na_plataforma=True, **{f'preferencias_notificacao__{preferencia}': True}).select_related('usuario', 'preferencias_notificacao')
+    destinatarios = [{'id': aluno.id, 'nome': aluno.nome, 'email': aluno.usuario.email} for aluno in alunos if aluno.usuario.email]
+    return JsonResponse({'event_type': event_type, 'destinatarios': destinatarios})
 
 
 def conta_aluno(request):

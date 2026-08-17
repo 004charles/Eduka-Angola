@@ -1,0 +1,1 @@
+worker: python -m notification_service.worker

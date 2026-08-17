@@ -6,6 +6,8 @@ from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
 
+from core.notification_events import queue_notification_event
+
 
 def gerar_referencia_pedido():
     return f"EVT-{uuid4().hex[:14].upper()}"
@@ -87,9 +89,19 @@ class EventoMarketplace(models.Model):
         indexes = [models.Index(fields=["status", "data_inicio"])]
 
     def save(self, *args, **kwargs):
+        previous_status = None
+        if self.pk:
+            previous_status = type(self).objects.filter(pk=self.pk).values_list('status', flat=True).first()
         if not self.slug:
             self.slug = slugify(self.titulo)
         super().save(*args, **kwargs)
+        if self.status == 'PUBLICADO' and previous_status != 'PUBLICADO':
+            queue_notification_event(
+                'event.published',
+                f'event.published:{self.pk}',
+                {'event_id': self.pk, 'title': self.titulo, 'category': self.categoria, 'link': f'/eventos/{self.slug}'},
+                occurred_at=self.actualizado_em,
+            )
 
     @property
     def publicado(self):

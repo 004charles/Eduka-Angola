@@ -136,3 +136,25 @@ class PerguntaFrequente(models.Model):
 
     def __str__(self):
         return f'[{self.get_idioma_display()}] {self.pergunta}'
+
+
+class EventoNotificacaoOutbox(models.Model):
+    """Evento de negócio aguardando publicação no serviço de notificações."""
+    event_id = models.CharField('ID do evento', max_length=120, unique=True)
+    event_type = models.CharField('Tipo do evento', max_length=80, db_index=True)
+    payload = models.JSONField('Dados do evento', default=dict)
+    occurred_at = models.DateTimeField('Ocorrido em')
+    tentativas = models.PositiveIntegerField('Tentativas', default=0)
+    publicado_em = models.DateTimeField('Publicado em', null=True, blank=True)
+    ultimo_erro = models.TextField('Último erro', blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        verbose_name = 'Evento de notificação pendente'
+        verbose_name_plural = 'Eventos de notificação pendentes'
+        ordering = ('publicado_em', 'criado_em')
+        indexes = [models.Index(fields=('publicado_em', 'criado_em'), name='core_outbox_pending_idx')]
+
+    def __str__(self):
+        estado = 'publicado' if self.publicado_em else 'pendente'
+        return f'{self.event_type} — {self.event_id} ({estado})'

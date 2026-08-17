@@ -10,6 +10,8 @@ from django.urls import reverse
 import uuid
 from datetime import timedelta
 
+from core.notification_events import queue_notification_event
+
 
 
 def validate_video_size(value):
@@ -674,6 +676,9 @@ class Turma(models.Model):
         return f"{self.nome} - {self.curso.titulo} ({self.get_turno_display()})"
 
     def save(self, *args, **kwargs):
+        previous_status = None
+        if self.pk:
+            previous_status = type(self).objects.filter(pk=self.pk).values_list('status', flat=True).first()
         self.vagas_disponiveis = self.vagas_totais - self.vagas_ocupadas
         
         if not self.codigo:
@@ -681,6 +686,13 @@ class Turma(models.Model):
             self.codigo = base_codigo.upper()
         
         super().save(*args, **kwargs)
+        if self.status == 'ABERTA' and previous_status != 'ABERTA':
+            queue_notification_event(
+                'class.opened',
+                f'class.opened:{self.pk}',
+                {'class_id': self.pk, 'course_id': self.curso_id, 'title': self.nome, 'course_title': self.curso.titulo, 'link': f'/cursos/{self.curso_id}'},
+                occurred_at=self.data_atualizacao,
+            )
 
     def atualizar_vagas_turma(self):
         self.vagas_ocupadas = self.inscricoes_turma.filter(status='A').count()
