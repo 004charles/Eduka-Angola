@@ -19,6 +19,11 @@ def _react_video_course_payload(curso, include_lessons=False):
         capa = curso.capa.url if curso.capa else ''
     except ValueError:
         capa = ''
+    capas_demonstracao = {
+        'Excel para Decisões Rápidas': '/manus-storage/demo-video-excel-decisoes_b6137029.jpg',
+        'Empreendedorismo na Prática': '/manus-storage/demo-video-empreendedorismo_62e4b9d3.jpg',
+    }
+    capa = capa or capas_demonstracao.get(curso.titulo, '')
     result = {'id': curso.id, 'titulo': curso.titulo, 'descricao': curso.descricao, 'categoria_id': curso.categoria_id, 'categoria': curso.categoria.nome, 'is_pago': curso.is_pago, 'preco': str(curso.preco), 'destaque': curso.destaque, 'capa_url': capa, 'total_aulas': curso.aulas.count(), 'total_inscritos': curso.inscritos.count(), 'data_publicacao': curso.data_publicacao.isoformat()}
     if include_lessons:
         result['aulas'] = [{'id': aula.id, 'titulo': aula.titulo, 'video_url': aula.video_url, 'descricao': aula.descricao or '', 'ordem': aula.ordem} for aula in curso.aulas.order_by('ordem', 'id')]

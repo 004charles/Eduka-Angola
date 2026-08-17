@@ -20,3 +20,11 @@ O comando `python3 manage.py popular_centro_demo_gestor` criou um cenário idemp
 | Estágios | O módulo apresenta três vagas com modalidades presencial e híbrida, localizações e vagas restantes. |
 | Mensagens | O atendimento apresenta três conversas com histórico de mensagem do aluno e resposta do centro, incluindo o campo de envio operacional. |
 | Capas de cursos | O catálogo de cursos presenciais e a secção de cursos recentes apresentam miniaturas, categoria, preço, estado e acções administrativas em cada formação. |
+| Auditoria visual | A biblioteca de cursos em vídeo e o bloco de certificados exigiam capas, hierarquia e cartões próprios; a lista de eventos necessitava de uma composição temporal e acções menos técnicas. |
+| Áreas adicionais | Estágios mantêm uma leitura demasiado técnica em lista; comentários exigem cartões de feedback, leitura de avaliação, contexto do curso e acções de moderação bem agrupadas. |
+| Cursos em vídeo | A biblioteca apresenta cartões com capa, categoria, descrição, aulas, alunos, preço e acesso às aulas; os certificados usam uma lista de conclusão com aluno, estado e controlo. |
+| Comentários | A moderação apresenta cartões de feedback com aluno, curso, avaliação, data, visibilidade, resposta do centro e acções operacionais. |
+| Eventos e estágios | Eventos usam uma agenda com data, local, tipo, destaque e acções; estágios apresentam cartões com modalidade, cidade, vagas, estado e edição. |
+| Conversas | O atendimento apresenta um resumo de conversas activas, contactos recentes, histórico com autoria identificada e compositor de resposta do centro. |
+| Validação visual do atendimento | A interface foi confirmada no domínio de desenvolvimento com selecção de conversa, bolhas de aluno e centro, contactos recentes e campo de resposta visíveis. |
+| Envio de mensagem | Foi enviada uma resposta de teste à conversa de Carla Domingos; a mensagem foi persistida no histórico e tornou-se a prévia da conversa recente. |

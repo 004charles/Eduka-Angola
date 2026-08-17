@@ -239,3 +239,13 @@
 - [x] Associar capas adequadas aos cursos de demonstração sem recorrer a chaves ou recursos secretos
 - [x] Melhorar a listagem administrativa de cursos com capa, informação e acções organizadas
 - [x] Validar a apresentação visual e as acções do catálogo de cursos
+- [x] Auditar todas as páginas do GestorEduka para identificar zonas sem acabamento visual consistente
+- [x] Adicionar capas e uma apresentação visual completa aos cursos em vídeo
+- [x] Uniformizar cartões, listas, barras de acções e estados vazios dos módulos identificados
+- [x] Validar a revisão visual e os fluxos de gestão em páginas administrativas distintas
+- [x] Auditar a estrutura actual da moderação de comentários dos alunos
+- [x] Redesenhar a moderação com cartões de feedback, contexto académico e acções claras
+- [x] Validar a resposta e a alteração de estado dos comentários no domínio de desenvolvimento
+- [x] Auditar a estrutura actual de conversas e mensagens entre gestor e alunos
+- [x] Redesenhar a área de conversas com lista de contactos, histórico e compositor de resposta
+- [x] Validar a leitura e o envio de mensagens no domínio de desenvolvimento
