@@ -5282,6 +5282,78 @@ def react_gestor_manual_enrollment(request):
     return JsonResponse({'ok': True, 'matricula': {'id': matricula.id, 'codigo': matricula.codigo_matricula}, 'inscricao': _react_inscricao_payload(inscricao)}, status=201)
 
 
+def _react_gestor_instructors_queryset(centro, filial):
+    instrutores = Instrutor.objects.filter(centro_de_formacao=centro)
+    return instrutores.filter(filial=filial) if filial else instrutores
+
+
+def _react_instructor_payload(instrutor):
+    return {
+        'id': instrutor.id, 'nome': instrutor.nome, 'email': instrutor.email,
+        'titulo': instrutor.titulo or '', 'biografia': instrutor.biografia,
+        'area_especializacao': instrutor.area_especializacao, 'ativo': instrutor.ativo,
+        'filial_id': instrutor.filial_id,
+    }
+
+
+def _validate_react_instructor(payload, centro, filial, instance=None):
+    nome = str(payload.get('nome', instance.nome if instance else '')).strip()
+    email = str(payload.get('email', instance.email if instance else '')).strip().lower()
+    biografia = str(payload.get('biografia', instance.biografia if instance else '')).strip()
+    area = str(payload.get('area_especializacao', instance.area_especializacao if instance else ''))
+    if len(nome) < 3 or '@' not in email or len(biografia) < 10 or area not in dict(Instrutor.TIPO_CHOICES_ESPECIALIZACAO):
+        return None, {'detail': 'Preencha nome, e-mail, biografia e área de especialização com valores válidos.'}
+    emails = Instrutor.objects.filter(email__iexact=email)
+    if instance:
+        emails = emails.exclude(pk=instance.pk)
+    if emails.exists():
+        return None, {'detail': 'Já existe um formador com este e-mail.'}
+    return {'nome': nome, 'email': email, 'biografia': biografia, 'area_especializacao': area, 'titulo': str(payload.get('titulo', instance.titulo if instance else '')).strip() or None, 'ativo': bool(payload.get('ativo', instance.ativo if instance else True)), 'centro_de_formacao': centro, 'filial': filial}, None
+
+
+@login_required
+@require_http_methods(['GET', 'POST'])
+def react_gestor_instructors(request):
+    """Lista e cria formadores no escopo de centro ou filial da sessão."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    if request.method == 'GET':
+        return JsonResponse({'instrutores': [_react_instructor_payload(item) for item in _react_gestor_instructors_queryset(centro, filial).order_by('nome')], 'areas': [{'value': value, 'label': label} for value, label in Instrutor.TIPO_CHOICES_ESPECIALIZACAO]})
+    try:
+        payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'O pedido deve conter dados JSON válidos.'}, status=400)
+    values, error = _validate_react_instructor(payload, centro, filial)
+    if error:
+        return JsonResponse(error, status=400)
+    instrutor = Instrutor.objects.create(**values)
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='FORMADOR_CRIADO', entidade='Instrutor', objeto_id=str(instrutor.pk), dados={'nome': instrutor.nome})
+    return JsonResponse({'ok': True, 'instrutor': _react_instructor_payload(instrutor)}, status=201)
+
+
+@login_required
+@require_http_methods(['PATCH'])
+def react_gestor_instructor_detail(request, instrutor_id):
+    """Actualiza dados de um formador permitido pelo escopo da sessão."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    instrutor = get_object_or_404(_react_gestor_instructors_queryset(centro, filial), id=instrutor_id)
+    try:
+        payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'O pedido deve conter dados JSON válidos.'}, status=400)
+    values, error = _validate_react_instructor(payload, centro, filial, instance=instrutor)
+    if error:
+        return JsonResponse(error, status=400)
+    for field, value in values.items():
+        setattr(instrutor, field, value)
+    instrutor.save()
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='FORMADOR_ACTUALIZADO', entidade='Instrutor', objeto_id=str(instrutor.pk), dados={'nome': instrutor.nome, 'ativo': instrutor.ativo})
+    return JsonResponse({'ok': True, 'instrutor': _react_instructor_payload(instrutor)})
+
+
 def _react_media_url(field):
     try:
         return field.url if field else ''
