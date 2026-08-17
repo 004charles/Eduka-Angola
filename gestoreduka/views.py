@@ -5669,6 +5669,54 @@ def react_gestor_announcement_detail(request, anuncio_id):
     return JsonResponse({'ok': True, 'anuncio': _react_announcement_payload(anuncio)})
 
 
+def _react_comments_queryset(centro):
+    from avaliacoes.models import Comentario
+    return Comentario.objects.filter(Q(curso__centro=centro) | Q(curso_video__centro=centro)).select_related('aluno', 'curso', 'curso_video')
+
+
+def _react_comment_payload(comentario):
+    curso = comentario.curso.titulo if comentario.curso else (comentario.curso_video.titulo if comentario.curso_video else 'Curso indisponível')
+    return {'id': comentario.id, 'aluno': comentario.aluno.nome, 'curso': curso, 'texto': comentario.comentario, 'avaliacao': comentario.avaliacao, 'data': comentario.data_comentario.isoformat(), 'resposta': comentario.resposta or '', 'resposta_data': comentario.resposta_data.isoformat() if comentario.resposta_data else '', 'aprovado': comentario.aprovado, 'denuncias': comentario.denuncias}
+
+
+@login_required
+@require_http_methods(['GET'])
+def react_gestor_comments(request):
+    """Lista avaliações e dúvidas dos cursos do centro para moderação na interface React."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    return JsonResponse({'comentarios': [_react_comment_payload(item) for item in _react_comments_queryset(centro).order_by('-data_comentario')[:100]]})
+
+
+@login_required
+@require_http_methods(['PATCH'])
+def react_gestor_comment_detail(request, comentario_id):
+    """Responde ou modera um comentário pertencente ao centro autenticado e notifica o aluno."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    comentario = get_object_or_404(_react_comments_queryset(centro), id=comentario_id)
+    try:
+        payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'O pedido deve conter dados JSON válidos.'}, status=400)
+    resposta = str(payload.get('resposta', comentario.resposta or '')).strip()
+    if 'resposta' in payload and not resposta:
+        return JsonResponse({'detail': 'A resposta não pode estar vazia.'}, status=400)
+    if len(resposta) > 1000:
+        return JsonResponse({'detail': 'A resposta não pode exceder 1000 caracteres.'}, status=400)
+    if 'resposta' in payload:
+        comentario.resposta, comentario.resposta_data = resposta, timezone.now()
+        from usuarios.models import NotificacaoAluno
+        NotificacaoAluno.objects.create(aluno=comentario.aluno, titulo='Resposta ao seu comentário', mensagem=f'O centro {centro.nome} respondeu ao seu comentário em {(_react_comment_payload(comentario)["curso"])}.', link=f'/cursos/curso_detalhe/{comentario.curso_id}/' if comentario.curso_id else '/cursos-em-video/', tipo='CURSO')
+    if 'aprovado' in payload:
+        comentario.aprovado = bool(payload['aprovado'])
+    comentario.save()
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='COMENTARIO_MODERADO', entidade='Comentario', objeto_id=str(comentario.pk), dados={'respondeu': 'resposta' in payload, 'aprovado': comentario.aprovado})
+    return JsonResponse({'ok': True, 'comentario': _react_comment_payload(comentario)})
+
+
 def _react_media_url(field):
     try:
         return field.url if field else ''
