@@ -127,3 +127,4 @@
 - [x] Criar Política de privacidade, incluí-la no submenu de ajuda e ligá-la ao formulário de criação de conta
 - [x] Auditar a prontidão da plataforma para lançamento e priorizar os fluxos ainda em falta
 - [x] Criar a área Os meus bilhetes com compras de eventos confirmadas na conta do aluno
+- [x] Criar Configurações na conta do aluno e preferências opt-in para notificações da plataforma

@@ -45,3 +45,10 @@ class PerfilAlunoAdmin(UnfoldModelAdmin):
 # Registro dos modelos
 admin.site.register(Usuario, UsuarioAdmin)
 admin.site.register(Aluno, AlunoAdmin)
+
+@admin.register(PreferenciaNotificacaoAluno)
+class PreferenciaNotificacaoAlunoAdmin(UnfoldModelAdmin):
+    list_display = ('aluno', 'receber_na_plataforma', 'receber_por_email', 'resumo_semanal', 'atualizado_em')
+    list_filter = ('receber_na_plataforma', 'receber_por_email', 'resumo_semanal')
+    search_fields = ('aluno__nome', 'aluno__usuario__email')
+    readonly_fields = ('atualizado_em',)

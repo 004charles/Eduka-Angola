@@ -283,3 +283,30 @@ from django.dispatch import receiver
 def criar_perfil_aluno(sender, instance, created, **kwargs):
     if created:
         PerfilAluno.objects.get_or_create(aluno=instance)
+
+class PreferenciaNotificacaoAluno(models.Model):
+    """Controlos explícitos de comunicação do aluno por tema e canal."""
+    aluno = models.OneToOneField(Aluno, on_delete=models.CASCADE, related_name='preferencias_notificacao')
+    receber_na_plataforma = models.BooleanField('Notificações na plataforma', default=True)
+    receber_por_email = models.BooleanField('Resumo por e-mail', default=True)
+    novos_cursos = models.BooleanField('Novos cursos', default=True)
+    novas_turmas = models.BooleanField('Novas turmas', default=True)
+    novos_livros = models.BooleanField('Novos livros', default=True)
+    novos_eventos = models.BooleanField('Novos eventos', default=True)
+    atualizacoes_aprendizagem = models.BooleanField('Lembretes de aprendizagem', default=True)
+    calendario_e_feriados = models.BooleanField('Calendário e feriados', default=True)
+    resumo_semanal = models.BooleanField('Resumo semanal', default=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Preferência de notificação'
+        verbose_name_plural = 'Preferências de notificações'
+
+    def __str__(self):
+        return f'Notificações — {self.aluno.nome}'
+
+
+@receiver(post_save, sender=Aluno)
+def criar_preferencias_notificacao(sender, instance, created, **kwargs):
+    if created:
+        PreferenciaNotificacaoAluno.objects.get_or_create(aluno=instance)

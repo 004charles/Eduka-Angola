@@ -8,6 +8,8 @@ urlpatterns = [
     # continuam disponíveis para compatibilidade com ligações antigas.
     path('api/react/csrf/', views.api_auth_csrf, name='api_auth_csrf'),
     path('api/react/aluno/resumo/', views.api_auth_aluno_resumo, name='api_auth_aluno_resumo'),
+    path('api/react/aluno/configuracoes/', views.api_react_aluno_configuracoes, name='api_react_aluno_configuracoes'),
+    path('api/react/aluno/configuracoes/actualizar/', views.api_react_aluno_configuracoes_actualizar, name='api_react_aluno_configuracoes_actualizar'),
     path('api/react/login/', views.api_auth_login, name='api_auth_login'),
     path('api/react/registro/', views.api_auth_registro, name='api_auth_registro'),
     path('api/react/verificar-email/', views.api_auth_verificar_email, name='api_auth_verificar_email'),

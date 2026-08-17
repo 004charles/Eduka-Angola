@@ -12,6 +12,7 @@ import AuthPage from "./pages/AuthPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import StudentDashboardPage from "./pages/StudentDashboardPage";
 import StudentPreferencesPage from "./pages/StudentPreferencesPage";
+import StudentSettingsPage from "./pages/StudentSettingsPage";
 import MyTicketsPage from "./pages/MyTicketsPage";
 import CenterProfilePage from "./pages/CenterProfilePage";
 import ForCentersPage from "./pages/ForCentersPage";
@@ -133,6 +134,7 @@ function App() {
   else if (authModes[pathname]) page = <AuthPage key={pathname} mode={authModes[pathname]} courses={homeData?.cursos || []} onNavigate={navigate} onSessionReady={refreshStudentSession} />;
   else if (pathname === "/aluno") page = <StudentDashboardPage onNavigate={navigate} />;
   else if (pathname === "/aluno/preferencias") page = <StudentPreferencesPage onNavigate={navigate} />;
+  else if (pathname === "/aluno/configuracoes") page = <StudentSettingsPage onNavigate={navigate} />;
   else if (pathname === "/aluno/bilhetes") page = <MyTicketsPage onNavigate={navigate} />;
   else if (pathname === "/pagamento/sucesso" || pathname === "/pagamento/sucesso/") page = <PaymentResultPage onNavigate={navigate} />;
   else if (pathname === "/pagamento/cancelado" || pathname === "/pagamento/cancelado/") page = <PaymentResultPage onNavigate={navigate} />;

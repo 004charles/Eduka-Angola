@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import gettext as _
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from .models import Usuario, Aluno, PerfilAluno, CodigoVerificacao
+from .models import Usuario, Aluno, PerfilAluno, CodigoVerificacao, PreferenciaNotificacaoAluno
 from gestoreduka.models import CentroDeFormacao, CentroSeguimento, Depoimento
 from cursos_app.models import Curso, Favorito, Categoria, Inscricao
 from bolsas.models import Bolsa, CandidaturaBolsa
@@ -1241,3 +1241,33 @@ def baixar_ficha_inscricao(request, inscricao_id):
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="Ficha_Inscricao_{inscricao.codigo_inscricao}.pdf"'
     return response
+
+@require_GET
+@login_required
+def api_react_aluno_configuracoes(request):
+    if getattr(request.user, 'tipo_usuario', None) != 'ALUNO':
+        return JsonResponse({'detail': 'Inicie sessão como aluno para abrir as configurações.'}, status=401)
+    aluno = getattr(request.user, 'aluno_profile', None)
+    if not aluno:
+        return JsonResponse({'detail': 'Perfil de aluno não encontrado.'}, status=404)
+    preferencias, _ = PreferenciaNotificacaoAluno.objects.get_or_create(aluno=aluno)
+    campos = ('receber_na_plataforma', 'receber_por_email', 'novos_cursos', 'novas_turmas', 'novos_livros', 'novos_eventos', 'atualizacoes_aprendizagem', 'calendario_e_feriados', 'resumo_semanal')
+    return JsonResponse({'ok': True, 'conta': {'nome': aluno.nome, 'email': request.user.email}, 'notificacoes': {campo: bool(getattr(preferencias, campo)) for campo in campos}})
+
+
+@require_POST
+@login_required
+def api_react_aluno_configuracoes_actualizar(request):
+    if getattr(request.user, 'tipo_usuario', None) != 'ALUNO':
+        return JsonResponse({'detail': 'Inicie sessão como aluno para guardar configurações.'}, status=401)
+    aluno = getattr(request.user, 'aluno_profile', None)
+    if not aluno:
+        return JsonResponse({'detail': 'Perfil de aluno não encontrado.'}, status=404)
+    dados = _dados_json(request)
+    preferencias, _ = PreferenciaNotificacaoAluno.objects.get_or_create(aluno=aluno)
+    campos = ('receber_na_plataforma', 'receber_por_email', 'novos_cursos', 'novas_turmas', 'novos_livros', 'novos_eventos', 'atualizacoes_aprendizagem', 'calendario_e_feriados', 'resumo_semanal')
+    for campo in campos:
+        if campo in dados:
+            setattr(preferencias, campo, bool(dados[campo]))
+    preferencias.save(update_fields=[*campos, 'atualizado_em'])
+    return JsonResponse({'ok': True, 'message': 'Configurações guardadas.', 'notificacoes': {campo: bool(getattr(preferencias, campo)) for campo in campos}})
