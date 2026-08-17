@@ -8,6 +8,7 @@ urlpatterns = [
     path('api/react/dashboard/', views.react_gestor_dashboard, name='react_gestor_dashboard'),
     path('api/react/cursos/', views.react_gestor_courses, name='react_gestor_courses'),
     path('api/react/cursos/<int:curso_id>/publicacao/', views.react_gestor_course_publish, name='react_gestor_course_publish'),
+    path('api/react/cursos/<int:curso_id>/remover/', views.react_gestor_course_delete, name='react_gestor_course_delete'),
     path('', RedirectView.as_view(pattern_name='login_gestor', permanent=False), name='gestoreduka_home'),
     path('dashboard/centro/', views.centro_dashboard, name='centro_dashboard'),
     path('dashboard/seguidores/', views.listar_seguidores, name='listar_seguidores'),

@@ -4822,6 +4822,22 @@ def react_gestor_course_publish(request, curso_id):
 
 
 @login_required
+@require_http_methods(['POST'])
+def react_gestor_course_delete(request, curso_id):
+    """Remove um curso do centro autenticado, mantendo a auditoria administrativa."""
+    centro, filial = get_gestor_context(request.user)
+    if not centro:
+        return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    if filial:
+        return JsonResponse({'detail': 'A remoção de cursos deve ser realizada pelo gestor principal do centro.'}, status=403)
+    curso = get_object_or_404(Curso, id=curso_id, centro=centro)
+    titulo = curso.titulo
+    curso.delete()
+    AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='CURSO_REMOVIDO', entidade='Curso', objeto_id=str(curso_id), dados={'titulo': titulo})
+    return JsonResponse({'ok': True, 'curso_id': curso_id})
+
+
+@login_required
 @require_http_methods(['GET', 'POST'])
 def react_gestor_courses(request):
     """Lista os metadados necessários ao formulário React e cria cursos no centro da sessão."""

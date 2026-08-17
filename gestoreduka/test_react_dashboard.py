@@ -27,6 +27,13 @@ class ReactGestorDashboardTests(TestCase):
         self.curso.refresh_from_db()
         self.assertTrue(self.curso.publicado)
 
+    def test_gestor_principal_remove_o_proprio_curso_pelo_endpoint_react(self):
+        self.client.force_login(self.user)
+        response = self.client.post(f'/gestoreduka/api/react/cursos/{self.curso.id}/remover/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Curso.objects.filter(pk=self.curso.id).exists())
+
     def test_formulario_react_de_cursos_devolve_apenas_metadados_do_centro(self):
         self.client.force_login(self.user)
         response = self.client.get('/gestoreduka/api/react/cursos/')
