@@ -249,3 +249,6 @@
 - [x] Auditar a estrutura actual de conversas e mensagens entre gestor e alunos
 - [x] Redesenhar a área de conversas com lista de contactos, histórico e compositor de resposta
 - [x] Validar a leitura e o envio de mensagens no domínio de desenvolvimento
+- [x] Auditar a presença e o comportamento do botão de terminar sessão do GestorEduka
+- [x] Implementar um controlo visível e seguro para terminar a sessão de gestor
+- [x] Validar o logout do gestor e o retorno à tela React de acesso

@@ -1,4 +1,4 @@
-import { BarChart3, BookOpen, CalendarDays, ChevronRight, CreditCard, GraduationCap, Landmark, MessageCircle, Moon, Pencil, Sun, Trash2, UsersRound } from "lucide-react";
+import { BarChart3, BookOpen, CalendarDays, ChevronRight, CreditCard, GraduationCap, Landmark, LogOut, MessageCircle, Moon, Pencil, Sun, Trash2, UsersRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import ManagerAnnouncementsPanel from "../components/ManagerAnnouncementsPanel";
 import ManagerAnalyticsPanel from "../components/ManagerAnalyticsPanel";
@@ -22,6 +22,7 @@ import ManagerLoginPage from "./ManagerLoginPage";
 import "./manager-portal-page.css";
 import "./manager-modules-page.css";
 import "./manager-course-catalog.css";
+import "./manager-session-control.css";
 
 const money = new Intl.NumberFormat("pt-AO", { maximumFractionDigits: 0 });
 
@@ -125,9 +126,10 @@ export default function ManagerPortalPage({ route = "/gestoreduka/" }) {
   const activePage = navigation.some((item) => item.key === segment) ? segment : "visao-geral";
   useEffect(() => { document.documentElement.dataset.theme = theme; localStorage.setItem("gestor-theme", theme); }, [theme]);
   const load = () => fetch("/backend/gestoreduka/api/react/dashboard/", { credentials: "same-origin" }).then(async (response) => { const contentType = response.headers.get("content-type") || ""; if (response.redirected || !contentType.includes("application/json")) throw Object.assign(new Error("A sua sessão de gestor terminou."), { status: 401 }); const payload = await response.json().catch(() => ({})); if (!response.ok) throw Object.assign(new Error(payload.detail || "Não foi possível abrir o GestorEduka."), { status: response.status }); return payload; }).then(setData).catch((reason) => setError(reason));
+  const logout = async () => { try { await fetch("/backend/gestoreduka/logout_gestor/", { credentials: "same-origin" }); } finally { setData(null); setError({ status: 401, message: "Sessão encerrada." }); } };
   useEffect(() => { load(); }, [route]);
   if (error && error.status === 401) return <ManagerLoginPage theme={theme} onToggleTheme={() => setTheme(theme === "light" ? "dark" : "light")} onAuthenticated={() => { setError(""); setData(null); load(); }} />;
   if (error) return <main className="manager-auth"><h1>Não foi possível abrir a gestão.</h1><p>{error.message}</p><button onClick={() => { setError(""); load(); }}>Tentar novamente</button></main>;
   if (!data) return <main className="manager-auth"><span className="manager-mark">E</span><p>A preparar o GestorEduka…</p></main>;
-  return <main className="manager-shell"><header><a className="manager-brand" href="/gestoreduka/">Edukangola <b>Gestor</b></a><div><span>{data.centro.nome}</span><button onClick={() => setTheme(theme === "light" ? "dark" : "light")} aria-label="Alternar tema">{theme === "light" ? <Moon size={18} /> : <Sun size={18} />}</button></div></header><aside><strong>Gestão do centro</strong>{navigation.map((item) => <a key={item.key} className={activePage === item.key ? "active" : ""} href={item.href}>{item.label}</a>)}</aside><section className="manager-content manager-module-content" aria-live="polite"><ModulePage page={activePage} data={data} onRefresh={load} /></section></main>;
+  return <main className="manager-shell"><header><a className="manager-brand" href="/gestoreduka/">Edukangola <b>Gestor</b></a><div className="manager-header-actions"><span>{data.centro.nome}</span><button onClick={() => setTheme(theme === "light" ? "dark" : "light")} aria-label="Alternar tema">{theme === "light" ? <Moon size={18} /> : <Sun size={18} />}</button><button className="manager-logout-button" onClick={logout}><LogOut size={16}/>Terminar sessão</button></div></header><aside><strong>Gestão do centro</strong>{navigation.map((item) => <a key={item.key} className={activePage === item.key ? "active" : ""} href={item.href}>{item.label}</a>)}</aside><section className="manager-content manager-module-content" aria-live="polite"><ModulePage page={activePage} data={data} onRefresh={load} /></section></main>;
 }

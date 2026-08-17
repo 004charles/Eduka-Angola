@@ -1,0 +1,4 @@
+.manager-shell header .manager-header-actions { align-items: center; display: flex; gap: 10px; }
+.manager-shell header .manager-logout-button { align-items: center; background: transparent; border-color: color-mix(in srgb, var(--error) 26%, var(--line)); color: var(--error); display: inline-flex; font-size: 11px; font-weight: 850; gap: 6px; padding: 8px 10px; }
+.manager-shell header .manager-logout-button:hover { background: color-mix(in srgb, var(--error) 8%, transparent); border-color: color-mix(in srgb, var(--error) 55%, var(--line)); }
+@media (max-width: 620px) { .manager-shell header .manager-header-actions > span { display: none; }.manager-shell header .manager-logout-button { font-size: 0; gap: 0; padding: 9px; }.manager-shell header .manager-logout-button svg { height: 17px; width: 17px; } }

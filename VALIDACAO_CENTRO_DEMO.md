@@ -28,3 +28,4 @@ O comando `python3 manage.py popular_centro_demo_gestor` criou um cenário idemp
 | Conversas | O atendimento apresenta um resumo de conversas activas, contactos recentes, histórico com autoria identificada e compositor de resposta do centro. |
 | Validação visual do atendimento | A interface foi confirmada no domínio de desenvolvimento com selecção de conversa, bolhas de aluno e centro, contactos recentes e campo de resposta visíveis. |
 | Envio de mensagem | Foi enviada uma resposta de teste à conversa de Carla Domingos; a mensagem foi persistida no histórico e tornou-se a prévia da conversa recente. |
+| Logout do gestor | O botão Terminar sessão foi confirmado no cabeçalho; ao accioná-lo, a sessão foi encerrada e a rota retornou à tela React de acesso do GestorEduka. |
