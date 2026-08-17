@@ -26,3 +26,12 @@ class ReactGestorDashboardTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.curso.refresh_from_db()
         self.assertTrue(self.curso.publicado)
+
+    def test_formulario_react_de_cursos_devolve_apenas_metadados_do_centro(self):
+        self.client.force_login(self.user)
+        response = self.client.get('/gestoreduka/api/react/cursos/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('categorias', response.json())
+        self.assertIn('instrutores', response.json())
+        self.assertIn('modalidade', response.json()['escolhas'])
