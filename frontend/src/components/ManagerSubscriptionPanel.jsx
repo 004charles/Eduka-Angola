@@ -1,0 +1,14 @@
+import { BadgeCheck, CreditCard } from "lucide-react";
+import { useEffect, useState } from "react";
+
+const money = (value) => `${Number(value || 0).toLocaleString("pt-AO")} Kz/mês`;
+const features = (plan) => [`${plan.limite_cursos} cursos presenciais`, `${plan.limite_cursos_video} cursos em vídeo`, `${plan.alcance_km} km de alcance`, plan.permite_inscricao_manual && "Inscrição manual", plan.permite_gerar_certificado && "Certificados", plan.acesso_relatorios && "Relatórios avançados"].filter(Boolean);
+
+export default function ManagerSubscriptionPanel() {
+  const [data, setData] = useState(null); const [error, setError] = useState("");
+  useEffect(() => { fetch("/backend/gestoreduka/api/react/assinatura/", { credentials: "same-origin" }).then(async (response) => { const payload = await response.json(); if (!response.ok) throw new Error(payload.detail || "Não foi possível carregar a assinatura."); setData(payload); }).catch((reason) => setError(reason.message)); }, []);
+  if (error) return <section id="assinatura" className="manager-courses"><h2>Assinatura</h2><p className="manager-form-error">{error}</p></section>;
+  if (!data) return <section id="assinatura" className="manager-courses"><p>A preparar assinatura…</p></section>;
+  const current = data.assinatura.plano;
+  return <section id="assinatura" className="manager-courses manager-subscription"><div><span className="manager-eyebrow">Plano do centro</span><h2>Assinatura</h2></div><div className="manager-enrollment-metrics"><article><CreditCard size={15}/><small>Estado</small><strong>{data.assinatura.status}</strong></article><article><BadgeCheck size={15}/><small>Renovação</small><strong>{data.assinatura.renovacao_automatica ? "Automática" : "Manual"}</strong></article></div>{current ? <article className="manager-plan-current"><strong>{current.nome} · {money(current.preco)}</strong><span>{current.descricao || "Plano activo do centro"}</span><ul>{features(current).map((item) => <li key={item}>{item}</li>)}</ul></article> : <p className="manager-empty-state">Este centro ainda não tem um plano activo.</p>}<div className="manager-course-list">{data.planos.map((plan) => <article key={plan.id}><div><strong>{plan.nome}</strong><span>{money(plan.preco)} · {plan.limite_cursos} cursos</span></div><a className="manager-plan-link" href={data.checkout_legacy_url}>Ver condições</a></article>)}</div></section>;
+}

@@ -5805,7 +5805,9 @@ def react_gestor_subscription(request):
     assinatura = getattr(centro, 'assinatura', None)
     plano_actual = assinatura.plano if assinatura and assinatura.plano_id else None
     planos = Plano.objects.filter(ativo=True).exclude(id=plano_actual.id if plano_actual else None).order_by('preco')
-    return JsonResponse({'assinatura': {'status': assinatura.status if assinatura else 'SEM_ASSINATURA', 'plano': {'id': plano_actual.id, 'nome': plano_actual.nome, 'preco': str(plano_actual.preco)} if plano_actual else None}, 'planos': [{'id': plano.id, 'nome': plano.nome, 'preco': str(plano.preco), 'permite_cursos_video': plano.permite_cursos_video} for plano in planos], 'checkout_legacy_url': '/backend/gestoreduka/assinatura/'})
+    def plano_payload(plano):
+        return {'id': plano.id, 'nome': plano.nome, 'descricao': plano.descricao, 'preco': str(plano.preco), 'limite_cursos': plano.limite_cursos, 'limite_cursos_video': plano.limite_cursos_video, 'alcance_km': plano.alcance_km, 'permite_inscricao_manual': plano.permite_inscricao_manual, 'permite_gerar_certificado': plano.permite_gerar_certificado, 'permite_cursos_video': plano.permite_cursos_video, 'acesso_relatorios': plano.acesso_relatorios}
+    return JsonResponse({'assinatura': {'status': assinatura.status if assinatura else 'SEM_ASSINATURA', 'renovacao_automatica': assinatura.renovacao_automatica if assinatura else False, 'data_fim': assinatura.data_fim.isoformat() if assinatura and assinatura.data_fim else '', 'plano': plano_payload(plano_actual) if plano_actual else None}, 'planos': [plano_payload(plano) for plano in planos], 'checkout_legacy_url': '/backend/gestoreduka/assinatura/'})
 
 
 def _react_gestor_course_ids(centro, filial):
