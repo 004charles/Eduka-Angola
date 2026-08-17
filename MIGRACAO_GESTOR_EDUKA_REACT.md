@@ -26,12 +26,14 @@ Substituir progressivamente a experiência HTML do GestorEduka por uma aplicaç�
 4. A API inicial de dashboard usa `get_gestor_context`, por isso uma conta só recebe cursos e métricas do seu próprio centro ou filial.
 5. Rotas HTML legadas permanecem acessíveis temporariamente para fluxos ainda não migrados; serão retiradas do menu React à medida que cada módulo ganhar API e testes próprios.
 
-## Estado da primeira fundação
+## Estado actual da migração
 
-O GestorEduka React já tem uma rota protegida, ecrã de acesso, identidade Edukangola, modo claro/escuro, métricas reais do centro, lista real de cursos, operação rápida de publicar ou retirar um curso e criação React de cursos presenciais. O formulário usa as validações Django existentes para categorias, formadores, preços, modalidade, certificados, destaque e publicação. A validação sem sessão mostrou o ecrã de entrada React e a ligação ao login de gestor, sem expor dados administrativos.
+O GestorEduka React dispõe de rota protegida, ecrã de acesso, identidade Edukangola, temas claro e escuro, painel com métricas reais e navegação para todos os módulos migrados. A gestão de cursos presenciais inclui criação, edição, publicação, remoção e auditoria. Também foram migrados turmas, presenças, notas, inscrições, matrícula manual, certificados presenciais, formadores, filiais, atribuição de cursos por filial, perfil institucional, logótipo, banner e galeria.
 
-Os testes `gestoreduka.test_react_dashboard` validam que o painel recusa visitantes sem sessão, entrega apenas o centro associado ao gestor autenticado e permite alterar a publicação de um curso pertencente a esse centro.
+Na operação avançada, o painel React já cobre cursos em vídeo, aulas, certificados em vídeo, eventos, estágios, financeiro, analytics, conversas, comunicados, comentários, pesquisa de alunos, dossiê académico e transições controladas de matrículas. A assinatura apresenta plano, limites e permissões, e inicia o checkout Prontu apenas depois de uma acção explícita do gestor.
 
-## Próxima sequência de implementação
+As APIs React usam sessão Django, CSRF em escritas, `get_gestor_context` e filtros por centro ou filial. Operações críticas, incluindo publicação, certificados, estado de matrícula, atribuição a filiais e comunicação, registam auditoria no Django.
 
-A fase seguinte cobre o CRUD React de cursos presenciais, turmas, inscrições e perfil do centro. Depois serão adicionados cursos em vídeo, alunos, financeiro, comunicação, equipa e conteúdos institucionais. Cada grupo deve ser validado com contas de centro e filial antes de a respectiva página HTML deixar de ser a alternativa operacional.
+## Validação e condição de remoção das rotas legadas
+
+Foi executada validação técnica completa: `manage.py check`, a suite Django com 52 testes e a compilação de produção do frontend React. A validação com contas reais de gestor principal e de filial permanece pendente; só depois desse ensaio funcional as páginas HTML legadas devem deixar de ser a alternativa operacional ou ser removidas.
