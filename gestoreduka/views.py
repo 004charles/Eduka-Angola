@@ -1442,7 +1442,7 @@ def login_gestor(request):
     Autentica gestores de centros ou de filiais usando o sistema centralizado.
     """
     if request.user.is_authenticated and request.user.tipo_usuario in ['GESTOR', 'GESTOR_FILIAL']:
-        return redirect("centro_dashboard")
+        return redirect('/gestoreduka/')
 
     if request.method == "POST":
         email = request.POST.get("email", "").strip()
@@ -1462,7 +1462,7 @@ def login_gestor(request):
                     if hasattr(user, 'centro_profile') or hasattr(user, 'filial_profile'):
                         login(request, user)
                         messages.success(request, f"Olá, {user.nome}! Bem-vindo ao seu painel.")
-                        return redirect("centro_dashboard")
+                        return redirect('/gestoreduka/')
                     else:
                         messages.error(request, "Este utilizador não possui um Centro ou Filial vinculado.")
                 else:

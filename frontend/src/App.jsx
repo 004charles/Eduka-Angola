@@ -146,6 +146,7 @@ function App() {
   const checkoutCourse = checkoutCourseId ? homeData?.cursos?.find((course) => course.id === checkoutCourseId) : null;
   const legacyVideoCatalogue = pathname === "/cursos" && searchParams.get("tipo") === "video";
   let page;
+  if (pathname === "/gestoreduka/login_gestor" || pathname === "/gestoreduka/login_gestor/") { window.location.replace("/backend/gestoreduka/login_gestor/"); return null; }
   if (pathname === "/gestoreduka" || pathname === "/gestoreduka/") return <ManagerPortalPage />;
   if (pathname === "/") page = <HomePage data={homeData} loading={homeDataLoading} onNavigate={navigate} onAnnounce={announce} />;
   else if (authModes[pathname]) page = <AuthPage key={pathname} mode={authModes[pathname]} courses={homeData?.cursos || []} onNavigate={navigate} onSessionReady={refreshStudentSession} />;
