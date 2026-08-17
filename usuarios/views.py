@@ -412,9 +412,16 @@ def api_interna_destinatarios_notificacao(request):
     preferencia = tipos_para_preferencia.get(event_type)
     if not preferencia:
         return JsonResponse({'detail': 'Tipo de evento não suportado.'}, status=400)
-    alunos = Aluno.objects.filter(ativo=True, usuario__is_active=True, preferencias_notificacao__receber_na_plataforma=True, **{f'preferencias_notificacao__{preferencia}': True}).select_related('usuario', 'preferencias_notificacao')
+    channel = request.GET.get('channel', 'platform').strip().lower()
+    if channel not in ('platform', 'email'):
+        return JsonResponse({'detail': 'Canal não suportado.'}, status=400)
+    canal_preferencia = 'receber_na_plataforma' if channel == 'platform' else 'receber_por_email'
+    alunos = Aluno.objects.filter(ativo=True, usuario__is_active=True, **{f'preferencias_notificacao__{canal_preferencia}': True, f'preferencias_notificacao__{preferencia}': True}).select_related('usuario', 'preferencias_notificacao')
+    recipient_id = request.GET.get('recipient_id')
+    if recipient_id:
+        alunos = alunos.filter(pk=recipient_id)
     destinatarios = [{'id': aluno.id, 'nome': aluno.nome, 'email': aluno.usuario.email} for aluno in alunos if aluno.usuario.email]
-    return JsonResponse({'event_type': event_type, 'destinatarios': destinatarios})
+    return JsonResponse({'event_type': event_type, 'channel': channel, 'destinatarios': destinatarios})
 
 
 def conta_aluno(request):

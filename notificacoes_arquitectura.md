@@ -29,8 +29,8 @@ Nenhum segredo, token ou credencial será guardado no GitHub. O serviço terá v
 
 ## Activação por etapas
 
-A primeira activação será em modo observação, registando eventos e decisões sem enviar e-mails. Em seguida serão activadas apenas notificações na plataforma para a conta de teste. Por fim, o e-mail e os resumos periódicos serão activados depois de confirmar o remetente Brevo, o domínio e os limites de envio.
+A primeira activação será em modo observação, registando eventos e decisões sem enviar e-mails. Em seguida serão activadas apenas notificações na plataforma para a conta de teste. Por fim, o e-mail e os resumos periódicos serão activados depois de confirmar o remetente Brevo, o domínio e os limites de envio. O código já inclui os comandos para resumo semanal, lembretes de aprendizagem e avisos de calendário; a execução automática aguarda a configuração do worker.
 
 ## Decisões ainda necessárias para produção
 
-O serviço precisa de um alojamento persistente independente do processo web Django. O código será preparado como serviço autónomo com processo web e worker, mas a activação de produção deve definir o provedor, a base de dados própria, o endereço HTTPS e os segredos do ambiente. Até essa configuração existir, a implementação local não enviará mensagens reais.
+A decisão é manter o serviço no mesmo provedor actual, em dois processos independentes: gateway web e worker. A activação de produção ainda precisa de configurar a base de dados própria, o endereço HTTPS, as tarefas periódicas e os segredos do ambiente. Até essa configuração existir, a implementação local não enviará mensagens reais.

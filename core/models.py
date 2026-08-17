@@ -158,3 +158,18 @@ class EventoNotificacaoOutbox(models.Model):
     def __str__(self):
         estado = 'publicado' if self.publicado_em else 'pendente'
         return f'{self.event_type} — {self.event_id} ({estado})'
+
+
+class FeriadoNacional(models.Model):
+    data = models.DateField('Data', unique=True, db_index=True)
+    titulo = models.CharField('Título', max_length=180)
+    descricao = models.TextField('Descrição', blank=True)
+    activo = models.BooleanField('Activo', default=True, db_index=True)
+
+    class Meta:
+        verbose_name = 'Feriado ou data relevante'
+        verbose_name_plural = 'Feriados e datas relevantes'
+        ordering = ('data',)
+
+    def __str__(self):
+        return f'{self.data:%d/%m/%Y} — {self.titulo}'

@@ -129,20 +129,20 @@
 - [x] Criar a área Os meus bilhetes com compras de eventos confirmadas na conta do aluno
 - [x] Criar Configurações na conta do aluno e preferências opt-in para notificações da plataforma
 
-- [ ] Auditar o sistema actual de notificações, canais e tarefas periódicas
-- [ ] Modelar notificações persistentes com preferências opt-in e deduplicação
-- [ ] Programar avisos imediatos para novos cursos, turmas, livros e eventos
-- [ ] Programar lembretes de aprendizagem, calendário/feriados e resumo semanal
-- [ ] Integrar entrega na plataforma e por e-mail com registo de estado
+- [x] Auditar o sistema actual de notificações, canais e tarefas periódicas
+- [x] Modelar notificações persistentes com preferências opt-in e deduplicação
+- [x] Programar avisos imediatos para novos cursos, turmas, livros e eventos
+- [x] Programar lembretes de aprendizagem, calendário/feriados e resumo semanal
+- [x] Integrar entrega na plataforma e por e-mail com registo de estado
 - [ ] Criar testes determinísticos para preferências, destinatários e duplicados
 - [ ] Documentar a activação das tarefas periódicas em produção
 
-- [ ] Definir o serviço separado de notificações e o contrato de eventos com o Django
-- [ ] Escolher mecanismo de fila, armazenamento e execução persistente para o serviço
-- [ ] Integrar publicação segura de eventos do Django para o serviço separado
-- [ ] Processar notificações com deduplicação e preferências por canal
-- [ ] Preparar entregas na plataforma, por e-mail e resumos periódicos
-- [ ] Documentar activação, monitorização, reprocessamento e falhas do serviço
+- [x] Definir o serviço separado de notificações e o contrato de eventos com o Django
+- [x] Escolher mecanismo de fila, armazenamento e execução persistente para o serviço
+- [x] Integrar publicação segura de eventos do Django para o serviço separado
+- [x] Processar notificações com deduplicação e preferências por canal
+- [x] Preparar entregas na plataforma, por e-mail e resumos periódicos
+- [x] Documentar activação, monitorização, reprocessamento e falhas do serviço
 
 - [ ] Configurar no provedor actual o gateway web e o worker independente de notificações
 - [ ] Definir os segredos do ambiente do mesmo provedor sem os guardar no GitHub

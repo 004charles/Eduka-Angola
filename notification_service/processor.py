@@ -3,6 +3,7 @@ import os
 
 import requests
 
+from .email_sender import EmailSender
 from .store import EventStore
 
 
@@ -22,6 +23,7 @@ class NotificationProcessor:
         self.store = store
         self.django_url = os.getenv('DJANGO_INTERNAL_API_URL', '').rstrip('/')
         self.secret = os.getenv('NOTIFICATION_SERVICE_DJANGO_SECRET', '')
+        self.email_sender = EmailSender()
 
     def process_pending(self, limit: int = 25) -> dict[str, int]:
         processed = 0
@@ -43,18 +45,26 @@ class NotificationProcessor:
         event_type = row['event_type']
         payload = json.loads(row['payload_json'])
         headers = {'X-Notification-Service-Key': self.secret}
+        recipient_id = payload.get('recipient_id') if event_type == 'learning.reminder' else None
+        title, kind = EVENT_COPY.get(event_type, ('Novidade Edukangola', 'SISTEMA'))
+        message = self._message(event_type, payload)
+        delivered = self._deliver_platform(event_type, recipient_id, headers, payload, title, kind, message)
+        delivered += self._deliver_email(event_type, recipient_id, headers, payload, title, message)
+        return delivered
+
+    def _recipients(self, event_type, channel, recipient_id, headers):
         response = requests.get(
             f'{self.django_url}/auth/api/internal/notificacoes/destinatarios/',
-            params={'event_type': event_type},
+            params={'event_type': event_type, 'channel': channel, **({'recipient_id': recipient_id} if recipient_id else {})},
             headers=headers,
             timeout=5,
         )
         response.raise_for_status()
-        recipients = response.json().get('destinatarios', [])
-        title, kind = EVENT_COPY.get(event_type, ('Novidade Edukangola', 'SISTEMA'))
-        message = self._message(event_type, payload)
+        return response.json().get('destinatarios', [])
+
+    def _deliver_platform(self, event_type, recipient_id, headers, payload, title, kind, message):
         delivered = 0
-        for recipient in recipients:
+        for recipient in self._recipients(event_type, 'platform', recipient_id, headers):
             result = requests.post(
                 f'{self.django_url}/auth/api/internal/notificacoes/criar/',
                 headers={**headers, 'Content-Type': 'application/json'},
@@ -62,6 +72,15 @@ class NotificationProcessor:
                 timeout=5,
             )
             result.raise_for_status()
+            delivered += 1
+        return delivered
+
+    def _deliver_email(self, event_type, recipient_id, headers, payload, title, message):
+        if not self.email_sender.configured:
+            return 0
+        delivered = 0
+        for recipient in self._recipients(event_type, 'email', recipient_id, headers):
+            self.email_sender.send(recipient_email=recipient['email'], recipient_name=recipient.get('nome', ''), subject=title, message=message, link=payload.get('link', '/'))
             delivered += 1
         return delivered
 
