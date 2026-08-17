@@ -30,6 +30,8 @@ Substituir progressivamente a experiência HTML do GestorEduka por uma aplicaç�
 
 O GestorEduka React já tem uma rota protegida, ecrã de acesso, identidade Edukangola, modo claro/escuro, métricas reais do centro, lista real de cursos e operação rápida de publicar ou retirar um curso. A validação sem sessão mostrou o ecrã de entrada React e a ligação ao login de gestor, sem expor dados administrativos.
 
+Os testes `gestoreduka.test_react_dashboard` validam que o painel recusa visitantes sem sessão, entrega apenas o centro associado ao gestor autenticado e permite alterar a publicação de um curso pertencente a esse centro.
+
 ## Próxima sequência de implementação
 
 A fase seguinte cobre o CRUD React de cursos presenciais, turmas, inscrições e perfil do centro. Depois serão adicionados cursos em vídeo, alunos, financeiro, comunicação, equipa e conteúdos institucionais. Cada grupo deve ser validado com contas de centro e filial antes de a respectiva página HTML deixar de ser a alternativa operacional.
