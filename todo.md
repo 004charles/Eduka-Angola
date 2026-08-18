@@ -362,3 +362,4 @@
 - [x] Mostrar os cartões de cursos próximos depois de a localização encontrar resultados
 - [x] Mostrar os cursos próximos directamente na secção “Perto de si” sem deslocamento automático
 - [x] Ajustar os cartões de proximidade ao tamanho compacto dos cartões canónicos
+- [x] Extrair as imagens fornecidas e associá-las aos novos cursos de catálogo

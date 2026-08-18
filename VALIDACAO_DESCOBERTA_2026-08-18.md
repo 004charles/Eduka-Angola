@@ -37,3 +37,8 @@ Depois de a resposta de proximidade trazer cursos, a página passa a deslocar-se
 Na revisão seguinte, a prateleira independente foi substituída por uma grelha de cartões integrada directamente abaixo da mensagem de proximidade. O teste com três resultados confirmou que os cartões são renderizados dentro da própria secção “Perto de si”, com distância, preço e ligação ao detalhe visíveis.
 
 Os cartões de proximidade foram então alinhados ao formato compacto canónico: 252px de largura, 354px de altura e faixa horizontal com rolagem, em vez da grelha de três colunas expansivas. A distância continua a ser o único sinal adicional específico de proximidade.
+
+Foram extraídas 44 capas fornecidas pelo utilizador e versionadas nos recursos estáticos do catálogo. Cada capa foi associada a um curso presencial publicado e a uma turma aberta da **Mundo da Tecnologia**, instituição que apresenta publicamente cursos profissionais nas áreas de tecnologia, marketing, design e administração. A ficha do centro usa os contactos e moradas divulgados pela própria instituição em Luanda, mas mantém as condições de pagamento como consulta directa ao centro para não inventar preços ou disponibilidade oficiais. [1] [2]
+
+[1]: https://mundotec.ao/ "Mundo da Tecnologia — site institucional"
+[2]: https://mundotec.ao/contactos/ "Mundo da Tecnologia — contactos"
