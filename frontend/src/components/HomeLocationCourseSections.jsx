@@ -1,4 +1,4 @@
-import { Globe2, LocateFixed, MapPin, RefreshCw } from "lucide-react";
+import { LocateFixed, MapPin, RefreshCw, ShieldCheck, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { backendUrl } from "../lib/backend-url";
 import { etiquetaProduto, rotaDetalheProduto, textoRodapeProduto, tipoProduto } from "../lib/product-type";
@@ -38,10 +38,12 @@ export function NearbyCoursesSection({ data, onAnnounce }) {
   const [message, setMessage] = useState("");
   const [nearbyCourses, setNearbyCourses] = useState([]);
   const [selectedRegion, setSelectedRegion] = useState("");
+  const [locationPromptOpen, setLocationPromptOpen] = useState(false);
   const regions = useMemo(() => [...new Set((data?.cursos || []).map((course) => course.provincia).filter(Boolean))].sort((first, second) => first.localeCompare(second, "pt-PT")), [data]);
   const regionalCourses = useMemo(() => selectedRegion ? (data?.cursos || []).filter((course) => course.provincia === selectedRegion).slice(0, 8).map(toCourseCard) : [], [data, selectedRegion]);
 
-  const requestLocation = () => {
+  const locateUser = () => {
+    setLocationPromptOpen(false);
     if (!navigator.geolocation) {
       setStatus("error");
       setMessage("Este navegador não disponibiliza localização. Escolha uma província para ver formações nessa região.");
@@ -68,9 +70,12 @@ export function NearbyCoursesSection({ data, onAnnounce }) {
     }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 });
   };
 
+  const requestLocation = () => setLocationPromptOpen(true);
+
   const coursesToShow = nearbyCourses.length ? nearbyCourses : regionalCourses;
   return <>
     <section className="page-width nearby-course-intro" aria-live="polite"><div className="nearby-course-copy"><span className="eyebrow muted"><LocateFixed size={14} /> Perto de si</span><h2>Encontre cursos mais perto de si.</h2><p>{message || "Autorize a localização apenas nesta pesquisa ou escolha uma província. A sua posição não é guardada."}</p>{(status !== "ready" || !nearbyCourses.length) && <div className="nearby-region-picker"><MapPin size={16} /><span>Explorar por província:</span><div>{regions.map((region) => <button key={region} type="button" className={selectedRegion === region ? "is-selected" : ""} onClick={() => setSelectedRegion(region)}>{region}</button>)}</div></div>}</div><button type="button" className="nearby-location-button" onClick={requestLocation} disabled={status === "loading"}>{status === "loading" ? <RefreshCw size={17} className="is-spinning" /> : <LocateFixed size={17} />}{status === "loading" ? "A procurar" : "Usar a minha localização"}</button></section>
     {coursesToShow.length > 0 && <CourseShelf id={nearbyCourses.length ? "cursos-proximos" : "cursos-na-provincia"} eyebrow={nearbyCourses.length ? "Resultados por proximidade" : `Formações em ${selectedRegion}`} title={nearbyCourses.length ? "Formações mais perto de si." : `Cursos disponíveis em ${selectedRegion}.`} description={nearbyCourses.length ? "A distância é calculada nesta pesquisa usando apenas coordenadas de centros com localização confirmada." : "Alternativa por região, sem partilha de localização."} courses={coursesToShow} onAnnounce={onAnnounce} collectionHref={selectedRegion ? `/cursos?provincia=${encodeURIComponent(selectedRegion)}` : "/cursos"} />}
+    {locationPromptOpen && <div className="location-consent-overlay" role="presentation"><section className="location-consent-dialog" role="dialog" aria-modal="true" aria-labelledby="location-consent-title"><button type="button" className="location-consent-close" onClick={() => setLocationPromptOpen(false)} aria-label="Fechar pedido de localização"><X size={18} /></button><span className="location-consent-icon"><LocateFixed size={23} /></span><span className="location-consent-eyebrow"><ShieldCheck size={14} /> Privacidade primeiro</span><h3 id="location-consent-title">Encontrar centros perto de si?</h3><p>Com a sua autorização, usaremos o GPS do navegador apenas nesta pesquisa para procurar cursos e centros próximos. A Edukangola não guarda a sua localização.</p><div className="location-consent-actions"><button type="button" className="location-consent-secondary" onClick={() => setLocationPromptOpen(false)}>Agora não</button><button type="button" className="location-consent-primary" onClick={locateUser}><LocateFixed size={16} /> Permitir localização</button></div></section></div>}
   </>;
 }

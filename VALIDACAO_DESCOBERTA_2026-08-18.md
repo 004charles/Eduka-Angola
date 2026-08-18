@@ -17,3 +17,5 @@ A comparação com os cursos 35, 32 e 34 foi revista após a recomposição visu
 Depois do ajuste final, a matriz passou a ter uma separação vertical de 42px da introdução. A transição entre a nota de confiança e a comparação ficou visualmente distinta em ecrã largo, sem alterar a hierarquia de leitura.
 
 Na revisão das faixas geográficas da página inicial, confirmou-se que não existiam centros nem cursos presenciais publicados fora de Angola. A secção internacional deixa, por isso, de ocupar espaço com um estado vazio e passa a surgir automaticamente quando houver dados publicados. A descoberta por proximidade mantém-se disponível, agora com os atalhos de província integrados junto do pedido de localização.
+
+O pedido de localização foi revisto para ocorrer em duas etapas: primeiro, a página mostra uma janela central com finalidade, privacidade e as opções de aceitar ou recusar; só depois de “Permitir localização” é chamado o GPS do navegador. A recusa fecha a janela sem qualquer pedido de permissão ao navegador e mantém a descoberta por província disponível.

@@ -353,3 +353,5 @@
 - [x] Aumentar a separação vertical entre a introdução e a matriz de comparação
 - [ ] Preencher a candidatura autenticada com os dados existentes da conta do aluno
 - [x] Rever os estados vazios de cursos internacionais e próximos para não deixar a página inicial incompleta
+- [ ] Auditar o GestorEduka para centros estrangeiros, moedas, pagamentos e candidaturas internacionais
+- [x] Pedir autorização de localização numa janela central antes de activar o GPS do navegador
