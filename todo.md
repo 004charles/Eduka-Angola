@@ -309,3 +309,7 @@
 - [x] Incluir Herlander Vandik na fonte institucional dos criadores da Edukangola
 - [x] Actualizar os testes da resposta prioritária com os três criadores
 - [x] Validar e sincronizar a rectificação institucional
+- [x] Inventariar modelos, rotas, serviços e comandos do backend Edukangola
+- [x] Mapear capacidades já existentes e lacunas por área funcional
+- [x] Executar verificações técnicas e testes representativos do backend
+- [x] Entregar diagnóstico e recomendar a próxima fase de implementação
