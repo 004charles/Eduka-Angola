@@ -38,7 +38,7 @@ export function NearbyCoursesSection({ data, onAnnounce }) {
   const [message, setMessage] = useState("");
   const [nearbyCourses, setNearbyCourses] = useState([]);
   const [selectedRegion, setSelectedRegion] = useState("");
-  const [locationPromptOpen, setLocationPromptOpen] = useState(false);
+  const [locationPromptOpen, setLocationPromptOpen] = useState(true);
   const regions = useMemo(() => [...new Set((data?.cursos || []).map((course) => course.provincia).filter(Boolean))].sort((first, second) => first.localeCompare(second, "pt-PT")), [data]);
   const regionalCourses = useMemo(() => selectedRegion ? (data?.cursos || []).filter((course) => course.provincia === selectedRegion).slice(0, 8).map(toCourseCard) : [], [data, selectedRegion]);
 
