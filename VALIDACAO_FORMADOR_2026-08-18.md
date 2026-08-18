@@ -33,3 +33,11 @@ Foi identificado e corrigido o formato dos pedidos enviados pelo cliente React. 
 ## Orientação da Eduka AI
 
 A Eduka AI foi validada no navegador com a pergunta “Como me torno formador?”. A resposta passa a indicar `/formador`, a acção “Candidate-se para ensinar” e a análise da candidatura antes da activação, com ligação directa para o fluxo React.
+
+## Candidatura integrada na conta de aluno
+
+Foi criada uma conta de demonstração com duas conclusões verificadas em cursos em vídeo. O acesso React foi preenchido para validar que a candidatura passa a surgir exclusivamente nas configurações da conta elegível, sem expor qualquer indicador aos restantes alunos.
+
+A conta de aluno elegível autenticou com sucesso e a opção “Tornar-me formador” apareceu nas configurações. Ao abri-la, a interface apresentou o perfil profissional, a proposta de curso e o teste de boas práticas, sem encaminhar o utilizador para uma área autónoma de formador.
+
+O acesso antigo a `/formador` foi validado depois da alteração e encaminha agora directamente para `/aluno/configuracoes`, confirmando que o painel independente deixou de estar exposto.

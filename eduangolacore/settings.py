@@ -29,6 +29,9 @@ YOUTUBE_API_KEY = config("YOUTUBE_API_KEY", default="")
 GEMINI_API_KEY = config("GEMINI_API_KEY", default="")
 GROQ_API_KEY = config("GROQ_API_KEY", default="")
 GROQ_MODEL = config("GROQ_MODEL", default="llama-3.1-8b-instant")
+BREVO_API_KEY = config("BREVO_API_KEY", default="")
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="info@edukangola.com")
+DEFAULT_FROM_NAME = config("DEFAULT_FROM_NAME", default="EdukAngola")
 
 
 

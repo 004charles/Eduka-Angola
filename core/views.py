@@ -366,7 +366,7 @@ def _eduka_ai_public_links(question):
     normalized = question.lower()
     routes = []
     if any(term in normalized for term in ('formador', 'instrutor', 'ensinar', 'lecionar', 'leccionar', 'dar aulas', 'publicar curso', 'publicar um curso', 'publicar cursos')):
-        routes.append({'label': 'Candidatar-me como formador', 'path': '/formador'})
+        routes.append({'label': 'Configurações da conta', 'path': '/aluno/configuracoes'})
     if any(term in normalized for term in ('curso', 'formação', 'formacao', 'aprender', 'inscri', 'matrícul', 'matricul')):
         routes.append({'label': 'Explorar cursos', 'path': '/cursos'})
     if any(term in normalized for term in ('vídeo', 'video', 'aula gravada', 'online')):
@@ -393,8 +393,8 @@ def _eduka_ai_guided_public_answer(question):
         }
     if any(term in normalized for term in ('tornar-me formador', 'ser formador', 'candidatar-me como formador', 'candidatura de formador', 'formador', 'instrutor', 'ensinar na edukangola', 'lecionar na edukangola', 'leccionar na edukangola', 'publicar curso', 'publicar um curso', 'publicar cursos')):
         return {
-            'answer': 'Para se tornar formador, abra a área /formador e seleccione “Candidate-se para ensinar”. Preencha o seu perfil, área de especialização e experiência. A candidatura é analisada pela equipa Edukangola antes de a conta ser activada para criar cursos em vídeo, aulas e responder às dúvidas dos alunos.',
-            'links': [{'label': 'Candidatar-me como formador', 'path': '/formador'}],
+            'answer': 'A candidatura de formador aparece nas configurações da sua conta de aluno depois de concluir dois cursos em vídeo. Quando a opção “Tornar-me formador” estiver disponível, confirme o seu e-mail, apresente a sua experiência, responda ao teste de boas práticas e envie a proposta de curso. A candidatura será analisada pela equipa Edukangola.',
+            'links': [{'label': 'Configurações da conta', 'path': '/aluno/configuracoes'}],
         }
     if any(term in normalized for term in ('inscri', 'matrícul', 'matricul')):
         return {
@@ -481,7 +481,7 @@ def react_public_ai_assistant(request):
     user_prompt = (
         f'Contexto público actual da Edukangola:\n{catalogue_context}\n\n'
         'Navegação disponível: /cursos para formações presenciais; /cursos-em-video para cursos gravados; '
-        '/centros para centros; /formador para candidatura e acesso de formadores; /biblioteca para livros; /eventos para bilhetes e eventos; '
+        '/centros para centros; /aluno/configuracoes para gerir a conta e candidaturas elegíveis; /biblioteca para livros; /eventos para bilhetes e eventos; '
         '/como-funciona para explicação do percurso na plataforma.\n\n'
         f'Pergunta do visitante: {question}'
     )

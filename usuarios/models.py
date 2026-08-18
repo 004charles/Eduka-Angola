@@ -242,6 +242,7 @@ class CodigoVerificacao(models.Model):
     TIPO_CHOICES = [
         ('CADASTRO', 'Cadastro'),
         ('RECUPERACAO', 'Recuperação de Senha'),
+        ('FORMADOR', 'Candidatura de Formador'),
     ]
     
     email = models.EmailField(_('E-mail'))
@@ -251,6 +252,47 @@ class CodigoVerificacao(models.Model):
     
     def __str__(self):
         return f"Código para {self.email} ({self.tipo})"
+
+
+class CandidaturaFormador(models.Model):
+    """Candidatura de um aluno elegível a uma permissão adicional de formador."""
+
+    ESTADO_CHOICES = [
+        ('PENDENTE_ANALISE', 'Pendente de análise'),
+        ('APROVADA', 'Aprovada'),
+        ('RECUSADA', 'Recusada'),
+    ]
+
+    aluno = models.OneToOneField(Aluno, on_delete=models.CASCADE, related_name='candidatura_formador')
+    titulo_profissional = models.CharField(max_length=100)
+    area_especializacao = models.CharField(max_length=100, choices=[
+        ('TECNOLOGIA_INFORMACAO', 'Tecnologia de Informação'),
+        ('NEGOCIO', 'Negócio'),
+        ('LINGUAS', 'Línguas'),
+        ('ESPECIALIZADA', 'Especializada'),
+        ('CIENCIAS', 'Ciências'),
+        ('ARTES', 'Artes'),
+        ('ENGENHARIA', 'Engenharia'),
+        ('SAUDE', 'Saúde'),
+        ('OUTRO', 'Outro'),
+    ])
+    biografia = models.TextField()
+    proposta_curso = models.TextField()
+    teste_aprovado = models.BooleanField(default=False)
+    pontuacao_teste = models.PositiveSmallIntegerField(default=0)
+    codigo_confirmado_em = models.DateTimeField(null=True, blank=True)
+    estado = models.CharField(max_length=24, choices=ESTADO_CHOICES, default='PENDENTE_ANALISE', db_index=True)
+    observacao_equipa = models.TextField(blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Candidatura de formador'
+        verbose_name_plural = 'Candidaturas de formadores'
+        ordering = ['-criado_em']
+
+    def __str__(self):
+        return f"{self.aluno.nome} · {self.get_estado_display()}"
 class NotificacaoAluno(models.Model):
     TIPO_CHOICES = [
         ('CURSO', 'Novo Curso'),

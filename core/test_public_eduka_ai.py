@@ -42,9 +42,9 @@ class PublicEdukaAiApiTest(TestCase):
                 )
                 self.assertEqual(response.status_code, 200)
                 payload = response.json()
-                self.assertIn('/formador', payload['answer'])
+                self.assertIn('configurações', payload['answer'])
                 self.assertIn('analisada', payload['answer'])
-                self.assertIn({'label': 'Candidatar-me como formador', 'path': '/formador'}, payload['links'])
+                self.assertIn({'label': 'Configurações da conta', 'path': '/aluno/configuracoes'}, payload['links'])
         mocked_post.assert_not_called()
 
     @override_settings(GROQ_API_KEY='test-key')

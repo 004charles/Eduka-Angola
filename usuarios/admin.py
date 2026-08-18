@@ -4,6 +4,7 @@ from unfold.admin import TabularInline as UnfoldTabularInline
 from unfold.admin import StackedInline as UnfoldStackedInline
 from django.contrib.auth.admin import UserAdmin
 from .models import *
+from cursos_app.models import Instrutor
 
 # Configuração customizada para o modelo Usuario
 class UsuarioAdmin(UserAdmin):
@@ -52,3 +53,32 @@ class PreferenciaNotificacaoAlunoAdmin(UnfoldModelAdmin):
     list_filter = ('receber_na_plataforma', 'receber_por_email', 'resumo_semanal')
     search_fields = ('aluno__nome', 'aluno__usuario__email')
     readonly_fields = ('atualizado_em',)
+
+
+@admin.register(CandidaturaFormador)
+class CandidaturaFormadorAdmin(UnfoldModelAdmin):
+    list_display = ('aluno', 'titulo_profissional', 'area_especializacao', 'pontuacao_teste', 'estado', 'criado_em')
+    list_filter = ('estado', 'area_especializacao', 'teste_aprovado')
+    search_fields = ('aluno__nome', 'aluno__usuario__email', 'titulo_profissional')
+    readonly_fields = ('codigo_confirmado_em', 'pontuacao_teste', 'teste_aprovado', 'criado_em', 'atualizado_em')
+    actions = ('aprovar_candidaturas',)
+
+    @admin.action(description='Aprovar candidaturas seleccionadas e activar permissão de formador')
+    def aprovar_candidaturas(self, request, queryset):
+        aprovadas = 0
+        for candidatura in queryset.filter(estado='PENDENTE_ANALISE', teste_aprovado=True).select_related('aluno__usuario'):
+            instrutor, _ = Instrutor.objects.update_or_create(
+                usuario=candidatura.aluno.usuario,
+                defaults={
+                    'nome': candidatura.aluno.nome,
+                    'email': candidatura.aluno.usuario.email,
+                    'titulo': candidatura.titulo_profissional,
+                    'biografia': candidatura.biografia,
+                    'area_especializacao': candidatura.area_especializacao,
+                    'ativo': True,
+                },
+            )
+            candidatura.estado = 'APROVADA'
+            candidatura.save(update_fields=['estado', 'atualizado_em'])
+            aprovadas += 1
+        self.message_user(request, f'{aprovadas} candidatura(s) aprovada(s). A conta continua a ser de aluno e recebeu o perfil de formador.')

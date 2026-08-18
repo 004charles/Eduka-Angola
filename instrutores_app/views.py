@@ -20,7 +20,7 @@ def instrutor_signup(request):
 
 def instrutor_login(request):
     if request.method == 'GET':
-        return redirect('/formador')
+        return redirect('/aluno/configuracoes')
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -28,7 +28,7 @@ def instrutor_login(request):
             if user.tipo_usuario == 'INSTRUTOR':
                 if user.is_active:
                     login(request, user)
-                    return redirect('/formador')
+                    return redirect('/aluno/configuracoes')
                 else:
                     messages.error(request, "Sua conta ainda não foi ativada pela administração.")
             else:
@@ -191,7 +191,7 @@ def api_react_responder_duvida(request, duvida_id):
     return JsonResponse({'ok': True, 'resposta': {'id': resposta.id, 'texto': resposta.texto, 'autor': instrutor.nome, 'criada_em': resposta.data_criacao.isoformat()}})
 
 def instrutor_dashboard(request):
-    return redirect('/formador')
+    return redirect('/aluno/configuracoes')
     
     instrutor = get_instrutor(request.user)
     if not instrutor:

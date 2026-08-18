@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import gettext as _
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from .models import Usuario, Aluno, PerfilAluno, CodigoVerificacao, PreferenciaNotificacaoAluno, NotificacaoAluno
+from .models import Usuario, Aluno, PerfilAluno, CodigoVerificacao, PreferenciaNotificacaoAluno, NotificacaoAluno, CandidaturaFormador
 from gestoreduka.models import CentroDeFormacao, CentroSeguimento, Conversa, Depoimento, Mensagem
 from cursos_app.models import Curso, Favorito, Categoria, Inscricao
 from bolsas.models import Bolsa, CandidaturaBolsa
@@ -39,6 +39,57 @@ def _destino_publico_seguro(destino):
     """Permite apenas caminhos locais ao concluir uma ação pública."""
     destino = str(destino or '').strip()
     return destino if destino.startswith('/') and not destino.startswith('//') else '/'
+
+
+_TESTE_FORMADOR = [
+    {
+        'id': 'aprendizagem',
+        'pergunta': 'Qual é uma boa prática ao preparar uma aula em vídeo?',
+        'opcoes': [
+            {'id': 'A', 'texto': 'Publicar sem objectivos definidos.'},
+            {'id': 'B', 'texto': 'Definir objectivos claros e uma sequência de aprendizagem.'},
+            {'id': 'C', 'texto': 'Evitar exemplos e exercícios.'},
+        ],
+        'correta': 'B',
+    },
+    {
+        'id': 'inclusao',
+        'pergunta': 'Como deve um formador lidar com dúvidas dos alunos?',
+        'opcoes': [
+            {'id': 'A', 'texto': 'Responder com respeito e orientar com clareza.'},
+            {'id': 'B', 'texto': 'Ignorar dúvidas repetidas.'},
+            {'id': 'C', 'texto': 'Partilhar dados pessoais de outros alunos.'},
+        ],
+        'correta': 'A',
+    },
+    {
+        'id': 'conteudo',
+        'pergunta': 'O conteúdo de um curso deve ser:',
+        'opcoes': [
+            {'id': 'A', 'texto': 'Copiado sem autorização de outras fontes.'},
+            {'id': 'B', 'texto': 'Relevante, exacto e com respeito por direitos de autor.'},
+            {'id': 'C', 'texto': 'Prometido sem conseguir ser leccionado.'},
+        ],
+        'correta': 'B',
+    },
+]
+
+
+def _cursos_video_concluidos(aluno):
+    cursos = aluno.cursos_inscritos_video.prefetch_related('aulas').all()
+    return sum(1 for curso in cursos if curso.verificar_conclusao(aluno))
+
+
+def _formador_estado(aluno):
+    concluidos = _cursos_video_concluidos(aluno)
+    candidatura = getattr(aluno, 'candidatura_formador', None)
+    if concluidos < 2 and not candidatura:
+        return None
+    return {
+        'elegivel': concluidos >= 2,
+        'estado': candidatura.estado if candidatura else 'ELEGIVEL',
+        'titulo_profissional': candidatura.titulo_profissional if candidatura else '',
+    }
 
 
 def _aluno_api_autenticado(request):
@@ -952,12 +1003,15 @@ def enviar_codigo_verificacao(email, tipo):
     html_content = render_to_string('emails/codigo_verificacao.html', {'codigo': codigo})
     text_content = f"O seu código de verificação EdukAngola é: {codigo}\n\nEste código é válido por 10 minutos."
     
-    enviar_email_brevo(
+    enviado = enviar_email_brevo(
         to_email=email,
         subject="EdukAngola — Código de Verificação",
         html_content=html_content,
         text_content=text_content
     )
+    if not enviado:
+        raise RuntimeError('O serviço de e-mail não aceitou o envio do código.')
+    return codigo
 
 
 
@@ -1434,7 +1488,91 @@ def api_react_aluno_configuracoes(request):
         return JsonResponse({'detail': 'Perfil de aluno não encontrado.'}, status=404)
     preferencias, _ = PreferenciaNotificacaoAluno.objects.get_or_create(aluno=aluno)
     campos = ('receber_na_plataforma', 'receber_por_email', 'novos_cursos', 'novas_turmas', 'novos_livros', 'novos_eventos', 'atualizacoes_aprendizagem', 'calendario_e_feriados', 'resumo_semanal')
-    return JsonResponse({'ok': True, 'conta': {'nome': aluno.nome, 'email': request.user.email}, 'notificacoes': {campo: bool(getattr(preferencias, campo)) for campo in campos}})
+    return JsonResponse({
+        'ok': True,
+        'conta': {'nome': aluno.nome, 'email': request.user.email},
+        'notificacoes': {campo: bool(getattr(preferencias, campo)) for campo in campos},
+        'formador': _formador_estado(aluno),
+    })
+
+
+@require_POST
+@login_required
+def api_react_formador_enviar_codigo(request):
+    aluno, erro = _aluno_api_autenticado(request)
+    if erro:
+        return erro
+    if _cursos_video_concluidos(aluno) < 2:
+        return JsonResponse({'detail': 'A candidatura de formador ainda não está disponível para esta conta.'}, status=403)
+    candidatura = getattr(aluno, 'candidatura_formador', None)
+    if candidatura and candidatura.estado in {'PENDENTE_ANALISE', 'APROVADA'}:
+        return JsonResponse({'detail': 'Já existe uma candidatura em acompanhamento para esta conta.'}, status=409)
+    CodigoVerificacao.objects.filter(email=request.user.email, tipo='FORMADOR').delete()
+    try:
+        enviar_codigo_verificacao(request.user.email, 'FORMADOR')
+    except Exception:
+        return JsonResponse({'detail': 'Não foi possível enviar o código. Tente novamente.'}, status=502)
+    request.session['formador_codigo_email'] = request.user.email
+    return JsonResponse({'ok': True, 'message': 'Enviámos um código de confirmação para o seu e-mail.'})
+
+
+@require_POST
+@login_required
+def api_react_formador_candidatar(request):
+    aluno, erro = _aluno_api_autenticado(request)
+    if erro:
+        return erro
+    if _cursos_video_concluidos(aluno) < 2:
+        return JsonResponse({'detail': 'A candidatura de formador ainda não está disponível para esta conta.'}, status=403)
+    dados = _dados_json(request)
+    codigo = str(dados.get('codigo') or '').strip()
+    titulo = str(dados.get('titulo_profissional') or '').strip()
+    area = str(dados.get('area_especializacao') or '').strip()
+    biografia = str(dados.get('biografia') or '').strip()
+    proposta = str(dados.get('proposta_curso') or '').strip()
+    respostas = dados.get('respostas_teste') or {}
+    if request.session.get('formador_codigo_email') != request.user.email:
+        return JsonResponse({'detail': 'Peça um novo código de confirmação antes de continuar.'}, status=400)
+    verificacao = CodigoVerificacao.objects.filter(
+        email=request.user.email, codigo=codigo, tipo='FORMADOR', criado_em__gte=timezone.now() - timedelta(minutes=10)
+    ).order_by('-criado_em').first()
+    if not verificacao:
+        return JsonResponse({'detail': 'O código é inválido ou expirou. Peça um novo código.'}, status=400)
+    if not titulo or not area or len(biografia) < 40 or len(proposta) < 40:
+        return JsonResponse({'detail': 'Preencha o título profissional, a área, a experiência e a proposta de curso.'}, status=400)
+    areas_validas = {valor for valor, _ in CandidaturaFormador._meta.get_field('area_especializacao').choices}
+    if area not in areas_validas:
+        return JsonResponse({'detail': 'Seleccione uma área de especialização válida.'}, status=400)
+    pontuacao = sum(1 for questao in _TESTE_FORMADOR if respostas.get(questao['id']) == questao['correta'])
+    if pontuacao < 3:
+        return JsonResponse({'detail': 'Ainda não atingiu a pontuação necessária no teste. Reveja as boas práticas e tente novamente.'}, status=400)
+    candidatura, _ = CandidaturaFormador.objects.update_or_create(
+        aluno=aluno,
+        defaults={
+            'titulo_profissional': titulo,
+            'area_especializacao': area,
+            'biografia': biografia,
+            'proposta_curso': proposta,
+            'teste_aprovado': True,
+            'pontuacao_teste': pontuacao,
+            'codigo_confirmado_em': timezone.now(),
+            'estado': 'PENDENTE_ANALISE',
+        },
+    )
+    CodigoVerificacao.objects.filter(email=request.user.email, tipo='FORMADOR').delete()
+    request.session.pop('formador_codigo_email', None)
+    return JsonResponse({'ok': True, 'estado': candidatura.estado, 'message': 'Recebemos a sua candidatura. A equipa Edukangola irá analisá-la.'}, status=201)
+
+
+@require_GET
+@login_required
+def api_react_formador_teste(request):
+    aluno, erro = _aluno_api_autenticado(request)
+    if erro:
+        return erro
+    if _cursos_video_concluidos(aluno) < 2:
+        return JsonResponse({'detail': 'A candidatura de formador ainda não está disponível para esta conta.'}, status=403)
+    return JsonResponse({'ok': True, 'questoes': [{chave: valor for chave, valor in questao.items() if chave != 'correta'} for questao in _TESTE_FORMADOR]})
 
 
 @require_POST

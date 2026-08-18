@@ -333,3 +333,6 @@
 - [x] Criar uma chamada e percurso de candidatura para quem quer tornar-se formador
 - [x] Criar um formador de demonstração aprovado com curso, aula e dúvida para testar o painel React
 - [x] Actualizar a Eduka AI para orientar a candidatura de formador para `/formador`
+- [x] Integrar a candidatura de formador no perfil de aluno após duas conclusões em cursos em vídeo
+- [x] Verificar a candidatura de formador por código enviado ao e-mail da conta
+- [x] Retirar a área autónoma e o acesso directo do antigo painel de formador
