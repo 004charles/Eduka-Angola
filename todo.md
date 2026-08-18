@@ -349,3 +349,5 @@
 - [x] Consolidar continuidade, materiais, dúvidas, exercícios e evidências de aprendizagem
 - [x] Reforçar reputação apenas com interacções e avaliações verificadas
 - [x] Criar alertas úteis para cursos guardados, turmas, candidaturas e aprendizagem
+- [x] Redesenhar a comparação de cursos com a composição editorial e visual da Edukangola
+- [x] Aumentar a separação vertical entre a introdução e a matriz de comparação
