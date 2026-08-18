@@ -22,6 +22,14 @@ class InstructorReactPortalTest(TestCase):
         response = self.client.get('/instrutor/api/react/dashboard/')
         self.assertEqual(response.status_code, 401)
 
+    def test_allows_react_login_for_an_active_instructor(self):
+        response = self.client.post('/instrutor/api/react/login/', data=json.dumps({
+            'email': 'formador.portal@teste.local',
+            'password': 'senha-segura',
+        }), content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['ok'])
+
     def test_accepts_a_public_instructor_application_pending_approval(self):
         options = self.client.get('/instrutor/api/react/candidatura/opcoes/')
         self.assertEqual(options.status_code, 200)

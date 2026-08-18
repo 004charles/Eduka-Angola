@@ -91,7 +91,7 @@ export default function InstructorPortalPage({ onNavigate, courses = [] }) {
     event.preventDefault();
     setCreating(true);
     try {
-      await authRequest("/instrutor/api/react/cursos/", { method: "POST", body: JSON.stringify({ ...courseForm, categoria_id: Number(courseForm.categoria_id), preco: courseForm.preco || 0 }) });
+      await authRequest("/instrutor/api/react/cursos/", { ...courseForm, categoria_id: Number(courseForm.categoria_id), preco: courseForm.preco || 0 });
       setCourseForm(initialCourse);
       await load();
     } catch (reason) {
@@ -104,7 +104,7 @@ export default function InstructorPortalPage({ onNavigate, courses = [] }) {
   const createLesson = async (event) => {
     event.preventDefault();
     try {
-      await authRequest(`/instrutor/api/react/cursos/${lessonFor}/aulas/`, { method: "POST", body: JSON.stringify(lessonForm) });
+      await authRequest(`/instrutor/api/react/cursos/${lessonFor}/aulas/`, lessonForm);
       setLessonFor(null);
       setLessonForm({ titulo: "", video_url: "", descricao: "" });
       await load();
@@ -116,7 +116,7 @@ export default function InstructorPortalPage({ onNavigate, courses = [] }) {
   const answerQuestion = async (event) => {
     event.preventDefault();
     try {
-      await authRequest(`/instrutor/api/react/duvidas/${answering}/responder/`, { method: "POST", body: JSON.stringify({ texto: answerText }) });
+      await authRequest(`/instrutor/api/react/duvidas/${answering}/responder/`, { texto: answerText });
       setAnswering(null);
       setAnswerText("");
       await load();
@@ -128,7 +128,7 @@ export default function InstructorPortalPage({ onNavigate, courses = [] }) {
   const loginInstructor = async (event) => {
     event.preventDefault();
     try {
-      await authRequest("/instrutor/api/react/login/", { method: "POST", body: JSON.stringify(credentials) });
+      await authRequest("/instrutor/api/react/login/", credentials);
       await load();
     } catch (reason) {
       setError(reason.message || "Não foi possível iniciar sessão.");
@@ -140,7 +140,7 @@ export default function InstructorPortalPage({ onNavigate, courses = [] }) {
     setApplicationSubmitting(true);
     setApplicationFeedback("");
     try {
-      const result = await authRequest("/instrutor/api/react/candidatura/", { method: "POST", body: JSON.stringify(applicationForm) });
+      const result = await authRequest("/instrutor/api/react/candidatura/", applicationForm);
       setApplicationFeedback(result.message);
     } catch (reason) {
       const fieldErrors = reason.data?.errors || {};

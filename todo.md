@@ -331,3 +331,4 @@
 - [x] Reposicionar o formulário de acesso do formador para a esquerda em ecrãs largos
 - [x] Adicionar uma vitrina animada de cursos à direita da entrada do formador
 - [x] Criar uma chamada e percurso de candidatura para quem quer tornar-se formador
+- [x] Criar um formador de demonstração aprovado com curso, aula e dúvida para testar o painel React
