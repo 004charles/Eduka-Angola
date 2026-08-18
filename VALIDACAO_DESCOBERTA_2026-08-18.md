@@ -27,3 +27,5 @@ No navegador de validação, a API de permissões confirmou contexto seguro, geo
 O pedido nativo passou a solicitar uma posição recente com alta precisão, limite de 15 segundos e sem reutilizar uma posição antiga. A interface agora distingue recusa de permissão, GPS indisponível e demora de sinal, orientando o aluno para activar a localização do dispositivo ou usar a alternativa por província.
 
 Foi adicionada uma política explícita `Permissions-Policy: geolocation=(self)` tanto ao servidor React como ao Django, confirmada também na resposta pública HTTPS. Ao carregar a página, a plataforma pede a posição automaticamente e conserva a janela central com um botão “Pedir novamente”, para desencadear o pedido por interacção manual nos navegadores que silenciam pedidos automáticos.
+
+O fluxo foi corrigido para que a geolocalização só seja chamada no clique directo de “Permitir localização”, preservando o gesto necessário para navegadores mais restritivos. Num teste isolado, a chamada foi interceptada sem recolher coordenadas e confirmou `enableHighAccuracy: true`, `timeout: 15000` e `maximumAge: 0`; o botão passou imediatamente para o estado “A pedir ao navegador”.

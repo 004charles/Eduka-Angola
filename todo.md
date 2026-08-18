@@ -358,3 +358,4 @@
 - [x] Abrir automaticamente o pedido de localização na página inicial antes de consultar o GPS do navegador
 - [x] Corrigir a chamada nativa de GPS após o aluno confirmar a autorização de localização
 - [x] Corrigir a permissão GPS que não aparece no navegador real do aluno
+- [x] Corrigir o botão “Permitir localização” que não acciona o GPS
