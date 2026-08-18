@@ -774,7 +774,7 @@ def public_home_data(request):
             vagas_disponiveis__gt=0,
             curso__publicado=True,
             curso__ativo=True,
-        ).select_related('curso', 'curso__centro', 'curso__categoria', 'filial').order_by('data_inicio', 'horario_inicio')[:24]
+        ).select_related('curso', 'curso__centro', 'curso__categoria', 'filial').order_by('data_inicio', 'horario_inicio')[:120]
 
         for turma in turmas_qs:
             curso = serializar_curso(turma.curso)
@@ -823,7 +823,10 @@ def public_home_data(request):
             'perfil_url': f'/centros/{centro.id}',
         })
 
-    cursos = [serializar_curso(curso) for curso in cursos_qs.order_by('-data_criacao')[:24]]
+    # O React resolve o detalhe presencial a partir deste contrato público.
+    # Manter todos os cursos recentes na resposta impede que um curso visível
+    # no perfil do centro seja aberto com uma rota que aparenta não existir.
+    cursos = [serializar_curso(curso) for curso in cursos_qs.order_by('-data_criacao')[:120]]
     video_cursos = []
     for video in Curso_video.objects.select_related('instrutor', 'centro', 'categoria').prefetch_related('aulas', 'turmas').order_by('-data_publicacao')[:24]:
         preco = float(video.preco or 0)

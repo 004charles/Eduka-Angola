@@ -363,3 +363,6 @@
 - [x] Mostrar os cursos próximos directamente na secção “Perto de si” sem deslocamento automático
 - [x] Ajustar os cartões de proximidade ao tamanho compacto dos cartões canónicos
 - [x] Extrair as imagens fornecidas e associá-las aos novos cursos de catálogo
+- [x] Garantir que os cursos da Mundo da Tecnologia abrem publicamente no catálogo e no detalhe
+- [x] Guardar a escolha de localização do aluno para não repetir o pedido na página inicial
+- [ ] Criar separação vertical entre etiquetas e ações no cabeçalho do perfil de centro

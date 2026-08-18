@@ -6,6 +6,8 @@ import CourseCard from "./CourseCard";
 import CourseShelf from "./CourseShelf";
 import "./home-location-course-sections.css";
 
+const LOCATION_CHOICE_KEY = "eduka-location-consent-v1";
+
 function centreName(name) {
   return name?.replace(/Eduka-Angola/gi, "Edukangola") || "Centro de formação";
 }
@@ -61,7 +63,9 @@ export function NearbyCoursesSection({ data, onAnnounce }) {
   const [message, setMessage] = useState("");
   const [nearbyCourses, setNearbyCourses] = useState([]);
   const [selectedRegion, setSelectedRegion] = useState("");
-  const [locationPromptOpen, setLocationPromptOpen] = useState(true);
+  const [locationPromptOpen, setLocationPromptOpen] = useState(() => {
+    try { return !window.localStorage.getItem(LOCATION_CHOICE_KEY); } catch { return true; }
+  });
   const regions = useMemo(
     () => [...new Set((data?.cursos || []).map((course) => course.provincia).filter(Boolean))].sort((first, second) => first.localeCompare(second, "pt-PT")),
     [data],
@@ -71,10 +75,21 @@ export function NearbyCoursesSection({ data, onAnnounce }) {
     [data, selectedRegion],
   );
 
+  const rememberLocationChoice = (choice) => {
+    try { window.localStorage.setItem(LOCATION_CHOICE_KEY, choice); } catch { /* A decisão mantém-se apenas nesta visita. */ }
+  };
+
+  const dismissLocationPrompt = (choice = "dismissed") => {
+    rememberLocationChoice(choice);
+    setLocationPromptOpen(false);
+  };
+
   const locateUser = () => {
+    rememberLocationChoice("approved");
     if (!navigator.geolocation) {
       setStatus("error");
       setMessage("Este navegador não disponibiliza localização. Escolha uma província para ver formações nessa região.");
+      setLocationPromptOpen(false);
       return;
     }
 
@@ -154,13 +169,13 @@ export function NearbyCoursesSection({ data, onAnnounce }) {
 
     {locationPromptOpen && <div className="location-consent-overlay" role="presentation">
       <section className="location-consent-dialog" role="dialog" aria-modal="true" aria-labelledby="location-consent-title">
-        <button type="button" className="location-consent-close" onClick={() => setLocationPromptOpen(false)} aria-label="Fechar pedido de localização"><X size={18} /></button>
+        <button type="button" className="location-consent-close" onClick={() => dismissLocationPrompt()} aria-label="Fechar pedido de localização"><X size={18} /></button>
         <span className="location-consent-icon"><LocateFixed size={23} /></span>
         <span className="location-consent-eyebrow"><ShieldCheck size={14} /> Privacidade primeiro</span>
         <h3 id="location-consent-title">Encontrar centros perto de si?</h3>
         <p>{status === "loading" ? "A ligar ao GPS do seu dispositivo. Confirme agora o aviso do navegador para continuar." : "Com a sua autorização, usaremos o GPS do navegador apenas nesta pesquisa para procurar cursos e centros próximos. A Edukangola não guarda a sua localização."}</p>
         <div className="location-consent-actions">
-          <button type="button" className="location-consent-secondary" onClick={() => setLocationPromptOpen(false)}>Agora não</button>
+          <button type="button" className="location-consent-secondary" onClick={() => dismissLocationPrompt("declined")}>Agora não</button>
           <button type="button" className="location-consent-primary" onClick={locateUser} disabled={status === "loading"}>
             {status === "loading" ? <RefreshCw size={16} className="is-spinning" /> : <LocateFixed size={16} />}
             {status === "loading" ? "A pedir ao navegador" : "Permitir localização"}

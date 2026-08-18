@@ -40,5 +40,15 @@ Os cartões de proximidade foram então alinhados ao formato compacto canónico:
 
 Foram extraídas 44 capas fornecidas pelo utilizador e versionadas nos recursos estáticos do catálogo. Cada capa foi associada a um curso presencial publicado e a uma turma aberta da **Mundo da Tecnologia**, instituição que apresenta publicamente cursos profissionais nas áreas de tecnologia, marketing, design e administração. A ficha do centro usa os contactos e moradas divulgados pela própria instituição em Luanda, mas mantém as condições de pagamento como consulta directa ao centro para não inventar preços ou disponibilidade oficiais. [1] [2]
 
+Depois da expansão do contrato público, a página de centros passou a listar a Mundo da Tecnologia com 44 cursos publicados. A API pública passou a disponibilizar até 120 cursos e turmas, resolvendo a divergência entre os cursos apresentados no perfil do centro e os cursos carregados pela rota React de detalhe.
+
+O perfil público `/centros/8` confirmou 44 formações da Mundo da Tecnologia e apresentou correctamente as respectivas capas. O contrato de perfil devolveu, entre outros, o curso de identificador 49, “Empreendedorismo e Inovação”, que será usado para validar a página de detalhe pública.
+
+A rota pública `/cursos/49` foi validada com sucesso: apresentou “Empreendedorismo e Inovação”, a capa fornecida, a turma aberta, os dados de Luanda e as condições de inscrição. Não foi apresentada a mensagem de curso indisponível.
+
+A persistência da escolha de localização foi preparada no navegador de validação com a decisão “approved” guardada em `localStorage`, antes de recarregar a página inicial. A confirmação visual da ausência do diálogo automático será concluída após a recarga.
+
+Após a recarga, a página inicial foi apresentada sem o diálogo central de localização. A escolha passa a ser guardada por navegador; o aluno pode voltar a pedir o GPS a qualquer momento através de “Usar a minha localização”.
+
 [1]: https://mundotec.ao/ "Mundo da Tecnologia — site institucional"
 [2]: https://mundotec.ao/contactos/ "Mundo da Tecnologia — contactos"
