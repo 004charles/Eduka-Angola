@@ -4,6 +4,7 @@ import LoadingScreen from "./components/LoadingScreen";
 import HomePage from "./pages/HomePage";
 import CoursesPage from "./pages/CoursesPage";
 import CourseDetailPage from "./pages/CourseDetailPage";
+import CourseComparisonPage from "./pages/CourseComparisonPage";
 import VideoCourseDetailPage from "./pages/VideoCourseDetailPage";
 import CentersPage from "./pages/CentersPage";
 import HowItWorksPage from "./pages/HowItWorksPage";
@@ -131,6 +132,7 @@ function App() {
   const searchParams = new URLSearchParams(queryString);
   const catalogFilters = Object.fromEntries(searchParams.entries());
   const centerInviteToken = searchParams.get("convite");
+  const comparisonIds = (searchParams.get("ids") || "").split(",").filter(Boolean);
   const authModes = { "/entrar": "login", "/criar-conta": "register", "/verificar-email": "verify", "/recuperar-palavra-passe": "recover", "/redefinir-palavra-passe": "reset" };
   const courseRouteMatch = pathname.match(/^\/cursos\/(\d+)\/?$/);
   const videoCourseRouteMatch = pathname.match(/^\/video-cursos\/([^/]+)\/?$/);
@@ -173,6 +175,7 @@ function App() {
   else if (pathname === "/biblioteca" || pathname === "/biblioteca/") page = <LibraryPage onNavigate={navigate} />;
   else if (pathname === "/cursos-em-video" || legacyVideoCatalogue) page = <VideoCoursesPage data={homeData} loading={homeDataLoading} onNavigate={navigate} onAnnounce={announce} />;
   else if (pathname === "/cursos") page = <CoursesPage data={homeData} loading={homeDataLoading} initialFilters={catalogFilters} onNavigate={navigate} onAnnounce={announce} />;
+  else if (pathname === "/comparar-cursos") page = <CourseComparisonPage courses={homeData?.cursos || []} classes={homeData?.turmas_abertas || []} ids={comparisonIds} onNavigate={navigate} />;
   else if (courseRouteMatch) page = <CourseDetailPage course={selectedCourse} courses={homeData?.cursos} turmas={homeData?.turmas_abertas} loading={homeDataLoading} onNavigate={navigate} onAnnounce={announce} />;
   else if (videoCourseRouteMatch) page = <VideoCourseDetailPage slug={decodeURIComponent(videoCourseRouteMatch[1])} student={student} onNavigate={navigate} />;
   else if (learningVideoRouteMatch) page = <VideoLearningPage slug={decodeURIComponent(learningVideoRouteMatch[1])} onNavigate={navigate} />;
@@ -186,7 +189,7 @@ function App() {
   else if (pathname === "/sobre" || pathname === "/sobre-a-edukangola") page = <AboutPage data={homeData} student={student} onNavigate={navigate} />;
   else page = <NotFoundPage onNavigate={navigate} />;
 
-  return <I18nProvider language={language} onLanguageChange={setLanguage}><PublicLayout suggestions={[...(homeData?.cursos || []), ...(homeData?.video_cursos || [])]} student={student} theme={theme} language={language} path={pathname} onThemeChange={() => setTheme(theme === "light" ? "dark" : "light")} onLanguageChange={setLanguage} onNavigate={navigate} onLogout={handleLogout}>{page}{notice && <div className="notice" role="status">{notice}</div>}</PublicLayout></I18nProvider>;
+  return <I18nProvider language={language} onLanguageChange={setLanguage}><PublicLayout suggestions={[...(homeData?.cursos || []), ...(homeData?.video_cursos || []), ...(homeData?.centros_destaque || []).map((center) => ({ ...center, tipo_pesquisa: "center" }))]} student={student} theme={theme} language={language} path={pathname} onThemeChange={() => setTheme(theme === "light" ? "dark" : "light")} onLanguageChange={setLanguage} onNavigate={navigate} onLogout={handleLogout}>{page}{notice && <div className="notice" role="status">{notice}</div>}</PublicLayout></I18nProvider>;
 }
 
 export default App;

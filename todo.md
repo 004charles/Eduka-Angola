@@ -339,3 +339,13 @@
 - [x] Produzir auditoria estratégica e técnica completa para orientar o MVP, lançamento e monetização da Edukangola
 - [x] Remover funcionalidades, rotas e navegação relacionadas com feed social sem afectar notícias ou notificações
 - [x] Remover módulos e referências à aplicação mobile do repositório principal sem afectar o produto web
+- [x] Fortalecer a pesquisa unificada com sugestões de cursos, centros e cursos em vídeo
+- [x] Completar filtros de decisão por província, área, modalidade, preço, nível, datas e vagas
+- [x] Criar comparação lado a lado de cursos seleccionados
+- [x] Expor estado de verificação, actualização e capacidade de resposta dos centros
+- [x] Tornar a candidatura acompanhável por aluno e mensurável por centro
+- [x] Enriquecer páginas de curso com informação decisiva para inscrição
+- [x] Criar prévia clara e confiável para cursos em vídeo antes da compra
+- [x] Consolidar continuidade, materiais, dúvidas, exercícios e evidências de aprendizagem
+- [x] Reforçar reputação apenas com interacções e avaliações verificadas
+- [x] Criar alertas úteis para cursos guardados, turmas, candidaturas e aprendizagem

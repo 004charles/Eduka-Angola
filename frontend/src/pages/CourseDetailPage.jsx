@@ -60,7 +60,7 @@ export default function CourseDetailPage({ course, courses, turmas, loading, onN
               <div className="detail-badges"><span>{course.categoria}</span><span>{course.modalidade}</span>{video && <span><Video size={14} /> Inclui vídeo</span>}</div>
               <h1>{course.titulo}</h1>
               <p>{course.descricao_curta || course.descricao}</p>
-              <div className="detail-hero-meta"><span><GraduationCap size={17} /> {centro}</span>{localizacao && <span><MapPin size={17} /> {localizacao}</span>}{course.certificado && <span><Award size={17} /> Certificado</span>}</div>
+              <div className="detail-hero-meta"><span><GraduationCap size={17} /> {centro}</span>{course.centro_verificado && <span><CheckCircle2 size={17} /> Centro verificado</span>}{localizacao && <span><MapPin size={17} /> {localizacao}</span>}{course.certificado && <span><Award size={17} /> Certificado</span>}</div>
             </div>
             <div className="course-detail-hero-image">
               {course.imagem_url ? <img src={course.imagem_url} alt="" /> : <div className="course-detail-image-fallback"><GraduationCap size={42} /></div>}
@@ -78,7 +78,7 @@ export default function CourseDetailPage({ course, courses, turmas, loading, onN
 
           <section className="detail-section" id="turmas"><div className="detail-section-heading"><div><span className="eyebrow muted">Turmas disponíveis</span><h2>Escolha a turma que se adapta à sua rotina.</h2></div><span>{turmasDoCurso.length} {turmasDoCurso.length === 1 ? "turma aberta" : "turmas abertas"}</span></div>{turmasDoCurso.length ? <div className="detail-class-list">{turmasDoCurso.map((turma) => <TurmaCard key={turma.turma_id} turma={turma} onChoose={iniciarInscricao} />)}</div> : <div className="detail-empty-class"><CalendarDays size={21} /><div><b>Ainda não há turmas abertas.</b><p>Consulte o centro para saber quando haverá uma nova turma.</p></div></div>}</section>
 
-          <section className="detail-section detail-centre-section"><span className="eyebrow muted">Centro de formação</span><div className="detail-centre-card"><div className="detail-centre-mark">{centro.slice(0, 1)}</div><div><h2>{centro}</h2><p>{localizacao || "Localização a confirmar pelo centro."}</p></div><CheckCircle2 size={22} /></div></section>
+          <section className="detail-section detail-centre-section"><span className="eyebrow muted">Centro de formação</span><div className="detail-centre-card"><div className="detail-centre-mark">{centro.slice(0, 1)}</div><div><h2>{centro}</h2><p>{localizacao || "Localização a confirmar pelo centro."}</p>{course.centro_atualizado_em && <small>Informação actualizada em {new Date(`${course.centro_atualizado_em}T12:00:00`).toLocaleDateString("pt-PT")}</small>}</div>{course.centro_verificado && <CheckCircle2 size={22} />}</div></section>
         </div>
 
         <aside className="course-detail-aside">

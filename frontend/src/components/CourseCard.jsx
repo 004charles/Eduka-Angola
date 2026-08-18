@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ArrowRight, Award, CalendarDays, Clock3, Heart, MapPin, UsersRound, Video } from "lucide-react";
+import { ArrowRight, Award, CalendarDays, Clock3, Heart, MapPin, Scale, UsersRound, Video } from "lucide-react";
 import { acaoProduto, etiquetaProduto, isVideoCurso } from "../lib/product-type";
 import { backendUrl } from "../lib/backend-url";
 import "./course-card.css";
@@ -22,7 +22,7 @@ function resumir(texto) {
  * A prévia é ativada por rato e teclado em ecrãs de ponteiro fino; no toque,
  * o cartão mantém a navegação direta para o detalhe completo do curso.
  */
-export default function CourseCard({ course, onSave }) {
+export default function CourseCard({ course, onSave, onCompare, compared = false }) {
   const cursoId = String(course.id);
   const favoritoInicial = typeof window !== "undefined" && Array.isArray(window.__edukaFavoriteIds)
     ? window.__edukaFavoriteIds.includes(cursoId)
@@ -136,6 +136,7 @@ export default function CourseCard({ course, onSave }) {
           <h3 title={course.title}>{course.detailUrl ? <a href={course.detailUrl}>{course.title}</a> : course.title}</h3>
           <p title={course.centre}>{course.centre}{course.distancia_km !== undefined && <span className="course-distance"><MapPin size={12} /> {course.distancia_km} km de si</span>}</p>
           <div className={`course-price${course.is_gratuito ? " is-free" : ""}`}><strong>{pagamentoAgora}</strong>{condicaoPagamento && <span>{condicaoPagamento}</span>}</div>
+          {onCompare && <button type="button" className={`course-compare-toggle${compared ? " is-selected" : ""}`} onClick={() => onCompare(course)}><Scale size={14} /> {compared ? "Na comparação" : "Comparar"}</button>}
           <div className="course-footer">
             <span title={course.schedule}><Clock3 size={14} /> {course.schedule}</span>
             <button type="button" className={isFavorite ? "is-favorite" : ""} aria-label={isFavorite ? `Remover ${course.title} dos guardados` : `Guardar ${course.title}`} aria-pressed={isFavorite} disabled={savingFavorite} onClick={toggleFavorite}>

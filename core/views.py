@@ -713,7 +713,7 @@ def public_home_data(request):
         publicado=True,
         ativo=True,
         modalidade='PRESENCIAL',
-    ).select_related('centro', 'categoria')
+    ).select_related('centro', 'centro__perfil', 'categoria')
 
     def formatar_valor(valor):
         return f"{valor:,.0f} Kz".replace(',', ' ')
@@ -723,6 +723,8 @@ def public_home_data(request):
         preco_atual = curso.preco_atual
         imagem_url = curso.get_imagem_url
         latitude, longitude = coordenadas_publicas(curso.centro)
+        perfil = getattr(curso.centro, 'perfil', None)
+        atualizado_em = getattr(perfil, 'data_atualizacao', None)
         return {
             'id': curso.id,
             'titulo': curso.titulo,
@@ -730,6 +732,8 @@ def public_home_data(request):
             'categoria': curso.categoria.nome if curso.categoria else 'Sem categoria',
             'centro_id': curso.centro_id,
             'centro': curso.centro.nome or 'Centro de formação',
+            'centro_verificado': bool(perfil and perfil.verificado),
+            'centro_atualizado_em': atualizado_em.date().isoformat() if atualizado_em else '',
             'pais': curso.centro.pais,
             'pais_nome': curso.centro.get_pais_display(),
             'is_internacional': curso.centro.pais != 'AO',
@@ -850,8 +854,8 @@ def public_home_data(request):
             'destaque': video.destaque,
             'imagem_url': video.get_imagem_url,
             'data_publicacao': video.data_publicacao.isoformat(),
-            'detalhe_url': video.get_absolute_url(),
-            'inscricao_url': reverse('cursovideoapp:toggle_inscricao', kwargs={'slug': video.slug}),
+            'detalhe_url': f'/video-cursos/{video.slug}',
+            'inscricao_url': f'/comprar/{video.slug}',
             'total_aulas': video.aulas.count(),
             'duracao_total': video.duracao_total() or '',
             'proxima_turma': {
