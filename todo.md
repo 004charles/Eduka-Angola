@@ -265,3 +265,6 @@
 - [x] Inspeccionar o espaçamento entre o cabeçalho da conversa e o formulário de mensagem do aluno
 - [x] Ajustar margens, altura do histórico e separadores do compositor de mensagem
 - [x] Validar a composição corrigida em desktop e ecrãs menores
+- [x] Preservar correctamente o modo escuro da página de mensagens do aluno
+- [x] Reorganizar o painel para manter o formulário de resposta visível no viewport
+- [x] Validar visualmente a composição de mensagens nos modos claro e escuro
