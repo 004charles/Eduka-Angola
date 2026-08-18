@@ -336,3 +336,4 @@
 - [x] Integrar a candidatura de formador no perfil de aluno após duas conclusões em cursos em vídeo
 - [x] Verificar a candidatura de formador por código enviado ao e-mail da conta
 - [x] Retirar a área autónoma e o acesso directo do antigo painel de formador
+- [x] Produzir auditoria estratégica e técnica completa para orientar o MVP, lançamento e monetização da Edukangola
