@@ -351,3 +351,5 @@
 - [x] Criar alertas úteis para cursos guardados, turmas, candidaturas e aprendizagem
 - [x] Redesenhar a comparação de cursos com a composição editorial e visual da Edukangola
 - [x] Aumentar a separação vertical entre a introdução e a matriz de comparação
+- [ ] Preencher a candidatura autenticada com os dados existentes da conta do aluno
+- [x] Rever os estados vazios de cursos internacionais e próximos para não deixar a página inicial incompleta
