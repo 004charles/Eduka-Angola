@@ -1,6 +1,7 @@
 import random
 import string
 import json
+from decimal import Decimal
 from datetime import timedelta
 
 from django.conf import settings
@@ -104,6 +105,28 @@ def _dados_turma_checkout(turma):
     }
 
 
+def _cupom_para_curso(codigo, curso, usuario):
+    codigo = str(codigo or '').strip().upper()
+    if not codigo:
+        return None, Decimal('0'), None
+    from pagamentos.models import CupomPromocional
+    cupom = CupomPromocional.objects.filter(codigo=codigo).first()
+    if not cupom or not cupom.esta_disponivel_para(curso, usuario):
+        return None, Decimal('0'), 'Este código não é válido para esta formação.'
+    return cupom, cupom.calcular_desconto(curso.valor_a_cobrar_online()), None
+
+
+@require_POST
+def api_react_validar_cupom(request, curso_id):
+    curso = get_object_or_404(Curso, id=curso_id, publicado=True, ativo=True)
+    usuario = request.user if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO' else None
+    cupom, desconto, erro = _cupom_para_curso(_corpo_json(request).get('codigo'), curso, usuario)
+    if erro:
+        return JsonResponse({'ok': False, 'message': erro}, status=404)
+    valor = curso.valor_a_cobrar_online()
+    return JsonResponse({'ok': True, 'codigo': cupom.codigo, 'titulo': cupom.titulo, 'desconto': float(desconto), 'valor_final': float(max(Decimal('0'), valor - desconto))})
+
+
 @require_POST
 def api_react_iniciar_inscricao(request, curso_id):
     """Reserva uma turma a partir do checkout React, sem exigir login prévio."""
@@ -199,6 +222,11 @@ def api_react_iniciar_pagamento_inscricao(request, inscricao_id):
     if inscricao.status == 'A':
         return JsonResponse({'ok': True, 'status': 'confirmada', 'message': 'Esta inscrição já está confirmada.'})
 
+    dados = _corpo_json(request)
+    cupom, desconto_cupom, erro_cupom = _cupom_para_curso(dados.get('cupom'), inscricao.curso, inscricao.aluno.usuario)
+    if erro_cupom:
+        return JsonResponse({'ok': False, 'message': erro_cupom}, status=400)
+
     try:
         from pagamentos.services import get_payment_service, PagamentoException
         servico = get_payment_service()
@@ -210,11 +238,16 @@ def api_react_iniciar_pagamento_inscricao(request, inscricao_id):
             curso=inscricao.curso,
             url_sucesso=settings.FRONTEND_RETURN_URL,
             url_cancelamento=settings.FRONTEND_CANCEL_URL,
-            metadados={'inscricao_id': str(inscricao.id)},
+            metadados={'inscricao_id': str(inscricao.id), 'cupom': cupom.codigo if cupom else ''},
+            desconto_extra=desconto_cupom,
         )
         if not pagamento.url_pagamento:
             raise PagamentoException('O gateway não devolveu uma página de pagamento.')
-        return JsonResponse({'ok': True, 'payment_url': pagamento.url_pagamento})
+        if cupom:
+            from pagamentos.models import CupomPromocional, CupomResgate
+            CupomResgate.objects.create(cupom=cupom, usuario=inscricao.aluno.usuario, pagamento=pagamento, valor_desconto=desconto_cupom)
+            CupomPromocional.objects.filter(pk=cupom.pk).update(utilizacoes=F('utilizacoes') + 1)
+        return JsonResponse({'ok': True, 'payment_url': pagamento.url_pagamento, 'desconto': float(desconto_cupom)})
     except Exception:
         return JsonResponse({'ok': False, 'message': 'Não foi possível preparar o pagamento. Tente novamente.'}, status=502)
 

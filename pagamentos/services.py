@@ -490,7 +490,8 @@ class PaymentService:
         numero_parcela: int = None,
         url_sucesso: str = None,
         url_cancelamento: str = None,
-        metadados: Dict[str, Any] = None
+        metadados: Dict[str, Any] = None,
+        desconto_extra: Decimal = None,
     ) -> Pagamento:
         """
         Cria um novo pagamento no sistema e no gateway.
@@ -515,8 +516,8 @@ class PaymentService:
         valor_desconto = Decimal('0')
         if tipo_pagamento == 'INSCRICAO' and self.config.desconto_inscricao_percentual > 0:
             valor_desconto = valor * (self.config.desconto_inscricao_percentual / 100)
-        
-        valor_final = valor - valor_desconto
+        valor_desconto = min(valor, valor_desconto + (desconto_extra or Decimal('0')))
+        valor_final = max(Decimal('0.01'), valor - valor_desconto)
         
         # Criar URL de callback
         url_callback = self._construir_url_callback(referencia_pagamento)

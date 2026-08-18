@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -248,6 +248,59 @@ class Pagamento(models.Model):
     def pode_reembolsar(self):
         """Verifica se pode reembolsar"""
         return self.status == 'ACCEPTED'
+
+
+class CupomPromocional(models.Model):
+    """Campanha de desconto aplicável a uma selecção de cursos ou a todo um centro."""
+    TIPO_CHOICES = [('PERCENTUAL', 'Percentagem'), ('VALOR_FIXO', 'Valor fixo')]
+    codigo = models.CharField(max_length=32, unique=True, db_index=True)
+    titulo = models.CharField(max_length=120)
+    centro = models.ForeignKey('gestoreduka.CentroDeFormacao', on_delete=models.CASCADE, null=True, blank=True, related_name='cupoes_promocionais')
+    cursos = models.ManyToManyField('cursos_app.Curso', blank=True, related_name='cupoes_promocionais')
+    tipo = models.CharField(max_length=16, choices=TIPO_CHOICES, default='PERCENTUAL')
+    valor = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    ativo = models.BooleanField(default=True, db_index=True)
+    inicio = models.DateTimeField(default=timezone.now)
+    fim = models.DateTimeField(null=True, blank=True)
+    maximo_utilizacoes = models.PositiveIntegerField(null=True, blank=True)
+    utilizacoes = models.PositiveIntegerField(default=0)
+    maximo_por_aluno = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1)])
+
+    class Meta:
+        verbose_name = 'Cupão promocional'
+        verbose_name_plural = 'Cupões promocionais'
+        ordering = ['-inicio']
+
+    def save(self, *args, **kwargs):
+        self.codigo = self.codigo.strip().upper()
+        super().save(*args, **kwargs)
+
+    def esta_disponivel_para(self, curso, usuario=None):
+        agora = timezone.now()
+        if not self.ativo or self.inicio > agora or (self.fim and self.fim < agora):
+            return False
+        if self.maximo_utilizacoes is not None and self.utilizacoes >= self.maximo_utilizacoes:
+            return False
+        if self.centro_id and curso.centro_id != self.centro_id:
+            return False
+        if self.cursos.exists() and not self.cursos.filter(pk=curso.pk).exists():
+            return False
+        if usuario and CupomResgate.objects.filter(cupom=self, usuario=usuario).count() >= self.maximo_por_aluno:
+            return False
+        return True
+
+    def calcular_desconto(self, valor_base):
+        if self.tipo == 'PERCENTUAL':
+            return min(valor_base, valor_base * (self.valor / Decimal('100')))
+        return min(valor_base, self.valor)
+
+
+class CupomResgate(models.Model):
+    cupom = models.ForeignKey(CupomPromocional, on_delete=models.PROTECT, related_name='resgates')
+    usuario = models.ForeignKey(User, on_delete=models.PROTECT, related_name='resgates_cupom')
+    pagamento = models.OneToOneField('Pagamento', on_delete=models.CASCADE, related_name='resgate_cupom')
+    valor_desconto = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator(0)])
+    criado_em = models.DateTimeField(auto_now_add=True)
 
 
 class FinanceiroCentro(models.Model):
