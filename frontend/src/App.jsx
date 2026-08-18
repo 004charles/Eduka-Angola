@@ -15,6 +15,7 @@ import StudentPreferencesPage from "./pages/StudentPreferencesPage";
 import StudentSettingsPage from "./pages/StudentSettingsPage";
 import MyTicketsPage from "./pages/MyTicketsPage";
 import StudentCertificatesPage from "./pages/StudentCertificatesPage";
+import StudentMessagesPage from "./pages/StudentMessagesPage";
 import VideoCoursesPage from "./pages/VideoCoursesPage";
 import CenterProfilePage from "./pages/CenterProfilePage";
 import ForCentersPage from "./pages/ForCentersPage";
@@ -155,6 +156,7 @@ function App() {
   else if (pathname === "/aluno/configuracoes") page = <StudentSettingsPage onNavigate={navigate} onLogout={handleLogout} />;
   else if (pathname === "/aluno/bilhetes") page = <MyTicketsPage onNavigate={navigate} />;
   else if (pathname === "/aluno/certificados") page = <StudentCertificatesPage onNavigate={navigate} />;
+  else if (pathname === "/aluno/mensagens") page = <StudentMessagesPage centerId={Number(searchParams.get("centro")) || null} conversationId={Number(searchParams.get("conversa")) || null} onNavigate={navigate} />;
   else if (pathname === "/pagamento/sucesso" || pathname === "/pagamento/sucesso/") page = <PaymentResultPage onNavigate={navigate} />;
   else if (pathname === "/pagamento/cancelado" || pathname === "/pagamento/cancelado/") page = <PaymentResultPage onNavigate={navigate} />;
   else if (checkoutCourseRouteMatch) page = <CheckoutPage kind="presencial" course={checkoutCourse} turmas={homeData?.turmas_abertas || []} onNavigate={navigate} />;

@@ -4,8 +4,8 @@ from unittest.mock import patch
 
 from django.test import Client, TestCase
 
-from .models import Aluno, CodigoVerificacao, Usuario
-from gestoreduka.models import CentroDeFormacao
+from .models import Aluno, CodigoVerificacao, NotificacaoAluno, Usuario
+from gestoreduka.models import CentroDeFormacao, Conversa, Mensagem, NotificacaoGestor
 
 class UserUnificationTest(TestCase):
     def setUp(self):
@@ -145,3 +145,43 @@ class ReactAuthApiTest(TestCase):
         self.assertTrue(Aluno.objects.get(usuario=self.user).ativo)
         self.assertEqual(str(self.client.session.get('_auth_user_id')), str(self.user.id))
         mocked_welcome.assert_called_once_with(self.user.nome, self.user.email)
+
+
+class StudentMessagingApiTest(TestCase):
+    def setUp(self):
+        self.aluno_user = Usuario.objects.create_user(email='chat.aluno@test.com', nome='Aluna Chat', password=None, tipo_usuario='ALUNO')
+        self.aluno = Aluno.objects.create(usuario=self.aluno_user, nome='Aluna Chat')
+        self.gestor_user = Usuario.objects.create_user(email='chat.gestor@test.com', nome='Gestor Chat', password=None, tipo_usuario='GESTOR')
+        self.centro = CentroDeFormacao.objects.create(usuario=self.gestor_user, nome='Centro Chat', email='chat.centro@test.com', ativo=True)
+
+    def post_json(self, url, data):
+        return self.client.post(url, data=json.dumps(data), content_type='application/json')
+
+    def test_aluno_inicia_conversa_envia_e_recebe_notificacoes(self):
+        self.client.force_login(self.aluno_user)
+        create_response = self.post_json('/auth/api/react/aluno/conversas/iniciar/', {'centro_id': self.centro.id})
+        self.assertEqual(create_response.status_code, 201)
+        conversa_id = create_response.json()['conversa']['id']
+
+        sent_response = self.post_json(f'/auth/api/react/aluno/conversas/{conversa_id}/mensagens/', {'mensagem': 'Gostaria de confirmar o horário da turma.'})
+        self.assertEqual(sent_response.status_code, 201)
+        self.assertTrue(NotificacaoGestor.objects.filter(centro=self.centro, tipo='MENSAGEM', link__contains=f'conversa={conversa_id}').exists())
+
+        conversa = Conversa.objects.get(id=conversa_id)
+        resposta = Mensagem.objects.create(conversa=conversa, remetente_centro=self.centro, mensagem='A turma inicia às 18h, de segunda a sexta.')
+        notification = NotificacaoAluno.objects.get(aluno=self.aluno, tipo='CHAT')
+        self.assertIn(f'conversa={conversa_id}', notification.link)
+
+        detail_response = self.client.get(f'/auth/api/react/aluno/conversas/{conversa_id}/')
+        self.assertEqual(detail_response.status_code, 200)
+        self.assertEqual(len(detail_response.json()['mensagens']), 2)
+        resposta.refresh_from_db()
+        notification.refresh_from_db()
+        self.assertTrue(resposta.lida)
+        self.assertTrue(notification.lida)
+
+        self.client.force_login(self.gestor_user)
+        manager_detail = self.client.get(f'/gestoreduka/api/react/conversas/{conversa_id}/')
+        self.assertEqual(manager_detail.status_code, 200)
+        self.assertEqual(manager_detail.json()['conversa']['aluno'], self.aluno.nome)
+        self.assertFalse(NotificacaoGestor.objects.filter(centro=self.centro, tipo='MENSAGEM', lida=False).exists())

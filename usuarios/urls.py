@@ -10,6 +10,10 @@ urlpatterns = [
     path('api/react/aluno/resumo/', views.api_auth_aluno_resumo, name='api_auth_aluno_resumo'),
     path('api/react/aluno/configuracoes/', views.api_react_aluno_configuracoes, name='api_react_aluno_configuracoes'),
     path('api/react/aluno/configuracoes/actualizar/', views.api_react_aluno_configuracoes_actualizar, name='api_react_aluno_configuracoes_actualizar'),
+    path('api/react/aluno/conversas/', views.api_react_aluno_conversas, name='api_react_aluno_conversas'),
+    path('api/react/aluno/conversas/iniciar/', views.api_react_aluno_conversa_iniciar, name='api_react_aluno_conversa_iniciar'),
+    path('api/react/aluno/conversas/<int:conversa_id>/', views.api_react_aluno_conversa_detalhe, name='api_react_aluno_conversa_detalhe'),
+    path('api/react/aluno/conversas/<int:conversa_id>/mensagens/', views.api_react_aluno_conversa_mensagem, name='api_react_aluno_conversa_mensagem'),
     path('api/react/logout/', views.api_react_logout, name='api_react_logout'),
     path('api/react/login/', views.api_auth_login, name='api_auth_login'),
     path('api/react/registro/', views.api_auth_registro, name='api_auth_registro'),
@@ -33,6 +37,7 @@ urlpatterns = [
 
     # API de Notificações
     path('api/notificacoes/nao-lidas/', views.api_notificacoes_nao_lidas, name='api_notificacoes_nao_lidas'),
+    path('api/notificacoes/marcar-chat-lidas/', views.api_notificacoes_chat_lidas, name='api_notificacoes_chat_lidas'),
     path('api/internal/notificacoes/destinatarios/', views.api_interna_destinatarios_notificacao, name='api_interna_destinatarios_notificacao'),
     path('api/internal/notificacoes/criar/', views.api_interna_criar_notificacao, name='api_interna_criar_notificacao'),
 

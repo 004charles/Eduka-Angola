@@ -31,3 +31,5 @@ O comando `python3 manage.py popular_centro_demo_gestor` criou um cenário idemp
 | Logout do gestor | O botão Terminar sessão foi confirmado no cabeçalho; ao accioná-lo, a sessão foi encerrada e a rota retornou à tela React de acesso do GestorEduka. |
 | Navegação com ícones | A sessão de demonstração foi preparada novamente para validar os ícones do menu lateral no painel autenticado. |
 | Validação do menu | Todos os módulos exibem ícones à esquerda dos rótulos; a visão geral e os cursos presenciais foram abertos para confirmar o indicador activo por rota. |
+| Comunicação aluno-centro | A área Mensagens do GestorEduka mostra contagem de não lidas no menu, lista de conversas e histórico de Bruno Miguel após a correcção do detalhe de conversa. |
+| Mensagens React do aluno | As APIs cobertas por teste criam ou recuperam uma conversa por centro, enviam a mensagem do aluno, notificam o gestor, notificam o aluno na resposta e marcam ambas as notificações como lidas ao abrir o histórico. |

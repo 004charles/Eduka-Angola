@@ -255,3 +255,7 @@
 - [x] Mapear ícones semânticos para os módulos do menu lateral do GestorEduka
 - [x] Integrar ícones à esquerda dos rótulos e ajustar os estados activo e responsivo
 - [x] Validar a navegação lateral com ícones no domínio de desenvolvimento
+- [x] Auditar onde o aluno inicia conversas com o centro e como o GestorEduka recebe e responde
+- [x] Diagnosticar o envio de mensagens e os avisos ausentes para aluno e centro
+- [x] Implementar um fluxo bidireccional de mensagens com notificações persistentes por destinatário
+- [x] Validar mensagem do aluno, resposta do centro e alertas de nova actividade

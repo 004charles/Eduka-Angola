@@ -24,7 +24,7 @@ from .models import (
     Diferencial, AreaFormacao, Equipe, Recurso, Depoimento,
     Estatistica, Parceria, Evento, GaleriaImagem, ReelCentro,
     Filial, ConviteCentro, Conversa, Mensagem, CentroSeguimento,
-    CategoriaCentro, AnuncioCentro, EventoIntegracao, AuditoriaCentro
+    CategoriaCentro, AnuncioCentro, EventoIntegracao, AuditoriaCentro, NotificacaoGestor
 )
 from cursos_app.models import Curso, Categoria, Instrutor, Inscricao, Turma, Presenca, NotaAluno, Matricula, ParcelaMatricula
 from pagamentos.models import RecebimentoCentro
@@ -5577,7 +5577,10 @@ def react_gestor_conversations(request):
     if not centro:
         return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
     conversas = Conversa.objects.filter(centro=centro, ativa=True).select_related('aluno').order_by('-ultima_mensagem')
-    return JsonResponse({'conversas': [{'id': conversa.id, 'aluno': conversa.aluno.nome, 'ultima_atividade': conversa.ultima_mensagem.isoformat(), 'ultima_mensagem': (Mensagem.objects.filter(conversa=conversa, digitando=False).order_by('-data_envio').values_list('mensagem', flat=True).first() or '')[:100]} for conversa in conversas]})
+    itens = []
+    for conversa in conversas:
+        itens.append({'id': conversa.id, 'aluno': conversa.aluno.nome, 'ultima_atividade': conversa.ultima_mensagem.isoformat(), 'ultima_mensagem': (Mensagem.objects.filter(conversa=conversa, digitando=False).order_by('-data_envio').values_list('mensagem', flat=True).first() or '')[:100], 'nao_lidas': Mensagem.objects.filter(conversa=conversa, remetente_aluno__isnull=False, lida=False, digitando=False).count()})
+    return JsonResponse({'conversas': itens, 'total_nao_lidas': sum(item['nao_lidas'] for item in itens)})
 
 
 @login_required
@@ -5590,6 +5593,7 @@ def react_gestor_conversation_detail(request, conversa_id):
     conversa = get_object_or_404(Conversa.objects.select_related('aluno'), id=conversa_id, centro=centro, ativa=True)
     mensagens = Mensagem.objects.filter(conversa=conversa, digitando=False).select_related('remetente_aluno', 'remetente_centro').order_by('data_envio')
     mensagens.filter(remetente_aluno__isnull=False, lida=False).update(lida=True)
+    NotificacaoGestor.objects.filter(centro=centro, tipo='MENSAGEM', lida=False, link__contains=f'conversa={conversa.id}').update(lida=True)
     return JsonResponse({'conversa': {'id': conversa.id, 'aluno': conversa.aluno.nome}, 'mensagens': [_react_message_payload(mensagem) for mensagem in mensagens]})
 
 

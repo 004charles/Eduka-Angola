@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import gettext as _
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from .models import Usuario, Aluno, PerfilAluno, CodigoVerificacao, PreferenciaNotificacaoAluno
-from gestoreduka.models import CentroDeFormacao, CentroSeguimento, Depoimento
+from .models import Usuario, Aluno, PerfilAluno, CodigoVerificacao, PreferenciaNotificacaoAluno, NotificacaoAluno
+from gestoreduka.models import CentroDeFormacao, CentroSeguimento, Conversa, Depoimento, Mensagem
 from cursos_app.models import Curso, Favorito, Categoria, Inscricao
 from bolsas.models import Bolsa, CandidaturaBolsa
 from django.contrib import messages
@@ -11,6 +11,7 @@ from django.contrib.auth.hashers import check_password
 from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -38,6 +39,103 @@ def _destino_publico_seguro(destino):
     """Permite apenas caminhos locais ao concluir uma ação pública."""
     destino = str(destino or '').strip()
     return destino if destino.startswith('/') and not destino.startswith('//') else '/'
+
+
+def _aluno_api_autenticado(request):
+    if not request.user.is_authenticated:
+        return None, JsonResponse({'ok': False, 'code': 'NAO_AUTENTICADO', 'message': 'Entre para consultar as suas mensagens.'}, status=401)
+    if request.user.tipo_usuario != 'ALUNO':
+        return None, JsonResponse({'ok': False, 'message': 'Esta área é exclusiva para alunos.'}, status=403)
+    aluno = getattr(request.user, 'aluno_profile', None)
+    if not aluno:
+        return None, JsonResponse({'ok': False, 'message': 'Não encontrámos o perfil de aluno desta conta.'}, status=404)
+    return aluno, None
+
+
+def _payload_mensagem_aluno(mensagem):
+    try:
+        arquivo_url = mensagem.arquivo.url if mensagem.arquivo else ''
+    except ValueError:
+        arquivo_url = ''
+    return {
+        'id': mensagem.id,
+        'texto': mensagem.mensagem,
+        'tipo': mensagem.tipo,
+        'arquivo_url': arquivo_url,
+        'data': mensagem.data_envio.isoformat(),
+        'autor': 'CENTRO' if mensagem.remetente_centro_id else 'ALUNO',
+    }
+
+
+@require_GET
+def api_react_aluno_conversas(request):
+    """Lista as conversas de atendimento acessíveis ao aluno autenticado."""
+    aluno, erro = _aluno_api_autenticado(request)
+    if erro:
+        return erro
+    conversas = Conversa.objects.filter(aluno=aluno, ativa=True).select_related('centro').order_by('-ultima_mensagem')
+    itens = []
+    for conversa in conversas:
+        ultima = Mensagem.objects.filter(conversa=conversa, digitando=False).order_by('-data_envio').first()
+        nao_lidas = Mensagem.objects.filter(conversa=conversa, remetente_centro__isnull=False, lida=False, digitando=False).count()
+        itens.append({
+            'id': conversa.id,
+            'centro_id': conversa.centro_id,
+            'centro': conversa.centro.nome,
+            'ultima_atividade': conversa.ultima_mensagem.isoformat(),
+            'ultima_mensagem': (ultima.mensagem if ultima else '')[:100],
+            'nao_lidas': nao_lidas,
+        })
+    return JsonResponse({'ok': True, 'conversas': itens, 'total_nao_lidas': sum(item['nao_lidas'] for item in itens)})
+
+
+@require_POST
+def api_react_aluno_conversa_iniciar(request):
+    """Cria ou abre a conversa exclusiva entre o aluno e um centro de formação."""
+    aluno, erro = _aluno_api_autenticado(request)
+    if erro:
+        return erro
+    dados = _dados_json(request)
+    centro_id = dados.get('centro_id')
+    try:
+        centro = CentroDeFormacao.objects.get(id=int(centro_id), ativo=True)
+    except (TypeError, ValueError, CentroDeFormacao.DoesNotExist):
+        return JsonResponse({'ok': False, 'message': 'O centro seleccionado não está disponível para atendimento.'}, status=404)
+    conversa, criada = Conversa.objects.get_or_create(centro=centro, aluno=aluno, defaults={'ativa': True})
+    if not conversa.ativa:
+        conversa.ativa = True
+        conversa.save(update_fields=['ativa'])
+    return JsonResponse({'ok': True, 'criada': criada, 'conversa': {'id': conversa.id, 'centro_id': centro.id, 'centro': centro.nome}}, status=201 if criada else 200)
+
+
+@require_GET
+def api_react_aluno_conversa_detalhe(request, conversa_id):
+    """Devolve o histórico de uma conversa do aluno e marca respostas do centro como lidas."""
+    aluno, erro = _aluno_api_autenticado(request)
+    if erro:
+        return erro
+    conversa = get_object_or_404(Conversa.objects.select_related('centro'), id=conversa_id, aluno=aluno, ativa=True)
+    mensagens = Mensagem.objects.filter(conversa=conversa, digitando=False).select_related('remetente_aluno', 'remetente_centro').order_by('data_envio')
+    mensagens.filter(remetente_centro__isnull=False, lida=False).update(lida=True)
+    NotificacaoAluno.objects.filter(aluno=aluno, tipo='CHAT', lida=False).update(lida=True)
+    return JsonResponse({'ok': True, 'conversa': {'id': conversa.id, 'centro_id': conversa.centro_id, 'centro': conversa.centro.nome}, 'mensagens': [_payload_mensagem_aluno(item) for item in mensagens]})
+
+
+@require_POST
+def api_react_aluno_conversa_mensagem(request, conversa_id):
+    """Envia uma mensagem do aluno para o centro associado à conversa."""
+    aluno, erro = _aluno_api_autenticado(request)
+    if erro:
+        return erro
+    conversa = get_object_or_404(Conversa, id=conversa_id, aluno=aluno, ativa=True)
+    dados = _dados_json(request)
+    texto = str(dados.get('mensagem', '')).strip()
+    if not texto:
+        return JsonResponse({'ok': False, 'message': 'Escreva uma mensagem antes de enviar.'}, status=400)
+    if len(texto) > 4000:
+        return JsonResponse({'ok': False, 'message': 'A mensagem não pode ultrapassar 4 000 caracteres.'}, status=400)
+    mensagem = Mensagem.objects.create(conversa=conversa, remetente_aluno=aluno, mensagem=texto, tipo='TEXTO')
+    return JsonResponse({'ok': True, 'mensagem': _payload_mensagem_aluno(mensagem)}, status=201)
 
 
 @ensure_csrf_cookie
@@ -316,6 +414,7 @@ def api_notificacoes_nao_lidas(request):
     user = request.user
     dados = {
         'count': 0,
+        'chat_count': 0,
         'notificacoes': []
     }
     
@@ -348,6 +447,7 @@ def api_notificacoes_nao_lidas(request):
         if aluno:
             nao_lidas = NotificacaoAluno.objects.filter(aluno=aluno, lida=False)
             dados['count'] = nao_lidas.count()
+            dados['chat_count'] = nao_lidas.filter(tipo='CHAT').count()
             for notif in nao_lidas.order_by('-data_criacao')[:5]:
                 dados['notificacoes'].append({
                     'id': notif.id,
@@ -359,6 +459,18 @@ def api_notificacoes_nao_lidas(request):
                 })
                 
     return JsonResponse(dados)
+
+
+@require_POST
+def api_notificacoes_chat_lidas(request):
+    """Marca apenas os avisos de conversa como lidos, preservando os restantes alertas da conta."""
+    if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO':
+        return JsonResponse({'ok': False, 'message': 'Entre como aluno para actualizar notificações.'}, status=401)
+    aluno = getattr(request.user, 'aluno_profile', None)
+    if not aluno:
+        return JsonResponse({'ok': False, 'message': 'Perfil de aluno indisponível.'}, status=404)
+    total, _ = NotificacaoAluno.objects.filter(aluno=aluno, tipo='CHAT', lida=False).update(lida=True)
+    return JsonResponse({'ok': True, 'actualizadas': total})
 
 
 @require_POST

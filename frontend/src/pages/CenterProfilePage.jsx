@@ -9,6 +9,7 @@ import {
 import { authRequest } from "../lib/auth-api";
 import { backendUrl } from "../lib/backend-url";
 import "./center-profile-page.css";
+import "./center-profile-messages.css";
 
 function textoLimpo(valor) { return String(valor || "").trim(); }
 function mapsSearchUrl(center) { const query = [center.endereco, center.cidade, center.provincia, center.pais_nome].filter(Boolean).join(", "); return query ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}` : ""; }
@@ -90,6 +91,14 @@ export default function CenterProfilePage({ centerId, onNavigate }) {
     } catch { /* a partilha pode ser cancelada pelo utilizador */ }
   }
 
+  function contactCenter() {
+    if (!center.seguimento?.autenticado) {
+      onNavigate(`/entrar?next=/centros/${center.id}`);
+      return;
+    }
+    onNavigate(`/aluno/mensagens?centro=${center.id}`);
+  }
+
   if (loading) return <main className="center-profile-state page-width"><div className="center-profile-loading"><span /><span /><span /></div><p>A preparar o perfil do centro.</p></main>;
   if (error || !center) return <main className="center-profile-state page-width"><ShieldCheck size={28} /><h1>Centro indisponível</h1><p>{error || "Não encontrámos este perfil de centro."}</p><button type="button" className="center-back-button" onClick={() => onNavigate("/centros")}><ArrowLeft size={16} /> Voltar aos centros</button></main>;
 
@@ -105,7 +114,7 @@ export default function CenterProfilePage({ centerId, onNavigate }) {
       <div className="page-width center-profile-hero-content"><button type="button" className="center-profile-back" onClick={() => onNavigate("/centros")}><ArrowLeft size={16} /> Centros</button><div className="center-profile-identity"><div className="center-profile-logo">{center.logo_url ? <img src={center.logo_url} alt={`Logótipo de ${center.nome}`} /> : <CenterInitial name={center.nome} />}</div><div className="center-profile-title"><div className="center-profile-kicker"><span>Centro de formação</span>{center.verificado && <span className="center-profile-verified"><BadgeCheck size={15} /> Verificado</span>}</div><h1>{center.nome}</h1><div className="center-profile-location">{center.localizacao && <span><MapPin size={15} /> {center.localizacao}</span>}{center.total_cursos > 0 && <span><BookOpen size={15} /> {center.total_cursos} {center.total_cursos === 1 ? "formação publicada" : "formações publicadas"}</span>}{center.seguimento?.total_seguidores > 0 && <span><UsersRound size={15} /> {center.seguimento.total_seguidores} {center.seguimento.total_seguidores === 1 ? "seguidor" : "seguidores"}</span>}</div></div></div></div>
     </section>
 
-    <section className="center-profile-actions-wrap"><div className="page-width center-profile-actions"><div className="center-profile-tags">{center.categorias?.slice(0, 4).map((category) => <span key={category}>{category}</span>)}</div><div className="center-profile-action-links"><button type="button" className={`center-follow-button ${following ? "is-following" : ""}`} onClick={toggleFollow} disabled={followPending}>{following ? <Check size={15} /> : <Heart size={15} fill="currentColor" />} {followPending ? "A atualizar" : following ? "A seguir" : "Seguir centro"}</button><a href="#formacoes">Explorar formações <ChevronRight size={15} /></a>{center.whatsapp && <a href={`https://wa.me/${center.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noreferrer"><MessageCircle size={15} /> WhatsApp</a>}{center.site && <a href={center.site} target="_blank" rel="noreferrer"><Globe2 size={15} /> Website</a>}<button type="button" className="center-share-button" onClick={shareProfile} aria-label="Partilhar perfil"><Share2 size={16} /></button></div></div>{actionMessage && <p className="page-width center-profile-action-message" role="status">{actionMessage}</p>}</section>
+    <section className="center-profile-actions-wrap"><div className="page-width center-profile-actions"><div className="center-profile-tags">{center.categorias?.slice(0, 4).map((category) => <span key={category}>{category}</span>)}</div><div className="center-profile-action-links"><button type="button" className={`center-follow-button ${following ? "is-following" : ""}`} onClick={toggleFollow} disabled={followPending}>{following ? <Check size={15} /> : <Heart size={15} fill="currentColor" />} {followPending ? "A atualizar" : following ? "A seguir" : "Seguir centro"}</button><button type="button" className="center-message-button" onClick={contactCenter}><MessageCircle size={15} /> Enviar mensagem</button><a href="#formacoes">Explorar formações <ChevronRight size={15} /></a>{center.whatsapp && <a href={`https://wa.me/${center.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noreferrer"><MessageCircle size={15} /> WhatsApp</a>}{center.site && <a href={center.site} target="_blank" rel="noreferrer"><Globe2 size={15} /> Website</a>}<button type="button" className="center-share-button" onClick={shareProfile} aria-label="Partilhar perfil"><Share2 size={16} /></button></div></div>{actionMessage && <p className="page-width center-profile-action-message" role="status">{actionMessage}</p>}</section>
 
     <section className="page-width center-profile-layout">
       <div className="center-profile-main">

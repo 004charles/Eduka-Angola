@@ -894,13 +894,11 @@ class Mensagem(models.Model):
             if self.remetente_centro:
                 # Notificar o aluno se a mensagem for do centro
                 from usuarios.models import NotificacaoAluno
-                from django.urls import reverse
-                link_centro = reverse('cursos_por_centro', kwargs={'centro_id': self.conversa.centro.id})
                 NotificacaoAluno.objects.create(
                     aluno=self.conversa.aluno,
                     titulo=f"Nova mensagem de {self.remetente_centro.nome}",
                     mensagem=self.mensagem[:100] + ("..." if len(self.mensagem) > 100 else ""),
-                    link=link_centro,
+                    link=f"/aluno/mensagens/?conversa={self.conversa_id}",
                     tipo='CHAT'
                 )
             elif self.remetente_aluno:
@@ -910,7 +908,7 @@ class Mensagem(models.Model):
                     centro=self.conversa.centro,
                     titulo=f"Nova mensagem de {self.remetente_aluno.nome}",
                     mensagem=self.mensagem[:100] + ("..." if len(self.mensagem) > 100 else ""),
-                    link="/gestoreduka/chat/", 
+                    link=f"/gestoreduka/mensagens/?conversa={self.conversa_id}",
                     tipo='MENSAGEM'
                 )
 
