@@ -1,0 +1,53 @@
+from unittest.mock import Mock, patch
+
+from django.core.cache import cache
+from django.test import Client, TestCase, override_settings
+
+
+class PublicEdukaAiApiTest(TestCase):
+    def setUp(self):
+        cache.clear()
+        self.client = Client()
+
+    def test_requires_a_question(self):
+        response = self.client.post('/api/public/eduka-ai/perguntar/', data='{}', content_type='application/json')
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('pergunta', response.json()['detail'].lower())
+
+    @override_settings(GROQ_API_KEY='test-key')
+    @patch('core.views.requests.post')
+    def test_returns_factual_guidance_for_enrollment_without_calling_model(self, mocked_post):
+        response = self.client.post(
+            '/api/public/eduka-ai/perguntar/',
+            data='{"question":"Como faço uma inscrição?"}',
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertIn('catálogo', payload['answer'].lower())
+        self.assertIn({'label': 'Como funciona', 'path': '/como-funciona'}, payload['links'])
+        mocked_post.assert_not_called()
+
+    @override_settings(GROQ_API_KEY='test-key')
+    @patch('core.views.requests.post')
+    def test_returns_a_scoped_answer_and_navigation_link(self, mocked_post):
+        mocked_response = Mock()
+        mocked_response.raise_for_status.return_value = None
+        mocked_response.json.return_value = {'choices': [{'message': {'content': 'Pode explorar os **centros** e comparar os cursos publicados.'}}]}
+        mocked_post.return_value = mocked_response
+
+        response = self.client.post(
+            '/api/public/eduka-ai/perguntar/',
+            data='{"question":"Que centros existem na plataforma?"}',
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertTrue(payload['ok'])
+        self.assertIn('explorar os centros', payload['answer'].lower())
+        self.assertNotIn('**', payload['answer'])
+        self.assertIn({'label': 'Conhecer centros', 'path': '/centros'}, payload['links'])
+        mocked_post.assert_called_once()

@@ -32,7 +32,7 @@ export async function authRequest(path, payload = {}) {
       ? "A sessão de segurança expirou. Atualize a página e tente novamente."
       : "Não foi possível concluir esta ação. Tente novamente.",
   }));
-  if (!response.ok && data.ok !== true) throw Object.assign(new Error(data.message || "Não foi possível concluir esta ação."), { data, status: response.status });
+  if (!response.ok && data.ok !== true) throw Object.assign(new Error(data.message || data.detail || "Não foi possível concluir esta ação."), { data, status: response.status });
   return data;
 }
 

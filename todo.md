@@ -282,3 +282,20 @@
 - [x] Validar alternância e persistência dos favoritos na secção de recomendações
 
 > Validação parcial: o botão de “Fundamentos de Cibersegurança” passou de “Guardar” para “Remover” após o clique com a sessão de aluno de demonstração e manteve-se guardado depois de recarregar a página.
+
+- [x] Auditar o serviço Eduka AI existente e a configuração segura da Groq
+- [x] Definir a opção de assistente Eduka AI flutuante para a página inicial
+- [x] Definir perguntas sugeridas, limites de orientação e contexto público do assistente
+- [x] Criar uma API pública segura para respostas da Eduka AI sem expor a chave Groq
+- [x] Integrar o painel de conversa Eduka AI flutuante na experiência pública
+- [x] Validar respostas, estado de erro, limites e interface do assistente público
+
+> Validação visual parcial: o botão flutuante “Eduka AI — Pergunte-nos” está disponível na área pública, separado dos cartões e do rodapé.
+
+> Diagnóstico de validação: a primeira pergunta devolveu 404 porque a API Django local estava a executar sem recarregamento; o processo foi reiniciado após a nova rota ser registada.
+
+> Validação de interface: após o reinício, a pergunta é enviada e o painel apresenta o estado “A preparar uma resposta…”, mantendo o histórico e o formulário acessíveis.
+
+> Diagnóstico de serviço: o modelo Groq anterior deixou de estar disponível; foi confirmado e aplicado o modelo disponível `groq/compound-mini` como predefinição da Eduka AI.
+
+> Validação de segurança: as dúvidas frequentes de inscrição, cursos em vídeo e biblioteca passam a receber orientação factual directa; perguntas abertas continuam a usar a Groq com contexto público limitado.
