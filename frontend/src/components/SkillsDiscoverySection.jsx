@@ -4,6 +4,7 @@ import CourseCard from "./CourseCard";
 import { backendUrl } from "../lib/backend-url";
 import { etiquetaProduto, isVideoCurso, rotaDetalheProduto, textoRodapeProduto, tipoProduto } from "../lib/product-type";
 import "./skills-discovery-section.css";
+import "./skills-discovery-spacing.css";
 
 function formatarCentro(nome) {
   return nome?.replace(/Eduka-Angola/gi, "Edukangola") ?? "Centro de formação";

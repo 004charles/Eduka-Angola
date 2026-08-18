@@ -268,3 +268,9 @@
 - [x] Preservar correctamente o modo escuro da página de mensagens do aluno
 - [x] Reorganizar o painel para manter o formulário de resposta visível no viewport
 - [x] Validar visualmente a composição de mensagens nos modos claro e escuro
+- [x] Reproduzir e diagnosticar o clique que não abre uma conversa na lista do aluno
+- [x] Corrigir a selecção e o carregamento do histórico ao abrir uma conversa
+- [x] Validar troca de conversa e envio de mensagem após a correcção
+- [x] Localizar a causa do espaçamento insuficiente antes da secção de competências da página inicial
+- [x] Ajustar a separação vertical entre o destaque de cursos e a secção de competências
+- [x] Validar o ritmo visual da transição em desktop e ecrãs menores
