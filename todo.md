@@ -356,3 +356,4 @@
 - [ ] Auditar o GestorEduka para centros estrangeiros, moedas, pagamentos e candidaturas internacionais
 - [x] Pedir autorização de localização numa janela central antes de activar o GPS do navegador
 - [x] Abrir automaticamente o pedido de localização na página inicial antes de consultar o GPS do navegador
+- [x] Corrigir a chamada nativa de GPS após o aluno confirmar a autorização de localização

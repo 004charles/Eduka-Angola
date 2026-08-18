@@ -21,3 +21,7 @@ Na revisão das faixas geográficas da página inicial, confirmou-se que não ex
 O pedido de localização foi revisto para ocorrer em duas etapas: primeiro, a página mostra uma janela central com finalidade, privacidade e as opções de aceitar ou recusar; só depois de “Permitir localização” é chamado o GPS do navegador. A recusa fecha a janela sem qualquer pedido de permissão ao navegador e mantém a descoberta por província disponível.
 
 A janela central passa a abrir automaticamente logo ao carregar a página inicial. A acção “Permitir localização” mantém o encaminhamento para `navigator.geolocation`, que faz o navegador apresentar a respectiva autorização nativa ao aluno.
+
+No navegador de validação, a API de permissões confirmou contexto seguro, geolocalização disponível e estado `prompt`. Depois de confirmar a janela da Edukangola, a interface passou para “A procurar”, o que confirma a chamada nativa. Este navegador de teste não devolveu coordenadas antes do limite, pelo que a mensagem de indisponibilidade foi apresentada; a chamada será reforçada com pedido de alta precisão e estados mais claros.
+
+O pedido nativo passou a solicitar uma posição recente com alta precisão, limite de 15 segundos e sem reutilizar uma posição antiga. A interface agora distingue recusa de permissão, GPS indisponível e demora de sinal, orientando o aluno para activar a localização do dispositivo ou usar a alternativa por província.

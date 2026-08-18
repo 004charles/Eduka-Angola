@@ -50,7 +50,7 @@ export function NearbyCoursesSection({ data, onAnnounce }) {
       return;
     }
     setStatus("loading");
-    setMessage("A procurar centros próximos. A sua localização não é guardada pela Edukangola.");
+    setMessage("A ligar ao GPS do seu dispositivo. Confirme a permissão do navegador para continuar.");
     navigator.geolocation.getCurrentPosition(async ({ coords }) => {
       try {
         const response = await fetch(backendUrl(`/api/public/cursos/proximos/?lat=${encodeURIComponent(coords.latitude)}&lng=${encodeURIComponent(coords.longitude)}&raio_km=75&limite=8`), { credentials: "same-origin" });
@@ -66,8 +66,11 @@ export function NearbyCoursesSection({ data, onAnnounce }) {
       }
     }, (error) => {
       setStatus("error");
-      setMessage(error.code === error.PERMISSION_DENIED ? "Não autorizou a localização. Pode continuar a explorar por província, sem partilhar a sua posição." : "Não foi possível obter a localização actual. Escolha uma província para continuar a explorar.");
-    }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 });
+      if (error.code === error.PERMISSION_DENIED) setMessage("A localização foi recusada no navegador. Pode autorizar novamente ou explorar por província, sem partilhar a sua posição.");
+      else if (error.code === error.POSITION_UNAVAILABLE) setMessage("O GPS não conseguiu determinar a sua posição. Verifique se a localização do dispositivo está activa e tente novamente.");
+      else if (error.code === error.TIMEOUT) setMessage("O GPS demorou mais do que o esperado. Tente novamente num local com melhor sinal ou explore por província.");
+      else setMessage("Não foi possível obter a localização actual. Escolha uma província para continuar a explorar.");
+    }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
   };
 
   const requestLocation = () => setLocationPromptOpen(true);
