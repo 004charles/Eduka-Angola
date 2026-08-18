@@ -313,3 +313,11 @@
 - [x] Mapear capacidades já existentes e lacunas por área funcional
 - [x] Executar verificações técnicas e testes representativos do backend
 - [x] Entregar diagnóstico e recomendar a próxima fase de implementação
+- [ ] Definir contratos React, permissões e estados de publicação do formador
+- [x] Expor APIs React para painel, cursos, aulas, dúvidas e métricas do formador
+- [x] Construir a área React do formador e publicação de cursos em vídeo
+- [ ] Completar fórum de dúvidas por aula e sinais públicos de reputação
+- [x] Unificar verificação de certificados e acrescentar QR code
+- [ ] Criar campanhas e cupões de desconto no checkout de cursos
+- [ ] Cobrir os novos fluxos com dados de demonstração e testes
+- [ ] Validar ponta a ponta, compilar e sincronizar a evolução

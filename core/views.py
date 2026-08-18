@@ -5,10 +5,11 @@ import math
 import os
 import requests
 import hashlib
+from io import BytesIO
 from datetime import timedelta
 
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_GET, require_POST
@@ -82,11 +83,66 @@ def react_student_certificates(request):
     from cursos_app.models import CertificadoCurso
     certificados = []
     for item in Certificado.objects.filter(aluno=aluno, status='EMITIDO').select_related('curso').order_by('-data_emissao'):
-        certificados.append({'id': str(item.id), 'tipo': 'Curso em vídeo', 'curso_titulo': item.curso.titulo, 'data_emissao': item.data_emissao.isoformat(), 'codigo_verificacao': item.codigo_verificacao, 'nota_final': str(item.nota_final), 'verificacao_url': f'/curso_video/verificar-certificado/{item.codigo_verificacao}/'})
+        certificados.append({'id': str(item.id), 'tipo': 'Curso em vídeo', 'curso_titulo': item.curso.titulo, 'data_emissao': item.data_emissao.isoformat(), 'codigo_verificacao': item.codigo_verificacao, 'nota_final': str(item.nota_final), 'verificacao_url': f'/verificar-certificado/{item.codigo_verificacao}'})
     for item in CertificadoCurso.objects.filter(inscricao__aluno=aluno, inscricao__status='A').select_related('inscricao__curso').order_by('-data_emissao'):
-        certificados.append({'id': str(item.id), 'tipo': 'Formação presencial', 'curso_titulo': item.inscricao.curso.titulo, 'data_emissao': item.data_emissao.isoformat(), 'codigo_verificacao': item.codigo_verificacao, 'nota_final': None, 'verificacao_url': f'/curso_video/verificar-certificado/{item.codigo_verificacao}/'})
+        certificados.append({'id': str(item.id), 'tipo': 'Formação presencial', 'curso_titulo': item.inscricao.curso.titulo, 'data_emissao': item.data_emissao.isoformat(), 'codigo_verificacao': item.codigo_verificacao, 'nota_final': None, 'verificacao_url': f'/verificar-certificado/{item.codigo_verificacao}'})
     certificados.sort(key=lambda item: item['data_emissao'], reverse=True)
     return JsonResponse({'ok': True, 'certificados': certificados})
+
+
+def _public_certificate_payload(code):
+    """Unifica, sem dados sensíveis, certificados emitidos por vídeo e por centros."""
+    from cursovideoapp.models import Certificado as CertificadoVideo
+    from cursos_app.models import CertificadoCurso
+
+    certificado_video = CertificadoVideo.objects.filter(codigo_verificacao=code, status='EMITIDO').select_related('aluno', 'curso').first()
+    if certificado_video:
+        return {
+            'codigo': certificado_video.codigo_verificacao,
+            'tipo': 'Curso em vídeo',
+            'aluno': certificado_video.aluno.nome,
+            'curso': certificado_video.curso.titulo,
+            'centro': certificado_video.curso.centro.nome if certificado_video.curso.centro_id else 'Edukangola',
+            'emitido_em': certificado_video.data_emissao.isoformat(),
+            'nota_final': float(certificado_video.nota_final) if certificado_video.nota_final else None,
+            'estado': 'válido',
+        }
+
+    certificado_presencial = CertificadoCurso.objects.filter(codigo_verificacao=code).select_related('inscricao__aluno', 'inscricao__curso__centro').first()
+    if certificado_presencial:
+        inscricao = certificado_presencial.inscricao
+        return {
+            'codigo': certificado_presencial.codigo_verificacao,
+            'tipo': 'Formação presencial',
+            'aluno': inscricao.aluno.nome,
+            'curso': inscricao.curso.titulo,
+            'centro': inscricao.curso.centro.nome,
+            'emitido_em': certificado_presencial.data_emissao.isoformat(),
+            'nota_final': None,
+            'estado': 'válido',
+        }
+    return None
+
+
+@require_GET
+def public_certificate_verification(request, code):
+    certificado = _public_certificate_payload(code.upper().strip())
+    if not certificado:
+        return JsonResponse({'detail': 'Não encontrámos um certificado válido com este código.'}, status=404)
+    return JsonResponse({'ok': True, 'certificado': certificado})
+
+
+@require_GET
+def public_certificate_qr(request, code):
+    certificado = _public_certificate_payload(code.upper().strip())
+    if not certificado:
+        return JsonResponse({'detail': 'Não encontrámos um certificado válido com este código.'}, status=404)
+    import qrcode
+    verification_url = request.build_absolute_uri(reverse('api_public_certificate_verification', kwargs={'code': certificado['codigo']}))
+    image = qrcode.make(verification_url)
+    buffer = BytesIO()
+    image.save(buffer, format='PNG')
+    return HttpResponse(buffer.getvalue(), content_type='image/png')
 
 
 @require_GET

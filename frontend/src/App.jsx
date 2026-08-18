@@ -16,6 +16,8 @@ import StudentSettingsPage from "./pages/StudentSettingsPage";
 import MyTicketsPage from "./pages/MyTicketsPage";
 import StudentCertificatesPage from "./pages/StudentCertificatesPage";
 import StudentMessagesPage from "./pages/StudentMessagesPage";
+import CertificateVerifyPage from "./pages/CertificateVerifyPage";
+import InstructorPortalPage from "./pages/InstructorPortalPage";
 import VideoCoursesPage from "./pages/VideoCoursesPage";
 import CenterProfilePage from "./pages/CenterProfilePage";
 import ForCentersPage from "./pages/ForCentersPage";
@@ -141,6 +143,7 @@ function App() {
   const eventRouteMatch = pathname.match(/^\/eventos\/([^/]+)\/?$/);
   const libraryBookRouteMatch = pathname.match(/^\/biblioteca\/([^/]+)\/?$/);
   const libraryReaderRouteMatch = pathname.match(/^\/ler\/([^/]+)\/?$/);
+  const certificateVerificationMatch = pathname.match(/^\/verificar-certificado\/([^/]+)\/?$/);
   const courseId = courseRouteMatch ? Number(courseRouteMatch[1]) : null;
   const checkoutCourseId = checkoutCourseRouteMatch ? Number(checkoutCourseRouteMatch[1]) : null;
   const selectedCourse = courseId ? homeData?.cursos?.find((course) => course.id === courseId) : null;
@@ -149,13 +152,15 @@ function App() {
   let page;
   if (pathname === "/gestoreduka/login_gestor" || pathname === "/gestoreduka/login_gestor/") { window.location.replace("/backend/gestoreduka/login_gestor/"); return null; }
   if (pathname === "/gestoreduka" || pathname === "/gestoreduka/" || pathname.startsWith("/gestoreduka/")) return <ManagerPortalPage route={pathname} />;
-  if (pathname === "/") page = <HomePage data={homeData} loading={homeDataLoading} onNavigate={navigate} onAnnounce={announce} />;
+  else if (pathname === "/formador" || pathname === "/formador/") page = <InstructorPortalPage onNavigate={navigate} />;
+  else if (pathname === "/") page = <HomePage data={homeData} loading={homeDataLoading} onNavigate={navigate} onAnnounce={announce} />;
   else if (authModes[pathname]) page = <AuthPage key={pathname} mode={authModes[pathname]} courses={homeData?.cursos || []} onNavigate={navigate} onSessionReady={refreshStudentSession} />;
   else if (pathname === "/aluno") page = <StudentDashboardPage onNavigate={navigate} />;
   else if (pathname === "/aluno/preferencias") page = <StudentPreferencesPage onNavigate={navigate} />;
   else if (pathname === "/aluno/configuracoes") page = <StudentSettingsPage onNavigate={navigate} onLogout={handleLogout} />;
   else if (pathname === "/aluno/bilhetes") page = <MyTicketsPage onNavigate={navigate} />;
   else if (pathname === "/aluno/certificados") page = <StudentCertificatesPage onNavigate={navigate} />;
+  else if (certificateVerificationMatch) page = <CertificateVerifyPage code={decodeURIComponent(certificateVerificationMatch[1])} onNavigate={navigate} />;
   else if (pathname === "/aluno/mensagens") page = <StudentMessagesPage centerId={Number(searchParams.get("centro")) || null} conversationId={Number(searchParams.get("conversa")) || null} onNavigate={navigate} />;
   else if (pathname === "/pagamento/sucesso" || pathname === "/pagamento/sucesso/") page = <PaymentResultPage onNavigate={navigate} />;
   else if (pathname === "/pagamento/cancelado" || pathname === "/pagamento/cancelado/") page = <PaymentResultPage onNavigate={navigate} />;

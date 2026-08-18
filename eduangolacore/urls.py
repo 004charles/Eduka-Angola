@@ -51,6 +51,8 @@ urlpatterns = [
     path('api/public/video-cursos/<slug:slug>/', views.public_video_course_detail, name='api_public_video_course_detail'),
     path('api/public/biblioteca/', include('biblioteca.urls')),
     path('api/public/eduka-ai/perguntar/', views.react_public_ai_assistant, name='api_public_eduka_ai_assistant'),
+    path('api/public/certificados/<str:code>/', views.public_certificate_verification, name='api_public_certificate_verification'),
+    path('api/public/certificados/<str:code>/qr/', views.public_certificate_qr, name='api_public_certificate_qr'),
     path('api/react/recomendacoes/', views.react_course_recommendations, name='api_react_course_recommendations'),
     path('api/react/aluno/dashboard/', views.react_student_dashboard, name='api_react_student_dashboard'),
     path('api/react/aluno/certificados/', views.react_student_certificates, name='api_react_student_certificates'),

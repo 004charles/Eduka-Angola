@@ -1,8 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from django.contrib import messages
+import json
 from .forms import InstrutorSignupForm
 from django.contrib.auth.forms import AuthenticationForm
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET, require_POST
 
 def instrutor_signup(request):
     if request.method == 'POST':
@@ -35,11 +38,112 @@ def instrutor_login(request):
     return render(request, 'instrutores/login.html', {'form': form})
 
 from cursovideoapp.models import Curso_video, ComentarioAula, Aula
-from cursos_app.models import Instrutor
+from cursos_app.models import Categoria, Instrutor
 from django.db.models import Count, Sum
 
 def get_instrutor(user):
     return getattr(user, 'instrutor_profile', None)
+
+
+def _api_instrutor(request):
+    if not request.user.is_authenticated:
+        return None, JsonResponse({'detail': 'Inicie sessão como formador para continuar.'}, status=401)
+    if getattr(request.user, 'tipo_usuario', None) != 'INSTRUTOR':
+        return None, JsonResponse({'detail': 'Esta área é exclusiva para formadores.'}, status=403)
+    instrutor = get_instrutor(request.user)
+    if not instrutor or not instrutor.ativo:
+        return None, JsonResponse({'detail': 'O perfil de formador não está disponível.'}, status=403)
+    return instrutor, None
+
+
+def _json_body(request):
+    try:
+        return json.loads(request.body.decode('utf-8') or '{}')
+    except (AttributeError, UnicodeDecodeError, json.JSONDecodeError):
+        return {}
+
+
+def _curso_payload(curso):
+    return {
+        'id': curso.id,
+        'titulo': curso.titulo,
+        'descricao': curso.descricao,
+        'slug': curso.slug,
+        'categoria': curso.categoria.nome if curso.categoria_id else 'Sem categoria',
+        'categoria_id': curso.categoria_id,
+        'capa_url': curso.get_imagem_url,
+        'is_pago': curso.is_pago,
+        'preco': float(curso.preco),
+        'inscritos': curso.inscritos.count(),
+        'aulas': curso.aulas.count(),
+        'avaliacao_media': curso.get_media_avaliacoes,
+        'destaque': curso.destaque,
+    }
+
+
+@require_GET
+def api_react_dashboard(request):
+    instrutor, error = _api_instrutor(request)
+    if error:
+        return error
+    cursos = Curso_video.objects.filter(instrutor=instrutor).select_related('categoria').prefetch_related('inscritos', 'aulas').order_by('-data_publicacao')
+    questoes = ComentarioAula.objects.filter(aula__curso__instrutor=instrutor, parent__isnull=True).select_related('aluno', 'aula__curso').prefetch_related('respostas').order_by('-data_criacao')[:30]
+    return JsonResponse({
+        'ok': True,
+        'instrutor': {'id': instrutor.id, 'nome': instrutor.nome, 'titulo': instrutor.titulo or 'Formador', 'biografia': instrutor.biografia, 'foto_url': instrutor.foto.url if instrutor.foto else '', 'nota_media': float(instrutor.nota_media)},
+        'metricas': {'cursos': cursos.count(), 'alunos': sum(curso.inscritos.count() for curso in cursos), 'aulas': sum(curso.aulas.count() for curso in cursos), 'duvidas_pendentes': sum(1 for questao in questoes if not questao.respostas.exists())},
+        'cursos': [_curso_payload(curso) for curso in cursos],
+        'categorias': [{'id': categoria.id, 'nome': categoria.nome} for categoria in Categoria.objects.order_by('nome')],
+        'duvidas': [{'id': questao.id, 'texto': questao.texto, 'aluno': questao.aluno.nome if questao.aluno else 'Aluno', 'aula': questao.aula.titulo, 'curso': questao.aula.curso.titulo, 'criada_em': questao.data_criacao.isoformat(), 'respondida': questao.respostas.exists(), 'respostas': [{'id': resposta.id, 'texto': resposta.texto, 'autor': resposta.instrutor.nome if resposta.instrutor else (resposta.aluno.nome if resposta.aluno else 'Equipa Edukangola'), 'criada_em': resposta.data_criacao.isoformat()} for resposta in questao.respostas.all()] } for questao in questoes],
+    })
+
+
+@require_POST
+def api_react_criar_curso(request):
+    instrutor, error = _api_instrutor(request)
+    if error:
+        return error
+    payload = _json_body(request)
+    titulo = str(payload.get('titulo', '')).strip()
+    descricao = str(payload.get('descricao', '')).strip()
+    categoria = Categoria.objects.filter(pk=payload.get('categoria_id')).first()
+    if len(titulo) < 3 or len(descricao) < 20 or not categoria:
+        return JsonResponse({'detail': 'Indique título, descrição com pelo menos 20 caracteres e categoria.'}, status=400)
+    try:
+        preco = max(0, float(payload.get('preco') or 0))
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'Indique um preço válido.'}, status=400)
+    curso = Curso_video.objects.create(titulo=titulo, descricao=descricao, categoria=categoria, instrutor=instrutor, is_pago=bool(payload.get('is_pago')), preco=preco)
+    return JsonResponse({'ok': True, 'curso': _curso_payload(curso)}, status=201)
+
+
+@require_POST
+def api_react_criar_aula(request, curso_id):
+    instrutor, error = _api_instrutor(request)
+    if error:
+        return error
+    curso = get_object_or_404(Curso_video, pk=curso_id, instrutor=instrutor)
+    payload = _json_body(request)
+    titulo = str(payload.get('titulo', '')).strip()
+    video_url = str(payload.get('video_url', '')).strip()
+    if len(titulo) < 3 or not video_url:
+        return JsonResponse({'detail': 'Indique o título e a ligação de vídeo da aula.'}, status=400)
+    ordem = (curso.aulas.order_by('-ordem').values_list('ordem', flat=True).first() or 0) + 1
+    aula = Aula.objects.create(curso=curso, titulo=titulo, video_url=video_url, ordem=ordem, descricao=str(payload.get('descricao', '')).strip())
+    return JsonResponse({'ok': True, 'aula': {'id': aula.id, 'titulo': aula.titulo, 'ordem': aula.ordem, 'video_url': aula.video_url}}, status=201)
+
+
+@require_POST
+def api_react_responder_duvida(request, duvida_id):
+    instrutor, error = _api_instrutor(request)
+    if error:
+        return error
+    duvida = get_object_or_404(ComentarioAula, pk=duvida_id, parent__isnull=True, aula__curso__instrutor=instrutor)
+    texto = str(_json_body(request).get('texto', '')).strip()
+    if not texto:
+        return JsonResponse({'detail': 'Escreva uma resposta antes de enviar.'}, status=400)
+    resposta = ComentarioAula.objects.create(instrutor=instrutor, aula=duvida.aula, texto=texto, parent=duvida)
+    return JsonResponse({'ok': True, 'resposta': {'id': resposta.id, 'texto': resposta.texto, 'autor': instrutor.nome, 'criada_em': resposta.data_criacao.isoformat()}})
 
 def instrutor_dashboard(request):
     if not request.user.is_authenticated or request.user.tipo_usuario != 'INSTRUTOR':

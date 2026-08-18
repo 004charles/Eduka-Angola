@@ -4,6 +4,10 @@ from . import views
 app_name = 'instrutores_app'
 
 urlpatterns = [
+    path('api/react/dashboard/', views.api_react_dashboard, name='api_react_dashboard'),
+    path('api/react/cursos/', views.api_react_criar_curso, name='api_react_criar_curso'),
+    path('api/react/cursos/<int:curso_id>/aulas/', views.api_react_criar_aula, name='api_react_criar_aula'),
+    path('api/react/duvidas/<int:duvida_id>/responder/', views.api_react_responder_duvida, name='api_react_responder_duvida'),
     path('cadastro/', views.instrutor_signup, name='signup'),
     path('login/', views.instrutor_login, name='login'),
     path('dashboard/', views.instrutor_dashboard, name='dashboard'),

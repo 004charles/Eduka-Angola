@@ -59,6 +59,7 @@ pyOpenSSL==26.0.0
 pyparsing==3.3.2
 pyphen==0.17.2
 python-decouple==3.8
+qrcode[pil]==8.2
 requests==2.33.1
 service-identity==24.2.0
 sqlparse==0.5.3
