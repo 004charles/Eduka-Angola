@@ -324,3 +324,6 @@
 - [x] Mapear a rota HTML legada de login e painel do formador
 - [x] Redireccionar a rota legada para o acesso React do formador
 - [x] Validar a compatibilidade de login e rotas após a migração
+- [x] Reproduzir a página não encontrada no acesso público ao painel do formador
+- [x] Corrigir o encaminhamento da rota legada para a rota React efectivamente servida
+- [x] Validar o acesso ao painel de formador no domínio público
