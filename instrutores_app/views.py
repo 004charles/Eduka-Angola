@@ -94,7 +94,7 @@ def api_react_dashboard(request):
         'metricas': {'cursos': cursos.count(), 'alunos': sum(curso.inscritos.count() for curso in cursos), 'aulas': sum(curso.aulas.count() for curso in cursos), 'duvidas_pendentes': sum(1 for questao in questoes if not questao.respostas.exists())},
         'cursos': [_curso_payload(curso) for curso in cursos],
         'categorias': [{'id': categoria.id, 'nome': categoria.nome} for categoria in Categoria.objects.order_by('nome')],
-        'duvidas': [{'id': questao.id, 'texto': questao.texto, 'aluno': questao.aluno.nome if questao.aluno else 'Aluno', 'aula': questao.aula.titulo, 'curso': questao.aula.curso.titulo, 'criada_em': questao.data_criacao.isoformat(), 'respondida': questao.respostas.exists(), 'respostas': [{'id': resposta.id, 'texto': resposta.texto, 'autor': resposta.instrutor.nome if resposta.instrutor else (resposta.aluno.nome if resposta.aluno else 'Equipa Edukangola'), 'criada_em': resposta.data_criacao.isoformat()} for resposta in questao.respostas.all()] } for questao in questoes],
+        'duvidas': [{'id': questao.id, 'texto': questao.texto, 'aluno': questao.aluno.nome if questao.aluno else 'Aluno', 'aula': questao.aula.titulo, 'curso': questao.aula.curso.titulo, 'criada_em': questao.data_criacao.isoformat(), 'respondida': questao.respostas.exists(), 'resolvida': questao.resolvida, 'respostas': [{'id': resposta.id, 'texto': resposta.texto, 'autor': resposta.instrutor.nome if resposta.instrutor else (resposta.aluno.nome if resposta.aluno else 'Equipa Edukangola'), 'criada_em': resposta.data_criacao.isoformat()} for resposta in questao.respostas.all()] } for questao in questoes],
     })
 
 
@@ -143,6 +143,8 @@ def api_react_responder_duvida(request, duvida_id):
     if not texto:
         return JsonResponse({'detail': 'Escreva uma resposta antes de enviar.'}, status=400)
     resposta = ComentarioAula.objects.create(instrutor=instrutor, aula=duvida.aula, texto=texto, parent=duvida)
+    duvida.resolvida = True
+    duvida.save(update_fields=['resolvida'])
     return JsonResponse({'ok': True, 'resposta': {'id': resposta.id, 'texto': resposta.texto, 'autor': instrutor.nome, 'criada_em': resposta.data_criacao.isoformat()}})
 
 def instrutor_dashboard(request):

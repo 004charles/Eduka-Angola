@@ -316,7 +316,7 @@
 - [ ] Definir contratos React, permissões e estados de publicação do formador
 - [x] Expor APIs React para painel, cursos, aulas, dúvidas e métricas do formador
 - [x] Construir a área React do formador e publicação de cursos em vídeo
-- [ ] Completar fórum de dúvidas por aula e sinais públicos de reputação
+- [x] Completar fórum de dúvidas por aula e sinais públicos de reputação
 - [x] Unificar verificação de certificados e acrescentar QR code
 - [x] Criar campanhas e cupões de desconto no checkout de cursos
 - [ ] Cobrir os novos fluxos com dados de demonstração e testes

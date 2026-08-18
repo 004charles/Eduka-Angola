@@ -340,6 +340,7 @@ class ComentarioAula(models.Model):
     aula = models.ForeignKey(Aula, on_delete=models.CASCADE, related_name='comentarios')
     texto = models.TextField(verbose_name=_("Dúvida ou Comentário"))
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='respostas')
+    resolvida = models.BooleanField(default=False, db_index=True)
     data_criacao = models.DateTimeField(auto_now_add=True)
 
     class Meta:
