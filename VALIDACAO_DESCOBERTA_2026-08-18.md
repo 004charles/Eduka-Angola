@@ -29,3 +29,7 @@ O pedido nativo passou a solicitar uma posição recente com alta precisão, lim
 Foi adicionada uma política explícita `Permissions-Policy: geolocation=(self)` tanto ao servidor React como ao Django, confirmada também na resposta pública HTTPS. Ao carregar a página, a plataforma pede a posição automaticamente e conserva a janela central com um botão “Pedir novamente”, para desencadear o pedido por interacção manual nos navegadores que silenciam pedidos automáticos.
 
 O fluxo foi corrigido para que a geolocalização só seja chamada no clique directo de “Permitir localização”, preservando o gesto necessário para navegadores mais restritivos. Num teste isolado, a chamada foi interceptada sem recolher coordenadas e confirmou `enableHighAccuracy: true`, `timeout: 15000` e `maximumAge: 0`; o botão passou imediatamente para o estado “A pedir ao navegador”.
+
+Com uma localização de teste próxima de Luanda, a API devolveu três cursos e a prateleira “Formações mais perto de si” foi renderizada correctamente, incluindo a distância de 7,1 km. Os cartões ficam abaixo da faixa introdutória, pelo que será aplicado deslocamento suave para os trazer imediatamente para a área visível após a pesquisa.
+
+Depois de a resposta de proximidade trazer cursos, a página passa a deslocar-se suavemente até à prateleira “Formações mais perto de si”, evitando que o aluno fique apenas com a mensagem de contagem sem ver de imediato os cartões encontrados.

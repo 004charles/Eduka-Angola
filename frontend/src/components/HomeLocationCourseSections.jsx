@@ -60,6 +60,9 @@ export function NearbyCoursesSection({ data, onAnnounce }) {
         setStatus("ready");
         setMessage(results.length ? `Encontrámos ${results.length} ${results.length === 1 ? "curso" : "cursos"} até ${payload.raio_km} km de si.` : "Ainda não existem cursos com localização confirmada num raio de 75 km. Escolha uma província para continuar a explorar.");
         setLocationPromptOpen(false);
+        if (results.length) {
+          window.setTimeout(() => document.getElementById("cursos-proximos")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+        }
       } catch (error) {
         setStatus("error");
         setMessage(error.message || "Não foi possível procurar centros próximos.");
