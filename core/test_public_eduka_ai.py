@@ -32,6 +32,23 @@ class PublicEdukaAiApiTest(TestCase):
 
     @override_settings(GROQ_API_KEY='test-key')
     @patch('core.views.requests.post')
+    def test_guides_future_instructors_to_the_react_application_without_calling_model(self, mocked_post):
+        for question in ('Como me torno formador?', 'Quero ser formador na Edukangola', 'Posso publicar um curso?'):
+            with self.subTest(question=question):
+                response = self.client.post(
+                    '/api/public/eduka-ai/perguntar/',
+                    data=f'{{"question":"{question}"}}',
+                    content_type='application/json',
+                )
+                self.assertEqual(response.status_code, 200)
+                payload = response.json()
+                self.assertIn('/formador', payload['answer'])
+                self.assertIn('analisada', payload['answer'])
+                self.assertIn({'label': 'Candidatar-me como formador', 'path': '/formador'}, payload['links'])
+        mocked_post.assert_not_called()
+
+    @override_settings(GROQ_API_KEY='test-key')
+    @patch('core.views.requests.post')
     def test_identifies_the_platform_creators_without_calling_model(self, mocked_post):
         questions = [
             'Quem são os criadores da plataforma Edukangola?',

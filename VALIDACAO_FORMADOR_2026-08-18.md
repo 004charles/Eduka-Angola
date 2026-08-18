@@ -29,3 +29,7 @@ As credenciais foram verificadas directamente no Django e a palavra-passe de dem
 A segunda submissão no navegador também manteve a página de acesso visível. Será verificado o pedido exacto registado pela API para corrigir a transição autenticada, se necessário.
 
 Foi identificado e corrigido o formato dos pedidos enviados pelo cliente React. A validação final autenticou Amélia Ventura e abriu o painel com um curso, uma aula, um aluno inscrito e uma dúvida pendente visíveis. A conta está pronta para demonstrar criação de curso, adição de aula e resposta ao aluno.
+
+## Orientação da Eduka AI
+
+A Eduka AI foi validada no navegador com a pergunta “Como me torno formador?”. A resposta passa a indicar `/formador`, a acção “Candidate-se para ensinar” e a análise da candidatura antes da activação, com ligação directa para o fluxo React.
