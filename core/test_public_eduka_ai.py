@@ -32,6 +32,21 @@ class PublicEdukaAiApiTest(TestCase):
 
     @override_settings(GROQ_API_KEY='test-key')
     @patch('core.views.requests.post')
+    def test_identifies_the_platform_creators_without_calling_model(self, mocked_post):
+        response = self.client.post(
+            '/api/public/eduka-ai/perguntar/',
+            data='{"question":"Quem são os criadores da plataforma Edukangola?"}',
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload['answer'], 'Carlos Muquissi e Nelson Muquissi são os criadores da Edukangola.')
+        self.assertIn({'label': 'Conhecer a Edukangola', 'path': '/sobre'}, payload['links'])
+        mocked_post.assert_not_called()
+
+    @override_settings(GROQ_API_KEY='test-key')
+    @patch('core.views.requests.post')
     def test_returns_a_scoped_answer_and_navigation_link(self, mocked_post):
         mocked_response = Mock()
         mocked_response.raise_for_status.return_value = None

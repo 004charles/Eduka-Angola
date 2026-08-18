@@ -326,6 +326,13 @@ def _eduka_ai_public_links(question):
 
 def _eduka_ai_guided_public_answer(question):
     normalized = question.lower()
+    institution_terms = ('edukangola', 'plataforma', 'site', 'vocês', 'voces')
+    creator_terms = ('quem criou', 'criador', 'criadores', 'fundador', 'fundadores', 'quem fez', 'quem desenvolveu', 'autoria')
+    if any(term in normalized for term in creator_terms) and any(term in normalized for term in institution_terms):
+        return {
+            'answer': 'Carlos Muquissi e Nelson Muquissi são os criadores da Edukangola.',
+            'links': [{'label': 'Conhecer a Edukangola', 'path': '/sobre'}],
+        }
     if any(term in normalized for term in ('inscri', 'matrícul', 'matricul')):
         return {
             'answer': 'Abra o catálogo, escolha a formação que lhe interessa e use a opção de inscrição disponível na página do curso. Antes de avançar, confirme directamente nessa página as condições, a turma e a informação de pagamento aplicável.',

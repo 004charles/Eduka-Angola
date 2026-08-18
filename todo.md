@@ -299,3 +299,7 @@
 > Diagnóstico de serviço: o modelo Groq anterior deixou de estar disponível; foi confirmado e aplicado o modelo disponível `groq/compound-mini` como predefinição da Eduka AI.
 
 > Validação de segurança: as dúvidas frequentes de inscrição, cursos em vídeo e biblioteca passam a receber orientação factual directa; perguntas abertas continuam a usar a Groq com contexto público limitado.
+
+- [x] Reconhecer perguntas sobre criadores, fundador ou autoria da Edukangola
+- [x] Devolver a resposta institucional sobre Carlos Muquissi e Nelson Muquissi
+- [x] Validar automaticamente a resposta prioritária da Eduka AI
