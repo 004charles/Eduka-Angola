@@ -259,3 +259,6 @@
 - [x] Diagnosticar o envio de mensagens e os avisos ausentes para aluno e centro
 - [x] Implementar um fluxo bidireccional de mensagens com notificações persistentes por destinatário
 - [x] Validar mensagem do aluno, resposta do centro e alertas de nova actividade
+- [x] Auditar a página de mensagens do aluno contra os padrões visuais da área do aluno e do catálogo Edukangola
+- [x] Redesenhar a composição, tipografia, superfícies e estados da conversa com a identidade visual Edukangola
+- [x] Validar a experiência de mensagens redesenhada em desktop e ecrãs menores sem alterar o fluxo funcional
