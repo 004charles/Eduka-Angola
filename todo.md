@@ -303,3 +303,6 @@
 - [x] Reconhecer perguntas sobre criadores, fundador ou autoria da Edukangola
 - [x] Devolver a resposta institucional sobre Carlos Muquissi e Nelson Muquissi
 - [x] Validar automaticamente a resposta prioritária da Eduka AI
+- [x] Reproduzir a formulação “quem desenvolveu a Edukangola” que não foi reconhecida
+- [x] Reconhecer também perguntas sobre desenvolvimento e quem está por detrás da plataforma
+- [x] Validar as variações institucionais no endpoint da Eduka AI

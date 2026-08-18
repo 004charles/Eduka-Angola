@@ -33,16 +33,24 @@ class PublicEdukaAiApiTest(TestCase):
     @override_settings(GROQ_API_KEY='test-key')
     @patch('core.views.requests.post')
     def test_identifies_the_platform_creators_without_calling_model(self, mocked_post):
-        response = self.client.post(
-            '/api/public/eduka-ai/perguntar/',
-            data='{"question":"Quem são os criadores da plataforma Edukangola?"}',
-            content_type='application/json',
-        )
+        questions = [
+            'Quem são os criadores da plataforma Edukangola?',
+            'Quem desenvolveu a Edukangola?',
+            'Quem é o desenvolvedor deste site?',
+            'Quem está por detrás da plataforma?',
+        ]
 
-        self.assertEqual(response.status_code, 200)
-        payload = response.json()
-        self.assertEqual(payload['answer'], 'Carlos Muquissi e Nelson Muquissi são os criadores da Edukangola.')
-        self.assertIn({'label': 'Conhecer a Edukangola', 'path': '/sobre'}, payload['links'])
+        for question in questions:
+            with self.subTest(question=question):
+                response = self.client.post(
+                    '/api/public/eduka-ai/perguntar/',
+                    data=f'{{"question":"{question}"}}',
+                    content_type='application/json',
+                )
+                self.assertEqual(response.status_code, 200)
+                payload = response.json()
+                self.assertEqual(payload['answer'], 'Carlos Muquissi e Nelson Muquissi são os criadores da Edukangola.')
+                self.assertIn({'label': 'Conhecer a Edukangola', 'path': '/sobre'}, payload['links'])
         mocked_post.assert_not_called()
 
     @override_settings(GROQ_API_KEY='test-key')
