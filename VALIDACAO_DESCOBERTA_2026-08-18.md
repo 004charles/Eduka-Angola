@@ -35,3 +35,5 @@ Com uma localização de teste próxima de Luanda, a API devolveu três cursos e
 Depois de a resposta de proximidade trazer cursos, a página passa a deslocar-se suavemente até à prateleira “Formações mais perto de si”, evitando que o aluno fique apenas com a mensagem de contagem sem ver de imediato os cartões encontrados.
 
 Na revisão seguinte, a prateleira independente foi substituída por uma grelha de cartões integrada directamente abaixo da mensagem de proximidade. O teste com três resultados confirmou que os cartões são renderizados dentro da própria secção “Perto de si”, com distância, preço e ligação ao detalhe visíveis.
+
+Os cartões de proximidade foram então alinhados ao formato compacto canónico: 252px de largura, 354px de altura e faixa horizontal com rolagem, em vez da grelha de três colunas expansivas. A distância continua a ser o único sinal adicional específico de proximidade.
