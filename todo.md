@@ -262,3 +262,6 @@
 - [x] Auditar a página de mensagens do aluno contra os padrões visuais da área do aluno e do catálogo Edukangola
 - [x] Redesenhar a composição, tipografia, superfícies e estados da conversa com a identidade visual Edukangola
 - [x] Validar a experiência de mensagens redesenhada em desktop e ecrãs menores sem alterar o fluxo funcional
+- [x] Inspeccionar o espaçamento entre o cabeçalho da conversa e o formulário de mensagem do aluno
+- [x] Ajustar margens, altura do histórico e separadores do compositor de mensagem
+- [x] Validar a composição corrigida em desktop e ecrãs menores

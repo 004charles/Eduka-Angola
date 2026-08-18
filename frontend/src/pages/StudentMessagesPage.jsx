@@ -2,6 +2,7 @@ import { ArrowLeft, Bell, CircleAlert, MessageCircle, Send } from "lucide-react"
 import { useEffect, useState } from "react";
 import { backendUrl } from "../lib/backend-url";
 import "./student-messages-page.css";
+import "./student-messages-spacing.css";
 
 const csrfToken = () => document.cookie.split(";").map((value) => value.trim()).find((value) => value.startsWith("csrftoken="))?.split("=")[1] || "";
 const ensureCsrf = () => fetch(backendUrl("/auth/api/react/csrf/"), { credentials: "same-origin" });
