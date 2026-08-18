@@ -130,6 +130,7 @@ CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=IS_DEPLOYED_ENV, cast=
 SITE_DOMAIN = config('SITE_DOMAIN', default='https://www.edukangola.com')
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'core.middleware.PermissionsPolicyMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     # 'whitenoise.middleware.WhiteNoiseMiddleware',  # Comentado - requer whitenoise
     'django.contrib.sessions.middleware.SessionMiddleware',

@@ -6,6 +6,9 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     allowedHosts: true,
+    headers: {
+      "Permissions-Policy": "geolocation=(self)",
+    },
     proxy: {
       "/api": {
         target: "http://127.0.0.1:8001",
