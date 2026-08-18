@@ -19,6 +19,8 @@ def instrutor_signup(request):
     return render(request, 'instrutores/signup.html', {'form': form})
 
 def instrutor_login(request):
+    if request.method == 'GET':
+        return redirect('/formador')
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -26,7 +28,7 @@ def instrutor_login(request):
             if user.tipo_usuario == 'INSTRUTOR':
                 if user.is_active:
                     login(request, user)
-                    return redirect('instrutores_app:dashboard')
+                    return redirect('/formador')
                 else:
                     messages.error(request, "Sua conta ainda não foi ativada pela administração.")
             else:
@@ -61,6 +63,22 @@ def _json_body(request):
         return json.loads(request.body.decode('utf-8') or '{}')
     except (AttributeError, UnicodeDecodeError, json.JSONDecodeError):
         return {}
+
+
+@require_POST
+def api_react_login(request):
+    payload = _json_body(request)
+    email = str(payload.get('email', '')).strip().lower()
+    password = str(payload.get('password', ''))
+    user = authenticate(request, username=email, password=password)
+    if not user:
+        return JsonResponse({'detail': 'E-mail ou palavra-passe incorrectos.'}, status=401)
+    if user.tipo_usuario != 'INSTRUTOR':
+        return JsonResponse({'detail': 'Esta conta não é de formador.'}, status=403)
+    if not user.is_active or not get_instrutor(user) or not get_instrutor(user).ativo:
+        return JsonResponse({'detail': 'A conta de formador ainda não está activa.'}, status=403)
+    login(request, user)
+    return JsonResponse({'ok': True})
 
 
 def _curso_payload(curso):
@@ -148,8 +166,7 @@ def api_react_responder_duvida(request, duvida_id):
     return JsonResponse({'ok': True, 'resposta': {'id': resposta.id, 'texto': resposta.texto, 'autor': instrutor.nome, 'criada_em': resposta.data_criacao.isoformat()}})
 
 def instrutor_dashboard(request):
-    if not request.user.is_authenticated or request.user.tipo_usuario != 'INSTRUTOR':
-        return redirect('instrutores_app:login')
+    return redirect('/formador')
     
     instrutor = get_instrutor(request.user)
     if not instrutor:

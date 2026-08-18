@@ -321,3 +321,6 @@
 - [x] Criar campanhas e cupões de desconto no checkout de cursos
 - [ ] Cobrir os novos fluxos com dados de demonstração e testes
 - [ ] Validar ponta a ponta, compilar e sincronizar a evolução
+- [x] Mapear a rota HTML legada de login e painel do formador
+- [x] Redireccionar a rota legada para o acesso React do formador
+- [x] Validar a compatibilidade de login e rotas após a migração
