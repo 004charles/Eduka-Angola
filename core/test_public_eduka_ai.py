@@ -49,7 +49,7 @@ class PublicEdukaAiApiTest(TestCase):
                 )
                 self.assertEqual(response.status_code, 200)
                 payload = response.json()
-                self.assertEqual(payload['answer'], 'Carlos Muquissi e Nelson Muquissi são os criadores da Edukangola.')
+                self.assertEqual(payload['answer'], 'Carlos Muquissi, Nelson Muquissi e Herlander Vandik são os criadores da Edukangola.')
                 self.assertIn({'label': 'Conhecer a Edukangola', 'path': '/sobre'}, payload['links'])
         mocked_post.assert_not_called()
 

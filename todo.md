@@ -306,3 +306,6 @@
 - [x] Reproduzir a formulação “quem desenvolveu a Edukangola” que não foi reconhecida
 - [x] Reconhecer também perguntas sobre desenvolvimento e quem está por detrás da plataforma
 - [x] Validar as variações institucionais no endpoint da Eduka AI
+- [x] Incluir Herlander Vandik na fonte institucional dos criadores da Edukangola
+- [x] Actualizar os testes da resposta prioritária com os três criadores
+- [x] Validar e sincronizar a rectificação institucional
