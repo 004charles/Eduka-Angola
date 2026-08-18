@@ -100,7 +100,6 @@ Não é necessário apagar o que já existe. Deve-se **retirar do esforço de la
 | Chat interno completo | Adiar | Exige moderação, presença, notificações, custo de suporte e SLA | Pelo menos 50 centros activos e suporte com SLAs definidos |
 | Rede social / feed | Adiar | Baixo impacto na descoberta; alto custo de moderação e segurança | Comunidade com propósito pedagógico e equipa de moderação |
 | Marketplace complexo com múltiplos vendedores | Adiar | Multiplica disputa, KYC, reembolso, fiscalidade e conciliação | Pagamentos e suporte estabilizados em cursos de parceiros |
-| App mobile nativa | Adiar | Duplica superfície de manutenção antes de haver retenção comprovada | PWA responsiva com retenção comprovada e requisitos nativos claros |
 | IA avançada e recomendação opaca | Adiar | Custo variável, risco de erro e pouca vantagem antes de haver dados confiáveis | Catálogo validado, consentimento e métricas de conversão |
 | LMS completo e vídeo próprio | Adiar | Hospedagem, banda, direitos, moderação e suporte são caros | Receita recorrente e oferta de cursos que justifique a operação |
 | Gamificação | Adiar | Pode optimizar métricas erradas e distrair do valor de candidatura | Retenção em cursos comprovada e hipótese clara a testar |

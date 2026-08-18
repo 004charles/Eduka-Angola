@@ -87,7 +87,7 @@ class Publicidade(models.Model):
 
 
 class ClienteAPIKey(models.Model):
-    nome_cliente = models.CharField("Nome do Cliente / Site", max_length=150, unique=True, help_text="Ex: Mobile App, Site Parceiro, etc.")
+    nome_cliente = models.CharField("Nome do Cliente / Site", max_length=150, unique=True, help_text="Ex: Site parceiro ou integração institucional.")
     chave = models.CharField("Chave de API", max_length=64, unique=True, blank=True)
     ativo = models.BooleanField("Ativo?", default=True)
     criado_em = models.DateTimeField(auto_now_add=True)

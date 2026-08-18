@@ -178,12 +178,6 @@ class GaleriaImagemInline(UnfoldTabularInline):
         return "-"
     imagem_preview.short_description = 'Preview'
 
-class ReelCentroInline(UnfoldTabularInline):
-    model = ReelCentro
-    extra = 0
-    fields = ['titulo', 'video', 'visualizacoes', 'curtidas']
-    readonly_fields = ['visualizacoes', 'curtidas']
-
 class FilialInline(UnfoldTabularInline):
     model = Filial
     extra = 1
@@ -372,39 +366,6 @@ class EventoAdmin(UnfoldModelAdmin):
     search_fields = ['titulo', 'centro__nome', 'local']
     list_editable = ['destaque']
     date_hierarchy = 'data_inicio'
-
-@admin.register(ReelCentro)
-class ReelCentroAdmin(UnfoldModelAdmin):
-    list_display = [
-        'titulo', 
-        'centro', 
-        'visualizacoes', 
-        'curtidas', 
-        'destaque', 
-        'publico',
-        'data_publicacao'
-    ]
-    list_filter = ['destaque', 'publico', 'data_publicacao']
-    search_fields = ['titulo', 'centro__nome', 'descricao']
-    list_editable = ['destaque', 'publico']
-    readonly_fields = ['visualizacoes', 'curtidas', 'comentarios', 'compartilhamentos']
-
-@admin.register(CurtidaReel)
-class CurtidaReelAdmin(UnfoldModelAdmin):
-    list_display = ['reel', 'aluno', 'data_curtida']
-    list_filter = ['data_curtida']
-    search_fields = ['reel__titulo', 'aluno__nome']
-
-@admin.register(ComentarioReel)
-class ComentarioReelAdmin(UnfoldModelAdmin):
-    list_display = ['reel', 'aluno', 'texto_resumido', 'aprovado', 'data_comentario']
-    list_filter = ['aprovado', 'data_comentario']
-    search_fields = ['reel__titulo', 'aluno__nome', 'texto']
-    list_editable = ['aprovado']
-    
-    def texto_resumido(self, obj):
-        return obj.texto[:50] + '...' if len(obj.texto) > 50 else obj.texto
-    texto_resumido.short_description = 'Comentário'
 
 @admin.register(Conversa)
 class ConversaAdmin(UnfoldModelAdmin):

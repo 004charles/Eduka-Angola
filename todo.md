@@ -337,3 +337,5 @@
 - [x] Verificar a candidatura de formador por código enviado ao e-mail da conta
 - [x] Retirar a área autónoma e o acesso directo do antigo painel de formador
 - [x] Produzir auditoria estratégica e técnica completa para orientar o MVP, lançamento e monetização da Edukangola
+- [x] Remover funcionalidades, rotas e navegação relacionadas com feed social sem afectar notícias ou notificações
+- [x] Remover módulos e referências à aplicação mobile do repositório principal sem afectar o produto web

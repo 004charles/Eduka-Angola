@@ -29,7 +29,7 @@ from blog.models import Post
 from gestoreduka.models import (
     AreaFormacao, AnuncioCentro, Certificacao, CentroDeFormacao,
     CentroSeguimento, Depoimento, Diferencial, Equipe, Estatistica,
-    Evento, Filial, Parceria, ReelCentro, Recurso,
+    Evento, Filial, Parceria, Recurso,
 )
 from cursovideoapp.models import Curso_video, FavoritoCursoVideo, TurmaVideo, ProgressoAula, Aula
 from estagio.models import Estagio
@@ -1228,11 +1228,6 @@ def public_center_profile(request, centro_id):
         'inicio_formatado': timezone.localtime(item.data_inicio).strftime('%d/%m/%Y · %H:%M'),
         'local': item.local, 'link_inscricao': item.link_inscricao or '', 'imagem_url': arquivo_url(item.imagem),
     } for item in Evento.objects.filter(centro=centro, data_inicio__gte=timezone.now()).order_by('data_inicio')[:4]]
-    reels = [{
-        'id': item.id, 'titulo': item.titulo, 'descricao': item.descricao or '', 'video_url': arquivo_url(item.video),
-        'thumbnail_url': arquivo_url(item.thumbnail), 'duracao': item.duracao,
-        'visualizacoes': item.visualizacoes, 'curtidas': item.curtidas,
-    } for item in ReelCentro.objects.filter(centro=centro, publico=True).order_by('-destaque', '-data_publicacao')[:6]]
     parcerias = [{
         'id': item.id, 'nome': item.nome_empresa, 'tipo': item.tipo_parceria, 'descricao': item.descricao or '',
         'localizacao': item.localizacao or '', 'website': item.website or '', 'logo_url': arquivo_url(item.logo),
@@ -1319,7 +1314,6 @@ def public_center_profile(request, centro_id):
         'estatisticas': estatisticas,
         'anuncios': anuncios,
         'eventos': eventos,
-        'reels': reels,
         'parcerias': parcerias,
         'filiais': filiais,
         'estagios': estagios,

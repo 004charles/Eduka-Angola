@@ -74,9 +74,7 @@ Coursera combina cursos, especializações, certificados profissionais, projetos
 
 ## O que não recomendo implementar agora
 
-Não recomendo começar por marketplace de assinaturas, gamificação complexa, tutor de IA genérico, videoconferência própria, feed social amplo ou mais blocos editoriais na página inicial. Essas funcionalidades aumentam custo e operação antes de resolver o ponto central: o aluno precisa de aprender, praticar, receber feedback e concluir com evidência.
-
-Também não recomendo criar uma aplicação mobile nativa completa antes de fechar a área de aprendizagem web e a API. A experiência mobile deve existir, mas o conteúdo, progresso, avaliações e notificações devem primeiro ter contratos estáveis e testes de sincronização.
+Não recomendo começar por marketplace de assinaturas, gamificação complexa, tutor de IA genérico, videoconferência própria ou mais blocos editoriais na página inicial. Essas funcionalidades aumentam custo e operação antes de resolver o ponto central: o aluno precisa de aprender, praticar, receber feedback e concluir com evidência.
 
 ## Roteiro recomendado
 
