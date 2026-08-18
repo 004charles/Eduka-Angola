@@ -5,6 +5,7 @@ import "./recommended-courses-section.css";
 
 function toCard(course) {
   return {
+    id: course.id,
     title: course.titulo,
     category: course.categoria,
     centre: course.centro,
@@ -14,6 +15,7 @@ function toCard(course) {
     is_gratuito: course.is_gratuito,
     certificado: course.certificado,
     nivel_label: course.nivel,
+    favorito: Boolean(course.favorito),
     pagamento: { agora: course.preco_label, descricao: course.motivo },
   };
 }

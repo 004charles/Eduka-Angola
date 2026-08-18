@@ -277,3 +277,8 @@
 - [x] Localizar os rótulos dos cartões finais que extravasam a área antes do rodapé
 - [x] Corrigir a contenção dos cartões e o espaçamento final da página inicial
 - [x] Validar o encerramento visual da página inicial junto ao rodapé
+- [x] Reproduzir e diagnosticar o favorito inactivo nos cursos recomendados
+- [x] Ligar os cartões recomendados ao fluxo persistente de cursos guardados
+- [x] Validar alternância e persistência dos favoritos na secção de recomendações
+
+> Validação parcial: o botão de “Fundamentos de Cibersegurança” passou de “Guardar” para “Remover” após o clique com a sessão de aluno de demonstração e manteve-se guardado depois de recarregar a página.
