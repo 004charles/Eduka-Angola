@@ -33,3 +33,5 @@ O fluxo foi corrigido para que a geolocalização só seja chamada no clique dir
 Com uma localização de teste próxima de Luanda, a API devolveu três cursos e a prateleira “Formações mais perto de si” foi renderizada correctamente, incluindo a distância de 7,1 km. Os cartões ficam abaixo da faixa introdutória, pelo que será aplicado deslocamento suave para os trazer imediatamente para a área visível após a pesquisa.
 
 Depois de a resposta de proximidade trazer cursos, a página passa a deslocar-se suavemente até à prateleira “Formações mais perto de si”, evitando que o aluno fique apenas com a mensagem de contagem sem ver de imediato os cartões encontrados.
+
+Na revisão seguinte, a prateleira independente foi substituída por uma grelha de cartões integrada directamente abaixo da mensagem de proximidade. O teste com três resultados confirmou que os cartões são renderizados dentro da própria secção “Perto de si”, com distância, preço e ligação ao detalhe visíveis.

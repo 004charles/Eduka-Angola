@@ -360,3 +360,4 @@
 - [x] Corrigir a permissão GPS que não aparece no navegador real do aluno
 - [x] Corrigir o botão “Permitir localização” que não acciona o GPS
 - [x] Mostrar os cartões de cursos próximos depois de a localização encontrar resultados
+- [x] Mostrar os cursos próximos directamente na secção “Perto de si” sem deslocamento automático
