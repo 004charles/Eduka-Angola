@@ -252,3 +252,6 @@
 - [x] Auditar a presença e o comportamento do botão de terminar sessão do GestorEduka
 - [x] Implementar um controlo visível e seguro para terminar a sessão de gestor
 - [x] Validar o logout do gestor e o retorno à tela React de acesso
+- [x] Mapear ícones semânticos para os módulos do menu lateral do GestorEduka
+- [x] Integrar ícones à esquerda dos rótulos e ajustar os estados activo e responsivo
+- [x] Validar a navegação lateral com ícones no domínio de desenvolvimento

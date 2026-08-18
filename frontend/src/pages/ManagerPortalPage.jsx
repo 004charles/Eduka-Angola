@@ -1,4 +1,4 @@
-import { BarChart3, BookOpen, CalendarDays, ChevronRight, CreditCard, GraduationCap, Landmark, LogOut, MessageCircle, Moon, Pencil, Sun, Trash2, UsersRound } from "lucide-react";
+import { BarChart3, BookOpen, BriefcaseBusiness, Building2, CalendarDays, CalendarRange, ChevronRight, ClipboardCheck, CreditCard, GraduationCap, Images, Landmark, LayoutDashboard, LogOut, Megaphone, MessageCircle, MessageSquareText, MonitorPlay, Moon, Pencil, Sun, Trash2, UserRound, UsersRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import ManagerAnnouncementsPanel from "../components/ManagerAnnouncementsPanel";
 import ManagerAnalyticsPanel from "../components/ManagerAnalyticsPanel";
@@ -23,28 +23,29 @@ import "./manager-portal-page.css";
 import "./manager-modules-page.css";
 import "./manager-course-catalog.css";
 import "./manager-session-control.css";
+import "./manager-navigation-icons.css";
 
 const money = new Intl.NumberFormat("pt-AO", { maximumFractionDigits: 0 });
 
 const navigation = [
-  { key: "visao-geral", label: "Visão geral", href: "/gestoreduka/" },
-  { key: "cursos", label: "Cursos presenciais", href: "/gestoreduka/cursos/" },
-  { key: "cursos-video", label: "Cursos em vídeo", href: "/gestoreduka/cursos-video/" },
-  { key: "inscricoes", label: "Inscrições", href: "/gestoreduka/inscricoes/" },
-  { key: "turmas", label: "Turmas", href: "/gestoreduka/turmas/" },
-  { key: "formadores", label: "Formadores", href: "/gestoreduka/formadores/" },
-  { key: "filiais", label: "Filiais", href: "/gestoreduka/filiais/" },
-  { key: "eventos", label: "Eventos", href: "/gestoreduka/eventos/" },
-  { key: "estagios", label: "Estágios", href: "/gestoreduka/estagios/" },
-  { key: "financeiro", label: "Financeiro", href: "/gestoreduka/financeiro/" },
-  { key: "analytics", label: "Analytics", href: "/gestoreduka/analytics/" },
-  { key: "mensagens", label: "Mensagens", href: "/gestoreduka/mensagens/" },
-  { key: "comunicados", label: "Comunicados", href: "/gestoreduka/comunicados/" },
-  { key: "comentarios", label: "Comentários", href: "/gestoreduka/comentarios/" },
-  { key: "alunos", label: "Alunos", href: "/gestoreduka/alunos/" },
-  { key: "perfil", label: "Perfil público", href: "/gestoreduka/perfil/" },
-  { key: "galeria", label: "Galeria", href: "/gestoreduka/galeria/" },
-  { key: "assinatura", label: "Assinatura", href: "/gestoreduka/assinatura/" },
+  { key: "visao-geral", label: "Visão geral", href: "/gestoreduka/", icon: LayoutDashboard },
+  { key: "cursos", label: "Cursos presenciais", href: "/gestoreduka/cursos/", icon: BookOpen },
+  { key: "cursos-video", label: "Cursos em vídeo", href: "/gestoreduka/cursos-video/", icon: MonitorPlay },
+  { key: "inscricoes", label: "Inscrições", href: "/gestoreduka/inscricoes/", icon: ClipboardCheck },
+  { key: "turmas", label: "Turmas", href: "/gestoreduka/turmas/", icon: CalendarRange },
+  { key: "formadores", label: "Formadores", href: "/gestoreduka/formadores/", icon: GraduationCap },
+  { key: "filiais", label: "Filiais", href: "/gestoreduka/filiais/", icon: Building2 },
+  { key: "eventos", label: "Eventos", href: "/gestoreduka/eventos/", icon: CalendarDays },
+  { key: "estagios", label: "Estágios", href: "/gestoreduka/estagios/", icon: BriefcaseBusiness },
+  { key: "financeiro", label: "Financeiro", href: "/gestoreduka/financeiro/", icon: Landmark },
+  { key: "analytics", label: "Analytics", href: "/gestoreduka/analytics/", icon: BarChart3 },
+  { key: "mensagens", label: "Mensagens", href: "/gestoreduka/mensagens/", icon: MessageCircle },
+  { key: "comunicados", label: "Comunicados", href: "/gestoreduka/comunicados/", icon: Megaphone },
+  { key: "comentarios", label: "Comentários", href: "/gestoreduka/comentarios/", icon: MessageSquareText },
+  { key: "alunos", label: "Alunos", href: "/gestoreduka/alunos/", icon: UsersRound },
+  { key: "perfil", label: "Perfil público", href: "/gestoreduka/perfil/", icon: UserRound },
+  { key: "galeria", label: "Galeria", href: "/gestoreduka/galeria/", icon: Images },
+  { key: "assinatura", label: "Assinatura", href: "/gestoreduka/assinatura/", icon: CreditCard },
 ];
 
 const pageMeta = {
@@ -131,5 +132,5 @@ export default function ManagerPortalPage({ route = "/gestoreduka/" }) {
   if (error && error.status === 401) return <ManagerLoginPage theme={theme} onToggleTheme={() => setTheme(theme === "light" ? "dark" : "light")} onAuthenticated={() => { setError(""); setData(null); load(); }} />;
   if (error) return <main className="manager-auth"><h1>Não foi possível abrir a gestão.</h1><p>{error.message}</p><button onClick={() => { setError(""); load(); }}>Tentar novamente</button></main>;
   if (!data) return <main className="manager-auth"><span className="manager-mark">E</span><p>A preparar o GestorEduka…</p></main>;
-  return <main className="manager-shell"><header><a className="manager-brand" href="/gestoreduka/">Edukangola <b>Gestor</b></a><div className="manager-header-actions"><span>{data.centro.nome}</span><button onClick={() => setTheme(theme === "light" ? "dark" : "light")} aria-label="Alternar tema">{theme === "light" ? <Moon size={18} /> : <Sun size={18} />}</button><button className="manager-logout-button" onClick={logout}><LogOut size={16}/>Terminar sessão</button></div></header><aside><strong>Gestão do centro</strong>{navigation.map((item) => <a key={item.key} className={activePage === item.key ? "active" : ""} href={item.href}>{item.label}</a>)}</aside><section className="manager-content manager-module-content" aria-live="polite"><ModulePage page={activePage} data={data} onRefresh={load} /></section></main>;
+  return <main className="manager-shell"><header><a className="manager-brand" href="/gestoreduka/">Edukangola <b>Gestor</b></a><div className="manager-header-actions"><span>{data.centro.nome}</span><button onClick={() => setTheme(theme === "light" ? "dark" : "light")} aria-label="Alternar tema">{theme === "light" ? <Moon size={18} /> : <Sun size={18} />}</button><button className="manager-logout-button" onClick={logout}><LogOut size={16}/>Terminar sessão</button></div></header><aside><strong>Gestão do centro</strong>{navigation.map((item) => { const Icon = item.icon; return <a key={item.key} className={activePage === item.key ? "active" : ""} href={item.href}><Icon aria-hidden="true" size={16}/><span>{item.label}</span></a>; })}</aside><section className="manager-content manager-module-content" aria-live="polite"><ModulePage page={activePage} data={data} onRefresh={load} /></section></main>;
 }

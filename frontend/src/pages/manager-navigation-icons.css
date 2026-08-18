@@ -1,0 +1,5 @@
+.manager-shell aside a { align-items: center; display: flex; gap: 9px; }
+.manager-shell aside a svg { flex: 0 0 auto; height: 16px; stroke-width: 2; width: 16px; }
+.manager-shell aside a span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.manager-shell aside a.active svg { stroke-width: 2.35; }
+@media (max-width: 800px) { .manager-shell aside a { gap: 7px; padding: 9px 10px; }.manager-shell aside a svg { height: 15px; width: 15px; } }
