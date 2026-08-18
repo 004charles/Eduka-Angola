@@ -274,3 +274,6 @@
 - [x] Localizar a causa do espaçamento insuficiente antes da secção de competências da página inicial
 - [x] Ajustar a separação vertical entre o destaque de cursos e a secção de competências
 - [x] Validar o ritmo visual da transição em desktop e ecrãs menores
+- [x] Localizar os rótulos dos cartões finais que extravasam a área antes do rodapé
+- [x] Corrigir a contenção dos cartões e o espaçamento final da página inicial
+- [x] Validar o encerramento visual da página inicial junto ao rodapé
