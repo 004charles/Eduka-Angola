@@ -5,6 +5,8 @@ app_name = 'instrutores_app'
 
 urlpatterns = [
     path('api/react/login/', views.api_react_login, name='api_react_login'),
+    path('api/react/candidatura/opcoes/', views.api_react_candidatura_opcoes, name='api_react_candidatura_opcoes'),
+    path('api/react/candidatura/', views.api_react_candidatura, name='api_react_candidatura'),
     path('api/react/dashboard/', views.api_react_dashboard, name='api_react_dashboard'),
     path('api/react/cursos/', views.api_react_criar_curso, name='api_react_criar_curso'),
     path('api/react/cursos/<int:curso_id>/aulas/', views.api_react_criar_aula, name='api_react_criar_aula'),

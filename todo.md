@@ -327,3 +327,7 @@
 - [x] Reproduzir a página não encontrada no acesso público ao painel do formador
 - [x] Corrigir o encaminhamento da rota legada para a rota React efectivamente servida
 - [x] Validar o acesso ao painel de formador no domínio público
+- [x] Corrigir a aplicação dos estilos e refinar a entrada React do formador
+- [x] Reposicionar o formulário de acesso do formador para a esquerda em ecrãs largos
+- [x] Adicionar uma vitrina animada de cursos à direita da entrada do formador
+- [x] Criar uma chamada e percurso de candidatura para quem quer tornar-se formador

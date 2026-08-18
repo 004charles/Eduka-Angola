@@ -81,6 +81,31 @@ def api_react_login(request):
     return JsonResponse({'ok': True})
 
 
+@require_GET
+def api_react_candidatura_opcoes(request):
+    return JsonResponse({
+        'ok': True,
+        'areas': [{'valor': valor, 'nome': nome} for valor, nome in Instrutor.TIPO_CHOICES_ESPECIALIZACAO],
+    })
+
+
+@require_POST
+def api_react_candidatura(request):
+    form = InstrutorSignupForm(_json_body(request))
+    if not form.is_valid():
+        errors = {campo: [str(erro) for erro in erros] for campo, erros in form.errors.items()}
+        return JsonResponse({
+            'detail': 'Revise os dados da candidatura e tente novamente.',
+            'errors': errors,
+        }, status=400)
+    instrutor = form.save()
+    return JsonResponse({
+        'ok': True,
+        'instrutor': {'id': instrutor.id, 'nome': instrutor.nome},
+        'message': 'Recebemos a sua candidatura. A equipa Edukangola vai analisar o perfil antes de activar o acesso.',
+    }, status=201)
+
+
 def _curso_payload(curso):
     return {
         'id': curso.id,

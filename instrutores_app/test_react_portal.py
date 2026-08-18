@@ -22,6 +22,24 @@ class InstructorReactPortalTest(TestCase):
         response = self.client.get('/instrutor/api/react/dashboard/')
         self.assertEqual(response.status_code, 401)
 
+    def test_accepts_a_public_instructor_application_pending_approval(self):
+        options = self.client.get('/instrutor/api/react/candidatura/opcoes/')
+        self.assertEqual(options.status_code, 200)
+        self.assertTrue(options.json()['areas'])
+
+        response = self.client.post('/instrutor/api/react/candidatura/', data=json.dumps({
+            'nome_completo': 'Candidata React',
+            'email': 'candidata.react@teste.local',
+            'password': 'senha-segura-2026',
+            'confirm_password': 'senha-segura-2026',
+            'area_especializacao': 'TECNOLOGIA_INFORMACAO',
+            'biografia': 'Profissional com experiência prática e vontade de ensinar novos alunos.',
+        }), content_type='application/json')
+        self.assertEqual(response.status_code, 201)
+        candidate = Usuario.objects.get(email='candidata.react@teste.local')
+        self.assertEqual(candidate.tipo_usuario, 'INSTRUTOR')
+        self.assertFalse(candidate.is_active)
+
     def test_exposes_dashboard_and_allows_course_and_answer_creation(self):
         self.client.force_login(self.user)
         dashboard = self.client.get('/instrutor/api/react/dashboard/')
