@@ -387,3 +387,4 @@
 - [ ] Migrar www.edukangola.com para Vercel e configurar api.edukangola.com no Render sem afectar os registos Brevo
 - [x] Configurar reescritas Vercel e cookies Django para www.edukangola.com e api.edukangola.com
 - [x] Realinhar a página “Para centros” e o formulário com o sistema visual Edukangola
+- [x] Apresentar quatro cartões de planos na página “Para centros”

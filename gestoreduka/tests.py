@@ -42,3 +42,14 @@ class CentroCandidaturaApiTests(TestCase):
 
         reuse = self.client.get(f'/api/public/centros/candidatura/confirmar/?convite={candidatura.link_token}')
         self.assertEqual(reuse.status_code, 404)
+
+
+class CentroPlanosPublicosTests(TestCase):
+    def test_a_vitrina_publica_devolve_quatro_planos_activos_ordenados(self):
+        response = APIClient().get('/api/public/centros/planos/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual([plano['nome'] for plano in response.data], ['Essencial', 'Crescimento', 'Profissional', 'Rede'])
+        self.assertEqual(len(response.data), 4)
+        self.assertEqual(response.data[0]['preco'], '0.00')
+        self.assertTrue(response.data[-1]['permite_cursos_video'])
