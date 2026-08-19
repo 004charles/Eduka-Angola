@@ -1,1 +1,1 @@
-web: gunicorn eduangolacore.wsgi:application --log-file -
+web: gunicorn eduangolacore.wsgi:application --bind 0.0.0.0:$PORT --log-file -

@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: edukangola
+    runtime: python
+    buildCommand: ./render-build.sh
+    preDeployCommand: python manage.py migrate --noinput
+    startCommand: gunicorn eduangolacore.wsgi:application --bind 0.0.0.0:$PORT --log-file -
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.0
+      - key: NODE_VERSION
+        value: 22.13.0

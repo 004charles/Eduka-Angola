@@ -19,6 +19,7 @@ from django.views.decorators.csrf import csrf_exempt
 from usuarios import views as usuarios_views
 from django.views.i18n import set_language
 from django.views.generic import TemplateView
+from core.react_delivery import backend_proxy, react_application, react_asset
 
 router = routers.DefaultRouter()
 router.register(r'cursos', CourseViewSet)
@@ -40,7 +41,11 @@ urlpatterns = [
     # path('ckeditor/', include('ckeditor_uploader.urls')),
     path('admin/', admin.site.urls),
 
-    path('', views.index, name = 'index'),
+    path('', react_application, name='index'),
+    path('backend/<path:backend_path>', backend_proxy, name='react_backend_proxy'),
+    re_path(r'^(?P<asset_path>assets/.+)$', react_asset, name='react_asset_bundle'),
+    re_path(r'^(?P<asset_path>icons/.+)$', react_asset, name='react_asset_icon'),
+    re_path(r'^(?P<asset_path>(?:app\.webmanifest|service-worker\.js|eduka-mark\.png|pwa-icon-.+\.svg))$', react_asset, name='react_asset_public'),
     path('api/public/home/', views.public_home_data, name='api_public_home_data'),
     path('api/public/cursos/proximos/', views.public_nearby_courses, name='api_public_nearby_courses'),
     path('api/public/faq/', views.public_faq, name='api_public_faq'),
@@ -77,6 +82,11 @@ urlpatterns = [
     path('api/public/centros/candidatura/verificar/', CentroCandidaturaVerifyView.as_view(), name='api_public_centro_candidatura_verificar'),
     path('api/public/centros/candidatura/confirmar/', CentroCandidaturaConfirmView.as_view(), name='api_public_centro_candidatura_confirmar'),
     path('api/public/centros/candidatura/concluir/', CentroCandidaturaCompleteView.as_view(), name='api_public_centro_candidatura_concluir'),
+    re_path(
+        r'^(?!gestoreduka/api/)(?:entrar|criar-conta|verificar-email|recuperar-palavra-passe|redefinir-palavra-passe|aluno|gestoreduka|formador|cursos|video-cursos|cursos-em-video|aprender/video|inscrever|comprar|centros|para-centros|comparar-cursos|como-funciona|perguntas-frequentes|faq|politica-de-privacidade|privacidade|sobre|sobre-a-edukangola|blog|eventos|eventosv|biblioteca|ler|verificar-certificado|pagamento/sucesso|pagamento/cancelado)(?:/.*)?$',
+        react_application,
+        name='react_application_routes',
+    ),
     path('test-404/', views.erro_404_view, kwargs={'exception': Exception("Teste 404")}),
     path('test-500/', views.erro_500_view),
     path('i18n/setlang/', csrf_exempt(set_language), name='set_language'),

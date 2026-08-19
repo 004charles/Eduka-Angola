@@ -2208,12 +2208,53 @@ def fundo_bolsas(request):
 
 import io
 import base64
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 from pagamentos.models import Pagamento
 from django.db.models import Sum
 from django.db.models.functions import TruncMonth
+
+
+def _dashboard_chart_base64(labels, valores):
+    """Gera o gráfico administrativo sem bloquear o arranque da aplicação."""
+    try:
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
+    except (ImportError, OSError):
+        return ''
+
+    fig, ax = plt.subplots(figsize=(7, 3.2), dpi=120)
+    try:
+        fig.patch.set_alpha(0.0)
+        ax.patch.set_alpha(0.0)
+        bars = ax.bar(labels, [valor / 1000 for valor in valores], color='#2f57ef', width=0.45, edgecolor='none')
+
+        for bar in bars:
+            height = bar.get_height()
+            ax.annotate(
+                f'{height:.0f}k Kz',
+                xy=(bar.get_x() + bar.get_width() / 2, height),
+                xytext=(0, 4),
+                textcoords='offset points',
+                ha='center',
+                va='bottom',
+                fontsize=8,
+                fontweight='bold',
+                color='#2f57ef',
+            )
+
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['left'].set_color('#cbd5e1')
+        ax.spines['bottom'].set_color('#cbd5e1')
+        ax.tick_params(axis='x', colors='#64748b', labelsize=9)
+        ax.tick_params(axis='y', colors='#64748b', labelsize=8)
+        ax.set_ylabel('Milhares (Kz)', fontsize=9, color='#64748b')
+
+        buffer = io.BytesIO()
+        fig.savefig(buffer, format='png', bbox_inches='tight', transparent=True)
+        return base64.b64encode(buffer.getvalue()).decode('utf-8')
+    finally:
+        plt.close(fig)
 
 def dashboard_callback(request, context):
     """
@@ -2242,34 +2283,7 @@ def dashboard_callback(request, context):
         labels = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"]
         valores = [150000, 320000, 450000, 600000, 850000, 1200000]
 
-    # Renderizar Figura Matplotlib
-    fig, ax = plt.subplots(figsize=(7, 3.2), dpi=120)
-    fig.patch.set_alpha(0.0)
-    ax.patch.set_alpha(0.0)
-
-    bars = ax.bar(labels, [v / 1000 for v in valores], color='#2f57ef', width=0.45, edgecolor='none')
-    
-    for bar in bars:
-        height = bar.get_height()
-        ax.annotate(f'{height:.0f}k Kz',
-                    xy=(bar.get_x() + bar.get_width() / 2, height),
-                    xytext=(0, 4),  # 4 points vertical offset
-                    textcoords="offset points",
-                    ha='center', va='bottom', fontsize=8, fontweight='bold', color='#2f57ef')
-
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.spines['left'].set_color('#cbd5e1')
-    ax.spines['bottom'].set_color('#cbd5e1')
-    ax.tick_params(axis='x', colors='#64748b', labelsize=9)
-    ax.tick_params(axis='y', colors='#64748b', labelsize=8)
-    ax.set_ylabel('Milhares (Kz)', fontsize=9, color='#64748b')
-
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png', bbox_inches='tight', transparent=True)
-    plt.close(fig)
-    buf.seek(0)
-    chart_image_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
+    chart_image_base64 = _dashboard_chart_base64(labels, valores)
 
     context.update({
         "kpi": [

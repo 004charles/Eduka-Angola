@@ -133,9 +133,9 @@ CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=IS_DEPLOYED_ENV, cast=
 SITE_DOMAIN = config('SITE_DOMAIN', default='https://www.edukangola.com')
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'core.middleware.PermissionsPolicyMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    # 'whitenoise.middleware.WhiteNoiseMiddleware',  # Comentado - requer whitenoise
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -296,6 +296,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),  
 ]
+REACT_FRONTEND_DIST = os.path.join(BASE_DIR, 'frontend', 'dist')
 
 CKEDITOR_UPLOAD_PATH = 'ckeditor/uploads/'
 

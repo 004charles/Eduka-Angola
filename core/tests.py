@@ -1,13 +1,24 @@
 from django.test import TestCase
+from django.urls import resolve
 
 from cursos_app.models import Categoria
 from cursovideoapp.models import Curso_video
 from usuarios.models import Aluno, Usuario
 
 from .models import Publicidade
+from .react_delivery import react_application
 
 
 class EducationalSponsorApiTest(TestCase):
+    def test_prefixo_backend_reencaminha_a_api_no_mesmo_servico(self):
+        response = self.client.get('/backend/api/public/home/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('cursos', response.json())
+
+    def test_recarga_de_rota_publica_e_entregue_pela_spa_react(self):
+        self.assertIs(resolve('/cursos/81/').func, react_application)
+
     def test_home_expoe_apenas_patronicios_com_destino_interno(self):
         Publicidade.objects.create(
             titulo='Bolsa Edukangola',
