@@ -378,3 +378,4 @@
 - [x] Implementar Web Push próprio com subscrição segura por aluno
 - [x] Exibir patrocínios educativos internos sem redes publicitárias externas
 - [ ] Criar separação vertical entre etiquetas e ações no cabeçalho do perfil de centro
+- [x] Substituir o ícone PWA instalado pelo logótipo oficial da Edukangola
