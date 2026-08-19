@@ -49,10 +49,18 @@ admin.site.register(Aluno, AlunoAdmin)
 
 @admin.register(PreferenciaNotificacaoAluno)
 class PreferenciaNotificacaoAlunoAdmin(UnfoldModelAdmin):
-    list_display = ('aluno', 'receber_na_plataforma', 'receber_por_email', 'resumo_semanal', 'atualizado_em')
-    list_filter = ('receber_na_plataforma', 'receber_por_email', 'resumo_semanal')
+    list_display = ('aluno', 'receber_na_plataforma', 'receber_por_email', 'receber_push', 'resumo_semanal', 'atualizado_em')
+    list_filter = ('receber_na_plataforma', 'receber_por_email', 'receber_push', 'resumo_semanal')
     search_fields = ('aluno__nome', 'aluno__usuario__email')
     readonly_fields = ('atualizado_em',)
+
+
+@admin.register(SubscricaoWebPush)
+class SubscricaoWebPushAdmin(UnfoldModelAdmin):
+    list_display = ('aluno', 'ativa', 'criada_em', 'ultimo_envio_em', 'falhas_consecutivas')
+    list_filter = ('ativa',)
+    search_fields = ('aluno__nome', 'aluno__usuario__email', 'endpoint')
+    readonly_fields = ('criada_em', 'atualizada_em', 'ultimo_envio_em', 'ultima_falha_em', 'falhas_consecutivas', 'endpoint', 'chave_p256dh', 'chave_auth', 'agente')
 
 
 @admin.register(CandidaturaFormador)

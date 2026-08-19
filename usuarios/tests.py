@@ -1,10 +1,11 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 import json
 from unittest.mock import patch
 
 from django.test import Client, TestCase
 
-from .models import Aluno, CodigoVerificacao, NotificacaoAluno, Usuario
+from .models import Aluno, CodigoVerificacao, NotificacaoAluno, PreferenciaNotificacaoAluno, SubscricaoWebPush, Usuario
+from .web_push import enviar_notificacao_web_push
 from gestoreduka.models import CentroDeFormacao, Conversa, Mensagem, NotificacaoGestor
 
 class UserUnificationTest(TestCase):
@@ -185,3 +186,61 @@ class StudentMessagingApiTest(TestCase):
         self.assertEqual(manager_detail.status_code, 200)
         self.assertEqual(manager_detail.json()['conversa']['aluno'], self.aluno.nome)
         self.assertFalse(NotificacaoGestor.objects.filter(centro=self.centro, tipo='MENSAGEM', lida=False).exists())
+
+
+@override_settings(VAPID_PUBLIC_KEY='B' * 87, VAPID_PRIVATE_KEY='test-private-vapid-key', VAPID_SUBJECT='mailto:suporte@edukangola.com')
+class WebPushApiTest(TestCase):
+    def setUp(self):
+        self.user = Usuario.objects.create_user(email='push.aluno@test.com', nome='Aluna Push', password='SenhaSegura123', tipo_usuario='ALUNO')
+        self.aluno = Aluno.objects.create(usuario=self.user, nome='Aluna Push')
+        self.endpoint = 'https://push.example.test/subscription/abc123'
+        self.subscription = {'endpoint': self.endpoint, 'keys': {'p256dh': 'a' * 65, 'auth': 'b' * 24}}
+
+    def post_json(self, url, data):
+        return self.client.post(url, data=json.dumps(data), content_type='application/json')
+
+    def test_estado_exige_sessao_de_aluno(self):
+        response = self.client.get('/auth/api/react/aluno/push/estado/')
+        self.assertEqual(response.status_code, 401)
+
+    def test_subscricao_persiste_apenas_para_o_aluno_autenticado(self):
+        self.client.force_login(self.user)
+        response = self.post_json('/auth/api/react/aluno/push/subscrever/', self.subscription)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['ok'])
+        subscricao = SubscricaoWebPush.objects.get(endpoint=self.endpoint)
+        self.assertEqual(subscricao.aluno, self.aluno)
+        self.assertTrue(subscricao.ativa)
+        self.assertTrue(PreferenciaNotificacaoAluno.objects.get(aluno=self.aluno).receber_push)
+
+        state = self.client.get('/auth/api/react/aluno/push/estado/')
+        self.assertEqual(state.status_code, 200)
+        self.assertTrue(state.json()['configured'])
+        self.assertEqual(state.json()['subscription_count'], 1)
+
+    def test_cancelamento_desactiva_a_subscricao_do_proprio_aluno(self):
+        SubscricaoWebPush.objects.create(aluno=self.aluno, endpoint=self.endpoint, chave_p256dh='a' * 65, chave_auth='b' * 24)
+        PreferenciaNotificacaoAluno.objects.filter(aluno=self.aluno).update(receber_push=True)
+        self.client.force_login(self.user)
+        response = self.post_json('/auth/api/react/aluno/push/cancelar/', {'endpoint': self.endpoint})
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(SubscricaoWebPush.objects.get(endpoint=self.endpoint).ativa)
+        self.assertFalse(PreferenciaNotificacaoAluno.objects.get(aluno=self.aluno).receber_push)
+
+    @patch('pywebpush.webpush')
+    def test_entrega_usa_vapid_e_respeita_o_consentimento(self, mocked_webpush):
+        SubscricaoWebPush.objects.create(aluno=self.aluno, endpoint=self.endpoint, chave_p256dh='a' * 65, chave_auth='b' * 24)
+        PreferenciaNotificacaoAluno.objects.filter(aluno=self.aluno).update(receber_push=True)
+        notificacao = NotificacaoAluno(aluno=self.aluno, titulo='Novo curso', mensagem='Já pode explorar uma nova formação.', link='/cursos', tipo='CURSO')
+        notificacao._skip_web_push_delivery = True
+        notificacao.save()
+
+        result = enviar_notificacao_web_push(notificacao.id)
+        self.assertEqual(result, {'configured': True, 'sent': 1, 'failed': 0})
+        mocked_webpush.assert_called_once()
+        self.assertEqual(mocked_webpush.call_args.kwargs['vapid_private_key'], 'test-private-vapid-key')
+
+        PreferenciaNotificacaoAluno.objects.filter(aluno=self.aluno).update(receber_push=False)
+        result = enviar_notificacao_web_push(notificacao.id)
+        self.assertEqual(result, {'configured': True, 'sent': 0, 'failed': 0})
+        mocked_webpush.assert_called_once()

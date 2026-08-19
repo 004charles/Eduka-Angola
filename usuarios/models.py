@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils.translation import gettext_lazy as _
@@ -331,6 +331,7 @@ class PreferenciaNotificacaoAluno(models.Model):
     aluno = models.OneToOneField(Aluno, on_delete=models.CASCADE, related_name='preferencias_notificacao')
     receber_na_plataforma = models.BooleanField('Notificações na plataforma', default=True)
     receber_por_email = models.BooleanField('Resumo por e-mail', default=True)
+    receber_push = models.BooleanField('Notificações no dispositivo', default=False)
     novos_cursos = models.BooleanField('Novos cursos', default=True)
     novas_turmas = models.BooleanField('Novas turmas', default=True)
     novos_livros = models.BooleanField('Novos livros', default=True)
@@ -352,3 +353,40 @@ class PreferenciaNotificacaoAluno(models.Model):
 def criar_preferencias_notificacao(sender, instance, created, **kwargs):
     if created:
         PreferenciaNotificacaoAluno.objects.get_or_create(aluno=instance)
+
+
+class SubscricaoWebPush(models.Model):
+    """Subscrição Web Push de um único navegador/dispositivo, nunca exposta pela API pública."""
+
+    aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, related_name='subscricoes_web_push')
+    endpoint = models.URLField(max_length=500, unique=True)
+    chave_p256dh = models.CharField(max_length=255)
+    chave_auth = models.CharField(max_length=255)
+    agente = models.CharField(max_length=300, blank=True)
+    ativa = models.BooleanField(default=True, db_index=True)
+    criada_em = models.DateTimeField(auto_now_add=True)
+    atualizada_em = models.DateTimeField(auto_now=True)
+    ultimo_envio_em = models.DateTimeField(null=True, blank=True)
+    ultima_falha_em = models.DateTimeField(null=True, blank=True)
+    falhas_consecutivas = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        verbose_name = 'Subscrição Web Push'
+        verbose_name_plural = 'Subscrições Web Push'
+        indexes = [models.Index(fields=['aluno', 'ativa'])]
+
+    def __str__(self):
+        return f'Push de {self.aluno.nome} · {"activa" if self.ativa else "inactiva"}'
+
+
+@receiver(post_save, sender=NotificacaoAluno)
+def entregar_notificacao_por_web_push(sender, instance, created, **kwargs):
+    """Entrega assíncrona após commit; falhas Web Push nunca bloqueiam o fluxo principal."""
+    if not created or getattr(instance, '_skip_web_push_delivery', False):
+        return
+
+    def dispatch():
+        from .web_push import enviar_notificacao_web_push
+        enviar_notificacao_web_push(instance.id)
+
+    transaction.on_commit(dispatch)

@@ -367,8 +367,14 @@
 - [x] Guardar a escolha de localização do aluno para não repetir o pedido na página inicial
 - [x] Reorganizar as sugestões da pesquisa rápida para o formato móvel compacto
 - [ ] Mostrar paginação do catálogo de cursos em ecrã móvel
-- [ ] Garantir acesso persistente à área do aluno em ecrã móvel
-- [ ] Completar a base de instalação e experiência PWA da Edukangola
+- [x] Garantir acesso persistente à área do aluno em ecrã móvel
+- [x] Completar a base de instalação e experiência PWA da Edukangola
 - [x] Auditar integralmente os fluxos móveis e PWA antes do próximo ciclo de melhorias
 - [x] Simplificar o cabeçalho móvel e garantir acesso persistente à área do aluno
+- [x] Criar a base instalável PWA com manifesto, ícones e modo autónomo
+- [x] Integrar permissões e preferências de notificações push para alunos
+- [x] Estruturar publicidade responsável sem interferir na aprendizagem
+- [ ] Validar GPS, notificações e navegação em modo de aplicação instalada
+- [x] Implementar Web Push próprio com subscrição segura por aluno
+- [x] Exibir patrocínios educativos internos sem redes publicitárias externas
 - [ ] Criar separação vertical entre etiquetas e ações no cabeçalho do perfil de centro

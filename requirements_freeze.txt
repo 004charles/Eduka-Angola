@@ -42,6 +42,7 @@ Incremental==24.11.0
 msgpack==1.1.2
 packaging==25.0
 pillow==11.3.0
+pywebpush==2.1.2
 proto-plus==1.27.2
 protobuf==5.29.6
 psycopg2-binary==2.9.10

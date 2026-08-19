@@ -20,9 +20,10 @@ from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateparse import parse_date
+from urllib.parse import urlparse
 
 from cursos_app.models import Curso, Categoria, Favorito, Instrutor, Turma, Inscricao
-from usuarios.models import Aluno, PerfilAluno, PreferenciaAprendizagem
+from usuarios.models import Aluno, PerfilAluno, PreferenciaAprendizagem, PreferenciaNotificacaoAluno, SubscricaoWebPush
 from usuarios.decorators import aluno_logado_e_centros
 
 from blog.models import Post
@@ -272,6 +273,99 @@ def react_student_preferences_update(request):
     preferencias.quer_certificado = quer_certificado
     preferencias.save()
     return JsonResponse({'ok': True, 'message': 'Preferências actualizadas.'})
+
+
+def _aluno_autenticado_ou_erro(request):
+    if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'ALUNO':
+        return None, JsonResponse({'detail': 'Inicie sessão como aluno para gerir as notificações no dispositivo.'}, status=401)
+    aluno = getattr(request.user, 'aluno_profile', None)
+    if not aluno:
+        return None, JsonResponse({'detail': 'Perfil de aluno não encontrado.'}, status=404)
+    return aluno, None
+
+
+@require_GET
+def react_student_push_status(request):
+    aluno, error = _aluno_autenticado_ou_erro(request)
+    if error:
+        return error
+    from usuarios.web_push import web_push_configurada
+    preferencias, _ = PreferenciaNotificacaoAluno.objects.get_or_create(aluno=aluno)
+    return JsonResponse({
+        'ok': True,
+        'configured': web_push_configurada(),
+        'public_key': settings.VAPID_PUBLIC_KEY if web_push_configurada() else '',
+        'enabled': preferencias.receber_push,
+        'subscription_count': SubscricaoWebPush.objects.filter(aluno=aluno, ativa=True).count(),
+    })
+
+
+@require_POST
+def react_student_push_subscribe(request):
+    aluno, error = _aluno_autenticado_ou_erro(request)
+    if error:
+        return error
+    from usuarios.web_push import web_push_configurada
+    if not web_push_configurada():
+        return JsonResponse({'detail': 'As notificações para dispositivos ainda não estão configuradas neste ambiente.'}, status=503)
+    try:
+        payload = json.loads(request.body or '{}')
+        endpoint = str(payload.get('endpoint') or '').strip()
+        keys = payload.get('keys') or {}
+        p256dh = str(keys.get('p256dh') or '').strip()
+        auth = str(keys.get('auth') or '').strip()
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'Subscrição inválida.'}, status=400)
+    if not endpoint.startswith('https://') or len(endpoint) > 500 or not (20 <= len(p256dh) <= 255) or not (8 <= len(auth) <= 255):
+        return JsonResponse({'detail': 'Dados de subscrição inválidos.'}, status=400)
+    subscricao, _ = SubscricaoWebPush.objects.update_or_create(
+        endpoint=endpoint,
+        defaults={'aluno': aluno, 'chave_p256dh': p256dh, 'chave_auth': auth, 'agente': request.META.get('HTTP_USER_AGENT', '')[:300], 'ativa': True, 'falhas_consecutivas': 0},
+    )
+    preferencias, _ = PreferenciaNotificacaoAluno.objects.get_or_create(aluno=aluno)
+    if not preferencias.receber_push:
+        preferencias.receber_push = True
+        preferencias.save(update_fields=['receber_push', 'atualizado_em'])
+    return JsonResponse({'ok': True, 'subscription_id': subscricao.id, 'message': 'Notificações activadas neste dispositivo.'})
+
+
+@require_POST
+def react_student_push_unsubscribe(request):
+    aluno, error = _aluno_autenticado_ou_erro(request)
+    if error:
+        return error
+    try:
+        payload = json.loads(request.body or '{}')
+        endpoint = str(payload.get('endpoint') or '').strip()
+    except (TypeError, ValueError):
+        endpoint = ''
+    if endpoint:
+        SubscricaoWebPush.objects.filter(aluno=aluno, endpoint=endpoint).update(ativa=False)
+    else:
+        SubscricaoWebPush.objects.filter(aluno=aluno).update(ativa=False)
+    if not SubscricaoWebPush.objects.filter(aluno=aluno, ativa=True).exists():
+        preferencias, _ = PreferenciaNotificacaoAluno.objects.get_or_create(aluno=aluno)
+        preferencias.receber_push = False
+        preferencias.save(update_fields=['receber_push', 'atualizado_em'])
+    return JsonResponse({'ok': True, 'message': 'Notificações desactivadas neste dispositivo.'})
+
+
+@require_POST
+def react_student_push_test(request):
+    aluno, error = _aluno_autenticado_ou_erro(request)
+    if error:
+        return error
+    from usuarios.web_push import enviar_notificacao_web_push, web_push_configurada
+    if not web_push_configurada():
+        return JsonResponse({'detail': 'As notificações para dispositivos ainda não estão configuradas neste ambiente.'}, status=503)
+    preferencias, _ = PreferenciaNotificacaoAluno.objects.get_or_create(aluno=aluno)
+    if not preferencias.receber_push or not SubscricaoWebPush.objects.filter(aluno=aluno, ativa=True).exists():
+        return JsonResponse({'detail': 'Active as notificações neste dispositivo antes de enviar um teste.'}, status=400)
+    notificacao = NotificacaoAluno(aluno=aluno, titulo='Notificações Edukangola activas', mensagem='Este dispositivo está pronto para receber novidades sobre a sua aprendizagem.', link='/aluno/configuracoes', tipo='SISTEMA')
+    notificacao._skip_web_push_delivery = True
+    notificacao.save()
+    result = enviar_notificacao_web_push(notificacao.id)
+    return JsonResponse({'ok': result.get('sent', 0) > 0, 'result': result, 'message': 'Teste enviado.' if result.get('sent', 0) else 'O teste foi registado, mas não foi possível entregar a notificação neste momento.'})
 
 
 @require_GET
@@ -1013,6 +1107,35 @@ def public_home_data(request):
     except OperationalError:
         depoimentos = []
 
+    patrocinios_educativos = []
+    site_host = urlparse(settings.SITE_DOMAIN).netloc
+    for publicidade in Publicidade.objects.filter(ativo=True, posicao='GERAL').order_by('-data_criacao', '-id')[:3]:
+        destino = publicidade.url_destino or ''
+        parsed = urlparse(destino)
+        # Apenas destinos internos: esta vitrina não carrega redes de publicidade
+        # externas, pixels de terceiros ou redireccionamentos de patrocinadores.
+        if parsed.scheme and parsed.netloc and parsed.netloc != site_host:
+            continue
+        if parsed.scheme and parsed.netloc:
+            destino = parsed.path or '/'
+            if parsed.query:
+                destino = f'{destino}?{parsed.query}'
+        if not destino.startswith('/'):
+            destino = '/cursos'
+        try:
+            imagem = publicidade.imagem_fundo.url if publicidade.imagem_fundo else ''
+        except (ValueError, AttributeError):
+            imagem = ''
+        patrocinios_educativos.append({
+            'id': publicidade.id,
+            'titulo': (publicidade.titulo or 'Oportunidade educativa').strip(),
+            'subtitulo': (publicidade.subtitulo or publicidade.descricao or 'Conheça uma oportunidade seleccionada pela Edukangola.').strip()[:260],
+            'etiqueta': (publicidade.tag_label or 'Patrocinado').strip()[:100],
+            'texto_botao': (publicidade.texto_botao or 'Saber mais').strip()[:50],
+            'url': destino,
+            'imagem_url': imagem,
+        })
+
     return JsonResponse({
         'turmas_abertas': turmas,
         'cursos': cursos,
@@ -1024,6 +1147,7 @@ def public_home_data(request):
         'impacto': impacto,
         'galeria': galeria,
         'depoimentos': depoimentos,
+        'patrocinios_educativos': patrocinios_educativos,
         'atualizado_em': timezone.now().isoformat(),
     })
 

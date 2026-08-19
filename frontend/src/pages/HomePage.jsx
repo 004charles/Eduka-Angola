@@ -5,6 +5,7 @@ import DynamicCatalogShelves from "../components/DynamicCatalogShelves";
 import { InternationalCoursesSection, NearbyCoursesSection } from "../components/HomeLocationCourseSections";
 import SkillsDiscoverySection from "../components/SkillsDiscoverySection";
 import RecommendedCoursesSection from "../components/RecommendedCoursesSection";
+import EducationalSponsor from "../components/EducationalSponsor";
 import { useI18n } from "../lib/i18n";
 import "./public-pages.css";
 
@@ -32,6 +33,7 @@ export default function HomePage({ data, loading, onNavigate, onAnnounce }) {
       <SkillsDiscoverySection data={data} loading={loading} onAnnounce={onAnnounce} />
       <InternationalCoursesSection data={data} onAnnounce={onAnnounce} />
       <NearbyCoursesSection data={data} onAnnounce={onAnnounce} />
+      <EducationalSponsor data={data} onNavigate={onNavigate} />
       <DynamicCatalogShelves data={data} loading={loading} onAnnounce={onAnnounce} onNavigate={onNavigate} collectionHref="/cursos" includeCatalog={false} />
       <RecommendedCoursesSection onNavigate={onNavigate} />
     </main>
