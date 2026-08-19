@@ -1,0 +1,47 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "installCommand": "cd frontend && pnpm install --frozen-lockfile",
+  "buildCommand": "cd frontend && pnpm run build",
+  "outputDirectory": "frontend/dist",
+  "rewrites": [
+    {
+      "source": "/backend/:path*",
+      "destination": "https://api.edukangola.com/:path*"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "https://api.edukangola.com/api/:path*"
+    },
+    {
+      "source": "/auth/:path*",
+      "destination": "https://api.edukangola.com/auth/:path*"
+    },
+    {
+      "source": "/static/:path*",
+      "destination": "https://api.edukangola.com/static/:path*"
+    },
+    {
+      "source": "/media/:path*",
+      "destination": "https://api.edukangola.com/media/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/:path*",
+      "headers": [{ "key": "x-vercel-enable-rewrite-caching", "value": "0" }]
+    },
+    {
+      "source": "/backend/:path*",
+      "headers": [{ "key": "x-vercel-enable-rewrite-caching", "value": "0" }]
+    },
+    {
+      "source": "/auth/:path*",
+      "headers": [{ "key": "x-vercel-enable-rewrite-caching", "value": "0" }]
+    }
+  ]
+}

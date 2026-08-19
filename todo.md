@@ -388,3 +388,11 @@
 - [x] Configurar reescritas Vercel e cookies Django para www.edukangola.com e api.edukangola.com
 - [x] Realinhar a página “Para centros” e o formulário com o sistema visual Edukangola
 - [x] Apresentar quatro cartões de planos na página “Para centros”
+- [x] Resolver a emissão SSL de www.edukangola.com e api.edukangola.com após a propagação DNS
+- [x] Corrigir a DATABASE_URL do Render que aponta para um host PostgreSQL não resolúvel
+- [x] Definir SECRET_KEY segura no Render para permitir o arranque Django em produção
+- [ ] Inventariar as chaves API necessárias e completar a configuração Render das integrações activas
+- [ ] Inventariar os cursos, livros, centros, imagens e relações de demonstração para migração segura à produção
+- [ ] Preparar importação idempotente dos dados de demonstração sem apagar conteúdo de produção existente
+- [ ] Migrar os cursos, livros, centros e capas de demonstração para produção e validar a publicação
+- [ ] Diagnosticar e corrigir a falha de criação de conta no ambiente de produção
