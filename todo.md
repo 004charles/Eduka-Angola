@@ -379,3 +379,6 @@
 - [x] Exibir patrocínios educativos internos sem redes publicitárias externas
 - [ ] Criar separação vertical entre etiquetas e ações no cabeçalho do perfil de centro
 - [x] Substituir o ícone PWA instalado pelo logótipo oficial da Edukangola
+- [x] Compactar os cartões da área do aluno em desktop e PWA
+- [x] Remover a vitrina de bolsas/patrocínio da página inicial
+- [x] Corrigir o erro 500 do endpoint do painel do aluno para cursos em vídeo

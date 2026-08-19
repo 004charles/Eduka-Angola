@@ -169,7 +169,7 @@ def react_student_dashboard(request):
     for video in video_cursos:
         total_aulas = video.aulas.count()
         concluidas = ProgressoAula.objects.filter(aluno=aluno, aula__curso=video, concluida=True).count()
-        continuar.append({'id': video.id, 'titulo': video.titulo, 'centro': video.centro.nome if video.centro else 'Edukangola', 'imagem_url': video.get_imagem_url, 'is_video': True, 'progresso': round((concluidas / total_aulas) * 100) if total_aulas else 0, 'aulas_concluidas': concluidas, 'total_aulas': total_aulas, 'detalhe_url': video.get_absolute_url(), 'aprendizagem_url': f'/aprender/video/{video.slug}', 'inicio_formatado': '', 'horario': ''})
+        continuar.append({'id': video.id, 'titulo': video.titulo, 'centro': video.centro.nome if video.centro else 'Edukangola', 'imagem_url': video.get_imagem_url, 'is_video': True, 'progresso': round((concluidas / total_aulas) * 100) if total_aulas else 0, 'aulas_concluidas': concluidas, 'total_aulas': total_aulas, 'detalhe_url': f'/video-cursos/{video.slug}', 'aprendizagem_url': f'/aprender/video/{video.slug}', 'inicio_formatado': '', 'horario': ''})
     certificados = 0
     try:
         from cursovideoapp.models import Certificado
