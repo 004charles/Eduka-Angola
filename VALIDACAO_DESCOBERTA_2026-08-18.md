@@ -50,5 +50,7 @@ A persistência da escolha de localização foi preparada no navegador de valida
 
 Após a recarga, a página inicial foi apresentada sem o diálogo central de localização. A escolha passa a ser guardada por navegador; o aluno pode voltar a pedir o GPS a qualquer momento através de “Usar a minha localização”.
 
+A pesquisa rápida foi revista para apresentar as sugestões como resultados verticais separados: título em primeira linha e tipo, centro e cidade numa segunda linha. Em ecrã móvel, a janela passa a usar a altura disponível com rolagem interna e oculta o atalho de teclado que não é relevante ao toque. A validação confirmou que as quatro sugestões iniciais são agora lidas como itens distintos.
+
 [1]: https://mundotec.ao/ "Mundo da Tecnologia — site institucional"
 [2]: https://mundotec.ao/contactos/ "Mundo da Tecnologia — contactos"

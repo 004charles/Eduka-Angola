@@ -365,4 +365,5 @@
 - [x] Extrair as imagens fornecidas e associá-las aos novos cursos de catálogo
 - [x] Garantir que os cursos da Mundo da Tecnologia abrem publicamente no catálogo e no detalhe
 - [x] Guardar a escolha de localização do aluno para não repetir o pedido na página inicial
+- [x] Reorganizar as sugestões da pesquisa rápida para o formato móvel compacto
 - [ ] Criar separação vertical entre etiquetas e ações no cabeçalho do perfil de centro
