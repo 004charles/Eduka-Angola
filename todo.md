@@ -366,4 +366,9 @@
 - [x] Garantir que os cursos da Mundo da Tecnologia abrem publicamente no catálogo e no detalhe
 - [x] Guardar a escolha de localização do aluno para não repetir o pedido na página inicial
 - [x] Reorganizar as sugestões da pesquisa rápida para o formato móvel compacto
+- [ ] Mostrar paginação do catálogo de cursos em ecrã móvel
+- [ ] Garantir acesso persistente à área do aluno em ecrã móvel
+- [ ] Completar a base de instalação e experiência PWA da Edukangola
+- [x] Auditar integralmente os fluxos móveis e PWA antes do próximo ciclo de melhorias
+- [x] Simplificar o cabeçalho móvel e garantir acesso persistente à área do aluno
 - [ ] Criar separação vertical entre etiquetas e ações no cabeçalho do perfil de centro

@@ -52,5 +52,7 @@ Após a recarga, a página inicial foi apresentada sem o diálogo central de loc
 
 A pesquisa rápida foi revista para apresentar as sugestões como resultados verticais separados: título em primeira linha e tipo, centro e cidade numa segunda linha. Em ecrã móvel, a janela passa a usar a altura disponível com rolagem interna e oculta o atalho de teclado que não é relevante ao toque. A validação confirmou que as quatro sugestões iniciais são agora lidas como itens distintos.
 
+O cabeçalho móvel foi simplificado para preservar apenas a marca, a pesquisa e o menu. As preferências, entrada/saída da conta e mensagens passam para o menu, enquanto uma barra inferior persistente oferece Início, Catálogo, Vídeo, Biblioteca e Perfil. O Eduka AI foi reposicionado acima dessa barra e a estrutura inclui margens de área segura. A compilação React passou sem erros e a página carregou sem erros de consola; a confirmação final de proporções será feita no dispositivo Android.
+
 [1]: https://mundotec.ao/ "Mundo da Tecnologia — site institucional"
 [2]: https://mundotec.ao/contactos/ "Mundo da Tecnologia — contactos"
