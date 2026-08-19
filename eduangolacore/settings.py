@@ -129,6 +129,10 @@ SECURE_REFERRER_POLICY = "same-origin"
 SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default=IS_DEPLOYED_ENV, cast=bool)
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=IS_DEPLOYED_ENV, cast=bool)
+SESSION_COOKIE_DOMAIN = config("SESSION_COOKIE_DOMAIN", default=None) or None
+CSRF_COOKIE_DOMAIN = config("CSRF_COOKIE_DOMAIN", default=None) or None
+SESSION_COOKIE_SAMESITE = config("SESSION_COOKIE_SAMESITE", default="Lax")
+CSRF_COOKIE_SAMESITE = config("CSRF_COOKIE_SAMESITE", default="Lax")
 
 SITE_DOMAIN = config('SITE_DOMAIN', default='https://www.edukangola.com')
 MIDDLEWARE = [
@@ -378,9 +382,10 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'core.exceptions.custom_exception_handler',
 }
 
-_cors_origins = config("CORS_ALLOWED_ORIGINS", default="")
+_cors_origins = config("CORS_ALLOWED_ORIGINS", default="https://www.edukangola.com,https://edukangola.com" if IS_DEPLOYED_ENV else "")
 CORS_ALLOWED_ORIGINS = [origin.strip() for origin in _cors_origins.split(",") if origin.strip()]
 CORS_ALLOW_ALL_ORIGINS = not IS_DEPLOYED_ENV
+CORS_ALLOW_CREDENTIALS = config("CORS_ALLOW_CREDENTIALS", default=IS_DEPLOYED_ENV, cast=bool)
 
 # Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"

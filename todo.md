@@ -383,3 +383,6 @@
 - [x] Remover a vitrina de bolsas/patrocínio da página inicial
 - [x] Corrigir o erro 500 do endpoint do painel do aluno para cursos em vídeo
 - [x] Corrigir a falha de publicação Render por dependência ausente e validar o arranque React/Django
+- [x] Preparar separação de frontend React no Vercel e API Django no Render com autenticação segura entre domínios
+- [ ] Migrar www.edukangola.com para Vercel e configurar api.edukangola.com no Render sem afectar os registos Brevo
+- [x] Configurar reescritas Vercel e cookies Django para www.edukangola.com e api.edukangola.com
