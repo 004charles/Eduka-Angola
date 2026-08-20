@@ -94,7 +94,17 @@ export default function CourseCard({ course, onSave, onCompare, compared = false
   const temVideo = isVideoCurso(course);
   const etiqueta = course.productLabel || etiquetaProduto(course);
   const acao = course.ctaLabel || acaoProduto(course);
-  const pagamentoAgora = course.is_gratuito ? "Gratuito" : (course.preco_formatado || course.preco_label || course.pagamento?.agora || "Condições a confirmar");
+  const financeiro = course.financeiro || {};
+  const linhasPreco = (() => {
+    if (course.is_gratuito) return [{ rotulo: "Acesso", valor: "Gratuito", destaque: true }];
+    if (temVideo) return [{ rotulo: "Compra única", valor: course.preco_formatado || course.preco_label || course.pagamento?.agora || "Condições a confirmar", destaque: true }];
+    const linhas = [];
+    if (Number(financeiro.inscricao?.valor) > 0) linhas.push({ rotulo: "Inscrição", valor: financeiro.inscricao.formatado, destaque: true });
+    else linhas.push({ rotulo: "Inscrição", valor: "Sem taxa" });
+    if (Number(financeiro.mensalidade?.valor) > 0) linhas.push({ rotulo: "Mensalidade", valor: financeiro.mensalidade.formatado });
+    if (!Number(financeiro.inscricao?.valor) && !Number(financeiro.mensalidade?.valor)) linhas.push({ rotulo: "Preço total", valor: financeiro.preco_total_formatado || course.preco_formatado || "Condições a confirmar", destaque: true });
+    return linhas;
+  })();
   const condicaoPagamento = course.is_gratuito ? "Acesso sem pagamento" : course.pagamento?.descricao;
   const toggleFavorite = async () => {
     if (savingFavorite) return;
@@ -135,7 +145,7 @@ export default function CourseCard({ course, onSave, onCompare, compared = false
           <small>{course.category}</small>
           <h3 title={course.title}>{course.detailUrl ? <a href={course.detailUrl}>{course.title}</a> : course.title}</h3>
           <p title={course.centre}>{course.centre}{course.distancia_km !== undefined && <span className="course-distance"><MapPin size={12} /> {course.distancia_km} km de si</span>}</p>
-          <div className={`course-price${course.is_gratuito ? " is-free" : ""}`}><strong>{pagamentoAgora}</strong>{condicaoPagamento && <span>{condicaoPagamento}</span>}</div>
+          <div className={`course-price${course.is_gratuito ? " is-free" : ""}`}>{linhasPreco.map((linha) => <span className={`course-price-line${linha.destaque ? " is-primary" : ""}`} key={linha.rotulo}><small>{linha.rotulo}</small><strong>{linha.valor}</strong></span>)}{condicaoPagamento && <span className="course-price-condition">{condicaoPagamento}</span>}</div>
           {onCompare && <button type="button" className={`course-compare-toggle${compared ? " is-selected" : ""}`} onClick={() => onCompare(course)}><Scale size={14} /> {compared ? "Na comparação" : "Comparar"}</button>}
           <div className="course-footer">
             <span title={course.schedule}><Clock3 size={14} /> {course.schedule}</span>
@@ -159,7 +169,7 @@ export default function CourseCard({ course, onSave, onCompare, compared = false
           <span className="course-preview-kicker">Pré-visualização</span>
           <h3>{course.title}</h3>
           {meta && <p className="course-preview-meta">{meta}</p>}
-          <p className={`course-preview-price${course.is_gratuito ? " is-free" : ""}`}><strong>{pagamentoAgora}</strong>{condicaoPagamento && <span>{condicaoPagamento}</span>}</p>
+          <div className={`course-preview-price${course.is_gratuito ? " is-free" : ""}`}>{linhasPreco.map((linha) => <span className="course-preview-price-line" key={linha.rotulo}><b>{linha.rotulo}</b><strong>{linha.valor}</strong></span>)}{condicaoPagamento && <span>{condicaoPagamento}</span>}</div>
           {descricao && <p className="course-preview-description">{descricao}</p>}
           <ul className="course-preview-facts">
             {temVideo ? <><li><Video size={16} /><span><b>Conteúdo</b>{course.total_aulas || 0} {(course.total_aulas || 0) === 1 ? "aula" : "aulas"}{course.duracao_total ? ` · ${course.duracao_total}` : ""}</span></li>{course.pagamento?.descricao && <li><Clock3 size={16} /><span><b>{course.is_gratuito ? "Acesso" : "Compra"}</b>{course.pagamento.descricao}</span></li>}</> : <>{turma && <li><CalendarDays size={16} /><span><b>Próxima turma</b>{turma.inicio_formatado}{turma.turno ? ` · ${turma.turno}` : ""}{turma.horario ? ` · ${turma.horario}` : ""}</span></li>}{turma?.vagas_disponiveis > 0 && <li><UsersRound size={16} /><span><b>Vagas disponíveis</b>{turma.vagas_disponiveis} {turma.vagas_disponiveis === 1 ? "vaga" : "vagas"} nesta turma</span></li>}{localizacao && <li><MapPin size={16} /><span><b>Local</b>{localizacao}</span></li>}{course.pagamento?.descricao && <li><Clock3 size={16} /><span><b>Inscrição</b>{course.pagamento.descricao}</span></li>}</>}

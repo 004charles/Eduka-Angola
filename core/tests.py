@@ -42,6 +42,19 @@ class EducationalSponsorApiTest(TestCase):
         self.assertEqual(patrocinios[0]['titulo'], 'Bolsa Edukangola')
         self.assertEqual(patrocinios[0]['url'], '/bolsas')
 
+    def test_home_expoe_inscricao_e_mensalidade_separadas_por_curso(self):
+        response = self.client.get('/api/public/home/')
+
+        self.assertEqual(response.status_code, 200)
+        curso = next(item for item in response.json()['cursos'] if not item['is_gratuito'])
+        financeiro = curso['financeiro']
+
+        self.assertEqual(financeiro['preco_total'], curso['preco'])
+        self.assertIn('formatado', financeiro['inscricao'])
+        self.assertIn('valor', financeiro['inscricao'])
+        self.assertIn('formatado', financeiro['mensalidade'])
+        self.assertIn('valor', financeiro['mensalidade'])
+
 
 class StudentDashboardVideoRouteTest(TestCase):
     def test_dashboard_serializa_curso_em_video_na_rota_react_mesmo_com_slug_unicode(self):

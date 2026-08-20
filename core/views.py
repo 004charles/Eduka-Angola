@@ -847,6 +847,18 @@ def public_home_data(request):
             'is_gratuito': curso.is_gratuito,
             'preco': float(preco_atual),
             'preco_formatado': 'Gratuito' if curso.is_gratuito else formatar_valor(preco_atual),
+            'financeiro': {
+                'preco_total': float(preco_atual),
+                'preco_total_formatado': formatar_valor(preco_atual),
+                'inscricao': {
+                    'valor': float(curso.preco_inscricao),
+                    'formatado': formatar_valor(curso.preco_inscricao),
+                },
+                'mensalidade': {
+                    'valor': float(curso.mensalidade),
+                    'formatado': formatar_valor(curso.mensalidade),
+                },
+            },
             'certificado': curso.certificado,
             'destaque': curso.destaque,
             'imagem_url': imagem_url,
@@ -1298,6 +1310,16 @@ def public_center_profile(request, centro_id):
             'imagem_url': curso.get_imagem_url,
             'nivel': curso.get_nivel_display(),
             'carga_horaria': curso.carga_horaria or '',
+            'financeiro': {
+                'inscricao': {
+                    'valor': float(curso.preco_inscricao),
+                    'formatado': formatar_valor(curso.preco_inscricao),
+                },
+                'mensalidade': {
+                    'valor': float(curso.mensalidade),
+                    'formatado': formatar_valor(curso.mensalidade),
+                },
+            },
             'pagamento': {
                 'agora': formatar_valor(valor_inicial) if valor_inicial > 0 else 'Sem pagamento no ato',
                 'descricao': curso.descricao_cobranca_online(),

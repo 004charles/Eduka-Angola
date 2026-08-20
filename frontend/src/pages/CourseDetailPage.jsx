@@ -83,7 +83,7 @@ export default function CourseDetailPage({ course, courses, turmas, loading, onN
 
         <aside className="course-detail-aside">
           <div className="detail-enrollment-card">
-            <span className="detail-enrollment-kicker">Condições de inscrição</span><strong>{course.pagamento?.agora || "Valor a confirmar"}</strong><p>{course.pagamento?.descricao || "Consulte o centro para confirmar as condições de pagamento."}</p>
+            <span className="detail-enrollment-kicker">Condições de inscrição</span><strong>{course.pagamento?.agora || "Valor a confirmar"}</strong>{!course.is_gratuito && <div className="detail-enrollment-breakdown"><span>Inscrição <b>{Number(course.financeiro?.inscricao?.valor) > 0 ? course.financeiro.inscricao.formatado : "Sem taxa"}</b></span>{Number(course.financeiro?.mensalidade?.valor) > 0 && <span>Mensalidade <b>{course.financeiro.mensalidade.formatado}</b></span>}</div>}<p>{course.pagamento?.descricao || "Consulte o centro para confirmar as condições de pagamento."}</p>
             <button className="detail-enrollment-action" type="button" onClick={() => iniciarInscricao(turmasDoCurso[0])}>Iniciar inscrição</button>
             <small>Não precisa iniciar sessão para começar a inscrição. A informação é confirmada antes do pagamento.</small>
           </div>

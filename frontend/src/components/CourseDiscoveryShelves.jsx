@@ -18,13 +18,14 @@ function compactText(value, length = 220) {
   return text.length > length ? `${text.slice(0, length - 1).trimEnd()}…` : text;
 }
 
-function coursePrice(course) {
-  if (course.preco_formatado) return course.preco_formatado;
-  if (course.pagamento?.agora) return course.pagamento.agora;
-  const value = Number(course.preco);
-  if (!Number.isFinite(value)) return "Preço no detalhe";
-  if (value === 0) return "Gratuito";
-  return `${new Intl.NumberFormat("pt-AO", { maximumFractionDigits: 0 }).format(value)} Kz`;
+function coursePriceLines(course, videoCourse) {
+  if (course.is_gratuito) return [["Acesso", "Gratuito"]];
+  if (videoCourse) return [["Compra única", course.preco_formatado || course.pagamento?.agora || "Preço no detalhe"]];
+  const financeiro = course.financeiro || {};
+  const linhas = [["Inscrição", Number(financeiro.inscricao?.valor) > 0 ? financeiro.inscricao.formatado : "Sem taxa"]];
+  if (Number(financeiro.mensalidade?.valor) > 0) linhas.push(["Mensalidade", financeiro.mensalidade.formatado]);
+  if (!Number(financeiro.inscricao?.valor) && !Number(financeiro.mensalidade?.valor)) linhas.push(["Preço total", financeiro.preco_total_formatado || course.preco_formatado || "Preço no detalhe"]);
+  return linhas;
 }
 
 function enrollmentSummary(course, videoCourse) {
@@ -104,10 +105,11 @@ function ShelfCard({ course, onAnnounce }) {
     } catch (error) { onAnnounce?.(error.message); } finally { setSavingFavorite(false); }
   };
 
+  const pricing = coursePriceLines(course, videoCourse);
   return <article ref={cardRef} className={`discovery-card-shell${preview ? " is-preview-open" : ""}`} onMouseEnter={openPreview} onMouseLeave={closePreview} onFocusCapture={openPreview} onBlurCapture={closePreview}>
     <a className="discovery-course-card" href={detailUrl}>
       <div className="discovery-course-image"><img src={course.imagem_url} alt="" /><span>{etiquetaProduto(course)}</span></div>
-      <div className="discovery-course-body"><small>{course.categoria || "Formação"}</small><strong>{course.titulo}</strong><p>{course.centro || "Edukangola"}</p><div className="discovery-course-price"><b>{coursePrice(course)}</b><span>{enrollmentSummary(course, videoCourse)}</span></div><footer><span><Clock3 size={14} /> Ver detalhes</span><button type="button" className={isFavorite ? "is-favorite" : ""} aria-label={isFavorite ? `Remover ${course.titulo} dos guardados` : `Guardar ${course.titulo}`} aria-pressed={isFavorite} disabled={savingFavorite} onClick={toggleFavorite}><Heart size={17} fill={isFavorite ? "currentColor" : "none"} /></button></footer></div>
+      <div className="discovery-course-body"><small>{course.categoria || "Formação"}</small><strong>{course.titulo}</strong><p>{course.centro || "Edukangola"}</p><div className="discovery-course-price">{pricing.map(([rotulo, valor]) => <span key={rotulo}><small>{rotulo}</small><b>{valor}</b></span>)}<em>{enrollmentSummary(course, videoCourse)}</em></div><footer><span><Clock3 size={14} /> Ver detalhes</span><button type="button" className={isFavorite ? "is-favorite" : ""} aria-label={isFavorite ? `Remover ${course.titulo} dos guardados` : `Guardar ${course.title} dos guardados`} aria-pressed={isFavorite} disabled={savingFavorite} onClick={toggleFavorite}><Heart size={17} fill={isFavorite ? "currentColor" : "none"} /></button></footer></div>
     </a>
     {preview && createPortal(<aside className={`discovery-course-preview discovery-course-preview--${preview.placement}`} style={{ left: preview.left, top: preview.top }} aria-label={`Pré-visualização: ${course.titulo}`} onMouseEnter={openPreview} onMouseLeave={closePreview} onFocusCapture={openPreview} onBlurCapture={closePreview}>
       <span className="discovery-preview-kicker">Pré-visualização</span><h3>{course.titulo}</h3><p className="discovery-preview-meta"><b>{etiquetaProduto(course)}</b>{course.categoria ? ` · ${course.categoria}` : ""}</p>

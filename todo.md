@@ -406,4 +406,5 @@
 - [ ] Corrigir a abertura de conversas entre aluno e centro em produção
 - [ ] Alinhar cursos em vídeo da Mundo da Tecnologia aos cursos presenciais e às mesmas capas
 - [ ] Restringir a publicação e produção de cursos em vídeo à Edukangola e aos seus instrutores internos
+- [x] Distinguir inscrição e mensalidade na apresentação de preços dos cursos públicos
 - [x] Diagnosticar e corrigir a falha de criação de conta no ambiente de produção
