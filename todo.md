@@ -395,4 +395,5 @@
 - [ ] Inventariar os cursos, livros, centros, imagens e relações de demonstração para migração segura à produção
 - [ ] Preparar importação idempotente dos dados de demonstração sem apagar conteúdo de produção existente
 - [ ] Migrar os cursos, livros, centros e capas de demonstração para produção e validar a publicação
+- [ ] Corrigir o valor da migração de catálogo que excede o limite do PostgreSQL no Render
 - [x] Diagnosticar e corrigir a falha de criação de conta no ambiente de produção

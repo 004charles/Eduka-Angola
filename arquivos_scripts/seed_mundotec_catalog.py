@@ -30,7 +30,7 @@ from gestoreduka.models import CentroDeFormacao
 CENTRO = {
     "nome": "Mundo da Tecnologia",
     "email": "geral@mundotec.ao",
-    "telefone": "+244 932 407 153 | +244 922 900 498",
+    "telefone": "+244 932 407 153",
     "endereco": "Rangel, Vila Alice, Rua João de Deus; Zango III, Primeira Paragem",
     "cidade": "Luanda",
     "provincia": "Luanda",
