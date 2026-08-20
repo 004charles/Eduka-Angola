@@ -15,7 +15,7 @@ django.setup()
 from biblioteca.models import Livro
 from cursos_app.models import Categoria, Curso, Turma
 from cursovideoapp.models import Aula, Curso_video, TurmaVideo
-from gestoreduka.models import CentroDeFormacao
+from gestoreduka.models import CentroDeFormacao, PerfilCentroDeFormacao
 
 
 def resumo(nome, queryset):
@@ -40,11 +40,32 @@ def main():
     print(f"capas_video={Curso_video.objects.exclude(capa='').count()}")
     print(f"capas_livros={Livro.objects.exclude(capa='').count()}")
     print("CENTROS_ATIVOS")
-    for centro in CentroDeFormacao.objects.filter(ativo=True).order_by("nome").values_list("nome", "email", "cidade", "provincia"):
-        print(" | ".join(valor or "" for valor in centro))
+    for centro in CentroDeFormacao.objects.filter(ativo=True).order_by("nome"):
+        print(" | ".join([
+            centro.nome or "",
+            centro.email,
+            centro.cidade or "",
+            centro.provincia or "",
+            str(Curso.objects.filter(centro=centro, ativo=True, publicado=True).count()),
+            str(Curso_video.objects.filter(centro=centro).count()),
+        ]))
+    print("PERFIS_CENTROS")
+    for perfil in PerfilCentroDeFormacao.objects.select_related("centro").order_by("centro__email"):
+        print(" | ".join([
+            perfil.centro.email,
+            perfil.imagem.name if perfil.imagem else "",
+            perfil.banner.name if perfil.banner else "",
+        ]))
     print("CURSOS_VIDEO")
-    for titulo in Curso_video.objects.order_by("titulo").values_list("titulo", flat=True):
-        print(titulo)
+    for video in Curso_video.objects.select_related("centro", "categoria").order_by("titulo"):
+        print(" | ".join([
+            video.titulo,
+            video.centro.email if video.centro else "",
+            video.categoria.slug if video.categoria else "",
+            str(video.preco),
+            video.capa.name if video.capa else "",
+            video.descricao.replace("\n", " ")[:220],
+        ]))
     print("LIVROS")
     for titulo in Livro.objects.order_by("titulo").values_list("titulo", flat=True):
         print(titulo)

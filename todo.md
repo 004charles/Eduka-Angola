@@ -395,4 +395,4 @@
 - [ ] Inventariar os cursos, livros, centros, imagens e relações de demonstração para migração segura à produção
 - [ ] Preparar importação idempotente dos dados de demonstração sem apagar conteúdo de produção existente
 - [ ] Migrar os cursos, livros, centros e capas de demonstração para produção e validar a publicação
-- [ ] Diagnosticar e corrigir a falha de criação de conta no ambiente de produção
+- [x] Diagnosticar e corrigir a falha de criação de conta no ambiente de produção
