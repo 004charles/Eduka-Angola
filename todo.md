@@ -408,3 +408,4 @@
 - [ ] Restringir a publicação e produção de cursos em vídeo à Edukangola e aos seus instrutores internos
 - [x] Distinguir inscrição e mensalidade na apresentação de preços dos cursos públicos
 - [x] Diagnosticar e corrigir a falha de criação de conta no ambiente de produção
+- [x] Melhorar a qualidade, escolha e controlo da voz na leitura em voz alta da Biblioteca
