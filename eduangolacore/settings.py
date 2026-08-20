@@ -133,8 +133,16 @@ SESSION_COOKIE_DOMAIN = config("SESSION_COOKIE_DOMAIN", default=None) or None
 CSRF_COOKIE_DOMAIN = config("CSRF_COOKIE_DOMAIN", default=None) or None
 SESSION_COOKIE_SAMESITE = config("SESSION_COOKIE_SAMESITE", default="Lax")
 CSRF_COOKIE_SAMESITE = config("CSRF_COOKIE_SAMESITE", default="Lax")
+CSRF_COOKIE_NAME = config(
+    "CSRF_COOKIE_NAME",
+    default="eduka_csrftoken" if IS_DEPLOYED_ENV else "csrftoken",
+)
 
 SITE_DOMAIN = config('SITE_DOMAIN', default='https://www.edukangola.com')
+MEDIA_PUBLIC_ORIGIN = config(
+    'MEDIA_PUBLIC_ORIGIN',
+    default='https://api.edukangola.com' if IS_DEPLOYED_ENV else '',
+).strip().rstrip('/')
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',

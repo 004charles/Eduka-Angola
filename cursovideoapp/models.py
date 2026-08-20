@@ -40,11 +40,14 @@ class Curso_video(models.Model):
         """Retorna a URL da capa ou a imagem padrão caso esteja ausente."""
         if self.capa and hasattr(self.capa, 'url'):
             try:
-                return self.capa.url
+                if self.capa.name and self.capa.storage.exists(self.capa.name):
+                    from core.media_urls import public_media_url
+                    return public_media_url(self.capa.url)
             except Exception:
                 pass
         from django.templatetags.static import static
-        return static('assets/images/course/course-01.jpg')
+        from core.media_urls import public_media_url
+        return public_media_url(static('assets/images/course/course-elegant-01.jpg'))
 
     @property
     def modalidade(self):

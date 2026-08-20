@@ -432,11 +432,14 @@ class Curso(models.Model):
         """Retorna a URL da imagem do curso ou a imagem padrão caso esteja ausente."""
         if self.imagem and hasattr(self.imagem, 'url'):
             try:
-                return self.imagem.url
+                if self.imagem.name and self.imagem.storage.exists(self.imagem.name):
+                    from core.media_urls import public_media_url
+                    return public_media_url(self.imagem.url)
             except Exception:
                 pass
         from django.templatetags.static import static
-        return static('assets/images/course/course-01.jpg')
+        from core.media_urls import public_media_url
+        return public_media_url(static('assets/images/course/course-online-01.jpg'))
 
     @property
     def preco_base_atual(self):

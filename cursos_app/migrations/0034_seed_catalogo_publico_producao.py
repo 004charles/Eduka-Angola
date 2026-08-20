@@ -280,6 +280,7 @@ class Migration(migrations.Migration):
         ("gestoreduka", "0025_remove_feed_reels"),
         ("biblioteca", "0003_bibliotecapessoal_pagina_leitura"),
         ("cursovideoapp", "0020_duvidas_resolvidas"),
+        ("planos", "0005_seed_four_center_plans"),
     ]
 
     operations = [migrations.RunPython(seed_public_catalog, migrations.RunPython.noop)]

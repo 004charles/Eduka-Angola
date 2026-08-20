@@ -397,4 +397,6 @@
 - [ ] Migrar os cursos, livros, centros e capas de demonstração para produção e validar a publicação
 - [x] Corrigir o valor da migração de catálogo que excede o limite do PostgreSQL no Render
 - [ ] Completar as capas ausentes nos cursos publicados em produção
+- [ ] Corrigir a persistência e a entrega das capas de curso no armazenamento de produção
+- [ ] Corrigir a expiração da sessão de segurança CSRF ao criar conta em produção
 - [x] Diagnosticar e corrigir a falha de criação de conta no ambiente de produção

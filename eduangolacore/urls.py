@@ -19,6 +19,7 @@ from django.views.decorators.csrf import csrf_exempt
 from usuarios import views as usuarios_views
 from django.views.i18n import set_language
 from django.views.generic import TemplateView
+from django.views.static import serve as serve_media
 from core.react_delivery import backend_proxy, react_application, react_asset
 
 router = routers.DefaultRouter()
@@ -38,6 +39,12 @@ router.register(r'blog', PostViewSet, basename='blog')
 
 
 urlpatterns = [
+    # Render não serve MEDIA_ROOT automaticamente quando DEBUG=False. Este
+    # fallback é usado apenas sem Cloudinary; o conteúdo é público e a rota
+    # deixa de existir assim que o armazenamento Cloudinary estiver activo.
+    *([] if settings.USE_CLOUDINARY else [
+        re_path(r'^media/(?P<path>.*)$', serve_media, {'document_root': settings.MEDIA_ROOT}),
+    ]),
     # path('ckeditor/', include('ckeditor_uploader.urls')),
     path('admin/', admin.site.urls),
 
