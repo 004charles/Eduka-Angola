@@ -304,13 +304,17 @@ class Curso(models.Model):
         return f"{self.titulo} - {self.centro.nome}"
 
     def save(self, *args, **kwargs):
+        max_slug_length = self._meta.get_field('slug').max_length
         if not self.slug:
-            self.slug = slugify(f"{self.titulo}-{self.centro.nome}")
+            self.slug = slugify(f"{self.titulo}-{self.centro.nome}")[:max_slug_length]
+        else:
+            self.slug = self.slug[:max_slug_length]
         
         original_slug = self.slug
         counter = 1
         while Curso.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
-            self.slug = f"{original_slug}-{counter}"
+            suffix = f"-{counter}"
+            self.slug = f"{original_slug[:max_slug_length - len(suffix)]}{suffix}"
             counter += 1
         
         novo = self.pk is None  
