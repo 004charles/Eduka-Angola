@@ -399,4 +399,9 @@
 - [x] Completar as capas ausentes nos cursos publicados em produção
 - [x] Corrigir a persistência e a entrega das capas de curso no armazenamento de produção
 - [x] Corrigir a expiração da sessão de segurança CSRF ao criar conta em produção
+- [ ] Auditar eventos, preferências e envio de e-mails de notificação existentes
+- [ ] Definir a política de notificações por e-mail e push com consentimento e limites de frequência
+- [ ] Corrigir as capas dos livros publicados na biblioteca
+- [ ] Reduzir o catálogo público aos cursos da Mundo da Tecnologia com as capas fornecidas
+- [ ] Corrigir a abertura de conversas entre aluno e centro em produção
 - [x] Diagnosticar e corrigir a falha de criação de conta no ambiente de produção

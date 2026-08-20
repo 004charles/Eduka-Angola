@@ -1,11 +1,9 @@
 import { ArrowLeft, Bell, CircleAlert, MessageCircle, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 import { backendUrl } from "../lib/backend-url";
+import { authRequest } from "../lib/auth-api";
 import "./student-messages-page.css";
 import "./student-messages-spacing.css";
-
-const csrfToken = () => document.cookie.split(";").map((value) => value.trim()).find((value) => value.startsWith("csrftoken="))?.split("=")[1] || "";
-const ensureCsrf = () => fetch(backendUrl("/auth/api/react/csrf/"), { credentials: "same-origin" });
 
 export default function StudentMessagesPage({ centerId, conversationId, onNavigate }) {
   const [state, setState] = useState({ loading: true, error: "", conversations: [], selected: conversationId, detail: null, unread: 0 });
@@ -13,7 +11,7 @@ export default function StudentMessagesPage({ centerId, conversationId, onNaviga
   const [sending, setSending] = useState(false);
 
   const loadList = async (preferredId = null) => {
-    const response = await fetch(backendUrl("/auth/api/react/aluno/conversas/"), { credentials: "same-origin", cache: "no-store" });
+    const response = await fetch(backendUrl("/auth/api/react/aluno/conversas/"), { credentials: "include", cache: "no-store" });
     const data = await response.json().catch(() => ({}));
     if (response.status === 401) throw Object.assign(new Error("login"), { code: "login" });
     if (!response.ok || !data.ok) throw new Error(data.message || "Não foi possível carregar as suas mensagens.");
@@ -34,7 +32,7 @@ export default function StudentMessagesPage({ centerId, conversationId, onNaviga
 
   const loadDetail = async (id) => {
     if (!id) return;
-    const response = await fetch(backendUrl(`/auth/api/react/aluno/conversas/${id}/`), { credentials: "same-origin", cache: "no-store" });
+    const response = await fetch(backendUrl(`/auth/api/react/aluno/conversas/${id}/`), { credentials: "include", cache: "no-store" });
     const data = await response.json().catch(() => ({}));
     if (!response.ok || !data.ok) throw new Error(data.message || "Não foi possível abrir a conversa.");
     setState((current) => ({ ...current, detail: data, unread: 0 }));
@@ -53,18 +51,9 @@ export default function StudentMessagesPage({ centerId, conversationId, onNaviga
     let active = true;
     (async () => {
       try {
-        await ensureCsrf();
         let preferredId = conversationId;
         if (centerId) {
-          const response = await fetch(backendUrl("/auth/api/react/aluno/conversas/iniciar/"), {
-            method: "POST",
-            credentials: "same-origin",
-            headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken() },
-            body: JSON.stringify({ centro_id: centerId }),
-          });
-          const data = await response.json().catch(() => ({}));
-          if (response.status === 401) throw Object.assign(new Error("login"), { code: "login" });
-          if (!response.ok || !data.ok) throw new Error(data.message || "Não foi possível preparar a conversa com o centro.");
+          const data = await authRequest("/auth/api/react/aluno/conversas/iniciar/", { centro_id: centerId });
           preferredId = data.conversa.id;
         }
         await loadList(preferredId);
@@ -87,15 +76,7 @@ export default function StudentMessagesPage({ centerId, conversationId, onNaviga
     if (!state.selected || !text.trim()) return;
     setSending(true);
     try {
-      await ensureCsrf();
-      const response = await fetch(backendUrl(`/auth/api/react/aluno/conversas/${state.selected}/mensagens/`), {
-        method: "POST",
-        credentials: "same-origin",
-        headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken() },
-        body: JSON.stringify({ mensagem: text }),
-      });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok || !data.ok) throw new Error(data.message || "Não foi possível enviar a mensagem.");
+      await authRequest(`/auth/api/react/aluno/conversas/${state.selected}/mensagens/`, { mensagem: text });
       setText("");
       await Promise.all([loadDetail(state.selected), loadList()]);
     } catch (error) {
