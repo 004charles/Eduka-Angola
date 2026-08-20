@@ -10,8 +10,6 @@ import ManagerFinancePanel from "./ManagerFinancePanel";
 import ManagerInternshipsPanel from "./ManagerInternshipsPanel";
 import ManagerStudentsPanel from "./ManagerStudentsPanel";
 import ManagerSubscriptionPanel from "./ManagerSubscriptionPanel";
-import ManagerVideoCertificatesPanel from "./ManagerVideoCertificatesPanel";
-import ManagerVideoCoursesPanel from "./ManagerVideoCoursesPanel";
 
 const blank = { nome: "", email: "", titulo: "", biografia: "", area_especializacao: "", ativo: true };
 const csrfToken = () => document.cookie.split(";").map((part) => part.trim()).find((part) => part.startsWith("csrftoken="))?.split("=").slice(1).join("=") || "";
@@ -43,5 +41,5 @@ export default function ManagerInstructorsPanel({ embedded = false }) {
   if (!data) return <section className="manager-courses manager-instructors"><p>A preparar os formadores…</p></section>;
   const panel = <section className="manager-courses manager-instructors"><div><span className="manager-eyebrow">Equipa pedagógica</span><h2>Formadores</h2></div><button className="manager-create-course" onClick={() => setModal("new")}><Plus size={15}/> Adicionar</button>{error && <p className="manager-form-error">{error}</p>}<div className="manager-course-list">{data.instrutores.length ? data.instrutores.map((item) => <article key={item.id}><div><strong>{item.nome}</strong><span>{item.titulo || item.area_especializacao}</span></div><span className={item.ativo ? "published" : "draft"}>{item.ativo ? "Activo" : "Inactivo"}</span><button onClick={() => setModal(item)} aria-label={`Editar ${item.nome}`}><Pencil size={16}/></button></article>) : <p className="manager-empty-state"><UserRound size={16}/> Ainda não existem formadores associados ao centro.</p>}</div>{modal && <InstructorForm meta={data} item={modal === "new" ? null : modal} onClose={() => setModal(null)} onSaved={() => { setModal(null); load(); }} />}</section>;
   if (embedded) return panel;
-  return <>{panel}<ManagerBranchesPanel /><ManagerVideoCoursesPanel /><ManagerVideoCertificatesPanel /><ManagerEventsPanel /><ManagerFinancePanel /><ManagerChatPanel /><ManagerAnnouncementsPanel /><ManagerCommentsPanel /><ManagerInternshipsPanel /><ManagerAnalyticsPanel /><ManagerStudentsPanel /><ManagerSubscriptionPanel /></>;
+  return <>{panel}<ManagerBranchesPanel /><ManagerEventsPanel /><ManagerFinancePanel /><ManagerChatPanel /><ManagerAnnouncementsPanel /><ManagerCommentsPanel /><ManagerInternshipsPanel /><ManagerAnalyticsPanel /><ManagerStudentsPanel /><ManagerSubscriptionPanel /></>;
 }

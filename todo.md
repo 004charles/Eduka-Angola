@@ -404,4 +404,6 @@
 - [ ] Corrigir as capas dos livros publicados na biblioteca
 - [ ] Reduzir o catálogo público aos cursos da Mundo da Tecnologia com as capas fornecidas
 - [ ] Corrigir a abertura de conversas entre aluno e centro em produção
+- [ ] Alinhar cursos em vídeo da Mundo da Tecnologia aos cursos presenciais e às mesmas capas
+- [ ] Restringir a publicação e produção de cursos em vídeo à Edukangola e aos seus instrutores internos
 - [x] Diagnosticar e corrigir a falha de criação de conta no ambiente de produção

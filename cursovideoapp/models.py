@@ -38,16 +38,8 @@ class Curso_video(models.Model):
     @property
     def get_imagem_url(self):
         """Retorna a URL da capa ou a imagem padrão caso esteja ausente."""
-        if self.capa and hasattr(self.capa, 'url'):
-            try:
-                if self.capa.name and self.capa.storage.exists(self.capa.name):
-                    from core.media_urls import public_media_url
-                    return public_media_url(self.capa.url)
-            except Exception:
-                pass
-        from django.templatetags.static import static
-        from core.media_urls import public_media_url
-        return public_media_url(static('assets/images/course/course-elegant-01.jpg'))
+        from core.media_urls import public_course_cover_url
+        return public_course_cover_url(self.capa, 'assets/images/course/course-elegant-01.jpg')
 
     @property
     def modalidade(self):

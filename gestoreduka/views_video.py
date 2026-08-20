@@ -43,10 +43,7 @@ def _react_video_access(request):
     centro, filial = get_gestor_context(request.user)
     if not centro:
         return None, None, JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
-    plano = get_plano_ativo(centro)
-    if not plano or not plano.permite_cursos_video:
-        return None, None, JsonResponse({'detail': 'O plano actual não permite gerir cursos em vídeo.'}, status=403)
-    return centro, filial, None
+    return None, None, JsonResponse({'detail': 'Os cursos em vídeo são produzidos e geridos exclusivamente pela equipa Edukangola.'}, status=403)
 
 
 @login_required
