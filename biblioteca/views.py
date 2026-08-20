@@ -20,8 +20,10 @@ def _image_url(request, field):
     if not field:
         return ""
     try:
+        if not field.name or not field.storage.exists(field.name):
+            return ""
         return request.build_absolute_uri(field.url)
-    except ValueError:
+    except (ValueError, OSError):
         return ""
 
 
