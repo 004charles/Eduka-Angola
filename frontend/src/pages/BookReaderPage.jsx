@@ -22,6 +22,7 @@ function scoreVoice(voice, language) {
   const isSameFamily = voiceLanguage.split("-")[0] === requested.split("-")[0];
   const hasNaturalNarrationHint = /(natural|online|neural|microsoft|google|apple|siri|helena|raquel|joana|fernanda|in[eê]s|duarte)/.test(name);
 
+  if (!isSameFamily) return -1;
   return (isExactLanguage ? 1000 : isSameFamily ? 700 : 0)
     + (hasNaturalNarrationHint ? 160 : 0)
     + (!voice.localService ? 45 : 0)
@@ -84,6 +85,7 @@ export default function BookReaderPage({ slug, student, onNavigate, onAnnounce }
     if (selectedVoiceId !== "recommended") return availableVoices.find((voice) => voiceId(voice) === selectedVoiceId) || recommendedVoices[0] || null;
     return recommendedVoices[0] || null;
   }, [availableVoices, recommendedVoices, selectedVoiceId]);
+  const canSpeakBookLanguage = speechAvailable && Boolean(selectedVoice);
 
   const stopSpeech = useCallback(() => {
     speechRunRef.current += 1;
@@ -95,7 +97,7 @@ export default function BookReaderPage({ slug, student, onNavigate, onAnnounce }
   }, []);
 
   const speakNext = useCallback(() => {
-    if (!speechAvailable || typeof window === "undefined") return;
+    if (!canSpeakBookLanguage || typeof window === "undefined") return;
     const currentRun = speechRunRef.current;
     const text = speechChunksRef.current[speechChunkIndexRef.current];
     if (!text) {
@@ -128,7 +130,7 @@ export default function BookReaderPage({ slug, student, onNavigate, onAnnounce }
       onAnnounce("Não foi possível reproduzir esta voz. Escolha outra voz e tente novamente.");
     };
     window.speechSynthesis.speak(utterance);
-  }, [onAnnounce, selectedVoice, speechAvailable, speechLanguage, speechRate]);
+  }, [canSpeakBookLanguage, onAnnounce, selectedVoice, speechLanguage, speechRate]);
 
   useEffect(() => {
     speakNextRef.current = speakNext;
@@ -202,6 +204,10 @@ export default function BookReaderPage({ slug, student, onNavigate, onAnnounce }
       onAnnounce("A leitura em voz alta não está disponível neste navegador.");
       return;
     }
+    if (!selectedVoice) {
+      onAnnounce("Não existe uma voz compatível com o idioma deste livro. Active uma voz em português nas definições do dispositivo e recarregue esta página.");
+      return;
+    }
     const chunks = splitSpeechText(text);
     if (!chunks.length) {
       onAnnounce("Não existe texto disponível para ouvir nesta página.");
@@ -239,12 +245,12 @@ export default function BookReaderPage({ slug, student, onNavigate, onAnnounce }
     <div className="reader-progress"><span style={{ width: `${Math.round(((chapter + 1) / Math.max(sections.length, 1)) * 100)}%` }} /></div>
     <section className="reader-tools" aria-label="Controlos de leitura em voz alta">
       <div className="reader-voice-label"><Volume2 size={17} /><span>Ouvir esta página</span></div>
-      <button type="button" className={speaking ? "active" : ""} onClick={speaking ? pauseOrResumeSpeech : speakCurrent} disabled={!speechAvailable}>{speaking ? speechPaused ? <><Play size={16} /> Retomar</> : <><Pause size={16} /> Pausar</> : <><Volume2 size={16} /> Ler em voz alta</>}</button>
+      <button type="button" className={speaking ? "active" : ""} onClick={speaking ? pauseOrResumeSpeech : speakCurrent} disabled={!canSpeakBookLanguage}>{speaking ? speechPaused ? <><Play size={16} /> Retomar</> : <><Pause size={16} /> Pausar</> : <><Volume2 size={16} /> Ler em voz alta</>}</button>
       {speaking && <button type="button" onClick={stopSpeech}><Square size={14} /> Parar</button>}
-      <label className="reader-voice-select"><span>Voz</span><select value={selectedVoiceId} onChange={(event) => { stopSpeech(); setSelectedVoiceId(event.target.value); }} disabled={!speechAvailable}><option value="recommended">Recomendada · {voiceName}</option>{recommendedVoices.slice(1).map((voice) => <option value={voiceId(voice)} key={voiceId(voice)}>{voice.name} · {voice.lang}</option>)}</select></label>
-      <button type="button" className="reader-voice-preview" onClick={previewVoice} disabled={!speechAvailable}><Volume2 size={14} /> Ouvir amostra</button>
+      <label className="reader-voice-select"><span>Voz</span><select value={selectedVoiceId} onChange={(event) => { stopSpeech(); setSelectedVoiceId(event.target.value); }} disabled={!canSpeakBookLanguage}><option value="recommended">Recomendada · {voiceName}</option>{recommendedVoices.slice(1).map((voice) => <option value={voiceId(voice)} key={voiceId(voice)}>{voice.name} · {voice.lang}</option>)}</select></label>
+      <button type="button" className="reader-voice-preview" onClick={previewVoice} disabled={!canSpeakBookLanguage}><Volume2 size={14} /> Ouvir amostra</button>
       <label><Gauge size={15} /> <span>Velocidade</span><select value={speechRate} onChange={(event) => setSpeechRate(Number(event.target.value))}><option value="0.8">0,8×</option><option value="0.9">0,9×</option><option value="1">1×</option><option value="1.15">1,15×</option><option value="1.3">1,3×</option></select></label>
-      {!recommendedVoices.length && speechAvailable && <p className="reader-voice-note">Não encontrámos uma voz em português. A qualidade depende das vozes instaladas no dispositivo.</p>}
+      {!recommendedVoices.length && speechAvailable && <p className="reader-voice-note">Nenhuma voz em português foi encontrada. Active ou transfira uma voz em Português nas definições de texto para voz do dispositivo e volte a abrir esta página.</p>}
     </section>
     <article className="reader-page">{content.split("\n").map(renderLine)}</article>
     <nav className="reader-navigation"><button type="button" disabled={chapter === 0} onClick={() => selectChapter(chapter - 1)}><ChevronLeft size={18} /> Anterior</button><span>{chapter + 1} de {sections.length}</span><button type="button" disabled={chapter >= sections.length - 1} onClick={() => selectChapter(chapter + 1)}>Seguinte <ChevronRight size={18} /></button></nav>

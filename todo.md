@@ -409,3 +409,5 @@
 - [x] Distinguir inscrição e mensalidade na apresentação de preços dos cursos públicos
 - [x] Diagnosticar e corrigir a falha de criação de conta no ambiente de produção
 - [x] Melhorar a qualidade, escolha e controlo da voz na leitura em voz alta da Biblioteca
+- [x] Bloquear vozes incompatíveis e orientar a activação de voz portuguesa na Biblioteca
+- [ ] Avaliar um serviço de síntese neural com voz portuguesa para a leitura de livros
