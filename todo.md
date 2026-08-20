@@ -412,3 +412,4 @@
 - [x] Bloquear vozes incompatíveis e orientar a activação de voz portuguesa na Biblioteca
 - [x] Avaliar um serviço de síntese neural com voz portuguesa para a leitura de livros
 - [ ] Integrar um serviço de síntese neural escolhido para disponibilizar voz portuguesa própria na Biblioteca
+- [x] Criar e validar uma conta de administrador do Django Admin em produção
