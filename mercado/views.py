@@ -21,6 +21,10 @@ def _media_url(field):
         return ""
 
 
+def _imagem_produto(produto):
+    return (produto.imagem_url_publica or _media_url(produto.imagem_principal)).strip()
+
+
 def _formatar_valor(valor, moeda="AOA"):
     sufixo = "Kz" if moeda == "AOA" else moeda
     return f"{valor:,.0f} {sufixo}".replace(",", " ")
@@ -32,7 +36,7 @@ def serializar_produto(produto, detalhe=False):
         "titulo": produto.titulo,
         "slug": produto.slug,
         "resumo": produto.resumo,
-        "imagem_url": _media_url(produto.imagem_principal),
+        "imagem_url": _imagem_produto(produto),
         "categoria": produto.categoria.nome,
         "categoria_slug": produto.categoria.slug,
         "preco": float(produto.preco),
@@ -52,7 +56,7 @@ def serializar_produto(produto, detalhe=False):
     if detalhe:
         payload.update({
             "descricao": produto.descricao,
-            "imagens": [_media_url(produto.imagem_principal), *[url for url in produto.imagens if url]],
+            "imagens": [_imagem_produto(produto), *[url for url in produto.imagens if url]],
             "especificacoes": produto.especificacoes or {},
             "loja": {
                 **payload["loja"],
@@ -179,7 +183,7 @@ def meus_pedidos(request):
                 "titulo": item.titulo,
                 "quantidade": item.quantidade,
                 "preco_unitario": float(item.preco_unitario),
-                "imagem_url": _media_url(item.produto.imagem_principal),
+                "imagem_url": _imagem_produto(item.produto),
                 "produto_url": f"/mercado/produtos/{item.produto.slug}",
             } for item in pedido.itens.all()],
         } for pedido in pedidos]})

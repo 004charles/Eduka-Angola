@@ -421,3 +421,4 @@
 - [x] Definir checkout interno, entrega, confirmação e reembolso para pedidos do Mercado Edukangola
 - [x] Definir o Mercado Edukangola como operação centralizada: produtos cadastrados, recolhidos e entregues pela administração da plataforma
 - [ ] Lançar o Mercado Edukangola em Luanda com estafeta contratado, pagamento interno e operação centralizada
+- [x] Criar e validar localmente produtos de demonstração de computadores, livros e mochilas no Mercado Edukangola

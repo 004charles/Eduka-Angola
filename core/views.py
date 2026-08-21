@@ -1155,9 +1155,9 @@ def public_home_data(request):
             status='PUBLICADO', loja__ativa=True, loja__verificada=True,
         ).select_related('loja', 'categoria').order_by('-destaque', '-atualizado_em')[:10]:
             try:
-                imagem_produto = produto.imagem_principal.url if produto.imagem_principal else ''
+                imagem_produto = produto.imagem_url_publica or (produto.imagem_principal.url if produto.imagem_principal else '')
             except (ValueError, AttributeError):
-                imagem_produto = ''
+                imagem_produto = produto.imagem_url_publica or ''
             produtos_mercado.append({
                 'id': produto.id,
                 'titulo': produto.titulo,

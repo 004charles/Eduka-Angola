@@ -93,6 +93,7 @@ class ProdutoMercado(models.Model):
     resumo = models.CharField(max_length=260)
     descricao = models.TextField()
     imagem_principal = models.ImageField(upload_to="mercado/produtos/", blank=True)
+    imagem_url_publica = models.CharField(max_length=500, blank=True, help_text="URL pública de imagem quando o ficheiro não é enviado ao servidor.")
     imagens = models.JSONField(default=list, blank=True, help_text="URLs adicionais de imagens do produto.")
     especificacoes = models.JSONField(default=dict, blank=True, help_text="Características técnicas apresentadas ao comprador.")
     condicao = models.CharField(max_length=20, choices=CONDICAO_CHOICES, default="NOVO")
