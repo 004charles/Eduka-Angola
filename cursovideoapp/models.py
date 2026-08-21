@@ -35,6 +35,20 @@ class Curso_video(models.Model):
     def total_inscritos(self):
         return self.inscritos.count()
 
+    def aluno_tem_acesso(self, aluno):
+        """Mantém acessos individuais antigos e acrescenta o direito por subscrição activa."""
+        if not aluno:
+            return False
+        if self.inscritos.filter(pk=aluno.pk).exists():
+            return True
+        agora = timezone.now()
+        return AssinaturaVideoAluno.objects.filter(
+            aluno=aluno,
+            status='ATIVA',
+            data_inicio__lte=agora,
+            data_fim__gt=agora,
+        ).exists()
+
     @property
     def get_imagem_url(self):
         """Retorna a URL da capa ou a imagem padrão caso esteja ausente."""
@@ -145,6 +159,65 @@ class Curso_video(models.Model):
 
     def __str__(self):
         return self.titulo
+
+
+class PlanoSubscricaoVideo(models.Model):
+    """Plano mensal de acesso ao catálogo de cursos em vídeo, gerido pela equipa Edukangola."""
+    nome = models.CharField(_('Nome do plano'), max_length=100, unique=True)
+    descricao = models.TextField(_('Descrição'), blank=True)
+    preco = models.DecimalField(_('Preço mensal'), max_digits=10, decimal_places=2)
+    moeda = models.CharField(_('Moeda'), max_length=3, default='AOA')
+    periodo_dias = models.PositiveIntegerField(_('Duração em dias'), default=30)
+    ativo = models.BooleanField(_('Disponível para novas subscrições'), default=True, db_index=True)
+    destaque = models.BooleanField(_('Plano em destaque'), default=False)
+    ordem = models.PositiveIntegerField(_('Ordem de apresentação'), default=0)
+    data_criacao = models.DateTimeField(auto_now_add=True)
+    data_atualizacao = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('Plano de subscrição de vídeo')
+        verbose_name_plural = _('Planos de subscrição de vídeo')
+        ordering = ['ordem', 'preco', 'id']
+
+    def __str__(self):
+        return f'{self.nome} — {self.preco} {self.moeda}'
+
+
+class AssinaturaVideoAluno(models.Model):
+    STATUS_CHOICES = [
+        ('PENDENTE', _('Pendente de pagamento')),
+        ('ATIVA', _('Activa')),
+        ('EXPIRADA', _('Expirada')),
+        ('CANCELADA', _('Cancelada')),
+    ]
+
+    aluno = models.ForeignKey('usuarios.Aluno', on_delete=models.CASCADE, related_name='subscricoes_video')
+    plano = models.ForeignKey(PlanoSubscricaoVideo, on_delete=models.PROTECT, related_name='subscricoes')
+    status = models.CharField(_('Estado'), max_length=12, choices=STATUS_CHOICES, default='PENDENTE', db_index=True)
+    data_inicio = models.DateTimeField(_('Início da subscrição'))
+    data_fim = models.DateTimeField(_('Fim da subscrição'), db_index=True)
+    valor_cobrado = models.DecimalField(_('Valor cobrado'), max_digits=10, decimal_places=2)
+    moeda = models.CharField(_('Moeda'), max_length=3, default='AOA')
+    referencia_pagamento = models.CharField(_('Referência do pagamento'), max_length=100, unique=True, blank=True, null=True)
+    data_criacao = models.DateTimeField(auto_now_add=True)
+    data_atualizacao = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('Subscrição de vídeo do aluno')
+        verbose_name_plural = _('Subscrições de vídeo dos alunos')
+        ordering = ['-data_fim', '-id']
+
+    @property
+    def esta_ativa(self):
+        agora = timezone.now()
+        if self.status == 'ATIVA' and self.data_fim <= agora:
+            self.status = 'EXPIRADA'
+            self.save(update_fields=['status', 'data_atualizacao'])
+            return False
+        return self.status == 'ATIVA' and self.data_inicio <= agora < self.data_fim
+
+    def __str__(self):
+        return f'{self.aluno.nome} — {self.plano.nome} ({self.get_status_display()})'
 
 class Aula(models.Model):
     curso = models.ForeignKey(Curso_video, on_delete=models.CASCADE, related_name="aulas", null=True)

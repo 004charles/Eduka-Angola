@@ -433,3 +433,5 @@
 - [x] Mostrar filiais e localizações das turmas no checkout para escolha da unidade mais próxima
 - [x] Criar filial e turma demonstrativas para testar a selecção de unidade no checkout em produção
 - [x] Enviar por e-mail o comprovativo oficial de inscrição confirmada com curso, turma, filial e código de apresentação presencial
+- [x] Substituir a compra individual de cursos em vídeo por subscrição mensal com acesso ao catálogo completo
+- [x] Permitir ao administrador gerir no Django Admin os planos, preços e disponibilidade da subscrição de cursos em vídeo

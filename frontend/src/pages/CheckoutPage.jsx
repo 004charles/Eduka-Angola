@@ -10,6 +10,13 @@ function DetalhesTurma({ turma }) {
   return <div className="checkout-class-summary"><UsersRound size={18} /><div><b>{turma.nome || turma.turma_nome || "Turma selecionada"}</b><span><CalendarDays size={14} /> {turma.inicio || turma.inicio_formatado || "Início a confirmar"}</span><span><MapPin size={14} /> {[turma.local, turma.sala].filter(Boolean).join(" · ") || "Local a confirmar"}</span></div>{turma.vagas !== undefined && <small>{turma.vagas} vagas</small>}</div>;
 }
 
+function CheckoutSubscricaoVideo({ course, stage, response, error, submitting, selectedPlanId, onChoosePlan, onStart, onPay, onNavigate, slug }) {
+  const planos = course.subscricao?.planos || [];
+  const plano = response?.plano || planos.find((item) => String(item.id) === String(selectedPlanId)) || planos[0];
+  const formatPlan = (item) => item ? `${formatarKz(item.preco || response?.valor_agora)} / ${item.periodo_dias || 30} dias` : "Preço a definir no Admin";
+  return <main className="checkout-page"><div className="page-width checkout-shell"><button className="checkout-back" onClick={() => onNavigate(`/video-cursos/${slug}`)}><ArrowLeft size={17} /> Voltar ao curso</button><div className="checkout-layout"><section className="checkout-main"><span className="eyebrow"><Video size={15} /> Edukangola Vídeo</span><h1>{stage === "details" ? "Acesso completo com uma subscrição." : stage === "review" ? "Confirme a sua subscrição mensal." : "A preparar o pagamento seguro."}</h1><p className="checkout-intro">A subscrição activa todos os cursos em vídeo da Edukangola durante o período do plano escolhido. O preço é definido pela administração da plataforma.</p>{stage === "details" && <div className="checkout-form"><fieldset><legend>Escolha o seu plano</legend>{planos.length ? planos.map((item) => <label key={item.id} className="checkout-plan-option"><input type="radio" name="plano_video" value={item.id} checked={String(plano?.id) === String(item.id)} onChange={() => onChoosePlan(item.id)} /><span><b>{item.nome}</b><small>{item.descricao || "Acesso a todo o catálogo de cursos em vídeo."}</small></span><em>{formatPlan(item)}</em></label>) : <p>Não existe um plano disponível neste momento. A administração pode configurá-lo no Django Admin.</p>}</fieldset>{error && <p className="checkout-error">{error}</p>}<button className="primary-action checkout-submit" disabled={submitting || !plano} onClick={onStart}>{submitting ? "A preparar…" : "Ver resumo da subscrição"}<ChevronRight size={17} /></button></div>}{stage === "review" && <div className="checkout-review"><div className="checkout-payment-explainer"><CreditCard size={21} /><div><b>{response?.plano?.nome || plano?.nome}</b><p>{response?.message || "A subscrição será activada depois de o pagamento ser confirmado."}</p></div></div>{error && <p className="checkout-error">{error}</p>}<button className="primary-action checkout-submit" onClick={onPay} disabled={submitting}>{submitting ? "A preparar pagamento…" : `Ir para pagamento seguro · ${formatPlan(response?.plano || plano)}`}<ChevronRight size={17} /></button></div>}{stage === "processing" && <div className="checkout-processing"><div className="checkout-processing-mark"><LoaderCircle size={34} /></div><h2>A preparar o pagamento seguro</h2><p>Será redireccionado para a Prontu. Quando o pagamento for aceite, a subscrição mensal activa todo o catálogo.</p></div>}</section><aside className="checkout-summary"><span>Subscrição mensal</span><div className="checkout-course"><div className="checkout-cover">{course.imagem_url ? <img src={course.imagem_url} alt="" /> : <Video size={24} />}</div><div><b>{course.titulo}</b><small>Incluído no catálogo Edukangola Vídeo</small></div></div><dl><div><dt>Plano seleccionado</dt><dd>{plano?.nome || "A confirmar"}</dd></div><div><dt>Valor</dt><dd>{formatPlan(plano)}</dd></div><div><dt>Depois do pagamento</dt><dd>Acesso a todos os cursos em vídeo</dd></div></dl><p><LockKeyhole size={15} /> A subscrição não altera inscrições presenciais nem pedidos do Mercado.</p></aside></div></div></main>;
+}
+
 export default function CheckoutPage({ kind, course: initialCourse, turmas = [], slug, onNavigate }) {
   const [course, setCourse] = useState(initialCourse || null);
   const [status, setStatus] = useState(kind === "video" && !initialCourse ? "loading" : "ready");
@@ -18,7 +25,7 @@ export default function CheckoutPage({ kind, course: initialCourse, turmas = [],
   const [paymentUrl, setPaymentUrl] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({ nome: "", email: "", telefone: "", turma_id: "" });
+  const [form, setForm] = useState({ nome: "", email: "", telefone: "", turma_id: "", plano_id: "" });
   const [coupon, setCoupon] = useState("");
   const [couponResult, setCouponResult] = useState(null);
 
@@ -39,7 +46,7 @@ export default function CheckoutPage({ kind, course: initialCourse, turmas = [],
     event.preventDefault(); setError(""); setSubmitting(true);
     try {
       const data = isVideo
-        ? await authRequest(`/curso_video/api/react/${encodeURIComponent(slug)}/acesso/`, { nome: form.nome, email: form.email })
+        ? await authRequest(`/curso_video/api/react/${encodeURIComponent(slug)}/acesso/`, { plano_id: Number(form.plano_id) || undefined })
         : await authRequest(`/cursos/api/react/checkout/${courseId}/`, { ...form, turma_id: Number(form.turma_id) });
       setResponse(data); setStage(data.requires_payment || data.status === "pendente" ? "review" : "complete");
     } catch (requestError) { setError(requestError?.data?.message || requestError?.data?.detail || requestError.message || "Não foi possível preparar a inscrição."); }
@@ -57,7 +64,7 @@ export default function CheckoutPage({ kind, course: initialCourse, turmas = [],
       const path = isVideo
         ? `/curso_video/api/react/${encodeURIComponent(slug)}/pagamento/`
         : `/cursos/api/react/checkout/inscricao/${response.inscricao_id}/pagamento/`;
-      const data = await authRequest(path, isVideo ? undefined : { cupom: couponResult?.codigo || "" });
+      const data = await authRequest(path, isVideo ? { plano_id: response?.plano?.id || Number(form.plano_id) } : { cupom: couponResult?.codigo || "" });
       if (data.payment_url) { setPaymentUrl(data.payment_url); setStage("processing"); }
       else setStage("complete");
     } catch (requestError) { setError(requestError?.data?.message || requestError.message || "Não foi possível preparar o pagamento."); }
@@ -74,6 +81,8 @@ export default function CheckoutPage({ kind, course: initialCourse, turmas = [],
 
   if (status === "loading") return <main className="detail-state page-width"><span className="eyebrow muted">Checkout</span><h1>A preparar o seu resumo.</h1><p>Estamos a consultar as condições publicadas para este curso em vídeo.</p></main>;
   if (status === "error" || !course) return <main className="detail-state page-width"><span className="eyebrow muted">Checkout indisponível</span><h1>Não foi possível preparar este curso.</h1><button className="primary-action" onClick={() => onNavigate("/cursos")}>Voltar ao catálogo</button></main>;
+
+  if (isVideo) return <CheckoutSubscricaoVideo course={course} stage={stage} response={response} error={error} submitting={submitting} selectedPlanId={form.plano_id} slug={slug} onNavigate={onNavigate} onChoosePlan={(plano_id) => setForm((current) => ({ ...current, plano_id }))} onStart={initiate} onPay={pay} />;
 
   const priceLabel = isVideo ? course.pagamento?.agora : course.pagamento?.agora;
   const needsClass = !isVideo;

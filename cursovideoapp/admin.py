@@ -5,7 +5,7 @@ from unfold.admin import StackedInline as UnfoldStackedInline
 from django.urls import path
 from django.shortcuts import redirect
 from django.utils.html import format_html
-from .models import Curso_video, Aula, Exercicio, Questao, Alternativa, TurmaVideo
+from .models import Curso_video, Aula, Exercicio, Questao, Alternativa, TurmaVideo, PlanoSubscricaoVideo, AssinaturaVideoAluno
 # from inteligencia.ai_utils import gerar_exercicios_ia
 from django.contrib.auth.models import Group
 
@@ -19,13 +19,29 @@ class Curso_videoAdmin(UnfoldModelAdmin):
     search_fields = ('titulo', 'descricao')
     list_filter = ('categoria', 'instrutor')
     inlines = [AulaInline]
-    
+
     def import_playlist_link(self, obj):
         return format_html(
             '<a class="button" href="/curso_video/curso/{}/importar-playlist-admin/" style="background: #d9534f; color: white;">Importar Playlist</a>',
             obj.id
         )
     import_playlist_link.short_description = "Ação YouTube"
+
+
+@admin.register(PlanoSubscricaoVideo)
+class PlanoSubscricaoVideoAdmin(UnfoldModelAdmin):
+    list_display = ('nome', 'preco', 'moeda', 'periodo_dias', 'ativo', 'destaque', 'ordem')
+    list_filter = ('ativo', 'destaque', 'moeda')
+    search_fields = ('nome', 'descricao')
+    list_editable = ('preco', 'periodo_dias', 'ativo', 'destaque', 'ordem')
+
+
+@admin.register(AssinaturaVideoAluno)
+class AssinaturaVideoAlunoAdmin(UnfoldModelAdmin):
+    list_display = ('aluno', 'plano', 'status', 'data_inicio', 'data_fim', 'valor_cobrado', 'referencia_pagamento')
+    list_filter = ('status', 'plano', 'moeda')
+    search_fields = ('aluno__nome', 'aluno__usuario__email', 'referencia_pagamento')
+    readonly_fields = ('referencia_pagamento', 'data_criacao', 'data_atualizacao')
 
 @admin.register(Aula)
 class AulaAdmin(UnfoldModelAdmin):

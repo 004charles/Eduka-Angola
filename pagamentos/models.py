@@ -45,6 +45,7 @@ class Pagamento(models.Model):
     TIPO_CHOICES = [
         ('INSCRICAO', _('Inscrição em Curso')),
         ('INSCRICAO_VIDEO', _('Subscrição Edukangola Play')),
+        ('ASSINATURA_VIDEO', _('Subscrição mensal de cursos em vídeo')),
         ('PAGAMENTO_CURSO', _('Pagamento do Curso')),
         ('PARCELAMENTO', _('Parcela do Curso')),
         ('ASSINATURA_PLANO', _('Subscrição de Plano de Centro')),

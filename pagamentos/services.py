@@ -903,6 +903,45 @@ class PaymentService:
                     except Exception as e:
                         logger.error(f"Erro ao processar INSCRICAO_VIDEO: {e}")
 
+            elif pagamento.tipo_pagamento == 'ASSINATURA_VIDEO':
+                metadados = pagamento.metadados or {}
+                if isinstance(metadados, str):
+                    try:
+                        metadados = json.loads(metadados)
+                    except (TypeError, ValueError):
+                        metadados = {}
+                assinatura_id = metadados.get('assinatura_video_id')
+                if assinatura_id:
+                    from cursovideoapp.models import AssinaturaVideoAluno
+                    with transaction.atomic():
+                        assinatura = AssinaturaVideoAluno.objects.select_for_update().select_related('plano').filter(
+                            id=assinatura_id,
+                            aluno__usuario=pagamento.usuario,
+                        ).first()
+                        if not assinatura:
+                            logger.warning(f'Subscrição de vídeo {assinatura_id} não encontrada para {pagamento.referencia_pagamento}.')
+                        elif assinatura.referencia_pagamento == pagamento.referencia_pagamento and assinatura.status == 'ATIVA':
+                            logger.info(f'Subscrição de vídeo já activada para {pagamento.referencia_pagamento}.')
+                        else:
+                            agora = timezone.now()
+                            assinatura_anterior = AssinaturaVideoAluno.objects.select_for_update().filter(
+                                aluno=assinatura.aluno,
+                                status='ATIVA',
+                                data_fim__gt=agora,
+                            ).exclude(id=assinatura.id).order_by('-data_fim').first()
+                            inicio = assinatura_anterior.data_fim if assinatura_anterior else agora
+                            assinatura.status = 'ATIVA'
+                            assinatura.data_inicio = inicio
+                            assinatura.data_fim = inicio + timedelta(days=assinatura.plano.periodo_dias)
+                            assinatura.valor_cobrado = pagamento.valor_final
+                            assinatura.moeda = pagamento.moeda
+                            assinatura.referencia_pagamento = pagamento.referencia_pagamento
+                            assinatura.save(update_fields=[
+                                'status', 'data_inicio', 'data_fim', 'valor_cobrado', 'moeda',
+                                'referencia_pagamento', 'data_atualizacao',
+                            ])
+                            logger.info(f'Subscrição de vídeo {assinatura.id} activada até {assinatura.data_fim.isoformat()}.')
+
             elif pagamento.tipo_pagamento == 'ASSINATURA_PLANO' and pagamento.plano:
                 from planos.models import AssinaturaMembro
                 try:

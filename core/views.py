@@ -166,7 +166,16 @@ def react_student_dashboard(request):
             continuar.append({'id': curso.id, 'titulo': curso.titulo, 'centro': curso.centro.nome if curso.centro else 'Centro de formação', 'imagem_url': curso.get_imagem_url, 'is_video': False, 'progresso': 0, 'aulas_concluidas': 0, 'total_aulas': 0, 'detalhe_url': reverse('curso_detalhe', kwargs={'id': curso.id}), 'inicio_formatado': turma.data_inicio.strftime('%d/%m/%Y') if turma else '', 'horario': turma.get_turno_display() if turma else ''})
         elif inscricao.status == 'P':
             inscricoes_pendentes += 1
-    video_cursos = Curso_video.objects.filter(inscritos=aluno).prefetch_related('aulas').order_by('-data_publicacao')
+    from cursovideoapp.models import AssinaturaVideoAluno
+    subscricao_video = AssinaturaVideoAluno.objects.filter(
+        aluno=aluno,
+        status='ATIVA',
+        data_inicio__lte=timezone.now(),
+        data_fim__gt=timezone.now(),
+    ).select_related('plano').order_by('-data_fim').first()
+    video_cursos = Curso_video.objects.filter(
+        Q(inscritos=aluno) | Q(aulas__progressoaula__aluno=aluno)
+    ).distinct().prefetch_related('aulas').order_by('-data_publicacao')
     for video in video_cursos:
         total_aulas = video.aulas.count()
         concluidas = ProgressoAula.objects.filter(aluno=aluno, aula__curso=video, concluida=True).count()
@@ -177,7 +186,7 @@ def react_student_dashboard(request):
         certificados = Certificado.objects.filter(aluno=aluno, status='EMITIDO').count()
     except Exception:
         pass
-    return JsonResponse({'ok': True, 'aluno': {'nome': aluno.nome}, 'resumo': {'cursos_ativos': len(continuar), 'inscricoes_pendentes': inscricoes_pendentes, 'certificados': certificados}, 'continuar_aprender': continuar, 'inscricoes': [{'id': item.id, 'titulo': item.curso.titulo, 'centro': item.curso.centro.nome if item.curso.centro else 'Centro de formação', 'status': item.status, 'status_label': item.get_status_display(), 'turma': item.turma_escolhida.nome if item.turma_escolhida else '', 'inicio_formatado': item.turma_escolhida.data_inicio.strftime('%d/%m/%Y') if item.turma_escolhida else '', 'horario': item.turma_escolhida.get_turno_display() if item.turma_escolhida else '', 'imagem_url': item.curso.get_imagem_url, 'valor_pago_formatado': f'{item.valor_pago:,.0f} Kz'.replace(',', ' ') if item.valor_pago else 'Por confirmar', 'detalhe_url': reverse('curso_detalhe', kwargs={'id': item.curso_id}), 'ficha_url': ''} for item in inscricoes]})
+    return JsonResponse({'ok': True, 'aluno': {'nome': aluno.nome}, 'resumo': {'cursos_ativos': len(continuar), 'inscricoes_pendentes': inscricoes_pendentes, 'certificados': certificados}, 'subscricao_video': {'ativa': bool(subscricao_video), 'plano': subscricao_video.plano.nome if subscricao_video else '', 'termina_em': subscricao_video.data_fim.isoformat() if subscricao_video else None}, 'continuar_aprender': continuar, 'inscricoes': [{'id': item.id, 'titulo': item.curso.titulo, 'centro': item.curso.centro.nome if item.curso.centro else 'Centro de formação', 'status': item.status, 'status_label': item.get_status_display(), 'turma': item.turma_escolhida.nome if item.turma_escolhida else '', 'inicio_formatado': item.turma_escolhida.data_inicio.strftime('%d/%m/%Y') if item.turma_escolhida else '', 'horario': item.turma_escolhida.get_turno_display() if item.turma_escolhida else '', 'imagem_url': item.curso.get_imagem_url, 'valor_pago_formatado': f'{item.valor_pago:,.0f} Kz'.replace(',', ' ') if item.valor_pago else 'Por confirmar', 'detalhe_url': reverse('curso_detalhe', kwargs={'id': item.curso_id}), 'ficha_url': ''} for item in inscricoes]})
 
 
 def _serializar_curso_favorito(curso):
@@ -941,9 +950,10 @@ def public_home_data(request):
     # Manter todos os cursos recentes na resposta impede que um curso visível
     # no perfil do centro seja aberto com uma rota que aparenta não existir.
     cursos = [serializar_curso(curso) for curso in cursos_qs.order_by('-data_criacao')[:120]]
+    from cursovideoapp.models import PlanoSubscricaoVideo
+    plano_video_publico = PlanoSubscricaoVideo.objects.filter(ativo=True).order_by('-destaque', 'ordem', 'preco', 'id').first()
     video_cursos = []
     for video in Curso_video.objects.select_related('instrutor', 'centro', 'categoria').prefetch_related('aulas', 'turmas').order_by('-data_publicacao')[:24]:
-        preco = float(video.preco or 0)
         aceita_turmas = bool(video.centro_id and not video.is_original_edukangola)
         proxima_turma = video.turmas.filter(status='ABERTA', data_inicio__gte=hoje, vagas_disponiveis__gt=0).order_by('data_inicio').first() if aceita_turmas else None
         video_cursos.append({
@@ -951,7 +961,7 @@ def public_home_data(request):
             'curso_video_id': video.id,
             'video_slug': video.slug,
             'is_video': True,
-            'is_pago': video.is_pago,
+            'is_pago': True,
             'is_original_edukangola': video.is_original_edukangola,
             'tem_turmas': aceita_turmas,
             'origem_label': 'Original Edukangola' if video.is_original_edukangola else 'Publicado por centro',
@@ -966,7 +976,7 @@ def public_home_data(request):
             'descricao': video.descricao,
             'modalidade_codigo': 'VIDEO',
             'modalidade': 'Curso em vídeo',
-            'is_gratuito': video.is_gratuito,
+            'is_gratuito': False,
             'certificado': False,
             'destaque': video.destaque,
             'imagem_url': video.get_imagem_url,
@@ -981,17 +991,18 @@ def public_home_data(request):
                 'inicio': proxima_turma.data_inicio.isoformat(),
                 'inicio_formatado': proxima_turma.data_inicio.strftime('%d/%m/%Y'),
             } if proxima_turma else None,
-                'pagamento': {
-                    'valor_inicial': preco,
-                    'agora': formatar_valor(preco) if preco > 0 else 'Sem pagamento no ato',
-                    'descricao': 'Acesso gratuito' if video.is_gratuito else 'Pagamento do vídeo-curso',
-                },
+            'pagamento': {
+                'valor_inicial': float(plano_video_publico.preco) if plano_video_publico else None,
+                'agora': formatar_valor(plano_video_publico.preco) if plano_video_publico else 'Plano mensal a configurar',
+                'descricao': 'Incluído na subscrição mensal Edukangola Vídeo',
+            },
+            'acesso_por_subscricao': True,
             })
 
     continuar_video = []
     aluno = getattr(request.user, 'aluno_profile', None) if request.user.is_authenticated and getattr(request.user, 'tipo_usuario', None) == 'ALUNO' else None
     if aluno:
-        cursos_iniciados = Curso_video.objects.filter(inscritos=aluno).select_related('centro').prefetch_related('aulas').order_by('-data_publicacao')
+        cursos_iniciados = Curso_video.objects.filter(aulas__progressoaula__aluno=aluno).distinct().select_related('centro').prefetch_related('aulas').order_by('-data_publicacao')
         for video in cursos_iniciados:
             aulas = list(video.aulas.all().order_by('ordem', 'id'))
             if not aulas:
@@ -1525,7 +1536,9 @@ def public_video_course_detail(request, slug):
             'tem_exercicio': hasattr(aula, 'exercicio'),
         })
 
-    preco = float(curso.preco or 0)
+    from cursovideoapp.models import PlanoSubscricaoVideo, AssinaturaVideoAluno
+
+    planos_video = list(PlanoSubscricaoVideo.objects.filter(ativo=True).order_by('-destaque', 'ordem', 'preco', 'id'))
     aceita_turmas = bool(curso.centro_id and not curso.is_original_edukangola)
     turmas = []
     if aceita_turmas:
@@ -1548,7 +1561,13 @@ def public_video_course_detail(request, slug):
         distribuicao.append({'estrelas': estrelas, 'quantidade': quantidade, 'percentagem': round((quantidade / total_avaliacoes) * 100) if total_avaliacoes else 0})
 
     aluno = getattr(request.user, 'aluno_profile', None) if request.user.is_authenticated and getattr(request.user, 'tipo_usuario', None) == 'ALUNO' else None
-    aluno_inscrito = bool(aluno and curso.inscritos.filter(pk=aluno.pk).exists())
+    aluno_inscrito = bool(aluno and curso.aluno_tem_acesso(aluno))
+    subscricao_ativa = AssinaturaVideoAluno.objects.filter(
+        aluno=aluno,
+        status='ATIVA',
+        data_inicio__lte=timezone.now(),
+        data_fim__gt=timezone.now(),
+    ).select_related('plano').order_by('-data_fim').first() if aluno else None
     aluno_iniciou = bool(aluno and ProgressoAula.objects.filter(aluno=aluno, aula__curso=curso).exists())
     minha_avaliacao = Comentario.objects.filter(aluno=aluno, curso_video=curso, parent__isnull=True).first() if aluno else None
     comentarios = []
@@ -1581,8 +1600,8 @@ def public_video_course_detail(request, slug):
         'id': curso.id,
         'slug': curso.slug,
         'is_video': True,
-        'is_pago': curso.is_pago,
-        'is_gratuito': curso.is_gratuito,
+        'is_pago': True,
+        'is_gratuito': False,
         'is_original_edukangola': curso.is_original_edukangola,
         'tem_turmas': aceita_turmas,
         'origem_label': 'Original Edukangola' if curso.is_original_edukangola else 'Publicado por centro',
@@ -1597,9 +1616,23 @@ def public_video_course_detail(request, slug):
         'detalhe_url': curso.get_absolute_url(),
         'inscricao_url': reverse('cursovideoapp:toggle_inscricao', kwargs={'slug': curso.slug}),
         'pagamento': {
-            'valor_inicial': preco,
-            'agora': f'{preco:,.0f} Kz'.replace(',', ' ') if preco > 0 else 'Sem pagamento no ato',
-            'descricao': 'Acesso gratuito' if curso.is_gratuito else 'Pagamento do vídeo-curso',
+            'valor_inicial': float(planos_video[0].preco) if planos_video else None,
+            'agora': f'{planos_video[0].preco:,.0f} {planos_video[0].moeda}'.replace(',', ' ') if planos_video else 'A confirmar no Admin',
+            'descricao': 'Incluído na subscrição mensal Edukangola Vídeo',
+        },
+        'subscricao': {
+            'requerida': True,
+            'planos': [{
+                'id': plano.id,
+                'nome': plano.nome,
+                'descricao': plano.descricao,
+                'preco': float(plano.preco),
+                'moeda': plano.moeda,
+                'periodo_dias': plano.periodo_dias,
+                'destaque': plano.destaque,
+            } for plano in planos_video],
+            'ativa': bool(subscricao_ativa),
+            'termina_em': subscricao_ativa.data_fim.isoformat() if subscricao_ativa else None,
         },
         'aulas': aulas,
         'turmas': turmas,
@@ -1624,7 +1657,7 @@ def react_video_course_review(request, slug):
     curso = Curso_video.objects.filter(slug=slug).first()
     if not aluno or not curso:
         return JsonResponse({'detail': 'Curso ou perfil de aluno não encontrado.'}, status=404)
-    if not curso.inscritos.filter(pk=aluno.pk).exists():
+    if not curso.aluno_tem_acesso(aluno):
         return JsonResponse({'detail': 'Só pode avaliar cursos aos quais tem acesso.'}, status=403)
     if not ProgressoAula.objects.filter(aluno=aluno, aula__curso=curso).exists():
         return JsonResponse({'detail': 'Assista pelo menos uma aula antes de avaliar este curso.'}, status=403)
@@ -1663,7 +1696,7 @@ def react_video_learning(request, slug):
         return JsonResponse({'detail': 'A sala de aprendizagem é exclusiva para alunos.'}, status=403)
     aluno = getattr(request.user, 'aluno_profile', None)
     curso = Curso_video.objects.select_related('instrutor', 'centro', 'categoria').filter(slug=slug).first()
-    if not aluno or not curso or not curso.inscritos.filter(pk=aluno.pk).exists():
+    if not aluno or not curso or not curso.aluno_tem_acesso(aluno):
         return JsonResponse({'detail': 'Não tem acesso a este vídeo-curso.'}, status=403)
 
     aulas = list(curso.aulas.all().order_by('ordem', 'id'))
@@ -1747,7 +1780,7 @@ def _react_video_access(request, slug, aula_id=None):
         return None, None, None, JsonResponse({'detail': 'Apenas alunos podem usar esta área.'}, status=403)
     aluno = getattr(request.user, 'aluno_profile', None)
     curso = Curso_video.objects.filter(slug=slug).first()
-    if not aluno or not curso or not curso.inscritos.filter(pk=aluno.pk).exists():
+    if not aluno or not curso or not curso.aluno_tem_acesso(aluno):
         return None, None, None, JsonResponse({'detail': 'Não tem acesso a este vídeo-curso.'}, status=403)
     aula = Aula.objects.filter(pk=aula_id, curso=curso).first() if aula_id is not None else None
     if aula_id is not None and not aula:

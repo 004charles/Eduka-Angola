@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 
 from cursos_app.models import Categoria, Instrutor
-from cursovideoapp.models import Curso_video, FavoritoCursoVideo, Aula, ProgressoAula, Certificado, Exercicio, Questao, Alternativa, ResultadoExercicio, RespostaEstudante
+from cursovideoapp.models import Curso_video, FavoritoCursoVideo, Aula, ProgressoAula, Certificado, Exercicio, Questao, Alternativa, ResultadoExercicio, RespostaEstudante, PlanoSubscricaoVideo, AssinaturaVideoAluno
 from usuarios.models import Aluno, Usuario, PerfilAluno
 from django.core.cache import cache
 from .utils import fetch_playlist_videos
@@ -52,81 +52,83 @@ def _aluno_visitante_video(nome, email):
 
 @require_POST
 def api_react_iniciar_acesso(request, slug):
-    """Prepara o acesso a um vídeo-curso para uma conta ou visitante."""
+    """Prepara a subscrição mensal necessária para aceder ao catálogo de vídeo."""
     curso = get_object_or_404(Curso_video, slug=slug)
     dados = _corpo_json_checkout(request)
-    if request.user.is_authenticated:
-        if request.user.tipo_usuario != 'ALUNO' or not hasattr(request.user, 'aluno_profile'):
-            return JsonResponse({'ok': False, 'message': 'Este acesso é exclusivo para alunos.'}, status=403)
-        aluno = request.user.aluno_profile
-        visitante = False
-    else:
-        aluno, erro = _aluno_visitante_video(dados.get('nome'), dados.get('email'))
-        if erro:
-            return JsonResponse({'ok': False, 'message': erro}, status=400)
-        visitante = True
+    if not request.user.is_authenticated or request.user.tipo_usuario != 'ALUNO' or not hasattr(request.user, 'aluno_profile'):
+        return JsonResponse({'ok': False, 'message': 'Inicie sessão como aluno para activar a subscrição mensal.'}, status=401)
+    aluno = request.user.aluno_profile
 
-    if curso.inscritos.filter(id=aluno.id).exists():
+    if curso.aluno_tem_acesso(aluno):
         return JsonResponse({
             'ok': True,
             'status': 'liberado',
             'curso': curso.titulo,
-            'message': 'Este vídeo-curso já está disponível para si.',
+            'message': 'A sua subscrição está activa e este curso já está disponível.',
             'next_lesson_url': f'/backend/curso_video/{curso.slug}/',
         })
 
-    pago = bool(curso.is_pago and curso.preco > 0)
-    if not pago:
-        curso.inscritos.add(aluno)
-        return JsonResponse({
-            'ok': True,
-            'status': 'liberado',
-            'curso': curso.titulo,
-            'valor_agora': 0,
-            'message': 'Acesso gratuito confirmado. Já pode começar a aprender.',
-            'next_lesson_url': f'/backend/curso_video/{curso.slug}/',
-        })
-
-    if visitante:
-        request.session['guest_video_course_id'] = curso.id
-        request.session['guest_video_aluno_id'] = aluno.id
+    plano_id = dados.get('plano_id')
+    planos = PlanoSubscricaoVideo.objects.filter(ativo=True).order_by('-destaque', 'ordem', 'preco', 'id')
+    plano = planos.filter(id=plano_id).first() if plano_id else planos.first()
+    if not plano:
+        return JsonResponse({'ok': False, 'message': 'Ainda não existe um plano mensal de vídeo disponível. Contacte o apoio Edukangola.'}, status=409)
     return JsonResponse({
         'ok': True,
         'status': 'pendente',
         'curso': curso.titulo,
-        'valor_agora': float(curso.preco),
-        'message': 'Reveja o valor e continue para o pagamento seguro.',
+        'valor_agora': float(plano.preco),
+        'plano': {
+            'id': plano.id,
+            'nome': plano.nome,
+            'descricao': plano.descricao,
+            'periodo_dias': plano.periodo_dias,
+            'moeda': plano.moeda,
+        },
+        'message': f'Active o plano {plano.nome} para aceder a todos os cursos em vídeo durante {plano.periodo_dias} dias.',
     })
 
 
 @require_POST
 def api_react_iniciar_pagamento(request, slug):
-    """Cria o pagamento Prontu de um vídeo-curso iniciado no checkout React."""
+    """Cria o pagamento Prontu da subscrição mensal de cursos em vídeo."""
     curso = get_object_or_404(Curso_video, slug=slug)
-    if not curso.is_pago or curso.preco <= 0:
-        return JsonResponse({'ok': False, 'message': 'Este vídeo-curso não requer pagamento.'}, status=400)
     if request.user.is_authenticated and request.user.tipo_usuario == 'ALUNO':
         aluno = getattr(request.user, 'aluno_profile', None)
         autorizado = aluno is not None
     else:
-        aluno_id = request.session.get('guest_video_aluno_id')
-        autorizado = request.session.get('guest_video_course_id') == curso.id and aluno_id
-        aluno = Aluno.objects.filter(id=aluno_id).select_related('usuario').first() if autorizado else None
+        aluno = None
+        autorizado = False
     if not autorizado or not aluno:
-        return JsonResponse({'ok': False, 'message': 'Comece novamente o acesso ao vídeo-curso.'}, status=403)
+        return JsonResponse({'ok': False, 'message': 'Inicie sessão como aluno antes de subscrever.'}, status=403)
+
+    dados = _corpo_json_checkout(request)
+    plano = PlanoSubscricaoVideo.objects.filter(id=dados.get('plano_id'), ativo=True).first()
+    if not plano:
+        return JsonResponse({'ok': False, 'message': 'O plano mensal seleccionado já não está disponível.'}, status=400)
 
     try:
         from pagamentos.services import PaymentService
+        agora = timezone.now()
+        assinatura = AssinaturaVideoAluno.objects.create(
+            aluno=aluno,
+            plano=plano,
+            status='PENDENTE',
+            data_inicio=agora,
+            data_fim=agora,
+            valor_cobrado=plano.preco,
+            moeda=plano.moeda,
+        )
         servico = PaymentService()
         pagamento = servico.criar_pagamento(
             usuario=aluno.usuario,
-            tipo_pagamento='INSCRICAO_VIDEO',
-            valor=curso.preco,
-            moeda='AOA',
+            tipo_pagamento='ASSINATURA_VIDEO',
+            valor=plano.preco,
+            moeda=plano.moeda,
             curso=None,
-            url_sucesso=request.build_absolute_uri(reverse('cursovideoapp:detalhe_curso', kwargs={'slug': slug})),
-            url_cancelamento=request.build_absolute_uri(reverse('cursovideoapp:detalhe_curso', kwargs={'slug': slug})),
-            metadados={'acao': 'inscricao_video', 'curso_video_id': str(curso.id)},
+            url_sucesso=request.build_absolute_uri(f'/video-cursos/{curso.slug}/'),
+            url_cancelamento=request.build_absolute_uri(f'/video-cursos/{curso.slug}/'),
+            metadados={'acao': 'assinatura_video', 'assinatura_video_id': assinatura.id, 'plano_video_id': plano.id},
         )
         if not pagamento.url_pagamento:
             raise ValueError('O gateway não devolveu um link de pagamento.')
@@ -615,7 +617,7 @@ def detalhe_curso(request, slug):
 @login_required
 def toggle_inscricao(request, slug):
     """
-    Inscreve ou remove a inscrição de um aluno em um curso.
+    Encaminha o aluno para a subscrição mensal de cursos em vídeo.
     """
     curso = get_object_or_404(Curso_video, slug=slug)
     
@@ -629,31 +631,10 @@ def toggle_inscricao(request, slug):
         messages.error(request, "Perfil de aluno não encontrado. Por favor, complete o seu registo.")
         return redirect('index')
 
-    if curso.inscritos.filter(id=aluno.id).exists():
-        curso.inscritos.remove(aluno)
-        messages.success(request, f"Inscrição no curso '{curso.titulo}' removida com sucesso.")
+    if curso.aluno_tem_acesso(aluno):
+        messages.info(request, 'A sua subscrição mensal já permite aceder a este curso em vídeo.')
     else:
-        if getattr(curso, 'is_pago', False) and getattr(curso, 'preco', 0) > 0:
-            from pagamentos.services import PaymentService
-            try:
-                servico = PaymentService()
-                pagamento = servico.criar_pagamento(
-                    usuario=request.user,
-                    tipo_pagamento='INSCRICAO_VIDEO',
-                    valor=float(curso.preco),
-                    moeda='AOA',
-                    curso=None,
-                    url_sucesso=request.build_absolute_uri(reverse('cursovideoapp:detalhe_curso', kwargs={'slug': slug})),
-                    url_cancelamento=request.build_absolute_uri(reverse('cursovideoapp:detalhe_curso', kwargs={'slug': slug})),
-                    metadados={'acao': 'inscricao_video', 'curso_video_id': str(curso.id)}
-                )
-                messages.info(request, "Você está sendo redirecionado para o pagamento seguro via Prontu.")
-                return redirect(pagamento.url_pagamento)
-            except Exception as e:
-                messages.error(request, f"Erro ao iniciar pagamento: {str(e)}")
-        else:
-            curso.inscritos.add(aluno)
-            messages.success(request, f"Inscrição realizada com sucesso! Bem-vindo(a) ao curso.")
+        messages.info(request, 'Active a subscrição mensal Edukangola Vídeo para aceder ao catálogo completo.')
         
     return redirect('cursovideoapp:detalhe_curso', slug=slug)
 
@@ -686,7 +667,7 @@ def ver_aula(request, curso_slug, pk):
         except (ObjectDoesNotExist, AttributeError):
             return redirect('index')
             
-        if not curso.inscritos.filter(id=aluno.id).exists():
+        if not curso.aluno_tem_acesso(aluno):
             return redirect('cursovideoapp:detalhe_curso', slug=curso_slug)
     
     aulas = curso.aulas.all().order_by('ordem')

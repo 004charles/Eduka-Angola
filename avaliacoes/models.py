@@ -128,7 +128,7 @@ class Comentario(models.Model):
                 if self.curso:
                     inscricao = self.aluno.inscricoes.filter(curso=self.curso).first()
                 else:
-                    inscricao = self.curso_video.inscritos.filter(id=self.aluno.id).exists()
+                    inscricao = self.curso_video.aluno_tem_acesso(self.aluno)
                 
                 if inscricao:
                     if self.curso and hasattr(inscricao, 'status'):
