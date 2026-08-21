@@ -425,3 +425,4 @@
 - [ ] Publicar em produção o catálogo demonstrativo aprovado do Mercado Edukangola
 - [x] Corrigir as imagens dos produtos do Mercado para URLs estáticas persistentes em produção
 - [x] Corrigir a faixa e o catálogo do Mercado Edukangola no modo escuro
+- [x] Remover a paleta verde própria do Mercado e alinhar toda a experiência ao sistema visual Edukangola
