@@ -431,3 +431,4 @@
 - [x] Reconciliar pedidos antigos do Mercado que permanecem pendentes depois do pagamento
 - [x] Corrigir o erro ao avançar para o resumo da inscrição de aluno autenticado
 - [x] Mostrar filiais e localizações das turmas no checkout para escolha da unidade mais próxima
+- [x] Criar filial e turma demonstrativas para testar a selecção de unidade no checkout em produção
