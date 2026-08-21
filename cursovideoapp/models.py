@@ -219,6 +219,27 @@ class AssinaturaVideoAluno(models.Model):
     def __str__(self):
         return f'{self.aluno.nome} — {self.plano.nome} ({self.get_status_display()})'
 
+
+class AvisoExpiracaoSubscricaoVideo(models.Model):
+    """Regista cada janela de aviso para impedir entregas repetidas numa subscrição."""
+    assinatura = models.ForeignKey(AssinaturaVideoAluno, on_delete=models.CASCADE, related_name='avisos_expiracao')
+    antecedencia_horas = models.PositiveSmallIntegerField(_('Antecedência em horas'))
+    notificacao = models.OneToOneField('usuarios.NotificacaoAluno', on_delete=models.SET_NULL, blank=True, null=True, related_name='aviso_subscricao_video')
+    email_processado_em = models.DateTimeField(_('E-mail processado em'), blank=True, null=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('Aviso de expiração de subscrição de vídeo')
+        verbose_name_plural = _('Avisos de expiração de subscrições de vídeo')
+        constraints = [
+            models.UniqueConstraint(fields=('assinatura', 'antecedencia_horas'), name='aviso_video_subscricao_unico_por_janela'),
+        ]
+        ordering = ['-criado_em']
+
+    def __str__(self):
+        return f'{self.assinatura} — {self.antecedencia_horas}h'
+
 class Aula(models.Model):
     curso = models.ForeignKey(Curso_video, on_delete=models.CASCADE, related_name="aulas", null=True)
     titulo = models.CharField(max_length=200)

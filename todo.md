@@ -435,3 +435,5 @@
 - [x] Enviar por e-mail o comprovativo oficial de inscrição confirmada com curso, turma, filial e código de apresentação presencial
 - [x] Substituir a compra individual de cursos em vídeo por subscrição mensal com acesso ao catálogo completo
 - [x] Permitir ao administrador gerir no Django Admin os planos, preços e disponibilidade da subscrição de cursos em vídeo
+- [x] Notificar o aluno antes do fim da subscrição de vídeo e disponibilizar renovação sem interrupção de acesso
+- [x] Enviar avisos de subscrição de vídeo aos 7 dias, 3 dias e 24 horas por e-mail, plataforma e Push sem duplicação

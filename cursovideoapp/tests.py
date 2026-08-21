@@ -2,14 +2,16 @@ import json
 from datetime import timedelta
 from decimal import Decimal
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
+from django.core import mail
 
 from cursos_app.models import Categoria
-from cursovideoapp.models import AssinaturaVideoAluno, Curso_video, PlanoSubscricaoVideo
+from cursovideoapp.models import AssinaturaVideoAluno, AvisoExpiracaoSubscricaoVideo, Curso_video, PlanoSubscricaoVideo
+from cursovideoapp.subscription_notifications import processar_avisos_expiracao_subscricao_video
 from pagamentos.models import Pagamento
 from pagamentos.services import get_payment_service
-from usuarios.models import Aluno, Usuario
+from usuarios.models import Aluno, NotificacaoAluno, PreferenciaNotificacaoAluno, Usuario
 
 
 class SubscricaoVideoTest(TestCase):
@@ -145,3 +147,69 @@ class SubscricaoVideoTest(TestCase):
         renovacao.refresh_from_db()
         self.assertEqual(renovacao.data_inicio, actual.data_fim)
         self.assertEqual(renovacao.data_fim, actual.data_fim + timedelta(days=self.plano.periodo_dias))
+
+    @override_settings(BREVO_API_KEY='')
+    def test_aviso_de_sete_dias_cria_notificacao_email_e_nao_duplica(self):
+        agora = timezone.now()
+        assinatura = AssinaturaVideoAluno.objects.create(
+            aluno=self.aluno,
+            plano=self.plano,
+            status='ATIVA',
+            data_inicio=agora - timedelta(days=23),
+            data_fim=agora + timedelta(days=6, hours=23),
+            valor_cobrado=self.plano.preco,
+        )
+
+        primeiro = processar_avisos_expiracao_subscricao_video(agora)
+        segundo = processar_avisos_expiracao_subscricao_video(agora)
+
+        self.assertEqual(primeiro['avisos_criados'], 1)
+        self.assertEqual(primeiro['notificacoes_plataforma'], 1)
+        self.assertEqual(primeiro['emails_enviados'], 1)
+        self.assertEqual(segundo['avisos_criados'], 0)
+        self.assertEqual(AvisoExpiracaoSubscricaoVideo.objects.filter(assinatura=assinatura, antecedencia_horas=168).count(), 1)
+        self.assertEqual(NotificacaoAluno.objects.filter(aluno=self.aluno, tipo='APRENDIZAGEM').count(), 1)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('7 dias', mail.outbox[0].subject)
+
+    def test_aviso_respeita_preferencias_de_email_e_plataforma(self):
+        agora = timezone.now()
+        PreferenciaNotificacaoAluno.objects.update_or_create(
+            aluno=self.aluno,
+            defaults={'receber_na_plataforma': False, 'receber_por_email': False, 'atualizacoes_aprendizagem': False},
+        )
+        assinatura = AssinaturaVideoAluno.objects.create(
+            aluno=self.aluno,
+            plano=self.plano,
+            status='ATIVA',
+            data_inicio=agora - timedelta(days=28),
+            data_fim=agora + timedelta(hours=20),
+            valor_cobrado=self.plano.preco,
+        )
+
+        resultado = processar_avisos_expiracao_subscricao_video(agora)
+        aviso = AvisoExpiracaoSubscricaoVideo.objects.get(assinatura=assinatura, antecedencia_horas=24)
+
+        self.assertEqual(resultado['notificacoes_plataforma'], 0)
+        self.assertEqual(resultado['emails_enviados'], 0)
+        self.assertIsNone(aviso.notificacao)
+        self.assertIsNotNone(aviso.email_processado_em)
+        self.assertEqual(len(mail.outbox), 0)
+
+    @override_settings(BREVO_API_KEY='')
+    def test_aviso_de_tres_dias_usa_a_janela_correcta(self):
+        agora = timezone.now()
+        assinatura = AssinaturaVideoAluno.objects.create(
+            aluno=self.aluno,
+            plano=self.plano,
+            status='ATIVA',
+            data_inicio=agora - timedelta(days=27),
+            data_fim=agora + timedelta(days=2, hours=23),
+            valor_cobrado=self.plano.preco,
+        )
+
+        resultado = processar_avisos_expiracao_subscricao_video(agora)
+
+        self.assertEqual(resultado['avisos_criados'], 1)
+        self.assertTrue(AvisoExpiracaoSubscricaoVideo.objects.filter(assinatura=assinatura, antecedencia_horas=72).exists())
+        self.assertIn('3 dias', mail.outbox[0].subject)

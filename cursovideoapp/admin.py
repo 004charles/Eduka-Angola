@@ -5,7 +5,7 @@ from unfold.admin import StackedInline as UnfoldStackedInline
 from django.urls import path
 from django.shortcuts import redirect
 from django.utils.html import format_html
-from .models import Curso_video, Aula, Exercicio, Questao, Alternativa, TurmaVideo, PlanoSubscricaoVideo, AssinaturaVideoAluno
+from .models import Curso_video, Aula, Exercicio, Questao, Alternativa, TurmaVideo, PlanoSubscricaoVideo, AssinaturaVideoAluno, AvisoExpiracaoSubscricaoVideo
 # from inteligencia.ai_utils import gerar_exercicios_ia
 from django.contrib.auth.models import Group
 
@@ -42,6 +42,14 @@ class AssinaturaVideoAlunoAdmin(UnfoldModelAdmin):
     list_filter = ('status', 'plano', 'moeda')
     search_fields = ('aluno__nome', 'aluno__usuario__email', 'referencia_pagamento')
     readonly_fields = ('referencia_pagamento', 'data_criacao', 'data_atualizacao')
+
+
+@admin.register(AvisoExpiracaoSubscricaoVideo)
+class AvisoExpiracaoSubscricaoVideoAdmin(UnfoldModelAdmin):
+    list_display = ('assinatura', 'antecedencia_horas', 'notificacao', 'email_processado_em', 'criado_em')
+    list_filter = ('antecedencia_horas', 'email_processado_em')
+    search_fields = ('assinatura__aluno__nome', 'assinatura__aluno__usuario__email', 'assinatura__plano__nome')
+    readonly_fields = ('assinatura', 'antecedencia_horas', 'notificacao', 'email_processado_em', 'criado_em', 'atualizado_em')
 
 @admin.register(Aula)
 class AulaAdmin(UnfoldModelAdmin):
