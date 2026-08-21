@@ -42,7 +42,7 @@ export default function CheckoutPage({ kind, course: initialCourse, turmas = [],
         ? await authRequest(`/curso_video/api/react/${encodeURIComponent(slug)}/acesso/`, { nome: form.nome, email: form.email })
         : await authRequest(`/cursos/api/react/checkout/${courseId}/`, { ...form, turma_id: Number(form.turma_id) });
       setResponse(data); setStage(data.requires_payment || data.status === "pendente" ? "review" : "complete");
-    } catch (requestError) { setError(requestError?.data?.message || requestError.message || "Não foi possível preparar a inscrição."); }
+    } catch (requestError) { setError(requestError?.data?.message || requestError?.data?.detail || requestError.message || "Não foi possível preparar a inscrição."); }
     finally { setSubmitting(false); }
   };
   useEffect(() => {

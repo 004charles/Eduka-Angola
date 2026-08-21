@@ -90,6 +90,8 @@ def _aluno_visitante_para_checkout(nome, email, telefone):
 
 
 def _dados_turma_checkout(turma):
+    if not turma:
+        return None
     horario = ''
     if turma.horario_inicio and turma.horario_fim:
         horario = f'{turma.horario_inicio.strftime("%H:%M")} – {turma.horario_fim.strftime("%H:%M")}'
@@ -152,6 +154,9 @@ def api_react_iniciar_inscricao(request, curso_id):
 
     inscricao = Inscricao.objects.filter(aluno=aluno, curso=curso).order_by('-id').first()
     if inscricao:
+        if not inscricao.turma_escolhida_id:
+            Inscricao.objects.filter(pk=inscricao.pk).update(turma_escolhida=turma)
+            inscricao.turma_escolhida = turma
         if is_guest:
             request.session['guest_inscricao_id'] = inscricao.id
             request.session['guest_email'] = aluno.usuario.email

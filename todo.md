@@ -429,3 +429,4 @@
 - [x] Reservar automaticamente unidades do produto ao criar pedido e ocultá-lo do catálogo apenas quando o stock chegar a zero
 - [x] Remover a opção de pagamento de pedidos do Mercado assim que a confirmação for recebida
 - [x] Reconciliar pedidos antigos do Mercado que permanecem pendentes depois do pagamento
+- [x] Corrigir o erro ao avançar para o resumo da inscrição de aluno autenticado

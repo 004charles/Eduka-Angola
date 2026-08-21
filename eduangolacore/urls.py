@@ -91,7 +91,7 @@ urlpatterns = [
     path('api/public/centros/candidatura/confirmar/', CentroCandidaturaConfirmView.as_view(), name='api_public_centro_candidatura_confirmar'),
     path('api/public/centros/candidatura/concluir/', CentroCandidaturaCompleteView.as_view(), name='api_public_centro_candidatura_concluir'),
     re_path(
-        r'^(?!gestoreduka/api/)(?:entrar|criar-conta|verificar-email|recuperar-palavra-passe|redefinir-palavra-passe|aluno|gestoreduka|formador|cursos|video-cursos|cursos-em-video|aprender/video|inscrever|comprar|centros|para-centros|comparar-cursos|como-funciona|perguntas-frequentes|faq|politica-de-privacidade|privacidade|sobre|sobre-a-edukangola|blog|eventos|eventosv|biblioteca|ler|mercado|verificar-certificado|pagamento/sucesso|pagamento/cancelado)(?:/.*)?$',
+        r'^(?!gestoreduka/api/|cursos/api/)(?:entrar|criar-conta|verificar-email|recuperar-palavra-passe|redefinir-palavra-passe|aluno|gestoreduka|formador|cursos|video-cursos|cursos-em-video|aprender/video|inscrever|comprar|centros|para-centros|comparar-cursos|como-funciona|perguntas-frequentes|faq|politica-de-privacidade|privacidade|sobre|sobre-a-edukangola|blog|eventos|eventosv|biblioteca|ler|mercado|verificar-certificado|pagamento/sucesso|pagamento/cancelado)(?:/.*)?$',
         react_application,
         name='react_application_routes',
     ),

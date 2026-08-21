@@ -6,7 +6,7 @@ from django.test import TestCase
 
 from cursos_app.models import Categoria, Curso, Inscricao, Turma
 from gestoreduka.models import CentroDeFormacao
-from usuarios.models import Usuario
+from usuarios.models import Aluno, Usuario
 
 
 class ReactCheckoutPresencialTest(TestCase):
@@ -49,13 +49,13 @@ class ReactCheckoutPresencialTest(TestCase):
             f'/cursos/api/react/checkout/{self.curso.id}/',
             data=json.dumps({
                 'nome': 'Visitante Checkout',
-                'email': 'visitante.checkout@test.com',
+                'email': 'visitante.checkout.unico@test.com',
                 'telefone': '+244 923 000 000',
                 'turma_id': self.turma.id,
             }),
             content_type='application/json',
         )
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 201, response.content.decode())
         data = response.json()
         self.assertTrue(data['ok'])
         self.assertEqual(data['status'], 'pendente')
@@ -64,3 +64,27 @@ class ReactCheckoutPresencialTest(TestCase):
         inscricao = Inscricao.objects.get(id=data['inscricao_id'])
         self.assertEqual(inscricao.turma_escolhida, self.turma)
         self.assertEqual(self.client.session['guest_inscricao_id'], inscricao.id)
+
+    def test_aluno_autenticado_com_inscricao_antiga_sem_turma_avanca_ao_resumo(self):
+        utilizador = Usuario.objects.create_user(
+            email='aluno.checkout@test.com', nome='Aluno Checkout', password='SenhaSegura123', tipo_usuario='ALUNO'
+        )
+        aluno = Aluno.objects.create(usuario=utilizador, nome=utilizador.nome)
+        inscricao = Inscricao.objects.create(aluno=aluno, curso=self.curso, status='P', tipo_inscricao='ONLINE')
+        self.client.force_login(utilizador)
+
+        response = self.client.post(
+            f'/cursos/api/react/checkout/{self.curso.id}/',
+            data=json.dumps({
+                'nome': utilizador.nome,
+                'email': utilizador.email,
+                'telefone': '+244 923 000 000',
+                'turma_id': self.turma.id,
+            }),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200, response.content.decode())
+        inscricao.refresh_from_db()
+        self.assertEqual(inscricao.turma_escolhida, self.turma)
+        self.assertEqual(response.json()['turma']['id'], self.turma.id)
