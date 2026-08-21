@@ -430,3 +430,4 @@
 - [x] Remover a opção de pagamento de pedidos do Mercado assim que a confirmação for recebida
 - [x] Reconciliar pedidos antigos do Mercado que permanecem pendentes depois do pagamento
 - [x] Corrigir o erro ao avançar para o resumo da inscrição de aluno autenticado
+- [x] Mostrar filiais e localizações das turmas no checkout para escolha da unidade mais próxima

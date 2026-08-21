@@ -6,6 +6,7 @@ from django.test import TestCase
 
 from cursos_app.models import Categoria, Curso, Inscricao, Turma
 from gestoreduka.models import CentroDeFormacao
+from gestoreduka.models import Filial
 from usuarios.models import Aluno, Usuario
 
 
@@ -43,6 +44,17 @@ class ReactCheckoutPresencialTest(TestCase):
             local='Luanda',
             status='ABERTA',
         )
+        self.filial = Filial.objects.create(
+            centro_principal=centro,
+            nome='Unidade Zango',
+            endereco='Zango III, primeira paragem',
+            telefone='+244 923 000 000',
+            email='zango.checkout@test.com',
+            ativo=True,
+        )
+        self.turma.filial = self.filial
+        self.turma.local = self.filial.endereco
+        self.turma.save(update_fields=['filial', 'local'])
 
     def test_visitante_inicia_inscricao_com_dados_minimos_e_turma(self):
         response = self.client.post(
@@ -64,6 +76,8 @@ class ReactCheckoutPresencialTest(TestCase):
         inscricao = Inscricao.objects.get(id=data['inscricao_id'])
         self.assertEqual(inscricao.turma_escolhida, self.turma)
         self.assertEqual(self.client.session['guest_inscricao_id'], inscricao.id)
+        self.assertEqual(data['turma']['filial_nome'], 'Unidade Zango')
+        self.assertEqual(data['turma']['filial_endereco'], 'Zango III, primeira paragem')
 
     def test_aluno_autenticado_com_inscricao_antiga_sem_turma_avanca_ao_resumo(self):
         utilizador = Usuario.objects.create_user(

@@ -18,7 +18,8 @@ function TurmaCard({ turma, onChoose }) {
       <div className="detail-class-facts">
         <span><CalendarDays size={16} /> {turma.dias || "Dias a confirmar"}</span>
         <span><Clock3 size={16} /> {[turma.turno, turma.horario].filter(Boolean).join(" · ") || "Horário a confirmar"}</span>
-        <span><MapPin size={16} /> {[turma.local, turma.sala].filter(Boolean).join(" · ") || "Local a confirmar"}</span>
+        {turma.filial_nome && <span><MapPin size={16} /> Unidade {turma.filial_nome}</span>}
+        <span><MapPin size={16} /> {[turma.filial_endereco || turma.local, turma.sala].filter(Boolean).join(" · ") || "Local a confirmar"}</span>
       </div>
       <button className="detail-class-action" type="button" onClick={() => onChoose(turma)}>Escolher esta turma</button>
     </article>

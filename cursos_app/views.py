@@ -92,6 +92,7 @@ def _aluno_visitante_para_checkout(nome, email, telefone):
 def _dados_turma_checkout(turma):
     if not turma:
         return None
+    filial = turma.filial
     horario = ''
     if turma.horario_inicio and turma.horario_fim:
         horario = f'{turma.horario_inicio.strftime("%H:%M")} – {turma.horario_fim.strftime("%H:%M")}'
@@ -101,7 +102,11 @@ def _dados_turma_checkout(turma):
         'inicio': turma.data_inicio.strftime('%d/%m/%Y') if turma.data_inicio else 'A confirmar',
         'dias': turma.dias_semana or '',
         'horario': horario or 'A confirmar',
-        'local': turma.local or '',
+        'filial_id': filial.id if filial else None,
+        'filial_nome': filial.nome if filial else '',
+        'filial_endereco': filial.endereco if filial else '',
+        'filial_telefone': (filial.whatsapp or filial.telefone) if filial else '',
+        'local': turma.local or (filial.endereco if filial else ''),
         'sala': turma.sala or '',
         'vagas': turma.vagas_disponiveis,
     }

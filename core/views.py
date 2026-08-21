@@ -884,6 +884,7 @@ def public_home_data(request):
         ).select_related('curso', 'curso__centro', 'curso__categoria', 'filial').order_by('data_inicio', 'horario_inicio')[:120]
 
         for turma in turmas_qs:
+            filial = turma.filial
             curso = serializar_curso(turma.curso)
             curso.update({
                 'turma_id': turma.id,
@@ -894,7 +895,13 @@ def public_home_data(request):
                 'horario': turma.horario_formatado,
                 'dias': turma.dias_semana_formatado,
                 'vagas_disponiveis': turma.vagas_disponiveis,
-                'local': turma.local or (turma.filial.nome if turma.filial else turma.curso.centro.nome),
+                'filial_id': filial.id if filial else None,
+                'filial_nome': filial.nome if filial else '',
+                'filial_endereco': filial.endereco if filial else '',
+                'filial_telefone': (filial.whatsapp or filial.telefone) if filial else '',
+                'filial_latitude': float(filial.latitude) if filial and filial.latitude is not None else None,
+                'filial_longitude': float(filial.longitude) if filial and filial.longitude is not None else None,
+                'local': turma.local or (filial.endereco if filial else turma.curso.centro.nome),
                 'sala': turma.sala or '',
             })
             turmas.append(curso)
