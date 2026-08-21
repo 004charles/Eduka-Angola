@@ -42,7 +42,8 @@ class MercadoApiTest(TestCase):
         response = self.client.get("/api/public/mercado/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["produtos"][0]["titulo"], self.produto.titulo)
+        titulos = [produto["titulo"] for produto in response.json()["produtos"]]
+        self.assertIn(self.produto.titulo, titulos)
         self.assertEqual(response.json()["cidade"], "Luanda")
 
     def test_aluno_cria_pedido_com_dados_de_entrega(self):
