@@ -146,3 +146,32 @@ class MercadoApiTest(TestCase):
 
         self.assertEqual(pedidos[0]["status"], "PAGO_RECOLHA")
         self.assertFalse(pedidos[0]["pode_pagar"])
+
+    def test_pagamento_aceite_reconcilia_pedido_antigo_pelo_metadado(self):
+        pedido = PedidoMercado.objects.create(
+            utilizador=self.user,
+            nome_comprador=self.user.nome,
+            email_comprador=self.user.email,
+            telefone_comprador="+244 923 000 000",
+            endereco_entrega="Rua das Acácias, 10",
+            bairro="Talatona",
+            status="A_VALIDAR",
+            total=Decimal("120000"),
+        )
+        Pagamento.objects.create(
+            referencia_pagamento="MKT-PAGAMENTO-LEGADO",
+            usuario=self.user,
+            tipo_pagamento="PEDIDO_MERCADO",
+            valor=pedido.total,
+            valor_final=pedido.total,
+            status="ACCEPTED",
+            metadados={"pedido_mercado_id": pedido.id, "pedido_referencia": pedido.referencia},
+        )
+        self.client.force_login(self.user)
+
+        pedidos = self.client.get("/api/react/mercado/pedidos/meus/").json()["pedidos"]
+
+        pedido.refresh_from_db()
+        self.assertEqual(pedido.status, "PAGO_RECOLHA")
+        self.assertEqual(pedidos[0]["status"], "PAGO_RECOLHA")
+        self.assertFalse(pedidos[0]["pode_pagar"])

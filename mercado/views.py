@@ -113,22 +113,38 @@ def _frontend_return_url(request, kind, referencia):
 
 def _sincronizar_pagamento_aceito(pedido):
     """Actualiza o pedido caso o gateway já tenha confirmado o pagamento antes do webhook."""
-    if pedido.status != "AGUARDA_PAGAMENTO" or not pedido.referencia_pagamento:
+    if pedido.status not in {"A_VALIDAR", "AGUARDA_PAGAMENTO"}:
         return pedido
-    pagamento_aceite = Pagamento.objects.filter(
-        referencia_pagamento=pedido.referencia_pagamento,
+    pagamentos = Pagamento.objects.filter(
+        usuario=pedido.utilizador,
         tipo_pagamento="PEDIDO_MERCADO",
         status="ACCEPTED",
-    ).exists()
+    )
+    pagamento_aceite = None
+    for pagamento in pagamentos:
+        metadados = pagamento.metadados or {}
+        if isinstance(metadados, str):
+            try:
+                metadados = json.loads(metadados)
+            except (TypeError, ValueError):
+                metadados = {}
+        if (
+            pagamento.referencia_pagamento == pedido.referencia_pagamento
+            or str(metadados.get("pedido_mercado_id", "")) == str(pedido.id)
+            or metadados.get("pedido_referencia") == pedido.referencia
+        ):
+            pagamento_aceite = pagamento
+            break
     if not pagamento_aceite:
         return pedido
     with transaction.atomic():
         pedido = PedidoMercado.objects.select_for_update().get(pk=pedido.pk)
-        if pedido.status == "AGUARDA_PAGAMENTO":
+        if pedido.status in {"A_VALIDAR", "AGUARDA_PAGAMENTO"}:
             pedido.status = "PAGO_RECOLHA"
             pedido.pagamento_confirmado_em = timezone.now()
             pedido.reserva_expira_em = None
-            pedido.save(update_fields=["status", "pagamento_confirmado_em", "reserva_expira_em", "atualizado_em"])
+            pedido.referencia_pagamento = pagamento_aceite.referencia_pagamento
+            pedido.save(update_fields=["status", "pagamento_confirmado_em", "reserva_expira_em", "referencia_pagamento", "atualizado_em"])
     return pedido
 
 
