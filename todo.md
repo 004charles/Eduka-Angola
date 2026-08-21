@@ -427,3 +427,4 @@
 - [x] Corrigir a faixa e o catálogo do Mercado Edukangola no modo escuro
 - [x] Remover a paleta verde própria do Mercado e alinhar toda a experiência ao sistema visual Edukangola
 - [x] Reservar automaticamente unidades do produto ao criar pedido e ocultá-lo do catálogo apenas quando o stock chegar a zero
+- [x] Remover a opção de pagamento de pedidos do Mercado assim que a confirmação for recebida

@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
 from core.media_urls import public_media_url
+from pagamentos.models import Pagamento
 from pagamentos.services import PagamentoException, get_payment_service
 
 from .models import PedidoMercado, ProdutoMercado, ItemPedidoMercado
@@ -110,6 +111,27 @@ def _frontend_return_url(request, kind, referencia):
     return f"{base}/mercado/pedidos?pedido={referencia}&pagamento={kind}"
 
 
+def _sincronizar_pagamento_aceito(pedido):
+    """Actualiza o pedido caso o gateway já tenha confirmado o pagamento antes do webhook."""
+    if pedido.status != "AGUARDA_PAGAMENTO" or not pedido.referencia_pagamento:
+        return pedido
+    pagamento_aceite = Pagamento.objects.filter(
+        referencia_pagamento=pedido.referencia_pagamento,
+        tipo_pagamento="PEDIDO_MERCADO",
+        status="ACCEPTED",
+    ).exists()
+    if not pagamento_aceite:
+        return pedido
+    with transaction.atomic():
+        pedido = PedidoMercado.objects.select_for_update().get(pk=pedido.pk)
+        if pedido.status == "AGUARDA_PAGAMENTO":
+            pedido.status = "PAGO_RECOLHA"
+            pedido.pagamento_confirmado_em = timezone.now()
+            pedido.reserva_expira_em = None
+            pedido.save(update_fields=["status", "pagamento_confirmado_em", "reserva_expira_em", "atualizado_em"])
+    return pedido
+
+
 @login_required
 @require_POST
 def criar_pedido(request):
@@ -178,7 +200,8 @@ def criar_pedido(request):
 @login_required
 @require_GET
 def meus_pedidos(request):
-    pedidos = PedidoMercado.objects.filter(utilizador=request.user).prefetch_related("itens__produto").order_by("-criado_em")
+    pedidos = list(PedidoMercado.objects.filter(utilizador=request.user).prefetch_related("itens__produto").order_by("-criado_em"))
+    pedidos = [_sincronizar_pagamento_aceito(pedido) for pedido in pedidos]
     return JsonResponse({"pedidos": [
         {
             "referencia": pedido.referencia,

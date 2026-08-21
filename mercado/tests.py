@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from usuarios.models import Aluno
+from pagamentos.models import Pagamento
 
 from .models import CategoriaMercado, LojaParceira, PedidoMercado, ProdutoMercado
 
@@ -115,3 +116,33 @@ class MercadoApiTest(TestCase):
         self.assertEqual(self.produto.status, "PUBLICADO")
         self.assertEqual(pedido.status, "CANCELADO")
         self.assertFalse(pedido.reserva_ativa)
+
+    def test_pagamento_aceite_remove_opcao_de_pagar_no_pedido(self):
+        self.client.force_login(self.user)
+        resposta = self.client.post(
+            "/api/react/mercado/pedidos/",
+            data=json.dumps({
+                "produto_id": self.produto.id,
+                "quantidade": 1,
+                "telefone": "+244 923 000 000",
+                "endereco_entrega": "Rua das Acácias, 10",
+                "bairro": "Talatona",
+            }),
+            content_type="application/json",
+        )
+        pedido = PedidoMercado.objects.get(referencia=resposta.json()["pedido"])
+        pagamento = Pagamento.objects.create(
+            referencia_pagamento="MKT-PAGAMENTO-ACEITE",
+            usuario=self.user,
+            tipo_pagamento="PEDIDO_MERCADO",
+            valor=pedido.total,
+            valor_final=pedido.total,
+            status="ACCEPTED",
+        )
+        pedido.referencia_pagamento = pagamento.referencia_pagamento
+        pedido.save(update_fields=["referencia_pagamento"])
+
+        pedidos = self.client.get("/api/react/mercado/pedidos/meus/").json()["pedidos"]
+
+        self.assertEqual(pedidos[0]["status"], "PAGO_RECOLHA")
+        self.assertFalse(pedidos[0]["pode_pagar"])
