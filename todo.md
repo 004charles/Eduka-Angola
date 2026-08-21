@@ -413,3 +413,11 @@
 - [x] Avaliar um serviço de síntese neural com voz portuguesa para a leitura de livros
 - [ ] Integrar um serviço de síntese neural escolhido para disponibilizar voz portuguesa própria na Biblioteca
 - [x] Criar e validar uma conta de administrador do Django Admin em produção
+- [ ] Pré-preencher inscrição e pagamento com os dados do aluno autenticado
+- [x] Definir o modelo de comércio educativo para computadores, materiais escolares e livros de lojas parceiras antes de implementar
+- [x] Definir uma faixa compacta e auto-deslizante de produtos de parceiros na página inicial, com acesso a uma área própria sem misturar com cursos
+- [x] Aprovar o nome Mercado Edukangola e a proposta de faixa compacta de descoberta na página inicial
+- [x] Desenhar a experiência completa do Mercado Edukangola e das lojas parceiras antes de implementar
+- [x] Definir checkout interno, entrega, confirmação e reembolso para pedidos do Mercado Edukangola
+- [x] Definir o Mercado Edukangola como operação centralizada: produtos cadastrados, recolhidos e entregues pela administração da plataforma
+- [ ] Lançar o Mercado Edukangola em Luanda com estafeta contratado, pagamento interno e operação centralizada

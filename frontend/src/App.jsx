@@ -31,6 +31,9 @@ import EventTicketsPage from "./pages/EventTicketsPage";
 import LibraryPage from "./pages/LibraryPage";
 import BookDetailPage from "./pages/BookDetailPage";
 import BookReaderPage from "./pages/BookReaderPage";
+import MarketplacePage from "./pages/MarketplacePage";
+import MarketProductPage from "./pages/MarketProductPage";
+import MarketOrdersPage from "./pages/MarketOrdersPage";
 import FAQPage from "./pages/FAQPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import ManagerPortalPage from "./pages/ManagerPortalPage";
@@ -144,6 +147,7 @@ function App() {
   const eventRouteMatch = pathname.match(/^\/eventos\/([^/]+)\/?$/);
   const libraryBookRouteMatch = pathname.match(/^\/biblioteca\/([^/]+)\/?$/);
   const libraryReaderRouteMatch = pathname.match(/^\/ler\/([^/]+)\/?$/);
+  const marketProductRouteMatch = pathname.match(/^\/mercado\/produtos\/([^/]+)\/?$/);
   const certificateVerificationMatch = pathname.match(/^\/verificar-certificado\/([^/]+)\/?$/);
   const courseId = courseRouteMatch ? Number(courseRouteMatch[1]) : null;
   const checkoutCourseId = checkoutCourseRouteMatch ? Number(checkoutCourseRouteMatch[1]) : null;
@@ -161,6 +165,9 @@ function App() {
   else if (pathname === "/aluno/configuracoes") page = <StudentSettingsPage onNavigate={navigate} onLogout={handleLogout} />;
   else if (pathname === "/aluno/bilhetes") page = <MyTicketsPage onNavigate={navigate} />;
   else if (pathname === "/aluno/certificados") page = <StudentCertificatesPage onNavigate={navigate} />;
+  else if (pathname === "/mercado/pedidos" || pathname === "/mercado/pedidos/") page = <MarketOrdersPage student={student} onNavigate={navigate} />;
+  else if (marketProductRouteMatch) page = <MarketProductPage slug={decodeURIComponent(marketProductRouteMatch[1])} student={student} onNavigate={navigate} />;
+  else if (pathname === "/mercado" || pathname === "/mercado/") page = <MarketplacePage onNavigate={navigate} />;
   else if (certificateVerificationMatch) page = <CertificateVerifyPage code={decodeURIComponent(certificateVerificationMatch[1])} onNavigate={navigate} />;
   else if (pathname === "/aluno/mensagens") page = <StudentMessagesPage centerId={Number(searchParams.get("centro")) || null} conversationId={Number(searchParams.get("conversa")) || null} onNavigate={navigate} />;
   else if (pathname === "/pagamento/sucesso" || pathname === "/pagamento/sucesso/") page = <PaymentResultPage onNavigate={navigate} />;

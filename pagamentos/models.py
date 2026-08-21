@@ -50,6 +50,7 @@ class Pagamento(models.Model):
         ('ASSINATURA_PLANO', _('Subscrição de Plano de Centro')),
         ('TAXA_ADMINISTRATIVO', _('Taxa Administrativa')),
         ('BILHETE_EVENTO', _('Bilhete de Evento')),
+        ('PEDIDO_MERCADO', _('Pedido do Mercado Edukangola')),
         ('OUTRO', _('Outro')),
     ]
     

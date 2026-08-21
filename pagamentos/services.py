@@ -861,6 +861,25 @@ class PaymentService:
                                 pedido.evento.save(update_fields=['status', 'actualizado_em'])
                             logger.info(f'Pedido de bilhetes {pedido.referencia} confirmado e {quantidade} bilhete(s) emitido(s).')
 
+            elif pagamento.tipo_pagamento == 'PEDIDO_MERCADO':
+                metadados = pagamento.metadados or {}
+                if isinstance(metadados, str):
+                    try:
+                        metadados = json.loads(metadados)
+                    except (TypeError, ValueError):
+                        metadados = {}
+                pedido_id = metadados.get('pedido_mercado_id')
+                if pedido_id:
+                    from mercado.models import PedidoMercado
+                    with transaction.atomic():
+                        pedido = PedidoMercado.objects.select_for_update().get(id=pedido_id)
+                        if pedido.status == 'AGUARDA_PAGAMENTO':
+                            pedido.status = 'PAGO_RECOLHA'
+                            pedido.pagamento_confirmado_em = timezone.now()
+                            pedido.referencia_pagamento = pagamento.referencia_pagamento
+                            pedido.save(update_fields=['status', 'pagamento_confirmado_em', 'referencia_pagamento', 'atualizado_em'])
+                            logger.info(f'Pedido do Mercado {pedido.referencia} confirmado para recolha.')
+
             elif pagamento.tipo_pagamento == 'INSCRICAO_VIDEO':
                 curso_video_id = None
                 if pagamento.metadados:

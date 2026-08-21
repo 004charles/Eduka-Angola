@@ -62,6 +62,7 @@ urlpatterns = [
     path('api/public/centros/planos/', CentroPlanosView.as_view(), name='api_public_centro_planos'),
     path('api/public/video-cursos/<slug:slug>/', views.public_video_course_detail, name='api_public_video_course_detail'),
     path('api/public/biblioteca/', include('biblioteca.urls')),
+    path('api/public/mercado/', include('mercado.urls')),
     path('api/public/eduka-ai/perguntar/', views.react_public_ai_assistant, name='api_public_eduka_ai_assistant'),
     path('api/public/certificados/<str:code>/', views.public_certificate_verification, name='api_public_certificate_verification'),
     path('api/public/certificados/<str:code>/qr/', views.public_certificate_qr, name='api_public_certificate_qr'),
@@ -90,7 +91,7 @@ urlpatterns = [
     path('api/public/centros/candidatura/confirmar/', CentroCandidaturaConfirmView.as_view(), name='api_public_centro_candidatura_confirmar'),
     path('api/public/centros/candidatura/concluir/', CentroCandidaturaCompleteView.as_view(), name='api_public_centro_candidatura_concluir'),
     re_path(
-        r'^(?!gestoreduka/api/)(?:entrar|criar-conta|verificar-email|recuperar-palavra-passe|redefinir-palavra-passe|aluno|gestoreduka|formador|cursos|video-cursos|cursos-em-video|aprender/video|inscrever|comprar|centros|para-centros|comparar-cursos|como-funciona|perguntas-frequentes|faq|politica-de-privacidade|privacidade|sobre|sobre-a-edukangola|blog|eventos|eventosv|biblioteca|ler|verificar-certificado|pagamento/sucesso|pagamento/cancelado)(?:/.*)?$',
+        r'^(?!gestoreduka/api/)(?:entrar|criar-conta|verificar-email|recuperar-palavra-passe|redefinir-palavra-passe|aluno|gestoreduka|formador|cursos|video-cursos|cursos-em-video|aprender/video|inscrever|comprar|centros|para-centros|comparar-cursos|como-funciona|perguntas-frequentes|faq|politica-de-privacidade|privacidade|sobre|sobre-a-edukangola|blog|eventos|eventosv|biblioteca|ler|mercado|verificar-certificado|pagamento/sucesso|pagamento/cancelado)(?:/.*)?$',
         react_application,
         name='react_application_routes',
     ),
@@ -121,6 +122,7 @@ urlpatterns = [
 
     path('api/react/pagamentos/resultado/', views.react_payment_result, name='api_react_payment_result'),
     path('api/react/biblioteca/', include('biblioteca.urls')),
+    path('api/react/mercado/', include('mercado.urls')),
     path('pagamento/sucesso/', views.pagamento_sucesso, name='pagamento_sucesso'),
     path('pagamento/cancelado/', views.pagamento_cancelado, name='pagamento_cancelado'),
     path('faq/', views.faq, name = 'faq'),

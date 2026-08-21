@@ -1148,6 +1148,29 @@ def public_home_data(request):
             'imagem_url': imagem,
         })
 
+    produtos_mercado = []
+    try:
+        from mercado.models import ProdutoMercado
+        for produto in ProdutoMercado.objects.filter(
+            status='PUBLICADO', loja__ativa=True, loja__verificada=True,
+        ).select_related('loja', 'categoria').order_by('-destaque', '-atualizado_em')[:10]:
+            try:
+                imagem_produto = produto.imagem_principal.url if produto.imagem_principal else ''
+            except (ValueError, AttributeError):
+                imagem_produto = ''
+            produtos_mercado.append({
+                'id': produto.id,
+                'titulo': produto.titulo,
+                'categoria': produto.categoria.nome,
+                'preco': float(produto.preco),
+                'preco_formatado': f"{produto.preco:,.0f} Kz".replace(',', ' '),
+                'imagem_url': imagem_produto,
+                'detalhe_url': f'/mercado/produtos/{produto.slug}',
+                'loja': {'nome': produto.loja.nome, 'verificada': produto.loja.verificada},
+            })
+    except (OperationalError, ImportError):
+        produtos_mercado = []
+
     return JsonResponse({
         'turmas_abertas': turmas,
         'cursos': cursos,
@@ -1160,6 +1183,7 @@ def public_home_data(request):
         'galeria': galeria,
         'depoimentos': depoimentos,
         'patrocinios_educativos': patrocinios_educativos,
+        'produtos_mercado': produtos_mercado,
         'atualizado_em': timezone.now().isoformat(),
     })
 
