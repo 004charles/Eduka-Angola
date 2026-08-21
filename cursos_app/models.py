@@ -812,6 +812,12 @@ class Inscricao(models.Model):
     observacoes = models.TextField(_('Observações'), blank=True)
     data_confirmacao = models.DateTimeField(_('Data de Confirmação'), null=True, blank=True)
     data_cancelamento = models.DateTimeField(_('Data de Cancelamento'), null=True, blank=True)
+    comprovativo_enviado_em = models.DateTimeField(
+        _('Comprovativo enviado em'),
+        null=True,
+        blank=True,
+        help_text=_('Momento em que o comprovativo oficial foi enviado ao aluno por e-mail.'),
+    )
 
     def __str__(self):
         return f"{self.aluno.nome} → {self.curso.titulo} ({self.get_status_display()})"
@@ -886,6 +892,10 @@ class Inscricao(models.Model):
     def enviar_email_status(self, link_curso=None):
         from .utils import enviar_email_inscricao
         enviar_email_inscricao(self, tipo='status', link_curso=link_curso)
+
+    def enviar_comprovativo_inscricao(self):
+        from .utils import enviar_comprovativo_inscricao
+        return enviar_comprovativo_inscricao(self)
 
     class Meta:
         verbose_name = _('Inscrição')

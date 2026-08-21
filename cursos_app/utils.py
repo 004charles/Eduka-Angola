@@ -45,6 +45,63 @@ def enviar_email_inscricao(inscricao, tipo='pendente', link_curso=None):
     msg.attach_alternative(html, "text/html")
     msg.send()
 
+
+def enviar_comprovativo_inscricao(inscricao):
+    """Envia uma única vez o comprovativo presencial de uma inscrição confirmada."""
+    if inscricao.status != 'A' or inscricao.comprovativo_enviado_em:
+        return False
+
+    aluno = inscricao.aluno
+    curso = inscricao.curso
+    turma = inscricao.turma_escolhida or curso.get_proxima_turma()
+    filial = turma.filial if turma and turma.filial_id else None
+    centro = curso.centro
+
+    unidade_nome = filial.nome if filial else f"Sede — {centro.nome}"
+    unidade_endereco = (
+        filial.endereco if filial else (turma.local if turma and turma.local else centro.endereco)
+    ) or 'Endereço a confirmar com o centro de formação.'
+    unidade_telefone = filial.telefone if filial else centro.telefone
+
+    contexto = {
+        'aluno': aluno,
+        'curso': curso,
+        'inscricao': inscricao,
+        'turma': turma,
+        'unidade_nome': unidade_nome,
+        'unidade_endereco': unidade_endereco,
+        'unidade_telefone': unidade_telefone,
+        'suporte_email': getattr(settings, 'SUPORTE_EMAIL', settings.DEFAULT_FROM_EMAIL),
+    }
+    html = render_to_string('emails/comprovativo_inscricao_confirmada.html', contexto)
+    assunto = f"Comprovativo de inscrição confirmado — {inscricao.codigo_inscricao}"
+    texto = strip_tags(html)
+
+    if getattr(settings, 'BREVO_API_KEY', ''):
+        from core.email_utils import enviar_email_brevo
+        enviado = enviar_email_brevo(
+            aluno.usuario.email,
+            assunto,
+            html,
+            text_content=texto,
+            to_name=aluno.nome,
+        )
+        if not enviado:
+            return False
+    else:
+        msg = EmailMultiAlternatives(
+            subject=assunto,
+            body=texto,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[aluno.usuario.email],
+        )
+        msg.attach_alternative(html, 'text/html')
+        msg.send()
+
+    inscricao.comprovativo_enviado_em = timezone.now()
+    inscricao.save(update_fields=['comprovativo_enviado_em'])
+    return True
+
 def _enviar_email_async(msg):
     try:
         msg.send()
@@ -147,11 +204,11 @@ def processar_simulacao_pagamento(inscricao):
 
     inscricao.save()
 
-    # Enviar email de confirmação
+    # Enviar o comprovativo de confirmação
     try:
-        inscricao.enviar_email_status()
-    except:
-        pass
+        inscricao.enviar_comprovativo_inscricao()
+    except Exception as e_mail:
+        print(f"Erro ao enviar comprovativo de inscrição: {e_mail}")
 
     return True, "Pagamento simulado com sucesso! Inscrição confirmada."
 

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt">
+  <body style="margin:0;padding:0;background:#f5f3ff;color:#17132b;font-family:Arial,sans-serif;">
+    <main style="max-width:640px;margin:24px auto;background:#ffffff;border:1px solid #e3def7;border-radius:18px;overflow:hidden;">
+      <header style="padding:28px 32px;background:#6425e8;color:#ffffff;">
+        <p style="margin:0 0 8px;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Edukangola</p>
+        <h1 style="margin:0;font-size:25px;line-height:1.25;">Comprovativo de inscrição</h1>
+      </header>
+      <section style="padding:28px 32px;">
+        <p style="margin:0 0 16px;font-size:16px;line-height:1.55;">Olá, {{ aluno.nome }}. O seu pagamento foi confirmado e a sua inscrição está activa.</p>
+        <p style="margin:0 0 20px;font-size:15px;line-height:1.55;">Guarde este e-mail e apresente o <strong>código de inscrição</strong> e o seu documento de identificação quando se dirigir ao centro.</p>
+
+        <div style="margin:0 0 24px;padding:18px;border:1px solid #d8cdfa;border-radius:12px;background:#f8f6ff;">
+          <p style="margin:0 0 5px;font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#665a8d;">Código de inscrição</p>
+          <p style="margin:0;font-size:23px;font-weight:700;color:#4c1d95;">{{ inscricao.codigo_inscricao }}</p>
+        </div>
+
+        <h2 style="margin:0 0 12px;font-size:18px;">Dados da formação</h2>
+        <table role="presentation" style="width:100%;border-collapse:collapse;font-size:15px;line-height:1.5;">
+          <tr><td style="padding:8px 0;border-top:1px solid #eeeaf8;color:#665a8d;width:36%;">Curso</td><td style="padding:8px 0;border-top:1px solid #eeeaf8;font-weight:700;">{{ curso.titulo }}</td></tr>
+          <tr><td style="padding:8px 0;border-top:1px solid #eeeaf8;color:#665a8d;">Centro</td><td style="padding:8px 0;border-top:1px solid #eeeaf8;">{{ curso.centro.nome }}</td></tr>
+          <tr><td style="padding:8px 0;border-top:1px solid #eeeaf8;color:#665a8d;">Unidade</td><td style="padding:8px 0;border-top:1px solid #eeeaf8;font-weight:700;">{{ unidade_nome }}</td></tr>
+          <tr><td style="padding:8px 0;border-top:1px solid #eeeaf8;color:#665a8d;">Morada</td><td style="padding:8px 0;border-top:1px solid #eeeaf8;">{{ unidade_endereco }}</td></tr>
+          {% if unidade_telefone %}<tr><td style="padding:8px 0;border-top:1px solid #eeeaf8;color:#665a8d;">Contacto</td><td style="padding:8px 0;border-top:1px solid #eeeaf8;">{{ unidade_telefone }}</td></tr>{% endif %}
+          {% if turma %}<tr><td style="padding:8px 0;border-top:1px solid #eeeaf8;color:#665a8d;">Turma</td><td style="padding:8px 0;border-top:1px solid #eeeaf8;">{{ turma.nome }} · {{ turma.codigo }}</td></tr>
+          <tr><td style="padding:8px 0;border-top:1px solid #eeeaf8;color:#665a8d;">Início</td><td style="padding:8px 0;border-top:1px solid #eeeaf8;">{{ turma.data_inicio|date:"d/m/Y" }}</td></tr>
+          <tr><td style="padding:8px 0;border-top:1px solid #eeeaf8;color:#665a8d;">Horário</td><td style="padding:8px 0;border-top:1px solid #eeeaf8;">{{ turma.dias_semana_formatado }} · {{ turma.horario_formatado }}</td></tr>{% endif %}
+          {% if inscricao.valor_pago %}<tr><td style="padding:8px 0;border-top:1px solid #eeeaf8;color:#665a8d;">Valor confirmado</td><td style="padding:8px 0;border-top:1px solid #eeeaf8;">{{ inscricao.valor_pago|floatformat:0 }} {{ curso.moeda }}</td></tr>{% endif %}
+        </table>
+
+        <p style="margin:24px 0 0;padding:16px;border-radius:10px;background:#fff7e8;font-size:14px;line-height:1.55;">Leve o seu BI, passaporte ou o documento exigido pelo curso. Caso necessite de apoio, contacte {{ suporte_email }}.</p>
+      </section>
+    </main>
+  </body>
+</html>

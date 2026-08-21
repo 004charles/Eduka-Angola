@@ -1,14 +1,18 @@
 from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
+from django.core import mail
+from django.test import override_settings
 from django.urls import reverse
+from datetime import date, time, timedelta
 from decimal import Decimal
 import json
 
 from .models import Pagamento, ConfiguracaoPagamento
 from .services import get_payment_service, PagamentoException, ProntuPaymentGateway
-from cursos_app.models import Curso, Categoria
+from cursos_app.models import Curso, Categoria, Inscricao, Turma
 from gestoreduka.models import CentroDeFormacao
 from rest_framework.test import APITestCase, APIClient
+from usuarios.models import Aluno
 
 Usuario = get_user_model()
 
@@ -164,6 +168,63 @@ class PaymentServiceTestCase(TestCase):
                 tipo_pagamento='INSCRICAO',
                 valor=Decimal('5000.00')
             )
+
+    @override_settings(BREVO_API_KEY='')
+    def test_pagamento_aceite_envia_comprovativo_depois_de_activar_inscricao(self):
+        aluno = Aluno.objects.create(usuario=self.usuario, nome=self.usuario.nome)
+        turma = Turma.objects.create(
+            curso=self.curso,
+            nome='Turma de comprovativo',
+            codigo='REC-001',
+            data_inicio=date.today() + timedelta(days=14),
+            data_fim=date.today() + timedelta(days=42),
+            turno='MANHA',
+            horario_inicio=time(8, 0),
+            horario_fim=time(12, 0),
+            dias_semana='SEG,QUA,SEX',
+            vagas_totais=20,
+            vagas_disponiveis=20,
+            local='Sede Luanda',
+            status='ABERTA',
+        )
+        inscricao = Inscricao.objects.create(
+            aluno=aluno,
+            curso=self.curso,
+            turma_escolhida=turma,
+            status='P',
+            tipo_inscricao='ONLINE',
+        )
+        pagamento = Pagamento.objects.create(
+            usuario=self.usuario,
+            referencia_pagamento='RECIBO-INSCRICAO-001',
+            tipo_pagamento='INSCRICAO',
+            valor=Decimal('2500.00'),
+            valor_final=Decimal('2500.00'),
+            moeda='AOA',
+            gateway='PRONTU',
+            status='ACCEPTED',
+            curso=self.curso,
+            metadados={'inscricao_id': inscricao.id},
+        )
+
+        get_payment_service()._processar_pagamento_aceito(pagamento)
+
+        inscricao.refresh_from_db()
+        self.assertEqual(inscricao.status, 'A')
+        self.assertIsNotNone(inscricao.comprovativo_enviado_em)
+        comprovativos = [
+            email for email in mail.outbox
+            if email.subject.startswith('Comprovativo de inscrição confirmado')
+        ]
+        self.assertEqual(len(comprovativos), 1)
+        self.assertIn(inscricao.codigo_inscricao, comprovativos[0].alternatives[0][0])
+
+        get_payment_service()._processar_pagamento_aceito(pagamento)
+        comprovativos_repetidos = [
+            email for email in mail.outbox
+            if email.subject.startswith('Comprovativo de inscrição confirmado')
+        ]
+        self.assertEqual(len(comprovativos_repetidos), 1)
 
 
 class ProntuGatewayMockTestCase(TestCase):

@@ -1,8 +1,8 @@
-from django.test import TestCase
+from django.core import mail
+from django.test import TestCase, override_settings
 import json
 from datetime import date, time, timedelta
-
-from django.test import TestCase
+from unittest.mock import patch
 
 from cursos_app.models import Categoria, Curso, Inscricao, Turma
 from gestoreduka.models import CentroDeFormacao
@@ -102,3 +102,54 @@ class ReactCheckoutPresencialTest(TestCase):
         inscricao.refresh_from_db()
         self.assertEqual(inscricao.turma_escolhida, self.turma)
         self.assertEqual(response.json()['turma']['id'], self.turma.id)
+
+    @override_settings(BREVO_API_KEY='')
+    def test_comprovativo_confirmado_e_enviado_uma_unica_vez_com_a_filial(self):
+        utilizador = Usuario.objects.create_user(
+            email='aluno.comprovativo@test.com', nome='Aluno Comprovativo', password='SenhaSegura123', tipo_usuario='ALUNO'
+        )
+        aluno = Aluno.objects.create(usuario=utilizador, nome=utilizador.nome)
+        inscricao = Inscricao.objects.create(
+            aluno=aluno,
+            curso=self.curso,
+            turma_escolhida=self.turma,
+            status='A',
+            tipo_inscricao='ONLINE',
+            forma_pagamento='CARTAO_CREDITO',
+            valor_pago=2500,
+        )
+
+        self.assertTrue(inscricao.enviar_comprovativo_inscricao())
+        inscricao.refresh_from_db()
+        self.assertIsNotNone(inscricao.comprovativo_enviado_em)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('Comprovativo de inscrição confirmado', mail.outbox[0].subject)
+        self.assertIn('Unidade Zango', mail.outbox[0].alternatives[0][0])
+        self.assertIn('Zango III, primeira paragem', mail.outbox[0].alternatives[0][0])
+        self.assertIn(inscricao.codigo_inscricao, mail.outbox[0].alternatives[0][0])
+
+        self.assertFalse(inscricao.enviar_comprovativo_inscricao())
+        self.assertEqual(len(mail.outbox), 1)
+
+    @override_settings(BREVO_API_KEY='chave-de-teste')
+    @patch('core.email_utils.enviar_email_brevo', return_value=True)
+    def test_comprovativo_confirmado_usa_brevo_quando_configurado(self, email_brevo):
+        utilizador = Usuario.objects.create_user(
+            email='aluno.brevo@test.com', nome='Aluno Brevo', password='SenhaSegura123', tipo_usuario='ALUNO'
+        )
+        aluno = Aluno.objects.create(usuario=utilizador, nome=utilizador.nome)
+        inscricao = Inscricao.objects.create(
+            aluno=aluno,
+            curso=self.curso,
+            turma_escolhida=self.turma,
+            status='A',
+            tipo_inscricao='ONLINE',
+            valor_pago=2500,
+        )
+
+        self.assertTrue(inscricao.enviar_comprovativo_inscricao())
+        inscricao.refresh_from_db()
+        self.assertIsNotNone(inscricao.comprovativo_enviado_em)
+        email_brevo.assert_called_once()
+        self.assertEqual(email_brevo.call_args.args[0], utilizador.email)
+        self.assertIn(inscricao.codigo_inscricao, email_brevo.call_args.args[1])

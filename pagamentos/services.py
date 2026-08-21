@@ -814,11 +814,11 @@ class PaymentService:
                         # Atribuir turma automática
                         atribuir_turma_automatica(inscricao)
                         
-                        # Enviar email de status
+                        # Enviar o comprovativo presencial depois de a turma estar definida.
                         try:
-                            inscricao.enviar_email_status()
+                            inscricao.enviar_comprovativo_inscricao()
                         except Exception as e_mail:
-                            logger.error(f"Erro ao enviar email de status da inscrição: {e_mail}")
+                            logger.error(f"Erro ao enviar comprovativo da inscrição: {e_mail}")
                             
                         logger.info(f"Inscrição {inscricao.id} ativada automaticamente pós-pagamento com sucesso!")
                     else:
