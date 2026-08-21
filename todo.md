@@ -423,3 +423,5 @@
 - [ ] Lançar o Mercado Edukangola em Luanda com estafeta contratado, pagamento interno e operação centralizada
 - [x] Criar e validar localmente produtos de demonstração de computadores, livros e mochilas no Mercado Edukangola
 - [ ] Publicar em produção o catálogo demonstrativo aprovado do Mercado Edukangola
+- [x] Corrigir as imagens dos produtos do Mercado para URLs estáticas persistentes em produção
+- [x] Corrigir a faixa e o catálogo do Mercado Edukangola no modo escuro

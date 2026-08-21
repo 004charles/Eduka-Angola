@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
+from core.media_urls import public_media_url
 from pagamentos.services import PagamentoException, get_payment_service
 
 from .models import PedidoMercado, ProdutoMercado, ItemPedidoMercado
@@ -22,7 +23,7 @@ def _media_url(field):
 
 
 def _imagem_produto(produto):
-    return (produto.imagem_url_publica or _media_url(produto.imagem_principal)).strip()
+    return public_media_url((produto.imagem_url_publica or _media_url(produto.imagem_principal)).strip())
 
 
 def _formatar_valor(valor, moeda="AOA"):

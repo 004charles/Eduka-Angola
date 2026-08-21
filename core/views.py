@@ -44,6 +44,7 @@ from .models import Galeria, SobreNos, MensagemContato, Publicidade, PerguntaFre
 from avaliacoes.utils import get_centro_da_semana
 from avaliacoes.models import Comentario
 from cursos_app.utils_secoes import get_home_sections_data
+from .media_urls import public_media_url
 
 
 def coordenadas_publicas(centro):
@@ -1158,6 +1159,7 @@ def public_home_data(request):
                 imagem_produto = produto.imagem_url_publica or (produto.imagem_principal.url if produto.imagem_principal else '')
             except (ValueError, AttributeError):
                 imagem_produto = produto.imagem_url_publica or ''
+            imagem_produto = public_media_url(imagem_produto)
             produtos_mercado.append({
                 'id': produto.id,
                 'titulo': produto.titulo,

@@ -19,3 +19,18 @@
 @keyframes marketplaceScroll { to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { .marketplace-rail { animation: none; overflow-x: auto; width: 100%; } }
 @media (max-width: 640px) { .marketplace-shelf { padding: 2rem 0 1.65rem; } .marketplace-shelf-heading { align-items: flex-start; flex-direction: column; padding-left: 1rem; padding-right: 1rem; } .marketplace-shelf-heading p { font-size: .9rem; } .marketplace-shelf-link { width: 100%; justify-content: center; } .marketplace-rail { animation-duration: 62s; padding-left: 1rem; padding-right: 1rem; } .marketplace-mini-product { width: 136px; min-height: 206px; } .marketplace-mini-image { height: 89px; } .marketplace-shelf-footnote { padding-left: 1rem; padding-right: 1rem; } }
+
+[data-theme="dark"] .marketplace-shelf { background: #101714; }
+[data-theme="dark"] .marketplace-shelf-heading h2 { color: #edf7f2; }
+[data-theme="dark"] .marketplace-shelf-heading p { color: #a9beb7; }
+[data-theme="dark"] .marketplace-shelf .eyebrow { color: #9dc8b9; }
+[data-theme="dark"] .marketplace-shelf-link { background: #2b8c72; color: #f7fffb; }
+[data-theme="dark"] .marketplace-shelf-link:hover { background: #39a784; }
+[data-theme="dark"] .marketplace-mini-product { border-color: #2a3d37; background: #18221f; box-shadow: 0 7px 20px rgba(0, 0, 0, .24); color: #eaf5f0; }
+[data-theme="dark"] .marketplace-mini-product:hover { box-shadow: 0 14px 28px rgba(0, 0, 0, .34); }
+[data-theme="dark"] .marketplace-mini-image { background: #eef6f2; color: #48746a; }
+[data-theme="dark"] .marketplace-mini-image img { mix-blend-mode: normal; }
+[data-theme="dark"] .marketplace-mini-copy small { color: #9fbbb2; }
+[data-theme="dark"] .marketplace-mini-copy strong { color: #edf7f2; }
+[data-theme="dark"] .marketplace-mini-copy b { color: #75d6b5; }
+[data-theme="dark"] .marketplace-mini-copy em, [data-theme="dark"] .marketplace-shelf-footnote { color: #a7bdb5; }

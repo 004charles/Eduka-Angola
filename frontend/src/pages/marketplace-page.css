@@ -12,3 +12,32 @@
 .market-orders > p { margin-top: 0; color: #657a73; } .market-order { margin-top: 1rem; overflow: hidden; border: 1px solid #e0ebe8; border-radius: 16px; background: #fff; } .market-order header { display: flex; align-items: center; justify-content: space-between; gap: .8rem; padding: .85rem 1rem; border-bottom: 1px solid #ecf2f0; color: #3d6259; font-size: .8rem; } .market-order header span, .market-order header b, .market-order aside small { display: flex; align-items: center; gap: .35rem; } .market-order header b { border-radius: 999px; padding: .28rem .45rem; background: #edf7f3; color: #176655; font-size: .7rem; } .market-order-body { display: flex; justify-content: space-between; gap: 1rem; padding: .85rem 1rem; } .market-order-item { display: flex; align-items: center; gap: .65rem; border: 0; background: transparent; color: #14362f; text-align: left; cursor: pointer; } .market-order-item img, .market-order-item > svg { width: 42px; height: 42px; object-fit: contain; padding: .25rem; border-radius: 8px; background: #f0f6f4; color: #5a8278; } .market-order-item span { display: grid; gap: .15rem; } .market-order-item small, .market-order aside small { color: #6e827c; font-size: .72rem; } .market-order aside { display: grid; justify-items: end; align-content: center; gap: .35rem; } .market-order aside > strong { color: #126b5c; } .market-order aside .market-primary { padding: .55rem .65rem; font-size: .78rem; }
 @media (max-width: 900px) { .market-detail-layout { grid-template-columns: 1fr 1fr; } .market-order-panel { grid-column: 1 / -1; position: static; } .market-detail-media { position: static; min-height: 280px; } }
 @media (max-width: 620px) { .marketplace-hero { padding-top: 3.5rem; } .marketplace-catalog-header { align-items: flex-start; flex-direction: column; } .marketplace-orders-link { padding: 0; } .marketplace-filterbar { align-items: stretch; flex-direction: column; } .marketplace-filterbar div { overflow-x: auto; flex-wrap: nowrap; padding-bottom: .15rem; } .marketplace-filterbar button { white-space: nowrap; } .marketplace-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; } .marketplace-product-photo { height: 130px; } .marketplace-product-info { font-size: .86rem; } .market-detail-layout { grid-template-columns: 1fr; } .market-detail-media { min-height: 250px; } .market-order-body { align-items: stretch; flex-direction: column; } .market-order aside { justify-items: stretch; } .market-order aside .market-primary { width: 100%; } }
+
+[data-theme="dark"] .marketplace-catalog h2, [data-theme="dark"] .market-orders h1, [data-theme="dark"] .market-detail-copy h1, [data-theme="dark"] .market-description h2, [data-theme="dark"] .market-order-panel h2 { color: #edf7f2; }
+[data-theme="dark"] .marketplace-orders-link, [data-theme="dark"] .market-back { color: #75d6b5; }
+[data-theme="dark"] .marketplace-filterbar { border-color: #2a3d37; background: #18221f; }
+[data-theme="dark"] .marketplace-filterbar label, [data-theme="dark"] .marketplace-filterbar input { color: #c4d7d0; }
+[data-theme="dark"] .marketplace-filterbar input { background: transparent; }
+[data-theme="dark"] .marketplace-filterbar button { background: #24312d; color: #b8cec6; }
+[data-theme="dark"] .marketplace-filterbar button.active { background: #2b8c72; color: #f7fffb; }
+[data-theme="dark"] .marketplace-product-card, [data-theme="dark"] .market-order { border-color: #2a3d37; background: #18221f; color: #edf7f2; box-shadow: 0 8px 20px rgba(0, 0, 0, .2); }
+[data-theme="dark"] .marketplace-product-photo, [data-theme="dark"] .market-detail-media, [data-theme="dark"] .market-order-item img, [data-theme="dark"] .market-order-item > svg { background: #eef6f2; color: #49766b; }
+[data-theme="dark"] .marketplace-product-photo img, [data-theme="dark"] .market-detail-media img { mix-blend-mode: normal; }
+[data-theme="dark"] .marketplace-product-photo em { background: #20302b; color: #86d9bc; }
+[data-theme="dark"] .marketplace-product-info small, [data-theme="dark"] .marketplace-product-info p, [data-theme="dark"] .marketplace-product-info i, [data-theme="dark"] .marketplace-state, [data-theme="dark"] .market-orders > p { color: #a6beb5; }
+[data-theme="dark"] .marketplace-product-info b, [data-theme="dark"] .market-detail-price, [data-theme="dark"] .market-order aside > strong { color: #75d6b5; }
+[data-theme="dark"] .marketplace-state strong { color: #edf7f2; }
+[data-theme="dark"] .market-detail-summary, [data-theme="dark"] .market-description p, [data-theme="dark"] .market-description dt, [data-theme="dark"] .market-detail-facts span { color: #aec4bc; }
+[data-theme="dark"] .market-detail-facts, [data-theme="dark"] .market-description dl div { border-color: #2b3d37; }
+[data-theme="dark"] .market-detail-facts b, [data-theme="dark"] .market-description dd { color: #dff0e9; }
+[data-theme="dark"] .market-order-panel { border-color: #2b433b; background: #18221f; box-shadow: 0 14px 30px rgba(0, 0, 0, .3); }
+[data-theme="dark"] .market-order-panel > span { color: #75d6b5; }
+[data-theme="dark"] .market-order-panel > p, [data-theme="dark"] .market-order-panel label, [data-theme="dark"] .market-order-panel label small { color: #b2c8c0; }
+[data-theme="dark"] .market-order-panel input, [data-theme="dark"] .market-order-panel select { border-color: #365047; background: #101714; color: #edf7f2; }
+[data-theme="dark"] .market-session-note { background: #1e352d; color: #a5e0c7; }
+[data-theme="dark"] .market-session-note small { color: #aed0c2; }
+[data-theme="dark"] .market-primary { background: #2b8c72; }
+[data-theme="dark"] .market-form-feedback, [data-theme="dark"] .market-order header b { background: #1e352d; color: #a5e0c7; }
+[data-theme="dark"] .market-order header { border-color: #2b3d37; color: #b5cdc4; }
+[data-theme="dark"] .market-order-item { color: #edf7f2; }
+[data-theme="dark"] .market-order-item small, [data-theme="dark"] .market-order aside small { color: #9eb7ae; }

@@ -7,9 +7,9 @@ from mercado.models import CategoriaMercado, LojaParceira, ProdutoMercado
 
 
 IMAGENS = {
-    "computadores": "/manus-storage/mercado-laptop-estudante_c7f7893a.png",
-    "livros": "/manus-storage/mercado-livros-estudo_a0178266.png",
-    "mochilas": "/manus-storage/mercado-mochila-estudo_3ee5e228.png",
+    "computadores": "/static/assets/images/product/mercado/portatil-estudo.webp",
+    "livros": "/static/assets/images/product/mercado/livros-estudo.webp",
+    "mochilas": "/static/assets/images/product/mercado/mochila-estudo.webp",
 }
 
 
