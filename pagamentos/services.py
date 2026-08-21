@@ -876,8 +876,9 @@ class PaymentService:
                         if pedido.status == 'AGUARDA_PAGAMENTO':
                             pedido.status = 'PAGO_RECOLHA'
                             pedido.pagamento_confirmado_em = timezone.now()
+                            pedido.reserva_expira_em = None
                             pedido.referencia_pagamento = pagamento.referencia_pagamento
-                            pedido.save(update_fields=['status', 'pagamento_confirmado_em', 'referencia_pagamento', 'atualizado_em'])
+                            pedido.save(update_fields=['status', 'pagamento_confirmado_em', 'reserva_expira_em', 'referencia_pagamento', 'atualizado_em'])
                             logger.info(f'Pedido do Mercado {pedido.referencia} confirmado para recolha.')
 
             elif pagamento.tipo_pagamento == 'INSCRICAO_VIDEO':

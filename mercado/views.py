@@ -46,6 +46,7 @@ def serializar_produto(produto, detalhe=False):
         "condicao": produto.get_condicao_display(),
         "garantia": produto.garantia,
         "prazo_entrega_dias": produto.prazo_entrega_dias,
+        "quantidade_disponivel": produto.quantidade_disponivel,
         "disponivel": produto.disponivel_para_pedido,
         "loja": {
             "nome": produto.loja.nome,
@@ -71,8 +72,9 @@ def serializar_produto(produto, detalhe=False):
 
 @require_GET
 def catalogo_publico(request):
+    PedidoMercado.liberar_reservas_expiradas()
     produtos = ProdutoMercado.objects.filter(
-        status="PUBLICADO", loja__ativa=True, loja__verificada=True,
+        status="PUBLICADO", quantidade_disponivel__gt=0, loja__ativa=True, loja__verificada=True,
     ).select_related("loja", "categoria")
     categoria = (request.GET.get("categoria") or "").strip()
     if categoria:
@@ -86,12 +88,13 @@ def catalogo_publico(request):
 
 @require_GET
 def produto_publico(request, slug):
+    PedidoMercado.liberar_reservas_expiradas()
     produto = get_object_or_404(
         ProdutoMercado.objects.select_related("loja", "categoria"),
         slug=slug,
         status="PUBLICADO",
         loja__ativa=True,
-        loja__verificada=True,
+        quantidade_disponivel__gt=0, loja__verificada=True,
     )
     return JsonResponse(serializar_produto(produto, detalhe=True))
 
@@ -126,6 +129,7 @@ def criar_pedido(request):
     if not endereco or not bairro or not telefone:
         return JsonResponse({"ok": False, "message": "Confirme o telefone, o endereço e o bairro para entrega em Luanda."}, status=400)
 
+    PedidoMercado.liberar_reservas_expiradas()
     produto = get_object_or_404(
         ProdutoMercado.objects.select_related("loja", "categoria"),
         id=produto_id, status="PUBLICADO", loja__ativa=True, loja__verificada=True,
@@ -134,6 +138,10 @@ def criar_pedido(request):
         produto = ProdutoMercado.objects.select_for_update().get(pk=produto.pk)
         if produto.quantidade_disponivel < quantidade:
             return JsonResponse({"ok": False, "message": "Este produto já não tem a quantidade solicitada disponível."}, status=409)
+        produto.quantidade_disponivel -= quantidade
+        if produto.quantidade_disponivel == 0:
+            produto.status = "INDISPONIVEL"
+        produto.save(update_fields=["quantidade_disponivel", "status", "atualizado_em"])
         pedido = PedidoMercado.objects.create(
             utilizador=request.user,
             nome_comprador=(request.user.nome or request.user.email).strip(),
@@ -146,6 +154,8 @@ def criar_pedido(request):
             municipio="Luanda",
             provincia="Luanda",
             moeda=produto.moeda,
+            status="AGUARDA_PAGAMENTO",
+            reserva_ativa=True,
         )
         ItemPedidoMercado.objects.create(
             pedido=pedido,
@@ -161,7 +171,7 @@ def criar_pedido(request):
         "ok": True,
         "pedido": pedido.referencia,
         "status": pedido.status,
-        "message": "Recebemos o pedido. A equipa Edukangola confirmará a disponibilidade antes de abrir o pagamento.",
+        "message": "Unidade reservada. O pagamento foi preparado e a reserva é válida durante 30 minutos.",
     }, status=201)
 
 

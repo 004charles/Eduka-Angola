@@ -58,6 +58,8 @@ class PedidoMercadoAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
+        if obj.status == "CANCELADO":
+            obj.liberar_reserva("Reserva devolvida por decisão administrativa.")
 
     def save_related(self, request, form, formsets, change):
         super().save_related(request, form, formsets, change)
@@ -93,4 +95,9 @@ class PedidoMercadoAdmin(admin.ModelAdmin):
         pedidos.update(status="ENTREGUE", entregue_em=timezone.now())
         self.message_user(request, f"{pedidos.count()} pedido(s) confirmado(s) como entregue(s).", messages.SUCCESS)
 
-    actions = ("confirmar_disponibilidade", "marcar_recolhido", "marcar_em_entrega", "marcar_entregue")
+    @admin.action(description="Cancelar pedido e devolver unidades ao stock")
+    def cancelar_e_devolver_stock(self, request, queryset):
+        devolvidos = sum(1 for pedido in queryset if pedido.liberar_reserva("Pedido cancelado pela administração."))
+        self.message_user(request, f"{devolvidos} pedido(s) cancelado(s) e devolvido(s) ao stock.", messages.SUCCESS)
+
+    actions = ("confirmar_disponibilidade", "marcar_recolhido", "marcar_em_entrega", "marcar_entregue", "cancelar_e_devolver_stock")

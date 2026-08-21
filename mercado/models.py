@@ -1,9 +1,10 @@
 from decimal import Decimal
+from datetime import timedelta
 from uuid import uuid4
 
 from django.conf import settings
 from django.core.validators import MinValueValidator
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 from django.utils.text import slugify
 
@@ -14,6 +15,10 @@ def gerar_referencia_pedido_mercado():
 
 def gerar_codigo_entrega():
     return uuid4().hex[:6].upper()
+
+
+def gerar_expiracao_reserva():
+    return timezone.now() + timedelta(minutes=30)
 
 
 class LojaParceira(models.Model):
@@ -189,6 +194,9 @@ class PedidoMercado(models.Model):
     previsao_entrega = models.DateTimeField(null=True, blank=True)
     disponibilidade_confirmada_em = models.DateTimeField(null=True, blank=True)
     pagamento_confirmado_em = models.DateTimeField(null=True, blank=True)
+    reserva_expira_em = models.DateTimeField(default=gerar_expiracao_reserva, db_index=True, null=True, blank=True)
+    reserva_ativa = models.BooleanField(default=False)
+    reserva_liberada_em = models.DateTimeField(null=True, blank=True)
     recolhido_em = models.DateTimeField(null=True, blank=True)
     entregue_em = models.DateTimeField(null=True, blank=True)
     comprovativo_recolha = models.FileField(upload_to="mercado/recolhas/", blank=True)
@@ -207,6 +215,41 @@ class PedidoMercado(models.Model):
     def recalcular_totais(self):
         self.subtotal = sum((item.preco_unitario * item.quantidade for item in self.itens.all()), Decimal("0"))
         self.total = self.subtotal + self.taxa_entrega
+
+    def liberar_reserva(self, motivo=""):
+        """Devolve unidades reservadas uma única vez, dentro de uma transacção atómica."""
+        with transaction.atomic():
+            pedido = type(self).objects.select_for_update().get(pk=self.pk)
+            if not pedido.reserva_ativa or pedido.reserva_liberada_em or pedido.status not in {"AGUARDA_PAGAMENTO", "CANCELADO"}:
+                return False
+            for item in pedido.itens.select_related("produto__loja"):
+                produto = ProdutoMercado.objects.select_for_update().select_related("loja").get(pk=item.produto_id)
+                produto.quantidade_disponivel += item.quantidade
+                if produto.loja.ativa and produto.loja.verificada and produto.status == "INDISPONIVEL":
+                    produto.status = "PUBLICADO"
+                produto.save(update_fields=["quantidade_disponivel", "status", "atualizado_em"])
+            pedido.status = "CANCELADO"
+            pedido.reserva_ativa = False
+            pedido.reserva_liberada_em = timezone.now()
+            pedido.reserva_expira_em = None
+            if motivo:
+                pedido.notas_admin = f"{pedido.notas_admin}\n{motivo}".strip()
+            pedido.save(update_fields=["status", "reserva_ativa", "reserva_liberada_em", "reserva_expira_em", "notas_admin", "atualizado_em"])
+        return True
+
+    @classmethod
+    def liberar_reservas_expiradas(cls):
+        referencias = list(cls.objects.filter(
+            status="AGUARDA_PAGAMENTO",
+            reserva_ativa=True,
+            reserva_liberada_em__isnull=True,
+            reserva_expira_em__lt=timezone.now(),
+        ).values_list("pk", flat=True))
+        for pedido_id in referencias:
+            try:
+                cls.objects.get(pk=pedido_id).liberar_reserva("Reserva expirada sem pagamento.")
+            except cls.DoesNotExist:
+                continue
 
     def __str__(self):
         return self.referencia

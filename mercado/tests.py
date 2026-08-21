@@ -62,6 +62,56 @@ class MercadoApiTest(TestCase):
 
         self.assertEqual(response.status_code, 201)
         pedido = PedidoMercado.objects.get(referencia=response.json()["pedido"])
-        self.assertEqual(pedido.status, "A_VALIDAR")
+        self.assertEqual(pedido.status, "AGUARDA_PAGAMENTO")
+        self.assertTrue(pedido.reserva_ativa)
         self.assertEqual(pedido.total, Decimal("120000"))
         self.assertEqual(pedido.itens.count(), 1)
+        self.produto.refresh_from_db()
+        self.assertEqual(self.produto.quantidade_disponivel, 2)
+        self.assertEqual(self.produto.status, "PUBLICADO")
+
+    def test_ultima_unidade_reservada_sai_do_catalogo(self):
+        self.produto.quantidade_disponivel = 1
+        self.produto.save(update_fields=["quantidade_disponivel"])
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            "/api/react/mercado/pedidos/",
+            data=json.dumps({
+                "produto_id": self.produto.id,
+                "quantidade": 1,
+                "telefone": "+244 923 000 000",
+                "endereco_entrega": "Rua das Acácias, 10",
+                "bairro": "Talatona",
+            }),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.produto.refresh_from_db()
+        self.assertEqual(self.produto.quantidade_disponivel, 0)
+        self.assertEqual(self.produto.status, "INDISPONIVEL")
+        catalogo = self.client.get("/api/public/mercado/")
+        self.assertNotIn(self.produto.titulo, [item["titulo"] for item in catalogo.json()["produtos"]])
+
+    def test_cancelamento_devolve_stock_e_publica_produto(self):
+        self.client.force_login(self.user)
+        resposta = self.client.post(
+            "/api/react/mercado/pedidos/",
+            data=json.dumps({
+                "produto_id": self.produto.id,
+                "quantidade": 3,
+                "telefone": "+244 923 000 000",
+                "endereco_entrega": "Rua das Acácias, 10",
+                "bairro": "Talatona",
+            }),
+            content_type="application/json",
+        )
+        pedido = PedidoMercado.objects.get(referencia=resposta.json()["pedido"])
+        self.assertTrue(pedido.liberar_reserva("Teste de cancelamento."))
+        self.produto.refresh_from_db()
+        pedido.refresh_from_db()
+        self.assertEqual(self.produto.quantidade_disponivel, 3)
+        self.assertEqual(self.produto.status, "PUBLICADO")
+        self.assertEqual(pedido.status, "CANCELADO")
+        self.assertFalse(pedido.reserva_ativa)
