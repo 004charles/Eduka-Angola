@@ -445,3 +445,9 @@
 - [x] Alinhar o botão de guardar no rodapé dos cartões de cursos para não ficar solto ou cortado
 - [ ] Configurar preços de demonstração em cursos presenciais para validar inscrição e mensalidade no catálogo
 - [x] Substituir o favicon público pelo símbolo oficial da Edukangola no navegador e na PWA
+- [ ] Preparar a Edukangola PWA para distribuição Android na Play Store através de Trusted Web Activity
+- [x] Definir a identidade Android `com.edukangola.app`, atalhos, notificações e geolocalização para a Trusted Web Activity
+- [x] Gerar o projecto Android rastreável da Trusted Web Activity sem inserir chaves privadas no repositório
+- [ ] Criar a chave de envio, activar Play App Signing e obter a impressão SHA-256 do certificado final
+- [ ] Publicar e validar o `assetlinks.json` definitivo no domínio `www.edukangola.com`
+- [ ] Compilar o AAB assinado e validar o lançamento no canal de testes internos da Play Store

@@ -19,3 +19,13 @@ A medição directa confirmou que os cartões do catálogo usam uma margem infer
 A captura do separador confirmou que o navegador apresentava o ícone genérico de página. O símbolo oficial da Edukangola já existe em `eduka-mark.png`, e o ícone PWA de 192 px usa o mesmo símbolo sobre fundo escuro. A correcção deve acrescentar explicitamente o favicon ao documento público e usar a versão com boa legibilidade para separadores claros e escuros.
 
 Depois da correcção, o documento carregado declara explicitamente os ícones `icon` e `shortcut icon`, ambos apontando para o símbolo oficial de 192 px com versão de cache. O manifesto PWA já utilizava o mesmo conjunto de ícones, portanto as instalações existentes ficam coerentes com o separador do navegador.
+
+Na auditoria do domínio oficial, o manifesto PWA foi confirmado com nome, escopo, modo standalone e ícones de 192 px e 512 px. O endereço `/.well-known/assetlinks.json` ainda não publica JSON de associação Android; a rota é atendida pela aplicação web. Este ficheiro deverá ser publicado antes de validar a Trusted Web Activity na Play Store.
+
+## Preparação Android da PWA
+
+As orientações oficiais de Trusted Web Activity confirmam que a embalagem Android abre a PWA em ecrã completo apenas quando o domínio comprova a associação por Digital Asset Links. Sem essa validação, o Android usa uma Custom Tab com interface de navegador. A associação deve ser publicada em `/.well-known/assetlinks.json` e contém o pacote Android e a impressão SHA-256 do certificado de assinatura.
+
+A configuração proposta para a Edukangola é: origem `https://www.edukangola.com`, identificador Android `com.edukangola.app`, modo standalone, versão inicial `1`, ícones oficiais de 512 px, atalhos do manifesto e permissão de geolocalização. A primeira geração do projecto Android não deve criar ou guardar uma chave de assinatura no repositório. A impressão correcta do certificado deve ser recolhida da Play Console quando a gestão de assinatura Play for configurada, e só então o `assetlinks.json` definitivo é publicado.
+
+Fontes oficiais consultadas: Android Developers, Trusted Web Activities Quick Start (https://developer.android.com/develop/ui/views/layout/webapps/guide-trusted-web-activities-version2); Chrome Developers, Trusted Web Activity Quick Start (https://developer.chrome.com/docs/android/trusted-web-activity/quick-start); Google Developers, Adding Your Progressive Web App to Google Play (https://developers.google.com/codelabs/pwa-in-play).

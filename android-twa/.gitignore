@@ -1,0 +1,5 @@
+/android.keystore
+/app-release-bundle.aab
+/app-release-signed.apk
+/.gradle/
+/app/build/

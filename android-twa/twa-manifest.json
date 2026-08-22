@@ -1,0 +1,60 @@
+{
+  "packageId": "com.edukangola.app",
+  "host": "www.edukangola.com",
+  "name": "Edukangola",
+  "launcherName": "Edukangola",
+  "display": "standalone",
+  "displayOverride": ["window-controls-overlay", "standalone"],
+  "themeColor": "#6425E8",
+  "themeColorDark": "#201247",
+  "navigationColor": "#F8F5FF",
+  "navigationColorDark": "#14111A",
+  "navigationDividerColor": "#00000000",
+  "navigationDividerColorDark": "#00000000",
+  "backgroundColor": "#F8F5FF",
+  "enableNotifications": true,
+  "enableSiteSettingsShortcut": true,
+  "startUrl": "/",
+  "iconUrl": "https://www.edukangola.com/icons/icon-512x512.png",
+  "maskableIconUrl": "https://www.edukangola.com/icons/icon-512x512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "edukangola"
+  },
+  "appVersionCode": 1,
+  "appVersion": "1.0.0",
+  "shortcuts": [
+    {
+      "name": "Explorar cursos",
+      "shortName": "Cursos",
+      "url": "/cursos",
+      "chosenIconUrl": "https://www.edukangola.com/icons/icon-192x192.png"
+    },
+    {
+      "name": "Área do aluno",
+      "shortName": "Perfil",
+      "url": "/aluno",
+      "chosenIconUrl": "https://www.edukangola.com/icons/icon-192x192.png"
+    }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://www.edukangola.com/app.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {
+    "locationDelegation": {
+      "enabled": true
+    }
+  },
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://www.edukangola.com/",
+  "minSdkVersion": 21,
+  "orientation": "any",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "alphaDependencies": {
+    "enabled": false
+  }
+}
