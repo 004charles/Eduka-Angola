@@ -451,3 +451,6 @@
 - [ ] Criar a chave de envio, activar Play App Signing e obter a impressão SHA-256 do certificado final
 - [ ] Publicar e validar o `assetlinks.json` definitivo no domínio `www.edukangola.com`
 - [ ] Compilar o AAB assinado e validar o lançamento no canal de testes internos da Play Store
+- [x] Expor um endpoint privado de histórico que reúna pedidos do Mercado, inscrições e actividade de aprendizagem do próprio aluno
+- [x] Criar a página React `/aluno/historico` e ligá-la à área do aluno
+- [x] Cobrir o histórico com testes de autorização, ordenação e navegação para cada registo

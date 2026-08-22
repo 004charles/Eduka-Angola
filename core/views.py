@@ -189,6 +189,104 @@ def react_student_dashboard(request):
     return JsonResponse({'ok': True, 'aluno': {'nome': aluno.nome}, 'resumo': {'cursos_ativos': len(continuar), 'inscricoes_pendentes': inscricoes_pendentes, 'certificados': certificados}, 'subscricao_video': {'ativa': bool(subscricao_video), 'plano': subscricao_video.plano.nome if subscricao_video else '', 'termina_em': subscricao_video.data_fim.isoformat() if subscricao_video else None}, 'continuar_aprender': continuar, 'inscricoes': [{'id': item.id, 'titulo': item.curso.titulo, 'centro': item.curso.centro.nome if item.curso.centro else 'Centro de formação', 'status': item.status, 'status_label': item.get_status_display(), 'turma': item.turma_escolhida.nome if item.turma_escolhida else '', 'inicio_formatado': item.turma_escolhida.data_inicio.strftime('%d/%m/%Y') if item.turma_escolhida else '', 'horario': item.turma_escolhida.get_turno_display() if item.turma_escolhida else '', 'imagem_url': item.curso.get_imagem_url, 'valor_pago_formatado': f'{item.valor_pago:,.0f} Kz'.replace(',', ' ') if item.valor_pago else 'Por confirmar', 'detalhe_url': reverse('curso_detalhe', kwargs={'id': item.curso_id}), 'ficha_url': ''} for item in inscricoes]})
 
 
+@require_GET
+def react_student_history(request):
+    """Devolve apenas a cronologia privada e os resumos da conta do aluno autenticado."""
+    if not request.user.is_authenticated or getattr(request.user, 'tipo_usuario', None) != 'ALUNO':
+        return JsonResponse({'detail': 'Inicie sessão para consultar o seu histórico.'}, status=401)
+    aluno = getattr(request.user, 'aluno_profile', None)
+    if not aluno:
+        return JsonResponse({'detail': 'Perfil de aluno não encontrado.'}, status=404)
+
+    from biblioteca.models import BibliotecaPessoal
+    from mercado.models import PedidoMercado
+
+    timeline = []
+    pedidos = list(PedidoMercado.objects.filter(utilizador=request.user).prefetch_related('itens').order_by('-atualizado_em')[:20])
+    for pedido in pedidos:
+        itens = list(pedido.itens.all())
+        descricao_itens = ', '.join(item.titulo for item in itens[:2])
+        if len(itens) > 2:
+            descricao_itens = f'{descricao_itens} e mais {len(itens) - 2} produto(s)'
+        timeline.append({
+            'id': f'mercado-{pedido.id}',
+            'tipo': 'mercado',
+            'titulo': f'Pedido {pedido.referencia}',
+            'descricao': descricao_itens or 'Pedido do Mercado Edukangola',
+            'estado': pedido.get_status_display(),
+            'valor': f'{pedido.total:,.0f} {"Kz" if pedido.moeda == "AOA" else pedido.moeda}'.replace(',', ' '),
+            'ocorrido_em': pedido.atualizado_em.isoformat(),
+            'detalhe_url': f'/mercado/pedidos?pedido={pedido.referencia}',
+        })
+
+    inscricoes = list(Inscricao.objects.filter(aluno=aluno).select_related('curso__centro', 'turma_escolhida').order_by('-data_inscricao')[:20])
+    for inscricao in inscricoes:
+        turma = inscricao.turma_escolhida.nome if inscricao.turma_escolhida else ''
+        centro = inscricao.curso.centro.nome if inscricao.curso.centro else 'Centro de formação'
+        timeline.append({
+            'id': f'inscricao-{inscricao.id}',
+            'tipo': 'inscricao',
+            'titulo': inscricao.curso.titulo,
+            'descricao': f'{centro}{f" · {turma}" if turma else ""}',
+            'estado': inscricao.get_status_display(),
+            'valor': f'{inscricao.valor_pago:,.0f} Kz'.replace(',', ' ') if inscricao.valor_pago else 'Pagamento por confirmar',
+            'ocorrido_em': inscricao.data_inscricao.isoformat(),
+            'detalhe_url': reverse('curso_detalhe', kwargs={'id': inscricao.curso_id}),
+        })
+
+    progresso_video = ProgressoAula.objects.filter(aluno=aluno).select_related('aula__curso').order_by('-data_ultimo_acesso')
+    total_cursos_video = progresso_video.values('aula__curso_id').distinct().count()
+    cursos_video_vistos = set()
+    for progresso in progresso_video:
+        curso = progresso.aula.curso
+        if curso.id in cursos_video_vistos:
+            continue
+        cursos_video_vistos.add(curso.id)
+        total_aulas = curso.aulas.count()
+        concluidas = ProgressoAula.objects.filter(aluno=aluno, aula__curso=curso, concluida=True).count()
+        percentagem = round((concluidas / total_aulas) * 100) if total_aulas else 0
+        timeline.append({
+            'id': f'video-{curso.id}',
+            'tipo': 'aprendizagem',
+            'subtipo': 'video',
+            'titulo': curso.titulo,
+            'descricao': f'Curso em vídeo · {concluidas}/{total_aulas} aulas concluídas',
+            'estado': f'{percentagem}% concluído',
+            'valor': '',
+            'ocorrido_em': progresso.data_ultimo_acesso.isoformat(),
+            'detalhe_url': f'/aprender/video/{curso.slug}',
+        })
+        if len(cursos_video_vistos) == 12:
+            break
+
+    leituras = list(BibliotecaPessoal.objects.filter(usuario=request.user, guardado=True).select_related('livro__autor').order_by('-ultima_atividade')[:12])
+    for leitura in leituras:
+        timeline.append({
+            'id': f'leitura-{leitura.id}',
+            'tipo': 'aprendizagem',
+            'subtipo': 'leitura',
+            'titulo': leitura.livro.titulo,
+            'descricao': f'Biblioteca Edukangola · {leitura.livro.autor.nome}',
+            'estado': f'{leitura.progresso_leitura}% lido',
+            'valor': '',
+            'ocorrido_em': leitura.ultima_atividade.isoformat(),
+            'detalhe_url': f'/ler/{leitura.livro.slug}',
+        })
+
+    timeline.sort(key=lambda item: item['ocorrido_em'], reverse=True)
+    return JsonResponse({
+        'ok': True,
+        'aluno': {'nome': aluno.nome},
+        'resumo': {
+            'pedidos_mercado': PedidoMercado.objects.filter(utilizador=request.user).count(),
+            'inscricoes': Inscricao.objects.filter(aluno=aluno).count(),
+            'cursos_em_video': total_cursos_video,
+            'leituras': BibliotecaPessoal.objects.filter(usuario=request.user, guardado=True).count(),
+        },
+        'registos': timeline[:48],
+    })
+
+
 def _serializar_curso_favorito(curso):
     valor = curso.valor_a_cobrar_online()
     return {'id': curso.id, 'titulo': curso.titulo, 'categoria': curso.categoria.nome if curso.categoria else 'Sem categoria', 'centro': curso.centro.nome if curso.centro else 'Centro de formação', 'imagem_url': curso.get_imagem_url, 'preco_label': f'{valor:,.0f} Kz'.replace(',', ' ') if valor > 0 else 'Gratuito', 'is_gratuito': curso.is_gratuito, 'certificado': curso.certificado, 'modalidade': curso.get_modalidade_display(), 'detalhe_url': reverse('curso_detalhe', kwargs={'id': curso.id})}

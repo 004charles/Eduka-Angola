@@ -12,6 +12,7 @@ import AboutPage from "./pages/AboutPage";
 import AuthPage from "./pages/AuthPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import StudentDashboardPage from "./pages/StudentDashboardPage";
+import StudentHistoryPage from "./pages/StudentHistoryPage";
 import StudentPreferencesPage from "./pages/StudentPreferencesPage";
 import StudentSettingsPage from "./pages/StudentSettingsPage";
 import MyTicketsPage from "./pages/MyTicketsPage";
@@ -161,6 +162,7 @@ function App() {
   else if (pathname === "/") page = <HomePage data={homeData} loading={homeDataLoading} onNavigate={navigate} onAnnounce={announce} />;
   else if (authModes[pathname]) page = <AuthPage key={pathname} mode={authModes[pathname]} courses={homeData?.cursos || []} onNavigate={navigate} onSessionReady={refreshStudentSession} />;
   else if (pathname === "/aluno") page = <StudentDashboardPage onNavigate={navigate} />;
+  else if (pathname === "/aluno/historico") page = <StudentHistoryPage onNavigate={navigate} />;
   else if (pathname === "/aluno/preferencias") page = <StudentPreferencesPage onNavigate={navigate} />;
   else if (pathname === "/aluno/configuracoes") page = <StudentSettingsPage onNavigate={navigate} onLogout={handleLogout} />;
   else if (pathname === "/aluno/bilhetes") page = <MyTicketsPage onNavigate={navigate} />;

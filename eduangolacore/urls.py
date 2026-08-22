@@ -68,6 +68,7 @@ urlpatterns = [
     path('api/public/certificados/<str:code>/qr/', views.public_certificate_qr, name='api_public_certificate_qr'),
     path('api/react/recomendacoes/', views.react_course_recommendations, name='api_react_course_recommendations'),
     path('api/react/aluno/dashboard/', views.react_student_dashboard, name='api_react_student_dashboard'),
+    path('api/react/aluno/historico/', views.react_student_history, name='api_react_student_history'),
     path('api/react/aluno/certificados/', views.react_student_certificates, name='api_react_student_certificates'),
     path('auth/api/react/aluno/favoritos/', views.react_student_favorites, name='react_student_favorites'),
     path('auth/api/react/aluno/favoritos/alternar/', views.react_student_favorite_toggle, name='react_student_favorite_toggle'),
