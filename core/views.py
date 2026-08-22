@@ -5,6 +5,7 @@ import math
 import os
 import requests
 import hashlib
+import time
 from io import BytesIO
 from datetime import timedelta
 
@@ -631,6 +632,43 @@ def _eduka_ai_public_catalogue_context():
     return '\n'.join(lines) or '- Ainda não existem cursos publicados no catálogo público.'
 
 
+def _eduka_ai_transient_error(error):
+    """Identifica falhas breves do fornecedor que justificam uma única nova tentativa."""
+    if isinstance(error, (requests.Timeout, requests.ConnectionError)):
+        return True
+    if isinstance(error, requests.HTTPError):
+        status_code = getattr(getattr(error, 'response', None), 'status_code', None)
+        return status_code in (408, 429) or (isinstance(status_code, int) and 500 <= status_code <= 599)
+    return isinstance(error, (ValueError, KeyError, IndexError))
+
+
+def _eduka_ai_completion(api_key, messages):
+    """Executa no máximo duas tentativas para indisponibilidades transitórias do fornecedor externo."""
+    for attempt in range(2):
+        try:
+            response = requests.post(
+                'https://api.groq.com/openai/v1/chat/completions',
+                headers={'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'},
+                json={
+                    'model': os.environ.get('GROQ_MODEL', 'groq/compound-mini'),
+                    'messages': messages,
+                    'temperature': 0.2,
+                    'max_tokens': 340,
+                },
+                timeout=8,
+            )
+            response.raise_for_status()
+            answer = response.json().get('choices', [{}])[0].get('message', {}).get('content', '').strip()
+            if not answer:
+                raise ValueError('Resposta vazia do fornecedor de IA.')
+            return answer, None
+        except (requests.RequestException, ValueError, KeyError, IndexError) as error:
+            if not _eduka_ai_transient_error(error) or attempt == 1:
+                return '', error
+            time.sleep(0.4)
+    return '', None
+
+
 @require_POST
 def react_public_ai_assistant(request):
     """Respostas públicas curtas, limitadas ao catálogo e à utilização da Edukangola."""
@@ -687,24 +725,12 @@ def react_public_ai_assistant(request):
         '/como-funciona para explicação do percurso na plataforma.\n\n'
         f'Pergunta do visitante: {question}'
     )
-    try:
-        response = requests.post(
-            'https://api.groq.com/openai/v1/chat/completions',
-            headers={'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'},
-            json={
-                'model': os.environ.get('GROQ_MODEL', 'groq/compound-mini'),
-                'messages': [{'role': 'system', 'content': system_prompt}, *clean_history, {'role': 'user', 'content': user_prompt}],
-                'temperature': 0.2,
-                'max_tokens': 340,
-            },
-            timeout=12,
-        )
-        response.raise_for_status()
-        answer = response.json().get('choices', [{}])[0].get('message', {}).get('content', '').strip()
-    except (requests.RequestException, ValueError, KeyError, IndexError):
-        return JsonResponse({'detail': 'A Eduka AI está temporariamente indisponível. Tente novamente dentro de instantes.'}, status=502)
-    if not answer:
-        return JsonResponse({'detail': 'Não foi possível gerar uma resposta agora.'}, status=502)
+    answer, error = _eduka_ai_completion(
+        api_key,
+        [{'role': 'system', 'content': system_prompt}, *clean_history, {'role': 'user', 'content': user_prompt}],
+    )
+    if error or not answer:
+        return JsonResponse({'detail': 'A Eduka AI está temporariamente ocupada. Aguarde um instante e tente novamente.'}, status=503)
     answer = answer.replace('**', '').replace('`', '')
     return JsonResponse({'ok': True, 'answer': answer, 'links': _eduka_ai_public_links(question)})
 
