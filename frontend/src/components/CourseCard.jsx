@@ -101,7 +101,7 @@ export default function CourseCard({ course, onSave, onCompare, compared = false
     const linhas = [];
     if (Number(financeiro.inscricao?.valor) > 0) linhas.push({ rotulo: "Inscrição", valor: financeiro.inscricao.formatado, destaque: true });
     else linhas.push({ rotulo: "Inscrição", valor: "Sem taxa" });
-    if (Number(financeiro.mensalidade?.valor) > 0) linhas.push({ rotulo: "Mensalidade", valor: financeiro.mensalidade.formatado });
+    if (Number(financeiro.mensalidade?.valor) > 0) linhas.push({ rotulo: "Mensalidade", valor: `${financeiro.mensalidade.formatado}/mês`, destaque: true });
     if (!Number(financeiro.inscricao?.valor) && !Number(financeiro.mensalidade?.valor)) linhas.push({ rotulo: "Preço total", valor: financeiro.preco_total_formatado || course.preco_formatado || "Condições a confirmar", destaque: true });
     return linhas;
   })();

@@ -439,3 +439,7 @@
 - [x] Enviar avisos de subscrição de vídeo aos 7 dias, 3 dias e 24 horas por e-mail, plataforma e Push sem duplicação
 - [x] Remover referências ao Django Admin das mensagens públicas de subscrição sem planos disponíveis
 - [x] Alinhar a faixa de produtos da página inicial à largura e composição das restantes secções
+- [ ] Criar histórico persistente na área do aluno para pedidos do Mercado, inscrições e actividade de aprendizagem
+- [ ] Recuperar falhas temporárias da Eduka AI antes de mostrar uma mensagem de indisponibilidade ao aluno
+- [x] Mostrar a mensalidade nos cartões de cursos no formato claro “valor Kz/mês” quando aplicável
+- [x] Alinhar o botão de guardar no rodapé dos cartões de cursos para não ficar solto ou cortado

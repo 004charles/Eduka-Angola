@@ -23,7 +23,7 @@ function coursePriceLines(course, videoCourse) {
   if (videoCourse) return [["Compra única", course.preco_formatado || course.pagamento?.agora || "Preço no detalhe"]];
   const financeiro = course.financeiro || {};
   const linhas = [["Inscrição", Number(financeiro.inscricao?.valor) > 0 ? financeiro.inscricao.formatado : "Sem taxa"]];
-  if (Number(financeiro.mensalidade?.valor) > 0) linhas.push(["Mensalidade", financeiro.mensalidade.formatado]);
+  if (Number(financeiro.mensalidade?.valor) > 0) linhas.push(["Mensalidade", `${financeiro.mensalidade.formatado}/mês`]);
   if (!Number(financeiro.inscricao?.valor) && !Number(financeiro.mensalidade?.valor)) linhas.push(["Preço total", financeiro.preco_total_formatado || course.preco_formatado || "Preço no detalhe"]);
   return linhas;
 }
