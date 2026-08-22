@@ -1,0 +1,14 @@
+.checkout-plan-empty {
+  display: grid;
+  gap: .65rem;
+  padding: 1rem;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.checkout-plan-empty b { color: var(--ink); }
+.checkout-plan-empty p { margin: 0; }
+.checkout-plan-empty .checkout-secondary { justify-self: start; }

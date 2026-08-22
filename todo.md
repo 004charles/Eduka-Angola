@@ -437,3 +437,5 @@
 - [x] Permitir ao administrador gerir no Django Admin os planos, preços e disponibilidade da subscrição de cursos em vídeo
 - [x] Notificar o aluno antes do fim da subscrição de vídeo e disponibilizar renovação sem interrupção de acesso
 - [x] Enviar avisos de subscrição de vídeo aos 7 dias, 3 dias e 24 horas por e-mail, plataforma e Push sem duplicação
+- [x] Remover referências ao Django Admin das mensagens públicas de subscrição sem planos disponíveis
+- [x] Alinhar a faixa de produtos da página inicial à largura e composição das restantes secções
