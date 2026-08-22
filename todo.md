@@ -443,3 +443,5 @@
 - [ ] Recuperar falhas temporárias da Eduka AI antes de mostrar uma mensagem de indisponibilidade ao aluno
 - [x] Mostrar a mensalidade nos cartões de cursos no formato claro “valor Kz/mês” quando aplicável
 - [x] Alinhar o botão de guardar no rodapé dos cartões de cursos para não ficar solto ou cortado
+- [ ] Configurar preços de demonstração em cursos presenciais para validar inscrição e mensalidade no catálogo
+- [x] Substituir o favicon público pelo símbolo oficial da Edukangola no navegador e na PWA

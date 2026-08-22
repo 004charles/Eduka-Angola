@@ -15,3 +15,7 @@ Na referência dos cartões de cursos, os valores actualmente surgem como “Ins
 Na pré-visualização local após o ajuste, os cartões do catálogo exibiram o rodapé completo com o ícone de guardar visível e alinhado à direita. Os cartões presentes não tinham mensalidade configurada, por isso continuaram a mostrar “Inscrição: Sem taxa” e “Preço total: 0 Kz”; o formato “Kz/mês” está reservado aos cursos que tiverem mensalidade definida.
 
 A medição directa confirmou que os cartões do catálogo usam uma margem inferior consistente de 12 px para o botão de guardar. Dois cartões de outra prateleira usam uma composição distinta e serão mantidos fora desta medição; a interface visível do catálogo, alvo do ajuste, mantém o botão totalmente dentro do rodapé.
+
+A captura do separador confirmou que o navegador apresentava o ícone genérico de página. O símbolo oficial da Edukangola já existe em `eduka-mark.png`, e o ícone PWA de 192 px usa o mesmo símbolo sobre fundo escuro. A correcção deve acrescentar explicitamente o favicon ao documento público e usar a versão com boa legibilidade para separadores claros e escuros.
+
+Depois da correcção, o documento carregado declara explicitamente os ícones `icon` e `shortcut icon`, ambos apontando para o símbolo oficial de 192 px com versão de cache. O manifesto PWA já utilizava o mesmo conjunto de ícones, portanto as instalações existentes ficam coerentes com o separador do navegador.
