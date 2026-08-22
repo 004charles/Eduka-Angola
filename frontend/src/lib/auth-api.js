@@ -56,6 +56,30 @@ export async function authRequest(path, payload = {}) {
   return data;
 }
 
+export async function authBlobRequest(path, payload = {}) {
+  await ensureCsrf({ refresh: true });
+  const request = () => fetch(backendUrl(path), {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": csrfToken(),
+      "X-Requested-With": "XMLHttpRequest",
+    },
+    body: JSON.stringify(payload),
+  });
+  let response = await request();
+  if (response.status === 403) {
+    await ensureCsrf({ refresh: true });
+    response = await request();
+  }
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw Object.assign(new Error(data.message || data.detail || "Não foi possível preparar o áudio."), { data, status: response.status });
+  }
+  return response.blob();
+}
+
 export async function logoutStudent() {
   return authRequest('/auth/api/react/logout/');
 }

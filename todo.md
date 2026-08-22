@@ -457,3 +457,7 @@
 - [x] Adicionar tentativas limitadas para falhas temporárias da Eduka AI sem repetir erros de validação ou limite do visitante
 - [x] Melhorar a mensagem final da Eduka AI quando o serviço estiver temporariamente ocupado
 - [x] Cobrir a recuperação, o esgotamento de tentativas e a preservação dos limites da Eduka AI com testes automatizados
+- [x] Integrar a Cartesia de forma segura no backend para sintetizar trechos autorizados da Biblioteca
+- [x] Substituir a voz local do leitor por controlos de áudio Cartesia com estados de carregamento e recuperação
+- [x] Cobrir com testes o controlo de acesso, validação de texto, falhas do fornecedor e a ausência de chave configurada
+- [ ] Configurar `CARTESIA_API_KEY` exclusivamente nas variáveis de ambiente do Render antes de activar a voz em produção
