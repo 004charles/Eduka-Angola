@@ -510,3 +510,6 @@
 - [x] Permitir recuperação e redefinição segura de palavra-passe administrativa directamente na entrada React em /admin
 - [ ] Criar uma nova conta administrativa por comando seguro, sem palavras-passe no repositório, e preparar a sua activação em produção
 - [x] Adicionar temporariamente criação protegida de conta administrativa na entrada React em /admin e removê-la após restabelecer o acesso
+- [x] Configurar o token temporário de criação administrativa no Render, criar a nova conta e remover este acesso após validação
+- [x] Redesenhar a visão geral React em /admin para corrigir contraste, hierarquia, temas e accionabilidade operacional
+- [ ] Remover a variável ADMIN_BOOTSTRAP_TOKEN do Render após a implantação da remoção do acesso temporário

@@ -380,39 +380,6 @@ def api_auth_admin_redefinir_senha(request):
 
 
 @require_POST
-def api_auth_admin_bootstrap(request):
-    """Cria temporariamente o primeiro administrador mediante token definido só no ambiente."""
-    token_esperado = os.getenv('ADMIN_BOOTSTRAP_TOKEN', '')
-    if not token_esperado:
-        return JsonResponse({'ok': False, 'message': 'A criação temporária de administrador não está activa.'}, status=403)
-
-    dados = _dados_json(request)
-    token = str(dados.get('token') or '')
-    if not hmac.compare_digest(token, token_esperado):
-        return JsonResponse({'ok': False, 'message': 'Não foi possível validar a autorização de criação.'}, status=403)
-
-    nome = str(dados.get('nome') or '').strip()
-    email = str(dados.get('email') or '').strip().lower()
-    senha = str(dados.get('senha') or '')
-    confirmar_senha = str(dados.get('confirmar_senha') or '')
-    if not nome or not email or not senha:
-        return JsonResponse({'ok': False, 'message': 'Preencha nome, e-mail e palavra-passe.'}, status=400)
-    if len(senha) < 12:
-        return JsonResponse({'ok': False, 'message': 'A palavra-passe deve ter pelo menos 12 caracteres.'}, status=400)
-    if senha != confirmar_senha:
-        return JsonResponse({'ok': False, 'message': 'As palavras-passe não coincidem.'}, status=400)
-    if Usuario.objects.filter(email=email).exists():
-        return JsonResponse({'ok': False, 'message': 'Já existe uma conta com este e-mail.'}, status=409)
-
-    admin = Usuario.objects.create_superuser(email=email, nome=nome, password=senha)
-    if admin.tipo_usuario != 'ADMIN':
-        admin.tipo_usuario = 'ADMIN'
-        admin.save(update_fields=['tipo_usuario'])
-    login(request, admin, backend='usuarios.backends.EmailBackend')
-    return JsonResponse({'ok': True, 'redirect': '/admin', 'nome': admin.nome})
-
-
-@require_POST
 def api_auth_registro(request):
     dados = _dados_json(request)
     nome = str(dados.get('nome') or '').strip()
