@@ -1,8 +1,12 @@
 import json
+from decimal import Decimal
+from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
+from cursos_app.models import Categoria, Curso
+from pagamentos.services import PaymentService
 from usuarios.models import Usuario
 from .models import CentroDeFormacao, ConfiguracaoFinanceiraCentro
 
@@ -13,6 +17,8 @@ class ConfiguracaoFinanceiraCentroTests(TestCase):
         self.centro_mz = CentroDeFormacao.objects.create(usuario=self.gestor_mz, nome='Centro Moçambique', email=self.gestor_mz.email, pais='MZ')
         self.gestor_ao = Usuario.objects.create_user(email='gestor.ao@test.com', nome='Gestor AO', password='SenhaSegura123', tipo_usuario='GESTOR')
         self.centro_ao = CentroDeFormacao.objects.create(usuario=self.gestor_ao, nome='Centro Angola', email=self.gestor_ao.email, pais='AO')
+        categoria = Categoria.objects.create(nome='Categoria financeira', slug='categoria-financeira')
+        self.curso_ao = Curso.objects.create(centro=self.centro_ao, titulo='Curso AOA', descricao='Curso de teste para validar a continuidade da cobrança local.', categoria=categoria, carga_horaria=10, preco=1000, moeda='AOA')
 
     def test_configuracao_mostra_a_moeda_correta_para_o_pais_do_centro(self):
         self.client.force_login(self.gestor_mz)
@@ -61,6 +67,28 @@ class ConfiguracaoFinanceiraCentroTests(TestCase):
 
         with self.assertRaises(ValidationError):
             configuracao.full_clean()
+
+    def test_configuracao_aoa_pendente_nao_interrompe_a_cobranca_local_existente(self):
+        ConfiguracaoFinanceiraCentro.objects.create(
+            centro=self.centro_ao,
+            moeda_apresentacao='AOA',
+            moeda_cobranca='AOA',
+            gateway='PRONTU',
+            estado='PENDENTE_VALIDACAO',
+        )
+        resposta_gateway = {'referencia_gateway': 'teste-aoa', 'url_pagamento': 'https://pagamento.test/aoa', 'status': 'REQUESTED', 'resposta_completa': {}}
+
+        with patch('pagamentos.services.ProntuPaymentGateway.criar_transacao', return_value=resposta_gateway) as criar_transacao:
+            pagamento = PaymentService().criar_pagamento(
+                usuario=self.gestor_ao,
+                tipo_pagamento='INSCRICAO',
+                valor=Decimal('1000'),
+                moeda='AOA',
+                curso=self.curso_ao,
+            )
+
+        self.assertEqual(pagamento.moeda, 'AOA')
+        criar_transacao.assert_called_once()
 
     def test_endpoint_exige_sessao_de_gestor(self):
         self.assertEqual(self.client.get('/gestoreduka/api/react/financeiro/').status_code, 302)

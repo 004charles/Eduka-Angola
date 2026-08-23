@@ -516,9 +516,10 @@ class PaymentService:
             from gestoreduka.models import ConfiguracaoFinanceiraCentro
             configuracao = ConfiguracaoFinanceiraCentro.objects.filter(centro=curso.centro).first()
             if configuracao:
-                if configuracao.moeda_cobranca != moeda:
-                    raise PagamentoInvalido("A moeda deste pagamento não corresponde à configuração aprovada do centro.")
-                if not configuracao.esta_activa_para_cobranca:
+                if configuracao.esta_activa_para_cobranca:
+                    if configuracao.moeda_cobranca != moeda:
+                        raise PagamentoInvalido("A moeda deste pagamento não corresponde à configuração aprovada do centro.")
+                elif curso.centro.pais != 'AO' or moeda != 'AOA':
                     raise PagamentoInvalido("Este centro ainda não tem a cobrança nesta moeda validada pela Edukangola.")
             elif curso.centro.pais != 'AO' or moeda != 'AOA':
                 raise PagamentoInvalido("A cobrança nesta moeda ainda não está activa para este centro.")
