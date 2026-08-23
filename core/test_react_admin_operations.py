@@ -45,6 +45,21 @@ class ReactAdminOperationsTests(TestCase):
         self.assertEqual(auditoria.antes, {'is_active': True})
         self.assertEqual(auditoria.depois, {'is_active': False})
 
+    def test_staff_consulta_detalhe_e_edita_campo_autorizado(self):
+        self.client.force_login(self.staff)
+        detalhe = self.client.get(f'/api/react/administracao/operacoes/utilizadores/{self.common.pk}/')
+        actualizacao = self.client.post('/api/react/administracao/operacoes/utilizadores/', data=json.dumps({
+            'id': str(self.common.pk), 'field': 'nome', 'value': 'Utilizador Actualizado',
+        }), content_type='application/json')
+
+        self.common.refresh_from_db()
+        self.assertEqual(detalhe.status_code, 200)
+        self.assertEqual(detalhe.json()['title'], 'Utilizador Comum')
+        self.assertIn('nome', [field['field'] for field in detalhe.json()['fields']])
+        self.assertEqual(actualizacao.status_code, 200)
+        self.assertEqual(self.common.nome, 'Utilizador Actualizado')
+        self.assertTrue(AdminAuditLog.objects.filter(recurso='utilizadores', acao='actualizar_nome').exists())
+
     def test_staff_controla_contactos_sem_expor_acoes_desconhecidas(self):
         contacto = MensagemContato.objects.create(nome='Ana', email='ana@teste.com', assunto='Ajuda', mensagem='Preciso de apoio.')
         self.client.force_login(self.staff)

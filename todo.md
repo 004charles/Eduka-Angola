@@ -518,3 +518,5 @@
 - [x] Disponibilizar gestão administrativa React de utilizadores, inscrições, pagamentos e pedidos
 - [x] Disponibilizar configurações, alertas, suporte e auditoria no painel React
 - [x] Validar todos os fluxos críticos administrativos antes de retirar a contingência interna
+- [x] Actualizar automaticamente métricas, alertas e listas da administração React sem recarregamento manual
+- [x] Adicionar detalhe e edição React auditável para utilizadores, centros, cursos, inscrições, pagamentos, produtos e pedidos

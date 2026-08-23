@@ -1436,6 +1436,23 @@ def react_admin_operations(request, section):
     return JsonResponse({'ok': True, 'item': item})
 
 
+@require_http_methods(['GET'])
+def react_admin_operation_detail(request, section, item_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'detail': 'Inicie sessão para abrir a administração.'}, status=401)
+    if not _admin_react_allowed(request):
+        return JsonResponse({'detail': 'A sua conta não tem permissão administrativa.'}, status=403)
+    from core.admin_operations import detail_operation
+    try:
+        return JsonResponse(detail_operation(section, item_id))
+    except KeyError:
+        return JsonResponse({'detail': 'Detalhe administrativo não disponível.'}, status=404)
+    except Exception as error:
+        if error.__class__.__name__ == 'DoesNotExist':
+            return JsonResponse({'detail': 'Registo administrativo não encontrado.'}, status=404)
+        raise
+
+
 def _redirect_react(request, destino):
     query = request.META.get('QUERY_STRING', '')
     return redirect(f'{destino}?{query}' if query else destino)

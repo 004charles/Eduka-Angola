@@ -4,6 +4,8 @@ Cada recurso tem uma lista explícita de campos permitidos. A camada nunca expõ
 segredos de integração e nunca permite remoções destrutivas por esta interface.
 """
 
+from decimal import Decimal, InvalidOperation
+
 from django.db.models import Q
 from django.utils import timezone
 
@@ -68,9 +70,17 @@ def _audit(actor, resource, instance, action, before, after):
         recurso=resource,
         objeto_id=str(instance.pk),
         acao=action,
-        antes=before,
-        depois=after,
+        antes={key: _audit_value(value) for key, value in before.items()},
+        depois={key: _audit_value(value) for key, value in after.items()},
     )
+
+
+def _audit_value(value):
+    if isinstance(value, Decimal):
+        return str(value)
+    if hasattr(value, 'isoformat'):
+        return value.isoformat()
+    return value
 
 
 def _section_queryset(section, term):
@@ -212,14 +222,42 @@ def _get_instance(section, item_id):
 
 
 ALLOWED_FIELDS = {
-    'centros': {'ativo'}, 'cursos': {'publicado', 'ativo', 'destaque'}, 'video-cursos': {'destaque'},
-    'utilizadores': {'is_active'}, 'inscricoes': {'status'}, 'pagamentos': {'status'},
+    'centros': {'nome', 'email', 'telefone', 'cidade', 'provincia', 'pais', 'endereco', 'site', 'ativo'},
+    'cursos': {'titulo', 'descricao_curta', 'preco_inscricao', 'mensalidade', 'vagas_minimas', 'publicado', 'ativo', 'destaque'},
+    'video-cursos': {'titulo', 'descricao', 'destaque'},
+    'utilizadores': {'nome', 'email', 'is_active'}, 'inscricoes': {'status', 'observacoes'}, 'pagamentos': {'status'},
     'lojas': {'verificada', 'ativa'}, 'produtos': {'status', 'destaque', 'quantidade_disponivel'},
-    'pedidos': {'status'}, 'contactos': {'lido'}, 'perguntas': {'publicada'},
+    'pedidos': {'status', 'estafeta_nome', 'estafeta_telefone', 'notas_admin', 'motivo_ocorrencia'}, 'contactos': {'lido'}, 'perguntas': {'publicada'},
     'bolsas': {'status'}, 'candidaturas-bolsas': {'status'}, 'estagios': {'ativo', 'destaque'},
     'candidaturas-estagios': {'status'}, 'escolas': {'ativa'}, 'biblioteca': {'estado', 'em_destaque'},
     'noticias': {'status'},
 }
+
+
+DETAIL_FIELDS = {
+    'centros': [('nome', 'Nome', 'text'), ('email', 'E-mail', 'email'), ('telefone', 'Telefone', 'text'), ('cidade', 'Cidade', 'text'), ('provincia', 'Província', 'text'), ('pais', 'País', 'select'), ('endereco', 'Endereço', 'textarea'), ('site', 'Website', 'url'), ('ativo', 'Centro activo', 'boolean')],
+    'cursos': [('titulo', 'Título', 'text'), ('descricao_curta', 'Descrição curta', 'textarea'), ('preco_inscricao', 'Taxa de inscrição', 'decimal'), ('mensalidade', 'Mensalidade', 'decimal'), ('vagas_minimas', 'Vagas mínimas', 'number'), ('publicado', 'Publicado', 'boolean'), ('ativo', 'Activo', 'boolean'), ('destaque', 'Destaque', 'boolean')],
+    'video-cursos': [('titulo', 'Título', 'text'), ('descricao', 'Descrição', 'textarea'), ('destaque', 'Destaque', 'boolean')],
+    'utilizadores': [('nome', 'Nome', 'text'), ('email', 'E-mail', 'email'), ('is_active', 'Conta activa', 'boolean')],
+    'inscricoes': [('status', 'Decisão', 'select'), ('observacoes', 'Observações', 'textarea')],
+    'pagamentos': [('status', 'Estado do pagamento', 'select')],
+    'produtos': [('status', 'Estado', 'select'), ('destaque', 'Destaque', 'boolean'), ('quantidade_disponivel', 'Quantidade disponível', 'number')],
+    'pedidos': [('status', 'Etapa da entrega', 'select'), ('estafeta_nome', 'Nome do estafeta', 'text'), ('estafeta_telefone', 'Telefone do estafeta', 'text'), ('notas_admin', 'Notas administrativas', 'textarea'), ('motivo_ocorrencia', 'Motivo da ocorrência', 'textarea')],
+}
+
+
+def detail_operation(section, item_id):
+    instance = _get_instance(section, item_id)
+    fields = []
+    for field_name, label, control in DETAIL_FIELDS.get(section, []):
+        model_field = instance._meta.get_field(field_name)
+        value = getattr(instance, field_name)
+        if hasattr(value, 'isoformat'):
+            value = value.isoformat()
+        elif value is not None:
+            value = str(value) if control == 'decimal' else value
+        fields.append({'field': field_name, 'label': label, 'control': control, 'value': value, 'options': _choices(instance, field_name) if control == 'select' else []})
+    return {'id': str(instance.pk), 'section': section, 'title': _row(section, instance)['title'], 'summary': _row(section, instance), 'fields': fields}
 
 
 def update_operation(actor, section, item_id, field, value):
@@ -256,7 +294,17 @@ def update_operation(actor, section, item_id, field, value):
                 changed.append('entregue_em')
             instance.save(update_fields=changed)
     else:
-        raise ValueError('Campo administrativo sem tratamento.')
+        try:
+            if model_field.get_internal_type() in {'IntegerField', 'PositiveIntegerField', 'PositiveSmallIntegerField'}:
+                value = max(0, int(value))
+            elif model_field.get_internal_type() == 'DecimalField':
+                value = Decimal(str(value))
+            else:
+                value = str(value).strip()
+        except (TypeError, ValueError, InvalidOperation) as error:
+            raise ValueError('O valor indicado não é válido.') from error
+        setattr(instance, field, value)
+        instance.save(update_fields=[field])
     instance.refresh_from_db()
     after = {field: getattr(instance, field)}
     _audit(actor, section, instance, f'actualizar_{field}', before, after)

@@ -81,6 +81,7 @@ urlpatterns = [
     path('api/react/administracao/resumo/', views.react_admin_overview, name='api_react_admin_overview'),
     path('api/react/administracao/modulos/', views.react_admin_update_module, name='api_react_admin_update_module'),
     path('api/react/administracao/operacoes/<slug:section>/', views.react_admin_operations, name='api_react_admin_operations'),
+    path('api/react/administracao/operacoes/<slug:section>/<str:item_id>/', views.react_admin_operation_detail, name='api_react_admin_operation_detail'),
     path('auth/api/react/aluno/favoritos/', views.react_student_favorites, name='react_student_favorites'),
     path('auth/api/react/aluno/favoritos/alternar/', views.react_student_favorite_toggle, name='react_student_favorite_toggle'),
     path('auth/api/react/aluno/preferencias/', views.react_student_preferences, name='react_student_preferences'),
