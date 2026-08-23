@@ -508,3 +508,5 @@
 - [x] Criar início de sessão React exclusivo para contas administrativas em /admin, sem misturar a sessão de aluno
 - [x] Redesenhar a tela React de acesso administrativo com superfícies e contraste consistentes nos modos claro e escuro
 - [x] Permitir recuperação e redefinição segura de palavra-passe administrativa directamente na entrada React em /admin
+- [ ] Criar uma nova conta administrativa por comando seguro, sem palavras-passe no repositório, e preparar a sua activação em produção
+- [x] Adicionar temporariamente criação protegida de conta administrativa na entrada React em /admin e removê-la após restabelecer o acesso

@@ -73,6 +73,35 @@ class ReactAdminConsoleTests(TestCase):
         self.assertTrue(self.staff.check_password('NovaSenhaSegura123'))
         self.assertEqual(self.client.get('/api/react/administracao/resumo/').status_code, 200)
 
+    def test_bootstrap_temporario_cria_admin_so_com_token_de_ambiente(self):
+        with patch.dict('os.environ', {'ADMIN_BOOTSTRAP_TOKEN': 'token-bootstrap-seguro'}, clear=False):
+            resposta = self.client.post('/auth/api/react/admin/criar-conta/', data=json.dumps({
+                'nome': 'Nova Administradora',
+                'email': 'nova.admin@teste.com',
+                'senha': 'SenhaBootstrapForte123',
+                'confirmar_senha': 'SenhaBootstrapForte123',
+                'token': 'token-bootstrap-seguro',
+            }), content_type='application/json')
+
+        nova_admin = Usuario.objects.get(email='nova.admin@teste.com')
+        self.assertEqual(resposta.status_code, 200)
+        self.assertTrue(nova_admin.is_staff)
+        self.assertTrue(nova_admin.is_superuser)
+        self.assertEqual(nova_admin.tipo_usuario, 'ADMIN')
+
+    def test_bootstrap_temporario_recusa_token_invalido(self):
+        with patch.dict('os.environ', {'ADMIN_BOOTSTRAP_TOKEN': 'token-bootstrap-seguro'}, clear=False):
+            resposta = self.client.post('/auth/api/react/admin/criar-conta/', data=json.dumps({
+                'nome': 'Tentativa',
+                'email': 'tentativa@teste.com',
+                'senha': 'SenhaBootstrapForte123',
+                'confirmar_senha': 'SenhaBootstrapForte123',
+                'token': 'invalido',
+            }), content_type='application/json')
+
+        self.assertEqual(resposta.status_code, 403)
+        self.assertFalse(Usuario.objects.filter(email='tentativa@teste.com').exists())
+
     def test_staff_consulta_metricas_e_controla_modulo(self):
         self.client.force_login(self.staff)
         resumo = self.client.get('/api/react/administracao/resumo/')

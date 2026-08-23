@@ -3,7 +3,9 @@ services:
     name: edukangola
     runtime: python
     buildCommand: ./render-build.sh
-    preDeployCommand: python manage.py migrate --noinput
+    preDeployCommand: >-
+      python manage.py migrate --noinput &&
+      if [ -n "${ADMIN_BOOTSTRAP_EMAIL:-}" ] && [ -n "${ADMIN_BOOTSTRAP_PASSWORD:-}" ]; then python manage.py provision_admin; fi
     startCommand: gunicorn eduangolacore.wsgi:application --bind 0.0.0.0:$PORT --log-file -
     envVars:
       - key: PYTHON_VERSION
