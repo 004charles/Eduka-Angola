@@ -473,3 +473,10 @@
 - [x] Auditar os fluxos críticos da Edukangola, a clareza das mensagens e os pontos de abandono antes do lançamento
 - [x] Definir a proposta de valor, os diferenciais e a comunicação de lançamento orientados ao mercado angolano
 - [x] Criar uma lista de bloqueios e uma checklist operacional de lançamento para o dia 25
+- [x] Auditar a preparação de cursos em vídeo, centros nacionais/estrangeiros, moedas e pagamentos internacionais
+- [x] Definir o modelo de país, moeda, preço, liquidação e verificação para centros estrangeiros no GestorEduka
+- [x] Definir uma estratégia de expansão internacional por fases para Moçambique, Guiné-Bissau e outros mercados africanos lusófonos
+- [ ] Impor no modelo e nas áreas públicas que cursos em vídeo pertencem exclusivamente à Edukangola, sem publicação por centros parceiros
+- [ ] Criar configurações administráveis de país, moeda, gateway, comissão e liquidação para a futura operação multimoeda
+- [ ] Evoluir a candidatura internacional com requisitos, documentos, estados, decisão, carta de aceitação e notificações protegidas
+- [ ] Preparar a primeira oferta internacional como descoberta e candidatura, sem cobrança automática de propina estrangeira
