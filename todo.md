@@ -493,3 +493,8 @@
 - [ ] Redireccionar os percursos HTML navegáveis remanescentes para as rotas React equivalentes
 - [ ] Definir e executar por fases a retirada dos templates HTML que forem páginas navegáveis legadas
 - [x] Redireccionar as rotas legadas de autenticação, área do aluno e cursos em vídeo para as experiências React equivalentes
+- [x] Adicionar Escolas e Estágios ao catálogo de módulos públicos activáveis
+- [x] Migrar o catálogo e detalhe de Escolas para React, mantendo filtros e perfis públicos funcionais
+- [x] Migrar o catálogo, detalhe e candidatura de Estágios para React com isolamento por aluno
+- [x] Redireccionar as rotas HTML públicas de Escolas e Estágios para as rotas React equivalentes
+- [x] Cobrir módulos, rotas, candidatura e permissões de Escolas e Estágios com testes automatizados

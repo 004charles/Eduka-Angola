@@ -38,6 +38,8 @@ import MarketOrdersPage from "./pages/MarketOrdersPage";
 import FAQPage from "./pages/FAQPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import ScholarshipsPage from "./pages/ScholarshipsPage";
+import { SchoolsPage, SchoolProfilePage } from "./pages/SchoolsPages";
+import { InternshipsPage, InternshipDetailPage } from "./pages/InternshipsPages";
 import ManagerPortalPage from "./pages/ManagerPortalPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import { getStudentSession, logoutStudent } from "./lib/auth-api";
@@ -160,6 +162,8 @@ function App() {
   const eventRouteMatch = pathname.match(/^\/eventos\/([^/]+)\/?$/);
   const libraryBookRouteMatch = pathname.match(/^\/biblioteca\/([^/]+)\/?$/);
   const libraryReaderRouteMatch = pathname.match(/^\/ler\/([^/]+)\/?$/);
+  const schoolRouteMatch = pathname.match(/^\/escolas\/(\d+)\/?$/);
+  const internshipRouteMatch = pathname.match(/^\/estagios\/([^/]+)\/?$/);
   const marketProductRouteMatch = pathname.match(/^\/mercado\/produtos\/([^/]+)\/?$/);
   const certificateVerificationMatch = pathname.match(/^\/verificar-certificado\/([^/]+)\/?$/);
   const courseId = courseRouteMatch ? Number(courseRouteMatch[1]) : null;
@@ -195,6 +199,10 @@ function App() {
   else if (libraryBookRouteMatch) page = <BookDetailPage slug={decodeURIComponent(libraryBookRouteMatch[1])} student={student} onNavigate={navigate} onAnnounce={announce} />;
   else if (pathname === "/biblioteca" || pathname === "/biblioteca/") page = <LibraryPage onNavigate={navigate} />;
   else if (pathname === "/bolsas" || pathname === "/bolsas/") page = publicModules.some((module) => module.chave === "BOLSAS") ? <ScholarshipsPage student={student} onNavigate={navigate} /> : (publicModulesLoading ? <LoadingScreen theme={theme} /> : <NotFoundPage onNavigate={navigate} />);
+  else if (schoolRouteMatch) page = publicModules.some((module) => module.chave === "ESCOLAS") ? <SchoolProfilePage schoolId={Number(schoolRouteMatch[1])} onNavigate={navigate} /> : (publicModulesLoading ? <LoadingScreen theme={theme} /> : <NotFoundPage onNavigate={navigate} />);
+  else if (pathname === "/escolas" || pathname === "/escolas/") page = publicModules.some((module) => module.chave === "ESCOLAS") ? <SchoolsPage onNavigate={navigate} /> : (publicModulesLoading ? <LoadingScreen theme={theme} /> : <NotFoundPage onNavigate={navigate} />);
+  else if (internshipRouteMatch) page = publicModules.some((module) => module.chave === "ESTAGIOS") ? <InternshipDetailPage slug={decodeURIComponent(internshipRouteMatch[1])} student={student} onNavigate={navigate} /> : (publicModulesLoading ? <LoadingScreen theme={theme} /> : <NotFoundPage onNavigate={navigate} />);
+  else if (pathname === "/estagios" || pathname === "/estagios/") page = publicModules.some((module) => module.chave === "ESTAGIOS") ? <InternshipsPage onNavigate={navigate} /> : (publicModulesLoading ? <LoadingScreen theme={theme} /> : <NotFoundPage onNavigate={navigate} />);
   else if (pathname === "/cursos-em-video" || legacyVideoCatalogue) page = <VideoCoursesPage data={homeData} loading={homeDataLoading} onNavigate={navigate} onAnnounce={announce} />;
   else if (pathname === "/cursos") page = <CoursesPage data={homeData} loading={homeDataLoading} initialFilters={catalogFilters} onNavigate={navigate} onAnnounce={announce} />;
   else if (pathname === "/comparar-cursos") page = <CourseComparisonPage courses={homeData?.cursos || []} classes={homeData?.turmas_abertas || []} ids={comparisonIds} onNavigate={navigate} />;

@@ -18,6 +18,8 @@ from blog.api_views import PostViewSet
 from django.views.decorators.csrf import csrf_exempt
 from usuarios import views as usuarios_views
 from bolsas import views as bolsas_views
+from escolas import views as escolas_views
+from estagio import views as estagio_views
 from django.views.i18n import set_language
 from django.views.generic import TemplateView
 from django.views.static import serve as serve_media
@@ -93,8 +95,10 @@ urlpatterns = [
     path('api/public/centros/candidatura/verificar/', CentroCandidaturaVerifyView.as_view(), name='api_public_centro_candidatura_verificar'),
     path('api/public/centros/candidatura/confirmar/', CentroCandidaturaConfirmView.as_view(), name='api_public_centro_candidatura_confirmar'),
     path('api/public/centros/candidatura/concluir/', CentroCandidaturaCompleteView.as_view(), name='api_public_centro_candidatura_concluir'),
+    re_path(r'^escolas/perfil/(?P<escola_id>\d+)/?$', views.legacy_school_detail_redirect, name='legacy_school_detail_redirect'),
+    re_path(r'^estagio/(?P<slug>[-\w]+)/?$', views.legacy_internship_detail_redirect, name='legacy_internship_detail_redirect'),
     re_path(
-        r'^(?!gestoreduka/api/|cursos/api/)(?:entrar|criar-conta|verificar-email|recuperar-palavra-passe|redefinir-palavra-passe|aluno|gestoreduka|formador|cursos|video-cursos|cursos-em-video|aprender/video|inscrever|comprar|centros|para-centros|comparar-cursos|como-funciona|perguntas-frequentes|faq|politica-de-privacidade|privacidade|sobre|sobre-a-edukangola|blog|eventos|eventosv|biblioteca|ler|mercado|bolsas|verificar-certificado|pagamento/sucesso|pagamento/cancelado)(?:/.*)?$',
+        r'^(?!gestoreduka/api/|cursos/api/)(?:entrar|criar-conta|verificar-email|recuperar-palavra-passe|redefinir-palavra-passe|aluno|gestoreduka|formador|cursos|video-cursos|cursos-em-video|aprender/video|inscrever|comprar|centros|para-centros|comparar-cursos|como-funciona|perguntas-frequentes|faq|politica-de-privacidade|privacidade|sobre|sobre-a-edukangola|blog|eventos|eventosv|biblioteca|ler|mercado|bolsas|escolas|estagios|verificar-certificado|pagamento/sucesso|pagamento/cancelado)(?:/.*)?$',
         react_application,
         name='react_application_routes',
     ),
@@ -131,6 +135,11 @@ urlpatterns = [
     path('api/react/biblioteca/', include('biblioteca.urls')),
     path('api/react/mercado/', include('mercado.urls')),
     path('api/react/bolsas/', bolsas_views.react_bolsas, name='api_react_bolsas'),
+    path('api/react/escolas/', escolas_views.react_escolas, name='api_react_escolas'),
+    path('api/react/escolas/<int:escola_id>/', escolas_views.react_escolas, name='api_react_escola_detalhe'),
+    path('api/react/estagios/', estagio_views.react_estagios, name='api_react_estagios'),
+    path('api/react/estagios/<slug:slug>/', estagio_views.react_estagios, name='api_react_estagio_detalhe'),
+    path('api/react/estagios/<slug:slug>/candidaturas/', estagio_views.react_candidatar_estagio, name='api_react_estagio_candidatura'),
     path('pagamento/sucesso/', views.pagamento_sucesso, name='pagamento_sucesso'),
     path('pagamento/cancelado/', views.pagamento_cancelado, name='pagamento_cancelado'),
     path('faq/', views.faq, name = 'faq'),

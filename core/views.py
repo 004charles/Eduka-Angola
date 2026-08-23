@@ -1379,6 +1379,16 @@ def legacy_video_learning_redirect(request, slug):
     return _redirect_react(request, f'/aprender/video/{slug}')
 
 
+@require_http_methods(['GET'])
+def legacy_school_detail_redirect(request, escola_id):
+    return _redirect_react(request, f'/escolas/{escola_id}')
+
+
+@require_http_methods(['GET'])
+def legacy_internship_detail_redirect(request, slug):
+    return _redirect_react(request, f'/estagios/{slug}')
+
+
 @require_GET
 def public_nearby_courses(request):
     """Devolve cursos presenciais perto das coordenadas autorizadas pelo visitante, sem as guardar."""

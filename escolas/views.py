@@ -3,10 +3,63 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
-from django.http import Http404
+from django.http import Http404, JsonResponse
+from django.views.decorators.http import require_http_methods
 from .forms import EscolaAdminForm, PerfilEscolaAdminForm
 from .models import Escola, CursoEnsinoMedio, PerfilEscola, RepresentanteEscola, GaleriaEscola, ParceriaEscola
 # from inteligencia.ai_utils import orientacao_escolar_ia
+
+
+def _modulo_escolas_ativo():
+    from gestoreduka.models import ModuloPublico
+    return ModuloPublico.objects.filter(chave=ModuloPublico.ESCOLAS, ativo=True).exists()
+
+
+def _media_url(field):
+    try:
+        return field.url if field else ''
+    except (ValueError, AttributeError):
+        return ''
+
+
+def _serializar_escola(escola, detalhe=False):
+    perfil = getattr(escola, 'perfil', None)
+    item = {
+        'id': escola.id, 'nome': escola.nome, 'tipo_rede': escola.get_tipo_rede_display(),
+        'provincia': escola.provincia, 'municipio': escola.municipio, 'endereco': escola.endereco,
+        'telefone': escola.telefone, 'email': escola.email or '', 'mensalidade_base': float(escola.mensalidade_base),
+        'logo_url': _media_url(getattr(perfil, 'logo', None)), 'banner_url': _media_url(getattr(perfil, 'banner', None)),
+        'descricao': getattr(perfil, 'descricao', '') or '', 'verificada': bool(perfil and perfil.verificada),
+        'inscricoes_abertas': bool(perfil and perfil.inscricoes_abertas),
+        'prazo_inscricoes': perfil.prazo_inscricoes.isoformat() if perfil and perfil.prazo_inscricoes else None,
+        'detalhe_url': f'/escolas/{escola.id}',
+        'cursos': [{'id': curso.id, 'nome': curso.nome, 'descricao': curso.descricao, 'classes': curso.classes_lecionadas, 'duracao_anos': curso.duracao_anos, 'periodos': curso.periodos, 'mensalidade': float(curso.mensalidade if curso.mensalidade is not None else escola.mensalidade_base), 'taxa_inscricao': float(curso.taxa_inscricao or 0), 'exige_exame': curso.exige_exame} for curso in escola.cursos.all()],
+    }
+    if detalhe and perfil:
+        item.update({'missao': perfil.missao, 'visao': perfil.visao, 'diretor': perfil.diretor, 'requisitos_inscricao': perfil.requisitos_inscricao, 'whatsapp': perfil.whatsapp, 'infraestruturas': [infra.nome for infra in perfil.infraestruturas.all()], 'galeria': [{'imagem_url': _media_url(foto.imagem), 'legenda': foto.legenda} for foto in escola.galeria.all()[:12]]})
+    return item
+
+
+@require_http_methods(['GET'])
+def react_escolas(request, escola_id=None):
+    if not _modulo_escolas_ativo():
+        return JsonResponse({'detail': 'O módulo de Escolas não está disponível neste momento.'}, status=404)
+    escolas = Escola.objects.filter(ativa=True).select_related('perfil').prefetch_related('cursos', 'perfil__infraestruturas', 'galeria')
+    if escola_id is not None:
+        escola = get_object_or_404(escolas, pk=escola_id)
+        return JsonResponse({'escola': _serializar_escola(escola, detalhe=True)})
+    termo = request.GET.get('q', '').strip()
+    provincia = request.GET.get('provincia', '').strip()
+    natureza = request.GET.get('natureza', '').strip()
+    if termo:
+        escolas = escolas.filter(Q(nome__icontains=termo) | Q(municipio__icontains=termo) | Q(provincia__icontains=termo) | Q(cursos__nome__icontains=termo)).distinct()
+    if provincia:
+        escolas = escolas.filter(Q(provincia__icontains=provincia) | Q(municipio__icontains=provincia)).distinct()
+    if natureza:
+        escolas = escolas.filter(tipo_rede=natureza)
+    resultados = list(escolas.order_by('-data_criacao')[:60])
+    provincias = sorted(set(Escola.objects.filter(ativa=True).values_list('provincia', flat=True)))
+    return JsonResponse({'escolas': [_serializar_escola(escola) for escola in resultados], 'provincias': provincias, 'tipos_rede': [{'codigo': codigo, 'nome': nome} for codigo, nome in Escola.TIPO_REDE]})
 
 def onboarding_escolar(request):
     """

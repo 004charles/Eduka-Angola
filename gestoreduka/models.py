@@ -85,8 +85,12 @@ class ModuloPublico(models.Model):
     """Funcionalidade React que a equipa Edukangola pode mostrar ou ocultar no menu público."""
 
     BOLSAS = 'BOLSAS'
+    ESCOLAS = 'ESCOLAS'
+    ESTAGIOS = 'ESTAGIOS'
     CHAVE_CHOICES = [
         (BOLSAS, _('Bolsas de estudo')),
+        (ESCOLAS, _('Escolas')),
+        (ESTAGIOS, _('Estágios')),
     ]
     CATALOGO_REACT = {
         BOLSAS: {
@@ -94,6 +98,18 @@ class ModuloPublico(models.Model):
             'descricao': 'Candidaturas a bolsas e apoios de formação.',
             'rota': '/bolsas',
             'menu': 'Bolsas',
+        },
+        ESCOLAS: {
+            'titulo': 'Escolas',
+            'descricao': 'Descubra escolas e cursos do ensino geral e técnico.',
+            'rota': '/escolas',
+            'menu': 'Escolas',
+        },
+        ESTAGIOS: {
+            'titulo': 'Estágios',
+            'descricao': 'Encontre vagas de estágio e candidate-se pela Edukangola.',
+            'rota': '/estagios',
+            'menu': 'Estágios',
         },
     }
 
