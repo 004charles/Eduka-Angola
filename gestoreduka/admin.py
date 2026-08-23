@@ -458,6 +458,21 @@ class ConfiguracaoPlataformaAdmin(UnfoldModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
+
+@admin.register(ModuloPublico)
+class ModuloPublicoAdmin(UnfoldModelAdmin):
+    list_display = ('chave', 'ativo', 'ordem', 'atualizado_em')
+    list_filter = ('ativo',)
+    list_editable = ('ativo', 'ordem')
+    readonly_fields = ('atualizado_em',)
+    fields = ('chave', 'ativo', 'ordem', 'atualizado_em')
+
+    def has_add_permission(self, request):
+        return ModuloPublico.objects.count() < len(ModuloPublico.CHAVE_CHOICES)
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 # ========== CONFIGURAÇÃO DO ADMIN SITE ==========
 admin.site.site_header = "Administração do Sistema de Centros de Formação"
 admin.site.site_title = "Sistema de Centros"

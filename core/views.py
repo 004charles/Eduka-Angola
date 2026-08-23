@@ -13,7 +13,7 @@ from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.db.models import Avg, Count, Q, Prefetch, Value, F
 from django.db.utils import OperationalError
@@ -1330,6 +1330,53 @@ def public_home_data(request):
         'produtos_mercado': produtos_mercado,
         'atualizado_em': timezone.now().isoformat(),
     })
+
+
+@require_http_methods(['GET'])
+def public_enabled_modules(request):
+    """Devolve módulos React publicados pela equipa Edukangola no painel administrativo."""
+    from gestoreduka.models import ModuloPublico
+    return JsonResponse({'modulos': ModuloPublico.activos_para_react()})
+
+
+def _redirect_react(request, destino):
+    query = request.META.get('QUERY_STRING', '')
+    return redirect(f'{destino}?{query}' if query else destino)
+
+
+@require_http_methods(['GET'])
+def legacy_auth_react_redirect(request, legado):
+    """Encaminha ligações antigas da conta para a experiência React única."""
+    chave = legado.strip('/').split('/')[0]
+    destinos = {
+        'login_aluno': '/entrar',
+        'login': '/entrar',
+        'registro_aluno': '/criar-conta',
+        'verificar_email': '/verificar-email',
+        'esqueci_senha': '/recuperar-palavra-passe',
+        'redefinir_senha': '/redefinir-palavra-passe',
+        'aluno': '/aluno',
+        'conta_aluno': '/aluno',
+        'user_profile': '/aluno/configuracoes',
+        'configuracao_user': '/aluno/configuracoes',
+        'onboarding': '/aluno',
+    }
+    return _redirect_react(request, destinos.get(chave, '/entrar'))
+
+
+@require_http_methods(['GET'])
+def legacy_video_catalogue_redirect(request):
+    return _redirect_react(request, '/cursos-em-video')
+
+
+@require_http_methods(['GET'])
+def legacy_video_detail_redirect(request, slug):
+    return _redirect_react(request, f'/video-cursos/{slug}')
+
+
+@require_http_methods(['GET'])
+def legacy_video_learning_redirect(request, slug):
+    return _redirect_react(request, f'/aprender/video/{slug}')
 
 
 @require_GET

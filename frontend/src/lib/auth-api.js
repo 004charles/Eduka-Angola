@@ -80,6 +80,24 @@ export async function authBlobRequest(path, payload = {}) {
   return response.blob();
 }
 
+export async function authFormRequest(path, formData) {
+  await ensureCsrf({ refresh: true });
+  const request = () => fetch(backendUrl(path), {
+    method: "POST",
+    credentials: "include",
+    headers: { "X-CSRFToken": csrfToken(), "X-Requested-With": "XMLHttpRequest" },
+    body: formData,
+  });
+  let response = await request();
+  if (response.status === 403) {
+    await ensureCsrf({ refresh: true });
+    response = await request();
+  }
+  const data = await response.json().catch(() => ({ detail: "Não foi possível enviar o formulário." }));
+  if (!response.ok) throw Object.assign(new Error(data.message || data.detail || "Não foi possível enviar o formulário."), { data, status: response.status });
+  return data;
+}
+
 export async function logoutStudent() {
   return authRequest('/auth/api/react/logout/');
 }

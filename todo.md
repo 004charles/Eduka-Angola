@@ -487,3 +487,9 @@
 - [ ] Seleccionar e validar um gateway europeu em EUR antes de activar a cobrança internacional para centros estrangeiros
 - [ ] Inventariar as rotas ainda renderizadas em HTML/Django e priorizar as pendências de migração para React
 - [x] Inventariar as rotas ainda renderizadas em HTML/Django e priorizar as pendências de migração para React
+- [x] Criar um catálogo de módulos públicos activáveis pela equipa Edukangola no painel administrativo
+- [x] Expor os módulos activos no menu React e bloquear as rotas públicas que estiverem desactivadas
+- [x] Migrar Bolsas para uma rota React com candidatura funcional e sem template HTML navegável
+- [ ] Redireccionar os percursos HTML navegáveis remanescentes para as rotas React equivalentes
+- [ ] Definir e executar por fases a retirada dos templates HTML que forem páginas navegáveis legadas
+- [x] Redireccionar as rotas legadas de autenticação, área do aluno e cursos em vídeo para as experiências React equivalentes

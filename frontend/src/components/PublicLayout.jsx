@@ -10,7 +10,7 @@ function Brand({ onNavigate, label }) {
   return <a className="brand" href="/" onClick={(event) => { event.preventDefault(); onNavigate("/"); }} aria-label={label}><img src="/eduka-mark.png" alt="" /><span>eduk<span>angola</span></span></a>;
 }
 
-export default function PublicLayout({ children, student, theme, language, onThemeChange, onLanguageChange, onNavigate, onLogout, path, suggestions }) {
+export default function PublicLayout({ children, student, theme, language, onThemeChange, onLanguageChange, onNavigate, onLogout, path, suggestions, publicModules = [] }) {
   const { t } = useI18n();
   const [menuOpen, setMenuOpen] = useState(false);
   const [quickSearchOpen, setQuickSearchOpen] = useState(false);
@@ -20,7 +20,7 @@ export default function PublicLayout({ children, student, theme, language, onThe
   const isAuthPath = ["/entrar", "/criar-conta", "/verificar-email", "/recuperar-palavra-passe", "/redefinir-palavra-passe"].includes(path);
   const goTo = (event, destination) => { if (event.metaKey || event.ctrlKey || event.shiftKey) return; event.preventDefault(); setMenuOpen(false); setMoreOpen(false); setAccountOpen(false); onNavigate(destination); };
   const items = [{ href: "/cursos", label: t("nav.classCourses") }, { href: "/cursos-em-video", label: t("nav.videoCourses") }, { href: "/biblioteca", label: t("nav.library") }];
-  const exploreGroups = [{ title: t("nav.menuDiscover"), items: [{ href: "/mercado", label: "Mercado Edukangola" }, { href: "/blog", label: t("nav.news") }, { href: "/eventos", label: t("nav.events") }, { href: "/centros", label: t("nav.centres") }] }, { title: t("nav.menuPlatform"), items: [{ href: "/como-funciona", label: t("nav.how") }, { href: "/sobre", label: t("nav.about") }, { href: "/perguntas-frequentes", label: t("nav.faq") }, { href: "/politica-de-privacidade", label: t("nav.privacy") }] }];
+  const exploreGroups = [{ title: t("nav.menuDiscover"), items: [{ href: "/mercado", label: "Mercado Edukangola" }, { href: "/blog", label: t("nav.news") }, { href: "/eventos", label: t("nav.events") }, { href: "/centros", label: t("nav.centres") }, ...publicModules.map((module) => ({ href: module.rota, label: module.menu }))] }, { title: t("nav.menuPlatform"), items: [{ href: "/como-funciona", label: t("nav.how") }, { href: "/sobre", label: t("nav.about") }, { href: "/perguntas-frequentes", label: t("nav.faq") }, { href: "/politica-de-privacidade", label: t("nav.privacy") }] }];
   const exploreIsActive = exploreGroups.some((group) => group.items.some((item) => path === item.href));
   const studentFirstName = student?.nome?.trim().split(/\s+/)[0] || "Aluno";
   const mobileNavigation = [

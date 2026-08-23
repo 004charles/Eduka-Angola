@@ -80,6 +80,49 @@ class ConfiguracaoPlataforma(models.Model):
     def __str__(self):
         return f"Configuração Global (Comissão Atual: {self.taxa_comissao}%)"
 
+
+class ModuloPublico(models.Model):
+    """Funcionalidade React que a equipa Edukangola pode mostrar ou ocultar no menu público."""
+
+    BOLSAS = 'BOLSAS'
+    CHAVE_CHOICES = [
+        (BOLSAS, _('Bolsas de estudo')),
+    ]
+    CATALOGO_REACT = {
+        BOLSAS: {
+            'titulo': 'Bolsas',
+            'descricao': 'Candidaturas a bolsas e apoios de formação.',
+            'rota': '/bolsas',
+            'menu': 'Bolsas',
+        },
+    }
+
+    chave = models.CharField(_('Módulo'), max_length=40, choices=CHAVE_CHOICES, unique=True)
+    ativo = models.BooleanField(_('Visível e disponível no site'), default=False, db_index=True)
+    ordem = models.PositiveSmallIntegerField(_('Ordem no menu'), default=100)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('Módulo público')
+        verbose_name_plural = _('Módulos públicos')
+        ordering = ('ordem', 'chave')
+
+    @property
+    def metadados_react(self):
+        return self.CATALOGO_REACT.get(self.chave, {})
+
+    @classmethod
+    def activos_para_react(cls):
+        itens = []
+        for modulo in cls.objects.filter(ativo=True).order_by('ordem', 'chave'):
+            metadados = modulo.CATALOGO_REACT.get(modulo.chave)
+            if metadados:
+                itens.append({'chave': modulo.chave, **metadados})
+        return itens
+
+    def __str__(self):
+        return self.get_chave_display()
+
 class CategoriaCentro(models.Model):
     """Categorias globais para centros de formação (Tecnologia, Línguas, etc.)"""
     nome = models.CharField(_('Nome'), max_length=100, unique=True)

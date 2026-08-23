@@ -17,6 +17,7 @@ from blog.api_views import PostViewSet
 # from estagio.api_views import EstagioViewSet
 from django.views.decorators.csrf import csrf_exempt
 from usuarios import views as usuarios_views
+from bolsas import views as bolsas_views
 from django.views.i18n import set_language
 from django.views.generic import TemplateView
 from django.views.static import serve as serve_media
@@ -56,6 +57,7 @@ urlpatterns = [
     path('api/public/home/', views.public_home_data, name='api_public_home_data'),
     path('api/public/cursos/proximos/', views.public_nearby_courses, name='api_public_nearby_courses'),
     path('api/public/faq/', views.public_faq, name='api_public_faq'),
+    path('api/public/modulos/', views.public_enabled_modules, name='api_public_enabled_modules'),
     path('api/public/comunidade/depoimentos/', views.public_platform_testimonial_submit, name='api_public_platform_testimonial_submit'),
     path('api/public/eventos/', include('eventos_marketplace.urls')),
     path('api/public/centros/<int:centro_id>/', views.public_center_profile, name='api_public_center_profile'),
@@ -92,7 +94,7 @@ urlpatterns = [
     path('api/public/centros/candidatura/confirmar/', CentroCandidaturaConfirmView.as_view(), name='api_public_centro_candidatura_confirmar'),
     path('api/public/centros/candidatura/concluir/', CentroCandidaturaCompleteView.as_view(), name='api_public_centro_candidatura_concluir'),
     re_path(
-        r'^(?!gestoreduka/api/|cursos/api/)(?:entrar|criar-conta|verificar-email|recuperar-palavra-passe|redefinir-palavra-passe|aluno|gestoreduka|formador|cursos|video-cursos|cursos-em-video|aprender/video|inscrever|comprar|centros|para-centros|comparar-cursos|como-funciona|perguntas-frequentes|faq|politica-de-privacidade|privacidade|sobre|sobre-a-edukangola|blog|eventos|eventosv|biblioteca|ler|mercado|verificar-certificado|pagamento/sucesso|pagamento/cancelado)(?:/.*)?$',
+        r'^(?!gestoreduka/api/|cursos/api/)(?:entrar|criar-conta|verificar-email|recuperar-palavra-passe|redefinir-palavra-passe|aluno|gestoreduka|formador|cursos|video-cursos|cursos-em-video|aprender/video|inscrever|comprar|centros|para-centros|comparar-cursos|como-funciona|perguntas-frequentes|faq|politica-de-privacidade|privacidade|sobre|sobre-a-edukangola|blog|eventos|eventosv|biblioteca|ler|mercado|bolsas|verificar-certificado|pagamento/sucesso|pagamento/cancelado)(?:/.*)?$',
         react_application,
         name='react_application_routes',
     ),
@@ -100,8 +102,12 @@ urlpatterns = [
     path('test-500/', views.erro_500_view),
     path('i18n/setlang/', csrf_exempt(set_language), name='set_language'),
     path('i18n/', include('django.conf.urls.i18n')),
+    re_path(r'^auth/(?P<legado>(?:login_aluno|login|registro_aluno|verificar_email|esqueci_senha|redefinir_senha|aluno(?:/.*)?|conta_aluno|user_profile|configuracao_user|onboarding)/?)$', views.legacy_auth_react_redirect, name='legacy_auth_react_redirect'),
     path('auth/', include('usuarios.urls')), 
     # path('accounts/', include('allauth.urls')), 
+    re_path(r'^curso_video/(?:(?:lista|analytics|orientador-ia)(?:/)?|sessao/[^/]+/?)?$', views.legacy_video_catalogue_redirect, name='legacy_video_catalogue_redirect'),
+    re_path(r'^curso_video/(?P<slug>[-\w]+)/aula/\d+/?$', views.legacy_video_learning_redirect, name='legacy_video_learning_redirect'),
+    re_path(r'^curso_video/(?P<slug>[-\w]+)/?$', views.legacy_video_detail_redirect, name='legacy_video_detail_redirect'),
     path('curso_video/', include('cursovideoapp.urls')),
     # path('orientador-ia/', include('cursovideoapp.urls_orientador')), # Desativado no MVP
     path('sobre/', views.sobre, name = 'sobre'),
@@ -124,6 +130,7 @@ urlpatterns = [
     path('api/react/pagamentos/resultado/', views.react_payment_result, name='api_react_payment_result'),
     path('api/react/biblioteca/', include('biblioteca.urls')),
     path('api/react/mercado/', include('mercado.urls')),
+    path('api/react/bolsas/', bolsas_views.react_bolsas, name='api_react_bolsas'),
     path('pagamento/sucesso/', views.pagamento_sucesso, name='pagamento_sucesso'),
     path('pagamento/cancelado/', views.pagamento_cancelado, name='pagamento_cancelado'),
     path('faq/', views.faq, name = 'faq'),

@@ -37,6 +37,7 @@ import MarketProductPage from "./pages/MarketProductPage";
 import MarketOrdersPage from "./pages/MarketOrdersPage";
 import FAQPage from "./pages/FAQPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import ScholarshipsPage from "./pages/ScholarshipsPage";
 import ManagerPortalPage from "./pages/ManagerPortalPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import { getStudentSession, logoutStudent } from "./lib/auth-api";
@@ -54,6 +55,8 @@ function App() {
   const [notice, setNotice] = useState("");
   const [homeData, setHomeData] = useState(null);
   const [homeDataLoading, setHomeDataLoading] = useState(true);
+  const [publicModules, setPublicModules] = useState([]);
+  const [publicModulesLoading, setPublicModulesLoading] = useState(true);
   const [appLoading, setAppLoading] = useState(true);
   const [student, setStudent] = useState(null);
   const sessionRequestId = useRef(0);
@@ -65,6 +68,15 @@ function App() {
     let active = true; let finishTimer; const startedAt = Date.now();
     fetch("/api/public/home/").then((response) => { if (!response.ok) throw new Error("Falha ao carregar os dados públicos."); return response.json(); }).then((data) => active && setHomeData(data)).catch(() => active && setHomeData({ cursos: [], video_cursos: [], turmas_abertas: [], centros_destaque: [] })).finally(() => { finishTimer = window.setTimeout(() => { if (active) { setHomeDataLoading(false); setAppLoading(false); } }, Math.max(0, 700 - (Date.now() - startedAt))); });
     return () => { active = false; window.clearTimeout(finishTimer); };
+  }, []);
+  useEffect(() => {
+    let active = true;
+    fetch("/api/public/modulos/", { cache: "no-store" })
+      .then((response) => response.ok ? response.json() : { modulos: [] })
+      .then((data) => { if (active) setPublicModules(data.modulos || []); })
+      .catch(() => { if (active) setPublicModules([]); })
+      .finally(() => { if (active) setPublicModulesLoading(false); });
+    return () => { active = false; };
   }, []);
   useEffect(() => { window.scrollTo({ top: 0, behavior: "auto" }); }, [route]);
 
@@ -182,6 +194,7 @@ function App() {
   else if (libraryReaderRouteMatch) page = <BookReaderPage slug={decodeURIComponent(libraryReaderRouteMatch[1])} student={student} onNavigate={navigate} onAnnounce={announce} />;
   else if (libraryBookRouteMatch) page = <BookDetailPage slug={decodeURIComponent(libraryBookRouteMatch[1])} student={student} onNavigate={navigate} onAnnounce={announce} />;
   else if (pathname === "/biblioteca" || pathname === "/biblioteca/") page = <LibraryPage onNavigate={navigate} />;
+  else if (pathname === "/bolsas" || pathname === "/bolsas/") page = publicModules.some((module) => module.chave === "BOLSAS") ? <ScholarshipsPage student={student} onNavigate={navigate} /> : (publicModulesLoading ? <LoadingScreen theme={theme} /> : <NotFoundPage onNavigate={navigate} />);
   else if (pathname === "/cursos-em-video" || legacyVideoCatalogue) page = <VideoCoursesPage data={homeData} loading={homeDataLoading} onNavigate={navigate} onAnnounce={announce} />;
   else if (pathname === "/cursos") page = <CoursesPage data={homeData} loading={homeDataLoading} initialFilters={catalogFilters} onNavigate={navigate} onAnnounce={announce} />;
   else if (pathname === "/comparar-cursos") page = <CourseComparisonPage courses={homeData?.cursos || []} classes={homeData?.turmas_abertas || []} ids={comparisonIds} onNavigate={navigate} />;
@@ -198,7 +211,7 @@ function App() {
   else if (pathname === "/sobre" || pathname === "/sobre-a-edukangola") page = <AboutPage data={homeData} student={student} onNavigate={navigate} />;
   else page = <NotFoundPage onNavigate={navigate} />;
 
-  return <I18nProvider language={language} onLanguageChange={setLanguage}><PublicLayout suggestions={[...(homeData?.cursos || []), ...(homeData?.video_cursos || []), ...(homeData?.centros_destaque || []).map((center) => ({ ...center, tipo_pesquisa: "center" }))]} student={student} theme={theme} language={language} path={pathname} onThemeChange={() => setTheme(theme === "light" ? "dark" : "light")} onLanguageChange={setLanguage} onNavigate={navigate} onLogout={handleLogout}>{page}{notice && <div className="notice" role="status">{notice}</div>}</PublicLayout></I18nProvider>;
+  return <I18nProvider language={language} onLanguageChange={setLanguage}><PublicLayout suggestions={[...(homeData?.cursos || []), ...(homeData?.video_cursos || []), ...(homeData?.centros_destaque || []).map((center) => ({ ...center, tipo_pesquisa: "center" }))]} publicModules={publicModules} student={student} theme={theme} language={language} path={pathname} onThemeChange={() => setTheme(theme === "light" ? "dark" : "light")} onLanguageChange={setLanguage} onNavigate={navigate} onLogout={handleLogout}>{page}{notice && <div className="notice" role="status">{notice}</div>}</PublicLayout></I18nProvider>;
 }
 
 export default App;
