@@ -461,3 +461,15 @@
 - [x] Substituir a voz local do leitor por controlos de áudio Cartesia com estados de carregamento e recuperação
 - [x] Cobrir com testes o controlo de acesso, validação de texto, falhas do fornecedor e a ausência de chave configurada
 - [ ] Configurar `CARTESIA_API_KEY` exclusivamente nas variáveis de ambiente do Render antes de activar a voz em produção
+- [ ] Auditar os fluxos críticos da Edukangola, a clareza das mensagens e os pontos de abandono antes do lançamento
+- [ ] Definir a proposta de valor, os diferenciais e a comunicação de lançamento orientados ao mercado angolano
+- [ ] Criar uma lista de bloqueios e uma checklist operacional de lançamento para o dia 25
+- [ ] Executar e registar um teste ponta a ponta de inscrição presencial, pagamento, comprovativo e área do aluno em produção
+- [ ] Executar e registar um teste ponta a ponta de subscrição de curso em vídeo e acesso após confirmação em produção
+- [ ] Preencher automaticamente os dados de checkout quando o aluno já tiver sessão e dados de conta válidos
+- [ ] Seleccionar e validar o catálogo inaugural: centros, cursos, turmas, preços, filiais, capas, contactos e responsável de atendimento
+- [ ] Definir o canal, dono, horário e tempo de resposta do suporte para lançamento
+- [ ] Simplificar a campanha e a página inicial de lançamento para a promessa central e três chamadas para acção
+- [x] Auditar os fluxos críticos da Edukangola, a clareza das mensagens e os pontos de abandono antes do lançamento
+- [x] Definir a proposta de valor, os diferenciais e a comunicação de lançamento orientados ao mercado angolano
+- [x] Criar uma lista de bloqueios e uma checklist operacional de lançamento para o dia 25
