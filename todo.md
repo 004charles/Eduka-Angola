@@ -484,3 +484,4 @@
 - [x] Criar a área GestorEduka “Financeiro e moeda” acessível apenas ao gestor do próprio centro
 - [x] Impedir a activação de moedas sem gateway e conta de liquidação validados pela Edukangola
 - [x] Cobrir a configuração financeira com testes de isolamento por centro, permissões e regras de activação
+- [ ] Seleccionar e validar um gateway europeu em EUR antes de activar a cobrança internacional para centros estrangeiros
