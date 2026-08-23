@@ -506,3 +506,4 @@
 - [x] Substituir a entrada administrativa existente em /admin pelo painel React e mover a contingência Django para uma rota interna
 - [x] Corrigir a compatibilidade da sessão da conta administrativa existente com o painel React em /admin
 - [x] Criar início de sessão React exclusivo para contas administrativas em /admin, sem misturar a sessão de aluno
+- [x] Redesenhar a tela React de acesso administrativo com superfícies e contraste consistentes nos modos claro e escuro
