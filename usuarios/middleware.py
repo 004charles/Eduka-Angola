@@ -15,7 +15,20 @@ class AdminSessionMiddleware:
         # Guardar o nome do cookie original para restaurar depois
         original_session_cookie = settings.SESSION_COOKIE_NAME
         
-        if path.startswith('/admin-interno/'):
+        is_admin_contingency = path.startswith('/admin-interno/')
+        is_react_admin_login = path.startswith((
+            '/auth/api/react/admin/login/',
+            '/backend/auth/api/react/admin/login/',
+        ))
+        is_react_admin_api = path.startswith((
+            '/api/react/administracao/',
+            '/backend/api/react/administracao/',
+        ))
+
+        # O painel React em /admin usa a sessão já criada no antigo acesso
+        # administrativo quando ela existe. Desta forma, a migração não obriga
+        # a equipa a iniciar uma segunda sessão para consultar o novo painel.
+        if is_admin_contingency or is_react_admin_login or (is_react_admin_api and request.COOKIES.get('eduka_admin_session')):
             settings.SESSION_COOKIE_NAME = 'eduka_admin_session'
         else:
             settings.SESSION_COOKIE_NAME = 'eduka_session'

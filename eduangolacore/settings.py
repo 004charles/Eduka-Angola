@@ -149,6 +149,7 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'core.middleware.PermissionsPolicyMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'usuarios.middleware.AdminSessionMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',

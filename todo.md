@@ -504,3 +504,5 @@
 - [ ] Migrar por fases os controlos administrativos prioritários para o novo painel React
 - [ ] Manter a administração Django apenas como contingência até à validação integral do painel React
 - [x] Substituir a entrada administrativa existente em /admin pelo painel React e mover a contingência Django para uma rota interna
+- [x] Corrigir a compatibilidade da sessão da conta administrativa existente com o painel React em /admin
+- [x] Criar início de sessão React exclusivo para contas administrativas em /admin, sem misturar a sessão de aluno

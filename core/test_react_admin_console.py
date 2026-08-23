@@ -1,3 +1,5 @@
+import json
+
 from django.test import TestCase
 from django.urls import resolve
 
@@ -22,6 +24,34 @@ class ReactAdminConsoleTests(TestCase):
         resposta = self.client.get('/admin-interno/')
         self.assertEqual(resposta.status_code, 302)
         self.assertIn('/admin-interno/login/', resposta['Location'])
+
+    def test_sessao_administrativa_existente_acessa_painel_react(self):
+        self.client.force_login(self.staff)
+        chave_sessao = self.client.cookies['eduka_session'].value
+        self.client.cookies['eduka_admin_session'] = chave_sessao
+        del self.client.cookies['eduka_session']
+
+        resposta = self.client.get('/api/react/administracao/resumo/')
+
+        self.assertEqual(resposta.status_code, 200)
+
+    def test_login_react_administrativo_cria_sessao_isolada(self):
+        resposta = self.client.post('/auth/api/react/admin/login/', data=json.dumps({
+            'email': self.staff.email,
+            'senha': 'SenhaSegura123',
+        }), content_type='application/json')
+
+        self.assertEqual(resposta.status_code, 200)
+        self.assertIn('eduka_admin_session', self.client.cookies)
+        self.assertEqual(self.client.get('/api/react/administracao/resumo/').status_code, 200)
+
+    def test_login_react_administrativo_rejeita_conta_comum(self):
+        resposta = self.client.post('/auth/api/react/admin/login/', data=json.dumps({
+            'email': self.aluno.email,
+            'senha': 'SenhaSegura123',
+        }), content_type='application/json')
+
+        self.assertEqual(resposta.status_code, 401)
 
     def test_staff_consulta_metricas_e_controla_modulo(self):
         self.client.force_login(self.staff)

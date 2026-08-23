@@ -304,6 +304,24 @@ def api_auth_login(request):
 
 
 @require_POST
+def api_auth_admin_login(request):
+    """Inicia a sessão isolada usada exclusivamente pelo painel React em /admin."""
+    dados = _dados_json(request)
+    email = str(dados.get('email') or '').strip().lower()
+    senha = str(dados.get('senha') or '')
+
+    if not email or not senha:
+        return JsonResponse({'ok': False, 'message': 'Indique o e-mail e a palavra-passe.'}, status=400)
+
+    user = authenticate(request, username=email, password=senha)
+    if user is None or not user.is_active or not (user.is_staff or user.is_superuser):
+        return JsonResponse({'ok': False, 'message': 'Não foi possível iniciar a sessão administrativa com estes dados.'}, status=401)
+
+    login(request, user)
+    return JsonResponse({'ok': True, 'redirect': '/admin', 'nome': user.nome or ''})
+
+
+@require_POST
 def api_auth_registro(request):
     dados = _dados_json(request)
     nome = str(dados.get('nome') or '').strip()

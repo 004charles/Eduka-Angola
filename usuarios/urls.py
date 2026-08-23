@@ -19,6 +19,7 @@ urlpatterns = [
     path('api/react/aluno/conversas/<int:conversa_id>/mensagens/', views.api_react_aluno_conversa_mensagem, name='api_react_aluno_conversa_mensagem'),
     path('api/react/logout/', views.api_react_logout, name='api_react_logout'),
     path('api/react/login/', views.api_auth_login, name='api_auth_login'),
+    path('api/react/admin/login/', views.api_auth_admin_login, name='api_auth_admin_login'),
     path('api/react/registro/', views.api_auth_registro, name='api_auth_registro'),
     path('api/react/verificar-email/', views.api_auth_verificar_email, name='api_auth_verificar_email'),
     path('api/react/reenviar-codigo/', views.api_auth_reenviar_codigo, name='api_auth_reenviar_codigo'),
