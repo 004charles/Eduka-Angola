@@ -1373,9 +1373,9 @@ def react_admin_overview(request):
     alertas = []
     pagamentos_pendentes = Pagamento.objects.filter(status__in=['PENDING', 'REQUESTED', 'PROCESSING']).count()
     if pagamentos_pendentes:
-        alertas.append({'tipo': 'pagamento', 'titulo': f'{pagamentos_pendentes} pagamento(s) aguardam acompanhamento', 'rota': '/administracao'})
+        alertas.append({'tipo': 'pagamento', 'titulo': f'{pagamentos_pendentes} pagamento(s) aguardam acompanhamento', 'rota': '/admin/operacoes?secao=pagamentos'})
     if pedidos_mercado_pendentes:
-        alertas.append({'tipo': 'mercado', 'titulo': f'{pedidos_mercado_pendentes} pedido(s) do Mercado requerem acompanhamento', 'rota': '/administracao'})
+        alertas.append({'tipo': 'mercado', 'titulo': f'{pedidos_mercado_pendentes} pedido(s) do Mercado requerem acompanhamento', 'rota': '/admin/operacoes?secao=pedidos'})
     return JsonResponse({'administrador': {'nome': request.user.nome or request.user.email}, 'metricas': {'alunos': Usuario.objects.filter(tipo_usuario='ALUNO', is_active=True).count(), 'centros_ativos': CentroDeFormacao.objects.filter(ativo=True).count(), 'cursos_publicados': Curso.objects.filter(publicado=True, ativo=True).count(), 'inscricoes_ativas': Inscricao.objects.filter(status='A').count(), 'pagamentos_aceites': pagamentos_aceites.count(), 'modulos_ativos': sum(1 for modulo in modulos if modulo['ativo'])}, 'recebimentos': [{'moeda': item['moeda'], 'total': float(item['total']), 'quantidade': item['quantidade']} for item in recebimentos], 'atividade_pagamentos': [{'dia': dia.isoformat(), 'rotulo': dia.strftime('%d/%m'), 'total': total} for dia, total in por_dia.items()], 'recentes': recentes, 'modulos': modulos, 'alertas': alertas})
 
 
@@ -1401,6 +1401,39 @@ def react_admin_update_module(request):
     modulo.ativo = ativo
     modulo.save(update_fields=['ativo', 'atualizado_em'])
     return JsonResponse({'ok': True, 'modulo': {'chave': modulo.chave, 'nome': modulo.get_chave_display(), 'ativo': modulo.ativo}})
+
+
+@require_http_methods(['GET', 'POST'])
+def react_admin_operations(request, section):
+    """Consulta e actualiza recursos operacionais através do painel React."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'detail': 'Inicie sessão para abrir a administração.'}, status=401)
+    if not _admin_react_allowed(request):
+        return JsonResponse({'detail': 'A sua conta não tem permissão administrativa.'}, status=403)
+    from core.admin_operations import list_operations, update_operation
+    if request.method == 'GET':
+        try:
+            data = list_operations(section, request.GET.get('pesquisa', ''), request.GET.get('pagina', 1), request.GET.get('limite', 25))
+        except (KeyError, ValueError):
+            return JsonResponse({'detail': 'Secção administrativa não encontrada.'}, status=404)
+        return JsonResponse(data)
+    try:
+        payload = json.loads(request.body.decode('utf-8'))
+        item_id = str(payload.get('id') or '')
+        field = str(payload.get('field') or '')
+        value = payload.get('value')
+        if not item_id or not field:
+            raise ValueError('Indique o registo e o campo a actualizar.')
+        item = update_operation(request.user, section, item_id, field, value)
+    except ValueError as error:
+        return JsonResponse({'detail': str(error)}, status=400)
+    except KeyError:
+        return JsonResponse({'detail': 'Secção administrativa não encontrada.'}, status=404)
+    except Exception as error:
+        if error.__class__.__name__ == 'DoesNotExist':
+            return JsonResponse({'detail': 'Registo administrativo não encontrado.'}, status=404)
+        raise
+    return JsonResponse({'ok': True, 'item': item})
 
 
 def _redirect_react(request, destino):

@@ -1,4 +1,4 @@
-from django.db import models
+from django.conf import settings
 from django.db import models
 from django.core.validators import FileExtensionValidator
 
@@ -173,3 +173,23 @@ class FeriadoNacional(models.Model):
 
     def __str__(self):
         return f'{self.data:%d/%m/%Y} — {self.titulo}'
+
+
+class AdminAuditLog(models.Model):
+    """Rasto imutável das operações realizadas no centro de controlo React."""
+    ator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='auditorias_administrativas')
+    recurso = models.CharField(max_length=80, db_index=True)
+    objeto_id = models.CharField(max_length=80, db_index=True)
+    acao = models.CharField(max_length=80)
+    antes = models.JSONField(default=dict, blank=True)
+    depois = models.JSONField(default=dict, blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        verbose_name = 'Registo de auditoria administrativa'
+        verbose_name_plural = 'Registos de auditoria administrativa'
+        ordering = ('-criado_em',)
+        indexes = [models.Index(fields=('recurso', 'objeto_id', 'criado_em'), name='core_admin_audit_obj_idx')]
+
+    def __str__(self):
+        return f'{self.recurso}:{self.objeto_id} — {self.acao}'

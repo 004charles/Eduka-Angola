@@ -53,6 +53,7 @@ urlpatterns = [
     # apenas como contingência interna enquanto os módulos são migrados.
     path('admin-interno/', admin.site.urls),
     path('admin/', react_application, name='react_admin_console'),
+    re_path(r'^admin/operacoes(?:/.*)?$', react_application, name='react_admin_operations'),
 
     path('', react_application, name='index'),
     path('backend/<path:backend_path>', backend_proxy, name='react_backend_proxy'),
@@ -79,6 +80,7 @@ urlpatterns = [
     path('api/react/aluno/certificados/', views.react_student_certificates, name='api_react_student_certificates'),
     path('api/react/administracao/resumo/', views.react_admin_overview, name='api_react_admin_overview'),
     path('api/react/administracao/modulos/', views.react_admin_update_module, name='api_react_admin_update_module'),
+    path('api/react/administracao/operacoes/<slug:section>/', views.react_admin_operations, name='api_react_admin_operations'),
     path('auth/api/react/aluno/favoritos/', views.react_student_favorites, name='react_student_favorites'),
     path('auth/api/react/aluno/favoritos/alternar/', views.react_student_favorite_toggle, name='react_student_favorite_toggle'),
     path('auth/api/react/aluno/preferencias/', views.react_student_preferences, name='react_student_preferences'),

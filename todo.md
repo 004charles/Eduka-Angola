@@ -501,7 +501,7 @@
 - [x] Auditar os módulos, permissões e operações ainda concentrados na administração Django
 - [x] Criar um painel React administrativo protegido com tema claro/escuro e visão geral operacional
 - [x] Expor métricas, gráficos e alertas administrativos com dados reais da Edukangola
-- [ ] Migrar por fases os controlos administrativos prioritários para o novo painel React
+- [x] Migrar por fases os controlos administrativos prioritários para o novo painel React
 - [ ] Manter a administração Django apenas como contingência até à validação integral do painel React
 - [x] Substituir a entrada administrativa existente em /admin pelo painel React e mover a contingência Django para uma rota interna
 - [x] Corrigir a compatibilidade da sessão da conta administrativa existente com o painel React em /admin
@@ -513,3 +513,8 @@
 - [x] Configurar o token temporário de criação administrativa no Render, criar a nova conta e remover este acesso após validação
 - [x] Redesenhar a visão geral React em /admin para corrigir contraste, hierarquia, temas e accionabilidade operacional
 - [ ] Remover a variável ADMIN_BOOTSTRAP_TOKEN do Render após a implantação da remoção do acesso temporário
+- [x] Inventariar e migrar as operações administrativas restantes para React com permissões por domínio
+- [x] Disponibilizar gestão administrativa React de centros, cursos e conteúdo público
+- [x] Disponibilizar gestão administrativa React de utilizadores, inscrições, pagamentos e pedidos
+- [x] Disponibilizar configurações, alertas, suporte e auditoria no painel React
+- [x] Validar todos os fluxos críticos administrativos antes de retirar a contingência interna

@@ -8,7 +8,7 @@ from django.test import Client
 client = Client()
 response = client.get('/cursos/instituicoes/')
 assert response.status_code == 200, response.status_code
-html = response.content.decode('utf-8')
+html = b''.join(response.streaming_content).decode('utf-8') if response.streaming else response.content.decode('utf-8')
 assert '1 centros,' not in html
 assert '4.8' not in html
 assert '142' not in html

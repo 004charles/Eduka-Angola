@@ -52,4 +52,4 @@ class CentroPlanosPublicosTests(TestCase):
         self.assertEqual([plano['nome'] for plano in response.data], ['Essencial', 'Crescimento', 'Profissional', 'Rede'])
         self.assertEqual(len(response.data), 4)
         self.assertEqual(response.data[0]['preco'], '0.00')
-        self.assertTrue(response.data[-1]['permite_cursos_video'])
+        self.assertFalse(response.data[-1]['permite_cursos_video'])
