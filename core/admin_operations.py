@@ -10,7 +10,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from cursos_app.models import Curso, Inscricao
-from cursovideoapp.models import Curso_video
+from cursovideoapp.models import Curso_video, PlanoSubscricaoVideo, AssinaturaVideoAluno
 from bolsas.models import Bolsa, CandidaturaBolsa
 from estagio.models import Estagio, InscricaoEstagio
 from escolas.models import Escola
@@ -28,6 +28,8 @@ SECTION_LABELS = {
     'centros': ('Centros e filiais', 'Gestão de parceiros, presença e disponibilidade'),
     'cursos': ('Cursos presenciais', 'Publicação, disponibilidade e destaque de cursos'),
     'video-cursos': ('Cursos em vídeo', 'Oferta editorial e cursos de vídeo'),
+    'planos-video': ('Planos de vídeo', 'Preço, vigência e disponibilidade da subscrição mensal'),
+    'subscricoes-video': ('Subscrições de vídeo', 'Acesso de alunos ao catálogo de cursos em vídeo'),
     'utilizadores': ('Utilizadores', 'Contas, funções e actividade de acesso'),
     'inscricoes': ('Inscrições', 'Decisões de inscrição em cursos presenciais'),
     'pagamentos': ('Pagamentos', 'Acompanhamento financeiro e reconciliação manual'),
@@ -94,6 +96,12 @@ def _section_queryset(section, term):
     if section == 'video-cursos':
         query = Curso_video.objects.select_related('instrutor', 'centro').order_by('-data_publicacao')
         return query.filter(Q(titulo__icontains=term) | Q(instrutor__nome__icontains=term)) if term else query
+    if section == 'planos-video':
+        query = PlanoSubscricaoVideo.objects.order_by('ordem', 'preco', 'id')
+        return query.filter(Q(nome__icontains=term) | Q(descricao__icontains=term)) if term else query
+    if section == 'subscricoes-video':
+        query = AssinaturaVideoAluno.objects.select_related('aluno__usuario', 'plano').order_by('-data_fim')
+        return query.filter(Q(aluno__usuario__nome__icontains=term) | Q(aluno__usuario__email__icontains=term) | Q(plano__nome__icontains=term)) if term else query
     if section == 'utilizadores':
         query = Usuario.objects.order_by('-data_criacao')
         return query.filter(Q(nome__icontains=term) | Q(email__icontains=term)) if term else query
@@ -152,6 +160,10 @@ def _row(section, item):
         return {'id': str(item.pk), 'title': item.titulo, 'subtitle': item.centro.nome, 'status': 'PUBLICADO' if item.publicado and item.ativo else 'RASCUNHO', 'status_label': 'Publicado' if item.publicado and item.ativo else 'Não publicado', 'details': [f'{item.preco_inscricao} {item.moeda}', item.modalidade], 'switches': [{'field': 'publicado', 'label': 'Publicado', 'value': item.publicado}, {'field': 'ativo', 'label': 'Activo', 'value': item.ativo}, {'field': 'destaque', 'label': 'Destaque', 'value': item.destaque}]}
     if section == 'video-cursos':
         return {'id': str(item.pk), 'title': item.titulo, 'subtitle': item.instrutor.nome if item.instrutor_id else 'Edukangola', 'status': 'DESTAQUE' if item.destaque else 'NORMAL', 'status_label': 'Em destaque' if item.destaque else 'Publicado', 'details': ['Original Edukangola' if item.is_original_edukangola else 'Curso parceiro'], 'switches': [{'field': 'destaque', 'label': 'Destaque', 'value': item.destaque}]}
+    if section == 'planos-video':
+        return {'id': str(item.pk), 'title': item.nome, 'subtitle': item.descricao or 'Acesso ao catálogo de cursos em vídeo', 'status': 'ACTIVO' if item.ativo else 'INACTIVO', 'status_label': 'Disponível' if item.ativo else 'Indisponível', 'details': [f'{item.preco} {item.moeda}/mês', f'{item.periodo_dias} dias'], 'switches': [{'field': 'ativo', 'label': 'Disponível', 'value': item.ativo}, {'field': 'destaque', 'label': 'Destaque', 'value': item.destaque}]}
+    if section == 'subscricoes-video':
+        return {'id': str(item.pk), 'title': item.aluno.usuario.nome or item.aluno.usuario.email, 'subtitle': item.plano.nome, 'status': item.status, 'status_label': _choice_label(item, 'status'), 'details': [f'Até {item.data_fim.strftime("%d/%m/%Y")}', f'{item.valor_cobrado} {item.moeda}'], 'select': {'field': 'status', 'label': 'Estado', 'value': item.status, 'options': _choices(item, 'status')}}
     if section == 'utilizadores':
         return {'id': str(item.pk), 'title': item.nome or item.email, 'subtitle': item.email, 'status': item.tipo_usuario, 'status_label': _choice_label(item, 'tipo_usuario'), 'details': ['Activo' if item.is_active else 'Suspenso'], 'switches': [{'field': 'is_active', 'label': 'Conta activa', 'value': item.is_active}]}
     if section == 'inscricoes':
@@ -208,7 +220,7 @@ def list_operations(section, term='', page=1, page_size=25):
 
 def _get_instance(section, item_id):
     models = {
-        'centros': CentroDeFormacao, 'cursos': Curso, 'video-cursos': Curso_video,
+        'centros': CentroDeFormacao, 'cursos': Curso, 'video-cursos': Curso_video, 'planos-video': PlanoSubscricaoVideo, 'subscricoes-video': AssinaturaVideoAluno,
         'utilizadores': Usuario, 'inscricoes': Inscricao, 'pagamentos': Pagamento,
         'lojas': LojaParceira, 'produtos': ProdutoMercado, 'pedidos': PedidoMercado,
         'contactos': MensagemContato, 'perguntas': PerguntaFrequente,
@@ -225,6 +237,7 @@ ALLOWED_FIELDS = {
     'centros': {'nome', 'email', 'telefone', 'cidade', 'provincia', 'pais', 'endereco', 'site', 'ativo'},
     'cursos': {'titulo', 'descricao_curta', 'preco_inscricao', 'mensalidade', 'vagas_minimas', 'publicado', 'ativo', 'destaque'},
     'video-cursos': {'titulo', 'descricao', 'destaque'},
+    'planos-video': {'nome', 'descricao', 'preco', 'moeda', 'periodo_dias', 'ordem', 'ativo', 'destaque'}, 'subscricoes-video': {'status'},
     'utilizadores': {'nome', 'email', 'is_active'}, 'inscricoes': {'status', 'observacoes'}, 'pagamentos': {'status'},
     'lojas': {'verificada', 'ativa'}, 'produtos': {'status', 'destaque', 'quantidade_disponivel'},
     'pedidos': {'status', 'estafeta_nome', 'estafeta_telefone', 'notas_admin', 'motivo_ocorrencia'}, 'contactos': {'lido'}, 'perguntas': {'publicada'},
@@ -238,6 +251,8 @@ DETAIL_FIELDS = {
     'centros': [('nome', 'Nome', 'text'), ('email', 'E-mail', 'email'), ('telefone', 'Telefone', 'text'), ('cidade', 'Cidade', 'text'), ('provincia', 'Província', 'text'), ('pais', 'País', 'select'), ('endereco', 'Endereço', 'textarea'), ('site', 'Website', 'url'), ('ativo', 'Centro activo', 'boolean')],
     'cursos': [('titulo', 'Título', 'text'), ('descricao_curta', 'Descrição curta', 'textarea'), ('preco_inscricao', 'Taxa de inscrição', 'decimal'), ('mensalidade', 'Mensalidade', 'decimal'), ('vagas_minimas', 'Vagas mínimas', 'number'), ('publicado', 'Publicado', 'boolean'), ('ativo', 'Activo', 'boolean'), ('destaque', 'Destaque', 'boolean')],
     'video-cursos': [('titulo', 'Título', 'text'), ('descricao', 'Descrição', 'textarea'), ('destaque', 'Destaque', 'boolean')],
+    'planos-video': [('nome', 'Nome do plano', 'text'), ('descricao', 'Descrição', 'textarea'), ('preco', 'Preço mensal', 'decimal'), ('moeda', 'Moeda', 'text'), ('periodo_dias', 'Duração em dias', 'number'), ('ordem', 'Ordem de apresentação', 'number'), ('ativo', 'Disponível para novas subscrições', 'boolean'), ('destaque', 'Plano em destaque', 'boolean')],
+    'subscricoes-video': [('status', 'Estado da subscrição', 'select')],
     'utilizadores': [('nome', 'Nome', 'text'), ('email', 'E-mail', 'email'), ('is_active', 'Conta activa', 'boolean')],
     'inscricoes': [('status', 'Decisão', 'select'), ('observacoes', 'Observações', 'textarea')],
     'pagamentos': [('status', 'Estado do pagamento', 'select')],
@@ -258,6 +273,25 @@ def detail_operation(section, item_id):
             value = str(value) if control == 'decimal' else value
         fields.append({'field': field_name, 'label': label, 'control': control, 'value': value, 'options': _choices(instance, field_name) if control == 'select' else []})
     return {'id': str(instance.pk), 'section': section, 'title': _row(section, instance)['title'], 'summary': _row(section, instance), 'fields': fields}
+
+
+def create_operation(actor, section, values):
+    if section != 'planos-video':
+        raise ValueError('A criação ainda não está disponível neste recurso.')
+    name = str(values.get('nome') or '').strip()
+    if not name:
+        raise ValueError('Indique o nome do plano.')
+    try:
+        price = Decimal(str(values.get('preco') or '0'))
+        days = max(1, int(values.get('periodo_dias') or 30))
+        order = max(0, int(values.get('ordem') or 0))
+    except (InvalidOperation, TypeError, ValueError) as error:
+        raise ValueError('Preço, duração ou ordem inválidos.') from error
+    if price < 0:
+        raise ValueError('O preço não pode ser negativo.')
+    plan = PlanoSubscricaoVideo.objects.create(nome=name, descricao=str(values.get('descricao') or '').strip(), preco=price, moeda=str(values.get('moeda') or 'AOA').upper()[:3], periodo_dias=days, ordem=order, ativo=bool(values.get('ativo', True)), destaque=bool(values.get('destaque', False)))
+    _audit(actor, section, plan, 'criar_plano', {}, {'nome': plan.nome, 'preco': plan.preco, 'moeda': plan.moeda})
+    return _row(section, plan)
 
 
 def update_operation(actor, section, item_id, field, value):

@@ -1410,7 +1410,7 @@ def react_admin_operations(request, section):
         return JsonResponse({'detail': 'Inicie sessão para abrir a administração.'}, status=401)
     if not _admin_react_allowed(request):
         return JsonResponse({'detail': 'A sua conta não tem permissão administrativa.'}, status=403)
-    from core.admin_operations import list_operations, update_operation
+    from core.admin_operations import create_operation, list_operations, update_operation
     if request.method == 'GET':
         try:
             data = list_operations(section, request.GET.get('pesquisa', ''), request.GET.get('pagina', 1), request.GET.get('limite', 25))
@@ -1419,12 +1419,15 @@ def react_admin_operations(request, section):
         return JsonResponse(data)
     try:
         payload = json.loads(request.body.decode('utf-8'))
-        item_id = str(payload.get('id') or '')
-        field = str(payload.get('field') or '')
-        value = payload.get('value')
-        if not item_id or not field:
-            raise ValueError('Indique o registo e o campo a actualizar.')
-        item = update_operation(request.user, section, item_id, field, value)
+        if payload.get('create'):
+            item = create_operation(request.user, section, payload.get('values') or {})
+        else:
+            item_id = str(payload.get('id') or '')
+            field = str(payload.get('field') or '')
+            value = payload.get('value')
+            if not item_id or not field:
+                raise ValueError('Indique o registo e o campo a actualizar.')
+            item = update_operation(request.user, section, item_id, field, value)
     except ValueError as error:
         return JsonResponse({'detail': str(error)}, status=400)
     except KeyError:

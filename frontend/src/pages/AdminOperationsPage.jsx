@@ -9,6 +9,8 @@ const SECTIONS = [
   { key: "centros", label: "Centros e filiais", icon: Building2, group: "Oferta" },
   { key: "cursos", label: "Cursos presenciais", icon: GraduationCap, group: "Oferta" },
   { key: "video-cursos", label: "Cursos em vídeo", icon: Activity, group: "Oferta" },
+  { key: "planos-video", label: "Planos de vídeo", icon: CircleDollarSign, group: "Oferta" },
+  { key: "subscricoes-video", label: "Subscrições de vídeo", icon: ClipboardList, group: "Oferta" },
   { key: "utilizadores", label: "Utilizadores", icon: UsersRound, group: "Pessoas" },
   { key: "inscricoes", label: "Inscrições", icon: ClipboardList, group: "Pessoas" },
   { key: "pagamentos", label: "Pagamentos", icon: CircleDollarSign, group: "Comercial" },
@@ -46,6 +48,7 @@ export default function AdminOperationsPage({ onNavigate, theme, onThemeChange, 
       const response = await fetch(`/backend/api/react/administracao/operacoes/${nextSection}/?pesquisa=${encodeURIComponent(term)}`, { credentials: "include", cache: "no-store" });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw Object.assign(new Error(payload.detail || "Não foi possível carregar esta operação."), { status: response.status });
+      if (nextSection === "planos-video") payload.items = [{ id: "__novo_plano__", title: "Criar novo plano mensal", subtitle: "Defina preço, moeda, duração e disponibilidade", status: "NOVO", status_label: "Nova configuração", details: ["Abrir formulário"], readonly: true }, ...payload.items];
       setData(payload); return true;
     } catch (reason) {
       setError(reason.message || "Não foi possível carregar esta operação.");
@@ -70,8 +73,9 @@ export default function AdminOperationsPage({ onNavigate, theme, onThemeChange, 
     }
   };
 
-  const openDetail = async (item) => { setError(""); try { const response = await fetch(`/backend/api/react/administracao/operacoes/${section}/${item.id}/`, { credentials: "include", cache: "no-store" }); const payload = await response.json().catch(() => ({})); if (!response.ok) throw new Error(payload.detail || "Não foi possível abrir o detalhe."); setDetail(payload); setForm(Object.fromEntries(payload.fields.map((field) => [field.field, field.value ?? ""]))); } catch (reason) { setError(reason.message || "Não foi possível abrir o detalhe."); } };
-  const saveDetail = async () => { if (!detail) return; setBusy("detail"); setError(""); try { for (const field of detail.fields) { const next = form[field.field]; if (String(next) === String(field.value ?? "")) continue; await authRequest(`/api/react/administracao/operacoes/${section}/`, { id: detail.id, field: field.field, value: field.control === "boolean" ? Boolean(next) : next }); } await refreshNow(); await openDetail({ id: detail.id }); } catch (reason) { setError(reason.message || "Não foi possível guardar as alterações."); } finally { setBusy(""); } };
+  const openDetail = async (item) => { if (item.id === "__novo_plano__") { openCreate(); return; } setError(""); try { const response = await fetch(`/backend/api/react/administracao/operacoes/${section}/${item.id}/`, { credentials: "include", cache: "no-store" }); const payload = await response.json().catch(() => ({})); if (!response.ok) throw new Error(payload.detail || "Não foi possível abrir o detalhe."); setDetail(payload); setForm(Object.fromEntries(payload.fields.map((field) => [field.field, field.value ?? ""]))); } catch (reason) { setError(reason.message || "Não foi possível abrir o detalhe."); } };
+  const openCreate = () => { const fields = [{ field: "nome", label: "Nome do plano", control: "text", value: "" }, { field: "descricao", label: "Descrição", control: "textarea", value: "" }, { field: "preco", label: "Preço mensal", control: "decimal", value: "" }, { field: "moeda", label: "Moeda", control: "text", value: "AOA" }, { field: "periodo_dias", label: "Duração em dias", control: "number", value: 30 }, { field: "ordem", label: "Ordem de apresentação", control: "number", value: 0 }, { field: "ativo", label: "Disponível para novas subscrições", control: "boolean", value: true }, { field: "destaque", label: "Plano em destaque", control: "boolean", value: false }]; setDetail({ creating: true, title: "Novo plano de vídeo", summary: { status: "NOVO", status_label: "Em configuração", details: ["O plano ficará disponível após guardar."] }, fields }); setForm(Object.fromEntries(fields.map((field) => [field.field, field.value]))); };
+  const saveDetail = async () => { if (!detail) return; setBusy("detail"); setError(""); try { if (detail.creating) { await authRequest(`/api/react/administracao/operacoes/${section}/`, { create: true, values: form }); await refreshNow(); setDetail(null); return; } for (const field of detail.fields) { const next = form[field.field]; if (String(next) === String(field.value ?? "")) continue; await authRequest(`/api/react/administracao/operacoes/${section}/`, { id: detail.id, field: field.field, value: field.control === "boolean" ? Boolean(next) : next }); } await refreshNow(); await openDetail({ id: detail.id }); } catch (reason) { setError(reason.message || "Não foi possível guardar as alterações."); } finally { setBusy(""); } };
   const activeNavigation = useMemo(() => SECTIONS.find((item) => item.key === section), [section]);
   if (error && !data) return <AdminAccessPage message={error} onAuthenticated={() => load(section, "")} />;
 

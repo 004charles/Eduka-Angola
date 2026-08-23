@@ -4,6 +4,7 @@ from django.test import TestCase
 
 from core.models import AdminAuditLog, MensagemContato
 from pagamentos.models import Pagamento
+from cursovideoapp.models import PlanoSubscricaoVideo
 from usuarios.models import Usuario
 
 
@@ -109,3 +110,16 @@ class ReactAdminOperationsTests(TestCase):
         self.assertEqual(actualizacao.status_code, 200)
         self.assertEqual(actualizacao.json()['item']['id'], 'pagamento')
         self.assertTrue(AdminAuditLog.objects.filter(recurso='configuracoes', acao='actualizar_pagamentos_ativados').exists())
+
+    def test_staff_cria_plano_mensal_de_video_com_auditoria(self):
+        self.client.force_login(self.staff)
+        resposta = self.client.post('/api/react/administracao/operacoes/planos-video/', data=json.dumps({
+            'create': True,
+            'values': {'nome': 'Mensal Edukangola', 'descricao': 'Acesso completo ao catálogo', 'preco': '8500', 'moeda': 'AOA', 'periodo_dias': 30, 'ordem': 1, 'ativo': True, 'destaque': True},
+        }), content_type='application/json')
+
+        plano = PlanoSubscricaoVideo.objects.get(nome='Mensal Edukangola')
+        self.assertEqual(resposta.status_code, 200)
+        self.assertEqual(plano.preco, 8500)
+        self.assertTrue(plano.ativo)
+        self.assertTrue(AdminAuditLog.objects.filter(recurso='planos-video', acao='criar_plano', objeto_id=str(plano.pk)).exists())
