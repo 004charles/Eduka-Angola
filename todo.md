@@ -503,3 +503,4 @@
 - [x] Expor métricas, gráficos e alertas administrativos com dados reais da Edukangola
 - [ ] Migrar por fases os controlos administrativos prioritários para o novo painel React
 - [ ] Manter a administração Django apenas como contingência até à validação integral do painel React
+- [x] Substituir a entrada administrativa existente em /admin pelo painel React e mover a contingência Django para uma rota interna

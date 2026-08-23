@@ -1,5 +1,7 @@
 from django.test import TestCase
+from django.urls import resolve
 
+from core.react_delivery import react_application
 from gestoreduka.models import ModuloPublico
 from usuarios.models import Usuario
 
@@ -14,6 +16,12 @@ class ReactAdminConsoleTests(TestCase):
         self.assertEqual(self.client.get('/api/react/administracao/resumo/').status_code, 401)
         self.client.force_login(self.aluno)
         self.assertEqual(self.client.get('/api/react/administracao/resumo/').status_code, 403)
+
+    def test_admin_principal_entrega_react_e_contingencia_fica_interna(self):
+        self.assertIs(resolve('/admin/').func, react_application)
+        resposta = self.client.get('/admin-interno/')
+        self.assertEqual(resposta.status_code, 302)
+        self.assertIn('/admin-interno/login/', resposta['Location'])
 
     def test_staff_consulta_metricas_e_controla_modulo(self):
         self.client.force_login(self.staff)

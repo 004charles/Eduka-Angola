@@ -15,7 +15,7 @@ class AdminSessionMiddleware:
         # Guardar o nome do cookie original para restaurar depois
         original_session_cookie = settings.SESSION_COOKIE_NAME
         
-        if path.startswith('/admin/'):
+        if path.startswith('/admin-interno/'):
             settings.SESSION_COOKIE_NAME = 'eduka_admin_session'
         else:
             settings.SESSION_COOKIE_NAME = 'eduka_session'

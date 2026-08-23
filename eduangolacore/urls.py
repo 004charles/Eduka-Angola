@@ -49,7 +49,10 @@ urlpatterns = [
         re_path(r'^media/(?P<path>.*)$', serve_media, {'document_root': settings.MEDIA_ROOT}),
     ]),
     # path('ckeditor/', include('ckeditor_uploader.urls')),
-    path('admin/', admin.site.urls),
+    # A experiência administrativa principal é React. O painel Django fica
+    # apenas como contingência interna enquanto os módulos são migrados.
+    path('admin-interno/', admin.site.urls),
+    path('admin/', react_application, name='react_admin_console'),
 
     path('', react_application, name='index'),
     path('backend/<path:backend_path>', backend_proxy, name='react_backend_proxy'),

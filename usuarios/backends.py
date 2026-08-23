@@ -26,7 +26,7 @@ class EmailBackend(ModelBackend):
             # Django admin authentication is handled by checking is_staff/is_superuser
             # We detect admin login by checking the request path
             if request and hasattr(request, 'path'):
-                is_admin_login = '/admin/' in request.path
+                is_admin_login = request.path.startswith('/admin-interno/')
                 
                 if is_admin_login:
                     # For Django admin, only allow staff or superuser

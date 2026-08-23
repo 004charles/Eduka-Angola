@@ -175,7 +175,7 @@ function App() {
   let page;
   if (pathname === "/gestoreduka/login_gestor" || pathname === "/gestoreduka/login_gestor/") { window.location.replace("/backend/gestoreduka/login_gestor/"); return null; }
   if (pathname === "/gestoreduka" || pathname === "/gestoreduka/" || pathname.startsWith("/gestoreduka/")) return <ManagerPortalPage route={pathname} />;
-  if (pathname === "/administracao" || pathname === "/administracao/") return <AdminConsolePage onNavigate={navigate} theme={theme} onThemeChange={() => setTheme(theme === "light" ? "dark" : "light")} />;
+  if (pathname === "/admin" || pathname === "/admin/" || pathname === "/administracao" || pathname === "/administracao/") return <AdminConsolePage onNavigate={navigate} theme={theme} onThemeChange={() => setTheme(theme === "light" ? "dark" : "light")} />;
   else if (pathname === "/formador" || pathname === "/formador/") { navigate("/aluno/configuracoes", false); return null; }
   else if (pathname === "/") page = <HomePage data={homeData} loading={homeDataLoading} onNavigate={navigate} onAnnounce={announce} />;
   else if (authModes[pathname]) page = <AuthPage key={pathname} mode={authModes[pathname]} courses={homeData?.cursos || []} onNavigate={navigate} onSessionReady={refreshStudentSession} />;
