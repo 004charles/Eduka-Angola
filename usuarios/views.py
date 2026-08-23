@@ -322,6 +322,62 @@ def api_auth_admin_login(request):
 
 
 @require_POST
+def api_auth_admin_recuperar_senha(request):
+    """Envia um código de recuperação sem revelar se há uma conta administrativa."""
+    dados = _dados_json(request)
+    email = str(dados.get('email') or '').strip().lower()
+    usuario = Usuario.objects.filter(
+        email=email,
+        is_active=True,
+    ).filter(models.Q(is_staff=True) | models.Q(is_superuser=True)).first()
+
+    if usuario:
+        try:
+            enviar_codigo_verificacao(email, 'RECUPERACAO')
+            request.session['email_recuperacao_admin'] = email
+        except Exception:
+            return JsonResponse({'ok': False, 'message': 'Não foi possível enviar o código. Tente novamente.'}, status=500)
+
+    return JsonResponse({'ok': True, 'message': 'Se existir uma conta administrativa com este e-mail, enviámos um código de recuperação.'})
+
+
+@require_POST
+def api_auth_admin_redefinir_senha(request):
+    """Valida o código administrativo, substitui a palavra-passe e inicia a sessão isolada."""
+    dados = _dados_json(request)
+    codigo = str(dados.get('codigo') or '').strip()
+    senha = str(dados.get('senha') or '')
+    confirmar_senha = str(dados.get('confirmar_senha') or '')
+    email = request.session.get('email_recuperacao_admin')
+
+    if not email:
+        return JsonResponse({'ok': False, 'message': 'A sessão de recuperação expirou. Comece novamente.'}, status=400)
+    if len(senha) < 8:
+        return JsonResponse({'ok': False, 'message': 'A palavra-passe deve ter pelo menos 8 caracteres.'}, status=400)
+    if senha != confirmar_senha:
+        return JsonResponse({'ok': False, 'message': 'As palavras-passe não coincidem.'}, status=400)
+
+    verificacao = CodigoVerificacao.objects.filter(
+        email=email,
+        codigo=codigo,
+        tipo='RECUPERACAO',
+        criado_em__gte=timezone.now() - timedelta(minutes=10),
+    ).order_by('-criado_em').first()
+    usuario = Usuario.objects.filter(email=email, is_active=True).filter(
+        models.Q(is_staff=True) | models.Q(is_superuser=True)
+    ).first()
+    if not verificacao or not usuario:
+        return JsonResponse({'ok': False, 'message': 'O código é inválido ou expirou. Peça um novo código.'}, status=400)
+
+    usuario.set_password(senha)
+    usuario.save(update_fields=['password'])
+    CodigoVerificacao.objects.filter(email=email, tipo='RECUPERACAO').delete()
+    request.session.pop('email_recuperacao_admin', None)
+    login(request, usuario, backend='usuarios.backends.EmailBackend')
+    return JsonResponse({'ok': True, 'redirect': '/admin'})
+
+
+@require_POST
 def api_auth_registro(request):
     dados = _dados_json(request)
     nome = str(dados.get('nome') or '').strip()

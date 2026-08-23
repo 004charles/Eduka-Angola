@@ -507,3 +507,4 @@
 - [x] Corrigir a compatibilidade da sessão da conta administrativa existente com o painel React em /admin
 - [x] Criar início de sessão React exclusivo para contas administrativas em /admin, sem misturar a sessão de aluno
 - [x] Redesenhar a tela React de acesso administrativo com superfícies e contraste consistentes nos modos claro e escuro
+- [x] Permitir recuperação e redefinição segura de palavra-passe administrativa directamente na entrada React em /admin

@@ -1,11 +1,12 @@
 import json
+from unittest.mock import patch
 
 from django.test import TestCase
 from django.urls import resolve
 
 from core.react_delivery import react_application
 from gestoreduka.models import ModuloPublico
-from usuarios.models import Usuario
+from usuarios.models import CodigoVerificacao, Usuario
 
 
 class ReactAdminConsoleTests(TestCase):
@@ -52,6 +53,25 @@ class ReactAdminConsoleTests(TestCase):
         }), content_type='application/json')
 
         self.assertEqual(resposta.status_code, 401)
+
+    @patch('usuarios.views.enviar_codigo_verificacao')
+    def test_recuperacao_administrativa_redefine_senha_e_inicia_sessao(self, enviar_codigo):
+        pedido = self.client.post('/auth/api/react/admin/recuperar-senha/', data=json.dumps({
+            'email': self.staff.email,
+        }), content_type='application/json')
+        CodigoVerificacao.objects.create(email=self.staff.email, codigo='654321', tipo='RECUPERACAO')
+        redefinicao = self.client.post('/auth/api/react/admin/redefinir-senha/', data=json.dumps({
+            'codigo': '654321',
+            'senha': 'NovaSenhaSegura123',
+            'confirmar_senha': 'NovaSenhaSegura123',
+        }), content_type='application/json')
+
+        self.assertEqual(pedido.status_code, 200)
+        enviar_codigo.assert_called_once_with(self.staff.email, 'RECUPERACAO')
+        self.assertEqual(redefinicao.status_code, 200)
+        self.staff.refresh_from_db()
+        self.assertTrue(self.staff.check_password('NovaSenhaSegura123'))
+        self.assertEqual(self.client.get('/api/react/administracao/resumo/').status_code, 200)
 
     def test_staff_consulta_metricas_e_controla_modulo(self):
         self.client.force_login(self.staff)
