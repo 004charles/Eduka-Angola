@@ -498,3 +498,8 @@
 - [x] Migrar o catálogo, detalhe e candidatura de Estágios para React com isolamento por aluno
 - [x] Redireccionar as rotas HTML públicas de Escolas e Estágios para as rotas React equivalentes
 - [x] Cobrir módulos, rotas, candidatura e permissões de Escolas e Estágios com testes automatizados
+- [x] Auditar os módulos, permissões e operações ainda concentrados na administração Django
+- [x] Criar um painel React administrativo protegido com tema claro/escuro e visão geral operacional
+- [x] Expor métricas, gráficos e alertas administrativos com dados reais da Edukangola
+- [ ] Migrar por fases os controlos administrativos prioritários para o novo painel React
+- [ ] Manter a administração Django apenas como contingência até à validação integral do painel React

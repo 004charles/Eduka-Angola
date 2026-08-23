@@ -15,9 +15,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.db.models import Avg, Count, Q, Prefetch, Value, F
+from django.db.models import Avg, Count, Q, Prefetch, Value, F, Sum
 from django.db.utils import OperationalError
-from django.db.models.functions import Coalesce
+from django.db.models.functions import Coalesce, TruncDate
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateparse import parse_date
@@ -1337,6 +1337,70 @@ def public_enabled_modules(request):
     """Devolve módulos React publicados pela equipa Edukangola no painel administrativo."""
     from gestoreduka.models import ModuloPublico
     return JsonResponse({'modulos': ModuloPublico.activos_para_react()})
+
+
+def _admin_react_allowed(request):
+    return bool(request.user.is_authenticated and request.user.is_staff)
+
+
+@require_http_methods(['GET'])
+def react_admin_overview(request):
+    """Resumo operacional para o painel React, limitado a contas administrativas internas."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'detail': 'Inicie sessão para abrir a administração.'}, status=401)
+    if not _admin_react_allowed(request):
+        return JsonResponse({'detail': 'A sua conta não tem permissão administrativa.'}, status=403)
+    from gestoreduka.models import ModuloPublico
+    from pagamentos.models import Pagamento
+    from usuarios.models import Usuario
+    try:
+        from mercado.models import PedidoMercado
+        pedidos_mercado_pendentes = PedidoMercado.objects.filter(status__in=['PENDENTE', 'PAGO']).count()
+    except Exception:
+        pedidos_mercado_pendentes = 0
+    hoje = timezone.localdate()
+    inicio = hoje - timedelta(days=6)
+    pagamentos_aceites = Pagamento.objects.filter(status='ACCEPTED')
+    recebimentos = list(pagamentos_aceites.values('moeda').annotate(total=Sum('valor_final'), quantidade=Count('id')).order_by('moeda'))
+    por_dia = {inicio + timedelta(days=indice): 0 for indice in range(7)}
+    for item in pagamentos_aceites.filter(data_pagamento__date__gte=inicio).annotate(dia=TruncDate('data_pagamento')).values('dia').annotate(total=Count('id')):
+        if item['dia'] in por_dia:
+            por_dia[item['dia']] = item['total']
+    recentes = []
+    for pagamento in pagamentos_aceites.select_related('usuario').order_by('-data_pagamento')[:8]:
+        recentes.append({'referencia': pagamento.referencia_pagamento, 'tipo': pagamento.get_tipo_pagamento_display(), 'valor': f'{pagamento.valor_final:,.0f} {pagamento.moeda}'.replace(',', ' '), 'quando': pagamento.data_pagamento.isoformat() if pagamento.data_pagamento else pagamento.data_atualizacao.isoformat(), 'utilizador': pagamento.usuario.nome or pagamento.usuario.email})
+    modulos = [{'chave': item.chave, 'nome': item.get_chave_display(), 'ativo': item.ativo, 'ordem': item.ordem} for item in ModuloPublico.objects.order_by('ordem', 'chave')]
+    alertas = []
+    pagamentos_pendentes = Pagamento.objects.filter(status__in=['PENDING', 'REQUESTED', 'PROCESSING']).count()
+    if pagamentos_pendentes:
+        alertas.append({'tipo': 'pagamento', 'titulo': f'{pagamentos_pendentes} pagamento(s) aguardam acompanhamento', 'rota': '/administracao'})
+    if pedidos_mercado_pendentes:
+        alertas.append({'tipo': 'mercado', 'titulo': f'{pedidos_mercado_pendentes} pedido(s) do Mercado requerem acompanhamento', 'rota': '/administracao'})
+    return JsonResponse({'administrador': {'nome': request.user.nome or request.user.email}, 'metricas': {'alunos': Usuario.objects.filter(tipo_usuario='ALUNO', is_active=True).count(), 'centros_ativos': CentroDeFormacao.objects.filter(ativo=True).count(), 'cursos_publicados': Curso.objects.filter(publicado=True, ativo=True).count(), 'inscricoes_ativas': Inscricao.objects.filter(status='A').count(), 'pagamentos_aceites': pagamentos_aceites.count(), 'modulos_ativos': sum(1 for modulo in modulos if modulo['ativo'])}, 'recebimentos': [{'moeda': item['moeda'], 'total': float(item['total']), 'quantidade': item['quantidade']} for item in recebimentos], 'atividade_pagamentos': [{'dia': dia.isoformat(), 'rotulo': dia.strftime('%d/%m'), 'total': total} for dia, total in por_dia.items()], 'recentes': recentes, 'modulos': modulos, 'alertas': alertas})
+
+
+@require_http_methods(['POST'])
+def react_admin_update_module(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'detail': 'Inicie sessão para administrar módulos.'}, status=401)
+    if not _admin_react_allowed(request):
+        return JsonResponse({'detail': 'A sua conta não tem permissão administrativa.'}, status=403)
+    try:
+        payload = json.loads(request.body.decode('utf-8'))
+        chave = str(payload.get('chave', '')).strip()
+        ativo = payload.get('ativo')
+    except (TypeError, ValueError, UnicodeDecodeError):
+        return JsonResponse({'detail': 'Dados de módulo inválidos.'}, status=400)
+    if not isinstance(ativo, bool):
+        return JsonResponse({'detail': 'Indique um estado de activação válido.'}, status=400)
+    from gestoreduka.models import ModuloPublico
+    try:
+        modulo = ModuloPublico.objects.get(chave=chave)
+    except ModuloPublico.DoesNotExist:
+        return JsonResponse({'detail': 'Módulo não encontrado.'}, status=404)
+    modulo.ativo = ativo
+    modulo.save(update_fields=['ativo', 'atualizado_em'])
+    return JsonResponse({'ok': True, 'modulo': {'chave': modulo.chave, 'nome': modulo.get_chave_display(), 'ativo': modulo.ativo}})
 
 
 def _redirect_react(request, destino):

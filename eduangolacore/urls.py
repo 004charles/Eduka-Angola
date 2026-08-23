@@ -74,6 +74,8 @@ urlpatterns = [
     path('api/react/aluno/dashboard/', views.react_student_dashboard, name='api_react_student_dashboard'),
     path('api/react/aluno/historico/', views.react_student_history, name='api_react_student_history'),
     path('api/react/aluno/certificados/', views.react_student_certificates, name='api_react_student_certificates'),
+    path('api/react/administracao/resumo/', views.react_admin_overview, name='api_react_admin_overview'),
+    path('api/react/administracao/modulos/', views.react_admin_update_module, name='api_react_admin_update_module'),
     path('auth/api/react/aluno/favoritos/', views.react_student_favorites, name='react_student_favorites'),
     path('auth/api/react/aluno/favoritos/alternar/', views.react_student_favorite_toggle, name='react_student_favorite_toggle'),
     path('auth/api/react/aluno/preferencias/', views.react_student_preferences, name='react_student_preferences'),
@@ -98,7 +100,7 @@ urlpatterns = [
     re_path(r'^escolas/perfil/(?P<escola_id>\d+)/?$', views.legacy_school_detail_redirect, name='legacy_school_detail_redirect'),
     re_path(r'^estagio/(?P<slug>[-\w]+)/?$', views.legacy_internship_detail_redirect, name='legacy_internship_detail_redirect'),
     re_path(
-        r'^(?!gestoreduka/api/|cursos/api/)(?:entrar|criar-conta|verificar-email|recuperar-palavra-passe|redefinir-palavra-passe|aluno|gestoreduka|formador|cursos|video-cursos|cursos-em-video|aprender/video|inscrever|comprar|centros|para-centros|comparar-cursos|como-funciona|perguntas-frequentes|faq|politica-de-privacidade|privacidade|sobre|sobre-a-edukangola|blog|eventos|eventosv|biblioteca|ler|mercado|bolsas|escolas|estagios|verificar-certificado|pagamento/sucesso|pagamento/cancelado)(?:/.*)?$',
+        r'^(?!gestoreduka/api/|cursos/api/)(?:entrar|criar-conta|verificar-email|recuperar-palavra-passe|redefinir-palavra-passe|aluno|administracao|gestoreduka|formador|cursos|video-cursos|cursos-em-video|aprender/video|inscrever|comprar|centros|para-centros|comparar-cursos|como-funciona|perguntas-frequentes|faq|politica-de-privacidade|privacidade|sobre|sobre-a-edukangola|blog|eventos|eventosv|biblioteca|ler|mercado|bolsas|escolas|estagios|verificar-certificado|pagamento/sucesso|pagamento/cancelado)(?:/.*)?$',
         react_application,
         name='react_application_routes',
     ),
