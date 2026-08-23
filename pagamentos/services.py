@@ -508,6 +508,20 @@ class PaymentService:
         # Validar valor
         if valor <= 0:
             raise PagamentoInvalido("Valor deve ser maior que zero")
+
+        # A moeda do curso só pode avançar quando o próprio centro tiver uma
+        # configuração financeira activa e validada. Mantemos cursos angolanos
+        # legados em AOA funcionais enquanto a configuração é introduzida.
+        if curso is not None:
+            from gestoreduka.models import ConfiguracaoFinanceiraCentro
+            configuracao = ConfiguracaoFinanceiraCentro.objects.filter(centro=curso.centro).first()
+            if configuracao:
+                if configuracao.moeda_cobranca != moeda:
+                    raise PagamentoInvalido("A moeda deste pagamento não corresponde à configuração aprovada do centro.")
+                if not configuracao.esta_activa_para_cobranca:
+                    raise PagamentoInvalido("Este centro ainda não tem a cobrança nesta moeda validada pela Edukangola.")
+            elif curso.centro.pais != 'AO' or moeda != 'AOA':
+                raise PagamentoInvalido("A cobrança nesta moeda ainda não está activa para este centro.")
         
         # Gerar referência única
         referencia_pagamento = self._gerar_referencia_pagamento()

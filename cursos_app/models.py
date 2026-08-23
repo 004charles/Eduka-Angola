@@ -140,6 +140,11 @@ class Curso(models.Model):
         ('AOA', _('Kwanza (AOA)')),
         ('EUR', _('Euro (EUR)')),
         ('USD', _('Dólar (USD)')),
+        ('MZN', _('Metical moçambicano (MZN)')),
+        ('XOF', _('Franco CFA da África Ocidental (XOF)')),
+        ('CVE', _('Escudo cabo-verdiano (CVE)')),
+        ('BRL', _('Real brasileiro (BRL)')),
+        ('STN', _('Dobra são-tomense (STN)')),
     ]
 
     TIPO_COBRANCA_INSCRICAO_CHOICES = [

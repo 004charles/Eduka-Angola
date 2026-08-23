@@ -480,3 +480,7 @@
 - [ ] Criar configurações administráveis de país, moeda, gateway, comissão e liquidação para a futura operação multimoeda
 - [ ] Evoluir a candidatura internacional com requisitos, documentos, estados, decisão, carta de aceitação e notificações protegidas
 - [ ] Preparar a primeira oferta internacional como descoberta e candidatura, sem cobrança automática de propina estrangeira
+- [x] Criar configuração financeira por centro com país, moeda de apresentação, moeda de cobrança, gateway e estado de validação Edukangola
+- [x] Criar a área GestorEduka “Financeiro e moeda” acessível apenas ao gestor do próprio centro
+- [x] Impedir a activação de moedas sem gateway e conta de liquidação validados pela Edukangola
+- [x] Cobrir a configuração financeira com testes de isolamento por centro, permissões e regras de activação

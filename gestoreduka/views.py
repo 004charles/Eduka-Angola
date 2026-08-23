@@ -15,6 +15,7 @@ from django.urls import reverse
 from django.db.models import Q, Sum, Count, Value
 from django.db.models.functions import Coalesce
 from django.core.paginator import Paginator
+from django.core.exceptions import ValidationError
 # from django.contrib.gis.geos import Point
 # from django.contrib.gis.measure import D
 # from django.contrib.gis.db.models.functions import Distance
@@ -24,7 +25,8 @@ from .models import (
     Diferencial, AreaFormacao, Equipe, Recurso, Depoimento,
     Estatistica, Parceria, Evento, GaleriaImagem,
     Filial, ConviteCentro, Conversa, Mensagem, CentroSeguimento,
-    CategoriaCentro, AnuncioCentro, EventoIntegracao, AuditoriaCentro, NotificacaoGestor
+    CategoriaCentro, AnuncioCentro, EventoIntegracao, AuditoriaCentro, NotificacaoGestor,
+    ConfiguracaoFinanceiraCentro
 )
 from cursos_app.models import Curso, Categoria, Instrutor, Inscricao, Turma, Presenca, NotaAluno, Matricula, ParcelaMatricula
 from pagamentos.models import RecebimentoCentro
@@ -5378,13 +5380,67 @@ def react_gestor_event_detail(request, evento_id):
     return JsonResponse({'ok': True, 'evento': _react_event_payload(evento)})
 
 
+def _financeiro_config_payload(centro, configuracao=None):
+    moeda = ConfiguracaoFinanceiraCentro.moeda_padrao_para_pais(centro.pais)
+    configuracao = configuracao or ConfiguracaoFinanceiraCentro(
+        centro=centro,
+        moeda_apresentacao=moeda,
+        moeda_cobranca=moeda,
+        gateway='PRONTU' if centro.pais == 'AO' else 'PENDENTE',
+    )
+    labels = dict(ConfiguracaoFinanceiraCentro.MOEDA_CHOICES)
+    return {
+        'pais': centro.pais,
+        'pais_nome': centro.get_pais_display(),
+        'moeda_apresentacao': configuracao.moeda_apresentacao,
+        'moeda_cobranca': configuracao.moeda_cobranca,
+        'moeda_label': labels.get(configuracao.moeda_cobranca, configuracao.moeda_cobranca),
+        'gateway': configuracao.gateway,
+        'estado': configuracao.estado,
+        'estado_label': configuracao.get_estado_display(),
+        'pode_cobrar': configuracao.esta_activa_para_cobranca,
+        'conta_liquidacao_configurada': configuracao.conta_de_liquidacao_configurada,
+        'banco_configurado': bool(centro.banco_nome),
+        'moedas_disponiveis': [{'codigo': moeda, 'nome': labels[moeda]}],
+        'mensagem': 'A Edukangola valida a moeda, o gateway e a conta de liquidação antes de activar cobranças.' if not configuracao.esta_activa_para_cobranca else 'A cobrança está activa para este centro.',
+    }
+
+
 @login_required
-@require_http_methods(['GET'])
+@require_http_methods(['GET', 'PATCH'])
 def react_gestor_finance(request):
     """Devolve o resumo financeiro real do centro, respeitando a restrição da filial autenticada."""
     centro, filial = get_gestor_context(request.user)
     if not centro:
         return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
+    configuracao = ConfiguracaoFinanceiraCentro.objects.filter(centro=centro).first()
+    if request.method == 'PATCH':
+        if filial:
+            return JsonResponse({'detail': 'A configuração financeira só pode ser alterada pelo gestor principal do centro.'}, status=403)
+        try:
+            payload = json.loads(request.body or '{}')
+        except (TypeError, ValueError):
+            return JsonResponse({'detail': 'O pedido deve conter dados JSON válidos.'}, status=400)
+        moeda = str(payload.get('moeda_cobranca') or '').upper()
+        esperada = ConfiguracaoFinanceiraCentro.moeda_padrao_para_pais(centro.pais)
+        if moeda != esperada:
+            return JsonResponse({'detail': f'A moeda de cobrança para {centro.get_pais_display()} deve ser {esperada}.'}, status=400)
+        configuracao = configuracao or ConfiguracaoFinanceiraCentro(centro=centro)
+        mudou_moeda = configuracao.moeda_cobranca != moeda
+        configuracao.moeda_apresentacao = moeda
+        configuracao.moeda_cobranca = moeda
+        configuracao.gateway = 'PRONTU' if centro.pais == 'AO' else 'PENDENTE'
+        if mudou_moeda or configuracao.estado != 'ACTIVA':
+            configuracao.estado = 'PENDENTE_VALIDACAO'
+            configuracao.validado_por = None
+            configuracao.validado_em = None
+        try:
+            configuracao.full_clean()
+            configuracao.save()
+        except ValidationError as error:
+            return JsonResponse({'detail': ' '.join(error.messages)}, status=400)
+        AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='FINANCEIRO_CONFIGURADO', entidade='ConfiguracaoFinanceiraCentro', objeto_id=str(configuracao.pk), dados={'moeda': moeda, 'estado': configuracao.estado})
+        return JsonResponse({'ok': True, 'configuracao_financeira': _financeiro_config_payload(centro, configuracao)})
     inscricoes = Inscricao.objects.filter(curso__centro=centro, valor_pago__gt=0).select_related('curso', 'aluno')
     if filial:
         inscricoes = inscricoes.filter(curso__filiais=filial)
@@ -5407,7 +5463,7 @@ def react_gestor_finance(request):
             valor = Inscricao.objects.filter(curso__filiais=branch, valor_pago__gt=0).aggregate(total=Sum('valor_pago'))['total'] or 0
             presencial = RecebimentoCentro.objects.filter(centro=centro, estado='CONFIRMADO', matricula__turma__filial=branch).aggregate(total=Sum('valor'))['total'] or 0
             por_filial.append({'id': branch.id, 'nome': branch.nome, 'valor': str(valor + presencial)})
-    return JsonResponse({'metricas': {'plataforma': str(total_plataforma), 'presencial': str(total_presencial), 'total': str(total_plataforma + total_presencial), 'quantidade_movimentos': inscricoes.count() + recebimentos.count()}, 'movimentos': movimentos[:50], 'por_filial': por_filial})
+    return JsonResponse({'metricas': {'plataforma': str(total_plataforma), 'presencial': str(total_presencial), 'total': str(total_plataforma + total_presencial), 'quantidade_movimentos': inscricoes.count() + recebimentos.count()}, 'movimentos': movimentos[:50], 'por_filial': por_filial, 'configuracao_financeira': _financeiro_config_payload(centro, configuracao)})
 
 
 def _react_message_payload(mensagem):

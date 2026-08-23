@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinLengthValidator
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.conf import settings
 import uuid
@@ -238,6 +239,75 @@ class CentroDeFormacao(gis_models.Model):
     class Meta:
         verbose_name = _('Centro de Formação')
         verbose_name_plural = _('Centros de Formação')
+
+
+class ConfiguracaoFinanceiraCentro(models.Model):
+    """Define a moeda comercial do centro sem activar cobrança sem validação Edukangola."""
+
+    MOEDA_CHOICES = [
+        ('AOA', _('Kwanza (AOA)')),
+        ('EUR', _('Euro (EUR)')),
+        ('USD', _('Dólar norte-americano (USD)')),
+        ('MZN', _('Metical moçambicano (MZN)')),
+        ('XOF', _('Franco CFA da África Ocidental (XOF)')),
+        ('CVE', _('Escudo cabo-verdiano (CVE)')),
+        ('BRL', _('Real brasileiro (BRL)')),
+        ('STN', _('Dobra são-tomense (STN)')),
+    ]
+    GATEWAY_CHOICES = [
+        ('PRONTU', _('Prontu')),
+        ('PENDENTE', _('A definir pela Edukangola')),
+    ]
+    STATUS_CHOICES = [
+        ('PENDENTE_VALIDACAO', _('A aguardar validação da Edukangola')),
+        ('ACTIVA', _('Activa para cobrança')),
+        ('SUSPENSA', _('Suspensa')),
+    ]
+    MOEDA_POR_PAIS = {
+        'AO': 'AOA', 'PT': 'EUR', 'BR': 'BRL', 'CV': 'CVE',
+        'MZ': 'MZN', 'ST': 'STN', 'GW': 'XOF', 'TL': 'USD',
+    }
+
+    centro = models.OneToOneField(CentroDeFormacao, on_delete=models.CASCADE, related_name='configuracao_financeira')
+    moeda_apresentacao = models.CharField(_('Moeda apresentada ao aluno'), max_length=3, choices=MOEDA_CHOICES)
+    moeda_cobranca = models.CharField(_('Moeda efectiva de cobrança'), max_length=3, choices=MOEDA_CHOICES)
+    gateway = models.CharField(_('Gateway de cobrança'), max_length=20, choices=GATEWAY_CHOICES, default='PENDENTE')
+    estado = models.CharField(_('Estado de activação'), max_length=24, choices=STATUS_CHOICES, default='PENDENTE_VALIDACAO', db_index=True)
+    validado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='configuracoes_financeiras_validadas')
+    validado_em = models.DateTimeField(null=True, blank=True)
+    observacao_validacao = models.CharField(_('Observação da Edukangola'), max_length=300, blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('Configuração financeira do centro')
+        verbose_name_plural = _('Configurações financeiras dos centros')
+
+    @classmethod
+    def moeda_padrao_para_pais(cls, pais):
+        return cls.MOEDA_POR_PAIS.get(pais, 'AOA')
+
+    @property
+    def conta_de_liquidacao_configurada(self):
+        return bool(self.centro.banco_nome and self.centro.banco_iban and self.centro.banco_titular)
+
+    @property
+    def esta_activa_para_cobranca(self):
+        return self.estado == 'ACTIVA' and self.gateway != 'PENDENTE' and self.conta_de_liquidacao_configurada
+
+    def clean(self):
+        esperada = self.moeda_padrao_para_pais(self.centro.pais)
+        if self.moeda_apresentacao != esperada or self.moeda_cobranca != esperada:
+            raise ValidationError({'moeda_cobranca': _('A moeda seleccionada deve corresponder ao país de operação do centro.')})
+        if self.estado == 'ACTIVA' and not self.conta_de_liquidacao_configurada:
+            raise ValidationError(_('A conta de liquidação do centro deve estar completa antes da activação.'))
+        if self.estado == 'ACTIVA' and self.gateway == 'PENDENTE':
+            raise ValidationError({'gateway': _('Seleccione um gateway validado antes de activar a cobrança.')})
+        if self.estado == 'ACTIVA' and self.centro.pais != 'AO':
+            raise ValidationError(_('Ainda não existe um gateway internacional validado para este mercado.'))
+
+    def __str__(self):
+        return f'{self.centro.nome} — {self.moeda_cobranca} ({self.get_estado_display()})'
 
 
 class CentroSeguimento(models.Model):

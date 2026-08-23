@@ -25,6 +25,7 @@ import "./manager-course-catalog.css";
 import "./manager-session-control.css";
 import "./manager-navigation-icons.css";
 import "./manager-message-notice.css";
+import "./manager-finance-settings.css";
 
 const money = new Intl.NumberFormat("pt-AO", { maximumFractionDigits: 0 });
 
@@ -38,7 +39,7 @@ const navigation = [
   { key: "filiais", label: "Filiais", href: "/gestoreduka/filiais/", icon: Building2 },
   { key: "eventos", label: "Eventos", href: "/gestoreduka/eventos/", icon: CalendarDays },
   { key: "estagios", label: "Estágios", href: "/gestoreduka/estagios/", icon: BriefcaseBusiness },
-  { key: "financeiro", label: "Financeiro", href: "/gestoreduka/financeiro/", icon: Landmark },
+  { key: "financeiro", label: "Financeiro e moeda", href: "/gestoreduka/financeiro/", icon: Landmark },
   { key: "analytics", label: "Analytics", href: "/gestoreduka/analytics/", icon: BarChart3 },
   { key: "mensagens", label: "Mensagens", href: "/gestoreduka/mensagens/", icon: MessageCircle },
   { key: "comunicados", label: "Comunicados", href: "/gestoreduka/comunicados/", icon: Megaphone },
@@ -58,7 +59,7 @@ const pageMeta = {
   filiais: { eyebrow: "Expansão do centro", title: "Filiais", copy: "Gira os locais de formação e os cursos associados a cada filial." },
   eventos: { eyebrow: "Agenda do centro", title: "Eventos", copy: "Publique eventos e mantenha a agenda institucional actualizada." },
   estagios: { eyebrow: "Empregabilidade", title: "Estágios", copy: "Divulgue vagas e oportunidades relevantes para os seus alunos." },
-  financeiro: { eyebrow: "Acompanhamento financeiro", title: "Receitas e movimentos", copy: "Consulte pagamentos, comissão da plataforma e movimentos confirmados." },
+  financeiro: { eyebrow: "Acompanhamento financeiro", title: "Receitas, movimentos e moeda", copy: "Consulte movimentos e prepare a moeda de cobrança com validação da Edukangola." },
   analytics: { eyebrow: "Desempenho do centro", title: "Analytics", copy: "Leia os indicadores que ajudam a orientar a actividade do centro." },
   mensagens: { eyebrow: "Atendimento", title: "Mensagens", copy: "Converse com alunos e acompanhe os pedidos activos." },
   comunicados: { eyebrow: "Comunicação", title: "Comunicados", copy: "Informe os seguidores do centro sobre novidades e actividades." },
