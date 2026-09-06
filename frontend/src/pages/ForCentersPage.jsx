@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, BarChart3, Building2, CheckCircle2, MailCheck, ShieldCheck, Sparkles, UsersRound } from "lucide-react";
 import { useI18n } from "../lib/i18n";
+import "./for-centers-page.css";
 
 const copy = {
   pt: {
