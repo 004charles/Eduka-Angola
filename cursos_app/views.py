@@ -751,7 +751,7 @@ def gestao_inscricoes(request, curso_id):
     
     try:
         curso = get_object_or_404(Curso, id=curso_id, centro_id=centro_id)
-        inscricoes = curso.inscricoes.select_related('aluno').all().order_by('-data_inscricao')
+        inscricoes = curso.inscricoes.select_related('aluno__usuario', 'turma_escolhida', 'curso').all().order_by('-data_inscricao')
         
         # Filtros
         status_filter = request.GET.get('status')
