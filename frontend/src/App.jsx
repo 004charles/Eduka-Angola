@@ -1,51 +1,57 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import PublicLayout from "./components/PublicLayout";
 import LoadingScreen from "./components/LoadingScreen";
-import HomePage from "./pages/HomePage";
-import CoursesPage from "./pages/CoursesPage";
-import CourseDetailPage from "./pages/CourseDetailPage";
-import CourseComparisonPage from "./pages/CourseComparisonPage";
-import VideoCourseDetailPage from "./pages/VideoCourseDetailPage";
-import CentersPage from "./pages/CentersPage";
-import HowItWorksPage from "./pages/HowItWorksPage";
-import AboutPage from "./pages/AboutPage";
-import AuthPage from "./pages/AuthPage";
-import CheckoutPage from "./pages/CheckoutPage";
-import StudentDashboardPage from "./pages/StudentDashboardPage";
-import StudentHistoryPage from "./pages/StudentHistoryPage";
-import StudentPreferencesPage from "./pages/StudentPreferencesPage";
-import StudentSettingsPage from "./pages/StudentSettingsPage";
-import MyTicketsPage from "./pages/MyTicketsPage";
-import StudentCertificatesPage from "./pages/StudentCertificatesPage";
-import StudentMessagesPage from "./pages/StudentMessagesPage";
-import CertificateVerifyPage from "./pages/CertificateVerifyPage";
-import VideoCoursesPage from "./pages/VideoCoursesPage";
-import CenterProfilePage from "./pages/CenterProfilePage";
-import ForCentersPage from "./pages/ForCentersPage";
-import BlogPage from "./pages/BlogPage";
-import BlogPostPage from "./pages/BlogPostPage";
-import VideoLearningPage from "./pages/VideoLearningPage";
-import PaymentResultPage from "./pages/PaymentResultPage";
-import EventsPage from "./pages/EventsPage";
-import EventDetailPage from "./pages/EventDetailPage";
-import EventTicketsPage from "./pages/EventTicketsPage";
-import LibraryPage from "./pages/LibraryPage";
-import BookDetailPage from "./pages/BookDetailPage";
-import BookReaderPage from "./pages/BookReaderPage";
-import MarketplacePage from "./pages/MarketplacePage";
-import MarketProductPage from "./pages/MarketProductPage";
-import MarketOrdersPage from "./pages/MarketOrdersPage";
-import FAQPage from "./pages/FAQPage";
-import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
-import ScholarshipsPage from "./pages/ScholarshipsPage";
-import { SchoolsPage, SchoolProfilePage } from "./pages/SchoolsPages";
-import { InternshipsPage, InternshipDetailPage } from "./pages/InternshipsPages";
-import AdminConsolePage from "./pages/AdminConsolePage";
-import AdminOperationsPage from "./pages/AdminOperationsPage";
-import ManagerPortalPage from "./pages/ManagerPortalPage";
-import NotFoundPage from "./pages/NotFoundPage";
 import { getStudentSession, logoutStudent } from "./lib/auth-api";
 import { I18nProvider, LANGUAGES } from "./lib/i18n";
+
+// ── Lazy-loaded pages (each becomes its own JS chunk) ──────────────────────
+const HomePage               = lazy(() => import("./pages/HomePage"));
+const CoursesPage            = lazy(() => import("./pages/CoursesPage"));
+const CourseDetailPage       = lazy(() => import("./pages/CourseDetailPage"));
+const CourseComparisonPage   = lazy(() => import("./pages/CourseComparisonPage"));
+const VideoCourseDetailPage  = lazy(() => import("./pages/VideoCourseDetailPage"));
+const CentersPage            = lazy(() => import("./pages/CentersPage"));
+const HowItWorksPage         = lazy(() => import("./pages/HowItWorksPage"));
+const AboutPage              = lazy(() => import("./pages/AboutPage"));
+const AuthPage               = lazy(() => import("./pages/AuthPage"));
+const CheckoutPage           = lazy(() => import("./pages/CheckoutPage"));
+const StudentDashboardPage   = lazy(() => import("./pages/StudentDashboardPage"));
+const StudentHistoryPage     = lazy(() => import("./pages/StudentHistoryPage"));
+const StudentPreferencesPage = lazy(() => import("./pages/StudentPreferencesPage"));
+const StudentSettingsPage    = lazy(() => import("./pages/StudentSettingsPage"));
+const MyTicketsPage          = lazy(() => import("./pages/MyTicketsPage"));
+const StudentCertificatesPage= lazy(() => import("./pages/StudentCertificatesPage"));
+const StudentMessagesPage    = lazy(() => import("./pages/StudentMessagesPage"));
+const CertificateVerifyPage  = lazy(() => import("./pages/CertificateVerifyPage"));
+const VideoCoursesPage       = lazy(() => import("./pages/VideoCoursesPage"));
+const CenterProfilePage      = lazy(() => import("./pages/CenterProfilePage"));
+const ForCentersPage         = lazy(() => import("./pages/ForCentersPage"));
+const BlogPage               = lazy(() => import("./pages/BlogPage"));
+const BlogPostPage           = lazy(() => import("./pages/BlogPostPage"));
+const VideoLearningPage      = lazy(() => import("./pages/VideoLearningPage"));
+const PaymentResultPage      = lazy(() => import("./pages/PaymentResultPage"));
+const EventsPage             = lazy(() => import("./pages/EventsPage"));
+const EventDetailPage        = lazy(() => import("./pages/EventDetailPage"));
+const EventTicketsPage       = lazy(() => import("./pages/EventTicketsPage"));
+const LibraryPage            = lazy(() => import("./pages/LibraryPage"));
+const BookDetailPage         = lazy(() => import("./pages/BookDetailPage"));
+const BookReaderPage         = lazy(() => import("./pages/BookReaderPage"));
+const MarketplacePage        = lazy(() => import("./pages/MarketplacePage"));
+const MarketProductPage      = lazy(() => import("./pages/MarketProductPage"));
+const MarketOrdersPage       = lazy(() => import("./pages/MarketOrdersPage"));
+const FAQPage                = lazy(() => import("./pages/FAQPage"));
+const PrivacyPolicyPage      = lazy(() => import("./pages/PrivacyPolicyPage"));
+const ScholarshipsPage       = lazy(() => import("./pages/ScholarshipsPage"));
+const NotFoundPage           = lazy(() => import("./pages/NotFoundPage"));
+const AdminConsolePage       = lazy(() => import("./pages/AdminConsolePage"));
+const AdminOperationsPage    = lazy(() => import("./pages/AdminOperationsPage"));
+const ManagerPortalPage      = lazy(() => import("./pages/ManagerPortalPage"));
+
+// Named exports with multiple components need a wrapper
+const SchoolsPage       = lazy(() => import("./pages/SchoolsPages").then((m) => ({ default: m.SchoolsPage })));
+const SchoolProfilePage = lazy(() => import("./pages/SchoolsPages").then((m) => ({ default: m.SchoolProfilePage })));
+const InternshipsPage      = lazy(() => import("./pages/InternshipsPages").then((m) => ({ default: m.InternshipsPage })));
+const InternshipDetailPage = lazy(() => import("./pages/InternshipsPages").then((m) => ({ default: m.InternshipDetailPage })));
 
 function getRoute() { return `${window.location.pathname}${window.location.search}`; }
 
@@ -223,7 +229,7 @@ function App() {
   else if (pathname === "/sobre" || pathname === "/sobre-a-edukangola") page = <AboutPage data={homeData} student={student} onNavigate={navigate} />;
   else page = <NotFoundPage onNavigate={navigate} />;
 
-  return <I18nProvider language={language} onLanguageChange={setLanguage}><PublicLayout suggestions={[...(homeData?.cursos || []), ...(homeData?.video_cursos || []), ...(homeData?.centros_destaque || []).map((center) => ({ ...center, tipo_pesquisa: "center" }))]} publicModules={publicModules} student={student} theme={theme} language={language} path={pathname} onThemeChange={() => setTheme(theme === "light" ? "dark" : "light")} onLanguageChange={setLanguage} onNavigate={navigate} onLogout={handleLogout}>{page}{notice && <div className="notice" role="status">{notice}</div>}</PublicLayout></I18nProvider>;
+  return <I18nProvider language={language} onLanguageChange={setLanguage}><PublicLayout suggestions={[...(homeData?.cursos || []), ...(homeData?.video_cursos || []), ...(homeData?.centros_destaque || []).map((center) => ({ ...center, tipo_pesquisa: "center" }))]} publicModules={publicModules} student={student} theme={theme} language={language} path={pathname} onThemeChange={() => setTheme(theme === "light" ? "dark" : "light")} onLanguageChange={setLanguage} onNavigate={navigate} onLogout={handleLogout}><Suspense fallback={<LoadingScreen theme={theme} />}>{page}</Suspense>{notice && <div className="notice" role="status">{notice}</div>}</PublicLayout></I18nProvider>;
 }
 
 export default App;

@@ -3,6 +3,21 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      output: {
+        // Put all third-party packages in a long-cached vendor chunk.
+        // Route-level code is already split by React.lazy() in App.jsx.
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            return "vendor";
+          }
+        },
+      },
+    },
+    // Raise the warning threshold slightly — vendor chunk is expected to be large
+    chunkSizeWarningLimit: 600,
+  },
   server: {
     host: "0.0.0.0",
     allowedHosts: true,
