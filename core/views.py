@@ -302,7 +302,27 @@ def react_student_favorites(request):
     if not aluno:
         return JsonResponse({'detail': 'Perfil de aluno não encontrado.'}, status=404)
     favoritos = Favorito.objects.filter(aluno=aluno, curso__publicado=True, curso__ativo=True).select_related('curso__categoria', 'curso__centro').order_by('-id')
-    return JsonResponse({'ok': True, 'favorito_ids': list(favoritos.values_list('curso_id', flat=True)), 'cursos': [_serializar_curso_favorito(item.curso) for item in favoritos]})
+    favoritos_video = FavoritoCursoVideo.objects.filter(aluno=aluno).select_related('curso__categoria', 'curso__centro').order_by('-id')
+    
+    favorito_ids = list(favoritos.values_list('curso_id', flat=True)) + [f.curso_id for f in favoritos_video]
+    
+    cursos = [_serializar_curso_favorito(item.curso) for item in favoritos]
+    for f in favoritos_video:
+        v = f.curso
+        cursos.append({
+            'id': v.id,
+            'titulo': v.titulo,
+            'categoria': v.categoria.nome if v.categoria else 'Sem categoria',
+            'centro': v.centro.nome if v.centro else 'Edukangola',
+            'imagem_url': v.get_imagem_url,
+            'preco_label': f'{v.preco:,.0f} Kz'.replace(',', ' ') if v.preco > 0 else 'Gratuito',
+            'is_gratuito': not v.is_pago,
+            'certificado': True,
+            'modalidade': 'Curso em vídeo',
+            'detalhe_url': f'/video-cursos/{v.slug}',
+            'is_video': True,
+        })
+    return JsonResponse({'ok': True, 'favorito_ids': favorito_ids, 'cursos': cursos})
 
 
 @require_POST
@@ -315,15 +335,30 @@ def react_student_favorite_toggle(request):
     try:
         payload = json.loads(request.body or '{}')
         curso_id = int(payload.get('curso_id'))
+        is_video = payload.get('is_video', False)
     except (TypeError, ValueError):
         return JsonResponse({'detail': 'Curso inválido.'}, status=400)
-    curso = Curso.objects.filter(id=curso_id, publicado=True, ativo=True).first()
-    if not curso:
-        return JsonResponse({'detail': 'Curso não encontrado ou indisponível.'}, status=404)
-    favorito, created = Favorito.objects.get_or_create(aluno=aluno, curso=curso)
-    if not created:
-        favorito.delete()
-    return JsonResponse({'ok': True, 'favorito': created, 'curso_id': curso.id, 'message': 'Curso guardado.' if created else 'Curso removido dos guardados.'})
+    
+    # 1. Tentar curso presencial se não especificado como vídeo
+    curso = None
+    if not is_video:
+        curso = Curso.objects.filter(id=curso_id).first()
+    
+    if curso:
+        favorito, created = Favorito.objects.get_or_create(aluno=aluno, curso=curso)
+        if not created:
+            favorito.delete()
+        return JsonResponse({'ok': True, 'favorito': created, 'curso_id': curso.id, 'is_video': False, 'message': 'Curso guardado.' if created else 'Curso removido dos guardados.'})
+
+    # 2. Tentar curso em vídeo se presencial não encontrado ou se especificado
+    curso_video = Curso_video.objects.filter(id=curso_id).first()
+    if curso_video:
+        favorito_video, created = FavoritoCursoVideo.objects.get_or_create(aluno=aluno, curso=curso_video)
+        if not created:
+            favorito_video.delete()
+        return JsonResponse({'ok': True, 'favorito': created, 'curso_id': curso_video.id, 'is_video': True, 'message': 'Curso em vídeo guardado.' if created else 'Curso removido dos guardados.'})
+
+    return JsonResponse({'detail': 'Curso não encontrado ou indisponível.'}, status=404)
 
 
 @ensure_csrf_cookie

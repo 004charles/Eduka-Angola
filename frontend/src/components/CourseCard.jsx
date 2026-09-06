@@ -112,7 +112,7 @@ export default function CourseCard({ course, onSave, onCompare, compared = false
     const token = document.cookie.split(";").map((item) => item.trim()).find((item) => item.startsWith("csrftoken="))?.split("=").slice(1).join("=") || "";
     setSavingFavorite(true);
     try {
-      const response = await fetch(backendUrl("/auth/api/react/aluno/favoritos/alternar/"), { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", Accept: "application/json", "X-CSRFToken": token }, body: JSON.stringify({ curso_id: course.id }) });
+      const response = await fetch(backendUrl("/auth/api/react/aluno/favoritos/alternar/"), { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", Accept: "application/json", "X-CSRFToken": token }, body: JSON.stringify({ curso_id: course.id, is_video: temVideo }) });
       const data = await response.json().catch(() => ({}));
       if (response.status === 401) { onSave?.("AUTH_REQUIRED"); return; }
       if (!response.ok) throw new Error(data.detail || "Não foi possível guardar o curso.");
