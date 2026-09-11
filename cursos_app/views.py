@@ -890,22 +890,20 @@ def adicionar_favorito(request, curso_id):
 
 def curso_detalhe(request, id):
     user_auth = request.user.is_authenticated
-    aluno_logado = user_auth # Se estiver logado, já não deve mostrar "faça login"
+    aluno_logado = user_auth
     aluno_nome = None
     aluno_inscricao = None
     aluno_obj = None
     
     if user_auth:
         aluno_nome = request.user.nome
-        if request.user.tipo_usuario == 'ALUNO':
-            try:
-                aluno_obj = request.user.aluno_profile
-                aluno_inscricao = aluno_obj.inscricoes.filter(curso_id=id).first()
-            except AttributeError:
-                pass
-        elif request.user.is_staff:
-            # Staff/Admin can also see/test things
-            aluno_logado = True
+        try:
+            aluno_obj = request.user.aluno_profile
+            aluno_inscricao = aluno_obj.inscricoes.filter(curso_id=id).first()
+        except (AttributeError, Usuario.DoesNotExist):
+            pass
+        if not aluno_inscricao and request.user.tipo_usuario == 'ALUNO':
+            aluno_inscricao = None
     
     curso = get_object_or_404(
         Curso.objects.select_related('centro')

@@ -294,7 +294,7 @@ def api_auth_aluno_resumo(request):
 
     return JsonResponse({
         'ok': True,
-        'aluno': {'nome': aluno.nome or request.user.nome or request.user.email.split('@')[0], 'email': request.user.email},
+        'aluno': {'nome': aluno.nome or request.user.nome or request.user.email.split('@')[0], 'email': request.user.email, 'telefone': getattr(getattr(aluno, 'perfil', None), 'telefone', '') or ''},
         'resumo': {
             'cursos_ativos': len(ativos),
             'inscricoes_pendentes': len(pendentes),

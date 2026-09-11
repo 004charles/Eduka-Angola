@@ -202,8 +202,8 @@ function App() {
   else if (pathname === "/aluno/mensagens") page = <StudentMessagesPage centerId={Number(searchParams.get("centro")) || null} conversationId={Number(searchParams.get("conversa")) || null} onNavigate={navigate} />;
   else if (pathname === "/pagamento/sucesso" || pathname === "/pagamento/sucesso/") page = <PaymentResultPage onNavigate={navigate} />;
   else if (pathname === "/pagamento/cancelado" || pathname === "/pagamento/cancelado/") page = <PaymentResultPage onNavigate={navigate} />;
-  else if (checkoutCourseRouteMatch) page = <CheckoutPage kind="presencial" course={checkoutCourse} turmas={homeData?.turmas_abertas || []} onNavigate={navigate} />;
-  else if (checkoutVideoRouteMatch) page = <CheckoutPage kind="video" slug={decodeURIComponent(checkoutVideoRouteMatch[1])} onNavigate={navigate} />;
+  else if (checkoutCourseRouteMatch) page = <CheckoutPage kind="presencial" course={checkoutCourse} turmas={homeData?.turmas_abertas || []} student={student} onNavigate={navigate} />;
+  else if (checkoutVideoRouteMatch) page = <CheckoutPage kind="video" slug={decodeURIComponent(checkoutVideoRouteMatch[1])} student={student} onNavigate={navigate} />;
   else if (centerRouteMatch) page = <CenterProfilePage centerId={Number(centerRouteMatch[1])} onNavigate={navigate} />;
   else if (eventRouteMatch) page = <EventDetailPage slug={decodeURIComponent(eventRouteMatch[1])} student={student} onNavigate={navigate} onAnnounce={announce} />;
   else if (pathname === "/eventos" || pathname === "/eventos/" || pathname === "/eventosv" || pathname === "/eventosv/") page = <EventTicketsPage student={student} onNavigate={navigate} onAnnounce={announce} />;

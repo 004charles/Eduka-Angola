@@ -587,6 +587,11 @@
                                                     {% endif %}
                                                 </span>
                                             </button>
+                                        {% elif user.is_authenticated %}
+                                            <a class="rbt-btn btn-gradient icon-hover w-100 d-block text-center" href="{% url 'painel_curso' curso.id %}">
+                                                <span class="btn-text">{% trans "Ir para o Painel" %}</span>
+                                                <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                                            </a>
                                         {% else %}
                                             <a class="rbt-btn btn-gradient icon-hover w-100 d-block text-center" href="{% url 'ficha_inscricao' curso.id %}">
                                                 <span class="btn-text">{% trans "Inscrever-se Agora" %}</span>
