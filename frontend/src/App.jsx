@@ -208,6 +208,8 @@ function App() {
   else if (eventRouteMatch) page = <EventDetailPage slug={decodeURIComponent(eventRouteMatch[1])} student={student} onNavigate={navigate} onAnnounce={announce} />;
   else if (pathname === "/eventos" || pathname === "/eventos/" || pathname === "/eventosv" || pathname === "/eventosv/") page = <EventTicketsPage student={student} onNavigate={navigate} onAnnounce={announce} />;
   else if (libraryReaderRouteMatch) page = <BookReaderPage slug={decodeURIComponent(libraryReaderRouteMatch[1])} student={student} onNavigate={navigate} onAnnounce={announce} />;
+  else if (pathname === "/gestao-eventos" || pathname === "/gestao-eventos/") page = <GestaoEventosPage onNavigate={navigate} />
+  else if (pathname === "/gestao-eventos" || pathname === "/gestao-eventos/") page = <GestaoEventosPage onNavigate={navigate} />
   else if (libraryBookRouteMatch) page = <BookDetailPage slug={decodeURIComponent(libraryBookRouteMatch[1])} student={student} onNavigate={navigate} onAnnounce={announce} />;
   else if (pathname === "/biblioteca" || pathname === "/biblioteca/") page = <LibraryPage onNavigate={navigate} />;
   else if (pathname === "/bolsas" || pathname === "/bolsas/") page = publicModules.some((module) => module.chave === "BOLSAS") ? <ScholarshipsPage student={student} onNavigate={navigate} /> : (publicModulesLoading ? <LoadingScreen theme={theme} /> : <NotFoundPage onNavigate={navigate} />);
