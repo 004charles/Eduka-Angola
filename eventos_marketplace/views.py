@@ -172,9 +172,10 @@ def criar_pedido_bilhete(request):
     except Exception:
         return JsonResponse({"sucesso": False, "erro": "Não foi possível iniciar o pagamento do bilhete."}, status=500)
 
-@login_required
 @require_GET
 def meus_bilhetes(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'erro': 'Autenticação necessária.'}, status=401)
     pedidos = PedidoBilhete.objects.filter(
         utilizador=request.user,
         status='PAGO',

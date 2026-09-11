@@ -29,7 +29,14 @@ class Curso_video(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.titulo)
+            base_slug = slugify(self.titulo)
+            slug = base_slug
+            counter = 1
+            # HIGH-22 FIX: Garantir unicidade do slug
+            while Curso_video.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
         super().save(*args, **kwargs)
 
     def total_inscritos(self):

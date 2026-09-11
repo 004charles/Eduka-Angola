@@ -130,22 +130,37 @@ class AlunoViewSet(viewsets.GenericViewSet):
 
     @action(detail=False, methods=['post'], url_path='esqueci-senha')
     def esqueci_senha(self, request):
+        from django.core.cache import cache as _cache
+        
+        # Rate limiting: 3 tentativas por minuto por IP
+        ip = request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0].strip() or request.META.get('REMOTE_ADDR', '')
+        rl_key = f"ratelimit:esqueci_senha:{ip}"
+        if _cache.get(rl_key, 0) >= 3:
+            return Response(
+                {'error': 'Demasiadas tentativas. Aguarde alguns minutos.'},
+                status=status.HTTP_429_TOO_MANY_REQUESTS
+            )
+        _cache.set(rl_key, _cache.get(rl_key, 0) + 1, 60)
+        
         email = request.data.get('email', '').strip()
         if not email:
             return Response({'error': 'E-mail é obrigatório.'}, status=status.HTTP_400_BAD_REQUEST)
             
+        # Resposta genérica sempre (sem enumeração de email)
         if Aluno.objects.filter(usuario__email=email).exists():
             from .views import enviar_codigo_verificacao
             try:
                 enviar_codigo_verificacao(email, 'RECUPERACAO')
             except Exception:
                 pass
-            return Response({'success': True, 'message': 'Código de recuperação enviado para o seu e-mail.'})
-        else:
-            return Response({'error': 'E-mail não encontrado.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({'success': True, 'message': 'Se existir uma conta com este e-mail, enviámos um código de recuperação.'})
 
     @action(detail=False, methods=['post'], url_path='redefinir-senha')
     def redefinir_senha(self, request):
+        from django.utils import timezone
+        from datetime import timedelta
+        
         email = request.data.get('email', '').strip()
         codigo = request.data.get('codigo', '').strip()
         nova_senha = request.data.get('senha', '').strip()
@@ -156,16 +171,39 @@ class AlunoViewSet(viewsets.GenericViewSet):
             
         if nova_senha != confirmar_senha:
             return Response({'error': 'As senhas não coincidem.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if len(nova_senha) < 8:
+            return Response({'error': 'A senha deve ter pelo menos 8 caracteres.'}, status=status.HTTP_400_BAD_REQUEST)
             
         try:
             from .models import CodigoVerificacao, Usuario
-            verificacao = CodigoVerificacao.objects.filter(email=email, codigo=codigo, tipo='RECUPERACAO').latest('criado_em')
+            
+            # CRIT-13 FIX: Verificar expiração do código (janela de 10 minutos)
+            verificacao = CodigoVerificacao.objects.filter(
+                email=email,
+                codigo=codigo,
+                tipo='RECUPERACAO',
+                criado_em__gte=timezone.now() - timedelta(minutes=10),
+            ).order_by('-criado_em').first()
+            
+            if not verificacao:
+                # Verificar se o código existe mas expirou
+                codigo_expirado = CodigoVerificacao.objects.filter(
+                    email=email, codigo=codigo, tipo='RECUPERACAO'
+                ).exists()
+                if codigo_expirado:
+                    return Response({'error': 'Código expirado. Solicite um novo código.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'Código inválido.'}, status=status.HTTP_400_BAD_REQUEST)
+            
             usuario = Usuario.objects.get(email=email)
             usuario.set_password(nova_senha)
             usuario.save()
             
-            CodigoVerificacao.objects.filter(email=email).delete()
+            # Limpar todos os códigos de recuperação deste email
+            CodigoVerificacao.objects.filter(email=email, tipo='RECUPERACAO').delete()
             return Response({'success': True, 'message': 'Senha redefinida com sucesso!'})
         except CodigoVerificacao.DoesNotExist:
             return Response({'error': 'Código inválido.'}, status=status.HTTP_400_BAD_REQUEST)
+        except Usuario.DoesNotExist:
+            return Response({'error': 'Usuário não encontrado.'}, status=status.HTTP_400_BAD_REQUEST)
 

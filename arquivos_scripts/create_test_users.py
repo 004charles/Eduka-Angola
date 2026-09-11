@@ -22,7 +22,7 @@ admin, created = Usuario.objects.get_or_create(
 if created:
     admin.set_password('admin123')
     admin.save()
-    print(f"✓ Superusuário criado: {admin.email} / admin123")
+    print(f"✓ Superusuário criado: {admin.email}")
 else:
     print(f"✓ Superusuário já existe: {admin.email}")
 
@@ -46,7 +46,7 @@ if created:
         nome='João Silva',
         ativo=True
     )
-    print(f"✓ Aluno criado: {aluno_user.email} / senha123")
+    print(f"✓ Aluno criado: {aluno_user.email}")
 else:
     print(f"✓ Aluno já existe: {aluno_user.email}")
 
@@ -73,7 +73,7 @@ if created:
         provincia='Luanda',
         ativo=True
     )
-    print(f"✓ Gestor criado: {gestor_user.email} / senha123")
+    print(f"✓ Gestor criado: {gestor_user.email}")
     print(f"✓ Centro criado: {centro.nome}")
 else:
     print(f"✓ Gestor já existe: {gestor_user.email}")
@@ -81,7 +81,8 @@ else:
 print("\n" + "="*50)
 print("RESUMO DOS USUÁRIOS DE TESTE:")
 print("="*50)
-print(f"Admin:  admin@eduka.com / admin123")
-print(f"Aluno:  aluno@teste.com / senha123")
-print(f"Gestor: gestor@teste.com / senha123")
+print(f"Admin:  admin@eduka.com")
+print(f"Aluno:  aluno@teste.com")
+print(f"Gestor: gestor@teste.com")
+print("Senhas definidas nos scripts (verificar código-fonte)")
 print("="*50)

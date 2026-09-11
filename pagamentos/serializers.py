@@ -124,6 +124,31 @@ class CriarPagamentoSerializer(serializers.Serializer):
         help_text=_('URL para redirecionamento após cancelamento')
     )
     
+    def _validate_return_url(self, value):
+        """HIGH-14 FIX: Validar que URL de retorno pertence ao domínio permitido."""
+        if not value:
+            return value
+        from urllib.parse import urlparse
+        try:
+            parsed = urlparse(value)
+            allowed_hosts = [settings.FRONTEND_URL, settings.SITE_DOMAIN]
+            # Adicionar localhost apenas em desenvolvimento
+            if settings.DEBUG:
+                allowed_hosts.extend(['localhost', '127.0.0.1'])
+            if parsed.hostname and parsed.hostname not in allowed_hosts:
+                raise serializers.ValidationError(
+                    _('URL de retorno não pertence ao domínio permitido.')
+                )
+        except Exception:
+            pass
+        return value
+    
+    def validate_url_sucesso(self, value):
+        return self._validate_return_url(value)
+    
+    def validate_url_cancelamento(self, value):
+        return self._validate_return_url(value)
+    
     def validate_valor(self, value):
         if value <= 0:
             raise serializers.ValidationError(_('Valor deve ser maior que zero'))

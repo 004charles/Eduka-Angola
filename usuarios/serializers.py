@@ -34,7 +34,7 @@ class AlunoSerializer(serializers.ModelSerializer):
 class AlunoRegisterSerializer(serializers.Serializer):
     nome = serializers.CharField(max_length=100)
     email = serializers.EmailField()
-    password = serializers.CharField(write_only=True, min_length=6)
+    password = serializers.CharField(write_only=True, min_length=8)
 
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():

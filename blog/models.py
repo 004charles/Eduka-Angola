@@ -2,6 +2,7 @@ from django.db import models
 from usuarios.models import Usuario
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from core.upload_validators import validate_image_file
 
 
 class Categoria(models.Model):
@@ -54,7 +55,10 @@ class Post(models.Model):
         blank=True,
         help_text="Breve descrição que aparecerá nas listagens"
     )
-    imagem_capa = models.ImageField(_('Imagem de Capa'), upload_to='posts/capas/', blank=True, null=True)
+    imagem_capa = models.ImageField(
+        _('Imagem de Capa'), upload_to='posts/capas/', blank=True, null=True,
+        validators=[validate_image_file]
+    )
     tipo_conteudo = models.CharField(_('Tipo de conteúdo'), max_length=12, choices=TIPO_CONTEUDO_CHOICES, default='artigo')
     video_url = models.URLField(_('URL do vídeo'), blank=True, help_text='URL pública do vídeo, por exemplo YouTube ou Vimeo.')
     duracao_video = models.CharField(_('Duração do vídeo'), max_length=20, blank=True)

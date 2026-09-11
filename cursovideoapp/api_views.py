@@ -25,9 +25,37 @@ class ExercicioViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ExercicioSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def _check_enrollment(self, exercicio):
+        """Verifica se o aluno está inscrito no curso ao qual o exercício pertence."""
+        try:
+            aula = exercicio.aula
+            curso = aula.curso
+            aluno = self.request.user.aluno_profile
+            if not curso.aluno_tem_acesso(aluno):
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied('Precisa estar inscrito neste curso para aceder aos exercícios.')
+        except AttributeError:
+            pass
+
+    def get_object(self):
+        obj = super().get_object()
+        self._check_enrollment(obj)
+        return obj
+
     @action(detail=True, methods=['post'])
     def submeter(self, request, pk=None):
         exercicio = self.get_object()
+        self._check_enrollment(exercicio)
+        
+        # MEDIUM-16 FIX: Limitar submissões (max 5 por exercício por hora)
+        from django.core.cache import cache
+        cache_key = f'exercicio_submit:{exercicio.pk}:{request.user.pk}'
+        submissions = cache.get(cache_key, 0)
+        if submissions >= 5:
+            from rest_framework.exceptions import Throttled
+            raise Throttled('Demasiadas submissões. Tente novamente mais tarde.')
+        cache.set(cache_key, submissions + 1, timeout=3600)
+        
         respostas = request.data.get('respostas', [])
         aluno = request.user.aluno_profile
         
@@ -63,6 +91,22 @@ class AulaViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Aula.objects.all()
     serializer_class = AulaSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def _check_enrollment(self, aula):
+        """Verifica se o aluno está inscrito no curso ao qual a aula pertence."""
+        try:
+            curso = aula.curso
+            aluno = self.request.user.aluno_profile
+            if not curso.aluno_tem_acesso(aluno):
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied('Precisa estar inscrito neste curso para aceder às aulas.')
+        except AttributeError:
+            pass
+
+    def get_object(self):
+        obj = super().get_object()
+        self._check_enrollment(obj)
+        return obj
 
     @action(detail=True, methods=['post'])
     def progresso(self, request, pk=None):

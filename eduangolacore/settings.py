@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'cloudinary',
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
 
     'usuarios',
@@ -130,6 +131,7 @@ SECURE_REFERRER_POLICY = "same-origin"
 SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default=IS_DEPLOYED_ENV, cast=bool)
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=IS_DEPLOYED_ENV, cast=bool)
+CSRF_COOKIE_HTTPONLY = True  # MEDIUM-05 FIX: Impedir acesso via JavaScript
 SESSION_COOKIE_DOMAIN = config("SESSION_COOKIE_DOMAIN", default=None) or None
 CSRF_COOKIE_DOMAIN = config("CSRF_COOKIE_DOMAIN", default=None) or None
 SESSION_COOKIE_SAMESITE = config("SESSION_COOKIE_SAMESITE", default="Lax")
@@ -394,17 +396,38 @@ REST_FRAMEWORK = {
         'core.authentication.ClienteAPIKeyAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
     'EXCEPTION_HANDLER': 'core.exceptions.custom_exception_handler',
 }
 
+# JWT Configuration — Access tokens curtos, refresh tokens com blacklist
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': __import__('datetime').timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': __import__('datetime').timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_OBTAIN_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenObtainPairSerializer',
+}
+
 _cors_origins = config("CORS_ALLOWED_ORIGINS", default="https://www.edukangola.com,https://edukangola.com" if IS_DEPLOYED_ENV else "")
 CORS_ALLOWED_ORIGINS = [origin.strip() for origin in _cors_origins.split(",") if origin.strip()]
 CORS_ALLOW_ALL_ORIGINS = not IS_DEPLOYED_ENV
 CORS_ALLOW_CREDENTIALS = config("CORS_ALLOW_CREDENTIALS", default=IS_DEPLOYED_ENV, cast=bool)
+
+# HIGH-24: Content Security Policy (CSP) básico
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://unpkg.com", "https://cdnjs.cloudflare.com")
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://unpkg.com", "https://fonts.googleapis.com")
+CSP_IMG_SRC = ("'self'", "data:", "blob:", "https://*.tile.openstreetmap.org", "https://cdnjs.cloudflare.com")
+CSP_FONT_SRC = ("'self'", "https://fonts.gstatic.com", "https://cdn.jsdelivr.net")
+CSP_CONNECT_SRC = ("'self'", "https://api.openstreetmap.org", "https://*.prontu.com")
+CSP_FRAME_SRC = ("'none'",)
+CSP_OBJECT_SRC = ("'none'",)
 
 # Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -465,6 +488,15 @@ PRONTU_EMAIL = config('PRONTU_EMAIL', default='')
 PRONTU_PASSWORD = config('PRONTU_PASSWORD', default='')
 PRONTU_ENV = config('PRONTU_ENV', default=0, cast=int)  # 0=Sandbox, 1=Production
 
+# Webhook Security — gerar PRONTU_WEBHOOK_SECRET com:
+# python -c "import secrets; print(secrets.token_hex(32))"
+PRONTU_WEBHOOK_SECRET = config('PRONTU_WEBHOOK_SECRET', default='')
+PRONTU_WEBHOOK_ALLOWED_IPS = [
+    ip.strip() for ip in
+    config('PRONTU_WEBHOOK_ALLOWED_IPS', default='').split(',')
+    if ip.strip()
+]
+
 
 # URLs de retorno do cliente
 FRONTEND_RETURN_URL = config('FRONTEND_RETURN_URL', default=f'{SITE_DOMAIN.rstrip("/")}/pagamento/sucesso/')
@@ -486,8 +518,8 @@ VALIDAR_WEBHOOK_SIGNATURE = config('VALIDAR_WEBHOOK_SIGNATURE', default='True', 
 # Email
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='nao-responda@edukangola.ao')
 
-# Site Domain (para URLs absolutas)
-SITE_DOMAIN = config('SITE_DOMAIN', default='http://localhost:8000')
+# Site Domain (para URLs absolutas) — definido uma única vez
+# NOTA: Não definir SITE_DOMAIN aqui novamente; o valor correto já está na linha ~142.
 
 # Force server reload check and print diagnostic message
 print("--- DJANGO WEB SERVER STARTING: LOCAL STORAGE ENFORCED IN DEV ---")

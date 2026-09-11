@@ -5078,6 +5078,16 @@ def react_gestor_enrollment_detail(request, inscricao_id):
         return JsonResponse({'detail': 'Indique um estado de inscrição válido.'}, status=400)
     if status == 'A' and inscricao.turma_escolhida and inscricao.turma_escolhida.vagas_disponiveis <= 0 and inscricao.status != 'A':
         return JsonResponse({'detail': 'A turma escolhida já não possui vagas disponíveis.'}, status=400)
+    
+    # HIGH-09 FIX: Validar que aprovação requer pagamento ou curso gratuito
+    if status == 'A' and inscricao.status != 'A':
+        curso = inscricao.curso
+        valor_curso = curso.valor_a_cobrar_presencial() if hasattr(curso, 'valor_a_cobrar_presencial') else 0
+        if valor_curso and valor_curso > 0 and (not inscricao.valor_pago or inscricao.valor_pago <= 0):
+            return JsonResponse({
+                'detail': 'Não é possível aprovar esta inscrição sem confirmação de pagamento.'
+            }, status=400)
+    
     estado_anterior = inscricao.status
     inscricao.status = status
     inscricao.save()
@@ -5122,6 +5132,17 @@ def react_gestor_manual_enrollment(request):
     forma, origem = str(payload.get('forma_pagamento', 'DINHEIRO')), str(payload.get('origem', 'PRESENCIAL'))
     if forma not in dict(Inscricao.FORMA_PAGAMENTO_CHOICES):
         return JsonResponse({'detail': 'Selecione uma forma de pagamento válida.'}, status=400)
+    
+    # HIGH-20 FIX: Validar que valor_pago não excede o preço do curso sem justificação
+    preco_curso = curso.preco_atual or 0
+    valor_final = valor - desconto
+    if valor_final < 0:
+        return JsonResponse({'detail': 'O valor final não pode ser negativo.'}, status=400)
+    if pago and valor_final > precoCurso * 2:
+        return JsonResponse({
+            'detail': 'O valor recebido excede muito o preço do curso. Verifique os valores.'
+        }, status=400)
+    
     try:
         from django.contrib.auth import get_user_model
         from django.db import transaction
@@ -5522,6 +5543,23 @@ def react_gestor_conversation_message(request, conversa_id):
         return JsonResponse({'detail': 'A mensagem não pode estar vazia.'}, status=400)
     if arquivo and arquivo.size > 10 * 1024 * 1024:
         return JsonResponse({'detail': 'O ficheiro anexo não pode ultrapassar 10 MB.'}, status=400)
+    
+    # Validar tipo de arquivo — bloquear executáveis, SVG, HTML
+    if arquivo:
+        from core.upload_validators import BLOCKED_EXTENSIONS
+        import os
+        ext = os.path.splitext(arquivo.name or '')[1].lower()
+        if ext in BLOCKED_EXTENSIONS:
+            return JsonResponse({'detail': f'Tipo de arquivo não permitido: {ext}'}, status=400)
+        # Verificar magic bytes
+        header = arquivo.read(512)
+        arquivo.seek(0)
+        header_lower = header.lower()
+        if b'<svg' in header_lower or b'<!doctype' in header_lower or b'<html' in header_lower:
+            return JsonResponse({'detail': 'Arquivo HTML/SVG não é permitido.'}, status=400)
+        if header[:2] == b'MZ' or header[:4] == b'\x7fELF':
+            return JsonResponse({'detail': 'Arquivo executável não é permitido.'}, status=400)
+    
     tipo = 'IMAGEM' if arquivo and str(arquivo.content_type or '').startswith('image/') else ('ARQUIVO' if arquivo else 'TEXTO')
     mensagem = Mensagem.objects.create(conversa=conversa, remetente_centro=centro, mensagem=texto, arquivo=arquivo, tipo=tipo)
     AuditoriaCentro.objects.create(centro=centro, utilizador=request.user, acao='MENSAGEM_ENVIADA', entidade='Conversa', objeto_id=str(conversa.pk), dados={'mensagem_id': mensagem.pk, 'tipo': tipo})

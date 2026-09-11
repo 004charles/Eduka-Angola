@@ -38,7 +38,7 @@ def criar_usuarios_para_centros():
             usuario.set_password('TemporaryPass123!')
             usuario.save()
             print(f"  ✓ Usuário criado: {usuario.email}")
-            print(f"    Senha temporária: TemporaryPass123!")
+            print(f"    Senha temporária definida (ocultada por segurança)")
         
         # Associar o usuário ao centro
         centro.usuario = usuario
@@ -48,7 +48,6 @@ def criar_usuarios_para_centros():
     print("Processo concluído!")
     print("\n" + "="*60)
     print("IMPORTANTE: Os usuários foram criados com senha temporária.")
-    print("Senha temporária: TemporaryPass123!")
     print("Recomenda-se que os gestores alterem suas senhas após o primeiro login.")
     print("="*60)
 

@@ -179,6 +179,16 @@ def comentar_post(request, slug):
     post = get_object_or_404(Post, slug=slug, status='publicado')
 
     if request.method == 'POST':
+        # MEDIUM-17 FIX: Rate limiting em comentários (max 5 por minuto por IP)
+        from django.core.cache import cache
+        ip = request.META.get('REMOTE_ADDR', '0.0.0.0')
+        cache_key = f'comment_rate:{ip}'
+        comment_count = cache.get(cache_key, 0)
+        if comment_count >= 5:
+            messages.error(request, 'Demasiados comentários. Aguarde um momento antes de comentar novamente.')
+            return redirect('blog:detalhe_post', slug=slug)
+        cache.set(cache_key, comment_count + 1, timeout=60)
+        
         form = ComentarioForm(request.POST)
         if form.is_valid():
             comentario = form.save(commit=False)

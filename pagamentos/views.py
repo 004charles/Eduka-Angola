@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.http import JsonResponse
+from django.core.cache import cache
 
 from .models import Pagamento, HistoricoPagamento
 from .serializers import (
@@ -24,14 +25,6 @@ from .services import get_payment_service, PagamentoException, PagamentoInvalido
 logger = logging.getLogger(__name__)
 
 
-class AllowAnyForCriar(BasePermission):
-    """Permite acesso sem autenticação ao endpoint de criar pagamentos"""
-    def has_permission(self, request, view):
-        if view.action == 'criar':
-            return True
-        return request.user and request.user.is_authenticated
-
-
 class PagamentoViewSet(viewsets.ReadOnlyModelViewSet):
     """
     ViewSet para gerenciar pagamentos.
@@ -39,12 +32,12 @@ class PagamentoViewSet(viewsets.ReadOnlyModelViewSet):
     Endpoints:
     - GET /api/pagamentos/ - Listar pagamentos do usuário
     - GET /api/pagamentos/{id}/ - Detalhes do pagamento
-    - POST /api/pagamentos/criar/ - Criar novo pagamento (sem autenticação obrigatória para testes)
+    - POST /api/pagamentos/criar/ - Criar novo pagamento (autenticação obrigatória)
     - POST /api/pagamentos/{id}/retry/ - Fazer retry de pagamento
     - GET /api/pagamentos/{id}/historico/ - Ver histórico do pagamento
     """
     
-    permission_classes = [AllowAnyForCriar]
+    permission_classes = [IsAuthenticated]
     
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -63,36 +56,14 @@ class PagamentoViewSet(viewsets.ReadOnlyModelViewSet):
     
     @action(detail=False, methods=['post'], url_path='criar')
     def criar(self, request):
-        """Cria novo pagamento"""
+        """Cria novo pagamento — requer autenticação"""
         
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
         try:
             servico = get_payment_service()
-            
-            # Se usuário anônimo, tentar obter usuário de teste ou criar
             usuario = request.user
-            if not usuario or not usuario.is_authenticated:
-                # Usar usuário de teste para pagamentos sem autenticação
-                from django.contrib.auth import get_user_model
-                User = get_user_model()
-                try:
-                    usuario, created = User.objects.get_or_create(
-                        email='test.payment@edukangola.ao',
-                        defaults={
-                            'nome': 'Test User',
-                            'tipo_usuario': 'ALUNO'
-                        }
-                    )
-                except:
-                    # Se falhar, tentar usar admin
-                    usuario = User.objects.filter(is_superuser=True).first()
-                    if not usuario:
-                        return Response(
-                            {'error': 'Usuário não autenticado'},
-                            status=status.HTTP_401_UNAUTHORIZED
-                        )
             
             # Buscar curso se fornecido
             curso = None
@@ -102,11 +73,23 @@ class PagamentoViewSet(viewsets.ReadOnlyModelViewSet):
                 if curso_id:
                     curso = get_object_or_404(Curso, id=curso_id)
             
+            # Validar valor server-side contra o preço do curso
+            valor_solicitado = serializer.validated_data['valor']
+            tipo_pagamento = serializer.validated_data['tipo_pagamento']
+            
+            if curso and tipo_pagamento in ('INSCRICAO', 'PAGAMENTO_CURSO'):
+                valor_esperado = curso.valor_a_cobrar_online()
+                if valor_solicitado != valor_esperado:
+                    return Response(
+                        {'sucesso': False, 'erro': f'Valor inválido. O valor correto é {valor_esperado} {serializer.validated_data.get("moeda", "AOA")}.'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            
             # Criar pagamento
             pagamento = servico.criar_pagamento(
                 usuario=usuario,
-                tipo_pagamento=serializer.validated_data['tipo_pagamento'],
-                valor=serializer.validated_data['valor'],
+                tipo_pagamento=tipo_pagamento,
+                valor=valor_solicitado,
                 moeda=serializer.validated_data.get('moeda', 'AOA'),
                 curso=curso,
                 numero_parcela=serializer.validated_data.get('numero_parcela'),
@@ -133,19 +116,13 @@ class PagamentoViewSet(viewsets.ReadOnlyModelViewSet):
         except PagamentoException as e:
             logger.error(f"Erro ao criar pagamento: {str(e)}")
             return Response(
-                {
-                    'sucesso': False,
-                    'erro': str(e)
-                },
+                {'sucesso': False, 'erro': str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Exception as e:
             logger.error(f"Erro inesperado ao criar pagamento: {str(e)}")
             return Response(
-                {
-                    'sucesso': False,
-                    'erro': _('Erro ao criar pagamento. Tente novamente.')
-                },
+                {'sucesso': False, 'erro': _('Erro ao criar pagamento. Tente novamente.')},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
     
@@ -263,45 +240,38 @@ class WebhookProntuView(viewsets.ViewSet):
     Webhook para receber callbacks do Prontu.
     
     POST /api/pagamentos/webhook/prontu/ - Processar callback
+    Validação: HMAC-SHA256 via header X-Prontu-Signature (se PRONTU_WEBHOOK_SECRET configurado)
     """
     
-    @action(detail=False, methods=['get', 'post'], url_path='prontu', url_name='prontu')
+    @action(detail=False, methods=['post'], url_path='prontu', url_name='prontu')
     def prontu_callback(self, request):
-        """Processa callback do Prontu"""
+        """Processa callback do Prontu com verificação de assinatura"""
         
-        if request.method == 'GET':
-            from django.conf import settings
-            from django.shortcuts import redirect
-            from django.contrib import messages
-            from .models import Pagamento
-            
-            ref = request.GET.get('ref')
-            if ref and settings.DEBUG:
-                try:
-                    pagamento = Pagamento.objects.get(referencia_pagamento=ref)
-                    if not pagamento.eh_pago():
-                        servico = get_payment_service()
-                        servico._atualizar_status_pagamento(
-                            pagamento,
-                            'ACCEPTED',
-                            {'motivo': 'Simulação de pagamento local'},
-                            'Simulação de pagamento local',
-                            criado_por='WEBHOOK'
-                        )
-                        servico._processar_pagamento_aceito(pagamento)
-                        
-                    messages.success(request, f"Pagamento {ref} simulado com sucesso!")
-                    url_retorno = pagamento.url_sucesso or '/teste-pagamento/'
-                    return redirect(url_retorno)
-                except Exception as e:
-                    logger.error(f"Erro na simulação do webhook: {e}")
-                    
-            return Response(
-                {
-                    'erro': 'Método não permitido ou parâmetros inválidos.'
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        # Verificar assinatura HMAC
+        signature = request.META.get('HTTP_X_PRONTU_SIGNATURE', '')
+        
+        # Validar IP se whitelist configurada
+        from django.conf import settings
+        allowed_ips = getattr(settings, 'PRONTU_WEBHOOK_ALLOWED_IPS', [])
+        if allowed_ips:
+            client_ip = self._obter_ip_cliente(request)
+            if client_ip not in allowed_ips:
+                logger.warning(f"Webhook de IP não autorizado: {client_ip}")
+                return Response(
+                    {'sucesso': False, 'erro': 'IP não autorizado'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        
+        # Verificar replay via idempotência
+        webhook_id = request.data.get('result', {}).get('prontu_transaction_id') or request.data.get('result', {}).get('reference_id', '')
+        if webhook_id:
+            cache_key = f"webhook_processed_{webhook_id}"
+            if cache.get(cache_key):
+                logger.info(f"Webhook duplicado ignorado: {webhook_id}")
+                return Response(
+                    {'sucesso': True, 'mensagem': 'Webhook já processado'},
+                    status=status.HTTP_200_OK
+                )
         
         try:
             # Validar dados
@@ -313,10 +283,15 @@ class WebhookProntuView(viewsets.ViewSet):
             pagamento, sucesso = servico.processar_webhook(
                 dados_callback=serializer.validated_data,
                 ip_address=self._obter_ip_cliente(request),
-                user_agent=request.META.get('HTTP_USER_AGENT', '')
+                user_agent=request.META.get('HTTP_USER_AGENT', ''),
+                signature=signature
             )
             
             if sucesso:
+                # Marcar como processado para prevenir replay ( TTL 1 hora)
+                if webhook_id:
+                    cache.set(cache_key, True, 3600)
+                
                 logger.info(f"Webhook processado com sucesso: {pagamento.referencia_pagamento}")
                 return Response(
                     {
@@ -329,38 +304,26 @@ class WebhookProntuView(viewsets.ViewSet):
             else:
                 logger.warning(f"Falha ao processar webhook")
                 return Response(
-                    {
-                        'sucesso': False,
-                        'mensagem': _('Erro ao processar callback')
-                    },
+                    {'sucesso': False, 'mensagem': _('Erro ao processar callback')},
                     status=status.HTTP_400_BAD_REQUEST
                 )
         
         except ValidationError as e:
             logger.error(f"Erro de validação no webhook: {e}")
             return Response(
-                {
-                    'sucesso': False,
-                    'erro': str(e)
-                },
+                {'sucesso': False, 'erro': str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
         except PagamentoInvalido as e:
             logger.error(f"Pagamento inválido: {str(e)}")
             return Response(
-                {
-                    'sucesso': False,
-                    'erro': str(e)
-                },
+                {'sucesso': False, 'erro': str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Exception as e:
             logger.error(f"Erro ao processar webhook: {str(e)}")
             return Response(
-                {
-                    'sucesso': False,
-                    'erro': _('Erro ao processar callback')
-                },
+                {'sucesso': False, 'erro': _('Erro ao processar callback')},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
     
@@ -369,7 +332,7 @@ class WebhookProntuView(viewsets.ViewSet):
         
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
-            ip = x_forwarded_for.split(',')[0]
+            ip = x_forwarded_for.split(',')[0].strip()
         else:
             ip = request.META.get('REMOTE_ADDR')
         return ip

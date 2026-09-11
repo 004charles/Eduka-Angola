@@ -203,8 +203,14 @@ def emitir_certificado(request, curso_slug):
     except (ObjectDoesNotExist, AttributeError):
         return redirect('index')
     
+    # HIGH-08 FIX: Verificar se o aluno está inscrito no curso
+    if not curso.aluno_tem_acesso(aluno):
+        messages.error(request, 'Precisa estar inscrito neste curso para emitir o certificado.')
+        return redirect('cursovideoapp:detalhe_curso', slug=curso_slug)
+    
     # Verificar se o aluno concluiu todas as aulas
     if not curso.verificar_conclusao(aluno):
+        messages.warning(request, 'Ainda não concluiu todas as aulas deste curso.')
         return redirect('cursovideoapp:detalhe_curso', slug=curso_slug)
     
     # Obter ou criar o certificado

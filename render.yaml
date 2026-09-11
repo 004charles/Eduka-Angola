@@ -10,3 +10,21 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.13.0
+      # HIGH-25: Variáveis de ambiente críticas devem ser definidas no painel Render
+      # Não incluir valores sensíveis no render.yaml — usar envVars do Render Dashboard
+      - key: SECRET_KEY
+        sync: false  # Definir manualmente no Render Dashboard
+      - key: DATABASE_URL
+        sync: false  # Definir manualmente no Render Dashboard
+      - key: REDIS_URL
+        sync: false  # Opcional — definir se usar Channels
+      - key: PRONTU_API_KEY
+        sync: false
+      - key: PRONTU_WEBHOOK_SECRET
+        sync: false
+      - key: PRONTU_WEBHOOK_ALLOWED_IPS
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: BREVO_API_KEY
+        sync: false

@@ -3,32 +3,60 @@ import logging
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.contrib.sessions.models import Session
+from django.contrib.auth.models import AnonymousUser
 from .models import Conversa, Mensagem, CentroDeFormacao
 from usuarios.models import Aluno
 
 logger = logging.getLogger(__name__)
+
+
+async def _get_user_from_scope(scope):
+    """Extrai o usuário do scope usando cookie-based session."""
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    
+    cookies = scope.get('cookies', {})
+    session_key = cookies.get('eduka_admin_session') or cookies.get('eduka_session')
+    
+    if not session_key:
+        qs = scope.get('query_string', b'').decode('utf-8', errors='ignore')
+        if 'session_key=' in qs:
+            session_key = qs.split('session_key=')[1].split('&')[0]
+            logger.warning("WebSocket gestoreduka: session_key via query string (deprecated)")
+    
+    if not session_key:
+        return AnonymousUser(), None, None
+    
+    try:
+        session = Session.objects.get(session_key=session_key)
+        session_data = session.get_decoded()
+        user_id = session_data.get('_auth_user_id')
+        if user_id:
+            user = await database_sync_to_async(User.objects.get)(id=user_id)
+            centro_id = session_data.get('centro_id')
+            aluno_id = session_data.get('aluno')
+            return user, centro_id, aluno_id
+    except Exception:
+        pass
+    
+    return AnonymousUser(), None, None
+
 
 class ChatCentroConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.conversa_id = self.scope['url_route']['kwargs']['conversa_id']
         self.room_group_name = f'chat_centro_{self.conversa_id}'
         
-        # Obter session key da query string ou do scope
-        session_key = self.scope.get('query_string', b'').decode('utf-8')
-        if 'session_key=' in session_key:
-            session_key = session_key.split('session_key=')[1].split('&')[0]
+        self.user, self.centro_id, _ = await _get_user_from_scope(self.scope)
+        
+        if self.user.is_anonymous or not self.centro_id:
+            await self.close(code=4001)
+            return
         
         try:
-            # Verificar se o centro tem permissão para acessar esta conversa
-            centro_id = await self.get_centro_id_from_session(session_key)
-            if not centro_id:
-                await self.close()
-                return
-                
-            centro = await self.get_centro(centro_id)
+            centro = await self.get_centro(self.centro_id)
             conversa = await self.get_conversa_centro(self.conversa_id, centro)
             
-            # Entrar no grupo
             await self.channel_layer.group_add(
                 self.room_group_name,
                 self.channel_name
@@ -38,15 +66,13 @@ class ChatCentroConsumer(AsyncWebsocketConsumer):
             
         except Exception as e:
             logger.error(f"Erro na conexão WebSocket do centro: {e}")
-            await self.close()
+            await self.close(code=4003)
 
     async def disconnect(self, close_code):
-        # Sair do grupo
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
         )
-        logger.info(f"Conexão WebSocket fechada: {close_code}")
 
     async def receive(self, text_data):
         try:
@@ -54,34 +80,24 @@ class ChatCentroConsumer(AsyncWebsocketConsumer):
             mensagem = text_data_json['mensagem']
             tipo = text_data_json.get('tipo', 'TEXTO')
             
-            # Obter session key
-            session_key = self.scope.get('query_string', b'').decode('utf-8')
-            if 'session_key=' in session_key:
-                session_key = session_key.split('session_key=')[1].split('&')[0]
+            mensagem_obj = await self.save_mensagem_centro(mensagem, tipo, self.centro_id)
             
-            # Salvar mensagem no banco
-            centro_id = await self.get_centro_id_from_session(session_key)
-            if centro_id:
-                mensagem_obj = await self.save_mensagem_centro(mensagem, tipo, centro_id)
-                
-                # Enviar mensagem para o grupo
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        'type': 'chat_message',
-                        'mensagem': mensagem,
-                        'remetente_nome': mensagem_obj.remetente_centro.nome,
-                        'is_centro': True,
-                        'data_envio': mensagem_obj.data_envio.strftime('%H:%M'),
-                        'mensagem_id': mensagem_obj.id
-                    }
-                )
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'chat_message',
+                    'mensagem': mensagem,
+                    'remetente_nome': mensagem_obj.remetente_centro.nome,
+                    'is_centro': True,
+                    'data_envio': mensagem_obj.data_envio.strftime('%H:%M'),
+                    'mensagem_id': mensagem_obj.id
+                }
+            )
                 
         except Exception as e:
             logger.error(f"Erro ao receber mensagem: {e}")
 
     async def chat_message(self, event):
-        # Enviar mensagem para WebSocket
         await self.send(text_data=json.dumps({
             'mensagem': event['mensagem'],
             'remetente_nome': event['remetente_nome'],
@@ -89,15 +105,6 @@ class ChatCentroConsumer(AsyncWebsocketConsumer):
             'data_envio': event['data_envio'],
             'mensagem_id': event['mensagem_id']
         }))
-
-    @database_sync_to_async
-    def get_centro_id_from_session(self, session_key):
-        try:
-            session = Session.objects.get(session_key=session_key)
-            session_data = session.get_decoded()
-            return session_data.get('centro_id')
-        except Session.DoesNotExist:
-            return None
 
     @database_sync_to_async
     def get_centro(self, centro_id):
@@ -119,33 +126,27 @@ class ChatCentroConsumer(AsyncWebsocketConsumer):
             tipo=tipo
         )
         
-        # Atualizar última mensagem
         conversa.ultima_mensagem = mensagem.data_envio
         conversa.save()
         
         return mensagem
+
 
 class ChatAlunoConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.conversa_id = self.scope['url_route']['kwargs']['conversa_id']
         self.room_group_name = f'chat_aluno_{self.conversa_id}'
         
-        # Obter session key da query string
-        session_key = self.scope.get('query_string', b'').decode('utf-8')
-        if 'session_key=' in session_key:
-            session_key = session_key.split('session_key=')[1].split('&')[0]
+        self.user, _, self.aluno_id = await _get_user_from_scope(self.scope)
+        
+        if self.user.is_anonymous or not self.aluno_id:
+            await self.close(code=4001)
+            return
         
         try:
-            # Verificar se o aluno tem permissão
-            aluno_id = await self.get_aluno_id_from_session(session_key)
-            if not aluno_id:
-                await self.close()
-                return
-                
-            aluno = await self.get_aluno(aluno_id)
+            aluno = await self.get_aluno(self.aluno_id)
             conversa = await self.get_conversa_aluno(self.conversa_id, aluno)
             
-            # Entrar no grupo
             await self.channel_layer.group_add(
                 self.room_group_name,
                 self.channel_name
@@ -155,7 +156,7 @@ class ChatAlunoConsumer(AsyncWebsocketConsumer):
             
         except Exception as e:
             logger.error(f"Erro na conexão WebSocket do aluno: {e}")
-            await self.close()
+            await self.close(code=4003)
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
@@ -169,28 +170,19 @@ class ChatAlunoConsumer(AsyncWebsocketConsumer):
             mensagem = text_data_json['mensagem']
             tipo = text_data_json.get('tipo', 'TEXTO')
             
-            # Obter session key
-            session_key = self.scope.get('query_string', b'').decode('utf-8')
-            if 'session_key=' in session_key:
-                session_key = session_key.split('session_key=')[1].split('&')[0]
+            mensagem_obj = await self.save_mensagem_aluno(mensagem, tipo, self.aluno_id)
             
-            # Salvar mensagem no banco
-            aluno_id = await self.get_aluno_id_from_session(session_key)
-            if aluno_id:
-                mensagem_obj = await self.save_mensagem_aluno(mensagem, tipo, aluno_id)
-                
-                # Enviar mensagem para o grupo
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        'type': 'chat_message',
-                        'mensagem': mensagem,
-                        'remetente_nome': mensagem_obj.remetente_aluno.nome,
-                        'is_centro': False,
-                        'data_envio': mensagem_obj.data_envio.strftime('%H:%M'),
-                        'mensagem_id': mensagem_obj.id
-                    }
-                )
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'chat_message',
+                    'mensagem': mensagem,
+                    'remetente_nome': mensagem_obj.remetente_aluno.nome,
+                    'is_centro': False,
+                    'data_envio': mensagem_obj.data_envio.strftime('%H:%M'),
+                    'mensagem_id': mensagem_obj.id
+                }
+            )
                 
         except Exception as e:
             logger.error(f"Erro ao receber mensagem do aluno: {e}")
@@ -203,15 +195,6 @@ class ChatAlunoConsumer(AsyncWebsocketConsumer):
             'data_envio': event['data_envio'],
             'mensagem_id': event['mensagem_id']
         }))
-
-    @database_sync_to_async
-    def get_aluno_id_from_session(self, session_key):
-        try:
-            session = Session.objects.get(session_key=session_key)
-            session_data = session.get_decoded()
-            return session_data.get('aluno')
-        except Session.DoesNotExist:
-            return None
 
     @database_sync_to_async
     def get_aluno(self, aluno_id):
@@ -233,7 +216,6 @@ class ChatAlunoConsumer(AsyncWebsocketConsumer):
             tipo=tipo
         )
         
-        # Atualizar última mensagem
         conversa.ultima_mensagem = mensagem.data_envio
         conversa.save()
         

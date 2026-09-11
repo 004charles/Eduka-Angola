@@ -27,6 +27,34 @@ import hmac
 import json
 from datetime import timedelta
 from django.utils import timezone
+from django.core.cache import cache
+
+
+# ── Rate Limiting ──────────────────────────────────────────────────────────────
+def _rate_limit_key(prefix: str, identifier: str) -> str:
+    return f"ratelimit:{prefix}:{identifier}"
+
+
+def _check_rate_limit(prefix: str, identifier: str, max_attempts: int, window_seconds: int) -> bool:
+    """Retorna True se o limite foi excedido (deve bloquear)."""
+    key = _rate_limit_key(prefix, identifier)
+    attempts = cache.get(key, 0)
+    if attempts >= max_attempts:
+        return True
+    cache.set(key, attempts + 1, window_seconds)
+    return False
+
+
+def _get_client_ip(request):
+    xff = request.META.get('HTTP_X_FORWARDED_FOR')
+    return xff.split(',')[0].strip() if xff else request.META.get('REMOTE_ADDR', '')
+
+
+def _rate_limit_response():
+    return JsonResponse(
+        {'ok': False, 'message': 'Demasiadas tentativas. Aguarde alguns minutos e tente novamente.'},
+        status=429
+    )
 
 
 def _dados_json(request):
@@ -279,6 +307,10 @@ def api_auth_aluno_resumo(request):
 
 @require_POST
 def api_auth_login(request):
+    # Rate limiting: 10 tentativas por minuto por IP
+    if _check_rate_limit('login', _get_client_ip(request), max_attempts=10, window_seconds=60):
+        return _rate_limit_response()
+    
     dados = _dados_json(request)
     email = str(dados.get('email') or '').strip().lower()
     senha = str(dados.get('senha') or '')
@@ -301,6 +333,8 @@ def api_auth_login(request):
             'message': 'Confirme o código enviado para o seu e-mail antes de entrar.',
         }, status=403)
 
+    # MEDIUM-04 FIX: Rotacionar session key para prevenir session fixation
+    request.session.cycle_key()
     login(request, user)
     return JsonResponse({'ok': True, 'redirect': destino, 'nome': user.nome or ''})
 
@@ -308,6 +342,10 @@ def api_auth_login(request):
 @require_POST
 def api_auth_admin_login(request):
     """Inicia a sessão isolada usada exclusivamente pelo painel React em /admin."""
+    # Rate limiting: 5 tentativas por minuto por IP (mais restritivo para admin)
+    if _check_rate_limit('admin_login', _get_client_ip(request), max_attempts=5, window_seconds=60):
+        return _rate_limit_response()
+    
     dados = _dados_json(request)
     email = str(dados.get('email') or '').strip().lower()
     senha = str(dados.get('senha') or '')
@@ -319,6 +357,8 @@ def api_auth_admin_login(request):
     if user is None or not user.is_active or not (user.is_staff or user.is_superuser):
         return JsonResponse({'ok': False, 'message': 'Não foi possível iniciar a sessão administrativa com estes dados.'}, status=401)
 
+    # MEDIUM-04 FIX: Rotacionar session key para prevenir session fixation
+    request.session.cycle_key()
     login(request, user)
     return JsonResponse({'ok': True, 'redirect': '/admin', 'nome': user.nome or ''})
 
@@ -381,6 +421,10 @@ def api_auth_admin_redefinir_senha(request):
 
 @require_POST
 def api_auth_registro(request):
+    # Rate limiting: 5 registros por minuto por IP
+    if _check_rate_limit('registro', _get_client_ip(request), max_attempts=5, window_seconds=60):
+        return _rate_limit_response()
+    
     dados = _dados_json(request)
     nome = str(dados.get('nome') or '').strip()
     email = str(dados.get('email') or '').strip().lower()
@@ -435,6 +479,10 @@ def api_auth_registro(request):
 
 @require_POST
 def api_auth_verificar_email(request):
+    # Rate limiting: 5 tentativas por minuto por IP (brute-force protection)
+    if _check_rate_limit('verificar_email', _get_client_ip(request), max_attempts=5, window_seconds=60):
+        return _rate_limit_response()
+    
     dados = _dados_json(request)
     codigo = str(dados.get('codigo') or '').strip()
     email = request.session.get('email_verificacao')
@@ -483,6 +531,10 @@ def api_auth_reenviar_codigo(request):
 
 @require_POST
 def api_auth_recuperar_senha(request):
+    # Rate limiting: 3 solicitações por minuto por IP
+    if _check_rate_limit('recuperar_senha', _get_client_ip(request), max_attempts=3, window_seconds=60):
+        return _rate_limit_response()
+    
     dados = _dados_json(request)
     email = str(dados.get('email') or '').strip().lower()
     destino = _destino_publico_seguro(dados.get('next'))
@@ -1147,19 +1199,24 @@ def reenviar_codigo(request):
 def esqueci_senha(request):
     """
     Inicia o fluxo de 'Esqueci a Senha' enviando um código (Gate Premium).
+    Resposta genérica sempre — sem enumeração de email.
     """
     is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
     
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
+        # HIGH-02 FIX: Sempre retornar resposta genérica (sem revelar se email existe)
         if Aluno.objects.filter(usuario__email=email).exists():
-            enviar_codigo_verificacao(email, 'RECUPERACAO')
+            try:
+                enviar_codigo_verificacao(email, 'RECUPERACAO')
+            except Exception:
+                pass
             request.session['email_recuperacao'] = email
-            if is_ajax: return JsonResponse({'success': True, 'step': 2, 'message': 'Código enviado para o seu e-mail.'})
-            return redirect('redefinir_senha')
-        else:
-            if is_ajax: return JsonResponse({'success': False, 'error': 'E-mail não encontrado.'})
-            return render(request, 'core/forgot_password_gate.html', {'message': 'Se o email existir, um código foi enviado.'})
+        
+        msg = 'Se existir uma conta com este e-mail, enviámos um código de recuperação.'
+        if is_ajax:
+            return JsonResponse({'success': True, 'step': 2, 'message': msg})
+        return redirect('redefinir_senha')
              
     return render(request, 'core/forgot_password_gate.html')
 
@@ -1340,6 +1397,17 @@ def logout_usuario(request):
 
 @require_POST
 def api_react_logout(request):
+    # Blacklistar refresh token JWT se fornecido
+    try:
+        refresh_token = request.data.get('refresh') or request.POST.get('refresh')
+        if refresh_token:
+            from rest_framework_simplejwt.tokens import RefreshToken
+            from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+    except Exception:
+        pass  # Logout da sessão continua mesmo se blacklist falhar
+    
     auth_logout(request)
     return JsonResponse({'ok': True, 'message': 'Sessão terminada.'})
   
@@ -1402,15 +1470,39 @@ def editar_perfil(request):
         perfil.github = request.POST.get('github')
 
         if 'foto_de_perfil' in request.FILES:
+            from core.upload_validators import validate_image_file
+            try:
+                validate_image_file(request.FILES['foto_de_perfil'])
+            except ValidationError as e:
+                messages.error(request, str(e))
+                return redirect('aluno_perfil')
             perfil.foto_de_perfil = request.FILES['foto_de_perfil']
             
         if 'foto_de_capa' in request.FILES:
+            from core.upload_validators import validate_image_file
+            try:
+                validate_image_file(request.FILES['foto_de_capa'])
+            except ValidationError as e:
+                messages.error(request, str(e))
+                return redirect('aluno_perfil')
             perfil.foto_de_capa = request.FILES['foto_de_capa']
             
         if 'bilhete_frente' in request.FILES:
+            from core.upload_validators import validate_image_file
+            try:
+                validate_image_file(request.FILES['bilhete_frente'])
+            except ValidationError as e:
+                messages.error(request, str(e))
+                return redirect('aluno_perfil')
             perfil.bilhete_frente = request.FILES['bilhete_frente']
             
         if 'bilhete_verso' in request.FILES:
+            from core.upload_validators import validate_image_file
+            try:
+                validate_image_file(request.FILES['bilhete_verso'])
+            except ValidationError as e:
+                messages.error(request, str(e))
+                return redirect('aluno_perfil')
             perfil.bilhete_verso = request.FILES['bilhete_verso']
         
         aluno.save()

@@ -3,13 +3,58 @@ import logging
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.contrib.sessions.models import Session
+from django.contrib.auth.models import AnonymousUser
 from .models import Curso, Inscricao, ComentarioCurso
 from usuarios.models import Aluno
 
 logger = logging.getLogger(__name__)
 
+
+async def _get_user_from_scope(scope):
+    """Extrai o usuário do scope usando cookie-based session (não query string)."""
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    
+    cookies = scope.get('cookies', {})
+    
+    # Tentar session cookie do admin
+    session_key = cookies.get('eduka_admin_session') or cookies.get('eduka_session')
+    
+    if not session_key:
+        # Fallback: tentar do query string (DEPRECATED — manter para retrocompatibilidade)
+        qs = scope.get('query_string', b'').decode('utf-8', errors='ignore')
+        if 'session_key=' in qs:
+            session_key = qs.split('session_key=')[1].split('&')[0]
+            logger.warning("WebSocket: session_key via query string (deprecated)")
+    
+    if not session_key:
+        return AnonymousUser(), None, None
+    
+    try:
+        session = Session.objects.get(session_key=session_key)
+        session_data = session.get_decoded()
+        user_id = session_data.get('_auth_user_id')
+        if user_id:
+            user = await database_sync_to_async(User.objects.get)(id=user_id)
+            centro_id = session_data.get('centro_id')
+            aluno_id = session_data.get('aluno')
+            return user, centro_id, aluno_id
+    except Exception:
+        pass
+    
+    return AnonymousUser(), None, None
+
+
 class CursoUpdatesConsumer(AsyncWebsocketConsumer):
+    """Consumer para atualizações de cursos — requer autenticação."""
+    
     async def connect(self):
+        self.user, _, _ = await _get_user_from_scope(self.scope)
+        
+        if self.user.is_anonymous:
+            await self.close(code=4001)
+            return
+        
         self.room_group_name = 'curso_updates'
         
         await self.channel_layer.group_add(
@@ -17,7 +62,7 @@ class CursoUpdatesConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
         await self.accept()
-        logger.info("Cliente conectado às atualizações de cursos")
+        logger.info(f"WebSocket curso_updates: user={self.user.id}")
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
@@ -34,7 +79,6 @@ class CursoUpdatesConsumer(AsyncWebsocketConsumer):
             await self.subscribe_curso(curso_id)
 
     async def curso_update(self, event):
-        # Enviar atualização de curso para o cliente
         await self.send(text_data=json.dumps({
             'type': 'curso_update',
             'curso_id': event['curso_id'],
@@ -43,33 +87,36 @@ class CursoUpdatesConsumer(AsyncWebsocketConsumer):
         }))
 
     async def subscribe_curso(self, curso_id):
-        # Adicionar ao grupo específico do curso
         await self.channel_layer.group_add(
             f'curso_{curso_id}',
             self.channel_name
         )
 
+
 class CursoNotificacoesConsumer(AsyncWebsocketConsumer):
+    """Consumer para notificações — requer autenticação via session cookie."""
+    
     async def connect(self):
-        # Verificar se é um centro logado
-        centro_id = await self.get_centro_id_from_session()
-        if centro_id:
-            self.room_group_name = f'notificacoes_centro_{centro_id}'
+        self.user, self.centro_id, self.aluno_id = await _get_user_from_scope(self.scope)
+        
+        if self.user.is_anonymous:
+            await self.close(code=4001)
+            return
+        
+        if self.centro_id:
+            self.room_group_name = f'notificacoes_centro_{self.centro_id}'
+        elif self.aluno_id:
+            self.room_group_name = f'notificacoes_aluno_{self.aluno_id}'
         else:
-            # Se não for centro, verificar se é aluno
-            aluno_id = await self.get_aluno_id_from_session()
-            if aluno_id:
-                self.room_group_name = f'notificacoes_aluno_{aluno_id}'
-            else:
-                await self.close()
-                return
+            await self.close(code=4001)
+            return
         
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
         )
         await self.accept()
-        logger.info(f"Cliente conectado às notificações: {self.room_group_name}")
+        logger.info(f"WebSocket notificações: {self.room_group_name}")
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
@@ -78,7 +125,6 @@ class CursoNotificacoesConsumer(AsyncWebsocketConsumer):
         )
 
     async def notificacao_curso(self, event):
-        # Enviar notificação para o cliente
         await self.send(text_data=json.dumps({
             'type': 'notificacao_curso',
             'titulo': event['titulo'],
@@ -87,45 +133,29 @@ class CursoNotificacoesConsumer(AsyncWebsocketConsumer):
             'categoria': event.get('categoria', 'info')
         }))
 
-    @database_sync_to_async
-    def get_centro_id_from_session(self):
-        try:
-            session_key = self.scope.get('query_string', b'').decode('utf-8')
-            if 'session_key=' in session_key:
-                session_key = session_key.split('session_key=')[1].split('&')[0]
-                session = Session.objects.get(session_key=session_key)
-                session_data = session.get_decoded()
-                return session_data.get('centro_id')
-        except Exception:
-            return None
-
-    @database_sync_to_async
-    def get_aluno_id_from_session(self):
-        try:
-            session_key = self.scope.get('query_string', b'').decode('utf-8')
-            if 'session_key=' in session_key:
-                session_key = session_key.split('session_key=')[1].split('&')[0]
-                session = Session.objects.get(session_key=session_key)
-                session_data = session.get_decoded()
-                return session_data.get('aluno')
-        except Exception:
-            return None
 
 class SuporteCursoConsumer(AsyncWebsocketConsumer):
+    """Consumer de suporte — requer autenticação + inscrito no curso ou dono."""
+    
     async def connect(self):
         self.curso_id = self.scope['url_route']['kwargs']['curso_id']
         self.room_group_name = f'suporte_curso_{self.curso_id}'
         
-        # Verificar se o usuário tem acesso ao curso
+        self.user, self.centro_id, self.aluno_id = await _get_user_from_scope(self.scope)
+        
+        if self.user.is_anonymous:
+            await self.close(code=4001)
+            return
+        
         if await self.tem_acesso_curso():
             await self.channel_layer.group_add(
                 self.room_group_name,
                 self.channel_name
             )
             await self.accept()
-            logger.info(f"Cliente conectado ao suporte do curso {self.curso_id}")
+            logger.info(f"WebSocket suporte curso {self.curso_id}: user={self.user.id}")
         else:
-            await self.close()
+            await self.close(code=4003)
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
@@ -136,12 +166,10 @@ class SuporteCursoConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         mensagem = text_data_json['mensagem']
-        usuario_nome = text_data_json.get('usuario_nome', 'Anônimo')
+        usuario_nome = self.user.nome or 'Anônimo'
         
-        # Salvar mensagem de suporte
         mensagem_id = await self.salvar_mensagem_suporte(mensagem)
         
-        # Enviar para o grupo
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -165,32 +193,40 @@ class SuporteCursoConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def tem_acesso_curso(self):
         try:
-            curso = Curso.objects.get(id=self.curso_id, publicado=True)
+            curso = Curso.objects.get(id=self.centro_id or 0) or Curso.objects.get(id=self.curso_id)
+            curso = Curso.objects.get(id=self.curso_id)
             
-            # Verificar se é centro dono do curso
-            centro_id = self.get_centro_id_from_session()
-            if centro_id and curso.centro.id == centro_id:
+            # Centro dono do curso
+            if self.centro_id and curso.centro_id == self.centro_id:
                 return True
             
-            # Verificar se é aluno inscrito
-            aluno_id = self.get_aluno_id_from_session()
-            if aluno_id and Inscricao.objects.filter(curso=curso, aluno_id=aluno_id, ativa=True).exists():
+            # Aluno inscrito
+            if self.aluno_id and Inscricao.objects.filter(
+                curso=curso, aluno_id=self.aluno_id, status='A'
+            ).exists():
                 return True
-                
+            
             return False
         except Exception:
             return False
 
     @database_sync_to_async
     def salvar_mensagem_suporte(self, mensagem):
-        # Implementar lógica para salvar mensagens de suporte
-        # Por enquanto, retorna um ID simulado
         return 1
 
+
 class ProgressoCursoConsumer(AsyncWebsocketConsumer):
+    """Consumer de progresso — requer autenticação + inscrito no curso."""
+    
     async def connect(self):
         self.curso_id = self.scope['url_route']['kwargs']['curso_id']
         self.room_group_name = f'progresso_curso_{self.curso_id}'
+        
+        self.user, self.centro_id, self.aluno_id = await _get_user_from_scope(self.scope)
+        
+        if self.user.is_anonymous:
+            await self.close(code=4001)
+            return
         
         if await self.tem_acesso_curso():
             await self.channel_layer.group_add(
@@ -199,7 +235,7 @@ class ProgressoCursoConsumer(AsyncWebsocketConsumer):
             )
             await self.accept()
         else:
-            await self.close()
+            await self.close(code=4003)
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
@@ -216,10 +252,33 @@ class ProgressoCursoConsumer(AsyncWebsocketConsumer):
             'curso_id': event['curso_id']
         }))
 
+    @database_sync_to_async
+    def tem_acesso_curso(self):
+        try:
+            curso = Curso.objects.get(id=self.curso_id)
+            if self.aluno_id and Inscricao.objects.filter(
+                curso=curso, aluno_id=self.aluno_id, status='A'
+            ).exists():
+                return True
+            if self.centro_id and curso.centro_id == self.centro_id:
+                return True
+            return False
+        except Exception:
+            return False
+
+
 class ComentariosCursoConsumer(AsyncWebsocketConsumer):
+    """Consumer de comentários — requer autenticação + acesso ao curso."""
+    
     async def connect(self):
         self.curso_id = self.scope['url_route']['kwargs']['curso_id']
         self.room_group_name = f'comentarios_curso_{self.curso_id}'
+        
+        self.user, self.centro_id, self.aluno_id = await _get_user_from_scope(self.scope)
+        
+        if self.user.is_anonymous:
+            await self.close(code=4001)
+            return
         
         if await self.tem_acesso_curso():
             await self.channel_layer.group_add(
@@ -228,7 +287,7 @@ class ComentariosCursoConsumer(AsyncWebsocketConsumer):
             )
             await self.accept()
         else:
-            await self.close()
+            await self.close(code=4003)
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
@@ -239,16 +298,15 @@ class ComentariosCursoConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         comentario = text_data_json['comentario']
-        usuario_id = text_data_json['usuario_id']
         
-        comentario_obj = await self.salvar_comentario(comentario, usuario_id)
+        comentario_obj = await self.salvar_comentario(comentario)
         
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 'type': 'novo_comentario',
                 'comentario': comentario_obj.texto,
-                'usuario_nome': comentario_obj.usuario.nome,
+                'usuario_nome': self.user.nome or 'Anônimo',
                 'timestamp': comentario_obj.data_criacao.isoformat(),
                 'comentario_id': comentario_obj.id
             }
@@ -267,19 +325,27 @@ class ComentariosCursoConsumer(AsyncWebsocketConsumer):
     def tem_acesso_curso(self):
         try:
             curso = Curso.objects.get(id=self.curso_id, publicado=True)
-            return True
+            # Centro dono
+            if self.centro_id and curso.centro_id == self.centro_id:
+                return True
+            # Aluno inscrito
+            if self.aluno_id and Inscricao.objects.filter(
+                curso=curso, aluno_id=self.aluno_id, status='A'
+            ).exists():
+                return True
+            return False
         except Curso.DoesNotExist:
             return False
 
     @database_sync_to_async
-    def salvar_comentario(self, texto, usuario_id):
-        # Implementar lógica para salvar comentários
-        # Por enquanto, retorna um objeto simulado
+    def salvar_comentario(self, texto):
+        from django.utils import timezone as _tz
+        
         class ComentarioSimulado:
             def __init__(self):
                 self.id = 1
                 self.texto = texto
-                self.data_criacao = timezone.now()
+                self.data_criacao = _tz.now()
                 self.usuario = type('Usuario', (), {'nome': 'Usuário'})()
         
         return ComentarioSimulado()

@@ -676,6 +676,12 @@ class Turma(models.Model):
         ordering = ['data_inicio', 'turno']
         unique_together = ['curso', 'codigo']
 
+    def clean(self):
+        super().clean()
+        # MEDIUM-11 FIX: Validar que vagas não excedam total
+        if self.vagas_ocupadas and self.vagas_totais and self.vagas_ocupadas > self.vagas_totais:
+            raise ValidationError(_('Vagas ocupadas não pode exceder vagas totais.'))
+
     def __str__(self):
         return f"{self.nome} - {self.curso.titulo} ({self.get_turno_display()})"
 
@@ -699,9 +705,12 @@ class Turma(models.Model):
             )
 
     def atualizar_vagas_turma(self):
-        self.vagas_ocupadas = self.inscricoes_turma.filter(status='A').count()
-        self.vagas_disponiveis = self.vagas_totais - self.vagas_ocupadas
-        self.save(update_fields=['vagas_ocupadas', 'vagas_disponiveis'])
+        from django.db import transaction
+        with transaction.atomic():
+            turma = Turma.objects.select_for_update().get(pk=self.pk)
+            turma.vagas_ocupadas = turma.inscricoes_turma.filter(status='A').count()
+            turma.vagas_disponiveis = max(0, turma.vagas_totais - turma.vagas_ocupadas)
+            turma.save(update_fields=['vagas_ocupadas', 'vagas_disponiveis'])
 
     @property
     def inscricoes_turma(self):

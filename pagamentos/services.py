@@ -3,8 +3,9 @@ Serviço de pagamentos - Camada de abstração para múltiplos gateways.
 Implementa padrões de design: Strategy, Factory, Observer.
 """
 import base64
-import logging
 import hashlib
+import hmac
+import logging
 import json
 import os
 import sys
@@ -277,7 +278,7 @@ class ProntuPaymentGateway(PaymentGateway):
             'reference_id': referencia_pagamento,
             'first_name': nome_partes[0] if nome_partes else '',
             'last_name': ' '.join(nome_partes[1:]) if len(nome_partes) > 1 else '',
-            'amount': float(valor),
+            'amount': float(valor.quantize(Decimal('0.01'))),
             'cancel_url': url_cancelamento,
             'return_url': url_retorno,
             'expiration_date': (timezone.now() + timedelta(days=1)).strftime('%Y-%m-%dT%H:%M:%SZ'),
@@ -357,10 +358,30 @@ class ProntuPaymentGateway(PaymentGateway):
             logger.error(f"Erro ao criar transação Prontu: {str(e)}")
             raise PagamentoException(f"Erro ao criar transação: {str(e)}")
     
-    def validar_callback(self, dados_callback: Dict[str, Any]) -> bool:
-        """Valida callback do Prontu"""
-        # O Prontu não usa assinatura específica neste exemplo,
-        # mas em produção seria recomendado validar a origem
+    def validar_callback(self, dados_callback: Dict[str, Any], signature: str = None) -> bool:
+        """Valida callback do Prontu com verificação de assinatura HMAC.
+        
+        O Prontu pode enviar um header X-Prontu-Signature com HMAC-SHA256
+        do payload usando o PRONTU_WEBHOOK_SECRET. Se o secret estiver configurado,
+        a assinatura é obrigatória.
+        """
+        webhook_secret = getattr(settings, 'PRONTU_WEBHOOK_SECRET', '')
+        
+        if webhook_secret:
+            if not signature:
+                logger.warning("Webhook sem assinatura mas PRONTU_WEBHOOK_SECRET configurado")
+                return False
+            
+            payload_bytes = json.dumps(dados_callback, sort_keys=True, separators=(',', ':')).encode('utf-8')
+            expected_sig = hmac.new(
+                webhook_secret.encode('utf-8'),
+                payload_bytes,
+                hashlib.sha256
+            ).hexdigest()
+            
+            if not hmac.compare_digest(signature, expected_sig):
+                logger.warning(f"Assinatura webhook inválida: esperada={expected_sig[:16]}..., recebida={signature[:16] if signature else 'None'}...")
+                return False
         
         if 'result' not in dados_callback:
             logger.warning("Callback Prontu sem campo 'result'")
@@ -375,10 +396,10 @@ class ProntuPaymentGateway(PaymentGateway):
         
         return True
     
-    def processar_callback(self, dados_callback: Dict[str, Any]) -> Dict[str, Any]:
+    def processar_callback(self, dados_callback: Dict[str, Any], signature: str = None) -> Dict[str, Any]:
         """Processa callback do Prontu"""
         
-        if not self.validar_callback(dados_callback):
+        if not self.validar_callback(dados_callback, signature=signature):
             raise PagamentoInvalido("Callback inválido")
         
         resultado = dados_callback['result']
@@ -495,7 +516,7 @@ class PaymentService:
     ) -> Pagamento:
         """
         Cria um novo pagamento no sistema e no gateway.
-        Implementa padrão de transação segura.
+        Implementa padrão de transação segura com proteção contra duplicação.
         """
         
         if not self.config.pagamentos_ativados:
@@ -508,6 +529,31 @@ class PaymentService:
         # Validar valor
         if valor <= 0:
             raise PagamentoInvalido("Valor deve ser maior que zero")
+
+        # Verificar pagamento duplicado — evitar double-spending
+        filters = {
+            'usuario': usuario,
+            'tipo_pagamento': tipo_pagamento,
+            'status__in': ['PENDING', 'REQUESTED', 'PROCESSING'],
+        }
+        if curso:
+            filters['curso'] = curso
+        if plano:
+            filters['plano'] = plano
+        if numero_parcela is not None:
+            filters['numero_parcela'] = numero_parcela
+        
+        pagamento_existente = Pagamento.objects.filter(**filters).first()
+        if pagamento_existente:
+            # Se expirado, permitir novo pagamento
+            if pagamento_existente.data_vencimento and pagamento_existente.data_vencimento < timezone.now():
+                pagamento_existente.status = 'EXPIRED'
+                pagamento_existente.save(update_fields=['status'])
+            else:
+                raise PagamentoException(
+                    f"Já existe um pagamento pendente para esta operação. "
+                    f"Referência: {pagamento_existente.referencia_pagamento}"
+                )
 
         # A moeda do curso só pode avançar quando o próprio centro tiver uma
         # configuração financeira activa e validada. Mantemos cursos angolanos
@@ -602,43 +648,52 @@ class PaymentService:
         self,
         dados_callback: Dict[str, Any],
         ip_address: str = None,
-        user_agent: str = None
+        user_agent: str = None,
+        signature: str = None
     ) -> Tuple[Pagamento, bool]:
         """
         Processa callback do gateway.
         Retorna (Pagamento, sucesso_processamento)
         """
         
-        logger.info(f"Processando webhook: {json.dumps(dados_callback)}")
+        logger.info(f"Processando webhook de {ip_address or 'IP desconhecido'}")
         
         try:
             # Processar callback do gateway
-            dados_processados = self.gateway_atual.processar_callback(dados_callback)
+            dados_processados = self.gateway_atual.processar_callback(dados_callback, signature=signature)
             
             referencia_pagamento = dados_processados['referencia_pagamento']
             novo_status = dados_processados['status']
             
-            # Buscar pagamento
-            try:
-                pagamento = Pagamento.objects.get(referencia_pagamento=referencia_pagamento)
-            except Pagamento.DoesNotExist:
-                logger.error(f"Pagamento não encontrado: {referencia_pagamento}")
-                raise PagamentoInvalido(f"Pagamento não encontrado: {referencia_pagamento}")
-            
-            # Atualizar status
-            self._atualizar_status_pagamento(
-                pagamento,
-                novo_status,
-                dados_processados['resposta_completa'],
-                dados_processados['motivo'],
-                ip_address,
-                user_agent,
-                criado_por='WEBHOOK'
-            )
-            
-            # Se pagamento aceito, executar ações
-            if pagamento.eh_pago():
-                self._processar_pagamento_aceito(pagamento)
+            # HIGH-07 FIX: Usar transação atómica com select_for_update
+            from django.db import transaction
+            with transaction.atomic():
+                # Buscar pagamento com lock
+                try:
+                    pagamento = Pagamento.objects.select_for_update().get(referencia_pagamento=referencia_pagamento)
+                except Pagamento.DoesNotExist:
+                    logger.error(f"Pagamento não encontrado: {referencia_pagamento}")
+                    raise PagamentoInvalido(f"Pagamento não encontrado: {referencia_pagamento}")
+                
+                # MEDIUM-14 FIX: Ignorar webhooks para pagamentos já em estado final
+                if pagamento.status in ('PAID', 'CANCELLED', 'EXPIRED'):
+                    logger.warning(f"Webhook ignorado: pagamento {referencia_pagamento} já está em estado {pagamento.status}")
+                    return pagamento, True
+                
+                # Atualizar status
+                self._atualizar_status_pagamento(
+                    pagamento,
+                    novo_status,
+                    dados_processados['resposta_completa'],
+                    dados_processados['motivo'],
+                    ip_address,
+                    user_agent,
+                    criado_por='WEBHOOK'
+                )
+                
+                # Se pagamento aceito, executar ações
+                if pagamento.eh_pago():
+                    self._processar_pagamento_aceito(pagamento)
             
             logger.info(f"Webhook processado com sucesso: {referencia_pagamento}")
             return pagamento, True
@@ -817,27 +872,35 @@ class PaymentService:
                     ).order_by('-data_inscricao').first()
                 
                 if inscricao:
-                    if inscricao.status != 'A':
-                        inscricao.pagamento_simulado = False
-                        inscricao.forma_pagamento = 'CARTAO_CREDITO'
-                        inscricao.valor_pago = pagamento.valor_final
-                        inscricao.data_pagamento = timezone.now()
-                        inscricao.status = 'A'
-                        inscricao.data_confirmacao = timezone.now()
-                        inscricao.save()
-                        
-                        # Atribuir turma automática
-                        atribuir_turma_automatica(inscricao)
-                        
-                        # Enviar o comprovativo presencial depois de a turma estar definida.
-                        try:
-                            inscricao.enviar_comprovativo_inscricao()
-                        except Exception as e_mail:
-                            logger.error(f"Erro ao enviar comprovativo da inscrição: {e_mail}")
+                    # HIGH-07 FIX: Usar select_for_update para prevenir race condition
+                    from django.db import transaction
+                    with transaction.atomic():
+                        inscricao_locked = Inscricao.objects.select_for_update().get(pk=inscricao.pk)
+                        if inscricao_locked.status != 'A':
+                            inscricao_locked.pagamento_simulado = False
+                            inscricao_locked.forma_pagamento = 'CARTAO_CREDITO'
+                            inscricao_locked.valor_pago = pagamento.valor_final
+                            inscricao_locked.data_pagamento = timezone.now()
+                            inscricao_locked.status = 'A'
+                            inscricao_locked.data_confirmacao = timezone.now()
+                            inscricao_locked.save()
                             
-                        logger.info(f"Inscrição {inscricao.id} ativada automaticamente pós-pagamento com sucesso!")
-                    else:
-                        logger.info(f"Inscrição {inscricao.id} já estava ativa.")
+                            # Atribuir turma automática
+                            atribuir_turma_automatica(inscricao_locked)
+                            
+                            # Atualizar vagas da turma
+                            if inscricao_locked.turma_escolhida:
+                                inscricao_locked.turma_escolhida.atualizar_vagas_turma()
+                            
+                            # Enviar o comprovativo presencial depois de a turma estar definida.
+                            try:
+                                inscricao_locked.enviar_comprovativo_inscricao()
+                            except Exception as e_mail:
+                                logger.error(f"Erro ao enviar comprovativo da inscrição: {e_mail}")
+                                
+                            logger.info(f"Inscrição {inscricao_locked.id} ativada automaticamente pós-pagamento com sucesso!")
+                        else:
+                            logger.info(f"Inscrição {inscricao_locked.id} já estava ativa.")
                 else:
                     logger.warning(f"Nenhuma inscrição correspondente encontrada para pagamento {pagamento.referencia_pagamento}")
 

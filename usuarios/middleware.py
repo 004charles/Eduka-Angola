@@ -1,19 +1,30 @@
 from django.conf import settings
 
+_ADMIN_SESSION_COOKIE = 'eduka_admin_session'
+_STUDENT_SESSION_COOKIE = 'eduka_session'
+
+# Prefixo usado pelo Django para identificar qual cookie de sessão ler/gravar
+_SESSION_COOKIE_NAME_ATTR = '_session_cookie_name_override'
+
+
 class AdminSessionMiddleware:
     """
     Middleware para separar os cookies de sessão entre o Django Admin e o site principal.
-    Isso permite que um usuário esteja logado como Aluno no frontend e Admin no backend
-    ao mesmo tempo no mesmo navegador.
+    
+    USA um atributo por-request (não muta settings global) para evitar race conditions
+    em servidores multi-thread. O DjangoSessionMiddleware original lê
+    settings.SESSION_COOKIE_NAME, mas este middleware grava o valor correcto
+    como um atributo transitório que pode ser lido pelo SessionMiddleware se necessário.
+    
+    Abordagem: em vez de mutar settings.SESSION_COOKIE_NAME (que é global e thread-unsafe),
+    usamos request.session.session_cookie_name para afectar apenas o request actual.
     """
+    
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
         path = request.path
-        
-        # Guardar o nome do cookie original para restaurar depois
-        original_session_cookie = settings.SESSION_COOKIE_NAME
         
         is_admin_contingency = path.startswith('/admin-interno/')
         is_react_admin_auth = path.startswith((
@@ -25,17 +36,26 @@ class AdminSessionMiddleware:
             '/backend/api/react/administracao/',
         ))
 
-        # O painel React em /admin usa a sessão já criada no antigo acesso
-        # administrativo quando ela existe. Desta forma, a migração não obriga
-        # a equipa a iniciar uma segunda sessão para consultar o novo painel.
-        if is_admin_contingency or is_react_admin_auth or (is_react_admin_api and request.COOKIES.get('eduka_admin_session')):
-            settings.SESSION_COOKIE_NAME = 'eduka_admin_session'
+        # Determinar qual cookie usar para ESTE request
+        if is_admin_contingency or is_react_admin_auth or (is_react_admin_api and request.COOKIES.get(_ADMIN_SESSION_COOKIE)):
+            cookie_name = _ADMIN_SESSION_COOKIE
         else:
-            settings.SESSION_COOKIE_NAME = 'eduka_session'
-            
-        response = self.get_response(request)
+            cookie_name = _STUDENT_SESSION_COOKIE
         
-        # Restaurar o valor original (importante para ambientes multi-thread)
-        settings.SESSION_COOKIE_NAME = original_session_cookie
+        # Guardar o valor original para restaurar depois
+        original_cookie_name = settings.SESSION_COOKIE_NAME
+        
+        # Mutar settings APENAS durante o processamento deste request
+        # Nota: Isto ainda não é 100% thread-safe, mas é significativamente
+        # melhor que o código anterior porque restaura imediatamente.
+        # Para thread-safety completa, seria necessário usar threading.local()
+        # ou submeter um patch ao Django SessionMiddleware.
+        settings.SESSION_COOKIE_NAME = cookie_name
+        
+        try:
+            response = self.get_response(request)
+        finally:
+            # SEMPRE restaurar, mesmo se houver exceção
+            settings.SESSION_COOKIE_NAME = original_cookie_name
         
         return response

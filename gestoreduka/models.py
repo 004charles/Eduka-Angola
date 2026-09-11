@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinLengthValidator
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from core.upload_validators import validate_image_file
 from django.conf import settings
 import uuid
 
@@ -636,8 +637,14 @@ class PerfilCentroDeFormacao(models.Model):
     """
     centro = models.OneToOneField(CentroDeFormacao, on_delete=models.CASCADE, related_name='perfil')
     dono = models.CharField(max_length=100, null=True, blank=True, verbose_name='Dono do Centro')
-    imagem = models.ImageField(_('Imagem ou Logo'), upload_to='centros/', null=True, blank=True)
-    banner = models.ImageField(_('Imagem de Capa'), upload_to='centros/banners/', null=True, blank=True)
+    imagem = models.ImageField(
+        _('Imagem ou Logo'), upload_to='centros/', null=True, blank=True,
+        validators=[validate_image_file]
+    )
+    banner = models.ImageField(
+        _('Imagem de Capa'), upload_to='centros/banners/', null=True, blank=True,
+        validators=[validate_image_file]
+    )
     video_apresentacao = models.FileField(_('Vídeo de Apresentação'), upload_to='centros_videos/', null=True, blank=True)
     descricao = models.TextField(_('Descrição'), null=True, blank=True)
     

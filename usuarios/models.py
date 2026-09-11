@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinLengthValidator, MinValueValidator, MaxValueValidator
+from core.upload_validators import validate_image_file
 # from django.contrib.gis.db import models as gis_models
 from django.utils.safestring import mark_safe
 # Note: CentroDeFormacao will be imported where used to avoid circular imports if needed
@@ -134,16 +135,28 @@ class PerfilAluno(models.Model):
     interesses = models.ManyToManyField('cursos_app.Categoria', blank=True, related_name='alunos_interessados')
     
     imagem = models.ImageField(_('Imagem de Perfil'), upload_to='perfil_alunos/', null=True, blank=True)
-    foto_de_perfil = models.ImageField(_('Foto de Perfil'), upload_to='fotos_perfil/', null=True, blank=True)
-    foto_de_capa = models.ImageField(_('Foto de Capa'), upload_to='fotos_capa/', null=True, blank=True)
+    foto_de_perfil = models.ImageField(
+        _('Foto de Perfil'), upload_to='fotos_perfil/', null=True, blank=True,
+        validators=[validate_image_file]
+    )
+    foto_de_capa = models.ImageField(
+        _('Foto de Capa'), upload_to='fotos_capa/', null=True, blank=True,
+        validators=[validate_image_file]
+    )
     biografia = models.TextField(_('Biografia'), blank=True)
     telefone = models.CharField(_('Telefone'), max_length=20, blank=True, null=True)
     linkedin = models.URLField(_('LinkedIn'), blank=True, null=True)
     github = models.URLField(_('GitHub'), blank=True, null=True)
     criado_em = models.DateTimeField(default=timezone.now)
     
-    bilhete_frente = models.FileField(_('BI Frente'), upload_to='documentos/bilhetes/', null=True, blank=True)
-    bilhete_verso = models.FileField(_('BI Verso'), upload_to='documentos/bilhetes/', null=True, blank=True)
+    bilhete_frente = models.FileField(
+        _('BI Frente'), upload_to='documentos/bilhetes/', null=True, blank=True,
+        validators=[validate_image_file]
+    )
+    bilhete_verso = models.FileField(
+        _('BI Verso'), upload_to='documentos/bilhetes/', null=True, blank=True,
+        validators=[validate_image_file]
+    )
 
     from django.conf import settings
     if ('django.contrib.gis' in settings.INSTALLED_APPS and 

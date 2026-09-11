@@ -358,7 +358,13 @@ def inscrever_curso(request, curso_id):
             return redirect('ficha_inscricao', curso_id=curso.id)
             
         from .models import Turma
-        turma_escolhida = get_object_or_404(Turma, id=turma_id, curso=curso, status='ABERTA')
+        from django.db import transaction
+        
+        # HIGH-06 FIX: Usar select_for_update() para prevenir race condition
+        turma_escolhida = get_object_or_404(
+            Turma.objects.select_for_update(), 
+            id=turma_id, curso=curso, status='ABERTA'
+        )
         if turma_escolhida.vagas_disponiveis <= 0:
             messages.error(request, "Esta turma já não possui vagas disponíveis. Por favor, selecione outra.")
             return redirect('ficha_inscricao', curso_id=curso.id)
@@ -371,35 +377,37 @@ def inscrever_curso(request, curso_id):
                 messages.error(request, f"O envio do documento '{curso.get_documento_requerido_display()}' é obrigatório para a inscrição.")
                 return redirect('ficha_inscricao', curso_id=curso.id)
         
-        # Criar inscrição
-        inscricao = Inscricao.objects.create(
-            aluno=aluno,
-            curso=curso,
-            turma_escolhida=turma_escolhida,
-            documento_inscricao=documento_file,
-            status='P',
-            tipo_inscricao='ONLINE',
-            codigo_simulacao=codigo_gerado,
-            observacoes=f"Inscrição realizada em {timezone.now().strftime('%d/%m/%Y %H:%M')}"
-        )
-        
-        valor_cobrar = curso.valor_a_cobrar_online()
-        
-        # Se o valor a cobrar online for 0, confirmar automaticamente
-        if valor_cobrar <= 0:
-            inscricao.forma_pagamento = 'ISENTO'
-            inscricao.valor_pago = 0
-            inscricao.data_pagamento = timezone.now()
-            inscricao.status = 'A'
-            inscricao.data_confirmacao = timezone.now()
-            inscricao.save()
+        # Criar inscrição dentro de transação atómica (HIGH-06)
+        with transaction.atomic():
+            inscricao = Inscricao.objects.create(
+                aluno=aluno,
+                curso=curso,
+                turma_escolhida=turma_escolhida,
+                documento_inscricao=documento_file,
+                status='P',
+                tipo_inscricao='ONLINE',
+                codigo_simulacao=codigo_gerado,
+                observacoes=f"Inscrição realizada em {timezone.now().strftime('%d/%m/%Y %H:%M')}"
+            )
             
-            messages.success(request, "Inscrição realizada com sucesso! A sua vaga está confirmada.")
-            if is_guest:
-                request.session['guest_inscricao_id'] = inscricao.id
-                request.session['guest_email'] = aluno.usuario.email
-                return redirect('curso_detalhe', id=curso_id)
-            return redirect('painel_curso', curso_id=curso_id)
+            valor_cobrar = curso.valor_a_cobrar_online()
+            
+            # Se o valor a cobrar online for 0, confirmar automaticamente
+            if valor_cobrar <= 0:
+                inscricao.forma_pagamento = 'ISENTO'
+                inscricao.valor_pago = 0
+                inscricao.data_pagamento = timezone.now()
+                inscricao.status = 'A'
+                inscricao.data_confirmacao = timezone.now()
+                inscricao.save()
+                turma_escolhida.atualizar_vagas_turma()
+                
+                messages.success(request, "Inscrição realizada com sucesso! A sua vaga está confirmada.")
+                if is_guest:
+                    request.session['guest_inscricao_id'] = inscricao.id
+                    request.session['guest_email'] = aluno.usuario.email
+                    return redirect('curso_detalhe', id=curso_id)
+                return redirect('painel_curso', curso_id=curso_id)
             
         from cursos_app.utils import enviar_email_inscricao
         try:

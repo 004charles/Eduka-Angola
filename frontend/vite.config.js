@@ -26,24 +26,24 @@ export default defineConfig({
     },
     proxy: {
       "/api": {
-        target: "http://127.0.0.1:8001",
+        target: "http://127.0.0.1:8000",
         changeOrigin: true,
       },
       "/api/public": {
-        target: "http://127.0.0.1:8001",
+        target: "http://127.0.0.1:8000",
         changeOrigin: true,
       },
       "/backend": {
-        target: "http://127.0.0.1:8001",
+        target: "http://127.0.0.1:8000",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/backend/, ""),
       },
       "/static": {
-        target: "http://127.0.0.1:8001",
+        target: "http://127.0.0.1:8000",
         changeOrigin: true,
       },
       "/media": {
-        target: "http://127.0.0.1:8001",
+        target: "http://127.0.0.1:8000",
         changeOrigin: true,
       },
     },
