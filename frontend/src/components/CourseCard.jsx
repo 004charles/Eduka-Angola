@@ -24,10 +24,8 @@ function resumir(texto) {
  */
 export default function CourseCard({ course, onSave, onCompare, compared = false }) {
   const cursoId = String(course.id);
-  const favoritoInicial = typeof window !== "undefined" && Array.isArray(window.__edukaFavoriteIds)
-    ? window.__edukaFavoriteIds.includes(cursoId)
-    : Boolean(course.favorito || course.isFavorite);
-  const [isFavorite, setIsFavorite] = useState(favoritoInicial);
+  // Initial state: assume not favorited, the useEffect will sync with global state
+  const [isFavorite, setIsFavorite] = useState(false);
   const [savingFavorite, setSavingFavorite] = useState(false);
   const cardRef = useRef(null);
   const closeTimer = useRef(null);
