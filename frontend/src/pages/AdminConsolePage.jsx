@@ -11,7 +11,7 @@ const number = new Intl.NumberFormat("pt-AO");
 export default function AdminConsolePage({ onNavigate, theme, onThemeChange }) {
   const [data, setData] = useState(null); const [error, setError] = useState(""); const [busy, setBusy] = useState("");
   const load = useCallback(async () => { setError(""); try { setData(await getOverview()); return true; } catch (reason) { setError(reason.message); return false; } }, []);
-  const { refreshNow, lastUpdated, syncing } = useAdminAutoRefresh(load, { interval: 15000 });
+  const { refreshNow, lastUpdated, syncing } = useAdminAutoRefresh(load, { interval: 15000, enabled: Boolean(data) || !error });
   const max = useMemo(() => Math.max(1, ...(data?.atividade_pagamentos || []).map((item) => item.total)), [data]);
   const toggleModule = async (module) => { setBusy(module.chave); try { await authRequest("/api/react/administracao/modulos/", { chave: module.chave, ativo: !module.ativo }); await refreshNow(); } catch (reason) { setError(reason.message); } finally { setBusy(""); } };
   if (error && !data) return <AdminAccessPage message={error} onAuthenticated={refreshNow} />;

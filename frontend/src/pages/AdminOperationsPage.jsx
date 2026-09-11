@@ -57,7 +57,7 @@ export default function AdminOperationsPage({ onNavigate, theme, onThemeChange, 
   }, [search, section]);
 
   useEffect(() => { setSearch(""); setData(null); setDetail(null); load(section, ""); }, [section, load]);
-  const { refreshNow, lastUpdated, syncing } = useAdminAutoRefresh(() => load(), { interval: 15000 });
+  const { refreshNow, lastUpdated, syncing } = useAdminAutoRefresh(() => load(), { interval: 15000, enabled: Boolean(data) || !error });
 
   const changeSection = (key) => { setSection(key); onNavigate(`/admin/operacoes?secao=${key}`); };
   const update = async (item, field, value) => {

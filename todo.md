@@ -521,3 +521,5 @@
 - [x] Actualizar automaticamente métricas, alertas e listas da administração React sem recarregamento manual
 - [x] Adicionar detalhe e edição React auditável para utilizadores, centros, cursos, inscrições, pagamentos, produtos e pedidos
 - [x] Adicionar gestão React de planos e subscrições de cursos em vídeo com criação, preço, vigência e disponibilidade
+- [x] Manter três caixas de resumo no topo da visão geral administrativa React
+- [ ] Corrigir recarregamento automático da tela de login administrativa ao preencher ou submeter a senha
