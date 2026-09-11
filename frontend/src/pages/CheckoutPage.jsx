@@ -42,7 +42,7 @@ export default function CheckoutPage({ kind, course: initialCourse, turmas = [],
   const availableClasses = turmas.filter((item) => item.id === courseId);
   const selectedClass = availableClasses.find((item) => String(item.turma_id || item.id) === String(form.turma_id));
   const setValue = (field) => (event) => setForm((current) => ({ ...current, [field]: event.target.value }));
-  const back = () => onNavigate(isVideo ? `/video-cursos/${slug}` : `/cursos/${courseId}`);
+  const back = () => onNavigate(isVideo ? `/video-cursos/${slug}` : `/cursos/${course?.slug || slug}`);
   const initiate = async (event) => {
     event.preventDefault(); setError(""); setSubmitting(true);
     try {

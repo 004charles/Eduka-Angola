@@ -98,8 +98,8 @@ export default function CourseComparisonPage({ courses = [], classes = [], ids =
             <div className="comparison-actions-label"><b>Próximo passo</b><small>Confirme os detalhes antes da candidatura.</small></div>
             {records.map(({ course, turma }) => (
               <div className="comparison-course-actions" key={course.id}>
-                <button type="button" className="comparison-detail" onClick={() => onNavigate(`/cursos/${course.id}`)}>Ver curso <ArrowRight size={15} /></button>
-                <button type="button" className="primary-action" onClick={() => onNavigate(`/inscrever/${course.id}${turma?.turma_id ? `?turma=${turma.turma_id}` : ""}`)}>Candidatar-me</button>
+                <button type="button" className="comparison-detail" onClick={() => onNavigate(`/cursos/${course.slug}`)}>Ver curso <ArrowRight size={15} /></button>
+                <button type="button" className="primary-action" onClick={() => onNavigate(`/inscrever/${course.slug}${turma?.turma_id ? `?turma=${turma.turma_id}` : ""}`)}>Candidatar-me</button>
               </div>
             ))}
           </div>

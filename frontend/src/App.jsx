@@ -160,10 +160,10 @@ function App() {
   const centerInviteToken = searchParams.get("convite");
   const comparisonIds = (searchParams.get("ids") || "").split(",").filter(Boolean);
   const authModes = { "/entrar": "login", "/criar-conta": "register", "/verificar-email": "verify", "/recuperar-palavra-passe": "recover", "/redefinir-palavra-passe": "reset" };
-  const courseRouteMatch = pathname.match(/^\/cursos\/(\d+)\/?$/);
+  const courseRouteMatch = pathname.match(/^\/cursos\/([^/]+)\/?$/);
   const videoCourseRouteMatch = pathname.match(/^\/video-cursos\/([^/]+)\/?$/);
   const learningVideoRouteMatch = pathname.match(/^\/aprender\/video\/([^/]+)\/?$/);
-  const checkoutCourseRouteMatch = pathname.match(/^\/inscrever\/(\d+)\/?$/);
+  const checkoutCourseRouteMatch = pathname.match(/^\/inscrever\/([^/]+)\/?$/);
   const checkoutVideoRouteMatch = pathname.match(/^\/comprar\/([^/]+)\/?$/);
   const centerRouteMatch = pathname.match(/^\/centros\/(\d+)\/?$/);
   const blogPostRouteMatch = pathname.match(/^\/blog\/([^/]+)\/?$/);
@@ -174,10 +174,10 @@ function App() {
   const internshipRouteMatch = pathname.match(/^\/estagios\/([^/]+)\/?$/);
   const marketProductRouteMatch = pathname.match(/^\/mercado\/produtos\/([^/]+)\/?$/);
   const certificateVerificationMatch = pathname.match(/^\/verificar-certificado\/([^/]+)\/?$/);
-  const courseId = courseRouteMatch ? Number(courseRouteMatch[1]) : null;
-  const checkoutCourseId = checkoutCourseRouteMatch ? Number(checkoutCourseRouteMatch[1]) : null;
-  const selectedCourse = courseId ? homeData?.cursos?.find((course) => course.id === courseId) : null;
-  const checkoutCourse = checkoutCourseId ? homeData?.cursos?.find((course) => course.id === checkoutCourseId) : null;
+  const courseSlug = courseRouteMatch ? decodeURIComponent(courseRouteMatch[1]) : null;
+  const checkoutCourseSlug = checkoutCourseRouteMatch ? decodeURIComponent(checkoutCourseRouteMatch[1]) : null;
+  const selectedCourse = courseSlug ? homeData?.cursos?.find((course) => course.slug === courseSlug) : null;
+  const checkoutCourse = checkoutCourseSlug ? homeData?.cursos?.find((course) => course.slug === checkoutCourseSlug) : null;
   const legacyVideoCatalogue = pathname === "/cursos" && searchParams.get("tipo") === "video";
   let page;
   if (pathname === "/gestoreduka/login_gestor" || pathname === "/gestoreduka/login_gestor/") { window.location.replace("/backend/gestoreduka/login_gestor/"); return null; }

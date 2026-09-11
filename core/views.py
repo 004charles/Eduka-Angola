@@ -592,7 +592,7 @@ def react_course_recommendations(request):
         if not reasons:
             reasons.append('Popular entre os alunos')
         valor = curso.valor_a_cobrar_online()
-        items.append({'id': curso.id, 'titulo': curso.titulo, 'slug': curso.slug, 'categoria': curso.categoria.nome if curso.categoria else 'Sem categoria', 'categoria_id': curso.categoria_id, 'centro': curso.centro.nome or 'Centro de formação', 'descricao_curta': curso.descricao_curta or curso.descricao[:180], 'imagem_url': curso.get_imagem_url, 'nivel': curso.get_nivel_display(), 'modalidade': curso.get_modalidade_display(), 'is_gratuito': curso.is_gratuito, 'certificado': curso.certificado, 'favorito': curso.id in favourite_ids, 'preco': float(valor), 'preco_label': f'{valor:,.0f} Kz'.replace(',', ' ') if valor > 0 else 'Gratuito', 'detalhe_url': reverse('curso_detalhe', kwargs={'id': curso.id}), 'motivo': reasons[0], '_score': score, '_created': curso.data_criacao})
+        items.append({'id': curso.id, 'titulo': curso.titulo, 'slug': curso.slug, 'categoria': curso.categoria.nome if curso.categoria else 'Sem categoria', 'categoria_id': curso.categoria_id, 'centro': curso.centro.nome or 'Centro de formação', 'descricao_curta': curso.descricao_curta or curso.descricao[:180], 'imagem_url': curso.get_imagem_url, 'nivel': curso.get_nivel_display(), 'modalidade': curso.get_modalidade_display(), 'is_gratuito': curso.is_gratuito, 'certificado': curso.certificado, 'favorito': curso.id in favourite_ids, 'preco': float(valor), 'preco_label': f'{valor:,.0f} Kz'.replace(',', ' ') if valor > 0 else 'Gratuito', 'detalhe_url': f'/cursos/{curso.slug}', 'motivo': reasons[0], '_score': score, '_created': curso.data_criacao})
     items.sort(key=lambda item: (item['_score'], item['_created']), reverse=True)
     for item in items:
         item.pop('_score', None)
@@ -990,6 +990,7 @@ def public_home_data(request):
         atualizado_em = getattr(perfil, 'data_atualizacao', None)
         return {
             'id': curso.id,
+            'slug': curso.slug,
             'titulo': curso.titulo,
             'categoria_id': curso.categoria_id,
             'categoria': curso.categoria.nome if curso.categoria else 'Sem categoria',
@@ -1032,7 +1033,7 @@ def public_home_data(request):
             'destaque': curso.destaque,
             'imagem_url': imagem_url,
             'data_publicacao': curso.data_criacao.isoformat(),
-            'detalhe_url': reverse('curso_detalhe', kwargs={'id': curso.id}),
+            'detalhe_url': f'/cursos/{curso.slug}',
             'inscricao_url': reverse('ficha_inscricao', kwargs={'curso_id': curso.id}),
             'pagamento': {
                 'valor_inicial': float(valor_inicial),

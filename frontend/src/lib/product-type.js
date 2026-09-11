@@ -24,5 +24,5 @@ export function textoRodapeProduto(course, turma) {
 }
 
 export function rotaDetalheProduto(course) {
-  return isVideoCurso(course) ? `/video-cursos/${course.video_slug}` : `/cursos/${course.id}`;
+  return isVideoCurso(course) ? `/video-cursos/${course.video_slug}` : `/cursos/${course.slug}`;
 }

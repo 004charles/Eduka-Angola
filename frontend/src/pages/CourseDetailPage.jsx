@@ -32,7 +32,7 @@ export default function CourseDetailPage({ course, courses, turmas, loading, onN
 
   const centro = formatarCentro(course.centro);
   const turmasDoCurso = (turmas || []).filter((turma) => turma.id === course.id).sort((a, b) => a.inicio.localeCompare(b.inicio));
-  const iniciarInscricao = (turma) => onNavigate(`/inscrever/${course.id}${turma?.turma_id ? `?turma=${turma.turma_id}` : ""}`);
+  const iniciarInscricao = (turma) => onNavigate(`/inscrever/${course.slug}${turma?.turma_id ? `?turma=${turma.turma_id}` : ""}`);
   const video = temVideo(course);
   const localizacao = [course.cidade, course.provincia].filter(Boolean).join(", ");
   const proximaTurmaPorCurso = new Map();
@@ -42,7 +42,7 @@ export default function CourseDetailPage({ course, courses, turmas, loading, onN
   });
   const paraCartao = (curso) => {
     const turma = proximaTurmaPorCurso.get(curso.id);
-    return { ...curso, title: curso.titulo, category: curso.categoria, centre: formatarCentro(curso.centro), mode: curso.modalidade, imageUrl: curso.imagem_url, detailUrl: curso.is_video ? `/video-cursos/${curso.video_slug}` : `/cursos/${curso.id}`, inscricaoUrl: backendUrl(curso.inscricao_url), schedule: turma ? `Início ${turma.inicio_formatado}` : curso.pagamento?.agora || "Condições a confirmar", turma };
+    return { ...curso, title: curso.titulo, category: curso.categoria, centre: formatarCentro(curso.centro), mode: curso.modalidade, imageUrl: curso.imagem_url, detailUrl: curso.is_video ? `/video-cursos/${curso.video_slug}` : `/cursos/${curso.slug}`, inscricaoUrl: backendUrl(curso.inscricao_url), schedule: turma ? `Início ${turma.inicio_formatado}` : curso.pagamento?.agora || "Condições a confirmar", turma };
   };
   const outrosCursos = (courses || []).filter((item) => item.id !== course.id);
   const recomendados = [
