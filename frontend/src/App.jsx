@@ -176,9 +176,11 @@ function App() {
   const certificateVerificationMatch = pathname.match(/^\/verificar-certificado\/([^/]+)\/?$/);
   const courseSlug = courseRouteMatch ? decodeURIComponent(courseRouteMatch[1]) : null;
   const checkoutCourseSlug = checkoutCourseRouteMatch ? decodeURIComponent(checkoutCourseRouteMatch[1]) : null;
-  const selectedCourse = courseSlug ? homeData?.cursos?.find((course) => course.slug === courseSlug) : null;
-  const checkoutCourse = checkoutCourseSlug ? homeData?.cursos?.find((course) => course.slug === checkoutCourseSlug) : null;
+  const selectedCourse = courseSlug ? (homeData?.cursos?.find((course) => course.slug === courseSlug) || (/^\d+$/.test(courseSlug) ? homeData?.cursos?.find((course) => course.id === Number(courseSlug)) : null)) : null;
+  const checkoutCourse = checkoutCourseSlug ? (homeData?.cursos?.find((course) => course.slug === checkoutCourseSlug) || (/^\d+$/.test(checkoutCourseSlug) ? homeData?.cursos?.find((course) => course.id === Number(checkoutCourseSlug)) : null)) : null;
   const legacyVideoCatalogue = pathname === "/cursos" && searchParams.get("tipo") === "video";
+  if (courseSlug && /^\d+$/.test(courseSlug) && selectedCourse?.slug) { navigate(`/cursos/${selectedCourse.slug}`, false); return null; }
+  if (checkoutCourseSlug && /^\d+$/.test(checkoutCourseSlug) && checkoutCourse?.slug) { navigate(`/inscrever/${checkoutCourse.slug}${window.location.search}`, false); return null; }
   let page;
   if (pathname === "/gestoreduka/login_gestor" || pathname === "/gestoreduka/login_gestor/") { window.location.replace("/backend/gestoreduka/login_gestor/"); return null; }
   if (pathname === "/gestoreduka" || pathname === "/gestoreduka/" || pathname.startsWith("/gestoreduka/")) return <ManagerPortalPage route={pathname} />;
