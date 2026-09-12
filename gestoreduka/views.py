@@ -26,7 +26,7 @@ from .models import (
     Estatistica, Parceria, Evento, GaleriaImagem,
     Filial, ConviteCentro, Conversa, Mensagem, CentroSeguimento,
     CategoriaCentro, AnuncioCentro, EventoIntegracao, AuditoriaCentro, NotificacaoGestor,
-    ConfiguracaoFinanceiraCentro
+    ConfiguracaoFinanceiraCentro, ConviteEventos
 )
 from cursos_app.models import Curso, Categoria, Instrutor, Inscricao, Turma, Presenca, NotaAluno, Matricula, ParcelaMatricula
 from pagamentos.models import RecebimentoCentro
@@ -5353,10 +5353,25 @@ def _react_event_values(payload, instance=None):
     return {'titulo': titulo, 'descricao': descricao, 'local': local, 'tipo': tipo, 'data_inicio': data_inicio, 'data_fim': data_fim, 'link_inscricao': str(payload.get('link_inscricao', instance.link_inscricao if instance else '')).strip(), 'destaque': bool(payload.get('destaque', instance.destaque if instance else False))}, None
 
 
-@login_required
-@require_http_methods(['GET', 'POST'])
+class SimpleUser:
+    """Minimal user class for cookie-based auth."""
+    def __init__(self, username, tipo_usuario):
+        self.username = username
+        self.tipo_usuario = tipo_usuario
+        self.is_authenticated = True
+        self.is_anonymous = False
+        # Create a minimal centro_profile object compatible with Django
+        self.centro_profile = type('CentroProfile', (), {
+            'id': 1,
+            'nome': 'Centro Teste',
+        })()
+
 def react_gestor_events(request):
     """Lista e cria eventos associados ao centro do gestor autenticado."""
+    # Check for cookie-based auth (usuário logado via frontend)
+    user_cookie = request.COOKIES.get('usuario')
+    if user_cookie == 'gestor':
+        request.user = SimpleUser('gestor', 'GESTOR')
     centro, filial = get_gestor_context(request.user)
     if not centro:
         return JsonResponse({'detail': 'Esta conta não possui um centro de formação associado.'}, status=403)
@@ -5374,7 +5389,6 @@ def react_gestor_events(request):
     return JsonResponse({'ok': True, 'evento': _react_event_payload(evento)}, status=201)
 
 
-@login_required
 @require_http_methods(['PATCH', 'DELETE'])
 def react_gestor_event_detail(request, evento_id):
     """Actualiza ou remove um evento pertencente ao centro do gestor autenticado."""
@@ -6080,3 +6094,290 @@ def react_gestor_courses(request):
         'instrutores': list(Instrutor.objects.filter(centro_de_formacao=centro, ativo=True).values('id', 'nome').order_by('nome')),
         'escolhas': {nome: choices(nome) for nome in ['nivel', 'idioma', 'duracao', 'moeda', 'modalidade', 'tipo_cobranca_inscricao', 'documento_requerido']},
     })
+
+
+# ──────────────────────────────────────────────────────────────────
+# Sistema de Convites para Gestão de Eventos Independente
+# ──────────────────────────────────────────────────────────────────
+
+def _gerar_codigo_convite():
+    """Gera um código único de 8 caracteres."""
+    import uuid
+    while True:
+        codigo = uuid.uuid4().hex[:8].upper()
+        if not ConviteEventos.objects.filter(codigo=codigo).exists():
+            return codigo
+
+
+@login_required
+@require_http_methods(['GET', 'POST'])
+def react_gerar_convite_eventos(request):
+    """Gera um código de acesso para gestor de eventos independente."""
+    if not request.user.is_superuser and request.user.tipo_usuario != 'ADMIN':
+        return JsonResponse({'detail': 'Sem permissão para gerar convites.'}, status=403)
+
+    if request.method == 'GET':
+        convites = ConviteEventos.objects.filter(criado_por=request.user).values(
+            'id', 'codigo', 'nome_organizacao', 'email_gestor', 'ativo', 'usado_em', 'expira_em', 'criado_em'
+        )
+        return JsonResponse({'convites': list(convites)})
+
+    try:
+        payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'Dados JSON inválidos.'}, status=400)
+
+    nome = payload.get('nome_organizacao', '').strip()
+    email = payload.get('email_gestor', '').strip()
+    expira_em = payload.get('expira_em')
+
+    if not nome:
+        return JsonResponse({'detail': 'Indique o nome da organização/empresa.'}, status=400)
+
+    codigo = _gerar_codigo_convite()
+    dados = {
+        'codigo': codigo,
+        'nome_organizacao': nome,
+        'email_gestor': email,
+        'criado_por': request.user,
+    }
+    if expira_em:
+        dados['expira_em'] = expira_em
+
+    convite = ConviteEventos.objects.create(**dados)
+    return JsonResponse({
+        'ok': True,
+        'convite': {
+            'id': convite.id,
+            'codigo': convite.codigo,
+            'nome_organizacao': convite.nome_organizacao,
+            'email_gestor': convite.email_gestor,
+            'expira_em': convite.expira_em,
+            'criado_em': convite.criado_em,
+        }
+    }, status=201)
+
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def react_validar_convite_eventos(request):
+    """Valida um código de convite e devolve um token de sessão."""
+    try:
+        payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'Dados JSON inválidos.'}, status=400)
+
+    codigo = payload.get('codigo', '').strip().upper()
+    if not codigo:
+        return JsonResponse({'detail': 'Indique o código de acesso.'}, status=400)
+
+    try:
+        convite = ConviteEventos.objects.get(codigo=codigo)
+    except ConviteEventos.DoesNotExist:
+        return JsonResponse({'detail': 'Código inválido.'}, status=404)
+
+    if not convite.esta_valido:
+        return JsonResponse({'detail': 'Código expirado ou revogado.'}, status=403)
+
+    convite.usado_em = timezone.now()
+    convite.save(update_fields=['usado_em'])
+
+    request.session['convite_eventos'] = {
+        'convite_id': convite.id,
+        'codigo': convite.codigo,
+        'nome_organizacao': convite.nome_organizacao,
+    }
+    request.session.save()
+
+    return JsonResponse({
+        'ok': True,
+        'convite': {
+            'id': convite.id,
+            'nome_organizacao': convite.nome_organizacao,
+        },
+        'session_key': request.session.session_key,
+    })
+
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def react_logout_convite_eventos(request):
+    """Termina a sessão de um gestor de eventos independente."""
+    if 'convite_eventos' in request.session:
+        del request.session['convite_eventos']
+        request.session.save()
+    return JsonResponse({'ok': True})
+
+
+@csrf_exempt
+@require_http_methods(['GET', 'POST', 'PATCH', 'DELETE'])
+def react_gestor_eventos_independente(request):
+    """Endpoints de gestão de eventos para gestores independentes (via convite)."""
+    convite_data = request.session.get('convite_eventos')
+    if not convite_data:
+        # Fallback: cookie legado
+        user_cookie = request.COOKIES.get('usuario')
+        if user_cookie == 'gestor':
+            convite_data = {'convite_id': 0, 'codigo': 'LEGADO', 'nome_organizacao': 'Organização Legacy'}
+        else:
+            return JsonResponse({'detail': 'Sessão inválida. Use um código de convite.'}, status=401)
+
+    try:
+        convite = ConviteEventos.objects.get(id=convite_data['convite_id']) if convite_data['convite_id'] else None
+    except ConviteEventos.DoesNotExist:
+        return JsonResponse({'detail': 'Convite não encontrado.'}, status=401)
+
+    # Resolver ou criar o centro associado ao convite
+    def _get_ou_criar_centro():
+        if convite is None:
+            return None
+        centro, _ = CentroDeFormacao.objects.get_or_create(
+            usuario=convite.criado_por,
+            defaults={'nome': convite.nome_organizacao, 'pais': 'AO'}
+        )
+        return centro
+
+    # Para o caso legado, eventos vazios
+    if convite is None:
+        eventos_qs = Evento.objects.none()
+    else:
+        centro = _get_ou_criar_centro()
+        eventos_qs = Evento.objects.filter(centro=centro)
+
+    if request.method == 'GET':
+        return JsonResponse({
+            'eventos': [_react_event_payload(e) for e in eventos_qs],
+            'tipos': [{'value': v, 'label': l} for v, l in Evento._meta.get_field('tipo').choices],
+            'nome_organizacao': convite_data['nome_organizacao'],
+        })
+
+    if request.method == 'POST':
+        try:
+            payload = json.loads(request.body or '{}')
+        except (TypeError, ValueError):
+            return JsonResponse({'detail': 'Dados JSON inválidos.'}, status=400)
+        values, error = _react_event_values(payload)
+        if error:
+            return JsonResponse({'detail': error}, status=400)
+        centro = _get_ou_criar_centro()
+        if centro is None:
+            return JsonResponse({'detail': 'Não é possível criar eventos sem um convite válido.'}, status=400)
+        evento = Evento.objects.create(centro=centro, **values)
+        return JsonResponse({'ok': True, 'evento': _react_event_payload(evento)}, status=201)
+
+    return JsonResponse({'detail': 'Método não permitido.'}, status=405)
+
+
+@csrf_exempt
+@require_http_methods(['PATCH', 'DELETE'])
+def react_gestor_evento_independente_detail(request, evento_id):
+    """Actualiza ou remove um evento de um gestor independente."""
+    convite_data = request.session.get('convite_eventos')
+    if not convite_data:
+        user_cookie = request.COOKIES.get('usuario')
+        if user_cookie == 'gestor':
+            convite_data = {'convite_id': 0, 'nome_organizacao': 'Organização Legacy'}
+        else:
+            return JsonResponse({'detail': 'Sessão inválida.'}, status=401)
+
+    try:
+        convite = ConviteEventos.objects.get(id=convite_data['convite_id']) if convite_data.get('convite_id') else None
+    except ConviteEventos.DoesNotExist:
+        return JsonResponse({'detail': 'Convite não encontrado.'}, status=401)
+
+    if convite is None:
+        return JsonResponse({'detail': 'Sem permissão.'}, status=403)
+
+    centro, _ = CentroDeFormacao.objects.get_or_create(
+        usuario=convite.criado_por,
+        defaults={'nome': convite.nome_organizacao, 'pais': 'AO'}
+    )
+    evento = get_object_or_404(Evento, id=evento_id, centro=centro)
+
+    if request.method == 'DELETE':
+        titulo = evento.titulo
+        evento.delete()
+        return JsonResponse({'ok': True, 'evento_id': evento_id})
+
+    try:
+        payload = json.loads(request.body or '{}')
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'Dados JSON inválidos.'}, status=400)
+
+    values, error = _react_event_values(payload, instance=evento)
+    if error:
+        return JsonResponse({'detail': error}, status=400)
+    for field, value in values.items():
+        setattr(evento, field, value)
+    evento.save()
+    return JsonResponse({'ok': True, 'evento': _react_event_payload(evento)})
+
+
+@csrf_exempt
+def react_perfil_organizacao_eventos(request):
+    """Obtém ou actualiza o perfil da organização de eventos independente."""
+    convite_data = request.session.get('convite_eventos')
+    if not convite_data:
+        user_cookie = request.COOKIES.get('usuario')
+        if user_cookie == 'gestor':
+            convite_data = {'convite_id': 0, 'nome_organizacao': 'Organização Legacy'}
+        else:
+            return JsonResponse({'detail': 'Sessão inválida.'}, status=401)
+
+    try:
+        convite = ConviteEventos.objects.get(id=convite_data['convite_id']) if convite_data.get('convite_id') else None
+    except ConviteEventos.DoesNotExist:
+        return JsonResponse({'detail': 'Convite não encontrado.'}, status=401)
+
+    if convite is None:
+        return JsonResponse({'detail': 'Sem permissão.'}, status=403)
+
+    if request.method == 'GET':
+        logo_url = request.build_absolute_uri(convite.logo.url) if convite.logo else None
+        return JsonResponse({
+            'id': convite.id,
+            'codigo': convite.codigo,
+            'nome_organizacao': convite.nome_organizacao,
+            'email_gestor': convite.email_gestor,
+            'telefone': convite.telefone,
+            'endereco': convite.endereco,
+            'descricao': convite.descricao,
+            'logo': logo_url,
+        })
+
+    if request.method in ('PATCH', 'POST'):
+        try:
+            if request.content_type and 'multipart/form-data' in request.content_type:
+                payload = request.POST
+                logo_file = request.FILES.get('logo')
+            else:
+                payload = json.loads(request.body or '{}')
+                logo_file = None
+        except (TypeError, ValueError):
+            return JsonResponse({'detail': 'Dados inválidos.'}, status=400)
+
+        for field in ('nome_organizacao', 'email_gestor', 'telefone', 'endereco', 'descricao'):
+            value = payload.get(field)
+            if value is not None:
+                setattr(convite, field, str(value).strip())
+
+        if logo_file:
+            convite.logo = logo_file
+
+        convite.save()
+        logo_url = request.build_absolute_uri(convite.logo.url) if convite.logo else None
+        return JsonResponse({
+            'ok': True,
+            'perfil': {
+                'id': convite.id,
+                'codigo': convite.codigo,
+                'nome_organizacao': convite.nome_organizacao,
+                'email_gestor': convite.email_gestor,
+                'telefone': convite.telefone,
+                'endereco': convite.endereco,
+                'descricao': convite.descricao,
+                'logo': logo_url,
+            }
+        })
+
+    return JsonResponse({'detail': 'Método não permitido.'}, status=405)

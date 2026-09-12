@@ -16,7 +16,7 @@ from estagio.models import Estagio, InscricaoEstagio
 from escolas.models import Escola
 from biblioteca.models import Livro
 from blog.models import Post
-from gestoreduka.models import CentroDeFormacao, Filial, ConfiguracaoPlataforma
+from gestoreduka.models import CentroDeFormacao, Filial, ConfiguracaoPlataforma, ConviteEventos
 from mercado.models import LojaParceira, PedidoMercado, ProdutoMercado
 from pagamentos.models import ConfiguracaoPagamento, Pagamento
 from usuarios.models import Usuario
@@ -46,6 +46,7 @@ SECTION_LABELS = {
     'biblioteca': ('Biblioteca', 'Obras digitais publicadas pela Edukangola'),
     'noticias': ('Notícias', 'Publicação editorial e vídeos de actualidade'),
     'configuracoes': ('Configurações', 'Pagamentos, moedas e taxas de plataforma'),
+    'convites-eventos': ('Convites de Eventos', 'Código de acesso para gestores de eventos independentes'),
     'auditoria': ('Auditoria', 'Histórico de acções administrativas React'),
 }
 
@@ -147,6 +148,9 @@ def _section_queryset(section, term):
     if section == 'noticias':
         query = Post.objects.order_by('-publicado_em')
         return query.filter(Q(titulo__icontains=term) | Q(resumo__icontains=term)) if term else query
+    if section == 'convites-eventos':
+        query = ConviteEventos.objects.select_related('criado_por').order_by('-criado_em')
+        return query.filter(Q(nome_organizacao__icontains=term) | Q(codigo__icontains=term) | Q(email_gestor__icontains=term)) if term else query
     if section == 'auditoria':
         query = AdminAuditLog.objects.select_related('ator').order_by('-criado_em')
         return query.filter(Q(recurso__icontains=term) | Q(acao__icontains=term) | Q(ator__email__icontains=term)) if term else query
@@ -194,6 +198,15 @@ def _row(section, item):
         return {'id': str(item.pk), 'title': item.titulo, 'subtitle': item.autor.nome, 'status': item.estado, 'status_label': _choice_label(item, 'estado'), 'details': [item.formato, 'Gratuito' if item.gratuito else 'Pago'], 'select': {'field': 'estado', 'label': 'Publicação', 'value': item.estado, 'options': _choices(item, 'estado')}, 'switches': [{'field': 'em_destaque', 'label': 'Destaque', 'value': item.em_destaque}]}
     if section == 'noticias':
         return {'id': str(item.pk), 'title': item.titulo, 'subtitle': _choice_label(item, 'tipo_conteudo'), 'status': item.status, 'status_label': _choice_label(item, 'status'), 'details': [item.publicado_em.strftime('%d/%m/%Y')], 'select': {'field': 'status', 'label': 'Publicação', 'value': item.status, 'options': _choices(item, 'status')}}
+    if section == 'convites-eventos':
+        status = 'ACTIVO' if item.esta_valido else 'EXPIRADO'
+        status_label = 'Activo' if item.esta_valido else 'Expirado/Revogado'
+        details = [item.codigo, item.email_gestor or 'Sem e-mail']
+        if item.usado_em:
+            details.append(f'Usado em {item.usado_em.strftime("%d/%m/%Y %H:%M")}')
+        if item.expira_em:
+            details.append(f'Expira em {item.expira_em.strftime("%d/%m/%Y")}')
+        return {'id': str(item.pk), 'title': item.nome_organizacao, 'subtitle': f'Criado por {item.criado_por.nome or item.criado_por.email}', 'status': status, 'status_label': status_label, 'details': details, 'switches': [{'field': 'ativo', 'label': 'Activo', 'value': item.ativo}]}
     if section == 'auditoria':
         actor = item.ator.nome or item.ator.email if item.ator_id else 'Sistema'
         return {'id': str(item.pk), 'title': f'{item.recurso} · {item.acao}', 'subtitle': actor, 'status': 'REGISTADO', 'status_label': 'Registado', 'details': [item.criado_em.strftime('%d/%m/%Y %H:%M')], 'readonly': True}
@@ -226,6 +239,7 @@ def _get_instance(section, item_id):
         'contactos': MensagemContato, 'perguntas': PerguntaFrequente,
         'bolsas': Bolsa, 'candidaturas-bolsas': CandidaturaBolsa, 'estagios': Estagio,
         'candidaturas-estagios': InscricaoEstagio, 'escolas': Escola, 'biblioteca': Livro, 'noticias': Post,
+        'convites-eventos': ConviteEventos,
     }
     model = models.get(section)
     if not model:
@@ -244,6 +258,7 @@ ALLOWED_FIELDS = {
     'bolsas': {'status'}, 'candidaturas-bolsas': {'status'}, 'estagios': {'ativo', 'destaque'},
     'candidaturas-estagios': {'status'}, 'escolas': {'ativa'}, 'biblioteca': {'estado', 'em_destaque'},
     'noticias': {'status'},
+    'convites-eventos': {'ativo', 'nome_organizacao', 'email_gestor', 'telefone', 'endereco', 'descricao', 'expira_em'},
 }
 
 
@@ -258,6 +273,7 @@ DETAIL_FIELDS = {
     'pagamentos': [('status', 'Estado do pagamento', 'select')],
     'produtos': [('status', 'Estado', 'select'), ('destaque', 'Destaque', 'boolean'), ('quantidade_disponivel', 'Quantidade disponível', 'number')],
     'pedidos': [('status', 'Etapa da entrega', 'select'), ('estafeta_nome', 'Nome do estafeta', 'text'), ('estafeta_telefone', 'Telefone do estafeta', 'text'), ('notas_admin', 'Notas administrativas', 'textarea'), ('motivo_ocorrencia', 'Motivo da ocorrência', 'textarea')],
+    'convites-eventos': [('nome_organizacao', 'Nome da Organização', 'text'), ('email_gestor', 'E-mail do Gestor', 'email'), ('telefone', 'Telefone', 'text'), ('endereco', 'Endereço', 'text'), ('descricao', 'Descrição', 'textarea'), ('ativo', 'Activo', 'boolean'), ('expira_em', 'Data de expiração', 'datetime')],
 }
 
 
@@ -276,22 +292,32 @@ def detail_operation(section, item_id):
 
 
 def create_operation(actor, section, values):
-    if section != 'planos-video':
-        raise ValueError('A criação ainda não está disponível neste recurso.')
-    name = str(values.get('nome') or '').strip()
-    if not name:
-        raise ValueError('Indique o nome do plano.')
-    try:
-        price = Decimal(str(values.get('preco') or '0'))
-        days = max(1, int(values.get('periodo_dias') or 30))
-        order = max(0, int(values.get('ordem') or 0))
-    except (InvalidOperation, TypeError, ValueError) as error:
-        raise ValueError('Preço, duração ou ordem inválidos.') from error
-    if price < 0:
-        raise ValueError('O preço não pode ser negativo.')
-    plan = PlanoSubscricaoVideo.objects.create(nome=name, descricao=str(values.get('descricao') or '').strip(), preco=price, moeda=str(values.get('moeda') or 'AOA').upper()[:3], periodo_dias=days, ordem=order, ativo=bool(values.get('ativo', True)), destaque=bool(values.get('destaque', False)))
-    _audit(actor, section, plan, 'criar_plano', {}, {'nome': plan.nome, 'preco': plan.preco, 'moeda': plan.moeda})
-    return _row(section, plan)
+    if section == 'planos-video':
+        name = str(values.get('nome') or '').strip()
+        if not name:
+            raise ValueError('Indique o nome do plano.')
+        try:
+            price = Decimal(str(values.get('preco') or '0'))
+            days = max(1, int(values.get('periodo_dias') or 30))
+            order = max(0, int(values.get('ordem') or 0))
+        except (InvalidOperation, TypeError, ValueError) as error:
+            raise ValueError('Preço, duração ou ordem inválidos.') from error
+        if price < 0:
+            raise ValueError('O preço não pode ser negativo.')
+        plan = PlanoSubscricaoVideo.objects.create(nome=name, descricao=str(values.get('descricao') or '').strip(), preco=price, moeda=str(values.get('moeda') or 'AOA').upper()[:3], periodo_dias=days, ordem=order, ativo=bool(values.get('ativo', True)), destaque=bool(values.get('destaque', False)))
+        _audit(actor, section, plan, 'criar_plano', {}, {'nome': plan.nome, 'preco': plan.preco, 'moeda': plan.moeda})
+        return _row(section, plan)
+    if section == 'convites-eventos':
+        nome = str(values.get('nome_organizacao') or '').strip()
+        if not nome:
+            raise ValueError('Indique o nome da organização/empresa.')
+        email = str(values.get('email_gestor') or '').strip()
+        expira_em = values.get('expira_em')
+        convite = ConviteEventos(nome_organizacao=nome, email_gestor=email, criado_por=actor, expira_em=expira_em if expira_em else None)
+        convite.save()
+        _audit(actor, section, convite, 'criar_convite', {}, {'nome_organizacao': convite.nome_organizacao, 'codigo': convite.codigo})
+        return _row(section, convite)
+    raise ValueError('A criação ainda não está disponível neste recurso.')
 
 
 def update_operation(actor, section, item_id, field, value):

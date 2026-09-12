@@ -473,6 +473,34 @@ class ModuloPublicoAdmin(UnfoldModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
+
+@admin.register(ConviteEventos)
+class ConviteEventosAdmin(UnfoldModelAdmin):
+    list_display = ('codigo', 'nome_organizacao', 'email_gestor', 'telefone', 'ativo', 'usado_em', 'expira_em', 'criado_em')
+    list_filter = ('ativo', 'criado_em')
+    search_fields = ('codigo', 'nome_organizacao', 'email_gestor')
+    readonly_fields = ('codigo', 'usado_em', 'criado_em')
+    ordering = ('-criado_em',)
+
+    fieldsets = (
+        ('Acesso', {
+            'fields': ('codigo', 'ativo', 'expira_em', 'usado_em'),
+        }),
+        ('Organização', {
+            'fields': ('nome_organizacao', 'email_gestor', 'telefone', 'endereco', 'descricao', 'logo'),
+        }),
+        ('Sistema', {
+            'fields': ('criado_por', 'criado_em'),
+            'classes': ('collapse',),
+        }),
+    )
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.criado_por = request.user
+        super().save_model(request, obj, form, change)
+
+
 # ========== CONFIGURAÇÃO DO ADMIN SITE ==========
 admin.site.site_header = "Administração do Sistema de Centros de Formação"
 admin.site.site_title = "Sistema de Centros"

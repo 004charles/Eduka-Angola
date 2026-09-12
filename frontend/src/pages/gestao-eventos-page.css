@@ -1,0 +1,202 @@
+.gestao-eventos-page {
+  min-height: calc(100vh - 76px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: radial-gradient(circle at 18% 18%, color-mix(in srgb, var(--brand) 12%, transparent), transparent 31%),
+              radial-gradient(circle at 88% 82%, color-mix(in srgb, var(--brand) 7%, transparent), transparent 29%),
+              var(--bg);
+}
+
+.gestao-eventos-gate {
+  display: grid;
+  justify-items: center;
+  max-width: 440px;
+  width: 100%;
+  padding: 46px 32px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.gestao-eventos-gate svg {
+  width: 36px;
+  height: 36px;
+  margin-bottom: 4px;
+  color: var(--brand);
+}
+
+.gestao-eventos-gate h1 {
+  margin: 12px 0 7px;
+  color: var(--ink);
+  font-family: "Manrope", sans-serif;
+  font-size: 24px;
+  letter-spacing: -.045em;
+}
+
+.gestao-eventos-gate p {
+  max-width: 320px;
+  margin: 0 0 19px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.gestao-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-soft);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+.gestao-input::placeholder { color: var(--muted); }
+.gestao-input:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 15%, transparent); }
+.gestao-input:disabled { opacity: .6; cursor: not-allowed; background: var(--surface-soft); }
+
+textarea.gestao-input { resize: vertical; }
+
+.gestao-eventos-gate .primary-action {
+  width: 100%;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: 14px;
+}
+
+.gestao-eventos-gate .primary-action:disabled { opacity: .6; cursor: not-allowed; }
+
+.gestao-error { color: #bd3541; font-size: 12px; margin: 8px 0 0; }
+
+.gestao-eventos-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 32px;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  backdrop-filter: blur(18px);
+}
+
+.gestao-eventos-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gestao-eventos-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--brand-soft);
+}
+
+.gestao-eventos-logo-placeholder {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 16%, var(--surface)), var(--surface-soft));
+  border: 1px solid var(--line);
+}
+
+.gestao-eventos-org {
+  display: block;
+  color: var(--ink);
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.gestao-eventos-codigo {
+  display: inline-block;
+  margin-top: 2px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  font-family: monospace;
+}
+
+.gestao-eventos-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gestao-eventos-content {
+  padding: 24px 32px;
+  background: var(--bg);
+  min-height: calc(100vh - 76px - 71px);
+}
+
+.gestao-eventos-perfil-section {
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-soft);
+}
+
+.gestao-eventos-perfil-card {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.gestao-eventos-perfil-card h3 {
+  margin: 0 0 16px;
+  color: var(--ink);
+  font-family: "Manrope", sans-serif;
+  font-size: 18px;
+}
+
+.gestao-eventos-perfil-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.gestao-eventos-perfil-grid .wide { grid-column: 1 / -1; }
+
+.gestao-eventos-perfil-grid label {
+  display: grid;
+  gap: 4px;
+}
+
+.gestao-eventos-perfil-grid label > span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.gestao-eventos-perfil-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.gestao-eventos-perfil-actions .primary-action {
+  min-height: 38px;
+}
+
+@media (max-width: 600px) {
+  .gestao-eventos-perfil-grid { grid-template-columns: 1fr; }
+  .gestao-eventos-topbar { padding: 12px 16px; }
+  .gestao-eventos-perfil-section { padding: 16px; }
+  .gestao-eventos-content { padding: 16px; }
+}

@@ -37,7 +37,7 @@ class AdminSessionMiddleware:
         ))
 
         # Determinar qual cookie usar para ESTE request
-        if is_admin_contingency or is_react_admin_auth or (is_react_admin_api and request.COOKIES.get(_ADMIN_SESSION_COOKIE)):
+        if is_admin_contingency or is_react_admin_auth or is_react_admin_api:
             cookie_name = _ADMIN_SESSION_COOKIE
         else:
             cookie_name = _STUDENT_SESSION_COOKIE

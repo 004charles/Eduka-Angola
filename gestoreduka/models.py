@@ -1081,3 +1081,44 @@ class AuditoriaCentro(models.Model):
 
     def __str__(self):
         return f"{self.acao} - {self.entidade} - {self.criado_em:%d/%m/%Y %H:%M}"
+
+
+class ConviteEventos(models.Model):
+    """Código de acesso para gestores de eventos independentes (sem centro de formação)."""
+    codigo = models.CharField(_('Código'), max_length=8, unique=True, validators=[MinLengthValidator(8)])
+    nome_organizacao = models.CharField(_('Nome da Organização/Empresa'), max_length=200)
+    email_gestor = models.EmailField(_('Email do Gestor'), blank=True)
+    telefone = models.CharField(_('Telefone'), max_length=30, blank=True)
+    endereco = models.CharField(_('Endereço'), max_length=300, blank=True)
+    descricao = models.TextField(_('Descrição da Organização'), blank=True)
+    logo = models.ImageField(_('Logo'), upload_to='convites_eventos/logos/', blank=True)
+    criado_por = models.ForeignKey(
+        'usuarios.Usuario',
+        on_delete=models.CASCADE,
+        related_name='convites_eventos_criados'
+    )
+    ativo = models.BooleanField(_('Ativo'), default=True, db_index=True)
+    usado_em = models.DateTimeField(_('Usado em'), blank=True, null=True)
+    expira_em = models.DateTimeField(_('Expira em'), blank=True, null=True)
+    criado_em = models.DateTimeField(_('Criado em'), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('Convite de Eventos')
+        verbose_name_plural = _('Convites de Eventos')
+        ordering = ['-criado_em']
+
+    def __str__(self):
+        return f"{self.codigo} - {self.nome_organizacao}"
+
+    @property
+    def esta_valido(self):
+        if not self.ativo:
+            return False
+        if self.expira_em and self.expira_em < timezone.now():
+            return False
+        return True
+
+    def save(self, *args, **kwargs):
+        if not self.codigo:
+            self.codigo = uuid.uuid4().hex[:8].upper()
+        super().save(*args, **kwargs)

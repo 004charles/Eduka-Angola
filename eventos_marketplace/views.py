@@ -222,3 +222,75 @@ def meus_bilhetes(request):
                 'detalhe_url': f'/eventos/{evento.slug}',
             })
     return JsonResponse({'bilhetes': itens})
+
+
+@require_POST
+def validar_bilhete(request):
+    """Validar um bilhete pelo código QR para check-in."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'nao_autenticado', 'erro': 'É necessário estar logado.'}, status=401)
+    
+    try:
+        payload = json.loads(request.body or "{}")
+        codigo = str(payload.get("codigo", "")).strip()
+        if not codigo:
+            return JsonResponse({'status': 'codigo_vazio', 'erro': 'Código informado está vazio.'}, status=400)
+        
+        # Buscar o bilhete pelo código UUID
+        bilhete = None
+        try:
+            from uuid import UUID
+            uuid_obj = UUID(codigo)
+            bilhete = Bilhete.objects.select_related('pedido', 'pedido__evento', 'pedido__lote').get(codigo=uuid_obj)
+        except (ValueError, Bilhete.DoesNotExist):
+            # Tentar como string direta se UUID falhar
+            bilhete = Bilhete.objects.select_related('pedido', 'pedido__evento', 'pedido__lote').get(codigo__iexact=codigo)
+        
+        # Verificar status do bilhete
+        if bilhete.status == "UTILIZADO":
+            return JsonResponse({
+                'status': 'ja_utilizado',
+                'erro': 'Este bilhete já foi utilizado anteriormente.',
+                'data_validacao': bilhete.data_validacao.isoformat() if bilhete.data_validacao else '',
+                'validado_por': bilhete.pedido.utilizador.nome if bilhete.pedido.utilizador else 'Operador'
+            })
+        
+        if bilhete.status != "VALIDO":
+            return JsonResponse({
+                'status': 'invalido',
+                'erro': 'Este bilhete não está em estado válido para uso.',
+                'status_atual': bilhete.status
+            })
+        
+        # Marcar como utilizado
+        from django.utils import timezone
+        bilhete.status = "UTILIZADO"
+        bilhete.data_validacao = timezone.now()
+        # Registrar quem validou (pode ser o próprio usuário ou o operador)
+        if request.user.is_authenticated:
+            bilhete.pedido.utilizador = request.user
+        bilhete.save()
+        
+        # Atualizar status do pedido se todos os bilhetes foram utilizados
+        pedido = bilhete.pedido
+        total_utilizados = pedido.bilhetes.filter(status="UTILIZADO").count()
+        if total_utilizados >= pedido.quantidade:
+            pedido.status = "EXPIRADO"  # ou "CONFIRMADO" dependendo da regra de negócio
+            pedido.save()
+        
+        return JsonResponse({
+            'status': 'validado',
+            'bilhete': {
+                'codigo': str(bilhete.codigo),
+                'status': bilhete.get_status_display(),
+                'evento': bilhete.pedido.evento.titulo,
+                'lote': bilhete.lote.nome,
+                'data_validacao': bilhete.data_validacao.isoformat(),
+            },
+            'participante': bilhete.nome_participante,
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'erro_json', 'erro': 'Dados JSON inválidos.'}, status=400)
+    except Exception as error:
+        return JsonResponse({'status': 'erro', 'erro': str(error)}, status=500)

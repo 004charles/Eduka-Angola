@@ -14,7 +14,7 @@ export default function AdminConsolePage({ onNavigate, theme, onThemeChange }) {
   const { refreshNow, lastUpdated, syncing } = useAdminAutoRefresh(load, { interval: 15000, enabled: Boolean(data) || !error });
   const max = useMemo(() => Math.max(1, ...(data?.atividade_pagamentos || []).map((item) => item.total)), [data]);
   const toggleModule = async (module) => { setBusy(module.chave); try { await authRequest("/api/react/administracao/modulos/", { chave: module.chave, ativo: !module.ativo }); await refreshNow(); } catch (reason) { setError(reason.message); } finally { setBusy(""); } };
-  if (error && !data) return <AdminAccessPage message={error} onAuthenticated={refreshNow} />;
+  if (error && !data) return <AdminAccessPage message={error} onAuthenticated={() => load()} />;
   if (!data) return <main className="admin-console"><p className="admin-loading">A preparar o centro de controlo…</p></main>;
   const metrics = [{ label: "Alunos activos", value: data.metricas.alunos, icon: UsersRound, tone: "violet" }, { label: "Centros activos", value: data.metricas.centros_ativos, icon: Building2, tone: "blue" }, { label: "Cursos publicados", value: data.metricas.cursos_publicados, icon: BookOpenCheck, tone: "amber" }, { label: "Inscrições activas", value: data.metricas.inscricoes_ativas, icon: GraduationCap, tone: "green" }];
   const activeModules = data.modulos.filter((module) => module.ativo).length; const updatedText = lastUpdated ? lastUpdated.toLocaleTimeString("pt-AO", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "a sincronizar";

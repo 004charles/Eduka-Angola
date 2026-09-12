@@ -166,4 +166,12 @@ urlpatterns = [
     # Comentários e Dúvidas
     path('comentarios/', views.gerenciar_comentarios, name='gerenciar_comentarios'),
     path('comentarios/responder/<int:comentario_id>/', views.responder_comentario, name='responder_comentario'),
+
+    # Sistema de Convites para Gestão de Eventos Independente
+    path('api/react/convites-eventos/', views.react_gerar_convite_eventos, name='react_gerar_convite_eventos'),
+    path('api/react/convites-eventos/validar/', views.react_validar_convite_eventos, name='react_validar_convite_eventos'),
+    path('api/react/convites-eventos/logout/', views.react_logout_convite_eventos, name='react_logout_convite_eventos'),
+    path('api/react/eventos-independente/', views.react_gestor_eventos_independente, name='react_gestor_eventos_independente'),
+    path('api/react/eventos-independente/<int:evento_id>/', views.react_gestor_evento_independente_detail, name='react_gestor_evento_independente_detail'),
+    path('api/react/perfil-organizacao/', views.react_perfil_organizacao_eventos, name='react_perfil_organizacao_eventos'),
 ]
