@@ -6182,11 +6182,23 @@ def react_validar_convite_eventos(request):
     convite.usado_em = timezone.now()
     convite.save(update_fields=['usado_em'])
 
+    # Criar ou obter OrganizadorEvento para o marketplace de bilhetes
+    from eventos_marketplace.models import OrganizadorEvento
+    organizador, _ = OrganizadorEvento.objects.get_or_create(
+        slug=f"convite-{convite.id}",
+        defaults={
+            'nome': convite.nome_organizacao,
+            'email': convite.email_gestor or '',
+            'tipo': 'OUTRO',
+        },
+    )
+
     request.session['convite_eventos'] = {
         'convite_id': convite.id,
         'codigo': convite.codigo,
         'nome_organizacao': convite.nome_organizacao,
     }
+    request.session['organizador_evento_id'] = organizador.id
     request.session.save()
 
     return JsonResponse({
@@ -6205,7 +6217,9 @@ def react_logout_convite_eventos(request):
     """Termina a sessão de um gestor de eventos independente."""
     if 'convite_eventos' in request.session:
         del request.session['convite_eventos']
-        request.session.save()
+    if 'organizador_evento_id' in request.session:
+        del request.session['organizador_evento_id']
+    request.session.save()
     return JsonResponse({'ok': True})
 
 

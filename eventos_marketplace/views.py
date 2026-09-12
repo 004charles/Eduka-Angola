@@ -4,12 +4,13 @@ from decimal import Decimal
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.db.models import Count, Sum, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
-from .models import EventoMarketplace, LoteBilhete, PedidoBilhete
+from .models import Bilhete, EventoMarketplace, LoteBilhete, OrganizadorEvento, PedidoBilhete
 from pagamentos.services import PagamentoException, get_payment_service
 
 
@@ -251,8 +252,8 @@ def validar_bilhete(request):
             return JsonResponse({
                 'status': 'ja_utilizado',
                 'erro': 'Este bilhete já foi utilizado anteriormente.',
-                'data_validacao': bilhete.data_validacao.isoformat() if bilhete.data_validacao else '',
-                'validado_por': bilhete.pedido.utilizador.nome if bilhete.pedido.utilizador else 'Operador'
+                'data_validacao': bilhete.utilizado_em.isoformat() if bilhete.utilizado_em else '',
+                'validado_por': bilhete.pedido.utilizador.get_full_name() or bilhete.pedido.utilizador.get_username() if bilhete.pedido.utilizador else 'Operador'
             })
         
         if bilhete.status != "VALIDO":
@@ -263,9 +264,8 @@ def validar_bilhete(request):
             })
         
         # Marcar como utilizado
-        from django.utils import timezone
         bilhete.status = "UTILIZADO"
-        bilhete.data_validacao = timezone.now()
+        bilhete.utilizado_em = timezone.now()
         # Registrar quem validou (pode ser o próprio usuário ou o operador)
         if request.user.is_authenticated:
             bilhete.pedido.utilizador = request.user
@@ -285,7 +285,7 @@ def validar_bilhete(request):
                 'status': bilhete.get_status_display(),
                 'evento': bilhete.pedido.evento.titulo,
                 'lote': bilhete.lote.nome,
-                'data_validacao': bilhete.data_validacao.isoformat(),
+                'data_validacao': bilhete.utilizado_em.isoformat(),
             },
             'participante': bilhete.nome_participante,
         })
@@ -294,3 +294,461 @@ def validar_bilhete(request):
         return JsonResponse({'status': 'erro_json', 'erro': 'Dados JSON inválidos.'}, status=400)
     except Exception as error:
         return JsonResponse({'status': 'erro', 'erro': str(error)}, status=500)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# MANAGEMENT APIS — Gestão de Eventos (organizador independente / centro)
+# ──────────────────────────────────────────────────────────────────────────────
+
+def _get_organizador(request):
+    """Resolve o organizador a partir da sessão ou do utilizador autenticado."""
+    org_id = request.session.get("organizador_evento_id")
+    if org_id:
+        try:
+            return OrganizadorEvento.objects.get(id=org_id, ativo=True)
+        except OrganizadorEvento.DoesNotExist:
+            pass
+    if request.user.is_authenticated:
+        org, _ = OrganizadorEvento.objects.get_or_create(
+            slug=f"user-{request.user.id}",
+            defaults={
+                "nome": getattr(request.user, "nome", "") or request.user.get_username(),
+                "email": request.user.email or "",
+                "tipo": "OUTRO",
+            },
+        )
+        return org
+    return None
+
+
+def _organizador_evento_check(evento, organizador):
+    """Verifica se o evento pertence ao organizador."""
+    return evento.organizador_id == organizador.id
+
+
+def _evento_dashboard_data(evento):
+    """Calcula estatísticas do evento."""
+    lotes = evento.lotes.all()
+    pedidos = evento.pedidos.all()
+    bilhetes = Bilhete.objects.filter(pedido__evento=evento)
+
+    total_lotes = lotes.aggregate(
+        total=Sum("quantidade_total"),
+        vendida=Sum("quantidade_vendida"),
+    )
+    total_capacidade = total_lotes["total"] or 0
+    total_vendidos = total_lotes["vendida"] or 0
+    total_disponivel = max(total_capacidade - total_vendidos, 0)
+
+    bilhetes_pagos = bilhetes.filter(pedido__status="PAGO")
+    checkins = bilhetes_pagos.filter(status="UTILIZADO")
+    receita = pedidos.filter(status="PAGO").aggregate(
+        total=Sum("valor_bruto")
+    )["total"] or Decimal("0.00")
+
+    ocupacao = round((total_vendidos / total_capacidade * 100), 1) if total_capacidade > 0 else 0
+
+    return {
+        "evento": {
+            "id": evento.id,
+            "titulo": evento.titulo,
+            "slug": evento.slug,
+            "status": evento.status,
+            "data_inicio": evento.data_inicio.isoformat(),
+            "data_fim": evento.data_fim.isoformat() if evento.data_fim else "",
+            "local": evento.local,
+            "cidade": evento.cidade,
+            "modalidade": evento.modalidade,
+            "imagem_url": _media_url(evento.imagem_capa),
+            "descricao": evento.descricao,
+            "resumo": evento.resumo,
+            "categoria": evento.categoria,
+            "comissao_percentual": str(evento.comissao_percentual),
+        },
+        "stats": {
+            "capacidade": total_capacidade,
+            "bilhetes_vendidos": total_vendidos,
+            "bilhetes_disponiveis": total_disponivel,
+            "checkins": checkins.count(),
+            "receita": str(receita),
+            "moeda": lotes.first().moeda if lotes.exists() else "AOA",
+            "ocupacao": ocupacao,
+            "total_pedidos": pedidos.count(),
+            "pedidos_pagos": pedidos.filter(status="PAGO").count(),
+            "pedidos_cancelados": pedidos.filter(status="CANCELADO").count(),
+        },
+        "lotes": [{
+            "id": lote.id,
+            "nome": lote.nome,
+            "preco": str(lote.preco),
+            "moeda": lote.moeda,
+            "quantidade_total": lote.quantidade_total,
+            "quantidade_vendida": lote.quantidade_vendida,
+            "lugares_disponiveis": lote.lugares_disponiveis,
+            "activo": lote.activo,
+            "percentual_vendido": round(lote.quantidade_vendida / lote.quantidade_total * 100, 1) if lote.quantidade_total > 0 else 0,
+        } for lote in lotes],
+    }
+
+
+def _lote_payload(lote):
+    return {
+        "id": lote.id,
+        "nome": lote.nome,
+        "descricao": lote.descricao,
+        "texto_ingresso": lote.texto_ingresso,
+        "beneficios": lote.beneficios,
+        "regras": lote.regras,
+        "cor_primaria": lote.cor_primaria,
+        "cor_secundaria": lote.cor_secundaria,
+        "preco": str(lote.preco),
+        "moeda": lote.moeda,
+        "quantidade_total": lote.quantidade_total,
+        "quantidade_vendida": lote.quantidade_vendida,
+        "lugares_disponiveis": lote.lugares_disponiveis,
+        "activo": lote.activo,
+        "inicio_vendas": lote.inicio_vendas.isoformat() if lote.inicio_vendas else "",
+        "fim_vendas": lote.fim_vendas.isoformat() if lote.fim_vendas else "",
+        "ordem": lote.ordem,
+        "percentual_vendido": round(lote.quantidade_vendida / lote.quantidade_total * 100, 1) if lote.quantidade_total > 0 else 0,
+    }
+
+
+def _pedido_payload(pedido):
+    return {
+        "id": pedido.id,
+        "referencia": pedido.referencia,
+        "nome_comprador": pedido.nome_comprador,
+        "email_comprador": pedido.email_comprador,
+        "telefone_comprador": pedido.telefone_comprador,
+        "quantidade": pedido.quantidade,
+        "valor_bruto": str(pedido.valor_bruto),
+        "valor_comissao": str(pedido.valor_comissao),
+        "moeda": pedido.moeda,
+        "status": pedido.status,
+        "lote_nome": pedido.lote.nome,
+        "criado_em": pedido.criado_em.isoformat(),
+        "pago_em": pedido.pago_em.isoformat() if pedido.pago_em else "",
+    }
+
+
+def _bilhete_payload(bilhete):
+    return {
+        "id": bilhete.id,
+        "codigo": str(bilhete.codigo),
+        "nome_participante": bilhete.nome_participante,
+        "email_participante": bilhete.email_participante,
+        "status": bilhete.status,
+        "lote_nome": bilhete.lote.nome,
+        "pedido_referencia": bilhete.pedido.referencia,
+        "emitido_em": bilhete.emitido_em.isoformat(),
+        "utilizado_em": bilhete.utilizado_em.isoformat() if bilhete.utilizado_em else "",
+    }
+
+
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def gestao_evento_dashboard(request, evento_id):
+    """Dashboard/visão geral de um evento específico."""
+    organizador = _get_organizador(request)
+    if not organizador:
+        return JsonResponse({"detail": "Sessão inválida."}, status=401)
+    evento = get_object_or_404(EventoMarketplace, id=evento_id)
+    if not _organizador_evento_check(evento, organizador):
+        return JsonResponse({"detail": "Sem permissão."}, status=403)
+    return JsonResponse(_evento_dashboard_data(evento))
+
+
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
+def gestao_evento_lotes(request, evento_id):
+    """Lista e cria tipos de bilhete (LoteBilhete) de um evento."""
+    organizador = _get_organizador(request)
+    if not organizador:
+        return JsonResponse({"detail": "Sessão inválida."}, status=401)
+    evento = get_object_or_404(EventoMarketplace, id=evento_id)
+    if not _organizador_evento_check(evento, organizador):
+        return JsonResponse({"detail": "Sem permissão."}, status=403)
+
+    if request.method == "GET":
+        lotes = evento.lotes.all().order_by("ordem", "preco")
+        return JsonResponse({"lotes": [_lote_payload(l) for l in lotes]})
+
+    try:
+        payload = json.loads(request.body or "{}")
+    except (TypeError, ValueError):
+        return JsonResponse({"detail": "JSON inválido."}, status=400)
+
+    nome = str(payload.get("nome", "")).strip()
+    preco = payload.get("preco")
+    quantidade = payload.get("quantidade_total")
+    if not nome or preco is None or not quantidade:
+        return JsonResponse({"detail": "Nome, preço e quantidade são obrigatórios."}, status=400)
+
+    try:
+        preco = Decimal(str(preco))
+        quantidade = int(quantidade)
+    except (TypeError, ValueError):
+        return JsonResponse({"detail": "Preço ou quantidade inválidos."}, status=400)
+
+    if quantidade < 1:
+        return JsonResponse({"detail": "Quantidade deve ser pelo menos 1."}, status=400)
+
+    lote = LoteBilhete.objects.create(
+        evento=evento,
+        nome=nome,
+        descricao=str(payload.get("descricao", "")).strip(),
+        texto_ingresso=str(payload.get("texto_ingresso", "")).strip(),
+        beneficios=str(payload.get("beneficios", "")).strip(),
+        regras=str(payload.get("regras", "")).strip(),
+        cor_primaria=str(payload.get("cor_primaria", "#0F6B8A")),
+        cor_secundaria=str(payload.get("cor_secundaria", "#EAF8FA")),
+        preco=preco,
+        moeda=str(payload.get("moeda", "AOA")),
+        quantidade_total=quantidade,
+        activo=bool(payload.get("activo", True)),
+        inicio_vendas=payload.get("inicio_vendas") or None,
+        fim_vendas=payload.get("fim_vendas") or None,
+        ordem=payload.get("ordem", 0),
+    )
+    return JsonResponse({"ok": True, "lote": _lote_payload(lote)}, status=201)
+
+
+@csrf_exempt
+@require_http_methods(["PATCH", "DELETE"])
+def gestao_evento_lote_detail(request, evento_id, lote_id):
+    """Edita ou remove um tipo de bilhete."""
+    organizador = _get_organizador(request)
+    if not organizador:
+        return JsonResponse({"detail": "Sessão inválida."}, status=401)
+    evento = get_object_or_404(EventoMarketplace, id=evento_id)
+    if not _organizador_evento_check(evento, organizador):
+        return JsonResponse({"detail": "Sem permissão."}, status=403)
+    lote = get_object_or_404(LoteBilhete, id=lote_id, evento=evento)
+
+    if request.method == "DELETE":
+        if lote.quantidade_vendida > 0:
+            return JsonResponse({"detail": "Não é possível remover um lote com bilhetes vendidos."}, status=400)
+        lote.delete()
+        return JsonResponse({"ok": True})
+
+    try:
+        payload = json.loads(request.body or "{}")
+    except (TypeError, ValueError):
+        return JsonResponse({"detail": "JSON inválido."}, status=400)
+
+    if "nome" in payload:
+        lote.nome = str(payload["nome"]).strip()
+    if "descricao" in payload:
+        lote.descricao = str(payload["descricao"]).strip()
+    if "texto_ingresso" in payload:
+        lote.texto_ingresso = str(payload["texto_ingresso"]).strip()
+    if "beneficios" in payload:
+        lote.beneficios = str(payload["beneficios"]).strip()
+    if "regras" in payload:
+        lote.regras = str(payload["regras"]).strip()
+    if "cor_primaria" in payload:
+        lote.cor_primaria = str(payload["cor_primaria"])
+    if "cor_secundaria" in payload:
+        lote.cor_secundaria = str(payload["cor_secundaria"])
+    if "preco" in payload:
+        lote.preco = Decimal(str(payload["preco"]))
+    if "quantidade_total" in payload:
+        nova_qtd = int(payload["quantidade_total"])
+        if nova_qtd < lote.quantidade_vendida:
+            return JsonResponse({"detail": f"Quantidade não pode ser inferior aos {lote.quantidade_vendida} bilhetes já vendidos."}, status=400)
+        lote.quantidade_total = nova_qtd
+    if "activo" in payload:
+        lote.activo = bool(payload["activo"])
+    if "inicio_vendas" in payload:
+        lote.inicio_vendas = payload["inicio_vendas"] or None
+    if "fim_vendas" in payload:
+        lote.fim_vendas = payload["fim_vendas"] or None
+    if "ordem" in payload:
+        lote.ordem = int(payload["ordem"])
+    lote.save()
+    return JsonResponse({"ok": True, "lote": _lote_payload(lote)})
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def gestao_evento_vendas(request, evento_id):
+    """Lista pedidos/vendas de um evento."""
+    organizador = _get_organizador(request)
+    if not organizador:
+        return JsonResponse({"detail": "Sessão inválida."}, status=401)
+    evento = get_object_or_404(EventoMarketplace, id=evento_id)
+    if not _organizador_evento_check(evento, organizador):
+        return JsonResponse({"detail": "Sem permissão."}, status=403)
+
+    status_filter = request.GET.get("status", "")
+    q = PedidoBilhete.objects.filter(evento=evento).select_related("lote")
+    if status_filter:
+        q = q.filter(status=status_filter)
+
+    search = request.GET.get("q", "").strip()
+    if search:
+        q = q.filter(
+            Q(nome_comprador__icontains=search) |
+            Q(email_comprador__icontains=search) |
+            Q(referencia__icontains=search)
+        )
+
+    pedidos = q.order_by("-criado_em")
+    return JsonResponse({
+        "pedidos": [_pedido_payload(p) for p in pedidos],
+        "total": pedidos.count(),
+    })
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def gestao_evento_participantes(request, evento_id):
+    """Lista participantes (bilhetes) de um evento."""
+    organizador = _get_organizador(request)
+    if not organizador:
+        return JsonResponse({"detail": "Sessão inválida."}, status=401)
+    evento = get_object_or_404(EventoMarketplace, id=evento_id)
+    if not _organizador_evento_check(evento, organizador):
+        return JsonResponse({"detail": "Sem permissão."}, status=403)
+
+    status_filter = request.GET.get("status", "")
+    q = Bilhete.objects.filter(pedido__evento=evento).select_related("lote", "pedido")
+    if status_filter:
+        q = q.filter(status=status_filter)
+
+    search = request.GET.get("q", "").strip()
+    if search:
+        q = q.filter(
+            Q(nome_participante__icontains=search) |
+            Q(email_participante__icontains=search) |
+            Q(codigo__icontains=search)
+        )
+
+    bilhetes = q.order_by("-emitido_em")
+    return JsonResponse({
+        "participantes": [_bilhete_payload(b) for b in bilhetes],
+        "total": bilhetes.count(),
+        "checkins": bilhetes.filter(status="UTILIZADO").count(),
+    })
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def gestao_evento_upload_capa(request, evento_id):
+    """Upload de imagem de capa do evento."""
+    organizador = _get_organizador(request)
+    if not organizador:
+        return JsonResponse({"detail": "Sessão inválida."}, status=401)
+    evento = get_object_or_404(EventoMarketplace, id=evento_id)
+    if not _organizador_evento_check(evento, organizador):
+        return JsonResponse({"detail": "Sem permissão."}, status=403)
+
+    imagem = request.FILES.get("imagem_capa")
+    if not imagem:
+        return JsonResponse({"detail": "Nenhuma imagem enviada."}, status=400)
+
+    evento.imagem_capa = imagem
+    evento.save(update_fields=["imagem_capa"])
+    return JsonResponse({"ok": True, "imagem_url": _media_url(evento.imagem_capa)})
+
+
+@csrf_exempt
+@require_http_methods(["PATCH"])
+def gestao_evento_update(request, evento_id):
+    """Atualiza informações básicas do evento."""
+    organizador = _get_organizador(request)
+    if not organizador:
+        return JsonResponse({"detail": "Sessão inválida."}, status=401)
+    evento = get_object_or_404(EventoMarketplace, id=evento_id)
+    if not _organizador_evento_check(evento, organizador):
+        return JsonResponse({"detail": "Sem permissão."}, status=403)
+
+    try:
+        payload = json.loads(request.body or "{}")
+    except (TypeError, ValueError):
+        return JsonResponse({"detail": "JSON inválido."}, status=400)
+
+    updatable = ["titulo", "resumo", "descricao", "categoria", "modalidade", "local", "cidade", "provincia", "url_online", "status"]
+    for field in updatable:
+        if field in payload:
+            setattr(evento, field, payload[field])
+    evento.save()
+    return JsonResponse({"ok": True, "evento": _evento_dashboard_data(evento)["evento"]})
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def gestao_evento_criar(request):
+    """Cria um novo evento para o organizador."""
+    organizador = _get_organizador(request)
+    if not organizador:
+        return JsonResponse({"detail": "Sessão inválida."}, status=401)
+
+    try:
+        payload = json.loads(request.body or "{}")
+    except (TypeError, ValueError):
+        return JsonResponse({"detail": "JSON inválido."}, status=400)
+
+    titulo = str(payload.get("titulo", "")).strip()
+    descricao = str(payload.get("descricao", "")).strip()
+    data_inicio = payload.get("data_inicio")
+
+    if not titulo or not descricao or not data_inicio:
+        return JsonResponse({"detail": "Título, descrição e data de início são obrigatórios."}, status=400)
+
+    try:
+        dt_inicio = timezone.datetime.fromisoformat(str(data_inicio).replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        return JsonResponse({"detail": "Data de início inválida."}, status=400)
+
+    evento = EventoMarketplace.objects.create(
+        organizador=organizador,
+        titulo=titulo,
+        resumo=str(payload.get("resumo", "")).strip(),
+        descricao=descricao,
+        categoria=str(payload.get("categoria", "Geral")).strip(),
+        modalidade=str(payload.get("modalidade", "PRESENCIAL")),
+        data_inicio=dt_inicio,
+        local=str(payload.get("local", "")).strip(),
+        cidade=str(payload.get("cidade", "")).strip(),
+        provincia=str(payload.get("provincia", "")).strip(),
+        url_online=str(payload.get("url_online", "")).strip(),
+        status="RASCUNHO",
+    )
+    return JsonResponse({"ok": True, "evento": _evento_dashboard_data(evento)["evento"]}, status=201)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def gestao_eventos_lista(request):
+    """Lista todos os eventos do organizador."""
+    organizador = _get_organizador(request)
+    if not organizador:
+        return JsonResponse({"detail": "Sessão inválida."}, status=401)
+
+    eventos = EventoMarketplace.objects.filter(organizador=organizador).order_by("-data_inicio")
+    result = []
+    for ev in eventos:
+        lotes = ev.lotes.all()
+        total_vendidos = sum(l.quantidade_vendida for l in lotes)
+        total_capacidade = sum(l.quantidade_total for l in lotes)
+        result.append({
+            "id": ev.id,
+            "titulo": ev.titulo,
+            "slug": ev.slug,
+            "status": ev.status,
+            "data_inicio": ev.data_inicio.isoformat(),
+            "data_fim": ev.data_fim.isoformat() if ev.data_fim else "",
+            "local": ev.local,
+            "cidade": ev.cidade,
+            "modalidade": ev.modalidade,
+            "imagem_url": _media_url(ev.imagem_capa),
+            "bilhetes_vendidos": total_vendidos,
+            "capacidade": total_capacidade,
+        })
+    return JsonResponse({"eventos": result})

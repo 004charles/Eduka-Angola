@@ -1,106 +1,52 @@
-import { Heart, CheckCircle2, XCircle2, AlertCircle, Loader2, User } from "lucide-react";
-import { useEffect, useState } from "react";
+import { CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { useState } from "react";
 import "./check-in-panel.css";
 
 const csrfToken = () => document.cookie.split(";").map((part) => part.trim()).find((part) => part.startsWith("csrftoken="))?.split("=")[1] || "";
 
-export default function CheckInPanel({ onTicketValidated }) {
+export default function CheckInPanel() {
   const [code, setCode] = useState("");
-  const [status, setStatus] = useState(""); // "valid", "used", "invalid"
-  const [ticket, setTicket] = useState(null);
+  const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  const validarTicket = async () => {
-    if (!code.trim()) {
-      setError("Por favor, informe o código do bilhete");
-      return;
-    }
-    setLoading(true);
-    setError("");
+  const validar = async () => {
+    if (!code.trim()) return;
+    setLoading(true); setResult(null);
     try {
-      const response = await fetch("/api/public/eventos/validar-bilhete/", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrfToken(),
-        },
+      const res = await fetch("/api/public/eventos/validar-bilhete/", {
+        method: "POST", credentials: "include",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken() },
         body: JSON.stringify({ codigo: code.trim() }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || "Erro ao validar bilhete");
-      
-      setTicket(data.bilhete);
-      setStatus(data.status);
-      
-      if (onTicketValidated) {
-        onTicketValidated(data);
-      }
-    } catch (reason) {
-      setStatus("invalid");
-      setError(reason.message || "Bilhete inválido ou já utilizado");
-    } finally {
-      setLoading(false);
-    }
+      const data = await res.json();
+      setResult(data);
+    } catch { setResult({ status: "invalido", erro: "Erro de conexão." }); }
+    setLoading(false);
   };
+
+  const statusColor = result?.status === "validado" ? "valid" : result?.status === "ja_utilizado" ? "used" : "invalid";
 
   return (
     <div className="check-in-panel">
-      <div className="check-in-header">
-        <h2>Validação de Entrada</h2>
-        <p>Escaneie ou informe o código do bilhete</p>
-      </div>
-      
       <div className="check-in-input">
-        <input
-          type="text"
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          placeholder="Código do bilhete ou QR Code"
-          disabled={loading}
-          aria-label="Código do bilhete"
-        />
-        <button onClick={validarTicket} disabled={loading || !code.trim()}>
-          {loading ? "Validando..." : "Validar"}
+        <input type="text" value={code} onChange={(e) => setCode(e.target.value)}
+          placeholder="Código do bilhete (UUID)" disabled={loading}
+          onKeyDown={(e) => e.key === "Enter" && validar()} autoFocus />
+        <button onClick={validar} disabled={loading || !code.trim()} className="primary-action">
+          {loading ? "A validar..." : "Validar"}
         </button>
       </div>
-      
-      {status === "valid" && (
-        <div className="check-in-result valid">
-          <CheckCircle2 size={48} />
-          <h3>Entrada Autorizada</h3>
-          <p>{ticket.evento.titulo}</p>
-          <p>Titular: {ticket.nome_comprador}</p>
-          <p>Lote: {ticket.lote.nome}</p>
-          <button onClick={() => setCode("")} className="btn-continue">Outro bilhete</button>
+
+      {result && (
+        <div className={`check-in-result ${statusColor}`}>
+          {statusColor === "valid" && <><CheckCircle2 size={48} /><h3>Entrada Autorizada</h3><p><strong>{result.participante}</strong></p><p>{result.bilhete?.lote} · {result.bilhete?.evento}</p></>}
+          {statusColor === "used" && <><XCircle size={48} /><h3>Bilhete Já Utilizado</h3><p>{result.erro}</p>{result.data_validacao && <small>Utilizado em: {new Date(result.data_validacao).toLocaleString("pt-AO")}</small>}</>}
+          {statusColor === "invalid" && <><AlertCircle size={48} /><h3>Bilhete Inválido</h3><p>{result.erro || "Código não encontrado"}</p></>}
+          <button onClick={() => { setCode(""); setResult(null); }} className="text-action">Outro bilhete</button>
         </div>
       )}
-      
-      {status === "used" && (
-        <div className="check-in-result used">
-          <XCircle2 size={48} />
-          <h3>Bilhete Já Utilizado</h3>
-          <p>Este bilhete já foi validado anteriormente</p>
-          <p>Data: {ticket ? ticket.data_validacao : "—"}</p>
-          <button onClick={() => setCode("")} className="btn-continue">Outro bilhete</button>
-        </div>
-      )}
-      
-      {status === "invalid" && (
-        <div className="check-in-result invalid">
-          <AlertCircle size={48} />
-          <h3>Bilhete Inválido</h3>
-          <p>{error || "Código não encontrado ou expirado"}</p>
-          <button onClick={() => setCode("")} className="btn-continue">Outro bilhete</button>
-        </div>
-      )}
-      
-      {!status && !error && !loading && (
-        <div className="check-in-hint">
-          <p>Informe o código de 8-16 dígitos ou escaneie o QR Code</p>
-        </div>
-      )}
+
+      {!result && !loading && <p className="check-in-hint">Informe o código UUID do bilhete ou escaneie o QR Code</p>}
     </div>
   );
 }
